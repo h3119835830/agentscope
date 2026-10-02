@@ -1,0 +1,43 @@
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+actplane/.envrc
+actplane/.mcp.json
+actplane/.claude/
+actplane/.codex/
+actplane/docs/empirical-study/*.tsv
+*.pem
+*.key
+*.p12
+.e2e-*
+
+# Runtime data: never publish local databases, corpus imports, tasks, or logs
+*.sqlite
+*.sqlite3
+*.db
+*.db-wal
+*.db-shm
+*.jsonl
+*.log
+data/
+corpus/
+tasks/
+runtime/
+logs/
+
+# Python and frontend outputs
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+node_modules/
+frontend/dist/
+coverage/
+.pytest_cache/
+
+# ActPlane build/runtime outputs (keep checked-in CO-RE prebuilt objects)
+actplane/target/
+actplane/bpf/.output/
+actplane/.actplane/
+actplane/build/

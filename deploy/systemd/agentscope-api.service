@@ -1,0 +1,21 @@
+[Unit]
+Description=AgentScope policy control API
+After=network-online.target agentscope-broker.service
+Wants=network-online.target
+Requires=agentscope-broker.service
+
+[Service]
+Type=simple
+User=hezhipeng
+Group=agentscope-control
+SupplementaryGroups=agentscope-task
+WorkingDirectory=/opt/agentscope
+EnvironmentFile=/etc/agentscope/agentscope.env
+Environment=PYTHONPATH=/opt/agentscope/backend
+ExecStart=/opt/agentscope/.venv/bin/uvicorn agentscope_app.main:app --host 0.0.0.0 --port 8000
+Restart=on-failure
+RestartSec=3
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

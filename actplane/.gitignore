@@ -1,0 +1,52 @@
+.direnv
+.env
+/build
+/target
+ecapture
+res.txt
+save.log
+test_events.log
+ssl_analyzed.json
+__pycache__/
+ssl_timeline.json
+.venv/
+agentsight
+record.log
+record.log.*
+# Log files
+*.log
+
+# Log files
+*.log
+docs/blog
+
+node_modules/
+.actplane/
+
+# Local benchmark artifacts. Keep curated summaries under core-results/.
+docs/corpus-test/octobench-llama/__pycache__/
+docs/corpus-test/octobench-llama/logs/
+docs/corpus-test/octobench-llama/docs/
+docs/corpus-test/octobench-llama/mini-vela/
+docs/corpus-test/octobench-llama/results/
+docs/corpus-test/octobench-llama/litellm_config.local.yaml
+docs/corpus-test/octobench-llama/actplane-glibc231
+docs/corpus-test/openagentsafety_llama/**/results/
+docs/corpus-test/openagentsafety_llama/**/workspace/
+.claude/worktrees/
+
+# Clean OctoBench workspace: keep submodule, wrappers, policies, selected data,
+# reports, and compact summaries; ignore generated benchmark artifacts.
+docs/OctoBench/__pycache__/
+docs/OctoBench/results/
+docs/OctoBench/results-backup/
+docs/OctoBench/logs/
+docs/OctoBench/*.log
+docs/OctoBench/mini-vela/results/
+
+# Clean OpenAgentSafety workspace. Keep local wrappers, policies, and selected
+# data; keep the large official checkout and generated outputs local-only.
+docs/OpenAgentSafety/__pycache__/
+docs/OpenAgentSafety/results/
+docs/OpenAgentSafety/logs/
+docs/OpenAgentSafety/*.log

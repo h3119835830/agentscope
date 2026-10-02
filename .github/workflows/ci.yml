@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  python:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r backend/requirements-dev.txt
+      - run: PYTHONPATH=backend pytest -q backend/tests
+      - run: python -m compileall -q backend/agentscope_app backend/broker
+
+  frontend-and-plugin:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm --prefix frontend ci
+      - run: npm --prefix frontend run build
+      - run: node --check integrations/dsh-agentscope/lib/index.js
+      - run: node --check actplane/integrations/dsh-feedback/lib/index.js
+      - run: node -e "for (const p of ['./integrations/dsh-agentscope/package.json','./actplane/integrations/dsh-feedback/package.json']) JSON.parse(require('fs').readFileSync(p, 'utf8'))"
+
+  actplane:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - run: sudo apt-get update && sudo apt-get install -y build-essential clang llvm libelf-dev zlib1g-dev pkg-config
+      - uses: dtolnay/rust-toolchain@stable
+      - run: make -C actplane/bpf test
+      - run: cargo test --manifest-path actplane/Cargo.toml --workspace

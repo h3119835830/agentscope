@@ -1,0 +1,9 @@
+# ActPlane feedback bundle for DSH Web and headless profiles.
+# The package itself supplies the native plugin implementation; this layer
+# registers it in the composed DSH tree.
+- insert:
+    - id: actplane-feedback-native
+      name: '@actplane/dsh-feedback'
+      config:
+        binary: /usr/local/bin/actplane
+        timeoutMs: 5000

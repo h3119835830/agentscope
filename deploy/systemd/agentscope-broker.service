@@ -1,0 +1,18 @@
+[Unit]
+Description=AgentScope privileged ActPlane broker
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/opt/agentscope
+EnvironmentFile=/etc/agentscope/agentscope.env
+ExecStart=/usr/bin/python3 /opt/agentscope/backend/broker/main.py
+Restart=on-failure
+RestartSec=3
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

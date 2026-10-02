@@ -1,0 +1,21 @@
+version: 1
+
+feedback:
+  path: .actplane/last-violation.txt
+
+policy: |
+  source COMMAND = exec "**"
+
+  rule reviewer-write-fence:
+    kill write file "docs/**" if COMMAND unless target "docs/tmp/**"
+    kill write file "collector/**" if COMMAND
+    kill write file "bpf/**" if COMMAND
+    kill write file "actplane.yaml" if COMMAND
+    kill write file "CLAUDE.md" if COMMAND
+    kill write file ".claude/**" if COMMAND
+    because "Reviewer agent may only write to docs/tmp/. Write your output to docs/tmp/ instead."
+
+  rule no-git-branch:
+    kill exec "git" "branch"   if COMMAND
+    kill exec "git" "worktree" if COMMAND
+    because "This workspace forbids creating git branches or worktrees. Do not run git branch or git worktree."

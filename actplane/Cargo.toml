@@ -1,0 +1,8 @@
+[workspace]
+members = [
+    "bpf",
+    "crates/actplane-ifc-compiler",
+    "crates/actplane-runtime",
+    "crates/actplane-cli",
+]
+resolver = "2"
