@@ -75,7 +75,10 @@ def main():
        "AGENTSCOPE_URL":task_env["agentscope_url"],"NO_PROXY":"*","no_proxy":"*"})
     command=[args.dsh,"--profile",args.profile,args.prompt]
     try:
-        dsh=subprocess.Popen(command,cwd=args.workspace,env=env)
+        # DSH's sandbox binds its session cwd as its single writable root.
+        # Use this task's isolated root as the outer envelope; ActPlane still
+        # decides the approved repository/output permissions within that root.
+        dsh=subprocess.Popen(command,cwd=str(Path(args.workspace).parent),env=env)
     except Exception as e:
         print(f"AgentScope: unable to launch DSH: {e}",file=sys.stderr,flush=True); return 127
     print(f"AgentScope: DSH started pid={dsh.pid} profile={args.profile}",flush=True)

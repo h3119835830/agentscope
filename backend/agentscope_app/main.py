@@ -105,7 +105,11 @@ def build_policy_ir(task_id, strategy_ids, compile_state, compile_result, runtim
     }
 
 def build_agent_prompt(task, strategy_ids):
-    base=task["prompt"].strip()
+    project_context=(f"[AgentScope 工作区] 工作仓库：{task['workspace']}\n"
+                     f"隔离输出目录：{task['output_dir']}\n"
+                     "文件路径与命令工作目录以工作仓库为准；当前权限请读取任务 Scope。\n\n")
+    base=project_context+task["prompt"].strip()
+    if len(base)>8000: raise HTTPException(413,"任务提示词与工作区上下文超过 DSH 长度限制")
     with db.connect() as con:
         rows=[]
         if strategy_ids:
@@ -345,24 +349,32 @@ def task_runtime(task_id:str):
             for line in file.read_text(errors="replace").splitlines()[-500:]:
                 try: raw=json.loads(line)
                 except Exception: continue
-                reason=raw.get("reason") or raw.get("because") or raw.get("message") or json.dumps(raw,ensure_ascii=False)[:500]
+                rule_meta=raw.get("rule") if isinstance(raw.get("rule"),dict) else {}
+                reason=raw.get("reason") or raw.get("because") or raw.get("message") or rule_meta.get("reason") or json.dumps(raw,ensure_ascii=False)[:500]
                 op=raw.get("operation") or raw.get("op") or raw.get("kind")
                 target=raw.get("target") or raw.get("path") or raw.get("endpoint")
                 decision=raw.get("effect") or raw.get("decision") or raw.get("action")
                 key=hashlib.sha256(json.dumps(raw,sort_keys=True).encode()).hexdigest()
                 events.append({"id":key,"task_id":task_id,"kind":raw.get("type","policy_match"),"operation":op,"target":target,"decision":decision,"reason":reason,"occurred_at":raw.get("timestamp") or raw.get("time") or "", "raw":raw})
                 with db.connect() as con:
-                    con.execute("INSERT OR IGNORE INTO runtime_events(id,task_id,kind,operation,target,decision,reason,occurred_at,raw_json,dedupe_key) VALUES(?,?,?,?,?,?,?,?,?,?)",(uuid.uuid4().hex,task_id,raw.get("type","policy_match"),op,target,decision,str(reason),str(raw.get("timestamp") or raw.get("time") or db.now()),json.dumps(raw,ensure_ascii=False),key))
+                    con.execute("INSERT INTO runtime_events(id,task_id,kind,operation,target,decision,reason,occurred_at,raw_json,dedupe_key) VALUES(?,?,?,?,?,?,?,?,?,?) ON CONFLICT(dedupe_key) DO UPDATE SET reason=excluded.reason",(uuid.uuid4().hex,task_id,raw.get("type","policy_match"),op,target,decision,str(reason),str(raw.get("timestamp") or raw.get("time") or db.now()),json.dumps(raw,ensure_ascii=False),key))
         except Exception: pass
     if runtime.get("agent_status")=="exited" and task["status"]=="running":
+        exit_status=(runtime.get("child") or {}).get("status") or {}
+        exit_code=exit_status.get("code")
+        signal=exit_status.get("signal")
+        succeeded=type(exit_code) is int and exit_code==0 and signal is None
+        task["status"]="completed" if succeeded else "failed"
         try:
             broker_call({"action":"stop","task_id":task_id},timeout=12)
-            task["status"]="completed"
-        except Exception: pass
+            runtime["completion_cleanup"]="DSH 一次性会话已退出，ActPlane watch 已清理"
+        except Exception:
+            runtime["completion_cleanup"]="DSH 已退出；ActPlane watch 清理未确认"
+        runtime["execution_exit"]={"code":exit_code,"signal":signal,"succeeded":succeeded}
         with db.connect() as con:
-            con.execute("UPDATE tasks SET status='completed',ended_at=?,updated_at=? WHERE id=?",(db.now(),db.now(),task_id))
+            con.execute("UPDATE tasks SET status=?,ended_at=?,updated_at=? WHERE id=?",(task["status"],db.now(),db.now(),task_id))
+            db.audit(con,task_id,"task_execution_finished","AgentScope",runtime["execution_exit"])
         revoke_task_tokens(task_id)
-        runtime["completion_cleanup"]="DSH 一次性会话已退出，ActPlane watch 已清理"
     with db.connect() as con:
         stored=[dict(r) for r in con.execute("SELECT * FROM runtime_events WHERE task_id=? ORDER BY occurred_at DESC LIMIT 100",(task_id,)).fetchall()]
     return {"runtime":runtime,"events":stored or events,"task_status":task["status"]}

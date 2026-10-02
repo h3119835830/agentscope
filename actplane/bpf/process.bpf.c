@@ -12,6 +12,14 @@
 #include "process.h"
 
 char LICENSE[] SEC("license") = "Dual BSD/GPL";
+/* Keep the public event ABI unchanged while allowing task control/log paths
+ * longer than its bounded display field. Kernel sink patterns are <=64 bytes. */
+#ifdef ACTPLANE_LEGACY_KERNEL
+#define TE_PATH_BUFFER_LEN MAX_FILENAME_LEN
+#else
+#define TE_PATH_BUFFER_LEN 256
+#endif
+
 
 const volatile unsigned int enforce_mode = 0;
 const volatile unsigned int policy_features = 0;
@@ -20,6 +28,67 @@ const volatile unsigned int legacy_n_rules = 0, legacy_n_updates = 0;
 const volatile unsigned int legacy_n_file_rules = 0, legacy_n_file_updates = 0;
 const volatile unsigned int legacy_n_net_rules = 0, legacy_n_net_updates = 0;
 #endif
+
+/* User-space control and process maps use PIDs in the loader's namespace.
+ * The raw BPF helper uses initial-namespace IDs, which differ under WSL
+ * systemd and containers. Outside tasks must never alias a managed PID. */
+const volatile __u64 pidns_dev = 0;
+const volatile __u64 pidns_ino = 0;
+
+struct {
+	__uint(type, BPF_MAP_TYPE_ARRAY);
+	__uint(max_entries, 1);
+	__type(key, __u32);
+	__type(value, __u64);
+} te_pidns SEC(".maps");
+
+static __noinline pid_t te_task_pid(struct task_struct *task)
+{
+	struct pid *pid = BPF_CORE_READ(task, thread_pid);
+	__u32 level = BPF_CORE_READ(pid, level);
+
+	if (!task || !pid)
+		return 0;
+	if (!pidns_ino)
+		return BPF_CORE_READ(task, pid);
+	for (__u32 i = 0; i < 32; i++) {
+		struct upid number = {};
+
+		if (i > level)
+			break;
+		bpf_core_read(&number, sizeof(number), &pid->numbers[i]);
+		if (BPF_CORE_READ(number.ns, ns.inum) == pidns_ino)
+			return number.nr;
+	}
+	return 0;
+}
+
+static __always_inline pid_t te_task_tgid(struct task_struct *task)
+{
+	return te_task_pid(BPF_CORE_READ(task, group_leader));
+}
+
+
+static __always_inline __u64 te_current_pid_tgid(void)
+{
+	struct bpf_pidns_info info = {};
+	struct task_struct *task;
+	pid_t pid, tgid;
+
+	if (!pidns_ino)
+		return bpf_get_current_pid_tgid();
+	if (!bpf_get_ns_current_pid_tgid(pidns_dev, pidns_ino, &info, sizeof(info)))
+		return ((__u64)info.tgid << 32) | info.pid;
+	/* The helper only accepts the current active PID namespace. Sandboxed
+	 * descendants (for example bubblewrap) still have IDs in the loader's
+	 * ancestor namespace; resolve those IDs instead of dropping enforcement. */
+	task = (struct task_struct *)bpf_get_current_task();
+	pid = te_task_pid(task);
+	tgid = te_task_tgid(task);
+	if (pid <= 0 || tgid <= 0)
+		return 0;
+	return ((__u64)tgid << 32) | (__u32)pid;
+}
 
 #include "taint_engine.bpf.h"
 
@@ -480,7 +549,7 @@ struct {
 } ts_exec_pipe SEC(".maps");
 
 struct file_scratch {
-	char path[MAX_FILENAME_LEN];
+	char path[TE_PATH_BUFFER_LEN];
 	struct file_id fid;
 	struct file_id path_fid;
 	__u64 path_ptr;
@@ -1074,7 +1143,7 @@ static __always_inline void emit_violation(pid_t pid, unsigned int rule_id,
 		return;
 	v->type = EVENT_TYPE_TAINT_VIOLATION;
 	v->pid = pid;
-	v->ppid = BPF_CORE_READ(task, real_parent, tgid);
+	v->ppid = te_task_tgid(BPF_CORE_READ(task, real_parent));
 	v->blocked = blocked;
 	v->killed = killed;
 	v->effect = effect;
@@ -1100,10 +1169,12 @@ static __always_inline int file_path(struct file *file, char *path, int path_sz)
 	if (bpf_d_path(&file->f_path, path, path_sz) > 0)
 		return 0;
 
+#ifdef ACTPLANE_LEGACY_KERNEL
 	struct dentry *de = BPF_CORE_READ(file, f_path.dentry);
 	const unsigned char *name = BPF_CORE_READ(de, d_name.name);
 	if (name && bpf_probe_read_kernel_str(path, path_sz, name) > 0)
 		return 0;
+#endif
 	return -1;
 }
 
@@ -1117,6 +1188,7 @@ static __always_inline int file_basename(struct file *file, char *path,
 	return -1;
 }
 
+#ifdef ACTPLANE_LEGACY_KERNEL
 static __always_inline int path_to_str(const struct path *src, char *path,
 				       int path_sz)
 {
@@ -1200,6 +1272,171 @@ static __noinline int append_dentry_name(char *path, struct dentry *dentry,
 	path[MAX_FILENAME_LEN - 1] = '\0';
 	return 0;
 }
+
+#else
+struct path_copy_ctx {
+	char *dst;
+	const char *src;
+	__u32 dst_off, src_off, len;
+	int error;
+};
+
+static long copy_path_byte(__u32 i, void *data)
+{
+	struct path_copy_ctx *ctx = data;
+	__u32 from = ctx->src_off + i;
+	__u32 to = ctx->dst_off + i;
+
+	if (i >= ctx->len)
+		return 1;
+	barrier_var(from);
+	barrier_var(to);
+	if (from >= TE_PATH_BUFFER_LEN || to >= TE_PATH_BUFFER_LEN) {
+		ctx->error = 1;
+		return 1;
+	}
+	ctx->dst[to] = ctx->src[from];
+	return 0;
+}
+
+static __noinline int copy_path_range(char *dst, __u32 dst_off,
+                                      const char *src, __u32 src_off, __u32 len)
+{
+	struct path_copy_ctx ctx = {
+		.dst = dst, .src = src, .dst_off = dst_off,
+		.src_off = src_off, .len = len,
+	};
+	long n = bpf_loop(TE_PATH_BUFFER_LEN, copy_path_byte, &ctx, 0);
+
+	return n < 0 || ctx.error ? -1 : 0;
+}
+
+struct path_name_scratch {
+	char name[TE_PATH_BUFFER_LEN];
+};
+struct {
+	__uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
+	__uint(max_entries, 1);
+	__type(key, __u32);
+	__type(value, struct path_name_scratch);
+} ts_path_name SEC(".maps");
+
+/* Path LSM hooks cannot call bpf_d_path on Linux 6.6. Resolve the
+ * kernel path relative to the current task's root, including mount crossings.
+ * Never fall back to a basename: that would bypass absolute-path rules. */
+static __noinline int prepend_path_component(char *path, struct dentry *de,
+                                             __u32 pos)
+{
+	__u32 key = 0;
+	struct path_name_scratch *scratch = bpf_map_lookup_elem(&ts_path_name, &key);
+	const unsigned char *src = BPF_CORE_READ(de, d_name.name);
+	__u32 len = BPF_CORE_READ(de, d_name.len);
+	int n;
+
+	if (!scratch || !src || !len || len >= TE_PATH_BUFFER_LEN - 1 || len >= pos)
+		return -1;
+	n = bpf_probe_read_kernel_str(scratch->name, sizeof(scratch->name), src);
+	if (n != len + 1)
+		return -1;
+	pos -= len;
+	if (copy_path_range(path, pos, scratch->name, 0, len) < 0)
+		return -1;
+	if (!pos)
+		return -1;
+	pos--;
+	barrier_var(pos);
+	if (pos >= TE_PATH_BUFFER_LEN)
+		return -1;
+	path[pos] = '/';
+	return pos;
+}
+
+static __noinline int path_to_str(const struct path *src, char *path,
+                                 int path_sz)
+{
+	struct task_struct *task = (struct task_struct *)bpf_get_current_task();
+	struct fs_struct *fs = BPF_CORE_READ(task, fs);
+	struct dentry *root = BPF_CORE_READ(fs, root.dentry);
+	struct vfsmount *root_mnt = BPF_CORE_READ(fs, root.mnt);
+	struct dentry *de = BPF_CORE_READ(src, dentry);
+	struct vfsmount *mnt = BPF_CORE_READ(src, mnt);
+	__u32 pos = TE_PATH_BUFFER_LEN - 1;
+	int reached_root = 0;
+
+	if (path_sz != TE_PATH_BUFFER_LEN || !fs || !root || !root_mnt || !de || !mnt)
+		return -1;
+	path[TE_PATH_BUFFER_LEN - 1] = '\0';
+	/* A path that cannot be represented completely is rejected by its hook.
+	 * Bound mount and component traversal independently of kernel pointers. */
+	for (int depth = 0; depth < 32; depth++) {
+		if (de == root && mnt == root_mnt) {
+			reached_root = 1;
+			break;
+		}
+		if (de == BPF_CORE_READ(mnt, mnt_root)) {
+			struct mount *mount = (void *)mnt -
+				bpf_core_field_offset(struct mount, mnt);
+			struct mount *parent = BPF_CORE_READ(mount, mnt_parent);
+
+			if (!parent || parent == mount)
+				return -1;
+			de = BPF_CORE_READ(mount, mnt_mountpoint);
+			mnt = (void *)parent + bpf_core_field_offset(struct mount, mnt);
+			continue;
+		}
+		struct dentry *parent = BPF_CORE_READ(de, d_parent);
+		int next;
+
+		if (!parent || parent == de)
+			return -1;
+		next = prepend_path_component(path, de, pos);
+		if (next < 0 || next >= TE_PATH_BUFFER_LEN)
+			return -1;
+		pos = next;
+		de = parent;
+	}
+	if (!reached_root)
+		return -1;
+	if (pos == TE_PATH_BUFFER_LEN - 1)
+		path[--pos] = '/';
+	/* Move the complete, terminated path to the caller's matching buffer. */
+	if (copy_path_range(path, 0, path, pos, TE_PATH_BUFFER_LEN - pos) < 0)
+		return -1;
+	return TE_PATH_BUFFER_LEN - pos;
+}
+
+static __noinline int append_dentry_name(char *path, struct dentry *dentry,
+                                         int path_len)
+{
+	__u32 key = 0;
+	struct path_name_scratch *scratch = bpf_map_lookup_elem(&ts_path_name, &key);
+	const unsigned char *src = BPF_CORE_READ(dentry, d_name.name);
+	__u32 len = BPF_CORE_READ(dentry, d_name.len);
+	__u32 off, prev;
+	int n;
+
+	if (!scratch || !src || !len || path_len <= 1 || path_len > TE_PATH_BUFFER_LEN)
+		return -1;
+	off = path_len - 1;
+	prev = off - 1;
+	barrier_var(prev);
+	if (prev >= TE_PATH_BUFFER_LEN)
+		return -1;
+	if (path[prev] != '/') {
+		barrier_var(off);
+		if (off >= TE_PATH_BUFFER_LEN - 1)
+			return -1;
+		path[off++] = '/';
+	}
+	if (off >= TE_PATH_BUFFER_LEN || len >= TE_PATH_BUFFER_LEN - off)
+		return -1;
+	n = bpf_probe_read_kernel_str(scratch->name, sizeof(scratch->name), src);
+	if (n != len + 1)
+		return -1;
+	return copy_path_range(path, off, scratch->name, 0, len + 1);
+}
+
+#endif
 
 static __noinline int path_dentry_to_str(const struct path *dir,
 					 struct dentry *dentry,
@@ -1925,9 +2162,44 @@ static __always_inline int te_is_regular_or_dir(const void *a, const void *b,
 	}
 	if (!inode)
 		return 1; /* defensive: if we can't read, don't skip */
+	/* These procfs files initialize a new user namespace; the kernel checks
+	 * ownership and one-time mapping constraints. They are not workspace data.
+	 * Keep this exception limited to namespace bootstrap metadata, so procfs
+	 * data/control files and procfs fd references do not bypass sink checks. */
+	if (ref_kind == TE_REF_FILE &&
+	    BPF_CORE_READ(inode, i_sb, s_magic) == 0x9fa0) {
+		char name[16] = {};
+		struct dentry *de = BPF_CORE_READ((struct file *)a, f_path.dentry);
+		const unsigned char *src = BPF_CORE_READ(de, d_name.name);
+		int n = bpf_probe_read_kernel_str(name, sizeof(name), src);
+
+		if ((n == 8 && !__builtin_memcmp(name, "uid_map", 8)) ||
+		    (n == 8 && !__builtin_memcmp(name, "gid_map", 8)) ||
+		    (n == 10 && !__builtin_memcmp(name, "setgroups", 10)))
+			return 0;
+	}
 	i_mode = BPF_CORE_READ(inode, i_mode);
 	return (i_mode & TE_S_IFMT) == TE_S_IFREG ||
 	       (i_mode & TE_S_IFMT) == TE_S_IFDIR;
+}
+
+/* bubblewrap builds an ephemeral tmpfs root before pivot_root. Permit only
+ * scaffolding on that tmpfs, never bind-mounted workspace data (its backing
+ * superblock remains the data filesystem). The task stays in its policy domain. */
+static __always_inline int te_sandbox_scaffold(__u32 ref_kind, const void *a,
+					     const void *b, const char *path)
+{
+	struct inode *inode = NULL;
+
+	if (__builtin_memcmp(path, "/newroot/", sizeof("/newroot/") - 1))
+		return 0;
+	if (ref_kind == TE_REF_FILE)
+		inode = BPF_CORE_READ((struct file *)a, f_inode);
+	else if (ref_kind == TE_REF_PATH)
+		inode = BPF_CORE_READ((const struct path *)a, dentry, d_inode);
+	else if (ref_kind == TE_REF_PATH_DENTRY)
+		inode = BPF_CORE_READ((struct dentry *)b, d_inode);
+	return inode && BPF_CORE_READ(inode, i_sb, s_magic) == 0x01021994;
 }
 
 static __always_inline int te_handle_file(__u32 ref_kind, const void *a,
@@ -1943,16 +2215,19 @@ static __always_inline int te_handle_file(__u32 ref_kind, const void *a,
 		return 0;
 	if (!scratch)
 		return 0;
-	pid = bpf_get_current_pid_tgid() >> 32;
+	pid = te_current_pid_tgid() >> 32;
 	if (!te_pid_active(pid))
 		return 0;
 	__builtin_memset(scratch, 0, sizeof(*scratch));
 	if (te_resolve_file_ref(ref_kind, a, b, scratch->path, sizeof(scratch->path)) < 0)
-		return 0;
+		return mode == TE_MODE_BLOCK && (access & TE_ACCESS_WRITE) &&
+		       !te_pid_protected(pid) ? -EPERM : 0;
 	te_resolve_file_id(ref_kind, a, b, scratch->path, &scratch->fid);
 
 	/* Skip taint for non-regular files (chardev, blockdev, pipe, socket) */
 	if (!te_is_regular_or_dir(a, b, ref_kind))
+		return 0;
+	if (te_sandbox_scaffold(ref_kind, a, b, scratch->path))
 		return 0;
 	return te_handle_file_event(pid, scratch->path, &scratch->fid, access, mode);
 }
@@ -1962,7 +2237,7 @@ static __always_inline int te_stash_rename_user_paths(const void *old_path,
 						      __u32 flags,
 						      __u32 mode)
 {
-	__u64 tid = bpf_get_current_pid_tgid();
+	__u64 tid = te_current_pid_tgid();
 	struct file_scratch *scratch = file_scratch_buf();
 	struct rename_pend p = {
 		.old_path_ptr = (__u64)old_path,
@@ -2000,7 +2275,7 @@ static __always_inline int te_stash_rename_user_paths(const void *old_path,
 
 static __noinline int te_handle_rename_exit(long ret, __u32 mode)
 {
-	__u64 tid = bpf_get_current_pid_tgid();
+	__u64 tid = te_current_pid_tgid();
 	pid_t pid = tid >> 32;
 	struct rename_pend *p = bpf_map_lookup_elem(&ts_renamepend, &tid);
 	struct file_scratch *scratch = file_scratch_buf();
@@ -2069,7 +2344,7 @@ static __noinline int te_handle_rename_exit(long ret, __u32 mode)
 #ifndef ACTPLANE_LEGACY_KERNEL
 static __noinline int te_handle_rename_flow_exit(long ret)
 {
-	__u64 tid = bpf_get_current_pid_tgid();
+	__u64 tid = te_current_pid_tgid();
 	pid_t pid = tid >> 32;
 	struct rename_pend *p = bpf_map_lookup_elem(&ts_renamepend, &tid);
 	struct file_scratch *scratch = file_scratch_buf();
@@ -2134,15 +2409,26 @@ static __always_inline int te_handle_file_permission(struct file *file,
 		return 0;
 	if (!scratch)
 		return 0;
-	pid = bpf_get_current_pid_tgid() >> 32;
+	pid = te_current_pid_tgid() >> 32;
 	if (!te_pid_active(pid))
 		return 0;
+	if (!te_is_regular_or_dir(file, 0, TE_REF_FILE))
+		return 0;
 	__builtin_memset(scratch, 0, sizeof(*scratch));
-	/* bpf_d_path is not accepted by the verifier for file_permission on
-	 * some kernels. Use the dentry name for display/target matching but keep
-	 * the inode-backed file_id so fd-level flow still joins with open-time
-	 * labels for the same file object. */
+#ifdef ACTPLANE_LEGACY_KERNEL
 	if (file_basename(file, scratch->path, sizeof(scratch->path)) < 0)
+		return 0;
+#else
+	/* Permission hooks also run on descriptors opened before a policy delta.
+	 * Match the complete current path so absolute Scope rules remain effective. */
+	struct path resolved = {};
+	bpf_core_read(&resolved, sizeof(resolved), &file->f_path);
+	if (path_to_str(&resolved, scratch->path, sizeof(scratch->path)) < 0)
+		return mode == TE_MODE_BLOCK && (access & TE_ACCESS_WRITE) &&
+		       !te_pid_protected(pid) &&
+		       te_is_regular_or_dir(file, 0, TE_REF_FILE) ? -EPERM : 0;
+#endif
+	if (te_sandbox_scaffold(TE_REF_FILE, file, 0, scratch->path))
 		return 0;
 	te_resolve_file_id(TE_REF_FILE, file, 0, scratch->path, &scratch->fid);
 
@@ -2163,7 +2449,7 @@ static __always_inline int te_handle_net(__u32 ref_kind, const void *a,
 		return 0;
 	if (!(access & (TE_ACCESS_CONNECT | TE_ACCESS_RECV)))
 		return 0;
-	pid = bpf_get_current_pid_tgid() >> 32;
+	pid = te_current_pid_tgid() >> 32;
 	if (!te_pid_active(pid))
 		return 0;
 	if (ref_kind == TE_REF_SOCKET) {
@@ -2192,7 +2478,7 @@ static __always_inline int te_handle_net_ip(__u32 ip, __u32 access, __u32 mode)
 		return 0;
 	if (!ip || !(access & (TE_ACCESS_CONNECT | TE_ACCESS_RECV)))
 		return 0;
-	pid = bpf_get_current_pid_tgid() >> 32;
+	pid = te_current_pid_tgid() >> 32;
 	if (!te_pid_active(pid))
 		return 0;
 
@@ -2213,7 +2499,7 @@ static __always_inline int te_handle_fd_event(int fd, __u32 access, __u32 mode)
 		return 0;
 	if (!access)
 		return 0;
-	pid = bpf_get_current_pid_tgid() >> 32;
+	pid = te_current_pid_tgid() >> 32;
 	if (!te_pid_active(pid))
 		return 0;
 	struct fd_ref *ref = te_lookup_fd(pid, fd);
@@ -2231,7 +2517,7 @@ static __always_inline int te_handle_channel(int fd, __u32 access, __u32 mode)
 		return 0;
 	if (!scratch)
 		return 0;
-	pid = bpf_get_current_pid_tgid() >> 32;
+	pid = te_current_pid_tgid() >> 32;
 	if (!te_pid_active(pid))
 		return 0;
 	__builtin_memset(scratch, 0, sizeof(*scratch));
@@ -2380,7 +2666,7 @@ static __always_inline int te_handle_exec(__u32 ref_kind, const void *a,
 
 	if (mode == TE_MODE_BLOCK && !enforce_mode)
 		return 0;
-	pid = bpf_get_current_pid_tgid() >> 32;
+	pid = te_current_pid_tgid() >> 32;
 	if (!te_pid_active(pid))
 		return 0;
 	if (ref_kind == TE_REF_BPRM) {
@@ -2524,14 +2810,14 @@ int BPF_PROG(enforce_socket_recvmsg, struct socket *sock, struct msghdr *msg,
 
 static __always_inline int te_protect_control_pid(struct task_struct *target)
 {
-	pid_t caller = bpf_get_current_pid_tgid() >> 32;
+	pid_t caller = te_current_pid_tgid() >> 32;
 	pid_t target_tgid;
 
 	if (!te_pid_active(caller))
 		return 0;
 	if (!target)
 		return 0;
-	target_tgid = BPF_CORE_READ(target, tgid);
+	target_tgid = te_task_tgid(target);
 	if (target_tgid <= 0 || target_tgid == caller)
 		return 0;
 	if (!te_pid_protected(target_tgid))
@@ -2562,7 +2848,7 @@ SEC("lsm/bpf")
 int BPF_PROG(enforce_bpf_syscall, int cmd, union bpf_attr *attr,
 	     unsigned int size, bool privileged)
 {
-	pid_t caller = bpf_get_current_pid_tgid() >> 32;
+	pid_t caller = te_current_pid_tgid() >> 32;
 
 	(void)attr;
 	(void)size;
@@ -2587,20 +2873,28 @@ int BPF_PROG(enforce_bpf_syscall, int cmd, union bpf_attr *attr,
 	}
 }
 
-SEC("tp/sched/sched_process_fork")
-int handle_fork(struct trace_event_raw_sched_process_fork *ctx)
+SEC("raw_tp/sched_process_fork")
+int handle_fork(struct bpf_raw_tracepoint_args *ctx)
 {
-	pid_t parent_tgid = bpf_get_current_pid_tgid() >> 32;
+	/* Raw tracepoint arguments have a stable two-pointer ABI. Avoid CO-RE
+	 * indexing into the zero-length args[] declaration in older kernel BTF. */
+	struct { __u64 parent; __u64 child; } *args = (void *)ctx;
+	struct task_struct *parent = (void *)args->parent;
+	struct task_struct *child = (void *)args->child;
+	pid_t parent_tgid = te_task_tgid(parent);
+	pid_t child_pid = te_task_pid(child);
 
-	te_fork(parent_tgid, ctx->child_pid);
-	te_copy_fork_fds(parent_tgid, ctx->child_pid);
+	if (parent_tgid <= 0 || child_pid <= 0)
+		return 0;
+	te_fork(parent_tgid, child_pid);
+	te_copy_fork_fds(parent_tgid, child_pid);
 	return 0;
 }
 
 SEC("tp/sched/sched_process_exec")
 int handle_exec(struct trace_event_raw_sched_process_exec *ctx)
 {
-	pid_t pid = bpf_get_current_pid_tgid() >> 32;
+	pid_t pid = te_current_pid_tgid() >> 32;
 	struct task_struct *task = (struct task_struct *)bpf_get_current_task();
 	struct exec_scratch *scratch = exec_scratch_buf();
 	unsigned fname_off;
@@ -2637,7 +2931,7 @@ int handle_exec(struct trace_event_raw_sched_process_exec *ctx)
 SEC("tp/sched/sched_process_exec")
 int handle_exec_args(struct trace_event_raw_sched_process_exec *ctx)
 {
-	pid_t pid = bpf_get_current_pid_tgid() >> 32;
+	pid_t pid = te_current_pid_tgid() >> 32;
 #ifndef ACTPLANE_LEGACY_KERNEL
 	struct task_struct *task = (struct task_struct *)bpf_get_current_task();
 #endif
@@ -2725,7 +3019,7 @@ int exec_tp_rule_complex(struct trace_event_raw_sched_process_exec *ctx)
 SEC("tp/sched/sched_process_exit")
 int handle_exit(struct trace_event_raw_sched_process_template *ctx)
 {
-	u64 id = bpf_get_current_pid_tgid();
+	u64 id = te_current_pid_tgid();
 	pid_t pid = id >> 32;
 	struct task_struct *task = (struct task_struct *)bpf_get_current_task();
 	int exit_code = BPF_CORE_READ(task, exit_code);
@@ -2746,7 +3040,7 @@ int handle_exit(struct trace_event_raw_sched_process_template *ctx)
 static __always_inline int stash_open(const void *path_ptr, unsigned int flags,
 				      __u32 remember_fd)
 {
-	__u64 tid = bpf_get_current_pid_tgid();
+	__u64 tid = te_current_pid_tgid();
 	pid_t pid = tid >> 32;
 	struct open_pend p = {
 		.path_ptr = (__u64)path_ptr,
@@ -2762,7 +3056,7 @@ static __always_inline int stash_open(const void *path_ptr, unsigned int flags,
 
 static __noinline int handle_open_exit(long ret)
 {
-	__u64 tid = bpf_get_current_pid_tgid();
+	__u64 tid = te_current_pid_tgid();
 	pid_t pid = tid >> 32;
 	struct open_pend *p = bpf_map_lookup_elem(&ts_openpend, &tid);
 	struct file_scratch *scratch = file_scratch_buf();
@@ -2825,7 +3119,7 @@ static __noinline int handle_open_exit(long ret)
 
 static __always_inline int stash_pipe(const void *fds_ptr)
 {
-	__u64 tid = bpf_get_current_pid_tgid();
+	__u64 tid = te_current_pid_tgid();
 	pid_t pid = tid >> 32;
 	struct pipe_pend p = { .fds_ptr = (__u64)fds_ptr };
 
@@ -2837,7 +3131,7 @@ static __always_inline int stash_pipe(const void *fds_ptr)
 
 static __always_inline int handle_pipe_exit(long ret)
 {
-	__u64 tid = bpf_get_current_pid_tgid();
+	__u64 tid = te_current_pid_tgid();
 	pid_t pid = tid >> 32;
 	struct pipe_pend *p = bpf_map_lookup_elem(&ts_pipepend, &tid);
 	struct file_scratch *scratch = file_scratch_buf();
@@ -2865,7 +3159,7 @@ static __always_inline int handle_pipe_exit(long ret)
 
 static __always_inline int stash_socketpair(const void *fds_ptr, int family)
 {
-	__u64 tid = bpf_get_current_pid_tgid();
+	__u64 tid = te_current_pid_tgid();
 	pid_t pid = tid >> 32;
 	struct socketpair_pend p = { .fds_ptr = (__u64)fds_ptr };
 
@@ -2879,7 +3173,7 @@ static __always_inline int stash_socketpair(const void *fds_ptr, int family)
 
 static __always_inline int handle_socketpair_exit(long ret)
 {
-	__u64 tid = bpf_get_current_pid_tgid();
+	__u64 tid = te_current_pid_tgid();
 	pid_t pid = tid >> 32;
 	struct socketpair_pend *p = bpf_map_lookup_elem(&ts_socketpairpend, &tid);
 	struct file_scratch *scratch = file_scratch_buf();
@@ -2907,7 +3201,7 @@ static __always_inline int handle_socketpair_exit(long ret)
 
 static __noinline int stash_unixsock(int fd, const void *sockaddr, int addrlen)
 {
-	__u64 tid = bpf_get_current_pid_tgid();
+	__u64 tid = te_current_pid_tgid();
 	pid_t pid = tid >> 32;
 	struct unixsock_pend p = { .fd = fd };
 
@@ -2921,7 +3215,7 @@ static __noinline int stash_unixsock(int fd, const void *sockaddr, int addrlen)
 
 static __always_inline int handle_unixsock_exit(long ret)
 {
-	__u64 tid = bpf_get_current_pid_tgid();
+	__u64 tid = te_current_pid_tgid();
 	pid_t pid = tid >> 32;
 	struct unixsock_pend *p = bpf_map_lookup_elem(&ts_unixsockpend, &tid);
 
@@ -2935,7 +3229,7 @@ static __always_inline int handle_unixsock_exit(long ret)
 
 static __always_inline int stash_accept(int fd)
 {
-	__u64 tid = bpf_get_current_pid_tgid();
+	__u64 tid = te_current_pid_tgid();
 	pid_t pid = tid >> 32;
 	struct accept_pend p = { .fd = fd };
 
@@ -2947,7 +3241,7 @@ static __always_inline int stash_accept(int fd)
 
 static __always_inline int handle_accept_exit(long ret)
 {
-	__u64 tid = bpf_get_current_pid_tgid();
+	__u64 tid = te_current_pid_tgid();
 	pid_t pid = tid >> 32;
 	struct accept_pend *p = bpf_map_lookup_elem(&ts_acceptpend, &tid);
 
@@ -3177,7 +3471,7 @@ int trace_renameat2_exit_flow(struct trace_event_raw_sys_exit *ctx)
  * The reported IP is formatted by the userspace loader from conn_ip. */
 static __always_inline int stash_connect(int fd, const void *sockaddr)
 {
-	__u64 tid = bpf_get_current_pid_tgid();
+	__u64 tid = te_current_pid_tgid();
 	pid_t pid = tid >> 32;
 	struct connect_pend p = { .fd = fd };
 
@@ -3191,7 +3485,7 @@ static __always_inline int stash_connect(int fd, const void *sockaddr)
 
 static __always_inline int handle_connect_exit(long ret)
 {
-	__u64 tid = bpf_get_current_pid_tgid();
+	__u64 tid = te_current_pid_tgid();
 	pid_t pid = tid >> 32;
 	struct connect_pend *p = bpf_map_lookup_elem(&ts_connectpend, &tid);
 
@@ -3221,7 +3515,7 @@ int trace_connect_exit(struct trace_event_raw_sys_exit *ctx)
 static __always_inline int stash_io(int fd, __u32 access, const void *addr_ptr,
 				    __u32 addr_kind, int addr_len)
 {
-	__u64 tid = bpf_get_current_pid_tgid();
+	__u64 tid = te_current_pid_tgid();
 	pid_t pid = tid >> 32;
 	struct io_pend p = {
 		.fd = fd,
@@ -3365,7 +3659,7 @@ static __noinline void te_handle_scm_rights(pid_t pid, __u64 msg_ptr)
 
 static __always_inline int handle_io_exit_read(long ret)
 {
-	__u64 tid = bpf_get_current_pid_tgid();
+	__u64 tid = te_current_pid_tgid();
 	pid_t pid = tid >> 32;
 	struct io_pend *p = bpf_map_lookup_elem(&ts_iopend, &tid);
 
@@ -3395,7 +3689,7 @@ static __always_inline int handle_io_exit_read(long ret)
 
 static __always_inline int handle_io_exit_write(long ret)
 {
-	__u64 tid = bpf_get_current_pid_tgid();
+	__u64 tid = te_current_pid_tgid();
 	pid_t pid = tid >> 32;
 	struct io_pend *p = bpf_map_lookup_elem(&ts_iopend, &tid);
 
@@ -3423,7 +3717,7 @@ static __always_inline int handle_io_exit_write(long ret)
 
 static __always_inline int handle_io_exit_addr(long ret, __u32 access)
 {
-	__u64 tid = bpf_get_current_pid_tgid();
+	__u64 tid = te_current_pid_tgid();
 	pid_t pid = tid >> 32;
 	struct io_pend *p = bpf_map_lookup_elem(&ts_iopend, &tid);
 
@@ -3492,7 +3786,7 @@ static __always_inline int handle_io_exit_addr(long ret, __u32 access)
 static __always_inline int handle_mmap_enter(int fd, unsigned long prot,
 					     unsigned long flags, __u64 len)
 {
-	__u64 tid = bpf_get_current_pid_tgid();
+	__u64 tid = te_current_pid_tgid();
 	pid_t pid = tid >> 32;
 	struct mmap_pend p = {
 		.fd = fd,
@@ -3509,7 +3803,7 @@ static __always_inline int handle_mmap_enter(int fd, unsigned long prot,
 
 static __always_inline int handle_mmap_exit(long ret)
 {
-	__u64 tid = bpf_get_current_pid_tgid();
+	__u64 tid = te_current_pid_tgid();
 	pid_t pid = tid >> 32;
 	struct mmap_pend *p = bpf_map_lookup_elem(&ts_mmappend, &tid);
 
@@ -3541,7 +3835,7 @@ static __always_inline int handle_mmap_exit(long ret)
 static __always_inline int handle_mprotect_enter(__u64 start, __u64 len,
 						 unsigned long prot)
 {
-	__u64 tid = bpf_get_current_pid_tgid();
+	__u64 tid = te_current_pid_tgid();
 	pid_t pid = tid >> 32;
 	struct mprotect_pend p = {
 		.start = start,
@@ -3557,7 +3851,7 @@ static __always_inline int handle_mprotect_enter(__u64 start, __u64 len,
 
 static __always_inline int handle_mprotect_exit(long ret)
 {
-	__u64 tid = bpf_get_current_pid_tgid();
+	__u64 tid = te_current_pid_tgid();
 	pid_t pid = tid >> 32;
 	struct mprotect_pend *p = bpf_map_lookup_elem(&ts_mprotectpend, &tid);
 
@@ -3572,7 +3866,7 @@ static __always_inline int handle_mprotect_exit(long ret)
 static __always_inline int handle_mremap_enter(__u64 old_addr, __u64 old_size,
 					       __u64 new_size)
 {
-	__u64 tid = bpf_get_current_pid_tgid();
+	__u64 tid = te_current_pid_tgid();
 	pid_t pid = tid >> 32;
 	struct mremap_pend p = {
 		.old_addr = old_addr,
@@ -3588,7 +3882,7 @@ static __always_inline int handle_mremap_enter(__u64 old_addr, __u64 old_size,
 
 static __always_inline int handle_mremap_exit(long ret)
 {
-	__u64 tid = bpf_get_current_pid_tgid();
+	__u64 tid = te_current_pid_tgid();
 	pid_t pid = tid >> 32;
 	struct mremap_pend *p = bpf_map_lookup_elem(&ts_mremappend, &tid);
 
@@ -3603,7 +3897,7 @@ static __always_inline int handle_mremap_exit(long ret)
 
 static __always_inline int handle_munmap_enter(__u64 start, __u64 len)
 {
-	__u64 tid = bpf_get_current_pid_tgid();
+	__u64 tid = te_current_pid_tgid();
 	pid_t pid = tid >> 32;
 	struct mprotect_pend p = {
 		.start = start,
@@ -3619,7 +3913,7 @@ static __always_inline int handle_munmap_enter(__u64 start, __u64 len)
 
 static __always_inline int handle_munmap_exit(long ret)
 {
-	__u64 tid = bpf_get_current_pid_tgid();
+	__u64 tid = te_current_pid_tgid();
 	pid_t pid = tid >> 32;
 	struct mprotect_pend *p = bpf_map_lookup_elem(&ts_mprotectpend, &tid);
 
@@ -3636,7 +3930,7 @@ static __always_inline int handle_io_enter_addr(int fd, __u32 access,
 						__u32 addr_kind,
 						int addr_len)
 {
-	pid_t pid = bpf_get_current_pid_tgid() >> 32;
+	pid_t pid = te_current_pid_tgid() >> 32;
 	int rc = 0;
 
 	if (te_pid_active(pid) && !te_lookup_fd(pid, fd))
@@ -3781,7 +4075,7 @@ int trace_recvmsg_exit(struct trace_event_raw_sys_exit *ctx)
 
 static __always_inline int stash_dup(int oldfd)
 {
-	__u64 tid = bpf_get_current_pid_tgid();
+	__u64 tid = te_current_pid_tgid();
 	pid_t pid = tid >> 32;
 	struct dup_pend p = { .oldfd = oldfd };
 
@@ -3793,7 +4087,7 @@ static __always_inline int stash_dup(int oldfd)
 
 static __always_inline int handle_dup_exit(long ret)
 {
-	__u64 tid = bpf_get_current_pid_tgid();
+	__u64 tid = te_current_pid_tgid();
 	pid_t pid = tid >> 32;
 	struct dup_pend *p = bpf_map_lookup_elem(&ts_duppend, &tid);
 
@@ -3811,7 +4105,7 @@ static __always_inline int handle_dup_exit(long ret)
 SEC("tp/syscalls/sys_enter_close")
 int trace_close(struct trace_event_raw_sys_enter *ctx)
 {
-	pid_t pid = bpf_get_current_pid_tgid() >> 32;
+	pid_t pid = te_current_pid_tgid() >> 32;
 	if (te_pid_active(pid))
 		te_delete_fd(pid, (int)ctx->args[0]);
 	return 0;
@@ -3870,7 +4164,7 @@ int trace_fcntl_exit(struct trace_event_raw_sys_exit *ctx)
 
 static __always_inline int stash_fd_copy(int out_fd, int in_fd)
 {
-	__u64 tid = bpf_get_current_pid_tgid();
+	__u64 tid = te_current_pid_tgid();
 	pid_t pid = tid >> 32;
 	struct fd_copy_pend p = {
 		.out_fd = out_fd,
@@ -3885,7 +4179,7 @@ static __always_inline int stash_fd_copy(int out_fd, int in_fd)
 
 static __always_inline int handle_fd_copy_exit(long ret)
 {
-	__u64 tid = bpf_get_current_pid_tgid();
+	__u64 tid = te_current_pid_tgid();
 	pid_t pid = tid >> 32;
 	struct fd_copy_pend *p = bpf_map_lookup_elem(&ts_fdcopypend, &tid);
 
