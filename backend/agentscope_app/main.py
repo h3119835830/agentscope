@@ -8,8 +8,13 @@ from . import db
 from .config import ACTPLANE_BIN, ADMIN_TOKEN, DSH_BIN, EXEC_PATH, PUBLIC_BASE_URL, SERVICE_HOME, UI_DIST, WORKSPACE_ROOT
 from .broker_client import call as broker_call
 from .services import corpus, github, policy
+from .history.api import router as history_router
+from .history import jobs as history_jobs
+from .history.registry import selected_artifacts
+from .history.provider import ActPlaneProvider
 
-app=FastAPI(title="AgentScope",version="0.1.0")
+app=FastAPI(title="AgentScope",version="0.2.0")
+app.include_router(history_router)
 
 @app.middleware("http")
 async def protect_control_api(request: Request, call_next):
@@ -27,7 +32,7 @@ async def protect_control_api(request: Request, call_next):
 class PrepareRequest(BaseModel):
     repo_url:str; ref:str="main"; prompt:str=Field(min_length=3,max_length=8000); dsh_profile:str="headless"
 class PolicyRequest(BaseModel):
-    strategy_ids:list[str]=[]; settings:dict[str,Any]={}
+    strategy_ids:list[str]=[]; artifact_version_ids:list[str]=[]; settings:dict[str,Any]={}
 class ReviewRequest(BaseModel):
     decision:str; reviewed_by:str="研究者"; notes:str=""
 class ScopeRequestBody(BaseModel):
@@ -139,23 +144,41 @@ def compile_policy(yaml_text,task_id,version):
     except subprocess.TimeoutExpired: return "compile_timeout",{},"ActPlane 编译超过 45 秒"
     finally: temp.unlink(missing_ok=True)
 
-def create_policy_version(task,version,layer,settings,strategy_ids,summary,extra_rules="",runtime_restrictions=None):
+def create_policy_version(task,version,layer,settings,strategy_ids,summary,extra_rules="",runtime_restrictions=None,artifact_ids=None):
+    artifacts=selected_artifacts(task,artifact_ids or [])
+    extra_rules="\n\n".join([extra_rules,*[a["data"]["actplane_dsl"] for a in artifacts]])
     dsl_text,yaml_text=policy.make_dsl(task["workspace"],task["output_dir"],settings,extra_rules)
     compile_state,compile_result,diagnostic=compile_policy(yaml_text,task["id"],version)
     policy_ir=build_policy_ir(task["id"],strategy_ids,compile_state,compile_result,runtime_restrictions)
-    compile_result={"actplane":compile_result,"policy_ir":policy_ir}
+    policy_ir["selected_dsl_artifacts"]=[{"id":a["id"],"version":a["version"],"content_hash":a["content_sha256"],
+        "statement_version_id":a["statement_version_id"],"text":a["statement"].statement.text_original,
+        "origin":a["statement"].origin.model_dump(),"kernel_enforcement":"compiled_fragment"} for a in artifacts]
+    compile_result={"actplane":compile_result,"policy_ir":policy_ir,
+                    "submitted_bundle_hash":hashlib.sha256(yaml_text.encode()).hexdigest()}
     with db.connect() as con:
         ev=[r[0] for r in con.execute("SELECT id FROM evidence WHERE task_id=?",(task["id"],)).fetchall()]
     status="draft" if compile_state in ("compile_failed","compile_timeout","backend_missing") else "compiled"
     policy.save_version(task["id"],version,layer,dsl_text,yaml_text,strategy_ids,ev,compile_state,compile_result,status,summary)
-    return {"version":version,"dsl_text":dsl_text,"policy_yaml":yaml_text,"compile_state":compile_state,"compile_result":compile_result,"policy_ir":policy_ir,"diagnostic":diagnostic}
+    with db.connect() as con:
+        policy_id=con.execute("SELECT id FROM policy_versions WHERE task_id=? AND version=?",(task["id"],version)).fetchone()[0]
+        for artifact in artifacts:
+            con.execute("INSERT INTO history_policy_artifacts VALUES(?,?,?)",(policy_id,artifact["id"],artifact["content_sha256"]))
+        con.execute("INSERT INTO history_compilations VALUES(?,?,?,?,?,?,?,?,?)",
+            (uuid.uuid4().hex,None,task["id"],policy_id,compile_result["submitted_bundle_hash"],compile_state,
+             compile_result["actplane"].get("compiler_version","ActPlane CLI"),json.dumps(compile_result["actplane"]),db.now()))
+    return {"id":policy_id,"version":version,"dsl_text":dsl_text,"policy_yaml":yaml_text,"compile_state":compile_state,"compile_result":compile_result,"policy_ir":policy_ir,"diagnostic":diagnostic}
 
 @app.on_event("startup")
 async def startup():
     db.init_db()
+    history_jobs.worker.start()
+
+@app.on_event("shutdown")
+async def shutdown():
+    history_jobs.worker.stop()
 
 @app.get("/api/health")
-def health(): return {"ok":True,"service":"AgentScope","version":"0.1.0"}
+def health(): return {"ok":True,"service":"AgentScope","version":"0.2.0"}
 
 @app.get("/api/auth/check")
 def auth_check(): return {"ok":True}
@@ -264,19 +287,30 @@ def plugin_scope_request(task_id:str,body:ScopeRequestBody,request:Request):
 @app.post("/api/tasks/{task_id}/policy")
 def generate_policy(task_id:str,body:PolicyRequest):
     task=require_task(task_id)
-    settings={"read_only":False,"deny_network":False,"allow_task_output":False,**body.settings}
-    # Historical instructions are evidence; only approved records explicitly selected by the user can inform a bundle.
+    if task["status"] not in ("prepared","policy_review","approved"): raise HTTPException(409,"历史策略只能在任务启动前选择")
+    try: selected_artifacts(task,body.artifact_version_ids)
+    except ValueError as e: raise HTTPException(409,str(e))
+    settings={"read_only":False,"deny_network":False,"allow_task_output":False,**json.loads(task["settings_json"] or "{}"),**body.settings}
     with db.connect() as con:
+        claimed=con.execute("UPDATE tasks SET status='policy_generating',updated_at=? WHERE id=? AND status IN ('prepared','policy_review','approved')",(db.now(),task_id)).rowcount
+        if not claimed: raise HTTPException(409,"任务已在生成、启动或运行，不能重新生成启动策略")
         if body.strategy_ids:
             qs=",".join("?" for _ in body.strategy_ids)
             approved=con.execute(f"SELECT id FROM strategies WHERE id IN ({qs}) AND status='approved'",body.strategy_ids).fetchall()
             ids=[r[0] for r in approved]
         else: ids=[]
-        version=(con.execute("SELECT COALESCE(MAX(version),0)+1 FROM policy_versions WHERE task_id=?",(task_id,)).fetchone()[0])
-        db.audit(con,task_id,"policy_generated","AgentScope",{"version":version,"settings":settings,"strategy_ids":ids})
-    result=create_policy_version(task,version,"task_start",settings,ids,"任务启动前策略：基础用户配置、目标仓库证据与审核通过的历史策略")
-    with db.connect() as con: con.execute("UPDATE tasks SET settings_json=?,status='policy_review',updated_at=? WHERE id=?",(json.dumps(settings),db.now(),task_id))
-    return result
+        version=con.execute("SELECT COALESCE(MAX(version),0)+1 FROM policy_versions WHERE task_id=?",(task_id,)).fetchone()[0]
+        db.audit(con,task_id,"policy_generated","AgentScope",{"version":version,"settings":settings,"strategy_ids":ids,"artifact_version_ids":body.artifact_version_ids})
+    try:
+        result=create_policy_version(task,version,"task_start",settings,ids,"任务启动前策略：基础配置、已选历史 DSL 与仓库证据",artifact_ids=body.artifact_version_ids)
+        with db.connect() as con:
+            changed=con.execute("UPDATE tasks SET settings_json=?,status='policy_review',updated_at=? WHERE id=? AND status='policy_generating'",(json.dumps(settings),db.now(),task_id)).rowcount
+            if not changed: raise HTTPException(409,"任务状态已改变；本次生成版本未批准")
+        return result
+    except Exception:
+        with db.connect() as con:
+            con.execute("UPDATE tasks SET status=?,updated_at=? WHERE id=? AND status='policy_generating'",(task["status"],db.now(),task_id))
+        raise
 
 @app.get("/api/tasks/{task_id}/versions")
 def get_versions(task_id:str):
@@ -299,6 +333,7 @@ def get_versions(task_id:str):
 @app.post("/api/tasks/{task_id}/versions/{version}/approve")
 def approve_version(task_id:str,version:int,body:ReviewRequest):
     task=require_task(task_id)
+    if task["status"] not in ("prepared","policy_review","approved"): raise HTTPException(409,"运行中任务不能重新批准启动版本")
     with db.connect() as con:
         row=con.execute("SELECT * FROM policy_versions WHERE task_id=? AND version=?",(task_id,version)).fetchone()
         if not row: raise HTTPException(404,"策略版本不存在")
@@ -308,7 +343,8 @@ def approve_version(task_id:str,version:int,body:ReviewRequest):
             return {"status":"rejected"}
         if row["compile_state"] != "compiled": raise HTTPException(409,"ActPlane 未完整支持该策略中的全部子句；请先调整策略再申请批准")
         con.execute("UPDATE policy_versions SET status='approved',approved_by=?,approved_at=? WHERE task_id=? AND version=?",(body.reviewed_by,db.now(),task_id,version))
-        con.execute("UPDATE tasks SET status='approved',active_version=?,updated_at=? WHERE id=?",(version,db.now(),task_id))
+        changed=con.execute("UPDATE tasks SET status='approved',active_version=?,updated_at=? WHERE id=? AND status IN ('prepared','policy_review','approved')",(version,db.now(),task_id)).rowcount
+        if not changed: raise HTTPException(409,"任务已经启动或正在生成策略，不能批准启动版本")
         db.audit(con,task_id,"policy_approved",body.reviewed_by,{"version":version,"notes":body.notes})
     return {"status":"approved","version":version}
 
@@ -318,19 +354,10 @@ def launch_task(task_id:str):
     with db.connect() as con:
         v=con.execute("SELECT * FROM policy_versions WHERE task_id=? AND version=?",(task_id,task["active_version"])).fetchone()
         if not v or v["status"]!="approved": raise HTTPException(409,"请先审核并批准当前策略版本")
-    task_token,credential_id=issue_task_token(task_id)
-    try:
-        strategy_ids=json.loads(v["source_strategy_ids"] or "[]")
-        prompt=build_agent_prompt(task,strategy_ids)
-        result=broker_call({"action":"launch","task_id":task_id,"version":v["version"],"workspace":task["workspace"],"output_dir":task["output_dir"],"prompt":prompt,"dsl_text":v["dsl_text"],"policy_yaml":v["policy_yaml"],"dsh_profile":task["dsh_profile"],"task_token":task_token,"agentscope_url":PUBLIC_BASE_URL},timeout=35)
-        revoke_task_tokens(task_id,credential_id)
-    except Exception as e:
-        revoke_task_token(credential_id)
-        raise HTTPException(503,f"ActPlane/DSH 启动失败：{e}")
-    with db.connect() as con:
-        con.execute("UPDATE tasks SET status='running',active_pid=?,active_domain_id=?,watch_pid=?,updated_at=? WHERE id=?",(result.get("runner_pid"),result.get("domain_id"),result.get("watch_pid"),db.now(),task_id))
-        db.audit(con,task_id,"task_launched","AgentScope",result)
-    return result
+    provider=ActPlaneProvider(broker_call,build_agent_prompt,issue_task_token,revoke_task_token,revoke_task_tokens,PUBLIC_BASE_URL)
+    try: return provider.load_task_policy(task_id,v["id"])
+    except ValueError as e: raise HTTPException(409,str(e))
+    except Exception as e: raise HTTPException(503,f"ActPlane/DSH 启动失败：{e}")
 
 @app.get("/api/tasks/{task_id}/runtime")
 def task_runtime(task_id:str):
@@ -374,6 +401,7 @@ def task_runtime(task_id:str):
         with db.connect() as con:
             con.execute("UPDATE tasks SET status=?,ended_at=?,updated_at=? WHERE id=?",(task["status"],db.now(),db.now(),task_id))
             db.audit(con,task_id,"task_execution_finished","AgentScope",runtime["execution_exit"])
+            con.execute("UPDATE history_deployments SET active=0,ended_at=? WHERE task_id=? AND active=1",(db.now(),task_id))
         revoke_task_tokens(task_id)
     with db.connect() as con:
         stored=[dict(r) for r in con.execute("SELECT * FROM runtime_events WHERE task_id=? ORDER BY occurred_at DESC LIMIT 100",(task_id,)).fetchall()]
@@ -411,22 +439,31 @@ def review_scope(task_id:str,request_id:str,body:ReviewRequest):
             settings["allow_task_output"]=True
             with db.connect() as con:
                 version=con.execute("SELECT COALESCE(MAX(version),0)+1 FROM policy_versions WHERE task_id=?",(task_id,)).fetchone()[0]
-                previous=con.execute("SELECT source_strategy_ids FROM policy_versions WHERE task_id=? AND version=?",(task_id,task["active_version"])).fetchone()
+                previous=con.execute("SELECT id,source_strategy_ids FROM policy_versions WHERE task_id=? AND version=?",(task_id,task["active_version"])).fetchone()
                 restrictions=[dict(r) for r in con.execute("SELECT id,path,justification,reviewed_by,reviewed_at FROM scope_requests WHERE task_id=? AND kind='restrict' AND status='approved' ORDER BY created_at",(task_id,)).fetchall()]
             inherited_ids=json.loads(previous["source_strategy_ids"] or "[]") if previous else []
+            with db.connect() as con:
+                inherited_artifacts=[r[0] for r in con.execute("SELECT artifact_id FROM history_policy_artifacts WHERE policy_version_id=?",(previous["id"],))] if previous else []
             inherited_rules="\n\n".join(policy.make_restrictive_delta({"workspace":task["workspace"]},r) for r in restrictions if r.get("path"))
             restriction_ir=[{"request_id":r["id"],"path":r["path"],"justification":r["justification"],"approved_by":r["reviewed_by"],"approved_at":r["reviewed_at"],"preserved_in_new_version":True} for r in restrictions if r.get("path")]
             created_version=version
-            bundle=create_policy_version(task,version,"runtime_restart",settings,inherited_ids,"经审核扩展 Scope：加入隔离的任务输出目录；保留既有运行时限制并按新版本重启",inherited_rules,restriction_ir)
+            bundle=create_policy_version(task,version,"runtime_restart",settings,inherited_ids,"经审核扩展 Scope：加入隔离的任务输出目录；保留既有运行时限制并按新版本重启",inherited_rules,restriction_ir,artifact_ids=inherited_artifacts)
             if bundle["compile_state"]!="compiled": raise RuntimeError("扩展策略未获完整后端支持，不能批准："+bundle["diagnostic"])
             prompt=build_agent_prompt(task,inherited_ids)+"\n\n[AgentScope] 任务权限已审核更新。请从当前工作区现状继续原任务。"
             if len(prompt)>8000: raise RuntimeError("继承历史策略后的重启提示词超过 DSH 长度限制；请缩短任务提示或减少历史策略")
             task_token,new_credential_id=issue_task_token(task_id)
             result=broker_call({"action":"restart","task_id":task_id,"version":version,"workspace":task["workspace"],"output_dir":task["output_dir"],"prompt":prompt,"dsl_text":bundle["dsl_text"],"policy_yaml":bundle["policy_yaml"],"dsh_profile":task["dsh_profile"],"task_token":task_token,"agentscope_url":PUBLIC_BASE_URL},timeout=40)
+            binding=broker_call({"action":"status","task_id":task_id},timeout=8)
+            if (binding.get("child") or {}).get("child_id")!=result.get("domain_id") or binding.get("runner_pid")!=result.get("runner_pid"):
+                raise RuntimeError("Scope 重启后的进程域绑定未确认")
+            result.update(binding_confirmed=True,bundle_hash=bundle["compile_result"]["submitted_bundle_hash"],artifact_version_ids=inherited_artifacts)
             revoke_task_tokens(task_id,new_credential_id)
             newver=version
         with db.connect() as con:
             if created_version is not None:
+                con.execute("UPDATE history_deployments SET active=0,ended_at=? WHERE task_id=? AND active=1",(db.now(),task_id))
+                con.execute("INSERT INTO history_deployments(id,policy_version_id,task_id,bundle_hash,status,active,domain_id,runner_pid,receipt_json,created_at) VALUES(?,?,?,?,?,?,?,?,?,?)",
+                    (uuid.uuid4().hex,bundle["id"],task_id,result["bundle_hash"],"loaded",int(binding.get("agent_status")=="running"),result["domain_id"],result["runner_pid"],json.dumps(result),db.now()))
                 con.execute("UPDATE policy_versions SET status='approved',approved_by=?,approved_at=? WHERE task_id=? AND version=?",(body.reviewed_by,db.now(),task_id,created_version))
             con.execute("UPDATE scope_requests SET status='approved',reviewed_by=?,reviewed_at=?,resulting_version=?,result_json=? WHERE id=?",(body.reviewed_by,db.now(),newver,json.dumps(result),request_id))
             con.execute("UPDATE tasks SET active_version=?,active_pid=?,active_domain_id=?,watch_pid=?,status='running',updated_at=? WHERE id=?",(newver,result.get("runner_pid",task.get("active_pid")),result.get("domain_id",task.get("active_domain_id")),result.get("watch_pid",task.get("watch_pid")),db.now(),task_id))
@@ -440,7 +477,9 @@ def review_scope(task_id:str,request_id:str,body:ReviewRequest):
                     current=broker_call({"action":"status","task_id":task_id},timeout=5)
                 except Exception:
                     current={"available":False}
-                still_running=current.get("available") and current.get("status")=="running"
+                still_running=current.get("available") and current.get("status")=="running" and current.get("domain_id")==task.get("active_domain_id")
+                if not still_running:
+                    con.execute("UPDATE history_deployments SET active=0,ended_at=? WHERE task_id=? AND active=1",(db.now(),task_id))
                 con.execute("UPDATE policy_versions SET status='failed' WHERE task_id=? AND version=?",(task_id,created_version))
                 con.execute("UPDATE tasks SET active_version=?,status=?,active_pid=?,active_domain_id=?,watch_pid=?,ended_at=?,updated_at=? WHERE id=?",
                     (task["active_version"],"running" if still_running else "stopped",
@@ -459,6 +498,7 @@ def stop_task(task_id:str):
     revoke_task_tokens(task_id)
     with db.connect() as con:
         con.execute("UPDATE tasks SET status='stopped',ended_at=?,updated_at=? WHERE id=?",(db.now(),db.now(),task_id))
+        con.execute("UPDATE history_deployments SET active=0,ended_at=? WHERE task_id=? AND active=1",(db.now(),task_id))
         db.audit(con,task_id,"task_stopped","用户",result)
     return result
 

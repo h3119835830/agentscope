@@ -90,6 +90,9 @@ def connect():
 def init_db():
     with connect() as con:
         con.executescript(SCHEMA)
+        from .history.schema import SCHEMA as HISTORY_SCHEMA
+        con.executescript(HISTORY_SCHEMA)
+        con.execute("INSERT OR REPLACE INTO meta(key,value) VALUES('history_schema_version','1')")
 
 def row_dict(row):
     if row is None: return None

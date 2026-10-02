@@ -42,12 +42,12 @@ def prepare(req: dict):
     subprocess.run(["/usr/bin/find",str(root),"-type","f","-exec","chmod","g+rw","{}","+"],env=env,check=False,capture_output=True)
     for base, dirs, files in os.walk(root):
         for name in dirs + files:
-            os.chown(Path(base)/name,-1,task_gid)
+            os.chown(Path(base)/name,-1,task_gid,follow_symlinks=False)
     os.chmod(task_root/"tmp",0o2770)
     os.chmod(root,0o2770); os.chmod(output,0o2770)
     docs=[]
     for p in root.rglob("*"):
-        if not p.is_file() or ".git" in p.parts or "node_modules" in p.parts: continue
+        if p.is_symlink() or not p.is_file() or ".git" in p.parts or "node_modules" in p.parts: continue
         if p.name not in DOC_NAMES and not (p.parts and p.parts[0]==".github" and p.suffix in (".yml",".yaml")): continue
         try: body=p.read_text(errors="replace")
         except Exception: continue

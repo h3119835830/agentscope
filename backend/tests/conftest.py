@@ -7,6 +7,7 @@ os.environ["AGENTSCOPE_STATE_DIR"] = tempfile.mkdtemp(prefix="agentscope-test-")
 os.environ["AGENTSCOPE_ADMIN_TOKEN"] = "test-admin-token-not-for-production"
 os.environ["ACTPLANE_BIN"] = "/missing/actplane"
 os.environ["DSH_BIN"] = "/missing/dsh"
+os.environ["AGENTSCOPE_HISTORY_WORKER"] = "0"
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import pytest

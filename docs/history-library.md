@@ -1,0 +1,15 @@
+# History policy library
+
+AgentScope 0.2.0 uses four UI modules: 文档采集、策略语句抽取、策略转 DSL、策略记录与加载. Public GitHub instruction files are input data and are never executed as instructions by the extraction client.
+
+The reusable entry points are `history.pipeline.extract_strategy_statements(MarkdownDocument)` and `generate_policy_artifact(StrategyStatementVersion)`. Inject a provider for tests or configure the independent tool-free DeepSeek client with the protected service environment described in [install-linux.md](install-linux.md). Both functions are independent of HTTP, SQLite and the privileged Broker. English and Chinese text are retained separately from exact source evidence.
+
+The API adds document snapshots, immutable statement/artifact versions and hash-bound review, a single FIFO worker, compiler records and task deployments. `POST /api/tasks/{id}/policy` takes `artifact_version_ids`; selected approved DSL actually enters the full baseline bundle. Approve the compiled task bundle before launch. `ActPlaneProvider.load_task_policy(task_id, approved_policy_version_id)` reads only that stored bundle and confirms the Broker's child domain and runner PID. Submitted bundle hashes are not kernel readback hashes.
+
+Missing context, unsupported semantic/content policies, invalid fragments, partial compilation and deployment failure never advance automatically. Bind task/repository/commit and concrete directories in a new reviewed statement version. Modification scope excludes unlisted repository paths; it does not invent read/network authorization. The API rejects new history selections for running tasks; an existing Scope restart inherits selected fragments.
+
+Deploy with one API process and one history worker. A restart marks running jobs interrupted, with explicit retries. Equal snapshots/outputs reuse versions, while repeated model calls retain audit metadata. A pre-launch failure with no attempted domain/PID may retry the same approved version after cleanup is confirmed. A failed binding attempt cannot use that retry path.
+
+The observed ActPlane write-hook boundary may leave an empty new file entry when content writing is denied. This is shown in artifact details and is separate from compiler success. Complete filesystem metadata invariance, multi-worker operation and concurrent Broker runtimes are not claimed.
+
+See [the real acceptance record](acceptance/history-library-20261002.md) and its sanitized structured evidence. Unit tests use isolated SQLite and fixture providers; real acceptance additionally uses DeepSeek and isolated DSH tasks.
