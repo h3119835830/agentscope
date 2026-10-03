@@ -25,8 +25,8 @@ class Revision(BaseModel):
 
 @router.get("/api/history/records")
 def records(q:str="",status:str="",category:str="",context_scope:str="",source_repo:str="",archived:str="active",
-        limit:int=Query(default=20,ge=1,le=100),offset:int=Query(default=0,ge=0)):
-    return invoke(catalog.page,q,status,category,context_scope,source_repo,archived,limit,offset)
+        limit:int=Query(default=20,ge=1,le=100),offset:int=Query(default=0,ge=0),source_kind:str=""):
+    return invoke(catalog.page,q,status,category,context_scope,source_repo,archived,limit,offset,source_kind)
 
 @router.get("/api/history/records/{ident}")
 def record(ident:str):

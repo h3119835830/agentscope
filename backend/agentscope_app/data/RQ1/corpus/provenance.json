@@ -1,0 +1,10 @@
+{
+  "repository": "eunomia-bpf/ActPlane",
+  "ref": "artifact-ready",
+  "commit": "63db86945c9b8618a46aa68c8de214bc4b8343d9",
+  "path": "docs/corpus",
+  "files": {
+    "manifest.jsonl": "c68cf7f156a324888dcdaeef4db65bf1ab565b1c695a83b821666095deb1dbd2",
+    "candidate_rules.tsv": "99db06071c42b7e77114188b5ebd38a773b7c9fb129588321bfcca4c2caf73bc"
+  }
+}

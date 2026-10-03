@@ -58,3 +58,13 @@ Provider 只读取批准的存储版本，不接收自由命令/DSL。通过现�
 strategies 增加 revision、is_archived、archived_at、archived_by，strategy_revisions 保存旧来源/手工记录修改前快照。增量迁移前用 SQLite backup 保留 WAL，并把本地备份权限设为 0600。文档记录禁止通过通用 PATCH 覆盖，仍使用不可变语句 revisions 和 hash 审核；原文/commit/hash 不随目录编辑变化。
 
 选择绑定确切 artifact ID，表格和已选摘要显示其语句版本与 DSL 版本。前端按仓库/commit/已绑定任务筛目标，后端维持相同范围、版本/hash、编译和批准门槛。部署明细关联具体任务名、任务 ID、策略包版本、Domain 和真实回执。归档阻止新转换、审批、生成包及后续加载；不修改已运行内核任务或已有部署回执。
+
+## 2026-10-03 RQ1 默认数据与持久化修正
+
+历史策略记录页默认查询 RQ1（source_kind=rq1_corpus），每页 20 条；来源筛选仍允许后续文档记录及手工记录。界面统一称“RQ1 策略”，历史策略概览/侧栏待审计数采用有效 RQ1 记录。GET /api/history/records 增加 source_kind 筛选，在分页前执行；旧调用省略参数仍返回统一目录。
+
+内置 ActPlane artifact-ready 固定提交 63db86945c9b8618a46aa68c8de214bc4b8343d9 的 manifest.jsonl 和 candidate_rules.tsv，记录来源提交及 SHA-256。RQ1 候选表原始 866 行，按仓库/原句去重后 721 条，区别于论文 607 条 OS 可执行 DSL 子集。配置的本地语料优先；空配置目录使用内置快照。文件 hash 不符作为失败处理。
+
+首次服务启动创建 rq1_import 后台作业，将记录写入持久 SQLite，而非在浏览器或请求时拼接文件。meta 保存数据指纹；已完成的相同数据不重复播种，失败/中断作业沿用现有重试 API。稳定仓库/原句身份及已有来源 hash 查重兼容缺少 commit/path 的记录，导入不覆盖人工修改、审核、版本或归档。
+
+按本次用户要求将现有 ZeroClaw 固定样例的 282 条采集记录可恢复归档，从有效历史列表移除；来源快照、语句/DSL 版本和既有部署回执保留。RQ1 候选仍待审核；原始来源通过固定 commit 文件 hash 核验，分类保留启发式来源标注，不自动编译/批准研究 DSL。

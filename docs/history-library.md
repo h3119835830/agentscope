@@ -19,3 +19,5 @@ The release design snapshots are in [history-library/](history-library/README.md
 The records module adopts the mac branch (41e5c3d) directory view: full statement text, server-side filters/pagination, manual creation, version-aware editing/history, and reversible archive. The catalog joins exact statement, DSL and deployment versions. Document edits never overwrite immutable source/version data; legacy edits preserve source fields and clear review. Archived records cannot enter future conversion or deployment, while previous runtime receipts remain available.
 
 Record management browser evidence and migration/regression checks: [2026-10-03 acceptance](acceptance/history-records-20261003.md).
+
+The default records view uses the persisted RQ1 candidate corpus (721 distinct repository/statement pairs), with 20 rows per page. A hash-verified bundled snapshot initializes SQLite through a background job once; re-imports preserve edits, review and archive state. The sample collection was reversibly archived at the user’s request. See [RQ1 persistence acceptance](acceptance/rq1-persistence-20261003.md).

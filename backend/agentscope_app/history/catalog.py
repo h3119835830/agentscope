@@ -98,9 +98,11 @@ def record(con,row,details=False):
         item["revisions"]=[db.row_dict(r) for r in con.execute("SELECT * FROM strategy_revisions WHERE strategy_id=? ORDER BY revision DESC",(item["id"],))]
     return item
 
-def page(q="",status="",category="",context_scope="",source_repo="",archived="active",limit=20,offset=0):
+def page(q="",status="",category="",context_scope="",source_repo="",archived="active",limit=20,offset=0,source_kind=""):
     if archived not in {"active","archived","all"}: raise ValueError("归档筛选不合法")
+    if source_kind not in {"","rq1_corpus","history_document","manual"}: raise ValueError("策略来源筛选不合法")
     filters=[];params=[]
+    if source_kind: filters.append("s.source_kind=?");params.append(source_kind)
     if archived!="all": filters.append("s.is_archived=?");params.append(int(archived=="archived"))
     if q:
         filters.append("(s.text LIKE ? OR s.source_repo LIKE ? OR s.source_path LIKE ? OR json_extract(v.record_json,'$.statement.text_zh') LIKE ? OR json_extract(v.record_json,'$.statement.text_original') LIKE ? OR json_extract(v.record_json,'$.statement.text_en') LIKE ?)")

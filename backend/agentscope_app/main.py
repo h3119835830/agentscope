@@ -173,6 +173,7 @@ def create_policy_version(task,version,layer,settings,strategy_ids,summary,extra
 @app.on_event("startup")
 async def startup():
     db.init_db()
+    if os.getenv("AGENTSCOPE_HISTORY_WORKER","1")!="0": corpus.ensure_seed_job()
     history_jobs.worker.start()
 
 @app.on_event("shutdown")
@@ -200,8 +201,8 @@ def status():
 @app.get("/api/dashboard")
 def dashboard():
     with db.connect() as con:
-        stats={"strategies":con.execute("SELECT count(*) FROM strategies WHERE is_archived=0").fetchone()[0],
-          "pending_strategies":con.execute("SELECT count(*) FROM strategies s WHERE is_archived=0 AND COALESCE((SELECT review_status FROM strategy_statement_versions WHERE strategy_id=s.id ORDER BY version DESC LIMIT 1),s.status)='pending_review'").fetchone()[0],
+        stats={"strategies":con.execute("SELECT count(*) FROM strategies WHERE is_archived=0 AND source_kind='rq1_corpus'").fetchone()[0],
+          "pending_strategies":con.execute("SELECT count(*) FROM strategies s WHERE is_archived=0 AND source_kind='rq1_corpus' AND COALESCE((SELECT review_status FROM strategy_statement_versions WHERE strategy_id=s.id ORDER BY version DESC LIMIT 1),s.status)='pending_review'").fetchone()[0],
           "active_tasks":con.execute("SELECT count(*) FROM tasks WHERE status IN ('running','starting')").fetchone()[0],
           "pending_governance":con.execute("SELECT count(*) FROM governance_candidates WHERE status='pending_review'").fetchone()[0],
           "tasks":con.execute("SELECT count(*) FROM tasks").fetchone()[0]}

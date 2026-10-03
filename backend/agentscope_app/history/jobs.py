@@ -8,7 +8,7 @@ from .registry import load_statement,save_artifact,save_extraction
 from .sources import collect_documents,read_document
 
 def enqueue(kind,payload,retry_of=None):
-    if kind not in ("collect","extract","translate","compile"): raise ValueError("作业类型不支持")
+    if kind not in ("collect","extract","translate","compile","rq1_import"): raise ValueError("作业类型不支持")
     ident=uuid.uuid4().hex
     with db.connect() as con:
         con.execute("INSERT INTO history_jobs(id,kind,status,input_json,created_at,retry_of) VALUES(?,?,?,?,?,?)",
@@ -17,6 +17,9 @@ def enqueue(kind,payload,retry_of=None):
     return {"id":ident,"status":"queued"}
 
 def execute(kind,payload):
+    if kind=="rq1_import":
+        from ..services.corpus import import_rq1
+        return import_rq1()
     if kind=="collect": return collect_documents(**payload)
     if kind=="extract":
         results=[]

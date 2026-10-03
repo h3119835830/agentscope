@@ -13,18 +13,18 @@ function Status({value}){return <span className={'tag '+(['approved','compiled',
 
 export default function StrategyRecords({active,api,post,tasks,busy,action,notify,selectTask,reloadHistory,onTranslate}){
  const [page,setPage]=useState({items:[],total:0}),[offset,setOffset]=useState(0);
- const [query,setQuery]=useState(''),[category,setCategory]=useState(''),[scope,setScope]=useState(''),[repository,setRepository]=useState(''),[status,setStatus]=useState(''),[archived,setArchived]=useState('active');
+ const [query,setQuery]=useState(''),[category,setCategory]=useState(''),[scope,setScope]=useState(''),[repository,setRepository]=useState(''),[status,setStatus]=useState(''),[archived,setArchived]=useState('active'),[sourceKind,setSourceKind]=useState('rq1_corpus');
  const [editor,setEditor]=useState(null),[detail,setDetail]=useState(null),[chosen,setChosen]=useState({});
  const [targetTask,setTargetTask]=useState(''),[bundle,setBundle]=useState(null);
  const request=useRef(0);
  const load=useCallback(async()=>{
   const sequence=++request.current;
-  const params=new URLSearchParams({q:query,category,context_scope:scope,source_repo:repository,status,archived,limit:String(pageSize),offset:String(offset)});
+  const params=new URLSearchParams({q:query,source_kind:sourceKind,category,context_scope:scope,source_repo:repository,status,archived,limit:String(pageSize),offset:String(offset)});
   const data=await api('/api/history/records?'+params);
   if(sequence!==request.current)return;
   setPage(data);
   if(offset>0&&offset>=data.total)setOffset(Math.max(0,Math.floor((data.total-1)/pageSize)*pageSize));
- },[api,query,category,scope,repository,status,archived,offset]);
+ },[api,query,category,scope,repository,status,archived,offset,sourceKind]);
  useEffect(()=>{
   if(!active)return;
   load().catch(e=>notify(e.message));
@@ -47,7 +47,7 @@ export default function StrategyRecords({active,api,post,tasks,busy,action,notif
   }else{
    const body={text:editor.text,category:editor.category,context_scope:editor.context_scope,execution_layer:editor.execution_layer,actor:'研究者'};
    if(editor.id)await api('/api/strategies/'+editor.id,{method:'PATCH',body:JSON.stringify(body)});
-   else await post('/api/strategies',{...body,source_url:editor.source_url||null});
+   else {await post('/api/strategies',{...body,source_url:editor.source_url||null});setSourceKind('manual');setOffset(0)}
   }
   setEditor(null);setDetail(null);notify('已保存新版本，进入待审核');
  });
@@ -86,6 +86,7 @@ export default function StrategyRecords({active,api,post,tasks,busy,action,notif
    <button className="button primary" disabled={busy||editor.text.trim().length<5} onClick={save}>保存并进入审核</button>
   </section>}
   <div className="toolbar records-toolbar">
+   <select aria-label="筛选策略来源" value={sourceKind} onChange={e=>filter(setSourceKind,e.target.value)}><option value="rq1_corpus">RQ1 策略</option><option value="history_document">文档抽取</option><option value="manual">手工新增</option><option value="">全部策略</option></select>
    <div className="search"><span>⌕</span><input value={query} onChange={e=>filter(setQuery,e.target.value)} placeholder="搜索策略内容或文件路径" aria-label="搜索策略记录"/></div>
    <select aria-label="筛选执行层级" value={category} onChange={e=>filter(setCategory,e.target.value)}><option value="">全部层级</option>{['semantic','content','per-event','cross-event','not-applicable'].map(value=><option value={value} key={value}>{levelNames[value]}</option>)}</select>
    <select aria-label="筛选上下文范围" value={scope} onChange={e=>filter(setScope,e.target.value)}><option value="">全部范围</option>{['self-contained','project','task','not-applicable'].map(value=><option value={value} key={value}>{scopeNames[value]}</option>)}</select>
@@ -93,7 +94,7 @@ export default function StrategyRecords({active,api,post,tasks,busy,action,notif
    <select aria-label="筛选记录状态" value={status} onChange={e=>filter(setStatus,e.target.value)}><option value="">全部状态</option><option value="pending_review">待审核</option><option value="approved">已通过候选</option><option value="rejected">已拒绝</option><option value="loaded">已加载</option></select>
    <select aria-label="筛选归档状态" value={archived} onChange={e=>filter(setArchived,e.target.value)}><option value="active">有效策略</option><option value="archived">已归档</option><option value="all">全部记录</option></select>
   </div>
-  <div className="records-pagination"><span>{page.total?`${offset+1}–${offset+page.items.length} / ${page.total}`:'0 条记录'}</span><div className="button-row"><button className="button tiny ghost" disabled={busy||offset===0} onClick={()=>setOffset(Math.max(0,offset-pageSize))}>上一页</button><button className="button tiny ghost" disabled={busy||offset+page.items.length>=page.total} onClick={()=>setOffset(offset+pageSize)}>下一页</button></div></div>
+  <div className="records-pagination"><span>{page.total?`${offset+1}–${offset+page.items.length} / ${page.total}`:'0 条记录'}</span><div className="button-row"><span className="row-count">每页 20 条</span><button className="button tiny ghost" disabled={busy||offset===0} onClick={()=>setOffset(Math.max(0,offset-pageSize))}>上一页</button><button className="button tiny ghost" disabled={busy||offset+page.items.length>=page.total} onClick={()=>setOffset(offset+pageSize)}>下一页</button></div></div>
   <section className="panel table-panel"><div className="table-scroll"><table className="record-table"><thead><tr><th>选择</th><th>策略语句</th><th>层级 / 范围</th><th>来源与位置</th><th>状态 / 版本</th><th>加载记录</th><th>操作</th></tr></thead><tbody>{page.items.map(row=>{
    const latest=row.statement_version,selected=chosen[row.id];
    const s=selected?.record.statement||latest?.record.statement;
@@ -101,7 +102,7 @@ export default function StrategyRecords({active,api,post,tasks,busy,action,notif
    const deployments=row.artifacts.flatMap(a=>a.deployments.map(d=>({...d,artifactVersion:a.version,statementVersion:a.statement_version})));
    return <tr key={row.id}>
     <td><input type="checkbox" aria-label={'选择策略 '+row.id} checked={!!selected} disabled={!!row.is_archived||(!selected&&!eligible.length)} onChange={e=>e.target.checked?choose(row,eligible[0].id):unchoose(row.id)}/></td>
-    <td className="record-text">{s?.text_zh||s?.text_original||row.text}<small>{row.source_kind==='manual'?'手工新增':row.source_kind==='rq1_corpus'?'RQ1 来源':'文档抽取'}{selected?' · 已选语句 v'+selected.statementVersion:''}</small></td>
+    <td className="record-text">{s?.text_zh||s?.text_original||row.text}<small>{row.source_kind==='manual'?'手工新增':row.source_kind==='rq1_corpus'?'RQ1 策略':'文档抽取'}{selected?' · 已选语句 v'+selected.statementVersion:''}</small></td>
     <td>{levelNames[s?.enforcement_level||row.category]||row.category}<small>{scopeNames[s?.context_requirement||row.context_scope]||row.context_scope}</small></td>
     <td>{row.source_repo||'手工来源'}<small>{row.source_path?row.source_path+(s?.line_start||row.line_start?':'+(s?.line_start||row.line_start):''):'未定位到原始行'}</small></td>
     <td>{row.is_archived?<span className="tag">已归档</span>:<Status value={selected?row.artifacts.find(a=>a.id===selected.artifactId)?.statement_review_status:row.status}/>}<small>{latest?'语句':'目录'} v{selected?.statementVersion||latest?.version||row.revision}</small>{eligible.length>0?<select className="artifact-choice" aria-label={'DSL 版本 '+row.id} value={selected?.artifactId||''} disabled={!!row.is_archived||busy} onChange={e=>e.target.value?choose(row,e.target.value):unchoose(row.id)}><option value="">选择 DSL 版本</option>{eligible.map(a=><option key={a.id} value={a.id}>语句 v{a.statement_version} / DSL v{a.version} · {short(a.id)}</option>)}</select>:<small>{row.artifacts.length?<Status value={row.artifacts[0].compile_state}/>:'未生成 DSL'}</small>}</td>
@@ -111,7 +112,7 @@ export default function StrategyRecords({active,api,post,tasks,busy,action,notif
   })}{!page.items.length&&<tr><td colSpan="7" className="empty-row">暂无符合筛选条件的策略记录。</td></tr>}</tbody></table></div></section>
   {detail&&<section className="panel history-detail record-detail"><div className="panel-head"><h2>策略详情与历史</h2><button className="button ghost" onClick={()=>setDetail(null)}>关闭</button></div>
    <p>{detail.statement_version?.record.statement.text_zh||detail.text}</p>
-   <dl className="record-metadata"><dt>来源</dt><dd>{detail.source_repo||'手工'} · {detail.source_path||'未定位'} · {detail.source_commit||'未固定 commit'}</dd><dt>来源核验</dt><dd>{detail.statement_version?.record.statement.evidence_state==='verified'||!detail.statement_version&&detail.source_verified?'固定 commit 原文已核验':'未核验 / 手工记录'}</dd><dt>指令来源层</dt><dd>{detail.execution_layer}</dd>{detail.statement_version&&<><dt>内容 / 主题</dt><dd>{contentNames[detail.statement_version.record.statement.content_type]} · {detail.statement_version.record.statement.topics.join(', ')||'—'}</dd></>}</dl>
+   <dl className="record-metadata"><dt>来源</dt><dd>{detail.source_repo||'手工'} · {detail.source_path||'未定位'} · {detail.source_commit||'未固定 commit'}</dd><dt>来源核验</dt><dd>{detail.statement_version?.record.statement.evidence_state==='verified'||!detail.statement_version&&detail.source_verified?'固定 commit 原文已核验':'原文未核验'}</dd><dt>指令来源层</dt><dd>{detail.execution_layer}</dd>{detail.statement_version&&<><dt>内容 / 主题</dt><dd>{contentNames[detail.statement_version.record.statement.content_type]} · {detail.statement_version.record.statement.topics.join(', ')||'—'}</dd></>}</dl>
    {detail.raw_url&&<a className="source-link" href={detail.raw_url} target="_blank" rel="noreferrer">查看固定来源 ↗</a>}
    <h3>语句版本</h3>{detail.statement_versions.length?detail.statement_versions.map(v=><details key={v.id} className="revision-entry"><summary>语句 v{v.version} · {states[v.review_status]||v.review_status} · {when(v.created_at)}</summary><p>{v.record.statement.text_zh||v.record.statement.text_original}</p><blockquote>{v.record.statement.source_quote}</blockquote><small>版本 ID {v.id}<br/>内容 hash {v.content_sha256}</small></details>):<p>目录版本 v{detail.revision}</p>}
    {detail.revisions.map(v=><details className="revision-entry" key={v.id}><summary>修改前版本 v{v.revision} · {v.actor} · {when(v.created_at)}</summary><p>{v.snapshot.text}</p></details>)}
