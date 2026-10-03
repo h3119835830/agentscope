@@ -8,9 +8,11 @@ const labels={queued:'排队中',running:'处理中',completed:'已完成',faile
  invalid_candidate:'片段格式无效',partial:'部分支持',loaded:'已加载',load_failed:'加载失败',checking:'编译中',not_checked:'未编译'};
 const status=v=><span className={'tag '+(['approved','compiled','loaded','completed'].includes(v)?'good':['failed','rejected','compile_failed','load_failed'].includes(v)?'bad':'warn')}>{labels[v]||v}</span>;
 const clip=x=>x?.slice(0,12)||'—';
+const recordStates=[['','全部状态'],['pending_review','待审核'],['approved','已通过候选'],['rejected','已拒绝'],['loaded','已加载']];
 
 export default function HistoryLibrary({api,post,tasks,busy,action,notify,selectTask,moduleIndex,modules,onModuleChange}) {
  const tab=moduleIndex;
+ const [recordStatus,setRecordStatus]=useState('');
  const [docs,setDocs]=useState([]),[statements,setStatements]=useState([]),
  [artifacts,setArtifacts]=useState([]),[jobs,setJobs]=useState([]);
  const [repo,setRepo]=useState('https://github.com/zeroclaw-labs/zeroclaw'),[ref,setRef]=useState('main'),[extra,setExtra]=useState('');
@@ -54,10 +56,23 @@ export default function HistoryLibrary({api,post,tasks,busy,action,notify,select
   onModuleChange(next);
   event.currentTarget.parentElement.children[next].focus();
  };
+ const navigateRecordState=event=>{
+  if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
+  event.preventDefault();
+  const index=recordStates.findIndex(([value])=>value===recordStatus);
+  const next=event.key==='Home'?0:event.key==='End'?recordStates.length-1:(index+(event.key==='ArrowRight'?1:-1)+recordStates.length)%recordStates.length;
+  setRecordStatus(recordStates[next][0]);
+  event.currentTarget.parentElement.children[next].focus();
+ };
  return <div className="history-module-page">
+  <div className="history-navigation">
   <nav className="history-subnav" aria-label="历史策略库二级导航">
    <div role="tablist" aria-label="历史策略库模块">{modules.map((module,index)=><button key={module.page} id={'history-tab-'+index} type="button" role="tab" aria-selected={tab===index} aria-controls="history-module-panel" tabIndex={tab===index?0:-1} className={tab===index?'active':''} onClick={()=>onModuleChange(index)} onKeyDown={navigateTab}>{module.title}</button>)}</div>
   </nav>
+  {tab===3&&<nav className="history-status-subnav" aria-label="策略记录三级导航">
+   <div role="tablist" aria-label="策略记录状态">{recordStates.map(([value,title])=><button key={value} id={'record-status-'+(value||'all')} type="button" role="tab" aria-selected={recordStatus===value} aria-controls="records-status-panel" tabIndex={recordStatus===value?0:-1} className={recordStatus===value?'active':''} onClick={()=>setRecordStatus(value)} onKeyDown={navigateRecordState}>{title}</button>)}</div>
+  </nav>}
+  </div>
   <div id="history-module-panel" role="tabpanel" aria-labelledby={'history-tab-'+tab} className="content history-library">
   {tab===0&&<>
    <section className="panel history-form"><div className="history-fields">
@@ -82,7 +97,7 @@ export default function HistoryLibrary({api,post,tasks,busy,action,notify,select
    {artifacts.map(r=><section className="panel history-detail" key={r.id}><div className="panel-head"><b>DSL v{r.version} · {clip(r.id)}</b><div>{status(r.review_status)} {status(r.compile_state)}</div></div><ArtifactPreview artifact={r}/><div className="button-row">{r.review_status==='pending_review'&&<><button className="button success" disabled={busy||(!!r.artifact.actplane_dsl&&r.compile_state!=='compiled')} onClick={()=>reviewArtifact(r.id,'approve')}>通过候选</button><button className="button ghost" disabled={busy} onClick={()=>reviewArtifact(r.id,'reject')}>拒绝</button></>}<button className="button ghost" disabled={busy||!r.artifact.actplane_dsl||r.compile_state==="invalid_candidate"} onClick={()=>run(async()=>{await post('/api/history/artifacts/'+r.id+'/compile');notify('编译检查已排队');})}>重新编译</button></div></section>)}
    {!artifacts.length&&<div className="empty-box">选择已通过语句，生成两个产物。</div>}
   </>}
-  <StrategyRecords active={tab===3} api={api} post={post} tasks={tasks} busy={busy} action={action} notify={notify} selectTask={selectTask} reloadHistory={load} onTranslate={ident=>{setStatementId(ident);onModuleChange(2)}}/>
+  <StrategyRecords statusFilter={recordStatus} active={tab===3} api={api} post={post} tasks={tasks} busy={busy} action={action} notify={notify} selectTask={selectTask} reloadHistory={load} onTranslate={ident=>{setStatementId(ident);onModuleChange(2)}}/>
   <details className="panel history-detail"><summary>后台作业（{jobs.length}）</summary>{jobs.slice(0,15).map(j=><article className="history-job" key={j.id}><span>{({collect:'文档采集',extract:'语句抽取',translate:'DSL 转换',compile:'编译检查',rq1_import:'RQ1 语料准备'})[j.kind]}</span> {status(j.status)} <small>{clip(j.id)}</small>{j.error&&<p className="error">{j.error}</p>}{['failed','interrupted'].includes(j.status)&&<button className="button tiny ghost" disabled={busy} onClick={()=>run(async()=>{await post('/api/history/jobs/'+j.id+'/retry');notify('重试已排队');})}>重试</button>}<details><summary>结果</summary><pre>{JSON.stringify(j.result,null,2)}</pre></details></article>)}</details>
  </div></div>;
 }

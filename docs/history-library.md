@@ -23,3 +23,5 @@ Record management browser evidence and migration/regression checks: [2026-10-03 
 The default records view uses the persisted RQ1 candidate corpus (721 distinct repository/statement pairs), with 20 rows per page. A hash-verified bundled snapshot initializes SQLite through a background job once; re-imports preserve edits, review and archive state. The sample collection was reversibly archived at the user’s request. See [RQ1 persistence acceptance](acceptance/rq1-persistence-20261003.md).
 
 2026-10-03 按明确永久删除要求，现有非 RQ1 记录、关联产物/采集数据和备份已清除；全部来源归档数为 0，保留 721 条 RQ1。见 [永久清理验收](acceptance/rq1-only-purge-20261003.md)。
+
+2026-10-03 记录状态改为二级栏下方三级导航；详情改为正文旁入口和原生弹窗，明确未生成的伪代码/DSL 状态。见 [三级导航与详情验收](acceptance/status-navigation-details-20261003.md)。

@@ -1,0 +1,41 @@
+{
+  "backend_tests_passed": 64,
+  "production_build": "passed",
+  "browser": {
+    "tertiary_tabs": 5,
+    "below_secondary": true,
+    "sticky": true,
+    "status_dropdown_removed": true,
+    "default_total": 721,
+    "pending_total": 721,
+    "approved_total": 0,
+    "rejected_total": 0,
+    "loaded_total": 0,
+    "rows_per_page": 20,
+    "second_page": "21-40 / 721",
+    "status_resets_first_page": true,
+    "state_preserved_across_modules": true,
+    "narrow_width": 423,
+    "narrow_detail_button_within_horizontal_viewport": true,
+    "natural_width": 975,
+    "natural_height": 884,
+    "detail_button_in_first_viewport": true,
+    "modal_visible": true,
+    "close_focus_restored": true,
+    "escape_focus_restored": true,
+    "viewport_override_used": false
+  },
+  "dataset": {
+    "rq1_count": 721,
+    "non_rq1_count": 0,
+    "local_dsl_artifact_count": 0,
+    "statement_version_count": 0,
+    "full_row_fingerprint_unchanged": true
+  },
+  "research": {
+    "compiled": 607,
+    "total": 607,
+    "imported_into_local_artifacts": false,
+    "artifact_commit": "63db86945c9b8618a46aa68c8de214bc4b8343d9"
+  }
+}
