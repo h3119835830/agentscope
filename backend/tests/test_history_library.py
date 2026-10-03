@@ -273,7 +273,8 @@ def test_prepare_dangling_symlink_does_not_chown_target(client,tmp_path,monkeypa
     from types import SimpleNamespace
     from agentscope_app.services import github
     monkeypatch.setattr(github,"WORKSPACE_ROOT",tmp_path)
-    monkeypatch.setattr(github.grp,"getgrnam",lambda _:SimpleNamespace(gr_gid=0))
+    # Exercise real chown without requiring the root group on CI runners.
+    monkeypatch.setattr(github.grp,"getgrnam",lambda _:SimpleNamespace(gr_gid=github.os.getgid()))
     actual_chown=github.os.chown;seen=[]
     def ownership(path,uid,gid,**kw):
         seen.append((Path(path).name,kw.get("follow_symlinks",True)))
