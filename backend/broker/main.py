@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Root-only, allowlisted ActPlane broker. FastAPI never receives a shell."""
-import grp, json, os, pwd, re, secrets, shutil, signal, socket, socketserver, subprocess, sys, tempfile, threading, time
+import grp, hashlib, json, os, pwd, re, secrets, shutil, signal, socket, socketserver, subprocess, sys, tempfile, threading, time
 from pathlib import Path
 
 ACTPLANE=Path(os.getenv("ACTPLANE_BIN","/opt/agentscope/bin/actplane"))
@@ -26,9 +26,11 @@ TASK_ID_RE=re.compile(r"^[a-f0-9]{16}$")
 
 def child_env(agent=False):
     home=AGENT.pw_dir if agent else SERVICE_HOME
-    return {"PATH":EXEC_PATH,
+    result={"PATH":EXEC_PATH,
       "HOME":home,"USER":AGENT.pw_name if agent else "root","LOGNAME":AGENT.pw_name if agent else "root",
       "NO_PROXY":"*","no_proxy":"*","LANG":"C.UTF-8"}
+    if os.getenv("AGENTSCOPE_DSH_DISABLE_BYTECODE")=="1":result["PYTHONDONTWRITEBYTECODE"]="1"
+    return result
 
 def user_preexec():
     os.initgroups(AGENT.pw_name,AGENT.pw_gid)
@@ -283,9 +285,34 @@ def restrict(message):
 
 def dispatch(m):
     action=m.get("action")
+    if action=="dsh-config-facts":
+        import yaml
+        patch=GLOBAL_DSH_HOME/"profiles/headless/cordis.patch.yml"
+        raw=patch.read_bytes()
+        facts={}
+        def visit(value):
+            if isinstance(value,dict):
+                config=value.get("config")
+                if isinstance(config,dict) and config.get("provider")=="deepseek-official":
+                    facts.update({k:config[k] for k in ("provider","model","thinking") if k in config})
+                for item in value.values():
+                    if isinstance(item,(dict,list)):visit(item)
+            elif isinstance(value,list):
+                for item in value:visit(item)
+        visit(yaml.safe_load(raw))
+        python_runtime=os.getenv('AGENTSCOPE_EXPERIMENT_PYTHON_RUNTIME')
+        runtime_facts={}
+        if python_runtime:
+            raw_runtime=(Path(python_runtime)/'runtime-facts.json').read_bytes()
+            runtime_facts={'python':str(Path(python_runtime)/'bin/python'),'runtime_sha256':hashlib.sha256(raw_runtime).hexdigest(),
+                           'facts':json.loads(raw_runtime)}
+        return {"profile":"headless","profile_sha256":hashlib.sha256((GLOBAL_DSH_HOME/"profiles/headless/cordis.yml").read_bytes()).hexdigest(),
+                "patch_sha256":hashlib.sha256(raw).hexdigest(),"model":facts.get("model"),"provider":facts.get("provider"),"thinking":facts.get("thinking","provider-default"),
+                "package_version":json.loads((REPO_ROOT/"dsh/node_modules/@deepseek-ai/dsh/package.json").read_text())["version"],
+                "execution_path":EXEC_PATH,"python_runtime":runtime_facts}
     if action=="health":
         return {"available":True,"backend":"ActPlaneProvider","kernel":os.uname().release,"architecture":os.uname().machine,
-          "btf":Path("/sys/kernel/btf/vmlinux").exists(),"lsm":Path("/sys/kernel/security/lsm").read_text().strip(),"actplane":str(ACTPLANE),"dsh":str(DSH),"compatibility_build":"AgentScope ARM64 Lima patch: legacy tracepoint skips, rename-exit verifier workaround and FEAT_WRITE_RULES reservation"}
+          "btf":Path("/sys/kernel/btf/vmlinux").exists(),"lsm":Path("/sys/kernel/security/lsm").read_text().strip(),"actplane":str(ACTPLANE),"dsh":str(DSH),"compatibility_build":"Installed local ActPlane; identify by binary hash/version and verify enforcement with runtime probes"}
     if action=="active":
         with LOCK:return {"tasks":[{"task_id":k,"version":v["version"],"domain_id":v["domain_id"],"runner_pid":v["runner_pid"],"status":"running" if v["watch"].poll() is None else "stopped"} for k,v in TASKS.items() if v["watch"].poll() is None]}
     if action=="launch": return launch(m["task_id"],m["version"],m["workspace"],m["output_dir"],m["prompt"],m["dsl_text"],m["policy_yaml"],m.get("dsh_profile","headless"),m.get("task_token",""),m.get("agentscope_url","http://127.0.0.1:8000"))

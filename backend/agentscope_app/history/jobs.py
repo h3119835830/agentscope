@@ -8,8 +8,9 @@ from .registry import load_statement,save_artifact,save_extraction
 from .sources import collect_documents,read_document
 
 def enqueue(kind,payload,retry_of=None):
-    if kind not in ("collect","extract","translate","compile","rq1_import"): raise ValueError("作业类型不支持")
+    if kind not in ("collect","extract","translate","compile","rq1_import","task_bootstrap"): raise ValueError("作业类型不支持")
     ident=uuid.uuid4().hex
+    if kind=="task_bootstrap": payload={**payload,"job_id":ident}
     with db.connect() as con:
         con.execute("INSERT INTO history_jobs(id,kind,status,input_json,created_at,retry_of) VALUES(?,?,?,?,?,?)",
             (ident,kind,"queued",json.dumps(payload,ensure_ascii=False),db.now(),retry_of))
@@ -17,6 +18,9 @@ def enqueue(kind,payload,retry_of=None):
     return {"id":ident,"status":"queued"}
 
 def execute(kind,payload):
+    if kind=="task_bootstrap":
+        from ..bootstrap.runner import run
+        return run(**payload)
     if kind=="rq1_import":
         from ..services.corpus import import_rq1
         return import_rq1()
@@ -77,6 +81,8 @@ class Worker:
         if self.thread and self.thread.is_alive(): return
         with db.connect() as con:
             con.execute("UPDATE history_jobs SET status='interrupted',error='服务重启中断，允许重试',finished_at=? WHERE status='running'",(db.now(),))
+            con.execute("UPDATE bootstrap_credentials SET revoked_at=? WHERE revoked_at IS NULL",(db.now(),))
+            con.execute("UPDATE tasks SET status='prepared' WHERE status='bootstrapping' AND NOT EXISTS (SELECT 1 FROM history_jobs j WHERE j.kind='task_bootstrap' AND json_extract(j.input_json,'$.task_id')=tasks.id AND j.status='queued')")
         self.stop_event.clear()
         self.thread=threading.Thread(target=self.run,name="history-worker",daemon=True); self.thread.start()
     def stop(self):
@@ -89,10 +95,12 @@ class Worker:
             changed=con.execute("UPDATE history_jobs SET status='running',started_at=? WHERE id=? AND status='queued'",(db.now(),row["id"])).rowcount
         if not changed: return True
         try:
-            result=execute(row["kind"],json.loads(row["input_json"]))
-            with db.connect() as con: con.execute("UPDATE history_jobs SET status='completed',result_json=?,finished_at=? WHERE id=?",(json.dumps(result,ensure_ascii=False),db.now(),row["id"]))
+            payload=json.loads(row["input_json"])
+            if row["kind"]=="task_bootstrap":payload={k:payload[k] for k in ("task_id","job_id")}
+            result=execute(row["kind"],payload)
+            with db.connect() as con: con.execute("UPDATE history_jobs SET status='completed',result_json=?,finished_at=? WHERE id=? AND status='running'",(json.dumps(result,ensure_ascii=False),db.now(),row["id"]))
         except Exception as e:
-            with db.connect() as con: con.execute("UPDATE history_jobs SET status='failed',error=?,finished_at=? WHERE id=?",(type(e).__name__+": "+str(e)[:1200],db.now(),row["id"]))
+            with db.connect() as con: con.execute("UPDATE history_jobs SET status='failed',error=?,finished_at=? WHERE id=? AND status='running'",(type(e).__name__+": "+str(e)[:1200],db.now(),row["id"]))
         return True
     def run(self):
         while not self.stop_event.is_set():

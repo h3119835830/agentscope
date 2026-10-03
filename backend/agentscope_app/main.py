@@ -13,15 +13,18 @@ from .history.catalog_api import router as catalog_router
 from .history import jobs as history_jobs
 from .history.registry import selected_artifacts, review_statement as review_statement_version
 from .history.provider import ActPlaneProvider
+from .bootstrap.api import router as bootstrap_router, approved_prompt
+from .bootstrap.validation import verify_version
 
 app=FastAPI(title="AgentScope",version="0.2.0")
 app.include_router(history_router)
 app.include_router(catalog_router)
+app.include_router(bootstrap_router)
 
 @app.middleware("http")
 async def protect_control_api(request: Request, call_next):
     path=request.url.path
-    if not path.startswith("/api/") or path=="/api/health" or path.startswith("/api/plugin/"):
+    if not path.startswith("/api/") or path=="/api/health" or path.startswith("/api/plugin/") or path.startswith("/api/generator/tasks/"):
         return await call_next(request)
     supplied=request.headers.get("authorization","")
     supplied=supplied[7:] if supplied.lower().startswith("bearer ") else ""
@@ -37,6 +40,7 @@ class PolicyRequest(BaseModel):
     strategy_ids:list[str]=[]; artifact_version_ids:list[str]=[]; settings:dict[str,Any]={}
 class ReviewRequest(BaseModel):
     decision:str; reviewed_by:str="研究者"; notes:str=""
+    expected_context_hash:str|None=None; expected_proposal_hash:str|None=None
 class ScopeRequestBody(BaseModel):
     kind:str; path:str|None=None; justification:str=Field(min_length=4,max_length=1000); requested_by:str="用户"
 class GovernanceRequest(BaseModel):
@@ -112,6 +116,8 @@ def build_policy_ir(task_id, strategy_ids, compile_state, compile_result, runtim
     }
 
 def build_agent_prompt(task, strategy_ids):
+    bootstrap_prompt=approved_prompt(task)
+    if bootstrap_prompt is not None: return bootstrap_prompt
     project_context=(f"[AgentScope 工作区] 工作仓库：{task['workspace']}\n"
                      f"隔离输出目录：{task['output_dir']}\n"
                      "文件路径与命令工作目录以工作仓库为准；当前权限请读取任务 Scope。\n\n")
@@ -132,7 +138,8 @@ def build_agent_prompt(task, strategy_ids):
 
 def compile_policy(yaml_text,task_id,version):
     if not ACTPLANE_BIN.exists(): return "backend_missing",{},"ActPlane CLI 尚未安装"
-    temp=Path(tempfile.gettempdir())/f"agentscope-{task_id}-v{version}.yaml"
+    fd,name=tempfile.mkstemp(prefix=f"agentscope-{re.sub('[^a-zA-Z0-9-]','',task_id)[:40]}-v{version}-",suffix=".yaml")
+    os.close(fd);temp=Path(name)
     temp.write_text(yaml_text)
     try:
         p=subprocess.run([str(ACTPLANE_BIN),"--policy",str(temp),"compile","--json"],capture_output=True,text=True,timeout=45,
@@ -173,7 +180,7 @@ def create_policy_version(task,version,layer,settings,strategy_ids,summary,extra
 @app.on_event("startup")
 async def startup():
     db.init_db()
-    if os.getenv("AGENTSCOPE_HISTORY_WORKER","1")!="0": corpus.ensure_seed_job()
+    if os.getenv("AGENTSCOPE_HISTORY_WORKER","1")!="0" and os.getenv("AGENTSCOPE_RQ1_AUTO_IMPORT","1")!="0": corpus.ensure_seed_job()
     history_jobs.worker.start()
 
 @app.on_event("shutdown")
@@ -275,6 +282,8 @@ def plugin_scope(task_id:str,request:Request):
 
 def create_scope_request(task_id,body):
     task=require_task(task_id)
+    with db.connect() as con:
+        if con.execute("SELECT 1 FROM bootstrap_contexts WHERE task_id=?",(task_id,)).fetchone(): raise HTTPException(409,"RQ5 首版只接收第三层上下文与事件；不启用运行中策略修改")
     if task["status"]!="running": raise HTTPException(409,"只有运行中的任务可以申请运行时 Scope 变更")
     if body.kind not in ("restrict","expand"): raise HTTPException(400,"kind 必须为 restrict 或 expand")
     if body.kind=="restrict" and not body.path: raise HTTPException(400,"收紧 Scope 时必须指定仓库内允许写入的路径")
@@ -297,6 +306,8 @@ def plugin_scope_request(task_id:str,body:ScopeRequestBody,request:Request):
 @app.post("/api/tasks/{task_id}/policy")
 def generate_policy(task_id:str,body:PolicyRequest):
     task=require_task(task_id)
+    with db.connect() as con:
+        if con.execute("SELECT 1 FROM bootstrap_contexts WHERE task_id=?",(task_id,)).fetchone(): raise HTTPException(409,"RQ5 任务必须通过 Pi 候选整包入口生成")
     if task["status"] not in ("prepared","policy_review","approved"): raise HTTPException(409,"历史策略只能在任务启动前选择")
     try: selected_artifacts(task,body.artifact_version_ids)
     except ValueError as e: raise HTTPException(409,str(e))
@@ -347,6 +358,8 @@ def approve_version(task_id:str,version:int,body:ReviewRequest):
     with db.connect() as con:
         row=con.execute("SELECT * FROM policy_versions WHERE task_id=? AND version=?",(task_id,version)).fetchone()
         if not row: raise HTTPException(404,"策略版本不存在")
+        try: verify_version(con,task_id,row["id"],body.expected_context_hash,body.expected_proposal_hash,approval=body.decision=="approve")
+        except ValueError as error: raise HTTPException(409,str(error))
         if body.decision!="approve":
             con.execute("UPDATE policy_versions SET status='rejected',approved_by=?,approved_at=? WHERE task_id=? AND version=?",(body.reviewed_by,db.now(),task_id,version))
             db.audit(con,task_id,"policy_rejected",body.reviewed_by,{"version":version,"notes":body.notes})
@@ -402,14 +415,17 @@ def task_runtime(task_id:str):
         signal=exit_status.get("signal")
         succeeded=type(exit_code) is int and exit_code==0 and signal is None
         task["status"]="completed" if succeeded else "failed"
+        cleanup_confirmed=False
         try:
-            broker_call({"action":"stop","task_id":task_id},timeout=12)
-            runtime["completion_cleanup"]="DSH 一次性会话已退出，ActPlane watch 已清理"
+            cleanup=broker_call({"action":"stop","task_id":task_id},timeout=12)
+            cleanup_confirmed=cleanup.get('status') in ('stopped','not_running')
+            runtime["completion_cleanup"]="DSH 一次性会话已退出，ActPlane watch 已清理" if cleanup_confirmed else "DSH 已退出；ActPlane watch 清理未确认"
         except Exception:
             runtime["completion_cleanup"]="DSH 已退出；ActPlane watch 清理未确认"
         runtime["execution_exit"]={"code":exit_code,"signal":signal,"succeeded":succeeded}
         with db.connect() as con:
             con.execute("UPDATE tasks SET status=?,ended_at=?,updated_at=? WHERE id=?",(task["status"],db.now(),db.now(),task_id))
+            if cleanup_confirmed:con.execute('UPDATE tasks SET active_pid=NULL,active_domain_id=NULL,watch_pid=NULL WHERE id=?',(task_id,))
             db.audit(con,task_id,"task_execution_finished","AgentScope",runtime["execution_exit"])
             con.execute("UPDATE history_deployments SET active=0,ended_at=? WHERE task_id=? AND active=1",(db.now(),task_id))
         revoke_task_tokens(task_id)
@@ -508,6 +524,7 @@ def stop_task(task_id:str):
     revoke_task_tokens(task_id)
     with db.connect() as con:
         con.execute("UPDATE tasks SET status='stopped',ended_at=?,updated_at=? WHERE id=?",(db.now(),db.now(),task_id))
+        con.execute('UPDATE tasks SET active_pid=NULL,active_domain_id=NULL,watch_pid=NULL WHERE id=?',(task_id,))
         con.execute("UPDATE history_deployments SET active=0,ended_at=? WHERE task_id=? AND active=1",(db.now(),task_id))
         db.audit(con,task_id,"task_stopped","用户",result)
     return result

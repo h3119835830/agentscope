@@ -111,6 +111,8 @@ def init_db():
         con.execute("CREATE INDEX IF NOT EXISTS idx_strategies_archived ON strategies(is_archived,status)")
         from .history.schema import SCHEMA as HISTORY_SCHEMA
         con.executescript(HISTORY_SCHEMA)
+        from .bootstrap.schema import SCHEMA as BOOTSTRAP_SCHEMA
+        con.executescript(BOOTSTRAP_SCHEMA)
         con.execute("INSERT OR REPLACE INTO meta(key,value) VALUES('history_schema_version','1')")
 
 def row_dict(row):
