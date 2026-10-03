@@ -29,7 +29,7 @@ def environment():
                 "AGENTSCOPE_APP_USER": "agentscope-api", "AGENTSCOPE_SERVICE_HOME": str(STATE),
                 "AGENTSCOPE_BOOTSTRAP_TEST_LIBRARY": "1", "AGENTSCOPE_RQ1_AUTO_IMPORT": "0", "AGENTSCOPE_HISTORY_WORKER": "1",
                 "AGENTSCOPE_DSH_DISABLE_BYTECODE":"1",
-                "AGENTSCOPE_UI_DIST": str(ROOT / "frontend/dist"), "PYTHONPATH": str(ROOT / "backend")})
+                "AGENTSCOPE_UI_DIST": str(STATE / "ui-dist"), "PYTHONPATH": str(ROOT / "backend")})
     env["AGENTSCOPE_DSH_HOME"] = str(STATE / "dsh-home")
     if (STATE/'task-python/runtime-facts.json').exists():
         env['AGENTSCOPE_EXPERIMENT_PYTHON_RUNTIME']=str(STATE/'task-python')
@@ -39,11 +39,21 @@ def environment():
 def main():
     parser = argparse.ArgumentParser(); parser.add_argument("action", choices=["start", "status", "restart-api", "restart"])
     parser.add_argument('--use-installed-admin',action='store_true',help='Use the existing locally configured administrator identity; keep the value private')
+    parser.add_argument('--ui-source',type=Path,help='Snapshot a compiled UI into this instance; never changes the original deployed UI')
     args = parser.parse_args()
     if os.getuid() != 0: raise SystemExit("requires root for isolated broker")
     env = environment()
     user = pwd.getpwnam("agentscope-api"); group = grp.getgrnam("agentscope-task")
     STATE.mkdir(mode=0o750, exist_ok=True); os.chown(STATE, user.pw_uid, group.gr_gid)
+    ui=STATE/'ui-dist'
+    if args.ui_source or not ui.exists():
+        source=(args.ui_source or ROOT/'frontend/dist').resolve()
+        if not (source/'index.html').is_file():raise SystemExit('Build the acceptance UI before starting the instance')
+        if source==ui.resolve():raise SystemExit('UI snapshot source must differ from its destination')
+        shutil.copytree(source,ui,dirs_exist_ok=True)
+        for directory,dirs,files in os.walk(ui):
+            os.chown(directory,user.pw_uid,group.gr_gid);os.chmod(directory,0o750)
+            for name in files:os.chown(Path(directory)/name,user.pw_uid,group.gr_gid);os.chmod(Path(directory)/name,0o640)
     keyfile = STATE / "admin-token"
     if args.use_installed_admin:
         if args.action not in ('start','restart-api','restart'):raise SystemExit('Administrator identity update requires an API start/restart')

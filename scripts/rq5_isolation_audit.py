@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Read-only live-instance isolation audit. Never exports authentication data."""
 import json
+import hashlib
 import os
+import re
 import shlex
 import sqlite3
 import urllib.request
@@ -27,6 +29,16 @@ result={'original_url':'http://127.0.0.1:18000','original_database':str(database
 result['checks']={'721_pending_preserved':pending==721,'no_test_task_injection':rq5==0 and contexts==0,
                   'original_no_active_domain':not dashboard['stats']['active_tasks'] and not dashboard['active'],
                   'distinct_database':database.resolve()!=(STATE/'acceptance.sqlite3').resolve()}
+ui={}
+for name,port in (('original',18000),('acceptance',18001)):
+    url=f'http://127.0.0.1:{port}'
+    with urllib.request.urlopen(url+'/',timeout=10) as response:index=response.read()
+    asset=re.search(rb'<script[^>]+src="([^"]+\.js)"',index).group(1).decode()
+    with urllib.request.urlopen(url+asset,timeout=10) as response:bundle=response.read()
+    ui[name]={'index_sha256':hashlib.sha256(index).hexdigest(),'javascript_asset':asset,
+              'bootstrap_controls_present':b'/bootstrap/proposals/' in bundle}
+result['ui']=ui
+result['checks']['distinct_deployed_ui']=ui['original']['index_sha256']!=ui['acceptance']['index_sha256'] and not ui['original']['bootstrap_controls_present'] and ui['acceptance']['bootstrap_controls_present']
 (STATE/'report/isolation.json').write_text(json.dumps(result,ensure_ascii=False,indent=2))
 print(json.dumps(result))
 if not all(result['checks'].values()):raise SystemExit('Isolation audit failed')

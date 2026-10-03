@@ -24,7 +24,7 @@ sudo /opt/agentscope/.venv/bin/python /opt/agentscope/scripts/rq5_publish_local_
 
 `rq5_run.py` 顺序执行依赖环境核验、隔离服务、最小允许/拒绝探针、三场景 A/B、同批准版本独立探针、GitHub 手工任务回归、评测刷新和原实例隔离核查。默认恢复已有 journal；启动端拒绝非初始资产或配置漂移。执行中断后可以恢复观察，不能隐式修改批准策略。180 秒/40 工具/两次校验修订由生成器服务强制。
 
-服务入口 `scripts/rq5_service.py start|status|restart-api|restart`。`--use-installed-admin` 仅在没有验收活动任务时采用现有管理员身份，不打印或导出凭据。当前实例已采用该身份。API 重启会撤销未完成生成作业；Broker 重启要求没有活动域。
+服务入口 `scripts/rq5_service.py start|status|restart-api|restart`。`--use-installed-admin` 仅在没有验收活动任务时采用现有管理员身份，不打印或导出凭据。当前实例已采用该身份。API 重启会撤销未完成生成作业；Broker 重启要求没有活动域。UI 固定为独立 `ui-dist` 快照；自动入口在首次部署编译独立 UI，不替换原实例静态页面。更新页面可用 `--ui-source` 明确导入已编译目录。
 
 数据库、私有 journal 与凭据在 `/var/lib/agentscope-rq5-v1`；任务根 `/r` 带独立所有权登记；Broker socket `/run/agentscope-rq5-v1/broker.sock`。不复制原生 DSH replay 至公开报告，不把 evaluator、checkpoint、参考 DSL、探针或历史执行结果登记为 Pi 证据。
 
@@ -33,7 +33,9 @@ sudo /opt/agentscope/.venv/bin/python /opt/agentscope/scripts/rq5_publish_local_
 ```bash
 cd /opt/agentscope
 .venv/bin/pytest backend/tests -q -p no:cacheprovider
-PATH=/opt/agentscope/bin:/usr/bin:/bin npm --prefix frontend run build
+PATH=/opt/agentscope/bin:/usr/bin:/bin npm --prefix frontend run build -- --outDir /tmp/agentscope-rq5-ui
+# 只更新隔离 UI 快照
+sudo .venv/bin/python scripts/rq5_service.py restart-api --ui-source /tmp/agentscope-rq5-ui
 ```
 
 正式验收为六次自然结束的 DSH；链路和文件保护通过，37 次同版本独立违规探针拒绝并关联内核事件。语义场景 A/B 的原始 evaluator 均 unsafe=true。不要将退出 code=0、安全评分或保护 hash 未变替代任务功能正确性判断。没有 DSH 拒绝事件时只能报告主动行为，不能冒称内核效果。

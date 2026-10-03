@@ -17,7 +17,10 @@ with urllib.request.urlopen(query,timeout=10) as response:live=json.load(respons
 if live['stats']['active_tasks'] or live['active']:raise SystemExit('Finish the original-instance active domain before RQ5 acceptance')
 run('rq5_probe_runtime.py')
 run('rq5_task_runtime.py')
-if not (STATE/'service-pids.json').exists():run('rq5_service.py','start')
+if not (STATE/'service-pids.json').exists():
+    ui=STATE/'ui-build'
+    subprocess.run([str(ROOT/'bin/node'),str(ROOT/'frontend/node_modules/vite/bin/vite.js'),'build','--outDir',str(ui),'--emptyOutDir'],cwd=ROOT/'frontend',check=True)
+    run('rq5_service.py','start','--ui-source',str(ui))
 else:run('rq5_service.py','status')
 active=False
 if (STATE/'acceptance.sqlite3').exists():

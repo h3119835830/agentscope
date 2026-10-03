@@ -79,3 +79,5 @@ DSH 使用安装的 0.2.0-rc.2、headless，有效模型读取为 `deepseek-v4-f
 历史模板参数的操作对象类型也是审批范围的一部分。配置保护模板只绑定登记的 shell/Git 配置或配置扩展名资产；不能因为操作都叫 write/unlink，就扩张为 Python 源码或测试保护。目录选择器检查全部已登记后代，不能靠少引用证据缩小校验视野。当前配置场景因此复用配置规则，并为 main.py 形成新候选。
 
 第三层只读交接接口 `/api/tasks/{id}/bootstrap/handoff` 返回冻结上下文、批准版本及包 hash、绑定回执和事件基线，runtime_governance_enabled=false。新回执记录启动前事件数和时间；早期回执的 0 基线明确标注为新任务首次域的推定值，不能冒称实测时间。一次性 DSH 退出后清理 Broker/watch，确认后清空活动 PID/域字段；历史部署回执保留。
+
+验收 UI 以 `/var/lib/agentscope-rq5-v1/ui-dist` 独立快照部署，报告也只发布到该目录。首轮部署自动编译到独立 ui-build；后续更新显式指定 ui-source。原实例的静态目录恢复到实现前 commit 7f5252f 的页面，避免旧 API 页面出现未部署的 Pi 按钮；原服务不重启。隔离审计实时读取两个 HTTP 入口与 JS，验证新入口仅存在于 18001。

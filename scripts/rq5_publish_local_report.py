@@ -51,6 +51,6 @@ detail('凭据撤销与进程清理',report.cleanup_audit,document.getElementByI
 html=template.replace('HASH',evidence_hash).replace('PAYLOAD',payload)
 (destination/'report.html').write_text(html)
 # This read-only public benchmark report has no control API capability.
-shutil.copyfile(destination/'report.html',ROOT/'frontend/dist/rq5-report.html')
-shutil.copyfile(destination/'evidence.json',ROOT/'frontend/dist/evidence.json')
+shutil.copyfile(destination/'report.html',STATE/'ui-dist/rq5-report.html')
+shutil.copyfile(destination/'evidence.json',STATE/'ui-dist/evidence.json')
 print(json.dumps({'report':str(destination/'report.html'),'evidence_sha256':evidence_hash}))
