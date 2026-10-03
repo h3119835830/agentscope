@@ -118,7 +118,7 @@ def import_rq1():
 
 def search(q="",limit=50,status=None):
     with connect() as con:
-        sql="SELECT * FROM strategies WHERE 1=1"; params=[]
+        sql="SELECT * FROM strategies WHERE is_archived=0"; params=[]
         if status: sql+=" AND status=?"; params.append(status)
         if q:
             sql+=" AND (text LIKE ? OR source_repo LIKE ? OR source_path LIKE ?)"; pattern=f"%{q}%"; params += [pattern]*3

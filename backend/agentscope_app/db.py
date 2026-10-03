@@ -15,10 +15,16 @@ CREATE TABLE IF NOT EXISTS strategies (
  raw_url TEXT, source_content_sha256 TEXT, sentence_sha256 TEXT NOT NULL,
  source_verified INTEGER NOT NULL DEFAULT 0, source_kind TEXT NOT NULL DEFAULT 'rq1_corpus',
  metadata_json TEXT NOT NULL DEFAULT '{}', created_at TEXT NOT NULL, reviewed_at TEXT, reviewed_by TEXT,
+ revision INTEGER NOT NULL DEFAULT 1, is_archived INTEGER NOT NULL DEFAULT 0, archived_at TEXT, archived_by TEXT,
  UNIQUE(source_repo,source_commit,source_path,sentence_sha256)
 );
 CREATE INDEX IF NOT EXISTS idx_strategies_status ON strategies(status);
 CREATE INDEX IF NOT EXISTS idx_strategies_repo ON strategies(source_repo);
+CREATE TABLE IF NOT EXISTS strategy_revisions (
+ id TEXT PRIMARY KEY, strategy_id TEXT NOT NULL REFERENCES strategies(id),
+ revision INTEGER NOT NULL, actor TEXT NOT NULL, reason TEXT NOT NULL DEFAULT '',
+ snapshot_json TEXT NOT NULL, created_at TEXT NOT NULL, UNIQUE(strategy_id,revision)
+);
 CREATE TABLE IF NOT EXISTS tasks (
  id TEXT PRIMARY KEY, name TEXT NOT NULL, repo_url TEXT NOT NULL, repo TEXT NOT NULL,
  commit_sha TEXT NOT NULL, ref_requested TEXT NOT NULL, workspace TEXT NOT NULL,
@@ -89,7 +95,20 @@ def connect():
 
 def init_db():
     with connect() as con:
+        columns={r[1] for r in con.execute("PRAGMA table_info(strategies)")}
+        additions={"revision":"INTEGER NOT NULL DEFAULT 1","is_archived":"INTEGER NOT NULL DEFAULT 0",
+            "archived_at":"TEXT","archived_by":"TEXT"}
+        if columns and set(additions)-columns:
+            # Include committed WAL contents; keep the migration backup local and private.
+            backup_dir=DB_PATH.parent/"backups"
+            backup_dir.mkdir(parents=True,exist_ok=True)
+            destination=backup_dir/("agentscope-pre-catalog-"+datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")+".sqlite3")
+            with sqlite3.connect(DB_PATH) as source,sqlite3.connect(destination) as target: source.backup(target)
+            destination.chmod(0o600)
         con.executescript(SCHEMA)
+        for name,definition in additions.items():
+            if columns and name not in columns: con.execute(f"ALTER TABLE strategies ADD COLUMN {name} {definition}")
+        con.execute("CREATE INDEX IF NOT EXISTS idx_strategies_archived ON strategies(is_archived,status)")
         from .history.schema import SCHEMA as HISTORY_SCHEMA
         con.executescript(HISTORY_SCHEMA)
         con.execute("INSERT OR REPLACE INTO meta(key,value) VALUES('history_schema_version','1')")

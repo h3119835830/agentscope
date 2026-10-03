@@ -81,6 +81,8 @@ def review_statement(ident:str,body:Review):
 @router.post("/statements/{ident}/artifacts")
 def translate(ident:str):
     record=invoke(registry.load_statement,ident)
+    from .catalog import mutable_strategy
+    with db.connect() as con: invoke(mutable_strategy,con,record.strategy_id)
     if record.review_status!="approved": raise HTTPException(409,"请先批准语句版本")
     return jobs.enqueue("translate",{"statement_version_id":ident})
 

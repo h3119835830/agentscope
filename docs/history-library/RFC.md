@@ -48,3 +48,13 @@ Provider 只读取批准的存储版本，不接收自由命令/DSL。通过现�
 ## 2026-10-03 界面导航更新
 
 左侧保留历史策略库一级入口；文档采集、策略语句抽取、策略转 DSL、策略记录与加载是该入口下的二级菜单，在右侧面包屑下方显示并保持吸顶。正文不再重复历史策略库标题。侧栏保留可访问的收起/展开按钮、图标名称提示和浏览器收缩偏好；二级菜单切换保留当前文档多选，左右方向键与 Home/End 支持切换。此变更只修改前端导航，不改变上述 API、权限、审批或运行时合同。
+
+## 2026-10-03 参照 mac 的策略记录与加载
+
+参考 mac 分支 41e5c3d 的记录管理方式，主表按策略目录 ID 展示旧 RQ1、手工记录与文档抽取记录；显示正文、执行层级/上下文范围、来源位置、审核/版本和加载记录。搜索、仓库/状态/层级/范围/归档筛选在 SQL 分页前执行，每页 20 条，不再以 DSL 产物或前 200 条旧来源代表全库。
+
+新增管理员接口 GET /api/history/records、GET /api/history/records/{id}，返回最新语句及该策略的 DSL/部署版本关系。目录 CRUD 使用 POST /api/strategies、PATCH/DELETE /api/strategies/{id}、POST /api/strategies/{id}/restore。旧数组查询 /api/strategies 保持兼容，默认排除归档。
+
+strategies 增加 revision、is_archived、archived_at、archived_by，strategy_revisions 保存旧来源/手工记录修改前快照。增量迁移前用 SQLite backup 保留 WAL，并把本地备份权限设为 0600。文档记录禁止通过通用 PATCH 覆盖，仍使用不可变语句 revisions 和 hash 审核；原文/commit/hash 不随目录编辑变化。
+
+选择绑定确切 artifact ID，表格和已选摘要显示其语句版本与 DSL 版本。前端按仓库/commit/已绑定任务筛目标，后端维持相同范围、版本/hash、编译和批准门槛。部署明细关联具体任务名、任务 ID、策略包版本、Domain 和真实回执。归档阻止新转换、审批、生成包及后续加载；不修改已运行内核任务或已有部署回执。

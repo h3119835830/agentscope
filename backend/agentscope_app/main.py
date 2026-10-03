@@ -9,12 +9,14 @@ from .config import ACTPLANE_BIN, ADMIN_TOKEN, DSH_BIN, EXEC_PATH, PUBLIC_BASE_U
 from .broker_client import call as broker_call
 from .services import corpus, github, policy
 from .history.api import router as history_router
+from .history.catalog_api import router as catalog_router
 from .history import jobs as history_jobs
-from .history.registry import selected_artifacts
+from .history.registry import selected_artifacts, review_statement as review_statement_version
 from .history.provider import ActPlaneProvider
 
 app=FastAPI(title="AgentScope",version="0.2.0")
 app.include_router(history_router)
+app.include_router(catalog_router)
 
 @app.middleware("http")
 async def protect_control_api(request: Request, call_next):
@@ -198,8 +200,8 @@ def status():
 @app.get("/api/dashboard")
 def dashboard():
     with db.connect() as con:
-        stats={"strategies":con.execute("SELECT count(*) FROM strategies").fetchone()[0],
-          "pending_strategies":con.execute("SELECT count(*) FROM strategies WHERE status='pending_review'").fetchone()[0],
+        stats={"strategies":con.execute("SELECT count(*) FROM strategies WHERE is_archived=0").fetchone()[0],
+          "pending_strategies":con.execute("SELECT count(*) FROM strategies s WHERE is_archived=0 AND COALESCE((SELECT review_status FROM strategy_statement_versions WHERE strategy_id=s.id ORDER BY version DESC LIMIT 1),s.status)='pending_review'").fetchone()[0],
           "active_tasks":con.execute("SELECT count(*) FROM tasks WHERE status IN ('running','starting')").fetchone()[0],
           "pending_governance":con.execute("SELECT count(*) FROM governance_candidates WHERE status='pending_review'").fetchone()[0],
           "tasks":con.execute("SELECT count(*) FROM tasks").fetchone()[0]}
@@ -222,7 +224,14 @@ def import_strategies():
 def review_strategy(strategy_id:str,body:ReviewRequest):
     if body.decision not in ("approve","reject"): raise HTTPException(400,"decision 只能是 approve 或 reject")
     status="approved" if body.decision=="approve" else "rejected"
+    from .history.catalog import mutable_strategy
+    from .history.api import invoke
     with db.connect() as con:
+        row=invoke(mutable_strategy,con,strategy_id)
+        if row["source_kind"]=="history_document":
+            latest=con.execute("SELECT id FROM strategy_statement_versions WHERE strategy_id=? ORDER BY version DESC LIMIT 1",(strategy_id,)).fetchone()
+            invoke(review_statement_version,latest["id"],body.decision,body.reviewed_by)
+            return dict(con.execute("SELECT * FROM strategies WHERE id=?",(strategy_id,)).fetchone())
         cur=con.execute("UPDATE strategies SET status=?,reviewed_at=?,reviewed_by=? WHERE id=?",(status,db.now(),body.reviewed_by,strategy_id))
         if not cur.rowcount: raise HTTPException(404,"策略记录不存在")
         db.audit(con,None,"strategy_review",body.reviewed_by,{"strategy_id":strategy_id,"decision":body.decision,"notes":body.notes})
@@ -296,7 +305,7 @@ def generate_policy(task_id:str,body:PolicyRequest):
         if not claimed: raise HTTPException(409,"任务已在生成、启动或运行，不能重新生成启动策略")
         if body.strategy_ids:
             qs=",".join("?" for _ in body.strategy_ids)
-            approved=con.execute(f"SELECT id FROM strategies WHERE id IN ({qs}) AND status='approved'",body.strategy_ids).fetchall()
+            approved=con.execute(f"SELECT id FROM strategies WHERE id IN ({qs}) AND status='approved' AND is_archived=0",body.strategy_ids).fetchall()
             ids=[r[0] for r in approved]
         else: ids=[]
         version=con.execute("SELECT COALESCE(MAX(version),0)+1 FROM policy_versions WHERE task_id=?",(task_id,)).fetchone()[0]

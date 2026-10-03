@@ -1,4 +1,6 @@
 import React, {useCallback,useEffect,useState} from 'react';
+import StrategyRecords from './StrategyRecords.jsx';
+import ArtifactPreview from './PolicyArtifactPreview.jsx';
 
 const labels={queued:'排队中',running:'处理中',completed:'已完成',failed:'失败',interrupted:'已中断',
  pending_review:'待审核',approved:'已通过候选',rejected:'已拒绝',candidate:'DSL 候选',
@@ -10,16 +12,15 @@ const clip=x=>x?.slice(0,12)||'—';
 export default function HistoryLibrary({api,post,tasks,busy,action,notify,selectTask,moduleIndex,modules,onModuleChange}) {
  const tab=moduleIndex;
  const [docs,setDocs]=useState([]),[statements,setStatements]=useState([]),
- [artifacts,setArtifacts]=useState([]),[jobs,setJobs]=useState([]),[legacy,setLegacy]=useState([]);
+ [artifacts,setArtifacts]=useState([]),[jobs,setJobs]=useState([]);
  const [repo,setRepo]=useState('https://github.com/zeroclaw-labs/zeroclaw'),[ref,setRef]=useState('main'),[extra,setExtra]=useState('');
  const [documentIds,setDocumentIds]=useState([]),[preview,setPreview]=useState(null);
  const [q,setQ]=useState(''),[showAll,setShowAll]=useState(false),[detail,setDetail]=useState(null),[edit,setEdit]=useState('');
  const [statementId,setStatementId]=useState(''),[bindingTask,setBindingTask]=useState(''),[paths,setPaths]=useState(''),[note,setNote]=useState(''),[contextResolved,setContextResolved]=useState(false);
- const [picked,setPicked]=useState([]),[targetTask,setTargetTask]=useState(''),[filter,setFilter]=useState(''),[bundle,setBundle]=useState(null);
  const load=useCallback(async()=>{
-  const [d,s,a,j,l]=await Promise.all([api('/api/history/documents'),api('/api/history/statements'),
-    api('/api/history/artifacts'),api('/api/history/jobs'),api('/api/strategies?limit=200')]);
-  setDocs(d);setStatements(s);setArtifacts(a);setJobs(j);setLegacy(l.filter(r=>r.source_kind!=='history_document'));
+  const [d,s,a,j]=await Promise.all([api('/api/history/documents'),api('/api/history/statements'),
+    api('/api/history/artifacts'),api('/api/history/jobs')]);
+  setDocs(d);setStatements(s);setArtifacts(a);setJobs(j);
  },[api]);
  useEffect(()=>{load().catch(e=>notify(e.message)); const timer=setInterval(()=>load().catch(()=>{}),5000); return()=>clearInterval(timer);},[load,notify]);
  const run=fn=>action(async()=>{await fn();await load();});
@@ -43,11 +44,7 @@ export default function HistoryLibrary({api,post,tasks,busy,action,notify,select
    const j=await post('/api/history/statements/'+id+'/artifacts');notify('转换已排队：'+clip(j.id));
  });
  const reviewArtifact=(id,decision)=>run(async()=>{await post('/api/history/artifacts/'+id+'/review',{decision,reviewed_by:'研究者'});notify(decision==='approve'?'DSL 版本已通过':'DSL 版本已拒绝');});
- const build=()=>run(async()=>{const b=await post('/api/tasks/'+targetTask+'/policy',{artifact_version_ids:picked,settings:{}});setBundle({...b,task_id:targetTask,status:'pending_review'});notify('任务策略包已生成');});
- const approveBundle=()=>run(async()=>{await post('/api/tasks/'+bundle.task_id+'/versions/'+bundle.version+'/approve',{decision:'approve',reviewed_by:'研究者'});setBundle({...bundle,status:'approved'});notify('任务策略包已批准');});
- const launch=()=>run(async()=>{const result=await post('/api/tasks/'+bundle.task_id+'/launch');notify('已绑定 Domain '+result.domain_id);setBundle({...bundle,status:'loaded',receipt:result});});
  const openStatement=r=>{setDetail(r);setEdit(JSON.stringify(r.record.statement,null,2));};
- const visibleArtifacts=artifacts.filter(r=>search(r)&&(!filter|| (filter==='loaded'?r.deployments.some(d=>d.status==='loaded'):r.review_status===filter)));
 
  const navigateTab=event=>{
   const keys=['ArrowLeft','ArrowRight','Home','End'];
@@ -85,16 +82,7 @@ export default function HistoryLibrary({api,post,tasks,busy,action,notify,select
    {artifacts.map(r=><section className="panel history-detail" key={r.id}><div className="panel-head"><b>DSL v{r.version} · {clip(r.id)}</b><div>{status(r.review_status)} {status(r.compile_state)}</div></div><ArtifactPreview artifact={r}/><div className="button-row">{r.review_status==='pending_review'&&<><button className="button success" disabled={busy||(!!r.artifact.actplane_dsl&&r.compile_state!=='compiled')} onClick={()=>reviewArtifact(r.id,'approve')}>通过候选</button><button className="button ghost" disabled={busy} onClick={()=>reviewArtifact(r.id,'reject')}>拒绝</button></>}<button className="button ghost" disabled={busy||!r.artifact.actplane_dsl||r.compile_state==="invalid_candidate"} onClick={()=>run(async()=>{await post('/api/history/artifacts/'+r.id+'/compile');notify('编译检查已排队');})}>重新编译</button></div></section>)}
    {!artifacts.length&&<div className="empty-box">选择已通过语句，生成两个产物。</div>}
   </>}
-  {tab===3&&<>
-   <div className="toolbar"><div className="search"><input value={q} onChange={e=>setQ(e.target.value)} placeholder="搜索策略记录"/></div><select value={filter} onChange={e=>setFilter(e.target.value)}><option value="">全部记录</option><option value="pending_review">待审核</option><option value="approved">已通过候选</option><option value="loaded">已加载</option></select></div>
-   <section className="panel table-panel"><div className="table-scroll"><table><thead><tr><th>选择</th><th>策略</th><th>审核 / 编译</th><th>加载记录</th><th>详情</th></tr></thead><tbody>{visibleArtifacts.map(r=>{const selectable=r.review_status==='approved'&&r.compile_state==='compiled'&&r.artifact.actplane_dsl;return <tr key={r.id}><td><input type="checkbox" aria-label={'选择 DSL '+r.id} disabled={!selectable} checked={picked.includes(r.id)} onChange={e=>choose(picked,setPicked,r.id,e.target.checked)}/></td><td>{r.artifact.policy_record.candidate_rule.reason}<small>DSL v{r.version} · {clip(r.id)}</small></td><td>{status(r.review_status)}<small>{status(r.compile_state)}</small></td><td>{r.deployments.map(d=><div key={d.id}>{status(d.status)}<small>任务 {clip(d.task_id)} · Domain {d.domain_id||'—'} · {d.active?'活跃':'非活跃'}</small></div>)}{!r.deployments.length&&'未加载'}</td><td><details><summary>查看</summary><ArtifactPreview artifact={r}/></details></td></tr>})}</tbody></table></div></section>
-   <section className="panel history-form"><label>目标任务<select value={targetTask} onChange={e=>{setTargetTask(e.target.value);setBundle(null);}}><option value="">选择尚未启动的任务</option>{readyTasks.map(t=><option key={t.id} value={t.id}>{t.name} · {clip(t.id)}</option>)}</select></label><div className="button-row"><button className="button primary" disabled={busy||!targetTask||!picked.length} onClick={build}>生成任务策略包（{picked.length}）</button>{targetTask&&<button className="button ghost" onClick={()=>selectTask(targetTask)}>查看任务</button>}</div>
-   {bundle&&<div className="bundle-preview"><b>任务策略 v{bundle.version}</b> {status(bundle.compile_state)} {status(bundle.status)}<pre>{bundle.dsl_text}</pre>{bundle.diagnostic&&<div className="inline-notice warning">{bundle.diagnostic}</div>}<div className="button-row"><button className="button success" disabled={busy||bundle.compile_state!=='compiled'||bundle.status!=='pending_review'} onClick={approveBundle}>批准策略包</button><button className="button primary" disabled={busy||bundle.status!=='approved'} onClick={launch}>加载并启动 DSH</button></div>{bundle.receipt&&<pre>{JSON.stringify(bundle.receipt,null,2)}</pre>}</div>}</section>
-   <details className="panel history-detail"><summary>旧来源记录（{legacy.length}）</summary>{legacy.map(r=><article className="evidence" key={r.id}><p>{r.text}</p>{status(r.status)} <a href={r.raw_url||'#'} target="_blank" rel="noreferrer">来源</a></article>)}</details>
-  </>}
+  <StrategyRecords active={tab===3} api={api} post={post} tasks={tasks} busy={busy} action={action} notify={notify} selectTask={selectTask} reloadHistory={load} onTranslate={ident=>{setStatementId(ident);onModuleChange(2)}}/>
   <details className="panel history-detail"><summary>后台作业（{jobs.length}）</summary>{jobs.slice(0,15).map(j=><article className="history-job" key={j.id}><span>{({collect:'文档采集',extract:'语句抽取',translate:'DSL 转换',compile:'编译检查'})[j.kind]}</span> {status(j.status)} <small>{clip(j.id)}</small>{j.error&&<p className="error">{j.error}</p>}{['failed','interrupted'].includes(j.status)&&<button className="button tiny ghost" disabled={busy} onClick={()=>run(async()=>{await post('/api/history/jobs/'+j.id+'/retry');notify('重试已排队');})}>重试</button>}<details><summary>结果</summary><pre>{JSON.stringify(j.result,null,2)}</pre></details></article>)}</details>
  </div></div>;
-}
-function ArtifactPreview({artifact:r}) {
- return <>{r.runtime_limits?.map(x=><div className="inline-notice warning" key={x.code}>{x.detail}</div>)}<div className="history-artifact-grid"><div><h4>策略记录伪代码</h4><pre>{r.artifact.pseudo_code}</pre></div><div><h4>ActPlane DSL</h4><pre>{r.artifact.actplane_dsl||'待补充上下文或当前后端不支持'}</pre>{r.artifact.policy_record.metadata.evidence.unresolved?.length>0&&<ul>{r.artifact.policy_record.metadata.evidence.unresolved.map((x,i)=><li key={i}>{x}</li>)}</ul>}<details><summary>编译诊断</summary><pre>{JSON.stringify(r.compile,null,2)}</pre></details></div></div>{r.deployments?.length>0&&<details><summary>加载历史与真实回执</summary>{r.deployments.map(d=><article className="evidence" key={d.id}><div><b>任务 {d.task_id}</b><span>{status(d.status)} · Domain {d.domain_id||"—"} · PID {d.runner_pid||"—"}</span></div><p>任务策略版本 {d.policy_version_id}<br/>提交 hash {d.bundle_hash}<br/>{d.active?"活跃":"非活跃"} · {d.created_at}</p><pre>{JSON.stringify(d.receipt,null,2)}</pre></article>)}</details>}</>;
 }
