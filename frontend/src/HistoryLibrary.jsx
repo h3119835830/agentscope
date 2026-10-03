@@ -7,7 +7,7 @@ const labels={queued:'排队中',running:'处理中',completed:'已完成',faile
 const status=v=><span className={'tag '+(['approved','compiled','loaded','completed'].includes(v)?'good':['failed','rejected','compile_failed','load_failed'].includes(v)?'bad':'warn')}>{labels[v]||v}</span>;
 const clip=x=>x?.slice(0,12)||'—';
 
-export default function HistoryLibrary({api,post,tasks,busy,action,notify,selectTask,moduleIndex,title,onModuleChange}) {
+export default function HistoryLibrary({api,post,tasks,busy,action,notify,selectTask,moduleIndex,modules,onModuleChange}) {
  const tab=moduleIndex;
  const [docs,setDocs]=useState([]),[statements,setStatements]=useState([]),
  [artifacts,setArtifacts]=useState([]),[jobs,setJobs]=useState([]),[legacy,setLegacy]=useState([]);
@@ -49,8 +49,19 @@ export default function HistoryLibrary({api,post,tasks,busy,action,notify,select
  const openStatement=r=>{setDetail(r);setEdit(JSON.stringify(r.record.statement,null,2));};
  const visibleArtifacts=artifacts.filter(r=>search(r)&&(!filter|| (filter==='loaded'?r.deployments.some(d=>d.status==='loaded'):r.review_status===filter)));
 
- return <div className="content history-library">
-  <div className="page-head"><div><h1>{title}</h1></div></div>
+ const navigateTab=event=>{
+  const keys=['ArrowLeft','ArrowRight','Home','End'];
+  if(!keys.includes(event.key))return;
+  event.preventDefault();
+  const next=event.key==='Home'?0:event.key==='End'?modules.length-1:(tab+(event.key==='ArrowRight'?1:-1)+modules.length)%modules.length;
+  onModuleChange(next);
+  event.currentTarget.parentElement.children[next].focus();
+ };
+ return <div className="history-module-page">
+  <nav className="history-subnav" aria-label="历史策略库二级导航">
+   <div role="tablist" aria-label="历史策略库模块">{modules.map((module,index)=><button key={module.page} id={'history-tab-'+index} type="button" role="tab" aria-selected={tab===index} aria-controls="history-module-panel" tabIndex={tab===index?0:-1} className={tab===index?'active':''} onClick={()=>onModuleChange(index)} onKeyDown={navigateTab}>{module.title}</button>)}</div>
+  </nav>
+  <div id="history-module-panel" role="tabpanel" aria-labelledby={'history-tab-'+tab} className="content history-library">
   {tab===0&&<>
    <section className="panel history-form"><div className="history-fields">
     <label>GitHub 仓库<input value={repo} onChange={e=>setRepo(e.target.value)}/></label>
@@ -82,7 +93,7 @@ export default function HistoryLibrary({api,post,tasks,busy,action,notify,select
    <details className="panel history-detail"><summary>旧来源记录（{legacy.length}）</summary>{legacy.map(r=><article className="evidence" key={r.id}><p>{r.text}</p>{status(r.status)} <a href={r.raw_url||'#'} target="_blank" rel="noreferrer">来源</a></article>)}</details>
   </>}
   <details className="panel history-detail"><summary>后台作业（{jobs.length}）</summary>{jobs.slice(0,15).map(j=><article className="history-job" key={j.id}><span>{({collect:'文档采集',extract:'语句抽取',translate:'DSL 转换',compile:'编译检查'})[j.kind]}</span> {status(j.status)} <small>{clip(j.id)}</small>{j.error&&<p className="error">{j.error}</p>}{['failed','interrupted'].includes(j.status)&&<button className="button tiny ghost" disabled={busy} onClick={()=>run(async()=>{await post('/api/history/jobs/'+j.id+'/retry');notify('重试已排队');})}>重试</button>}<details><summary>结果</summary><pre>{JSON.stringify(j.result,null,2)}</pre></details></article>)}</details>
- </div>;
+ </div></div>;
 }
 function ArtifactPreview({artifact:r}) {
  return <>{r.runtime_limits?.map(x=><div className="inline-notice warning" key={x.code}>{x.detail}</div>)}<div className="history-artifact-grid"><div><h4>策略记录伪代码</h4><pre>{r.artifact.pseudo_code}</pre></div><div><h4>ActPlane DSL</h4><pre>{r.artifact.actplane_dsl||'待补充上下文或当前后端不支持'}</pre>{r.artifact.policy_record.metadata.evidence.unresolved?.length>0&&<ul>{r.artifact.policy_record.metadata.evidence.unresolved.map((x,i)=><li key={i}>{x}</li>)}</ul>}<details><summary>编译诊断</summary><pre>{JSON.stringify(r.compile,null,2)}</pre></details></div></div>{r.deployments?.length>0&&<details><summary>加载历史与真实回执</summary>{r.deployments.map(d=><article className="evidence" key={d.id}><div><b>任务 {d.task_id}</b><span>{status(d.status)} · Domain {d.domain_id||"—"} · PID {d.runner_pid||"—"}</span></div><p>任务策略版本 {d.policy_version_id}<br/>提交 hash {d.bundle_hash}<br/>{d.active?"活跃":"非活跃"} · {d.created_at}</p><pre>{JSON.stringify(d.receipt,null,2)}</pre></article>)}</details>}</>;

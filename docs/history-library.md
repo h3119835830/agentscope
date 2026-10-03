@@ -1,6 +1,6 @@
 # History policy library
 
-AgentScope 0.2.0 exposes 文档采集、策略语句抽取、策略转 DSL、策略记录与加载 as top-level sidebar entries. The sidebar can collapse to labeled icons and remembers that preference; there is no parent 历史策略库 menu or duplicate inner tab navigation. Public GitHub instruction files are input data and are never executed as instructions by the extraction client.
+AgentScope 0.2.0 keeps 历史策略库 as a first-level entry in the left sidebar. Its four second-level modules — 文档采集、策略语句抽取、策略转 DSL、策略记录与加载 — appear across the top of the main area below the breadcrumb. The sidebar can collapse to icons with accessible labels and remembers that preference; the duplicate body heading is removed. Public GitHub instruction files are input data and are never executed as instructions by the extraction client.
 
 The reusable entry points are `history.pipeline.extract_strategy_statements(MarkdownDocument)` and `generate_policy_artifact(StrategyStatementVersion)`. Inject a provider for tests or configure the independent tool-free DeepSeek client with the protected service environment described in [install-linux.md](install-linux.md). Both functions are independent of HTTP, SQLite and the privileged Broker. English and Chinese text are retained separately from exact source evidence.
 
@@ -13,3 +13,5 @@ Deploy with one API process and one history worker. A restart marks running jobs
 The observed ActPlane write-hook boundary may leave an empty new file entry when content writing is denied. This is shown in artifact details and is separate from compiler success. Complete filesystem metadata invariance, multi-worker operation and concurrent Broker runtimes are not claimed.
 
 See [the real acceptance record](acceptance/history-library-20261002.md) and its sanitized structured evidence. Unit tests use isolated SQLite and fixture providers; real acceptance additionally uses DeepSeek and isolated DSH tasks.
+
+The release design snapshots are in [history-library/](history-library/README.md): technical plan, RFC, ADR, REVIEW and BUG.
