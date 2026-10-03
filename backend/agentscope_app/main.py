@@ -1,13 +1,13 @@
 import asyncio, hashlib, hmac, json, os, re, secrets, subprocess, tempfile, uuid
 from pathlib import Path
 from typing import Any
-from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi import BackgroundTasks, FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from pydantic import BaseModel, Field
 from . import db
 from .config import ACTPLANE_BIN, ADMIN_TOKEN, DSH_BIN, EXEC_PATH, PUBLIC_BASE_URL, SERVICE_HOME, UI_DIST, WORKSPACE_ROOT
 from .broker_client import call as broker_call
-from .services import corpus, github, policy
+from .services import corpus, github, pi_policy_generator, policy
 
 app=FastAPI(title="AgentScope",version="0.1.0")
 
@@ -34,14 +34,40 @@ class ScopeRequestBody(BaseModel):
     kind:str; path:str|None=None; justification:str=Field(min_length=4,max_length=1000); requested_by:str="用户"
 class GovernanceRequest(BaseModel):
     task_id:str|None=None; kind:str; title:str; content:str=Field(min_length=5,max_length=30000); source_url:str|None=None
+class StrategyCreateRequest(BaseModel):
+    text:str=Field(min_length=5,max_length=12000)
+    category:str="semantic"
+    category_confidence:float=Field(default=1.0,ge=0,le=1)
+    context_scope:str="self-contained"
+    execution_layer:str="repository_instruction"
+    source_url:str|None=None
+    actor:str="研究者"
+class StrategyUpdateRequest(BaseModel):
+    text:str|None=Field(default=None,min_length=5,max_length=12000)
+    category:str|None=None
+    category_confidence:float|None=Field(default=None,ge=0,le=1)
+    context_scope:str|None=None
+    execution_layer:str|None=None
+    actor:str="研究者"
+    reason:str=Field(default="",max_length=2000)
+class PiProposalSubmitRequest(BaseModel):
+    title:str=Field(min_length=3,max_length=160)
+    content:str=Field(min_length=5,max_length=12000)
+    rationale:str=Field(default="",max_length=4000)
+    evidence_ids:list[str]=Field(min_length=1,max_length=30)
+    strategy_ids:list[str]=Field(default_factory=list,max_length=20)
+class PiProposalReviewRequest(BaseModel):
+    decision:str
+    reviewed_by:str="研究者"
+    notes:str=Field(default="",max_length=2000)
 
 
-def issue_task_token(task_id):
+def issue_task_token(task_id,scope="dsh"):
     token=secrets.token_urlsafe(32)
     ident=uuid.uuid4().hex
     digest=hashlib.sha256(token.encode()).hexdigest()
     with db.connect() as con:
-        con.execute("INSERT INTO task_credentials(id,task_id,token_sha256,created_at) VALUES(?,?,?,?)",(ident,task_id,digest,db.now()))
+        con.execute("INSERT INTO task_credentials(id,task_id,token_sha256,created_at,scope) VALUES(?,?,?,?,?)",(ident,task_id,digest,db.now(),scope))
     return token,ident
 
 def revoke_task_tokens(task_id,keep_id=None):
@@ -61,11 +87,25 @@ def require_agent_task(task_id,request):
     if not token: raise HTTPException(401,"缺少任务凭据")
     digest=hashlib.sha256(token.encode()).hexdigest()
     with db.connect() as con:
-        credential=con.execute("SELECT id FROM task_credentials WHERE task_id=? AND token_sha256=? AND revoked_at IS NULL",(task_id,digest)).fetchone()
+        credential=con.execute("SELECT id FROM task_credentials WHERE task_id=? AND token_sha256=? AND scope='dsh' AND revoked_at IS NULL",(task_id,digest)).fetchone()
         task=con.execute("SELECT * FROM tasks WHERE id=?",(task_id,)).fetchone()
     if not credential or not task: raise HTTPException(401,"任务凭据无效")
     if task["status"]!="running": raise HTTPException(409,"任务当前未运行")
     return dict(task),credential["id"]
+
+
+def require_pi_run(task_id,run_id,request):
+    header=request.headers.get("authorization","")
+    token=header[7:] if header.lower().startswith("bearer ") else ""
+    if not token: raise HTTPException(401,"缺少 Pi 任务凭据")
+    digest=hashlib.sha256(token.encode()).hexdigest()
+    with db.connect() as con:
+        credential=con.execute("SELECT id FROM task_credentials WHERE task_id=? AND token_sha256=? AND scope='pi' AND revoked_at IS NULL",(task_id,digest)).fetchone()
+        task=con.execute("SELECT * FROM tasks WHERE id=?",(task_id,)).fetchone()
+        pi_run=con.execute("SELECT id FROM pi_runs WHERE id=? AND task_id=? AND status='running'",(run_id,task_id)).fetchone()
+    if not credential or not task or not pi_run: raise HTTPException(401,"Pi 任务凭据无效或已失效")
+    if task["status"]!="prepared": raise HTTPException(409,"仅可读取仍处于准备状态的当前任务")
+    return dict(task)
 
 
 def require_task(task_id):
@@ -149,6 +189,7 @@ def create_policy_version(task,version,layer,settings,strategy_ids,summary,extra
 @app.on_event("startup")
 async def startup():
     db.init_db()
+    pi_policy_generator.recover_interrupted_runs()
 
 @app.get("/api/health")
 def health(): return {"ok":True,"service":"AgentScope","version":"0.1.0"}
@@ -164,15 +205,17 @@ def status():
     broker={"available":False}
     try: broker=broker_call({"action":"health"},timeout=2)
     except Exception as e: broker={"available":False,"error":str(e)}
+    pi=pi_policy_generator.availability()
     return {"kernel":os.uname().release,"architecture":os.uname().machine,"btf":Path("/sys/kernel/btf/vmlinux").exists(),"lsm":lsm,
       "bpf_lsm":"bpf" in lsm.split(","),"actplane_cli":ACTPLANE_BIN.exists(),"dsh_cli":DSH_BIN.exists(),
-      "broker":broker,"vm":"Linux guest"}
+      "broker":broker,"pi_cli":pi["available"],"pi_reason":pi["reason"],"vm":"Linux guest"}
 
 @app.get("/api/dashboard")
 def dashboard():
     with db.connect() as con:
-        stats={"strategies":con.execute("SELECT count(*) FROM strategies").fetchone()[0],
-          "pending_strategies":con.execute("SELECT count(*) FROM strategies WHERE status='pending_review'").fetchone()[0],
+        stats={"strategies":con.execute("SELECT count(*) FROM strategies WHERE is_archived=0").fetchone()[0],
+          "pending_strategies":con.execute("SELECT count(*) FROM strategies WHERE status='pending_review' AND is_archived=0").fetchone()[0],
+          "archived_strategies":con.execute("SELECT count(*) FROM strategies WHERE is_archived=1").fetchone()[0],
           "active_tasks":con.execute("SELECT count(*) FROM tasks WHERE status IN ('running','starting')").fetchone()[0],
           "pending_governance":con.execute("SELECT count(*) FROM governance_candidates WHERE status='pending_review'").fetchone()[0],
           "tasks":con.execute("SELECT count(*) FROM tasks").fetchone()[0]}
@@ -181,23 +224,126 @@ def dashboard():
     return {"stats":stats,"active":active}
 
 @app.get("/api/strategies")
-def get_strategies(q:str="",status_filter:str|None=Query(default=None,alias="status"),category:str|None=None,limit:int=100):
-    records=corpus.search(q,limit,status_filter)
+def get_strategies(q:str="",status_filter:str|None=Query(default=None,alias="status"),category:str|None=None,archived:str="active",limit:int=100):
+    if archived not in ("active","archived","all"):
+        raise HTTPException(400,"archived 只能是 active、archived 或 all")
+    archive_filter={"active":False,"archived":True,"all":None}[archived]
+    records=corpus.search(q,limit,status_filter,archive_filter)
     if category: records=[r for r in records if r["category"]==category]
     return records
+
+@app.get("/api/strategies/page")
+def get_strategy_page(q:str="",status_filter:str|None=Query(default=None,alias="status"),archived:str="active",
+                      category:str|None=None,context_scope:str|None=None,source_repo:str|None=None,
+                      limit:int=Query(default=20,ge=1,le=500),offset:int=Query(default=0,ge=0)):
+    if archived not in ("active","archived","all"):
+        raise HTTPException(400,"archived 只能是 active、archived 或 all")
+    archive_filter={"active":False,"archived":True,"all":None}[archived]
+    return corpus.search_page(q,limit,offset,status_filter,archive_filter,category,context_scope,source_repo)
 
 @app.post("/api/strategies/import")
 def import_strategies():
     try: return corpus.import_rq1()
     except Exception as e: raise HTTPException(500,f"RQ1 导入失败：{e}")
 
+STRATEGY_CATEGORIES={"semantic","per-event","cross-event"}
+STRATEGY_SCOPES={"self-contained","project","task"}
+
+@app.post("/api/strategies")
+def create_strategy(body:StrategyCreateRequest):
+    if body.category not in STRATEGY_CATEGORIES: raise HTTPException(400,"策略类型不合法")
+    if body.context_scope not in STRATEGY_SCOPES: raise HTTPException(400,"策略适用范围不合法")
+    if body.source_url and not body.source_url.startswith("https://"):
+        raise HTTPException(400,"来源链接必须使用 HTTPS")
+    ident=uuid.uuid4().hex
+    timestamp=db.now()
+    sentence_hash=hashlib.sha256(body.text.encode()).hexdigest()
+    metadata={"source":"manual"}
+    with db.connect() as con:
+        con.execute(
+            "INSERT INTO strategies(id,text,category,category_confidence,context_scope,execution_layer,status,raw_url,sentence_sha256,source_verified,source_kind,metadata_json,created_at) "
+            "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            (ident,body.text.strip(),body.category,body.category_confidence,body.context_scope,body.execution_layer,
+             "pending_review",body.source_url,sentence_hash,0,"manual",json.dumps(metadata),timestamp),
+        )
+        db.audit(con,None,"strategy_created",body.actor,{"strategy_id":ident,"source_kind":"manual"})
+        row=con.execute("SELECT * FROM strategies WHERE id=?",(ident,)).fetchone()
+    return dict(row)
+
+@app.patch("/api/strategies/{strategy_id}")
+def update_strategy(strategy_id:str,body:StrategyUpdateRequest):
+    fields=body.model_fields_set.intersection({"text","category","category_confidence","context_scope","execution_layer"})
+    if not fields: raise HTTPException(400,"至少提供一个要修改的字段")
+    if body.category is not None and body.category not in STRATEGY_CATEGORIES: raise HTTPException(400,"策略类型不合法")
+    if body.context_scope is not None and body.context_scope not in STRATEGY_SCOPES: raise HTTPException(400,"策略适用范围不合法")
+    timestamp=db.now()
+    with db.connect() as con:
+        row=con.execute("SELECT * FROM strategies WHERE id=?",(strategy_id,)).fetchone()
+        if not row: raise HTTPException(404,"策略记录不存在")
+        if row["is_archived"]: raise HTTPException(409,"已归档策略不可编辑；请先恢复")
+        before=dict(row)
+        revision=row["revision"]+1
+        new_values={key:getattr(body,key) for key in fields if getattr(body,key) is not None}
+        if "text" in new_values: new_values["text"]=new_values["text"].strip()
+        if not new_values: raise HTTPException(400,"没有可应用的修改")
+        after={**before,**new_values,"revision":revision,"status":"pending_review","reviewed_at":None,"reviewed_by":None}
+        if "text" in new_values and new_values["text"] != before["text"]:
+            new_values["source_verified"]=0
+            after["source_verified"]=0
+        con.execute(
+            "INSERT INTO strategy_revisions(id,strategy_id,revision,actor,reason,snapshot_json,created_at) VALUES(?,?,?,?,?,?,?)",
+            (uuid.uuid4().hex,strategy_id,before["revision"],body.actor,body.reason,
+             json.dumps(before,ensure_ascii=False),timestamp),
+        )
+        setters=[f"{key}=?" for key in new_values]
+        params=list(new_values.values())
+        setters.extend(["revision=?","status='pending_review'","reviewed_at=NULL","reviewed_by=NULL"])
+        params.extend([revision,strategy_id])
+        con.execute(f"UPDATE strategies SET {','.join(setters)} WHERE id=?",params)
+        db.audit(con,None,"strategy_updated",body.actor,{"strategy_id":strategy_id,"revision":revision,"reason":body.reason,"fields":sorted(new_values)})
+        updated=con.execute("SELECT * FROM strategies WHERE id=?",(strategy_id,)).fetchone()
+    return dict(updated)
+
+@app.get("/api/strategies/{strategy_id}/history")
+def strategy_history(strategy_id:str):
+    with db.connect() as con:
+        if not con.execute("SELECT 1 FROM strategies WHERE id=?",(strategy_id,)).fetchone():
+            raise HTTPException(404,"策略记录不存在")
+        rows=con.execute("SELECT * FROM strategy_revisions WHERE strategy_id=? ORDER BY revision DESC",(strategy_id,)).fetchall()
+    return [{**dict(row),"snapshot":json.loads(row["snapshot_json"])} for row in rows]
+
+@app.delete("/api/strategies/{strategy_id}")
+def archive_strategy(strategy_id:str,actor:str="研究者"):
+    timestamp=db.now()
+    with db.connect() as con:
+        cur=con.execute("UPDATE strategies SET is_archived=1,archived_at=?,archived_by=? WHERE id=? AND is_archived=0",(timestamp,actor,strategy_id))
+        if not cur.rowcount:
+            row=con.execute("SELECT is_archived FROM strategies WHERE id=?",(strategy_id,)).fetchone()
+            if not row: raise HTTPException(404,"策略记录不存在")
+        db.audit(con,None,"strategy_archived",actor,{"strategy_id":strategy_id})
+        row=con.execute("SELECT * FROM strategies WHERE id=?",(strategy_id,)).fetchone()
+    return dict(row)
+
+@app.post("/api/strategies/{strategy_id}/restore")
+def restore_strategy(strategy_id:str,actor:str="研究者"):
+    with db.connect() as con:
+        row=con.execute("SELECT * FROM strategies WHERE id=?",(strategy_id,)).fetchone()
+        if not row: raise HTTPException(404,"策略记录不存在")
+        if row["is_archived"]:
+            con.execute("UPDATE strategies SET is_archived=0,archived_at=NULL,archived_by=NULL WHERE id=?",(strategy_id,))
+            db.audit(con,None,"strategy_restored",actor,{"strategy_id":strategy_id})
+        restored=con.execute("SELECT * FROM strategies WHERE id=?",(strategy_id,)).fetchone()
+    return dict(restored)
+
 @app.post("/api/strategies/{strategy_id}/review")
 def review_strategy(strategy_id:str,body:ReviewRequest):
     if body.decision not in ("approve","reject"): raise HTTPException(400,"decision 只能是 approve 或 reject")
     status="approved" if body.decision=="approve" else "rejected"
     with db.connect() as con:
-        cur=con.execute("UPDATE strategies SET status=?,reviewed_at=?,reviewed_by=? WHERE id=?",(status,db.now(),body.reviewed_by,strategy_id))
-        if not cur.rowcount: raise HTTPException(404,"策略记录不存在")
+        row=con.execute("SELECT is_archived FROM strategies WHERE id=?",(strategy_id,)).fetchone()
+        if not row: raise HTTPException(404,"策略记录不存在")
+        if row["is_archived"]: raise HTTPException(409,"已归档策略不能审核；请先恢复")
+        con.execute("UPDATE strategies SET status=?,reviewed_at=?,reviewed_by=? WHERE id=?",(status,db.now(),body.reviewed_by,strategy_id))
         db.audit(con,None,"strategy_review",body.reviewed_by,{"strategy_id":strategy_id,"decision":body.decision,"notes":body.notes})
         row=con.execute("SELECT * FROM strategies WHERE id=?",(strategy_id,)).fetchone()
     return dict(row)
@@ -221,6 +367,137 @@ def task_context(task_id:str):
         ev=[dict(r) for r in con.execute("SELECT * FROM evidence WHERE task_id=? ORDER BY kind,file_path,line_start LIMIT 250",(task_id,)).fetchall()]
     query=task["prompt"]+" "+" ".join(x["excerpt"] for x in ev[:100])
     return {"task":task,"evidence":ev,"history_recommendations":corpus.recommend(query,12)}
+
+def _pi_run_payload(run_row):
+    payload=dict(run_row)
+    try: payload["input"]=json.loads(payload.pop("input_json") or "{}")
+    except Exception: payload["input"]={}
+    try: payload["result"]=json.loads(payload.pop("result_json") or "{}")
+    except Exception: payload["result"]={}
+    with db.connect() as con:
+        rows=con.execute("SELECT * FROM policy_proposals WHERE run_id=? ORDER BY created_at,id",(payload["id"],)).fetchall()
+    proposals=[]
+    for row in rows:
+        proposal=dict(row)
+        try: proposal["evidence_ids"]=json.loads(proposal.pop("evidence_ids_json") or "[]")
+        except Exception: proposal["evidence_ids"]=[]
+        try: proposal["strategy_ids"]=json.loads(proposal.pop("strategy_ids_json") or "[]")
+        except Exception: proposal["strategy_ids"]=[]
+        proposals.append(proposal)
+    payload["proposals"]=proposals
+    return payload
+
+@app.post("/api/tasks/{task_id}/pi-runs",status_code=202)
+def start_pi_run(task_id:str,background_tasks:BackgroundTasks,requested_by:str="研究者"):
+    task=require_task(task_id)
+    if task["status"]!="prepared": raise HTTPException(409,"Pi 只接受尚未启动的准备中任务")
+    available=pi_policy_generator.availability()
+    if not available["available"]: raise HTTPException(503,available["reason"])
+    with db.connect() as con:
+        active=con.execute("SELECT id FROM pi_runs WHERE task_id=? AND status IN ('queued','running')",(task_id,)).fetchone()
+        if active: raise HTTPException(409,"该任务已有 Pi 生成流程正在运行")
+        evidence=[dict(r) for r in con.execute("SELECT id,content_sha256 FROM evidence WHERE task_id=? ORDER BY id",(task_id,)).fetchall()]
+        approved_count=con.execute("SELECT count(*) FROM strategies WHERE status='approved' AND is_archived=0").fetchone()[0]
+        run_id=uuid.uuid4().hex
+        timestamp=db.now()
+        run_input={
+            "repository":task["repo"],"commit_sha":task["commit_sha"],
+            "prompt_sha256":hashlib.sha256(task["prompt"].encode()).hexdigest(),
+            "evidence_count":len(evidence),
+            "evidence_sha256":hashlib.sha256("".join(x["content_sha256"] for x in evidence).encode()).hexdigest(),
+            "approved_history_count":approved_count,
+        }
+        con.execute("INSERT INTO pi_runs(id,task_id,status,requested_by,input_json,created_at,updated_at) VALUES(?,?,?,?,?,?,?)",
+          (run_id,task_id,"queued",requested_by,json.dumps(run_input),timestamp,timestamp))
+        db.audit(con,task_id,"pi_run_started",requested_by,{"run_id":run_id,"commit_sha":task["commit_sha"]})
+    token,credential_id=issue_task_token(task_id,scope="pi")
+    background_tasks.add_task(pi_policy_generator.run,run_id,task_id,token,credential_id)
+    return {"id":run_id,"task_id":task_id,"status":"queued","created_at":timestamp}
+
+@app.get("/api/tasks/{task_id}/pi-runs")
+def list_pi_runs(task_id:str):
+    require_task(task_id)
+    with db.connect() as con:
+        rows=con.execute("SELECT * FROM pi_runs WHERE task_id=? ORDER BY created_at DESC LIMIT 20",(task_id,)).fetchall()
+    return [_pi_run_payload(row) for row in rows]
+
+@app.get("/api/pi-runs/{run_id}")
+def get_pi_run(run_id:str):
+    with db.connect() as con: row=con.execute("SELECT * FROM pi_runs WHERE id=?",(run_id,)).fetchone()
+    if not row: raise HTTPException(404,"Pi 运行记录不存在")
+    return _pi_run_payload(row)
+
+@app.post("/api/tasks/{task_id}/pi-proposals/{proposal_id}/review")
+def review_pi_proposal(task_id:str,proposal_id:str,body:PiProposalReviewRequest):
+    if body.decision not in ("approve","reject"): raise HTTPException(400,"decision 只能是 approve 或 reject")
+    status="approved" if body.decision=="approve" else "rejected"
+    with db.connect() as con:
+        row=con.execute("SELECT status FROM policy_proposals WHERE id=? AND task_id=?",(proposal_id,task_id)).fetchone()
+        if not row: raise HTTPException(404,"任务策略候选不存在")
+        if row["status"]!="pending_review": raise HTTPException(409,"该候选已完成审核")
+        con.execute("UPDATE policy_proposals SET status=?,reviewed_at=?,reviewed_by=?,review_notes=? WHERE id=?",
+          (status,db.now(),body.reviewed_by,body.notes,proposal_id))
+        db.audit(con,task_id,"pi_proposal_review",body.reviewed_by,{"proposal_id":proposal_id,"decision":body.decision,"notes":body.notes})
+        updated=con.execute("SELECT * FROM policy_proposals WHERE id=?",(proposal_id,)).fetchone()
+    result=dict(updated)
+    result["evidence_ids"]=json.loads(result.pop("evidence_ids_json") or "[]")
+    result["strategy_ids"]=json.loads(result.pop("strategy_ids_json") or "[]")
+    return result
+
+@app.get("/api/plugin/tasks/{task_id}/pi/context")
+def pi_task_context(task_id:str,request:Request,run_id:str):
+    task=require_pi_run(task_id,run_id,request)
+    with db.connect() as con:
+        evidence=con.execute("SELECT id,kind,title,uri,file_path,commit_sha,line_start,line_end,content_sha256 FROM evidence WHERE task_id=? ORDER BY kind,file_path,line_start LIMIT 250",(task_id,)).fetchall()
+    return {
+      "task":{"id":task_id,"repository":task["repo"],"fixed_commit":task["commit_sha"],"prompt":task["prompt"]},
+      "evidence":[dict(row) for row in evidence],
+    }
+
+@app.get("/api/plugin/tasks/{task_id}/pi/evidence/{evidence_id}")
+def pi_read_evidence(task_id:str,evidence_id:str,request:Request,run_id:str):
+    require_pi_run(task_id,run_id,request)
+    with db.connect() as con:
+        row=con.execute("SELECT id,kind,title,uri,file_path,commit_sha,line_start,line_end,excerpt,content_sha256 FROM evidence WHERE id=? AND task_id=?",(evidence_id,task_id)).fetchone()
+    if not row: raise HTTPException(404,"当前任务中没有该证据")
+    return dict(row)
+
+@app.get("/api/plugin/tasks/{task_id}/pi/history")
+def pi_search_history(task_id:str,request:Request,run_id:str,q:str=Query(min_length=1,max_length=500)):
+    require_pi_run(task_id,run_id,request)
+    results=corpus.recommend(q,12,status="approved")
+    return [{key:row.get(key) for key in ("id","text","category","context_scope","source_repo","source_path","line_start","line_end","raw_url","source_verified","relevance")} for row in results]
+
+@app.post("/api/plugin/tasks/{task_id}/pi/proposals")
+def pi_submit_proposal(task_id:str,request:Request,run_id:str,body:PiProposalSubmitRequest):
+    require_pi_run(task_id,run_id,request)
+    evidence_ids=list(dict.fromkeys(body.evidence_ids))
+    strategy_ids=list(dict.fromkeys(body.strategy_ids))
+    content=body.content.strip()
+    digest=hashlib.sha256(content.encode()).hexdigest()
+    with db.connect() as con:
+        allowed_evidence={r[0] for r in con.execute(
+          f"SELECT id FROM evidence WHERE task_id=? AND id IN ({','.join('?' for _ in evidence_ids)})",
+          [task_id,*evidence_ids],
+        ).fetchall()}
+        if allowed_evidence!=set(evidence_ids): raise HTTPException(400,"候选引用了不属于当前任务的证据")
+        if strategy_ids:
+            allowed_history={r[0] for r in con.execute(
+              f"SELECT id FROM strategies WHERE status='approved' AND is_archived=0 AND id IN ({','.join('?' for _ in strategy_ids)})",
+              strategy_ids,
+            ).fetchall()}
+            if allowed_history!=set(strategy_ids): raise HTTPException(400,"候选引用了未审核或已归档历史策略")
+        proposal_id=uuid.uuid4().hex
+        con.execute(
+          "INSERT OR IGNORE INTO policy_proposals(id,run_id,task_id,title,content,rationale,evidence_ids_json,strategy_ids_json,content_sha256,status,created_at) VALUES(?,?,?,?,?,?,?,?,?,'pending_review',?)",
+          (proposal_id,run_id,task_id,body.title.strip(),content,body.rationale.strip(),json.dumps(evidence_ids),json.dumps(strategy_ids),digest,db.now()),
+        )
+        if con.execute("SELECT changes()").fetchone()[0]==0:
+            row=con.execute("SELECT id FROM policy_proposals WHERE run_id=? AND content_sha256=?",(run_id,digest)).fetchone()
+            proposal_id=row["id"]
+        else:
+            db.audit(con,task_id,"pi_proposal_created","Pi",{"proposal_id":proposal_id,"run_id":run_id,"evidence_ids":evidence_ids})
+    return {"id":proposal_id,"status":"pending_review"}
 
 @app.get("/api/plugin/tasks/{task_id}/scope")
 def plugin_scope(task_id:str,request:Request):

@@ -52,6 +52,18 @@ npm --prefix frontend run build
 `ExecStart`。两个服务都读取同一份 root-only 环境文件。API 以普通服务账户运行；ActPlane
 Broker 独立以 root 运行，并通过 Unix socket 验证调用方 UID。不要把 AgentScope API 直接暴露到公网。
 
+## 安装 Pi 策略生成器
+
+Pi 以一次性、无会话的进程运行。仓库内受限扩展和 `task-scope-bootstrap` Skill 通过当前任务短期凭据访问 AgentScope；管理员令牌不会传给 Pi。Pi CLI 固定安装在 `/var/lib/agentscope/pi-runtime`，该目录随 AgentScope 持久化数据保留。
+
+使用服务账户和 VM 已安装的 Node 22 安装固定版本：
+
+```bash
+./scripts/install-pi.sh
+```
+
+首次使用前需在同一 VM 服务账户下完成 Pi 模型提供方登录或配置。认证留在该账户的 Pi 配置目录，不写入 AgentScope 数据库。若使用自定义安装路径，在 `/etc/agentscope/agentscope.env` 设置 `PI_BIN`，并重启 `agentscope-app`。状态页显示 CLI、扩展和 Skill 是否可用；Pi 运行结果及人工审核记录写入 `/var/lib/agentscope/agentscope.sqlite3`。
+
 ## 安装两个 DSH bundles
 
 先确保 DSH CLI 在 `PATH` 中，然后从仓库根目录运行：

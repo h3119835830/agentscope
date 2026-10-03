@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
 
+const STRATEGY_PAGE_SIZE = 20;
 const api = async (url, options = {}) => {
   const token = typeof sessionStorage === 'undefined' ? '' : sessionStorage.getItem('agentscopeAdminToken') || '';
   const response = await fetch(url, { ...options, headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}), ...(options.headers || {}) } });
@@ -21,14 +22,21 @@ function App() {
   const [status, setStatus] = useState(null);
   const [dash, setDash] = useState(null);
   const [strategies, setStrategies] = useState([]);
+  const [strategyTotal, setStrategyTotal] = useState(0);
+  const [strategyOffset, setStrategyOffset] = useState(0);
   const [strategyQuery, setStrategyQuery] = useState('');
   const [strategyStatus, setStrategyStatus] = useState('');
+  const [strategyCategory, setStrategyCategory] = useState('');
+  const [strategyScope, setStrategyScope] = useState('');
+  const [strategyRepo, setStrategyRepo] = useState('');
+  const [strategyArchived, setStrategyArchived] = useState('active');
   const [tasks, setTasks] = useState([]);
   const [selected, setSelected] = useState('');
   const [context, setContext] = useState(null);
   const [versions, setVersions] = useState([]);
   const [runtime, setRuntime] = useState(null);
   const [requests, setRequests] = useState([]);
+  const [piRuns, setPiRuns] = useState([]);
   const [governance, setGovernance] = useState([]);
   const [toast, setToast] = useState('');
   const [busy, setBusy] = useState(false);
@@ -53,14 +61,28 @@ function App() {
       ]);
       setStatus(s); setDash(d); setTasks(t); setGovernance(g);
       if (selected) {
-        const [c, v, r, q] = await Promise.all([
+        const [c, v, r, q, p] = await Promise.all([
           api(`/api/tasks/${selected}/context`), api(`/api/tasks/${selected}/versions`),
           api(`/api/tasks/${selected}/runtime`), api(`/api/tasks/${selected}/scope-requests`),
+          api(`/api/tasks/${selected}/pi-runs`),
         ]);
-        setContext(c); setVersions(v); setRuntime(r); setRequests(q);
+        setContext(c); setVersions(v); setRuntime(r); setRequests(q); setPiRuns(p);
       }
     } catch (e) { notify(e.message); }
   }, [selected, notify, authenticated]);
+
+  const loadStrategies = useCallback(async () => {
+    if (!authenticated) return;
+    const params = new URLSearchParams({q:strategyQuery,limit:String(STRATEGY_PAGE_SIZE),offset:String(strategyOffset),archived:strategyArchived});
+    if(strategyStatus) params.set('status',strategyStatus);
+    if(strategyCategory) params.set('category',strategyCategory);
+    if(strategyScope) params.set('context_scope',strategyScope);
+    if(strategyRepo.trim()) params.set('source_repo',strategyRepo.trim());
+    const data = await api(`/api/strategies/page?${params}`);
+    setStrategies(data.items);
+    setStrategyTotal(data.total);
+    if (strategyOffset > 0 && strategyOffset >= data.total) setStrategyOffset(Math.max(0, Math.floor((data.total - 1) / data.limit) * data.limit));
+  }, [strategyQuery, strategyStatus, strategyCategory, strategyScope, strategyRepo, strategyArchived, strategyOffset, authenticated]);
 
   useEffect(() => {
     const saved = sessionStorage.getItem('agentscopeAdminToken') || '';
@@ -69,10 +91,8 @@ function App() {
   }, []);
   useEffect(() => { if (!authenticated) return; refresh(); const timer = setInterval(refresh, 7000); return () => clearInterval(timer); }, [authenticated, refresh]);
   useEffect(() => {
-    if (!authenticated) return;
-    api(`/api/strategies?q=${encodeURIComponent(strategyQuery)}&limit=200${strategyStatus ? `&status=${strategyStatus}` : ''}`)
-      .then(setStrategies).catch(() => {});
-  }, [strategyQuery, strategyStatus, authenticated]);
+    loadStrategies().catch(() => {});
+  }, [loadStrategies]);
 
   const withBusy = async fn => {
     setBusy(true);
@@ -100,8 +120,8 @@ function App() {
     <main className="main">
       <header className="topbar"><div><span className="crumb">AgentScope</span><span className="slash">/</span><b>{pageTitle(page)}</b></div><div className="top-right"><span className={`status-pill ${status?.broker?.available && status?.bpf_lsm ? 'good' : 'warn'}`}><i />{status?.broker?.available && status?.bpf_lsm ? '执行面已连接' : '执行面待检查'}</span><button className="avatar" title="锁定管控台" onClick={lock}>锁</button></div></header>
       {page === 'overview' && <Overview dash={dash} status={status} tasks={tasks} onSelect={selectTask} onNav={setPage} />}
-      {page === 'strategies' && <Strategies rows={strategies} query={strategyQuery} setQuery={setStrategyQuery} status={strategyStatus} setStatus={setStrategyStatus} busy={busy} action={withBusy} notify={notify} />}
-      {page === 'task' && <TaskPage tasks={tasks} selected={selected} selectTask={selectTask} context={context} versions={versions} busy={busy} action={withBusy} notify={notify} refresh={refresh} />}
+      {page === 'strategies' && <Strategies rows={strategies} total={strategyTotal} offset={strategyOffset} setOffset={setStrategyOffset} query={strategyQuery} setQuery={setStrategyQuery} status={strategyStatus} setStatus={setStrategyStatus} category={strategyCategory} setCategory={setStrategyCategory} scope={strategyScope} setScope={setStrategyScope} repository={strategyRepo} setRepository={setStrategyRepo} archived={strategyArchived} setArchived={setStrategyArchived} reload={loadStrategies} busy={busy} action={withBusy} notify={notify} />}
+      {page === 'task' && <TaskPage tasks={tasks} selected={selected} selectTask={selectTask} context={context} versions={versions} piRuns={piRuns} piStatus={status} busy={busy} action={withBusy} notify={notify} refresh={refresh} />}
       {page === 'runtime' && <RuntimePage tasks={tasks} selected={selected} selectTask={selectTask} runtime={runtime} requests={requests} busy={busy} action={withBusy} refresh={refresh} notify={notify} />}
       {page === 'governance' && <Governance rows={governance} busy={busy} action={withBusy} notify={notify} />}
     </main>
@@ -114,7 +134,7 @@ function NavItem({ active, icon, label, count, onClick }) { return <button class
 function Header({ eyebrow, title, description, action }) { return <div className="page-head"><div><div className="eyebrow">{eyebrow}</div><h1>{title}</h1><p>{description}</p></div>{action}</div>; }
 function Metric({ label, value, note, icon }) { return <div className="metric"><div className="metric-top"><span>{label}</span><span className="metric-icon">{icon}</span></div><strong>{value ?? '—'}</strong><small>{note}</small></div>; }
 function StatusTag({ children, kind = 'neutral' }) { return <span className={`tag ${kind}`}>{children}</span>; }
-function stateTag(value) { const map = { approved: ['已审核', 'good'], pending_review: ['待审核', 'warn'], rejected: ['已拒绝', 'bad'], compiled: ['已编译', 'good'], partial: ['部分支持', 'warn'], loaded: ['已加载', 'good'], running: ['运行中', 'good'], stopped: ['已停止', 'neutral'], completed: ['已完成', 'good'], prepared: ['待生成策略', 'neutral'], policy_review: ['待策略审核', 'warn'], failed: ['失败', 'bad'] }; const [label,kind] = map[value] || [value || '未知','neutral']; return <StatusTag kind={kind}>{label}</StatusTag>; }
+function stateTag(value) { const map = { approved: ['已审核', 'good'], pending_review: ['待审核', 'warn'], rejected: ['已拒绝', 'bad'], compiled: ['已编译', 'good'], partial: ['部分支持', 'warn'], loaded: ['已加载', 'good'], running: ['运行中', 'good'], queued: ['排队中', 'neutral'], interrupted: ['已中断', 'warn'], archived: ['已归档', 'neutral'], stopped: ['已停止', 'neutral'], completed: ['已完成', 'good'], prepared: ['待生成策略', 'neutral'], policy_review: ['待策略审核', 'warn'], failed: ['失败', 'bad'] }; const [label,kind] = map[value] || [value || '未知','neutral']; return <StatusTag kind={kind}>{label}</StatusTag>; }
 
 function Overview({ dash, status, tasks, onSelect, onNav }) {
   return <div className="content"><Header eyebrow="系统概览" title="策略运行总览" description="从历史策略、任务启动策略到运行时 Scope，集中查看 Agent 的策略版本与执行状态。" action={<button className="button primary" onClick={() => onNav('task')}>＋ 创建任务</button>} />
@@ -132,25 +152,43 @@ function Overview({ dash, status, tasks, onSelect, onNav }) {
 function EnvRow({ label, value, ok }) { return <div className="env-row"><span><i className={ok ? 'dot good' : 'dot warn'} />{label}</span><b>{value}</b></div>; }
 function Layer({ n, title, text }) { return <div className="layer-card"><span>{n}</span><div><b>{title}</b><small>{text}</small></div><i>›</i></div>; }
 
-function Strategies({ rows, query, setQuery, status, setStatus, busy, action, notify }) {
-  const importData = () => action(async () => { const r = await post('/api/strategies/import'); notify(`导入完成：新增 ${r.inserted_count} 条，源行已核验 ${r.verified_count} 条，未定位 ${r.unverified_count} 条`); });
-  const review = (id, decision) => action(async () => { await post(`/api/strategies/${id}/review`, { decision, reviewed_by: '研究者' }); notify(decision === 'approve' ? '策略已审核，可用于任务策略生成' : '策略已拒绝'); });
-  return <div className="content"><Header eyebrow="第一层 · 历史策略" title="历史策略库" description="从已有 RQ1 GitHub 语料导入原始语句和来源证据。策略元数据保存在 AgentScope 数据库，DSL 仅保存执行规则。" action={<button className="button primary" disabled={busy} onClick={importData}>↓ 导入 RQ1 语料</button>} />
-    <div className="toolbar"><div className="search"><span>⌕</span><input value={query} onChange={e => setQuery(e.target.value)} placeholder="搜索策略内容、仓库或文件路径" /></div><select value={status} onChange={e => setStatus(e.target.value)}><option value="">全部状态</option><option value="pending_review">待审核</option><option value="approved">已审核</option><option value="rejected">已拒绝</option></select><span className="row-count">{rows.length} 条记录</span></div>
-    <section className="panel table-panel"><div className="table-scroll"><table><thead><tr><th>策略语句</th><th>类型 / 范围</th><th>来源仓库与位置</th><th>执行层 / 来源校验</th><th>状态</th><th>操作</th></tr></thead><tbody>{rows.map(row => <tr key={row.id}><td className="strategy-text">{row.text}<small>置信度 {Math.round((row.category_confidence || 0) * 100)}%</small></td><td>{row.category}<small>{row.context_scope}</small></td><td>{row.source_repo || '—'}<small>{row.source_path ? `${row.source_path}${row.line_start ? `:${row.line_start}` : ''}` : '未定位到原始行'}</small></td><td>{row.execution_layer}<small>{row.source_verified ? '✓ 固定 commit 原文匹配' : '待核验来源'}</small></td><td>{stateTag(row.status)}</td><td>{row.status === 'pending_review' ? <div className="actions"><button className="button tiny primary" onClick={() => review(row.id,'approve')}>通过</button><button className="button tiny ghost" onClick={() => review(row.id,'reject')}>拒绝</button></div> : <a className="source-link" href={row.raw_url || '#'} target="_blank" rel="noreferrer">查看来源 ↗</a>}</td></tr>)}{rows.length === 0 && <EmptyRow cols={6} text="暂无策略记录。导入本机已存放的 RQ1 语料开始建立历史库。"/>}</tbody></table></div></section>
-    <div className="inline-notice">未能回溯到固定 commit 行号的条目仍以“未核验”状态保留，不能因模型推断自动变成已审核策略。</div>
+function Strategies({ rows, total, offset, setOffset, query, setQuery, status, setStatus, category, setCategory, scope, setScope, repository, setRepository, archived, setArchived, reload, busy, action, notify }) {
+  const emptyDraft = { text:'', category:'semantic', category_confidence:1, context_scope:'self-contained', execution_layer:'repository_instruction', source_url:'' };
+  const [editor,setEditor]=useState(null);
+  const [history,setHistory]=useState(null);
+  useEffect(()=>{if(editor)requestAnimationFrame(()=>document.getElementById('strategy-editor')?.scrollIntoView({behavior:'smooth',block:'start'}));},[editor]);
+  const importData = () => action(async () => { const r = await post('/api/strategies/import'); await reload(); notify(`导入完成：新增 ${r.inserted_count} 条；已存在的修改和审核状态已保留`); });
+  const review = (id, decision) => action(async () => { await post(`/api/strategies/${id}/review`, { decision, reviewed_by: '研究者' }); await reload(); notify(decision === 'approve' ? '策略已审核，可用于任务策略生成' : '策略已拒绝'); });
+  const archive = row => action(async () => { await api(`/api/strategies/${row.id}?actor=${encodeURIComponent('研究者')}`,{method:'DELETE'}); await reload(); notify('策略已归档，可随时恢复'); });
+  const restore = row => action(async () => { await post(`/api/strategies/${row.id}/restore`,{actor:'研究者'}); await reload(); notify('策略已恢复'); });
+  const save = () => action(async () => {
+    const body={...editor,actor:'研究者'}; delete body.id; delete body.source_kind;
+    if(editor.id) { await api(`/api/strategies/${editor.id}`,{method:'PATCH',body:JSON.stringify(body)}); notify('修改已保存；策略回到待审核状态'); }
+    else { await post('/api/strategies',body); notify('策略已新增并进入待审核队列'); }
+    setEditor(null); await reload();
+  });
+  const showHistory = row => action(async () => { const entries=await api(`/api/strategies/${row.id}/history`); setHistory({row,entries}); });
+  const headerAction=<div className="button-row"><button className="button primary" disabled={busy} onClick={()=>setEditor({...emptyDraft})}>＋ 新增策略</button><button className="button ghost" disabled={busy} onClick={importData}>↓ 导入 RQ1</button></div>;
+  return <div className="content"><Header eyebrow="第一层 · 历史策略" title="历史策略库" description="RQ1 语料和手工策略保存在 Linux 虚拟机 SQLite 中；来源可追溯，审核后才会用于任务策略。" action={headerAction} />
+    {editor&&<section id="strategy-editor" className="panel strategy-editor"><div className="panel-head"><div><h2>{editor.id?'编辑策略':'新增策略'}</h2><p>{editor.id?'RQ1 来源字段保持不变；保存修改会保留版本并重新进入待审核。':'手工策略先进入待审核队列。'}</p></div><button className="button ghost" onClick={()=>setEditor(null)}>取消</button></div><label>策略内容<textarea rows="5" value={editor.text || ''} onChange={e=>setEditor({...editor,text:e.target.value})} placeholder="写下可审核的 Agent 行为规则"/></label><div className="strategy-editor-grid"><label>策略类型<select value={editor.category} onChange={e=>setEditor({...editor,category:e.target.value})}><option value="semantic">语义规则</option><option value="per-event">单事件规则</option><option value="cross-event">跨事件规则</option></select></label><label>适用范围<select value={editor.context_scope} onChange={e=>setEditor({...editor,context_scope:e.target.value})}><option value="self-contained">通用</option><option value="project">项目 / 仓库</option><option value="task">当前任务</option></select></label><label>执行层<input value={editor.execution_layer} onChange={e=>setEditor({...editor,execution_layer:e.target.value})}/></label>{!editor.id&&<label>来源链接（可选）<input value={editor.source_url} onChange={e=>setEditor({...editor,source_url:e.target.value})} placeholder="https://…"/></label>}</div><div className="button-row"><button className="button primary" disabled={busy||(editor.text||'').trim().length<5} onClick={save}>保存并进入审核</button></div></section>}
+    <div className="toolbar"><div className="search"><span>⌕</span><input value={query} onChange={e => {setQuery(e.target.value);setOffset(0);}} placeholder="搜索策略内容或文件路径" /></div><select value={category} onChange={e=>{setCategory(e.target.value);setOffset(0);}}><option value="">全部类型</option><option value="semantic">语义规则</option><option value="per-event">单事件规则</option><option value="cross-event">跨事件规则</option></select><select value={scope} onChange={e=>{setScope(e.target.value);setOffset(0);}}><option value="">全部范围</option><option value="self-contained">通用</option><option value="project">项目 / 仓库</option><option value="task">当前任务</option></select><input className="repo-filter" value={repository} onChange={e=>{setRepository(e.target.value);setOffset(0);}} placeholder="筛选仓库，如 owner/repo"/><select value={status} onChange={e => {setStatus(e.target.value);setOffset(0);}}><option value="">全部审核状态</option><option value="pending_review">待审核</option><option value="approved">已审核</option><option value="rejected">已拒绝</option></select><select value={archived} onChange={e=>{setArchived(e.target.value);setOffset(0);}}><option value="active">有效策略</option><option value="archived">已归档</option><option value="all">全部记录</option></select><div className="button-row page-controls"><span className="row-count">{total ? `${offset + 1}–${offset + rows.length} / ${total}` : '0 条记录'}</span><button className="button tiny ghost" disabled={busy||offset===0} onClick={()=>setOffset(Math.max(0,offset-STRATEGY_PAGE_SIZE))}>上一页</button><button className="button tiny ghost" disabled={busy||offset+rows.length>=total} onClick={()=>setOffset(offset+STRATEGY_PAGE_SIZE)}>下一页</button></div></div>
+    <section className="panel table-panel"><div className="table-scroll"><table><thead><tr><th>策略语句</th><th>类型 / 范围</th><th>来源仓库与位置</th><th>执行层 / 来源校验</th><th>状态 / 版本</th><th>操作</th></tr></thead><tbody>{rows.map(row => <tr key={row.id}><td className="strategy-text">{row.text}<small>{row.source_kind==='manual'?'手工新增':'置信度 '+Math.round((row.category_confidence || 0) * 100)+'%'}</small></td><td>{row.category}<small>{row.context_scope}</small></td><td>{row.source_repo || '—'}<small>{row.source_path ? `${row.source_path}${row.line_start ? `:${row.line_start}` : ''}` : row.source_kind==='manual'?'手工来源':'未定位到原始行'}</small></td><td>{row.execution_layer}<small>{row.source_verified ? '✓ 固定 commit 原文匹配' : '未核验 / 手工策略'}</small></td><td>{row.is_archived?<StatusTag>已归档</StatusTag>:stateTag(row.status)}<small>版本 {row.revision||1} · {row.reviewed_by||'未审核'}</small></td><td><div className="actions">{row.is_archived?<button className="button tiny primary" disabled={busy} onClick={()=>restore(row)}>恢复</button>:<>{row.status==='pending_review'&&<><button className="button tiny primary" disabled={busy} onClick={()=>review(row.id,'approve')}>通过</button><button className="button tiny ghost" disabled={busy} onClick={()=>review(row.id,'reject')}>拒绝</button></>}<button className="button tiny ghost" disabled={busy} onClick={()=>setEditor({...emptyDraft,...row})}>编辑</button><button className="button tiny ghost" disabled={busy} onClick={()=>showHistory(row)}>历史</button><button className="button tiny danger" disabled={busy} onClick={()=>archive(row)}>归档</button></>}</div>{row.raw_url&&<a className="source-link" href={row.raw_url} target="_blank" rel="noreferrer">查看来源 ↗</a>}</td></tr>)}{rows.length === 0 && <EmptyRow cols={6} text="暂无符合筛选条件的策略记录。"/>}</tbody></table></div></section>
+    <div className="inline-notice">不能定位到固定 commit 的条目仍会保留为待审核记录；来源核验不等于审核批准。归档可恢复，不会物理删除来源。</div>
+    {history&&<section className="panel revision-panel"><div className="panel-head"><div><h2>修改历史</h2><p>{history.row.source_repo||'手工策略'} · 当前版本 {history.row.revision||1}</p></div><button className="button ghost" onClick={()=>setHistory(null)}>关闭</button></div>{history.entries.length?history.entries.map(item=><article className="revision-entry" key={item.id}><div><b>修改前版本 {item.revision}</b><small>{when(item.created_at)} · {item.actor}{item.reason?` · ${item.reason}`:''}</small></div><p>{item.snapshot?.text}</p><small>类型：{item.snapshot?.category} · 范围：{item.snapshot?.context_scope} · 原始来源：{item.snapshot?.raw_url||item.snapshot?.source_repo||'手工策略'}</small></article>):<div className="empty-box">此策略还没有编辑历史；创建与审核操作仍保存在审计记录中。</div>}</section>}
   </div>;
 }
 
 function TaskTable({ tasks, onSelect }) { return <div className="table-scroll"><table><thead><tr><th>任务</th><th>仓库</th><th>Commit</th><th>状态</th><th>更新时间</th><th></th></tr></thead><tbody>{tasks.map(t => <tr key={t.id} onClick={() => onSelect(t.id)} className="click-row"><td><b>{t.name}</b><small>{short(t.id,16)}</small></td><td>{t.repo}</td><td><code>{short(t.commit_sha,12)}</code></td><td>{stateTag(t.status)}</td><td>{when(t.updated_at)}</td><td>→</td></tr>)}{tasks.length === 0 && <EmptyRow cols={6} text="还没有任务，准备一个 GitHub 仓库开始。"/>}</tbody></table></div>; }
 function EmptyRow({ cols, text }) { return <tr><td colSpan={cols} className="empty-row">{text}</td></tr>; }
 
-function TaskPage({ tasks, selected, selectTask, context, versions, busy, action, notify, refresh }) {
+function TaskPage({ tasks, selected, selectTask, context, versions, piRuns, piStatus, busy, action, notify, refresh }) {
   const [repoUrl,setRepoUrl] = useState('https://github.com/'); const [ref,setRef] = useState('main'); const [prompt,setPrompt] = useState('');
   const [picked,setPicked] = useState([]); const [settings,setSettings] = useState({read_only:false,deny_network:false,allow_task_output:false}); const [bundle,setBundle] = useState(null);
   const current = tasks.find(t => t.id === selected); const recs = context?.history_recommendations || [];
   const prepare = () => action(async () => { const data=await post('/api/tasks/prepare',{repo_url:repoUrl,ref,prompt}); selectTask(data.id); notify(`仓库已固定到 ${data.commit_sha.slice(0,12)}，已采集 ${data.evidence_count} 条项目证据`); });
   const generate = () => action(async () => { const b=await post(`/api/tasks/${selected}/policy`,{strategy_ids:picked,settings}); setBundle(b); notify(`策略 v${b.version} 已生成；编译状态：${b.compile_state}`); });
+  const runPi = () => action(async () => { await post(`/api/tasks/${selected}/pi-runs?requested_by=${encodeURIComponent('研究者')}`); notify('Pi 已启动；候选生成过程会自动保存'); });
+  const reviewPi = (proposal,decision) => action(async () => { await post(`/api/tasks/${selected}/pi-proposals/${proposal.id}/review`,{decision,reviewed_by:'研究者',notes:''}); notify(decision==='approve'?'候选已审核通过；尚未接入 DSH / ActPlane 执行':'候选已拒绝'); });
   const reviewPolicy = decision => action(async () => { const v=bundle?.version || versions[0]?.version; if (!v) throw new Error('没有可审核的策略版本'); await post(`/api/tasks/${selected}/versions/${v}/approve`,{decision,reviewed_by:'研究者',notes:''}); notify(decision==='approve'?'启动策略已批准':'策略已拒绝'); });
   const launch = () => action(async () => { const r=await post(`/api/tasks/${selected}/launch`); notify(`ActPlane 已加载，DSH child domain ${r.domain_id} 已启动`); setBundle(null); });
   const stop = () => action(async () => { await post(`/api/tasks/${selected}/stop`); notify('任务已停止'); });
@@ -159,6 +197,9 @@ function TaskPage({ tasks, selected, selectTask, context, versions, busy, action
     {!current ? <div className="grid-two task-start-grid"><section className="panel form-panel"><div className="panel-head"><div><h2>准备 GitHub 任务</h2><p>只接受公开 GitHub 仓库；任务固定到选定分支或 tag 的实际 commit。</p></div><span className="step-num">01</span></div><label>GitHub 仓库地址<input value={repoUrl} onChange={e=>setRepoUrl(e.target.value)} placeholder="https://github.com/owner/repo"/></label><label>分支 / Tag<input value={ref} onChange={e=>setRef(e.target.value)}/></label><label>任务提示词<textarea rows="6" value={prompt} onChange={e=>setPrompt(e.target.value)} placeholder="描述 Agent 在该仓库中要完成的工作"/></label><button className="button primary full" disabled={busy || prompt.trim().length<3} onClick={prepare}>拉取仓库并收集证据 →</button></section>
       <section className="panel"><div className="panel-head"><div><h2>已准备任务</h2><p>继续配置策略，或查看已创建任务。</p></div></div>{tasks.length?<TaskTable tasks={tasks} onSelect={selectTask}/>:<div className="empty-box">仓库、Agent 指令和项目文档会在创建后登记到任务证据。</div>}</section></div> : <>
       <div className="task-summary panel"><div><span className="eyebrow">当前任务</span><h2>{current.name}</h2><p>{current.prompt}</p></div><div className="summary-badges">{stateTag(current.status)}<StatusTag>{current.agent.toUpperCase()}</StatusTag></div><div className="commit-line"><span>固定 Commit</span><code>{current.commit_sha}</code><a href={`https://github.com/${current.repo}/tree/${current.commit_sha}`} target="_blank" rel="noreferrer">GitHub ↗</a></div></div>
+      <section className="panel pi-generator"><div className="panel-head"><div><h2>Pi 启动前策略候选</h2><p>一次性读取当前任务证据和已审核历史策略，提交本任务待审核候选；不会启动 DSH 或加载 ActPlane。</p></div><div className="pi-run-action"><StatusTag kind={piStatus?.pi_cli?'good':'warn'}>{piStatus?.pi_cli?'Pi 已就绪':'Pi 不可用'}</StatusTag><button className="button primary" disabled={busy||!piStatus?.pi_cli||current.status!=='prepared'||(piRuns||[]).some(r=>['queued','running'].includes(r.status))} onClick={runPi}>{(piRuns||[]).some(r=>['queued','running'].includes(r.status))?'Pi 正在生成':'运行 Pi 策略生成'}</button></div></div>{!piStatus?.pi_cli&&<div className="inline-notice warning">{piStatus?.pi_reason||'请先在 Linux 虚拟机安装并配置 Pi CLI。'}</div>}{current.status!=='prepared'&&<div className="field-note">Pi 候选只在任务启动前生成；当前任务状态为 {current.status}。</div>}
+        <div className="pi-runs">{(piRuns||[]).map(run=><article className="pi-run" key={run.id}><div className="pi-run-heading"><div><b>Pi 运行 · {short(run.id,12)}</b><small>{when(run.created_at)} · {run.input?.repository||current.repo} @ {short(run.input?.commit_sha||current.commit_sha,12)}</small></div>{stateTag(run.status)}</div>{run.diagnostic&&<div className={run.status==='completed'?'field-note':'inline-notice warning'}>{run.diagnostic}</div>}{run.result?.assistant_text&&<details className="pi-summary"><summary>Pi 分析摘要</summary><p>{run.result.assistant_text}</p></details>}{run.proposals?.length>0&&<div className="pi-proposals">{run.proposals.map(proposal=><article className="proposal-card" key={proposal.id}><div className="proposal-heading"><b>{proposal.title}</b>{stateTag(proposal.status)}</div><p className="candidate-content">{proposal.content}</p>{proposal.rationale&&<blockquote>{proposal.rationale}</blockquote>}<div className="proposal-sources"><b>证据</b>{proposal.evidence_ids.map(id=>{const ev=context?.evidence?.find(item=>item.id===id);return <span key={id}>{ev?`${ev.file_path||ev.title}:L${ev.line_start}`:short(id,12)}</span>})}</div>{proposal.status==='pending_review'&&<div className="actions"><button className="button tiny primary" disabled={busy} onClick={()=>reviewPi(proposal,'approve')}>审核通过</button><button className="button tiny ghost" disabled={busy} onClick={()=>reviewPi(proposal,'reject')}>拒绝</button></div>}{proposal.status==='approved'&&<small className="field-note">已通过人工审核；当前版本仍不会将候选接入 DSH / ActPlane。</small>}</article>)}</div>}{run.status==='failed'&&<button className="button tiny ghost" disabled={busy||!piStatus?.pi_cli} onClick={runPi}>重新运行 Pi</button>}</article>)}{!(piRuns||[]).length&&<div className="empty-box">还没有 Pi 运行记录。检查固定任务后，可手动启动候选生成。</div>}</div>
+      </section>
       <div className="grid-two"><section className="panel"><div className="panel-head"><div><h2>项目上下文证据</h2><p>README、AGENTS.md、CLAUDE.md、SECURITY/CONTRIBUTING 与 GitHub workflow 摘录</p></div><StatusTag>{context?.evidence?.length || 0} 条</StatusTag></div><div className="evidence-list">{context?.evidence?.slice(0,18).map(ev=><article className="evidence" key={ev.id}><div><b>{ev.file_path || ev.title}</b><span>{ev.kind} · L{ev.line_start}</span></div><p>{ev.excerpt}</p></article>)}{!context?.evidence?.length&&<div className="empty-box">正在加载或仓库没有匹配的项目文档。</div>}</div></section>
         <section className="panel"><div className="panel-head"><div><h2>历史策略候选</h2><p>依据任务提示词与项目证据排序；仅勾选且已审核策略会进入生成请求。</p></div><StatusTag>{recs.length} 条匹配</StatusTag></div><div className="recommend-list">{recs.map(r=><label className={`recommend ${r.eligible_for_policy?'':'disabled'}`} key={r.id}><input type="checkbox" disabled={!r.eligible_for_policy} checked={picked.includes(r.id)} onChange={e=>setPicked(e.target.checked?[...picked,r.id]:picked.filter(id=>id!==r.id))}/><div><p>{r.text}</p><small>{r.source_repo || '治理来源'} · {r.category} · {r.context_scope} {r.eligible_for_policy?'':'· 尚未审核，不进入策略'}</small></div><span className="score">{r.relevance}</span></label>)}{!recs.length&&<div className="empty-box">当前任务没有匹配历史策略，可只使用基础策略与目标仓库证据。</div>}</div></section></div>
       <section className="panel policy-builder"><div className="panel-head"><div><h2>生成与审核启动策略</h2><p>策略版本绑定任务 commit、仓库证据和已审核历史策略来源；历史自然语言作为 DSH 行为参考，不会混入真实 ActPlane DSL。</p></div><span className="step-num">02</span></div><div className="settings-row"><Toggle label="仓库只读" desc="禁止任务写入文件" checked={settings.read_only} onChange={v=>setSettings({...settings,read_only:v})}/><Toggle label="禁止网络连接" desc="阻断 Agent 发起的外连" checked={settings.deny_network} onChange={v=>setSettings({...settings,deny_network:v})}/><Toggle label="允许受控输出目录" desc="新增仓库外的专用输出写权限" checked={settings.allow_task_output} onChange={v=>setSettings({...settings,allow_task_output:v})}/></div><div className="button-row"><button className="button primary" disabled={busy} onClick={generate}>生成策略 DSL / PolicyBundle</button>{shownBundle && <><button className="button success" disabled={busy || shownBundle.compile_state !== 'compiled'} onClick={()=>reviewPolicy('approve')}>审核并批准 v{shownBundle.version}</button><button className="button ghost" disabled={busy} onClick={()=>reviewPolicy('reject')}>拒绝</button></>}</div>

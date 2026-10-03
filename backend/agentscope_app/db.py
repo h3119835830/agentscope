@@ -1,4 +1,6 @@
 import json
+import os
+import hashlib
 import sqlite3
 from contextlib import contextmanager
 from datetime import datetime, timezone
@@ -29,7 +31,8 @@ CREATE TABLE IF NOT EXISTS tasks (
 );
 CREATE TABLE IF NOT EXISTS task_credentials (
  id TEXT PRIMARY KEY, task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
- token_sha256 TEXT NOT NULL UNIQUE, created_at TEXT NOT NULL, revoked_at TEXT
+ token_sha256 TEXT NOT NULL UNIQUE, created_at TEXT NOT NULL, revoked_at TEXT,
+ scope TEXT NOT NULL DEFAULT 'dsh'
 );
 CREATE INDEX IF NOT EXISTS idx_task_credentials_task ON task_credentials(task_id, revoked_at);
 CREATE TABLE IF NOT EXISTS evidence (
@@ -67,6 +70,29 @@ CREATE TABLE IF NOT EXISTS audit_log (
  id TEXT PRIMARY KEY, task_id TEXT, action TEXT NOT NULL, actor TEXT NOT NULL,
  details_json TEXT NOT NULL DEFAULT '{}', created_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS strategy_revisions (
+ id TEXT PRIMARY KEY, strategy_id TEXT NOT NULL REFERENCES strategies(id) ON DELETE CASCADE,
+ revision INTEGER NOT NULL, actor TEXT NOT NULL, reason TEXT NOT NULL DEFAULT '',
+ snapshot_json TEXT NOT NULL, created_at TEXT NOT NULL,
+ UNIQUE(strategy_id,revision)
+);
+CREATE TABLE IF NOT EXISTS pi_runs (
+ id TEXT PRIMARY KEY, task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+ status TEXT NOT NULL, requested_by TEXT NOT NULL, input_json TEXT NOT NULL DEFAULT '{}',
+ result_json TEXT NOT NULL DEFAULT '{}', diagnostic TEXT NOT NULL DEFAULT '',
+ created_at TEXT NOT NULL, started_at TEXT, completed_at TEXT, updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_pi_runs_task ON pi_runs(task_id,created_at DESC);
+CREATE TABLE IF NOT EXISTS policy_proposals (
+ id TEXT PRIMARY KEY, run_id TEXT NOT NULL REFERENCES pi_runs(id) ON DELETE CASCADE,
+ task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+ title TEXT NOT NULL, content TEXT NOT NULL, rationale TEXT NOT NULL DEFAULT '',
+ evidence_ids_json TEXT NOT NULL DEFAULT '[]', strategy_ids_json TEXT NOT NULL DEFAULT '[]',
+ content_sha256 TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'pending_review',
+ created_at TEXT NOT NULL, reviewed_at TEXT, reviewed_by TEXT, review_notes TEXT NOT NULL DEFAULT '',
+ UNIQUE(run_id,content_sha256)
+);
+CREATE INDEX IF NOT EXISTS idx_policy_proposals_task ON policy_proposals(task_id,status,created_at DESC);
 """
 
 def now():
@@ -89,7 +115,78 @@ def connect():
 
 def init_db():
     with connect() as con:
+        tables = {r[0] for r in con.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+        existing = bool(tables)
+        columns = {}
+        for table in ("strategies", "task_credentials"):
+            if table in tables:
+                columns[table] = {r[1] for r in con.execute(f"PRAGMA table_info({table})")}
+            else:
+                columns[table] = set()
+        needs_migration = existing and (
+            "strategies" not in tables or "is_archived" not in columns["strategies"]
+            or "revision" not in columns["strategies"] or "import_key" not in columns["strategies"]
+            or "archived_at" not in columns["strategies"] or "archived_by" not in columns["strategies"]
+            or "scope" not in columns["task_credentials"] or "pi_runs" not in tables
+            or "strategy_revisions" not in tables or "policy_proposals" not in tables
+        )
+        if needs_migration:
+            _backup_database()
         con.executescript(SCHEMA)
+        strategy_columns = {r[1] for r in con.execute("PRAGMA table_info(strategies)")}
+        for name, definition in (
+            ("is_archived", "INTEGER NOT NULL DEFAULT 0"),
+            ("revision", "INTEGER NOT NULL DEFAULT 1"),
+            ("import_key", "TEXT"),
+            ("archived_at", "TEXT"),
+            ("archived_by", "TEXT"),
+        ):
+            if name not in strategy_columns:
+                con.execute(f"ALTER TABLE strategies ADD COLUMN {name} {definition}")
+        credential_columns = {r[1] for r in con.execute("PRAGMA table_info(task_credentials)")}
+        if "scope" not in credential_columns:
+            con.execute("ALTER TABLE task_credentials ADD COLUMN scope TEXT NOT NULL DEFAULT 'dsh'")
+        _backfill_import_keys(con)
+        con.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_strategies_import_key ON strategies(import_key) WHERE import_key IS NOT NULL")
+        con.execute("CREATE INDEX IF NOT EXISTS idx_strategies_archived ON strategies(is_archived,status)")
+        con.execute("INSERT OR REPLACE INTO meta(key,value) VALUES('schema_version','2')")
+
+
+def _backup_database():
+    """Use SQLite's online backup API so WAL contents are included."""
+    if not DB_PATH.exists() or DB_PATH.stat().st_size == 0:
+        return
+    backup_dir = DB_PATH.parent / "backups"
+    backup_dir.mkdir(parents=True, exist_ok=True)
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+    destination = backup_dir / f"agentscope-pre-migration-{timestamp}.sqlite3"
+    with sqlite3.connect(DB_PATH, timeout=30) as source, sqlite3.connect(destination) as target:
+        source.backup(target)
+    try:
+        os.chmod(destination, 0o600)
+    except OSError:
+        pass
+
+
+def _backfill_import_keys(con):
+    rows = con.execute(
+        "SELECT id,source_repo,sentence_sha256,metadata_json FROM strategies "
+        "WHERE source_kind='rq1_corpus' AND import_key IS NULL ORDER BY created_at,id"
+    ).fetchall()
+    used = set()
+    for row in rows:
+        try:
+            metadata = json.loads(row["metadata_json"] or "{}")
+        except Exception:
+            metadata = {}
+        slug = (metadata.get("repo_slug") or (row["source_repo"] or "unknown").replace("/", "__")).strip().lower()
+        key = hashlib.sha256(f"rq1\0{slug}\0{row['sentence_sha256']}".encode()).hexdigest()
+        if key in used:
+            # Preserve legacy duplicates while keeping the canonical key available
+            # for the next idempotent import.
+            key = hashlib.sha256(f"rq1\0{slug}\0{row['sentence_sha256']}\0{row['id']}".encode()).hexdigest()
+        used.add(key)
+        con.execute("UPDATE strategies SET import_key=? WHERE id=?", (key, row["id"]))
 
 def row_dict(row):
     if row is None: return None
