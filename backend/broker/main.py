@@ -73,7 +73,10 @@ def compile_policy(task_id,version,yaml_text,dsl_text,workspace):
     dest.mkdir(parents=True,exist_ok=True)
     os.chown(dest,0,TASK_GID); os.chmod(dest,0o750)
     policy_path=dest/"policy.yaml"; dsl_path=dest/"task.dsl"
-    watch_dir=workspace.parent/".runtime-control"/f"v{version}-{secrets.token_hex(6)}"
+    control_root=workspace.parent/".runtime-control"
+    control_root.mkdir(parents=True,exist_ok=True)
+    os.chown(control_root,0,TASK_GID); os.chmod(control_root,0o2750)
+    watch_dir=control_root/f"v{version}-{secrets.token_hex(6)}"
     watch_dir.mkdir(parents=True,exist_ok=True); os.chown(watch_dir,0,TASK_GID); os.chmod(watch_dir,0o750)
     watch_path=watch_dir/"watch.yaml"
     write_file(policy_path,yaml_text,0o440)
@@ -134,6 +137,19 @@ def grant_agent_control_access(policy_path):
             os.chown(path,0,TASK_GID)
             os.chmod(path,0o660 if path.name=="control.json" else 0o640)
 
+def grant_api_event_access(workspace):
+    """Allow the API task group to read kernel events without write access."""
+    event_dir=Path(workspace)/".actplane"
+    if not event_dir.exists(): return
+    if event_dir.is_symlink(): raise RuntimeError("ActPlane event directory cannot be a symlink")
+    event_dir=path_under(event_dir,workspace)
+    os.chown(event_dir,-1,TASK_GID); os.chmod(event_dir,0o2750)
+    events=event_dir/"events.jsonl"
+    if events.exists():
+        if events.is_symlink(): raise RuntimeError("ActPlane events cannot be a symlink")
+        events=path_under(events,workspace)
+        os.chown(events,-1,TASK_GID); os.chmod(events,0o640)
+
 def launch(task_id,version,workspace,output_dir,prompt,dsl_text,policy_yaml,dsh_profile="headless",task_token="",agentscope_url="http://127.0.0.1:8000"):
     checked_task(task_id)
     if dsh_profile!="headless": raise ValueError("AgentScope 当前仅开放 DSH headless profile")
@@ -156,7 +172,7 @@ def launch(task_id,version,workspace,output_dir,prompt,dsl_text,policy_yaml,dsh_
         # watch engine must reserve file-flow hooks before its child domain is
         # created. The engine cannot enable write-rule classes retroactively.
         env=child_env(); env.update({"ACTPLANE_ATTACH_PID":"0","ACTPLANE_RESERVE_FILE_FLOW":"1",
-                                     "SUDO_UID":str(AGENT.pw_uid),"SUDO_GID":str(AGENT.pw_gid)})
+                                     "SUDO_UID":str(AGENT.pw_uid),"SUDO_GID":str(TASK_GID)})
         anchor=subprocess.Popen(["/usr/bin/sleep","infinity"],cwd=workspace,env=child_env(True),preexec_fn=user_preexec,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,start_new_session=True)
         env["ACTPLANE_ATTACH_PID"]=str(anchor.pid)
         watch=subprocess.Popen([str(ACTPLANE),"--policy",watch_path,"watch"],cwd=workspace,env=env,stdout=watch_log,stderr=subprocess.STDOUT,start_new_session=True)
@@ -168,6 +184,7 @@ def launch(task_id,version,workspace,output_dir,prompt,dsl_text,policy_yaml,dsh_
                 raise RuntimeError((log_dir/f"{task_id}-v{version}-watch.log").read_text(errors="replace")[-5000:])
             if control_state(watch_path).exists():
                 grant_agent_control_access(watch_path)
+                grant_api_event_access(workspace)
                 break
             time.sleep(.2)
         else:
@@ -190,7 +207,7 @@ def launch(task_id,version,workspace,output_dir,prompt,dsl_text,policy_yaml,dsh_
         # ActPlane's watch daemon launches the child with its own environment,
         # not the launch-child CLI caller's environment. Pass task credentials
         # through a one-time task file; task_runner scrubs it before starting DSH.
-        launch_env=child_env(); launch_env.update({"SUDO_UID":str(AGENT.pw_uid),"SUDO_GID":str(AGENT.pw_gid),"TMPDIR":str(workspace.parent/"tmp")})
+        launch_env=child_env(); launch_env.update({"SUDO_UID":str(AGENT.pw_uid),"SUDO_GID":str(TASK_GID),"TMPDIR":str(workspace.parent/"tmp")})
         try:
             out=run_actplane(command,workspace,launch_env,35)
         except Exception:

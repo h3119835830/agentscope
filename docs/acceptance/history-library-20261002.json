@@ -1,0 +1,512 @@
+{
+  "date": "2026-10-02",
+  "scope": "AgentScope history library and its AI integration only",
+  "baseline_commit": "2b48caecb3f9da44f8a1f83b3de8c42dcb1afd61",
+  "repository": "zeroclaw-labs/zeroclaw",
+  "commit": "18622d91b681f1898dfc02414bdcdf2a77116670",
+  "tests": {
+    "backend_passed": 51,
+    "warnings": "5 existing FastAPI/Starlette deprecations",
+    "frontend_build": "passed",
+    "ui": "four modules, multiselect, loaded and failed histories, DSL/receipt/hash details verified"
+  },
+  "documents": [
+    {
+      "id": "67156674f2164b2ca08d14004dbc1ca1",
+      "relative_path": "AGENTS.md",
+      "scope_path": "",
+      "content_sha256": "344464ffdefa91b187f0b78663c508dad8e5ed2cc58a46d4d21a72961bb53677",
+      "byte_size": 13118,
+      "git_blob_equals_snapshot": true,
+      "initial_statement_count": 141,
+      "coverage": {
+        "line_count": 221,
+        "uncovered_lines": [
+          105,
+          167,
+          208
+        ],
+        "unresolved_evidence": 0,
+        "complete": false
+      },
+      "models": [
+        "deepseek-flash"
+      ]
+    },
+    {
+      "id": "4020a8688d3f4f509f3e745d7f0799bd",
+      "relative_path": "CLAUDE.md",
+      "scope_path": "",
+      "content_sha256": "bf42e64307ae6d17bad1cead5fc50b9768310b1355cfc4f554070f8ad19eb958",
+      "byte_size": 461,
+      "git_blob_equals_snapshot": true,
+      "initial_statement_count": 9,
+      "coverage": {
+        "line_count": 16,
+        "uncovered_lines": [],
+        "unresolved_evidence": 0,
+        "complete": true
+      },
+      "models": [
+        "deepseek-flash"
+      ]
+    },
+    {
+      "id": "1c8282609a1b4e38a1eff3c05a3b7511",
+      "relative_path": "SECURITY.md",
+      "scope_path": "",
+      "content_sha256": "0f7e4d1951d96048f479c6548dd7b76a84c49e30ee112da91207dcad01fccded",
+      "byte_size": 2979,
+      "git_blob_equals_snapshot": true,
+      "initial_statement_count": 59,
+      "coverage": {
+        "line_count": 93,
+        "uncovered_lines": [
+          5,
+          69
+        ],
+        "unresolved_evidence": 0,
+        "complete": false
+      },
+      "models": [
+        "deepseek-flash"
+      ]
+    },
+    {
+      "id": "742594d8897b484dbcdd312fbb434b72",
+      "relative_path": "crates/zeroclaw-plugins/AGENTS.md",
+      "scope_path": "crates/zeroclaw-plugins",
+      "content_sha256": "3b9531b83637a967aad395b00c82f83e5cfe544bc9cd9262c61c512db78a2b7c",
+      "byte_size": 1675,
+      "git_blob_equals_snapshot": true,
+      "initial_statement_count": 23,
+      "coverage": {
+        "line_count": 43,
+        "uncovered_lines": [],
+        "unresolved_evidence": 0,
+        "complete": true
+      },
+      "models": [
+        "deepseek-flash"
+      ]
+    },
+    {
+      "id": "14d6a887a0ae4fe3a0d2628c1d6ba07f",
+      "relative_path": "crates/zeroclaw-runtime/AGENTS.md",
+      "scope_path": "crates/zeroclaw-runtime",
+      "content_sha256": "0128accb27788d4cb15835069e36652ff268176dec02d49834302809e892d9a8",
+      "byte_size": 639,
+      "git_blob_equals_snapshot": true,
+      "initial_statement_count": 7,
+      "coverage": {
+        "line_count": 7,
+        "uncovered_lines": [],
+        "unresolved_evidence": 0,
+        "complete": true
+      },
+      "models": [
+        "deepseek-flash"
+      ]
+    },
+    {
+      "id": "e55da380e2ae41c5b7ee4bff817e461e",
+      "relative_path": "crates/zeroclaw-runtime/src/agent/personality_templates/AGENTS.md",
+      "scope_path": "crates/zeroclaw-runtime/src/agent/personality_templates",
+      "content_sha256": "51aed384f8ab2d046b00464bae4ba077e762fc314447ec091165bebea28716a8",
+      "byte_size": 2308,
+      "git_blob_equals_snapshot": true,
+      "initial_statement_count": 43,
+      "coverage": {
+        "line_count": 67,
+        "uncovered_lines": [],
+        "unresolved_evidence": 0,
+        "complete": true
+      },
+      "models": [
+        "deepseek-flash"
+      ]
+    }
+  ],
+  "collection": {
+    "first_success_job": "2525919e5f2e4196b798f8164140acbf",
+    "repeat_job": "e52e86aa56a746a48a6a2905bf60f87b",
+    "repeat_status": "completed",
+    "identical_document_ids": true,
+    "snapshots_match_git_blobs": true
+  },
+  "extraction": {
+    "job_id": "342b3e117cb84feca4bacb1abc212759",
+    "status": "completed",
+    "initial_records": 282,
+    "exact_evidence_verified": true,
+    "manual_review": "sampled semantic labels, atomicity, references and translation; not a zero-error claim",
+    "findings": [
+      "AGENTS.md L179 needed per_event/task labels and an explicit closed modification scope; original initial classification preserved.",
+      "AGENTS.md L168 is a composite policy and remains pending review; line coverage is not proof of atomicity.",
+      "Five uncovered rows are structural titles/table headers; all retained in coverage diagnostics.",
+      "Content/semantic constraints are retained with DSL=null; no fabricated OS enforcement."
+    ]
+  },
+  "chinese_fixture": {
+    "document": {
+      "text": "# 测试文档\n- 不要修改与当前任务无关的模块。\n- 本项目使用 Rust。\n",
+      "origin": {
+        "document_id": "chinese-acceptance-fixture",
+        "repository": "acceptance/fixture",
+        "commit": "0000000000000000000000000000000000000000",
+        "path": "AGENTS.md",
+        "content_hash": "94b43cd0f81b62ffc5d92831c87bbaf813fdfbfde57e8a4b2bcd5f0fb4a680dd",
+        "url": ""
+      }
+    },
+    "result": {
+      "statements": [
+        {
+          "source_quote": "- 不要修改与当前任务无关的模块。",
+          "line_start": 2,
+          "line_end": 2,
+          "text_original": "不要修改与当前任务无关的模块。",
+          "text_zh": "不要修改与当前任务无关的模块。",
+          "text_en": "Do not modify modules unrelated to the current task.",
+          "language": "zh",
+          "content_type": "policy",
+          "policy_kind": "constraint",
+          "topics": [
+            "scope",
+            "modification"
+          ],
+          "enforcement_level": "cross_event",
+          "context_requirement": "task",
+          "uncertainties": [],
+          "evidence_state": "verified",
+          "char_start": 7,
+          "char_end": 24
+        },
+        {
+          "source_quote": "- 本项目使用 Rust。",
+          "line_start": 3,
+          "line_end": 3,
+          "text_original": "本项目使用 Rust。",
+          "text_zh": "本项目使用 Rust。",
+          "text_en": "This project uses Rust.",
+          "language": "zh",
+          "content_type": "description",
+          "policy_kind": "none",
+          "topics": [
+            "technology",
+            "rust"
+          ],
+          "enforcement_level": "not_applicable",
+          "context_requirement": "not_applicable",
+          "uncertainties": [],
+          "evidence_state": "verified",
+          "char_start": 25,
+          "char_end": 38
+        }
+      ],
+      "coverage": {
+        "line_count": 3,
+        "uncovered_lines": [],
+        "unresolved_evidence": 0,
+        "complete": true
+      },
+      "llm_runs": [
+        {
+          "provider": "deepseek",
+          "model": "deepseek-flash",
+          "response_model": "deepseek-flash",
+          "prompt_version": "history-extract-v2",
+          "input_hash": "1517360d4dee232bd37134ec3d18fc30054743141b3112eab1f9827c5c9780c2",
+          "output_hash": "42946d5683c7e1fbef79812c0f23c8d2278f5ecf9cd87b4f9e322285c4b3ab59",
+          "usage": {
+            "prompt_tokens": 385,
+            "completion_tokens": 217,
+            "total_tokens": 602,
+            "prompt_tokens_details": {
+              "cached_tokens": 251
+            },
+            "prompt_cache_hit_tokens": 251,
+            "prompt_cache_miss_tokens": 134
+          },
+          "duration_ms": 967
+        },
+        {
+          "provider": "deepseek",
+          "model": "deepseek-flash",
+          "response_model": "deepseek-flash",
+          "prompt_version": "history-extract-review-v2",
+          "input_hash": "26eb5216de743683a85546170c57d9abef13b1b35358c24fce21651cf38350b6",
+          "output_hash": "42946d5683c7e1fbef79812c0f23c8d2278f5ecf9cd87b4f9e322285c4b3ab59",
+          "usage": {
+            "prompt_tokens": 677,
+            "completion_tokens": 217,
+            "total_tokens": 894,
+            "prompt_tokens_details": {
+              "cached_tokens": 256
+            },
+            "prompt_cache_hit_tokens": 256,
+            "prompt_cache_miss_tokens": 421
+          },
+          "duration_ms": 1314
+        }
+      ]
+    }
+  },
+  "contrasts": [
+    {
+      "kind": "new_file",
+      "same_operation": true,
+      "baseline_task": "28f337bb0c7b4c88",
+      "history_task": "274d0f8d0e844bac",
+      "artifact_version_id": "fb1f5e922d0349319ae5ae5f8006dcda",
+      "statement_version_id": "96cea88559124dc99e81a4bf65ca33a9",
+      "artifact_review": "approved",
+      "artifact_hash": "0417a393bd6660102fa61e1332b87b95010d5a41d46db4ffb861c711fff36f1c",
+      "compile_state": "compiled",
+      "actual_dsl": "rule h_96cea88559124dc9_block_unrelated:\n  block write file \"/var/lib/agentscope/tasks/274d0f8d0e844bac/repo/**\" if AGENT unless target \"/var/lib/agentscope/tasks/274d0f8d0e844bac/repo/docs/**\"\n  block unlink file \"/var/lib/agentscope/tasks/274d0f8d0e844bac/repo/**\" if AGENT unless target \"/var/lib/agentscope/tasks/274d0f8d0e844bac/repo/docs/**\"\n  because \"Do not modify unrelated modules while here; only authorized subtree may be modified\"",
+      "model_runs": [
+        {
+          "provider": "deepseek",
+          "model": "deepseek-flash",
+          "response_model": "deepseek-flash",
+          "prompt_version": "history-translate-v4",
+          "input_hash": "7b7ba7dd8687f0003b718a49a34d563d1e91a24b8d72c8d3bcdc30d3697d46ed",
+          "output_hash": "9deed32ff38398fbb5160b37c79f99051870e7b289b34a8adfd9f2e1e19297f6"
+        }
+      ],
+      "deployment": {
+        "id": "02523fcf90004d7d89b46dc59e0d3ebe",
+        "policy_version_id": "8860b8a58c97483b8588ebf9322febbd",
+        "bundle_hash": "95740d48c28c55f108b5877937e78e596c607a479f7b69e11b908ad48346ffea",
+        "status": "loaded",
+        "active": 0,
+        "domain_id": 1857265411,
+        "runner_pid": 32870,
+        "ended_at": "2026-10-02T14:40:00.908856+00:00"
+      },
+      "receipt": {
+        "task_id": "274d0f8d0e844bac",
+        "deployment_id": "02523fcf90004d7d89b46dc59e0d3ebe",
+        "bundle_hash": "95740d48c28c55f108b5877937e78e596c607a479f7b69e11b908ad48346ffea",
+        "domain_id": 1857265411,
+        "runner_pid": 32870,
+        "binding_confirmed": true,
+        "artifact_version_ids": [
+          "fb1f5e922d0349319ae5ae5f8006dcda"
+        ]
+      },
+      "history_exit": {
+        "code": 0,
+        "signal": null,
+        "succeeded": true
+      },
+      "files": [
+        {
+          "relative_path": "docs/history-acceptance.tmp",
+          "baseline": {
+            "exists": true,
+            "bytes": 18,
+            "sha256": "5104e39f70d8652e05f8cfd6f303f239a1e61702bf37b23b59ba1ba6c6c998f4",
+            "fixture_content": "history-acceptance"
+          },
+          "history": {
+            "exists": true,
+            "bytes": 18,
+            "sha256": "5104e39f70d8652e05f8cfd6f303f239a1e61702bf37b23b59ba1ba6c6c998f4",
+            "fixture_content": "history-acceptance"
+          }
+        },
+        {
+          "relative_path": "crates/zeroclaw-runtime/history-acceptance.tmp",
+          "baseline": {
+            "exists": true,
+            "bytes": 18,
+            "sha256": "5104e39f70d8652e05f8cfd6f303f239a1e61702bf37b23b59ba1ba6c6c998f4",
+            "fixture_content": "history-acceptance"
+          },
+          "history": {
+            "exists": true,
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "fixture_content": ""
+          }
+        }
+      ],
+      "attributed_kernel_events": [
+        {
+          "event_id": "2ce3a2662b704509b8272c2a0b307baf",
+          "domain_id": 1857265411,
+          "op": "write",
+          "target": "/var/lib/agentscope/tasks/274d0f8d0e844bac/repo/crates/zeroclaw-runtime/history-acceptance.tmp",
+          "blocked": true,
+          "rule_id": 6,
+          "rule_name": "h_96cea88559124dc9_block_unrelated",
+          "clause_hash": "fnv1a64:efe8edbf6acfb4e0",
+          "clause_text": "  block write file \"/var/lib/agentscope/tasks/274d0f8d0e844bac/repo/**\" if AGENT unless target \"/var/lib/agentscope/tasks/274d0f8d0e844bac/repo/docs/**\"",
+          "timestamp": "2026-10-02T14:40:00.542984+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "existing_file_append",
+      "same_operation": true,
+      "baseline_task": "c9e453fad81a49b2",
+      "history_task": "4732c36fa4d04d71",
+      "artifact_version_id": "0392b9471cfd4bcaa5344ab531687e16",
+      "statement_version_id": "befaa33923b14960a08fec186cd5c745",
+      "artifact_review": "approved",
+      "artifact_hash": "4af29335cf400fb5043f63c68950707b5ab89fe5240da1ca98d8dd3ff1143a56",
+      "compile_state": "compiled",
+      "actual_dsl": "rule h_befaa33923b14960_docs_scope:\n  block write file \"/var/lib/agentscope/tasks/4732c36fa4d04d71/repo/**\" if AGENT unless target \"/var/lib/agentscope/tasks/4732c36fa4d04d71/repo/docs/**\"\n  block unlink file \"/var/lib/agentscope/tasks/4732c36fa4d04d71/repo/**\" if AGENT unless target \"/var/lib/agentscope/tasks/4732c36fa4d04d71/repo/docs/**\"\n  because \"Do not modify unrelated modules 'while here'; only docs subtree is authorized\"",
+      "model_runs": [
+        {
+          "provider": "deepseek",
+          "model": "deepseek-flash",
+          "response_model": "deepseek-flash",
+          "prompt_version": "history-translate-v4",
+          "input_hash": "cb439c870a0a9cc2f6cc0b56fd237f32c47145f3fc7da9b2c76d495e8a09e6ad",
+          "output_hash": "30c0dd42bb113b6a1a4b310602b24a1461998b20c9f60ddfd03d83bad1c825ea"
+        }
+      ],
+      "deployment": {
+        "id": "34d844fc3f194a809c5ef7fcf2a06b50",
+        "policy_version_id": "153ac1b4425b4148a55612fac5eb64da",
+        "bundle_hash": "f04a7f161aac8d08d2efb8a0567ee25165dd3de113c51b1b839e477ecdf76a0c",
+        "status": "loaded",
+        "active": 0,
+        "domain_id": 1009245371,
+        "runner_pid": 34024,
+        "ended_at": "2026-10-02T14:48:11.668350+00:00"
+      },
+      "receipt": {
+        "task_id": "4732c36fa4d04d71",
+        "deployment_id": "34d844fc3f194a809c5ef7fcf2a06b50",
+        "bundle_hash": "f04a7f161aac8d08d2efb8a0567ee25165dd3de113c51b1b839e477ecdf76a0c",
+        "domain_id": 1009245371,
+        "runner_pid": 34024,
+        "binding_confirmed": true,
+        "artifact_version_ids": [
+          "0392b9471cfd4bcaa5344ab531687e16"
+        ]
+      },
+      "history_exit": {
+        "code": 0,
+        "signal": null,
+        "succeeded": true
+      },
+      "files": [
+        {
+          "relative_path": "docs/history-existing.tmp",
+          "baseline": {
+            "exists": true,
+            "bytes": 35,
+            "sha256": "f7370abba5187b8c276b838002062e3c8e0e6a6b98f2a75b3492cd88d8d85aa1",
+            "fixture_content": "ORIGINAL_FIXTURE\nhistory-acceptance"
+          },
+          "history": {
+            "exists": true,
+            "bytes": 35,
+            "sha256": "f7370abba5187b8c276b838002062e3c8e0e6a6b98f2a75b3492cd88d8d85aa1",
+            "fixture_content": "ORIGINAL_FIXTURE\nhistory-acceptance"
+          }
+        },
+        {
+          "relative_path": "crates/zeroclaw-runtime/history-existing.tmp",
+          "baseline": {
+            "exists": true,
+            "bytes": 35,
+            "sha256": "f7370abba5187b8c276b838002062e3c8e0e6a6b98f2a75b3492cd88d8d85aa1",
+            "fixture_content": "ORIGINAL_FIXTURE\nhistory-acceptance"
+          },
+          "history": {
+            "exists": true,
+            "bytes": 17,
+            "sha256": "b4c23064e0ba3336093e72700d45217fe96b56970fb3b6a6daff14fca389c0e9",
+            "fixture_content": "ORIGINAL_FIXTURE\n"
+          }
+        }
+      ],
+      "attributed_kernel_events": [
+        {
+          "event_id": "7aa803dd4c8646c785b4fa1f593fc700",
+          "domain_id": 1009245371,
+          "op": "write",
+          "target": "/var/lib/agentscope/tasks/4732c36fa4d04d71/repo/crates/zeroclaw-runtime/history-existing.tmp",
+          "blocked": true,
+          "rule_id": 6,
+          "rule_name": "h_befaa33923b14960_docs_scope",
+          "clause_hash": "fnv1a64:adf43243f8718190",
+          "clause_text": "  block write file \"/var/lib/agentscope/tasks/4732c36fa4d04d71/repo/**\" if AGENT unless target \"/var/lib/agentscope/tasks/4732c36fa4d04d71/repo/docs/**\"",
+          "timestamp": "2026-10-02T14:48:11.453419+00:00"
+        }
+      ]
+    }
+  ],
+  "known_limits": [
+    {
+      "code": "file_creation_directory_entry",
+      "state": "open",
+      "observed": "Historical write denial leaves a new empty file entry; existing-file append leaves unrelated file content unchanged. No full filesystem metadata invariance claim.",
+      "owner": "ActPlane event coverage; no kernel changes in this implementation"
+    },
+    {
+      "code": "manual_semantic_review",
+      "observed": "DeepSeek atomicity/labels may need human corrections; no automatic approval"
+    },
+    {
+      "code": "abi_pattern_length",
+      "observed": "Current ActPlane file/exec pattern ABI is 64 UTF-8 bytes; overly long concrete paths must fail compilation or remain unresolved."
+    },
+    {
+      "code": "single_runtime",
+      "observed": "Current Broker watch is singleton; sequential acceptance tasks clean up completed watches before the next launch."
+    }
+  ],
+  "compatibility": {
+    "old_policy_versions": 6,
+    "old_policy_content_unchanged": true,
+    "old_strategy_rows": 0,
+    "legacy_migration_test": "synthetic legacy record preserved; no existing RQ1 row in this live database",
+    "active_history_deployments": 0
+  },
+  "failures": {
+    "unapproved_selection_rejected": true,
+    "retained_job_failures": [
+      {
+        "id": "a2f14de5d2f04813946105312183e262",
+        "kind": "collect",
+        "status": "failed",
+        "error": "HTTPError: HTTP Error 403: rate limit exceeded"
+      },
+      {
+        "id": "536075c389444e11b86cf90856f61096",
+        "kind": "collect",
+        "status": "failed",
+        "error": "OperationalError: table history_documents has 11 columns but 12 values were supplied"
+      },
+      {
+        "id": "03252f7557bb4ddb9daa3db2834f12f8",
+        "kind": "translate",
+        "status": "failed",
+        "error": "ValidationError: 2 validation errors for Translation\ncandidate_rule.gate\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/string_type\nsemantic_notes\n  Input should be a valid string [type=string_type, input_value=['Statement is a per-even...e is path-scoped only.'], input_type=list]\n    For further information visit https://errors.pydantic.dev/2.12/v/string_type"
+      },
+      {
+        "id": "acfe15d00e9c43aa907fc5faf8130282",
+        "kind": "translate",
+        "status": "failed",
+        "error": "ValueError: 来源标签必须使用产物私有前缀，不能重定义 AGENT"
+      }
+    ],
+    "retained_load_failures": [
+      {
+        "id": "42f3027cb41c46e6b3aaccf314c4b05e",
+        "task_id": "4732c36fa4d04d71",
+        "status": "load_failed",
+        "active": 0,
+        "domain_id": null,
+        "runner_pid": null
+      }
+    ],
+    "manual_retry": "pre-launch singleton failure retained; same approved version retried only after prior runtime cleanup confirmed"
+  }
+}

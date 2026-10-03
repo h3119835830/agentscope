@@ -8,6 +8,7 @@
 #include <argp.h>
 #include <signal.h>
 #include <stdio.h>
+#include <sys/stat.h>
 #include <string.h>
 #include <strings.h>
 #include <stdlib.h>
@@ -673,6 +674,14 @@ int main(int argc, char **argv)
 	}
 
 	/* install enforce_mode into rodata before load */
+	struct stat pidns_stat;
+	if (stat("/proc/self/ns/pid", &pidns_stat) != 0) {
+		perror("stat PID namespace");
+		err = 1;
+		goto cleanup;
+	}
+	skel->rodata->pidns_dev = pidns_stat.st_dev;
+	skel->rodata->pidns_ino = pidns_stat.st_ino;
 	skel->rodata->enforce_mode = enforce ? 1 : 0;
 	skel->rodata->policy_features = features;
 	fprintf(stderr, "ActPlane: %u updates, %u rules\n",

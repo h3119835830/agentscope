@@ -13,13 +13,14 @@
 
 use std::io::{self, Read};
 use std::os::fd::{AsFd, AsRawFd, FromRawFd, OwnedFd, RawFd};
+use std::os::unix::fs::MetadataExt;
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Mutex;
 
 use aya::maps::{Array, HashMap, Map, MapData, MapError, ProgramArray, RingBuf};
 use aya::programs::links::FdLink;
-use aya::programs::{Lsm, ProgramFd, TracePoint};
+use aya::programs::{Lsm, ProgramFd, RawTracePoint, TracePoint};
 use aya::{Btf, Ebpf, EbpfLoader};
 
 pub mod capability;
@@ -535,6 +536,11 @@ fn pinned_hash_map<K: aya::Pod, V: aya::Pod>(
     HashMap::try_from(Map::HashMap(data)).map_err(|e| err(format!("pinned map {name}: {e}")))
 }
 
+fn pid_namespace_identity() -> io::Result<(u64, u64)> {
+    let ns = std::fs::metadata("/proc/self/ns/pid")?;
+    Ok((ns.dev(), ns.ino()))
+}
+
 fn pinned_engine_present(paths: &PinnedEnginePaths) -> io::Result<bool> {
     for name in [
         "rb",
@@ -564,6 +570,20 @@ fn pinned_engine_present(paths: &PinnedEnginePaths) -> io::Result<bool> {
     }
     if bpf_lsm_active() && !paths.link("enforce_bpf_syscall").try_exists()? {
         return Ok(false);
+    }
+    if !paths.map("te_pidns").try_exists()? {
+        return Err(err("pinned engine predates PID-namespace support; stop its runtime and reinstall its pinned objects"));
+    }
+    let identity: Array<_, u64> = Array::try_from(Map::Array(
+        MapData::from_pin(paths.map("te_pidns"))
+            .map_err(|e| err(format!("PID namespace map: {e}")))?,
+    ))
+    .map_err(|e| err(format!("PID namespace identity: {e}")))?;
+    let installed = identity
+        .get(&0, 0)
+        .map_err(|e| err(format!("read PID namespace: {e}")))?;
+    if installed != pid_namespace_identity()?.1 {
+        return Err(err("pinned engine belongs to a different PID namespace; use a separate ACTPLANE_BPF_PIN_ROOT"));
     }
     Ok(true)
 }
@@ -1997,11 +2017,14 @@ impl Loader {
             }
         }
 
+        let (pidns_dev, pidns_ino) = pid_namespace_identity()?;
         let mut loader = EbpfLoader::new();
         loader
             .allow_unsupported_maps()
             .override_global("enforce_mode", &enforce_mode, true)
-            .override_global("policy_features", &policy_features, true);
+            .override_global("policy_features", &policy_features, true)
+            .override_global("pidns_dev", &pidns_dev, true)
+            .override_global("pidns_ino", &pidns_ino, true);
         if legacy {
             loader
                 .override_global("legacy_n_rules", &cfg.n_rules, true)
@@ -2017,7 +2040,16 @@ impl Loader {
             } else {
                 object_bytes()
             })
-            .map_err(|e| err(format!("Ebpf::load: {e}")))?;
+            .map_err(|e| err(format!("Ebpf::load: {e:?}")))?;
+
+        let mut identity: Array<_, u64> = Array::try_from(
+            bpf.map_mut("te_pidns")
+                .ok_or_else(|| err("te_pidns missing"))?,
+        )
+        .map_err(|e| err(format!("PID namespace map: {e}")))?;
+        identity
+            .set(0, pidns_ino, 0)
+            .map_err(|e| err(format!("set PID namespace: {e}")))?;
 
         // Populate writable array maps for updates and rules.
         populate_update_map(&mut bpf, &cfg)?;
@@ -2065,6 +2097,21 @@ impl Loader {
                     "required tracepoint {}:{} is unavailable in this kernel",
                     spec.category, spec.event
                 )));
+            }
+            if spec.name == "handle_fork" {
+                let p: &mut RawTracePoint = bpf
+                    .program_mut(spec.name)
+                    .ok_or_else(|| err("program handle_fork missing"))?
+                    .try_into()
+                    .map_err(|e| err(format!("handle_fork not a raw tracepoint: {e}")))?;
+                p.load().map_err(|e| err(format!("handle_fork.load: {e}")))?;
+                let link_id = p.attach(spec.event).map_err(|e| err(format!("handle_fork.attach: {e}")))?;
+                if pin_paths.is_some() {
+                    let link = p.take_link(link_id).map_err(|e| err(format!("handle_fork.take_link: {e}")))?;
+                    let fd_link: FdLink = link.try_into().map_err(|e| err(format!("handle_fork link: {e}")))?;
+                    pending_links.push((spec.name.to_string(), fd_link));
+                }
+                continue;
             }
             let p: &mut TracePoint = bpf
                 .program_mut(spec.name)

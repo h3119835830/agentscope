@@ -486,8 +486,14 @@ static long cap_request_cb(struct bpf_dynptr *dynptr, void *data)
 static __always_inline void cap_drain_current(void)
 {
 	struct cap_drain_ctx ctx = {
-		.current_pid = bpf_get_current_pid_tgid() >> 32,
+		.current_pid = te_current_pid_tgid() >> 32,
 	};
+	__u32 *bound = bpf_map_lookup_elem(&cap_task, &ctx.current_pid);
+
+	/* Unmanaged or out-of-namespace getpid calls must not consume another
+	 * task's pending policy request. Admission still checks caller authority. */
+	if (!bound || !*bound)
+		return;
 	bpf_user_ringbuf_drain(&cap_req, cap_request_cb, &ctx, 0);
 	cap_count(CAP_STAT_DRAIN);
 }
