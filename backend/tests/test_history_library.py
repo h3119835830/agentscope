@@ -442,3 +442,122 @@ def test_prompt_templates_are_injected_without_http_or_database(corpus):
     converted=Stub([translation(v)])
     pipeline.generate_policy_artifact(v,provider=converted,templates=templates)
     assert converted.calls[0][0]=="fixture conversion" and converted.calls[0][1]["grammar"]=="fixture grammar"
+
+def test_record_page_uses_latest_statement_and_filters_before_pagination(corpus,client):
+    from agentscope_app.history import catalog
+    _,ident=saved(corpus)
+    registry.review_statement(ident,"approve","tester")
+    revised=registry.revise_statement(ident,{"statement":{"text_zh":"唯一检索内容","enforcement_level":"semantic_only"}})
+    assert registry.load_statement(revised).review_status=="pending_review"
+    result=client.get("/api/history/records",params={"q":"唯一检索内容","category":"semantic-only","context_scope":"task","source_repo":"example/repo","status":"pending_review","limit":1},headers=AUTH)
+    assert result.status_code==200
+    page=result.json()
+    assert page["total"]==1 and len(page["items"])==1
+    assert page["items"][0]["statement_version"]["id"]==revised
+    assert catalog.page(q="唯一检索内容",category="semantic")["total"]==1
+    assert catalog.page(q="唯一检索内容",status="approved")["total"]==0
+    assert catalog.page(q="唯一检索内容",offset=1,limit=1)["items"]==[]
+
+def test_mac_style_manual_records_revision_archive_restore(corpus,client):
+    payload={"text":"manual catalogue fixture","category":"semantic","context_scope":"self-contained","source_url":"https://example.com/source"}
+    assert client.post("/api/strategies",json=payload).status_code==401
+    assert client.post("/api/strategies",json={**payload,"status":"approved"},headers=AUTH).status_code==422
+    created=client.post("/api/strategies",json=payload,headers=AUTH).json()
+    sid=created["id"]
+    assert created["status"]=="pending_review" and created["source_verified"]==0
+    assert client.post(f"/api/strategies/{sid}/review",json={"decision":"approve"},headers=AUTH).status_code==200
+    changed=client.patch(f"/api/strategies/{sid}",json={"text":"revised manual catalogue fixture"},headers=AUTH).json()
+    assert changed["revision"]==2 and changed["status"]=="pending_review" and changed["reviewed_by"] is None
+    detail=client.get("/api/history/records/"+sid,headers=AUTH).json()
+    assert detail["revisions"][0]["snapshot"]["text"]==payload["text"]
+    assert detail["raw_url"]==payload["source_url"] and not detail["artifacts"]
+    assert client.delete("/api/strategies/"+sid,headers=AUTH).status_code==200
+    assert client.get("/api/history/records",params={"q":"revised manual"},headers=AUTH).json()["total"]==0
+    assert client.patch("/api/strategies/"+sid,json={"text":"cannot edit archived"},headers=AUTH).status_code==409
+    assert client.post(f"/api/strategies/{sid}/review",json={"decision":"approve"},headers=AUTH).status_code==409
+    assert client.get("/api/history/records",params={"archived":"archived","q":"revised manual"},headers=AUTH).json()["total"]==1
+    assert client.post(f"/api/strategies/{sid}/restore",headers=AUTH).status_code==200
+    restored=client.get("/api/history/records/"+sid,headers=AUTH).json()
+    assert restored["is_archived"]==0 and restored["revision"]==2 and restored["status"]=="pending_review"
+
+def test_legacy_edit_preserves_source_and_invalidates_evidence(corpus,client):
+    from agentscope_app.history import catalog
+    row=catalog.create({"text":"immutable imported source clause","category":"per-event","context_scope":"project","execution_layer":"repository_instruction","source_url":"https://example.com/fixed"},"tester")
+    with db.connect() as con:
+        con.execute("UPDATE strategies SET source_kind='rq1_corpus',source_repo='example/repo',source_commit=?,source_path='AGENTS.md',source_verified=1,source_content_sha256=? WHERE id=?",(SHA,"b"*64,row["id"]))
+    changed=catalog.revise(row["id"],{"text":"human interpretation of imported clause"},"tester")
+    assert changed["source_commit"]==SHA and changed["source_path"]=="AGENTS.md" and changed["source_content_sha256"]=="b"*64
+    assert changed["source_verified"]==0 and changed["sentence_sha256"]==row["sentence_sha256"]
+    assert catalog.detail(row["id"])["revisions"][0]["snapshot"]["source_verified"]==1
+
+def test_catalog_cannot_overwrite_document_or_bypass_hash_review(corpus,client):
+    _,ident=saved(corpus)
+    original=registry.load_statement(ident)
+    with db.connect() as con: before=con.execute("SELECT record_json,content_sha256 FROM strategy_statement_versions WHERE id=?",(ident,)).fetchone()
+    assert client.patch("/api/strategies/"+original.strategy_id,json={"text":"overwritten source"},headers=AUTH).status_code==409
+    revised=registry.revise_statement(ident,{"statement":{"text_en":"","language":"zh","text_zh":"新解释"}})
+    assert client.post(f"/api/strategies/{original.strategy_id}/review",json={"decision":"approve"},headers=AUTH).status_code==409
+    with db.connect() as con: after=con.execute("SELECT record_json,content_sha256 FROM strategy_statement_versions WHERE id=?",(ident,)).fetchone()
+    assert tuple(before)==tuple(after)
+    assert registry.load_statement(revised).review_status=="pending_review"
+
+def test_archived_document_cannot_generate_approve_or_load_new_bundles(corpus,client,seed_task,tmp_path):
+    from agentscope_app.history import catalog
+    _,ident=saved(corpus)
+    registry.review_statement(ident,"approve","tester")
+    target=task(seed_task,tmp_path)
+    bound=registry.revise_statement(ident,{"resolved_context":{"task_id":target["id"],"allowed_paths":["nested"]}})
+    registry.review_statement(bound,"approve","tester")
+    v=registry.load_statement(bound)
+    out=pipeline.generate_policy_artifact(v,provider=Stub([translation(v)]))
+    aid=registry.save_artifact(out,"compiled",{})
+    registry.review_artifact(aid,"approve","tester")
+    assert registry.selected_artifacts(target,[aid])[0]["id"]==aid
+    catalog.archive(v.strategy_id,True,"tester")
+    assert client.post("/api/history/statements/"+bound+"/artifacts",headers=AUTH).status_code==409
+    with pytest.raises(ValueError,match="归档"):registry.selected_artifacts(target,[aid])
+    with pytest.raises(ValueError,match="归档"):registry.review_artifact(aid,"approve","tester")
+    with pytest.raises(ValueError,match="归档"):registry.revise_statement(bound,{"statement":{"text_zh":"改变归档版本"}})
+    with db.connect() as con: assert con.execute("SELECT content_sha256 FROM history_artifacts WHERE id=?",(aid,)).fetchone()[0]==catalog.detail(v.strategy_id)["artifacts"][0]["content_sha256"]
+    catalog.archive(v.strategy_id,False,"tester")
+    assert registry.selected_artifacts(target,[aid])[0]["id"]==aid
+
+def test_record_loaded_filter_has_exact_versions_and_task_names(corpus,seed_task,tmp_path,monkeypatch):
+    from agentscope_app.history import catalog
+    _,ident=saved(corpus)
+    registry.review_statement(ident,"approve","tester")
+    target=task(seed_task,tmp_path)
+    bound=registry.revise_statement(ident,{"resolved_context":{"task_id":target["id"],"allowed_paths":["nested"]}})
+    registry.review_statement(bound,"approve","tester")
+    v=registry.load_statement(bound)
+    aid=registry.save_artifact(pipeline.generate_policy_artifact(v,provider=Stub([translation(v)])),"compiled",{})
+    registry.review_artifact(aid,"approve","tester")
+    monkeypatch.setattr(main,"compile_policy",lambda *a:("compiled",{},""))
+    bundle=main.create_policy_version(target,1,"task_start",{},[],"fixture",artifact_ids=[aid])
+    with db.connect() as con:
+        con.execute("UPDATE tasks SET name='named isolated task' WHERE id=?",(target["id"],))
+        con.execute("INSERT INTO history_deployments(id,policy_version_id,task_id,bundle_hash,status,domain_id,runner_pid,receipt_json,created_at) VALUES(?,?,?,?,?,?,?,?,?)",
+            (uuid.uuid4().hex,bundle["id"],target["id"],"c"*64,"loaded",123,456,json.dumps({"binding_confirmed":True}),db.now()))
+    row=catalog.page(status="loaded")["items"][0]
+    artifact=row["artifacts"][0];deployment=artifact["deployments"][0]
+    assert artifact["id"]==aid and artifact["statement_version_id"]==bound and artifact["eligible"]
+    assert deployment["task_name"]=="named isolated task" and deployment["task_id"]==target["id"]
+    assert deployment["task_policy_version"]==1 and deployment["domain_id"]==123 and deployment["receipt"]["binding_confirmed"]
+
+def test_catalog_migration_preserves_legacy_rows_and_private_wal_backup(tmp_path,monkeypatch):
+    import sqlite3,stat
+    path=tmp_path/"legacy.sqlite3"
+    monkeypatch.setattr(db,"DB_PATH",path)
+    original=db.SCHEMA.replace(" revision INTEGER NOT NULL DEFAULT 1, is_archived INTEGER NOT NULL DEFAULT 0, archived_at TEXT, archived_by TEXT,\n","")
+    with sqlite3.connect(path) as con:
+        con.executescript(original)
+        con.execute("INSERT INTO strategies(id,text,category,category_confidence,context_scope,execution_layer,status,sentence_sha256,created_at) VALUES(?,?,?,?,?,?,?,?,?)",("legacy","unchanged legacy clause","semantic",1,"project","repository_instruction","approved","z"*64,db.now()))
+    db.init_db()
+    with db.connect() as con:
+        row=con.execute("SELECT * FROM strategies WHERE id='legacy'").fetchone()
+        assert row["text"]=="unchanged legacy clause" and row["status"]=="approved" and row["revision"]==1 and row["is_archived"]==0
+    backups=list((tmp_path/"backups").glob("*.sqlite3"))
+    assert len(backups)==1 and stat.S_IMODE(backups[0].stat().st_mode)==0o600
+    with sqlite3.connect(backups[0]) as con: assert con.execute("SELECT text FROM strategies WHERE id='legacy'").fetchone()[0]=="unchanged legacy clause"
+    db.init_db()
+    assert len(list((tmp_path/"backups").glob("*.sqlite3")))==1

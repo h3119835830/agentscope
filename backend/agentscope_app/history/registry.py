@@ -47,6 +47,8 @@ def save_extraction(document,result):
 
 def revise_statement(ident,changes):
     old=load_statement(ident)
+    from .catalog import mutable_strategy
+    with db.connect() as con: mutable_strategy(con,old.strategy_id)
     if set(changes)-{"statement","resolved_context"}: raise ValueError("只能修改语句标签/翻译或任务上下文")
     content=old.model_dump()
     if "statement" in changes: content["statement"]={**content["statement"],**changes["statement"]}
@@ -87,6 +89,8 @@ def revise_statement(ident,changes):
 
 def review_statement(ident,decision,actor):
     record=load_statement(ident)
+    from .catalog import mutable_strategy
+    with db.connect() as con: mutable_strategy(con,record.strategy_id)
     if decision not in ("approve","reject"): raise ValueError("decision 必须为 approve/reject")
     if decision=="approve":
         from .sources import read_document
@@ -129,7 +133,9 @@ def review_artifact(ident,decision,actor):
         row=con.execute("SELECT * FROM history_artifacts WHERE id=?",(ident,)).fetchone()
         if not row: raise ValueError("DSL 产物不存在")
         data=json.loads(row["artifact_json"])
-        source=con.execute("SELECT review_status,reviewed_hash,content_sha256 FROM strategy_statement_versions WHERE id=?",(row["statement_version_id"],)).fetchone()
+        source=con.execute("SELECT review_status,reviewed_hash,content_sha256,strategy_id FROM strategy_statement_versions WHERE id=?",(row["statement_version_id"],)).fetchone()
+        from .catalog import mutable_strategy
+        mutable_strategy(con,source["strategy_id"])
         if decision=="approve":
             if source["review_status"]!="approved" or source["reviewed_hash"]!=source["content_sha256"]: raise ValueError("来源版本未批准")
             if digest(data)!=row["content_sha256"]: raise ValueError("DSL 内容 hash 不一致")
@@ -154,6 +160,8 @@ def selected_artifacts(task,ids):
             if row["compile_state"]!="compiled" or not data["actplane_dsl"]: raise ValueError("DSL 尚不可执行")
             validate_fragment(data["actplane_dsl"],"h_"+row["statement_version_id"].replace("-","")[:16]+"_")
             statement=load_statement(row["statement_version_id"])
+            from .catalog import mutable_strategy
+            mutable_strategy(con,statement.strategy_id)
             source=con.execute("SELECT reviewed_hash,content_sha256 FROM strategy_statement_versions WHERE id=?",(statement.id,)).fetchone()
             if source["reviewed_hash"]!=source["content_sha256"]: raise ValueError("来源语句批准 hash 不一致")
             if statement.strategy_id in seen: raise ValueError("同一策略只能选一个版本")

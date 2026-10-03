@@ -15,3 +15,7 @@ The observed ActPlane write-hook boundary may leave an empty new file entry when
 See [the real acceptance record](acceptance/history-library-20261002.md) and its sanitized structured evidence. Unit tests use isolated SQLite and fixture providers; real acceptance additionally uses DeepSeek and isolated DSH tasks.
 
 The release design snapshots are in [history-library/](history-library/README.md): technical plan, RFC, ADR, REVIEW and BUG.
+
+The records module adopts the mac branch (41e5c3d) directory view: full statement text, server-side filters/pagination, manual creation, version-aware editing/history, and reversible archive. The catalog joins exact statement, DSL and deployment versions. Document edits never overwrite immutable source/version data; legacy edits preserve source fields and clear review. Archived records cannot enter future conversion or deployment, while previous runtime receipts remain available.
+
+Record management browser evidence and migration/regression checks: [2026-10-03 acceptance](acceptance/history-records-20261003.md).
