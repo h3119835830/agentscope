@@ -1,6 +1,5 @@
 import React, {useCallback,useEffect,useState} from 'react';
 
-const tabs=['文档采集','策略语句抽取','策略转 DSL','策略记录与加载'];
 const labels={queued:'排队中',running:'处理中',completed:'已完成',failed:'失败',interrupted:'已中断',
  pending_review:'待审核',approved:'已通过候选',rejected:'已拒绝',candidate:'DSL 候选',
  requires_context:'待绑定上下文',unsupported:'不支持',compiled:'已编译',compile_failed:'编译失败',
@@ -8,8 +7,9 @@ const labels={queued:'排队中',running:'处理中',completed:'已完成',faile
 const status=v=><span className={'tag '+(['approved','compiled','loaded','completed'].includes(v)?'good':['failed','rejected','compile_failed','load_failed'].includes(v)?'bad':'warn')}>{labels[v]||v}</span>;
 const clip=x=>x?.slice(0,12)||'—';
 
-export default function HistoryLibrary({api,post,tasks,busy,action,notify,selectTask}) {
- const [tab,setTab]=useState(0),[docs,setDocs]=useState([]),[statements,setStatements]=useState([]),
+export default function HistoryLibrary({api,post,tasks,busy,action,notify,selectTask,moduleIndex,title,onModuleChange}) {
+ const tab=moduleIndex;
+ const [docs,setDocs]=useState([]),[statements,setStatements]=useState([]),
  [artifacts,setArtifacts]=useState([]),[jobs,setJobs]=useState([]),[legacy,setLegacy]=useState([]);
  const [repo,setRepo]=useState('https://github.com/zeroclaw-labs/zeroclaw'),[ref,setRef]=useState('main'),[extra,setExtra]=useState('');
  const [documentIds,setDocumentIds]=useState([]),[preview,setPreview]=useState(null);
@@ -29,7 +29,7 @@ export default function HistoryLibrary({api,post,tasks,busy,action,notify,select
  const currentStatements=statements.filter(r=>search(r)&&(showAll||r.record.statement.content_type!=='description'));
  const approvedStatements=statements.filter(r=>r.review_status==='approved');
  const collect=()=>run(async()=>{const j=await post('/api/history/sources',{repo_url:repo,ref,additional_paths:extra.split(/[\n,]/).map(x=>x.trim()).filter(Boolean)});notify('采集已排队：'+clip(j.id));});
- const extract=()=>run(async()=>{const j=await post('/api/history/extractions',{document_ids:documentIds});notify('抽取已排队：'+clip(j.id));setTab(1);});
+ const extract=()=>run(async()=>{const j=await post('/api/history/extractions',{document_ids:documentIds});notify('抽取已排队：'+clip(j.id));onModuleChange(1);});
  const reviewStatement=(id,decision)=>run(async()=>{await post('/api/history/statements/'+id+'/review',{decision,reviewed_by:'研究者'});notify(decision==='approve'?'语句版本已通过':'语句已拒绝');});
  const revise=()=>run(async()=>{const result=await post('/api/history/statements/'+detail.id+'/revisions',{statement:JSON.parse(edit)});notify('已保存新版本：'+clip(result.id));setDetail(null);});
  const translate=()=>run(async()=>{
@@ -50,8 +50,7 @@ export default function HistoryLibrary({api,post,tasks,busy,action,notify,select
  const visibleArtifacts=artifacts.filter(r=>search(r)&&(!filter|| (filter==='loaded'?r.deployments.some(d=>d.status==='loaded'):r.review_status===filter)));
 
  return <div className="content history-library">
-  <div className="page-head"><div><h1>历史策略库</h1></div></div>
-  <div className="history-tabs" role="tablist">{tabs.map((t,i)=><button role="tab" aria-selected={tab===i} className={tab===i?'active':''} key={t} onClick={()=>setTab(i)}>{t}</button>)}</div>
+  <div className="page-head"><div><h1>{title}</h1></div></div>
   {tab===0&&<>
    <section className="panel history-form"><div className="history-fields">
     <label>GitHub 仓库<input value={repo} onChange={e=>setRepo(e.target.value)}/></label>

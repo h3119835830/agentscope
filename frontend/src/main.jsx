@@ -12,6 +12,12 @@ const api = async (url, options = {}) => {
 };
 const post = (url, body = {}) => api(url, { method: 'POST', body: JSON.stringify(body) });
 const short = (value, n = 12) => value ? `${value.slice(0, n)}…` : '—';
+const HISTORY_MODULES = [
+  {page:'collect',title:'文档采集',icon:'▧'},
+  {page:'extract',title:'策略语句抽取',icon:'≡'},
+  {page:'translate',title:'策略转 DSL',icon:'⌘'},
+  {page:'records',title:'策略记录与加载',icon:'⇥'},
+];
 const when = value => value ? new Date(value).toLocaleString('zh-CN', { hour12: false }) : '—';
 
 function App() {
@@ -19,6 +25,15 @@ function App() {
   const [authenticated,setAuthenticated]=useState(false);
   const [loginError,setLoginError]=useState('');
   const [page, setPage] = useState('overview');
+  const [sidebarCollapsed,setSidebarCollapsed]=useState(()=>{
+    try {
+      const saved=localStorage.getItem('agentscopeSidebarCollapsed');
+      return saved===null ? window.matchMedia('(max-width:650px)').matches : saved==='true';
+    } catch { return false; }
+  });
+  useEffect(()=>{try{localStorage.setItem('agentscopeSidebarCollapsed',String(sidebarCollapsed));}catch{}},[sidebarCollapsed]);
+  const historyModuleIndex=HISTORY_MODULES.findIndex(module=>module.page===page);
+  const historyModule=HISTORY_MODULES[historyModuleIndex];
   const [status, setStatus] = useState(null);
   const [dash, setDash] = useState(null);
   const [strategies, setStrategies] = useState([]);
@@ -85,23 +100,23 @@ function App() {
 
   if (!authenticated) return <div className="auth-gate"><form className="auth-card" onSubmit={connect}><div className="brand-mark">A</div><p className="eyebrow">本地策略管控</p><h1>连接 AgentScope</h1><p>输入虚拟机本地配置的管理员口令。任务级 DSH 凭据不能执行审批操作。</p><label>管理员口令<input autoFocus type="password" value={loginToken} onChange={event=>setLoginToken(event.target.value)} placeholder="AGENTSCOPE_ADMIN_TOKEN" /></label>{loginError&&<div className="inline-notice warning">{loginError}</div>}<button className="button primary full" disabled={!loginToken.trim()}>解锁管控台</button></form></div>;
 
-  return <div className="shell">
+  return <div className={`shell ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
     <aside className="sidebar">
-      <div className="brand"><div className="brand-mark">A</div><div><b>AgentScope</b><small>策略管控台</small></div></div>
+      <div className="sidebar-header"><div className="brand"><div className="brand-mark">A</div><div className="brand-copy"><b>AgentScope</b><small>策略管控台</small></div></div><button className="sidebar-toggle" aria-label={sidebarCollapsed?'展开侧栏':'收起侧栏'} title={sidebarCollapsed?'展开侧栏':'收起侧栏'} aria-expanded={!sidebarCollapsed} aria-controls="workspace-navigation" onClick={()=>setSidebarCollapsed(value=>!value)}><span aria-hidden="true">{sidebarCollapsed?'›':'‹'}</span></button></div>
       <div className="side-label">工作区</div>
-      <nav>
+      <nav id="workspace-navigation" aria-label="工作区导航">
         <NavItem active={page === 'overview'} icon="▦" label="总览" onClick={() => setPage('overview')} />
-        <NavItem active={page === 'strategies'} icon="▤" label="历史策略库" count={dash?.stats?.pending_strategies} onClick={() => setPage('strategies')} />
+        {HISTORY_MODULES.map(module=><NavItem key={module.page} active={page===module.page} icon={module.icon} label={module.title} onClick={()=>setPage(module.page)}/>)}
         <NavItem active={page === 'task'} icon="◈" label="任务与启动审核" onClick={() => setPage('task')} />
         <NavItem active={page === 'runtime'} icon="⌁" label="运行时 Scope" onClick={() => setPage('runtime')} />
         <NavItem active={page === 'governance'} icon="⟳" label="持久治理" count={dash?.stats?.pending_governance} onClick={() => setPage('governance')} />
       </nav>
-      <div className="side-foot"><span className={`pulse ${status?.bpf_lsm ? 'ok' : 'bad'}`} />Linux VM · {status?.architecture || '连接中'}<br/><span className="muted">ActPlane 执行后端</span></div>
+      <div className="side-foot" title={`Linux VM · ${status?.architecture || '连接中'} · ActPlane 执行后端`}><span className={`pulse ${status?.bpf_lsm ? 'ok' : 'bad'}`} /><span className="side-foot-copy">Linux VM · {status?.architecture || '连接中'}<br/><span className="muted">ActPlane 执行后端</span></span></div>
     </aside>
     <main className="main">
       <header className="topbar"><div><span className="crumb">AgentScope</span><span className="slash">/</span><b>{pageTitle(page)}</b></div><div className="top-right"><span className={`status-pill ${status?.broker?.available && status?.bpf_lsm ? 'good' : 'warn'}`}><i />{status?.broker?.available && status?.bpf_lsm ? '执行面已连接' : '执行面待检查'}</span><button className="avatar" title="锁定管控台" onClick={lock}>锁</button></div></header>
       {page === 'overview' && <Overview dash={dash} status={status} tasks={tasks} onSelect={selectTask} onNav={setPage} />}
-      {page === 'strategies' && <HistoryLibrary api={api} post={post} tasks={tasks} busy={busy} action={withBusy} notify={notify} selectTask={selectTask} />}
+      {historyModule && <HistoryLibrary moduleIndex={historyModuleIndex} title={historyModule.title} onModuleChange={index=>setPage(HISTORY_MODULES[index].page)} api={api} post={post} tasks={tasks} busy={busy} action={withBusy} notify={notify} selectTask={selectTask} />}
       {page === 'task' && <TaskPage tasks={tasks} selected={selected} selectTask={selectTask} context={context} versions={versions} busy={busy} action={withBusy} notify={notify} refresh={refresh} />}
       {page === 'runtime' && <RuntimePage tasks={tasks} selected={selected} selectTask={selectTask} runtime={runtime} requests={requests} busy={busy} action={withBusy} refresh={refresh} notify={notify} />}
       {page === 'governance' && <Governance rows={governance} busy={busy} action={withBusy} notify={notify} />}
@@ -110,8 +125,8 @@ function App() {
   </div>;
 }
 
-function pageTitle(page) { return ({ overview: '总览', strategies: '历史策略库', task: '任务与启动审核', runtime: '运行时 Scope', governance: '持久治理' })[page]; }
-function NavItem({ active, icon, label, count, onClick }) { return <button className={`nav-item ${active ? 'active' : ''}`} onClick={onClick}><span className="nav-icon">{icon}</span><span>{label}</span>{count > 0 && <em>{count}</em>}</button>; }
+function pageTitle(page) { return HISTORY_MODULES.find(module=>module.page===page)?.title || ({ overview: '总览', task: '任务与启动审核', runtime: '运行时 Scope', governance: '持久治理' })[page]; }
+function NavItem({ active, icon, label, count, onClick }) { return <button className={`nav-item ${active ? 'active' : ''}`} aria-label={label} aria-current={active?'page':undefined} title={label} onClick={onClick}><span className="nav-icon" aria-hidden="true">{icon}</span><span className="nav-label">{label}</span>{count > 0 && <em>{count}</em>}</button>; }
 function Header({ eyebrow, title, description, action }) { return <div className="page-head"><div><div className="eyebrow">{eyebrow}</div><h1>{title}</h1><p>{description}</p></div>{action}</div>; }
 function Metric({ label, value, note, icon }) { return <div className="metric"><div className="metric-top"><span>{label}</span><span className="metric-icon">{icon}</span></div><strong>{value ?? '—'}</strong><small>{note}</small></div>; }
 function StatusTag({ children, kind = 'neutral' }) { return <span className={`tag ${kind}`}>{children}</span>; }
