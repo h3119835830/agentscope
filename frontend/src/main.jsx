@@ -25,6 +25,8 @@ function App() {
   const [loginToken,setLoginToken]=useState('');
   const [authenticated,setAuthenticated]=useState(false);
   const [loginError,setLoginError]=useState('');
+  const [authReady,setAuthReady]=useState(false);
+  const [developmentMode,setDevelopmentMode]=useState(false);
   const [page, setPage] = useState('overview');
   const [sidebarCollapsed,setSidebarCollapsed]=useState(()=>{
     try {
@@ -79,9 +81,27 @@ function App() {
   }, [selected, notify, authenticated]);
 
   useEffect(() => {
-    const saved = sessionStorage.getItem('agentscopeAdminToken') || '';
-    if (!saved) return;
-    api('/api/auth/check').then(() => setAuthenticated(true)).catch(() => sessionStorage.removeItem('agentscopeAdminToken'));
+    let active=true;
+    (async()=>{
+      try {
+        const response=await fetch('/api/auth/mode');
+        if (!response.ok) throw new Error(`连接失败 (${response.status})`);
+        const mode=await response.json();
+        if (!active) return;
+        if (mode.development_no_password) {
+          sessionStorage.removeItem('agentscopeAdminToken');
+          setLoginToken('');setDevelopmentMode(true);setAuthenticated(true);
+        } else {
+          const saved=sessionStorage.getItem('agentscopeAdminToken') || '';
+          if (saved) {
+            try {await api('/api/auth/check');if(active)setAuthenticated(true);}
+            catch {sessionStorage.removeItem('agentscopeAdminToken');}
+          }
+        }
+        if(active)setAuthReady(true);
+      } catch(error) {if(active)setLoginError(`本地服务未连接：${error.message}`);}
+    })();
+    return ()=>{active=false;};
   }, []);
   useEffect(() => { if (!authenticated) return; refresh(); const timer = setInterval(refresh, 7000); return () => clearInterval(timer); }, [authenticated, refresh]);
   useEffect(() => {
@@ -97,6 +117,8 @@ function App() {
     finally { setBusy(false); }
   };
   const selectTask = id => { setSelected(id); setPage('task'); };
+
+  if (!authReady) return <div className="auth-gate"><div className="auth-card"><div className="brand-mark">A</div><h1>正在连接 AgentScope</h1>{loginError ? <><p>{loginError}</p><button className="button primary full" onClick={()=>window.location.reload()}>重新连接</button></> : <p>正在加载本地工作区…</p>}</div></div>;
 
   if (!authenticated) return <div className="auth-gate"><form className="auth-card" onSubmit={connect}><div className="brand-mark">A</div><p className="eyebrow">本地策略管控</p><h1>连接 AgentScope</h1><p>输入虚拟机本地配置的管理员口令。任务级 DSH 凭据不能执行审批操作。</p><label>管理员口令<input autoFocus type="password" value={loginToken} onChange={event=>setLoginToken(event.target.value)} placeholder="AGENTSCOPE_ADMIN_TOKEN" /></label>{loginError&&<div className="inline-notice warning">{loginError}</div>}<button className="button primary full" disabled={!loginToken.trim()}>解锁管控台</button></form></div>;
 
@@ -114,7 +136,7 @@ function App() {
       <div className="side-foot" title={`Linux VM · ${status?.architecture || '连接中'} · ActPlane 执行后端`}><span className={`pulse ${status?.bpf_lsm ? 'ok' : 'bad'}`} /><span className="side-foot-copy">Linux VM · {status?.architecture || '连接中'}<br/><span className="muted">ActPlane 执行后端</span></span></div>
     </aside>
     <main className="main">
-      <header className="topbar"><div><span className="crumb">AgentScope</span><span className="slash">/</span><b>{pageTitle(page)}</b></div><div className="top-right"><span className={`status-pill ${status?.broker?.available && status?.bpf_lsm ? 'good' : 'warn'}`}><i />{status?.broker?.available && status?.bpf_lsm ? '执行面已连接' : '执行面待检查'}</span><button className="avatar" title="锁定管控台" onClick={lock}>锁</button></div></header>
+      <header className="topbar"><div><span className="crumb">AgentScope</span><span className="slash">/</span><b>{pageTitle(page)}</b></div><div className="top-right"><span className={`status-pill ${status?.broker?.available && status?.bpf_lsm ? 'good' : 'warn'}`}><i />{status?.broker?.available && status?.bpf_lsm ? '执行面已连接' : '执行面待检查'}</span>{developmentMode ? <span className="status-pill good">本地开发 · 免口令</span> : <button className="avatar" title="锁定管控台" onClick={lock}>锁</button>}</div></header>
       {page === 'overview' && <Overview dash={dash} status={status} tasks={tasks} onSelect={selectTask} onNav={setPage} />}
       {page === 'strategies' && <HistoryLibrary moduleIndex={historyModuleIndex} modules={HISTORY_MODULES} onModuleChange={setHistoryModuleIndex} api={api} post={post} tasks={tasks} busy={busy} action={withBusy} notify={notify} selectTask={selectTask} />}
       {page === 'task' && <TaskPage tasks={tasks} selected={selected} selectTask={selectTask} context={context} versions={versions} busy={busy} action={withBusy} notify={notify} refresh={refresh} />}

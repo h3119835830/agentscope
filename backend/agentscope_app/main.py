@@ -15,6 +15,7 @@ from .history.registry import selected_artifacts, review_statement as review_sta
 from .history.provider import ActPlaneProvider
 from .bootstrap.api import router as bootstrap_router, approved_prompt
 from .bootstrap.validation import verify_version
+from . import development
 
 app=FastAPI(title="AgentScope",version="0.2.0")
 app.include_router(history_router)
@@ -24,10 +25,12 @@ app.include_router(bootstrap_router)
 @app.middleware("http")
 async def protect_control_api(request: Request, call_next):
     path=request.url.path
-    if not path.startswith("/api/") or path=="/api/health" or path.startswith("/api/plugin/") or path.startswith("/api/generator/tasks/"):
+    if not path.startswith("/api/") or path in ("/api/health","/api/auth/mode") or path.startswith("/api/plugin/") or path.startswith("/api/generator/tasks/"):
         return await call_next(request)
     supplied=request.headers.get("authorization","")
     supplied=supplied[7:] if supplied.lower().startswith("bearer ") else ""
+    if development.passwordless(request) and not supplied:
+        return await call_next(request)
     if len(ADMIN_TOKEN)<32 or ADMIN_TOKEN=="replace-with-a-random-secret":
         return JSONResponse({"detail":"管理员口令未配置；请设置 AGENTSCOPE_ADMIN_TOKEN"},status_code=503)
     if not hmac.compare_digest(supplied,ADMIN_TOKEN):
@@ -192,6 +195,11 @@ def health(): return {"ok":True,"service":"AgentScope","version":"0.2.0"}
 
 @app.get("/api/auth/check")
 def auth_check(): return {"ok":True}
+
+@app.get('/api/auth/mode')
+def auth_mode(request:Request):
+    no_password=development.passwordless(request)
+    return {'development_no_password':no_password,'authentication_required':not no_password}
 
 @app.get("/api/status")
 def status():

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Read-only live-instance isolation audit. Never exports authentication data."""
 import json
+import argparse
 import hashlib
 import os
 import re
@@ -10,6 +11,9 @@ import urllib.request
 from pathlib import Path
 from rq5_service import STATE
 
+parser=argparse.ArgumentParser()
+parser.add_argument('--output',type=Path,default=STATE/'report/isolation.json')
+args=parser.parse_args()
 if os.getuid()!=0:raise SystemExit('Requires root to read the existing protected service configuration')
 live_env={}
 for line in Path('/etc/agentscope/agentscope.env').read_text().splitlines():
@@ -30,15 +34,22 @@ result['checks']={'721_pending_preserved':pending==721,'no_test_task_injection':
                   'original_no_active_domain':not dashboard['stats']['active_tasks'] and not dashboard['active'],
                   'distinct_database':database.resolve()!=(STATE/'acceptance.sqlite3').resolve()}
 ui={}
+ui_roots={'original':Path(live_env.get('AGENTSCOPE_UI_DIST','/opt/agentscope/frontend/dist')),
+          'acceptance':STATE/'ui-dist'}
 for name,port in (('original',18000),('acceptance',18001)):
     url=f'http://127.0.0.1:{port}'
     with urllib.request.urlopen(url+'/',timeout=10) as response:index=response.read()
     asset=re.search(rb'<script[^>]+src="([^"]+\.js)"',index).group(1).decode()
     with urllib.request.urlopen(url+asset,timeout=10) as response:bundle=response.read()
-    ui[name]={'index_sha256':hashlib.sha256(index).hexdigest(),'javascript_asset':asset,
+    root=ui_roots[name].resolve()
+    ui[name]={'root':str(root),'index_matches_snapshot':index==(root/'index.html').read_bytes(),
+              'bundle_matches_snapshot':bundle==(root/asset.lstrip('/')).read_bytes(),
+              'index_sha256':hashlib.sha256(index).hexdigest(),'javascript_asset':asset,
               'bootstrap_controls_present':b'/bootstrap/proposals/' in bundle}
 result['ui']=ui
-result['checks']['distinct_deployed_ui']=ui['original']['index_sha256']!=ui['acceptance']['index_sha256'] and not ui['original']['bootstrap_controls_present'] and ui['acceptance']['bootstrap_controls_present']
-(STATE/'report/isolation.json').write_text(json.dumps(result,ensure_ascii=False,indent=2))
+result['checks']['distinct_ui_roots']=ui['original']['root']!=ui['acceptance']['root']
+result['checks']['deployed_ui_matches_snapshots']=all(item['index_matches_snapshot'] and item['bundle_matches_snapshot'] for item in ui.values())
+result['checks']['acceptance_bootstrap_controls']=ui['acceptance']['bootstrap_controls_present']
+args.output.write_text(json.dumps(result,ensure_ascii=False,indent=2))
 print(json.dumps(result))
 if not all(result['checks'].values()):raise SystemExit('Isolation audit failed')
