@@ -14,9 +14,7 @@ const api = async (url, options = {}) => {
 const post = (url, body = {}) => api(url, { method: 'POST', body: JSON.stringify(body) });
 const short = (value, n = 12) => value ? `${value.slice(0, n)}…` : '—';
 const HISTORY_MODULES = [
-  {page:'collect',title:'文档采集',icon:'▧'},
-  {page:'extract',title:'策略语句抽取',icon:'≡'},
-  {page:'translate',title:'策略转 DSL',icon:'⌘'},
+  {page:'generate',title:'策略生成',icon:'⌘'},
   {page:'records',title:'策略记录与加载',icon:'⇥'},
   {page:'audit',title:'采集与审计',icon:'▦'},
 ];

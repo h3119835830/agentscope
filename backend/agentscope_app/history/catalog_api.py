@@ -26,8 +26,8 @@ class Revision(BaseModel):
 
 @router.get("/api/history/records")
 def records(q:str="",status:str="",category:str="",context_scope:str="",source_repo:str="",archived:str="active",
-        limit:int=Query(default=20,ge=1,le=100),offset:int=Query(default=0,ge=0),source_kind:str="",execution_layer:str=""):
-    return invoke(catalog.page,q,status,category,context_scope,source_repo,archived,limit,offset,source_kind,execution_layer)
+        limit:int=Query(default=20,ge=1,le=100),offset:int=Query(default=0,ge=0),source_kind:str="",execution_layer:str="",completeness:str="",adaptation:str="",loadable:str=""):
+    return invoke(catalog.page,q,status,category,context_scope,source_repo,archived,limit,offset,source_kind,execution_layer,completeness,adaptation,loadable)
 
 class InputLabels(BaseModel):
     model_config=ConfigDict(extra='forbid')

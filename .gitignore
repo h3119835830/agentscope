@@ -53,3 +53,7 @@ backend/agentscope_app/data/RQ1/corpus/*
 !backend/agentscope_app/data/RQ1/corpus/candidate_rules.tsv
 !backend/agentscope_app/data/RQ1/corpus/provenance.json
 !backend/agentscope_app/data/RQ1/corpus/README.md
+
+# Installed runtime dependencies may be symlinks in isolated development worktrees.
+node_modules
+/dsh

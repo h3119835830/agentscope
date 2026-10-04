@@ -15,4 +15,10 @@ def translation_capabilities():
         'event_origin':'All matching processes in the task domain, including children and script interpreters; file events do not depend on which tool initiated the operation.',
         'outside_domain':'Not selected by this task policy; ordinary human processes outside the task domain are unaffected.',
         'semantic_or_content_inspection':False,
+        'classification_contract':{
+            'semantic_only':'Meaning, correctness, politeness or qualitative judgment that cannot be determined at OS events.',
+            'content':'Requires inspecting or validating document/output contents.',
+            'per_event':'An OS file access/mutation, execution or network event restriction. Missing concrete paths or machine parameters affect context/adaptation, not this classification.',
+            'cross_event':'An execution constraint gated by prior events or lineage, where the supplied compiler grammar supports that gate.',
+            'not_applicable':'Description or reference rather than an instruction for the current agent.'},
         'limits':runtime_limits_for('block write file "/example/**" if AGENT')}

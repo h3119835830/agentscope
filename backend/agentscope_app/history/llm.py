@@ -44,8 +44,10 @@ class DeepSeekProvider:
             parsed = json.loads(content)
             if not isinstance(parsed, dict):
                 raise ValueError()
-        except (KeyError, IndexError, TypeError, ValueError):
-            raise LLMError("DeepSeek 未返回有效 JSON 对象") from None
+        except json.JSONDecodeError as e:
+            raise LLMError(f"DeepSeek JSON 无效（行 {e.lineno}，列 {e.colno}）") from None
+        except (KeyError, IndexError, TypeError, ValueError) as e:
+            raise LLMError("DeepSeek 未返回有效 JSON 对象（"+type(e).__name__+"）") from None
         metadata = {"provider": "deepseek", "model": self.model,
             "response_model": result.get("model", self.model), "prompt_version": prompt_version,
             "input_hash": hashlib.sha256(encoded).hexdigest(),

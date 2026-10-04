@@ -58,7 +58,11 @@ def _run(task_id, job_id):
                        "--ro-bind", "/usr", "/usr", "--ro-bind", "/lib", "/lib", "--ro-bind", "/lib64", "/lib64",
                        "--ro-bind", "/etc/ssl", "/etc/ssl", "--ro-bind", "/etc/resolv.conf", "/etc/resolv.conf",
                        "--ro-bind", "/etc/hosts", "/etc/hosts", "--ro-bind", "/opt/agentscope/bin/node", "/runtime/node",
-                       "--ro-bind", str(INTEGRATION), "/pi", "--bind", directory, "/home/pi",
+                       "--dir", "/pi",
+                       "--ro-bind", str(INTEGRATION/"extension.ts"), "/pi/extension.ts",
+                       "--ro-bind", str(INTEGRATION/"bootstrap-system.md"), "/pi/bootstrap-system.md",
+                       "--ro-bind", str((INTEGRATION/"node_modules").resolve(strict=True)), "/pi/node_modules",
+                       "--bind", directory, "/home/pi",
                        "--proc", "/proc", "--dev", "/dev", "--tmpfs", "/tmp", "--chdir", "/home/pi", "--", *cli]
             process = subprocess.Popen(command, env=environment, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, start_new_session=True)
             deadline=time.monotonic()+180

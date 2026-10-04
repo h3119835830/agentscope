@@ -55,7 +55,7 @@ def git_snapshot(repo,ref):
     return commit,files,read_blob
 
 
-def collect_documents(repo_url, ref="main", additional_paths=None, *, reader=fetch):
+def collect_documents(repo_url, ref="main", additional_paths=None, *, reader=fetch, include_instruction_files=True):
     repo,_=parse_github_url(repo_url)
     if any(p in (".","..") for p in repo.split("/")): raise ValueError("仓库路径不合法")
     if not ref or ref.startswith("-") or len(ref)>240: raise ValueError("Git 引用不合法")
@@ -83,7 +83,7 @@ def collect_documents(repo_url, ref="main", additional_paths=None, *, reader=fet
         commit,files,read_raw=git_snapshot(repo,ref)
     missing=sorted(extra-files.keys())
     if missing: raise ValueError("指定文件不存在："+", ".join(missing))
-    selected=sorted(p for p in files if PurePosixPath(p).name in ("AGENTS.md","CLAUDE.md") or p in extra)
+    selected=sorted(p for p in files if (include_instruction_files and PurePosixPath(p).name in ("AGENTS.md","CLAUDE.md")) or p in extra)
     ids=[]; total=0
     for path in selected:
         item=files[path]
@@ -111,7 +111,7 @@ def collect_documents(repo_url, ref="main", additional_paths=None, *, reader=fet
             ident=old["id"] if old else uuid.uuid4().hex
             if not old:
                 con.execute("INSERT INTO history_documents VALUES(?,?,?,?,?,?,?,?,?,?,?)",
-                    (ident,repo,ref,commit,path,str(PurePosixPath(path).parent) if "/" in path else "",str(dest),sha,len(raw),
+                    (ident,repo,ref,commit,path,str(PurePosixPath(path).parent) if "/" in path and PurePosixPath(path).name in ("AGENTS.md","CLAUDE.md") else "",str(dest),sha,len(raw),
                      f"https://github.com/{repo}/blob/{commit}/{urllib.parse.quote(path,safe='/')}",db.now()))
             ids.append(ident)
     return {"repository":repo,"commit":commit,"document_ids":ids,"file_count":len(ids)}

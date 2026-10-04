@@ -1,11 +1,32 @@
 import json
 from fastapi import APIRouter, HTTPException, Query
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from .. import db
 from . import jobs, registry
 from .sources import read_document
 
 router=APIRouter(prefix="/api/history",tags=["history"])
+class GenerationRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    repo_url: str | None = None
+    ref: str = "main"
+    additional_paths: list[str] = Field(default_factory=list,max_length=100)
+    statement_version_id: str | None = None
+    request_key: str | None = Field(default=None,max_length=100)
+    include_instruction_files: bool = True
+
+class FinalReviewItem(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    statement_version_id: str
+    expected_statement_hash: str
+    artifact_id: str | None = None
+    expected_artifact_hash: str | None = None
+
+class FinalReviewRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    items: list[FinalReviewItem] = Field(min_length=1,max_length=100)
+    decision: str
+    reviewed_by: str = "研究者"
 class CollectRequest(BaseModel):
     repo_url: str
     ref: str = "main"
@@ -19,6 +40,43 @@ class Review(BaseModel):
 def invoke(fn,*args):
     try: return fn(*args)
     except (ValueError,OSError) as e: raise HTTPException(409,str(e)) from None
+
+@router.post("/generations")
+def generate(body:GenerationRequest):
+    from .generations import create
+    return invoke(create,body.model_dump(exclude_none=True))
+
+@router.get("/generations")
+def generation_list():
+    from .generations import list_runs
+    return list_runs()
+
+@router.get("/generations/{ident}")
+def generation_get(ident:str):
+    from .generations import get
+    return invoke(get,ident)
+
+@router.get("/generations/{ident}/results")
+def generation_results(ident:str,limit:int=Query(default=20,ge=1,le=100),offset:int=Query(default=0,ge=0),
+        q:str="",execution_level:str="",context_scope:str="",completeness:str="",adaptation:str="",loadable:str="",include_descriptions:bool=False):
+    from .generations import results
+    return invoke(lambda:results(ident,limit,offset,q=q,execution_level=execution_level,context_scope=context_scope,
+        completeness=completeness,adaptation=adaptation,loadable=loadable,include_descriptions=include_descriptions))
+
+@router.post("/generations/{ident}/cancel")
+def generation_cancel(ident:str):
+    from .generations import cancel
+    return invoke(cancel,ident)
+
+@router.post("/generations/{ident}/retry")
+def generation_retry(ident:str):
+    from .generations import retry
+    return invoke(retry,ident)
+
+@router.post("/generations/{ident}/review")
+def generation_review(ident:str,body:FinalReviewRequest):
+    from .generations import final_review
+    return invoke(final_review,ident,[x.model_dump() for x in body.items],body.decision,body.reviewed_by)
 
 @router.post("/sources")
 def collect(body:CollectRequest):
@@ -48,6 +106,9 @@ def job(ident:str):
 @router.post("/jobs/{ident}/retry")
 def retry(ident:str):
     record=job(ident)
+    if record["kind"]=="history_generation":
+        from .generations import retry as retry_generation
+        return invoke(retry_generation,record["input"]["run_id"])
     if record["status"] not in ("failed","interrupted"): raise HTTPException(409,"只能重试失败/中断作业")
     return jobs.enqueue(record["kind"],record["input"],ident)
 

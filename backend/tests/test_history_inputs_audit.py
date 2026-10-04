@@ -4,6 +4,7 @@ import pytest
 from agentscope_app import db, main
 from agentscope_app.history import catalog, inputs, jobs, pipeline, registry, sources
 from agentscope_app.services import corpus
+from pathlib import Path
 
 AUTH={'Authorization':'Bearer test-admin-token-not-for-production'}
 
@@ -62,10 +63,18 @@ def test_rq1_snapshot_reuses_existing_document_identity(isolated,monkeypatch):
 
 def test_task_input_scope_and_real_conversion_contract(isolated,tmp_path,seed_task,monkeypatch):
     seed_task('input-scope')
-    work=tmp_path/'repo';(work/'tests').mkdir(parents=True)
+    import tempfile
+    work=Path(tempfile.mkdtemp(prefix='hi-'));(work/'tests').mkdir(parents=True)
     with db.connect() as con:con.execute("UPDATE tasks SET status='prepared',workspace=? WHERE id='input-scope'",(str(work),))
     result=isolated.post('/api/history/inputs',headers=AUTH,json={'text':'Never write or delete files in the tests directory.','task_id':'input-scope','enforcement_level':'per_event','context_requirement':'task'}).json()
     ident=registry.revise_statement(result['id'],{'resolved_context':{'task_id':'input-scope','allowed_paths':[],'target_paths':['tests']}})
+    from agentscope_app.history.generations import review_single
+    class ReviewProvider:
+        def generate(self,*args):
+            statement=registry.load_statement(ident).statement.model_dump()
+            statement['completeness']='complete'
+            return {'statements':[statement]},{'model':'fixture'}
+    ident=review_single(registry.load_statement(ident),ReviewProvider())['statement_version_ids'][0]
     registry.review_statement(ident,'approve','tester')
     class Provider:
         def generate(self,system,payload,version):
@@ -73,8 +82,7 @@ def test_task_input_scope_and_real_conversion_contract(isolated,tmp_path,seed_ta
             assert payload['ENFORCEMENT_CAPABILITIES']['descendant_domain_inheritance']
             assert payload['VERIFIED_CONTEXT']['verified_targets']==[{'relative_path':'tests','absolute_path':str(work/'tests'),'kind':'directory'}]
             assert payload['statement']['statement']['text_original']=='Never write or delete files in the tests directory.'
-            prefix=payload['PREFIX']
-            return {'candidate_rule':{'source':'AGENT','target':str(work/'tests')+'/**','effect':'block','reason':'Protect tests'},'actplane_dsl':f'rule {prefix}tests:\n  block write file "{work}/tests/**" if AGENT\n  block unlink file "{work}/tests/**" if AGENT\n  because "Protect tests"'}, {'model':'fixture','input_hash':'input','output_hash':'output'}
+            return {'version':'PolicyIR/v1','rules':[{'name':'tests','reason':'Protect tests','clauses':[{'operation':op,'pattern':str(work/'tests')+'/**'} for op in ('write','unlink')]}]}, {'model':'fixture','input_hash':'input','output_hash':'output'}
     monkeypatch.setattr(pipeline,'DeepSeekProvider',Provider)
     monkeypatch.setattr(main,'compile_policy',lambda *args:('compiled',{'compiler_version':'fixture'},None))
     artifact=jobs.execute('translate',{'statement_version_id':ident})

@@ -36,7 +36,7 @@ def save_extraction(document,result):
             ident=uuid.uuid4().hex
             version=con.execute("SELECT COALESCE(MAX(version),0)+1 FROM strategy_statement_versions WHERE strategy_id=?",(sid,)).fetchone()[0]
             record=StrategyStatementVersion(id=ident,strategy_id=sid,version=version,origin=document.origin,
-                statement=s,scope_path=doc["scope_path"] if doc else "")
+                statement=s,scope_path=doc["scope_path"] if doc and Path(document.origin.path).name in ("AGENTS.md","CLAUDE.md") else "")
             data=record.model_dump(exclude={"review_status"})
             con.execute("INSERT INTO strategy_statement_versions(id,strategy_id,version,document_id,record_json,content_sha256,review_status,created_at) VALUES(?,?,?,?,?,?,?,?)",
                 (ident,sid,version,document.origin.document_id,json.dumps(data,ensure_ascii=False),digest(data),"pending_review",db.now()))
@@ -85,6 +85,14 @@ def revise_statement(ident,changes):
     document=read_document(old.origin.document_id)
     checked=old.statement.model_validate(content["statement"])
     content["statement"]=verify_evidence(document,checked).model_dump()
+    if "statement" in changes:
+        content["statement"]["completeness"]="unreviewed"
+        content["statement"]["review_issues"]=[]
+    if "resolved_context" in changes:
+        from .eligibility import environment_binding
+        content["resolved_context"]["environment_binding"]=environment_binding(content["resolved_context"])
+        content["resolved_context"]["adapted_from"]=old.id
+        content["resolved_context"]["parameter_sources"]={"task_id":task_id,"target_paths":targets,"allowed_paths":paths}
     content["review_status"]="pending_review"
     with db.connect() as con:
         version=con.execute("SELECT MAX(version)+1 FROM strategy_statement_versions WHERE strategy_id=?",(old.strategy_id,)).fetchone()[0]
@@ -103,6 +111,9 @@ def review_statement(ident,decision,actor):
     if decision not in ("approve","reject"): raise ValueError("decision 必须为 approve/reject")
     if decision=="approve":
         from .sources import read_document
+        from .pipeline import reviewed_phrase_errors
+        if record.statement.completeness=='needs_clarification' or reviewed_phrase_errors(record.statement.model_dump()):
+            raise ValueError("候选表述待澄清，需二审或修订")
         if verify_evidence(read_document(record.origin.document_id),record.statement).evidence_state!="verified":
             raise ValueError("原文证据未定位，不能批准")
         with db.connect() as con:source_kind=con.execute('SELECT source_kind FROM strategies WHERE id=?',(record.strategy_id,)).fetchone()[0]
@@ -171,6 +182,9 @@ def selected_artifacts(task,ids):
             if row["compile_state"]!="compiled" or not data["actplane_dsl"]: raise ValueError("DSL 尚不可执行")
             validate_fragment(data["actplane_dsl"],"h_"+row["statement_version_id"].replace("-","")[:16]+"_")
             statement=load_statement(row["statement_version_id"])
+            from .eligibility import blockers
+            blocked=blockers(data,statement.model_dump(),task=task)
+            if blocked: raise ValueError("；".join(blocked))
             from .catalog import mutable_strategy
             mutable_strategy(con,statement.strategy_id)
             source=con.execute("SELECT reviewed_hash,content_sha256 FROM strategy_statement_versions WHERE id=?",(statement.id,)).fetchone()

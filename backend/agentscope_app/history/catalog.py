@@ -80,6 +80,9 @@ def artifact_rows(con,ident):
             and item["statement_review_status"]=="approved" and item["statement_reviewed_hash"]==item["statement_hash"]
             and item["compile_state"]=="compiled" and item["artifact"]["actplane_dsl"])
         item["runtime_limits"]=runtime_limits_for(item["artifact"].get("actplane_dsl"))
+        from .eligibility import blockers
+        item["load_blockers"]=blockers(item["artifact"],item["record"])
+        item["eligible"]=item["eligible"] and not item["load_blockers"]
         item["deployments"]=[db.row_dict(r) for r in con.execute("""SELECT d.*,t.name AS task_name,t.repo AS task_repo,
             p.version AS task_policy_version FROM history_deployments d
             JOIN history_policy_artifacts l ON l.policy_version_id=d.policy_version_id
@@ -94,6 +97,12 @@ def record(con,row,details=False):
     item["statement_version"]=db.row_dict(current)
     if current: item["status"]=current["review_status"]
     item["artifacts"]=artifact_rows(con,item["id"])
+    s=item["statement_version"]["record"]["statement"] if current else {}
+    from .pipeline import reviewed_phrase_errors
+    item["review_blockers"]=reviewed_phrase_errors(s)
+    item["completeness"]=s.get("completeness","unreviewed")
+    item["adaptation"]=next((a["artifact"].get("policy_record",{}).get("metadata",{}).get("adaptation",{}).get("state","not_required") for a in item["artifacts"]),"not_required")
+    item["loadable"]=any(a["eligible"] for a in item["artifacts"])
     if details:
         from .inputs import directory_preview
         item['metadata_preview']=directory_preview(item)
@@ -101,10 +110,10 @@ def record(con,row,details=False):
         item["revisions"]=[db.row_dict(r) for r in con.execute("SELECT * FROM strategy_revisions WHERE strategy_id=? ORDER BY revision DESC",(item["id"],))]
     return item
 
-def page(q="",status="",category="",context_scope="",source_repo="",archived="active",limit=20,offset=0,source_kind="",execution_layer=""):
+def page(q="",status="",category="",context_scope="",source_repo="",archived="active",limit=20,offset=0,source_kind="",execution_layer="",completeness="",adaptation="",loadable=""):
     if archived not in {"active","archived","all"}: raise ValueError("归档筛选不合法")
     if source_kind not in {"","rq1_corpus","history_document","manual"}: raise ValueError("策略来源筛选不合法")
-    filters=[];params=[]
+    filters=["COALESCE(json_extract(v.record_json,'$.statement.content_type'),'policy')!='description'"];params=[]
     if source_kind: filters.append("s.source_kind=?");params.append(source_kind)
     if archived!="all": filters.append("s.is_archived=?");params.append(int(archived=="archived"))
     if q:
@@ -132,8 +141,12 @@ def page(q="",status="",category="",context_scope="",source_repo="",archived="ac
         SELECT id FROM strategy_statement_versions WHERE strategy_id=s.id ORDER BY version DESC LIMIT 1)"""
     with db.connect() as con:
         total=con.execute("SELECT COUNT(*)"+join+where,params).fetchone()[0]
-        rows=con.execute("SELECT s.*"+join+where+" ORDER BY s.source_verified DESC,s.created_at DESC,s.id LIMIT ? OFFSET ?",[*params,limit,offset])
+        extra_filters=bool(completeness or adaptation or loadable)
+        rows=con.execute("SELECT s.*"+join+where+" ORDER BY s.source_verified DESC,s.created_at DESC,s.id"+("" if extra_filters else " LIMIT ? OFFSET ?"),params if extra_filters else [*params,limit,offset])
         items=[record(con,r) for r in rows]
+        if extra_filters:
+            items=[r for r in items if (not completeness or r["completeness"]==completeness) and (not adaptation or r["adaptation"]==adaptation) and (not loadable or r["loadable"]==(loadable=="yes"))]
+            total=len(items);items=items[offset:offset+limit]
     return {"items":items,"total":total,"limit":limit,"offset":offset}
 
 def detail(ident):

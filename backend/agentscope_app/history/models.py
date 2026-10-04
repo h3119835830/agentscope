@@ -1,5 +1,5 @@
 from typing import Literal, TypedDict
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator, AliasChoices
 
 class StrictModel(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -15,6 +15,13 @@ class Origin(StrictModel):
 class MarkdownDocument(StrictModel):
     text: str
     origin: Origin
+
+class EvidenceSpan(StrictModel):
+    source_quote: str = Field(min_length=1,validation_alias=AliasChoices("source_quote","quote"))
+    line_start: int = Field(ge=1)
+    line_end: int = Field(ge=1)
+    char_start: int | None = None
+    char_end: int | None = None
 
 class Statement(StrictModel):
     source_quote: str = Field(min_length=1)
@@ -33,6 +40,9 @@ class Statement(StrictModel):
     evidence_state: str = "pending"
     char_start: int | None = None
     char_end: int | None = None
+    evidence_spans: list[EvidenceSpan] = Field(default_factory=list)
+    completeness: Literal["unreviewed", "complete", "needs_clarification", "description"] = "unreviewed"
+    review_issues: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def english_original(self):
@@ -88,6 +98,7 @@ class PolicyArtifactCandidate(StrictModel):
     actplane_dsl: str | None
     state: str
     llm_runs: list[dict]
+    policy_ir: dict | None = None
 
 
 class LoadReceipt(TypedDict):

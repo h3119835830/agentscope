@@ -74,13 +74,13 @@ def validate(task_id, draft, compile_bundle=True):
                                 and any(p==target or (p.endswith('/**') and target.startswith(p[:-2])) for p in atom.paths)
                                 for atom in draft.atoms)
                     if not covered and not draft.unresolved:raise ValueError('uncovered declared requirement '+requirement['id']+': '+op+' '+target)
-    rules = []
+    from ..policy_ir import PolicyIR, Rule, Clause, render
+    ir_rules = []
     for number, atom in enumerate(draft.atoms):
-        rules.append(f"rule bootstrap-{number + 1}:")
-        for operation in dict.fromkeys(atom.operations):
-            for target in dict.fromkeys(atom.paths): rules.append(f"  block {operation} file {quote_dsl(target)} if AGENT")
-        rules.append("  because " + quote_dsl(atom.statement)); rules.append("")
-    dsl = "\n".join(rules)
+        ir_rules.append(Rule(name=f"bootstrap-{number + 1}",reason=atom.statement,
+            clauses=[Clause(operation=operation,pattern=target) for operation in dict.fromkeys(atom.operations) for target in dict.fromkeys(atom.paths)]))
+    ir = PolicyIR(rules=ir_rules,guidance=draft.guidance)
+    dsl = render(ir, "") or ""
     _, bundle = make_dsl(task["workspace"], task["output_dir"], ctx["base_settings"], dsl)
     state, info, diagnostic = "not_run", {}, ""
     if compile_bundle:
@@ -89,7 +89,7 @@ def validate(task_id, draft, compile_bundle=True):
     valid = not draft.unresolved and state in ("compiled", "not_run")
     if not valid and not diagnostic: diagnostic = "Blocking execution gaps: " + "; ".join(draft.unresolved) if draft.unresolved else "Backend clauses are not fully supported"
     proposal = {"schema": "TaskPolicyProposal/1", "draft": draft.model_dump(), "scenario_hash": ctx["scenario_hash"],
-                "history_bindings": bindings, "policy_ir": {"source": "AGENT", "atoms": [a.model_dump() for a in draft.atoms]},
+                "history_bindings": bindings, "policy_ir": ir.model_dump(),
                 "actplane_dsl": dsl, "guidance": draft.guidance, "gaps": draft.unresolved,
                 "metadata_pseudocode": [f"IF AGENT {','.join(a.operations)} {','.join(a.paths)} THEN deny BECAUSE {a.statement}" for a in draft.atoms],
                 "scope_diff": {"base": ctx["base_settings"], "additional_blocks": [a.model_dump() for a in draft.atoms]},

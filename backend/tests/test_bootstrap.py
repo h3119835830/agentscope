@@ -12,6 +12,9 @@ def created(client, monkeypatch):
     import grp, os
     monkeypatch.setenv("AGENTSCOPE_TASK_GROUP", grp.getgrgid(os.getgid()).gr_name)
     monkeypatch.setattr(scene, "effective_dsh", lambda: {"model": "deepseek-flash", "profile": "headless", "thinking": "off"})
+    import tempfile
+    from pathlib import Path
+    monkeypatch.setattr(scene,"WORKSPACE_ROOT",Path(tempfile.mkdtemp(prefix='rq5-')))
     response = client.post("/api/rq5/scenarios/safety-delete-config/tasks", headers=ADMIN)
     assert response.status_code == 200, response.text
     return response.json()

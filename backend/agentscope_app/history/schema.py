@@ -38,4 +38,17 @@ CREATE TABLE IF NOT EXISTS history_deployments (
  created_at TEXT NOT NULL, ended_at TEXT);
 CREATE INDEX IF NOT EXISTS history_jobs_status ON history_jobs(status,created_at);
 CREATE INDEX IF NOT EXISTS statement_versions_strategy ON strategy_statement_versions(strategy_id,version);
+CREATE TABLE IF NOT EXISTS history_generations (
+ id TEXT PRIMARY KEY, request_key TEXT NOT NULL UNIQUE, status TEXT NOT NULL,
+ input_json TEXT NOT NULL, source_json TEXT NOT NULL DEFAULT '{}',
+ stage TEXT NOT NULL DEFAULT 'source', cancel_requested INTEGER NOT NULL DEFAULT 0,
+ job_id TEXT, retry_of TEXT, created_at TEXT NOT NULL, finished_at TEXT, error TEXT);
+CREATE TABLE IF NOT EXISTS history_generation_steps (
+ run_id TEXT NOT NULL REFERENCES history_generations(id), step_key TEXT NOT NULL,
+ stage TEXT NOT NULL, status TEXT NOT NULL, result_json TEXT NOT NULL DEFAULT '{}',
+ error TEXT, updated_at TEXT NOT NULL, PRIMARY KEY(run_id,step_key));
+CREATE TABLE IF NOT EXISTS history_generation_results (
+ run_id TEXT NOT NULL REFERENCES history_generations(id), statement_version_id TEXT NOT NULL,
+ artifact_id TEXT, status TEXT NOT NULL, error TEXT,
+ PRIMARY KEY(run_id,statement_version_id));
 """
