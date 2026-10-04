@@ -16,16 +16,18 @@ from .history.provider import ActPlaneProvider
 from .bootstrap.api import router as bootstrap_router, approved_prompt
 from .bootstrap.validation import verify_version
 from . import development
+from .agent_bridge.api import router as agent_bridge_router
 
 app=FastAPI(title="AgentScope",version="0.2.0")
 app.include_router(history_router)
 app.include_router(catalog_router)
 app.include_router(bootstrap_router)
+app.include_router(agent_bridge_router)
 
 @app.middleware("http")
 async def protect_control_api(request: Request, call_next):
     path=request.url.path
-    if not path.startswith("/api/") or path in ("/api/health","/api/auth/mode") or path.startswith("/api/plugin/") or path.startswith("/api/generator/tasks/"):
+    if not path.startswith("/api/") or path in ("/api/health","/api/auth/mode") or path.startswith("/api/plugin/") or path.startswith("/api/generator/tasks/") or path.startswith("/api/agent/tasks/"):
         return await call_next(request)
     supplied=request.headers.get("authorization","")
     supplied=supplied[7:] if supplied.lower().startswith("bearer ") else ""
@@ -64,10 +66,12 @@ def revoke_task_tokens(task_id,keep_id=None):
             con.execute("UPDATE task_credentials SET revoked_at=? WHERE task_id=? AND id<>? AND revoked_at IS NULL",(db.now(),task_id,keep_id))
         else:
             con.execute("UPDATE task_credentials SET revoked_at=? WHERE task_id=? AND revoked_at IS NULL",(db.now(),task_id))
+        con.execute("UPDATE agent_connections SET revoked_at=? WHERE task_id=? AND revoked_at IS NULL AND (legacy_credential_id IS NULL OR legacy_credential_id<>? OR ? IS NULL)", (db.now(),task_id,keep_id,keep_id))
 
 def revoke_task_token(credential_id):
     with db.connect() as con:
         con.execute("UPDATE task_credentials SET revoked_at=? WHERE id=? AND revoked_at IS NULL",(db.now(),credential_id))
+        con.execute("UPDATE agent_connections SET revoked_at=? WHERE legacy_credential_id=? AND revoked_at IS NULL", (db.now(),credential_id))
 
 def require_agent_task(task_id,request):
     header=request.headers.get("authorization","")
@@ -288,10 +292,8 @@ def plugin_scope(task_id:str,request:Request):
             "selected_history":policy_ir.get("selected_history",[]),"runtime_restrictions":restrictions,
             "scope_request_rule":"所有变更只进入待审核队列；此接口不会批准或执行权限变更。"}
 
-def create_scope_request(task_id,body):
-    task=require_task(task_id)
-    with db.connect() as con:
-        if con.execute("SELECT 1 FROM bootstrap_contexts WHERE task_id=?",(task_id,)).fetchone(): raise HTTPException(409,"RQ5 首版只接收第三层上下文与事件；不启用运行中策略修改")
+def validate_scope_request(task,body,con):
+    if con.execute("SELECT 1 FROM bootstrap_contexts WHERE task_id=?",(task["id"],)).fetchone(): raise HTTPException(409,"RQ5 首版只接收第三层上下文与事件；不启用运行中策略修改")
     if task["status"]!="running": raise HTTPException(409,"只有运行中的任务可以申请运行时 Scope 变更")
     if body.kind not in ("restrict","expand"): raise HTTPException(400,"kind 必须为 restrict 或 expand")
     if body.kind=="restrict" and not body.path: raise HTTPException(400,"收紧 Scope 时必须指定仓库内允许写入的路径")
@@ -299,8 +301,12 @@ def create_scope_request(task_id,body):
         target=Path(body.path).resolve(); workspace=Path(task["workspace"]).resolve()
         if target!=workspace and workspace not in target.parents: raise HTTPException(400,"收紧范围只能指定当前任务仓库工作区内的路径")
         if not target.is_dir(): raise HTTPException(400,"收紧 Scope 路径必须是当前工作区中已存在的目录")
+
+def create_scope_request(task_id,body):
+    task=require_task(task_id)
     reqid=uuid.uuid4().hex
     with db.connect() as con:
+        validate_scope_request(task,body,con)
         con.execute("INSERT INTO scope_requests(id,task_id,kind,requested_change,path,justification,status,requested_by,created_at) VALUES(?,?,?,?,?,?,?,?,?)",
           (reqid,task_id,body.kind,"限制当前任务 Scope" if body.kind=="restrict" else "增加受控任务输出目录的写入权限",body.path,body.justification,"pending_review",body.requested_by,db.now()))
         db.audit(con,task_id,"scope_requested",body.requested_by,{"request_id":reqid,"kind":body.kind,"path":body.path,"justification":body.justification})
@@ -461,6 +467,8 @@ def review_scope(task_id:str,request_id:str,body:ReviewRequest):
             con.execute("UPDATE scope_requests SET status='rejected',reviewed_by=?,reviewed_at=? WHERE id=?",(body.reviewed_by,db.now(),request_id))
             db.audit(con,task_id,"scope_rejected",body.reviewed_by,{"request_id":request_id})
             return {"status":"rejected"}
+        from .agent_bridge.api import validate_review_binding
+        validate_review_binding(con,task_id,request_id)
     created_version=None
     new_credential_id=None
     try:

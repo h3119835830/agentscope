@@ -113,6 +113,8 @@ def init_db():
         con.executescript(HISTORY_SCHEMA)
         from .bootstrap.schema import SCHEMA as BOOTSTRAP_SCHEMA
         con.executescript(BOOTSTRAP_SCHEMA)
+        from .agent_bridge.schema import SCHEMA as AGENT_BRIDGE_SCHEMA
+        con.executescript(AGENT_BRIDGE_SCHEMA)
         con.execute("INSERT OR REPLACE INTO meta(key,value) VALUES('history_schema_version','1')")
 
 def row_dict(row):

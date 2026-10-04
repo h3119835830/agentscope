@@ -1,6 +1,6 @@
 {
   "name": "@agentscope/dsh-policy",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "DSH tools for reading AgentScope task policy and requesting reviewed Scope changes",
   "type": "module",
   "main": "lib/index.js",

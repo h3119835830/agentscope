@@ -27,6 +27,9 @@ def environment():
         'AGENTSCOPE_DSH_HOME':str(STATE/'dsh-home'),'DSH_HOME':str(STATE/'dsh-home'),
         'AGENTSCOPE_DEV_NO_AUTH':'1','PYTHONPATH':str(ROOT/'backend')})
     env['AGENTSCOPE_RUNNER']=str(ROOT/'backend/broker/task_runner.py')
+    # CLI, headless/base and plugin peers must share one profile runtime tree.
+    profile_cli=STATE/'dsh-home/profiles/headless/node_modules/@deepseek-ai/dsh/lib/bin.js'
+    if profile_cli.is_file(): env['DSH_BIN']=str(profile_cli)
     return env
 
 

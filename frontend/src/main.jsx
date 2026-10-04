@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import './styles.css';
 import HistoryLibrary from './HistoryLibrary.jsx';
 import BootstrapPanel from './BootstrapPanel.jsx';
+import AgentBridge from './AgentBridge.jsx';
 
 const api = async (url, options = {}) => {
   const token = typeof sessionStorage === 'undefined' ? '' : sessionStorage.getItem('agentscopeAdminToken') || '';
@@ -26,7 +27,7 @@ function App() {
   const [loginError,setLoginError]=useState('');
   const [authReady,setAuthReady]=useState(false);
   const [developmentMode,setDevelopmentMode]=useState(false);
-  const [page, setPage] = useState('overview');
+  const [page, setPage] = useState(()=>new URLSearchParams(window.location.search).get('view')==='agent-bridge'?'agent-bridge':'overview');
   const [sidebarCollapsed,setSidebarCollapsed]=useState(()=>{
     try {
       const saved=localStorage.getItem('agentscopeSidebarCollapsed');
@@ -41,7 +42,10 @@ function App() {
   const [strategyQuery, setStrategyQuery] = useState('');
   const [strategyStatus, setStrategyStatus] = useState('');
   const [tasks, setTasks] = useState([]);
-  const [selected, setSelected] = useState('');
+  const [selected, setSelected] = useState(()=>{
+    const value=new URLSearchParams(window.location.search).get('task')||'';
+    return /^[a-f0-9]{16}$/.test(value)?value:'';
+  });
   const [context, setContext] = useState(null);
   const [versions, setVersions] = useState([]);
   const [runtime, setRuntime] = useState(null);
@@ -130,6 +134,7 @@ function App() {
         <NavItem active={page === 'strategies'} icon="▤" label="历史策略库" count={dash?.stats?.pending_strategies} onClick={() => setPage('strategies')} />
         <NavItem active={page === 'task'} icon="◈" label="任务与启动审核" onClick={() => setPage('task')} />
         <NavItem active={page === 'runtime'} icon="⌁" label="运行时 Scope" onClick={() => setPage('runtime')} />
+        <NavItem active={page === 'agent-bridge'} icon="⇄" label="运行时 Agent 接入" onClick={() => setPage('agent-bridge')} />
         <NavItem active={page === 'governance'} icon="⟳" label="持久治理" count={dash?.stats?.pending_governance} onClick={() => setPage('governance')} />
       </nav>
       <div className="side-foot" title={`Linux VM · ${status?.architecture || '连接中'} · ActPlane 执行后端`}><span className={`pulse ${status?.bpf_lsm ? 'ok' : 'bad'}`} /><span className="side-foot-copy">Linux VM · {status?.architecture || '连接中'}<br/><span className="muted">ActPlane 执行后端</span></span></div>
@@ -140,13 +145,14 @@ function App() {
       {page === 'strategies' && <HistoryLibrary moduleIndex={historyModuleIndex} modules={HISTORY_MODULES} onModuleChange={setHistoryModuleIndex} api={api} post={post} tasks={tasks} busy={busy} action={withBusy} notify={notify} selectTask={selectTask} />}
       {page === 'task' && <TaskPage tasks={tasks} selected={selected} selectTask={selectTask} context={context} versions={versions} busy={busy} action={withBusy} notify={notify} refresh={refresh} />}
       {page === 'runtime' && <RuntimePage tasks={tasks} selected={selected} selectTask={selectTask} runtime={runtime} requests={requests} busy={busy} action={withBusy} refresh={refresh} notify={notify} />}
+      {page === 'agent-bridge' && <AgentBridge tasks={tasks} selected={selected} onSelect={setSelected} api={api} post={post} notify={notify} />}
       {page === 'governance' && <Governance rows={governance} busy={busy} action={withBusy} notify={notify} />}
     </main>
     {toast && <div className="toast">{toast}</div>}
   </div>;
 }
 
-function pageTitle(page) { return ({ overview: '总览', strategies: '历史策略库', task: '任务与启动审核', runtime: '运行时 Scope', governance: '持久治理' })[page]; }
+function pageTitle(page) { return ({ overview: '总览', strategies: '历史策略库', task: '任务与启动审核', runtime: '运行时 Scope', 'agent-bridge':'运行时 Agent 接入', governance: '持久治理' })[page]; }
 function NavItem({ active, icon, label, count, onClick }) { return <button className={`nav-item ${active ? 'active' : ''}`} aria-label={label} aria-current={active?'page':undefined} title={label} onClick={onClick}><span className="nav-icon" aria-hidden="true">{icon}</span><span className="nav-label">{label}</span>{count > 0 && <em>{count}</em>}</button>; }
 function Header({ eyebrow, title, description, action }) { return <div className="page-head"><div><div className="eyebrow">{eyebrow}</div><h1>{title}</h1><p>{description}</p></div>{action}</div>; }
 function Metric({ label, value, note, icon }) { return <div className="metric"><div className="metric-top"><span>{label}</span><span className="metric-icon">{icon}</span></div><strong>{value ?? '—'}</strong><small>{note}</small></div>; }

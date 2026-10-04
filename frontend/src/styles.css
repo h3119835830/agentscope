@@ -92,3 +92,9 @@
 
 @media(max-width:650px){.topbar .crumb,.topbar .top-right,.topbar .status-pill{min-width:0;overflow-wrap:anywhere}.topbar .top-right{gap:8px}}
 .history-audit .audit-search{white-space:nowrap}
+/* External execution-Agent transport. Keep receipts distinct from kernel events. */
+.agent-bridge .panel { margin-top: 18px; }
+.agent-bridge .inline-notice { margin-bottom: 18px; }
+.agent-bridge code { overflow-wrap:anywhere; }
+.bridge-pair-dialog { border:1px solid #d7e1ef; border-radius:16px; padding:24px; width:min(520px,calc(100vw - 32px)); max-height:85vh; overflow:auto; box-shadow:0 24px 60px #20385533; }
+.bridge-pair-dialog::backdrop { background:#102b4b66; }
