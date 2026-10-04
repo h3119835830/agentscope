@@ -113,6 +113,7 @@ export default function StrategyRecords({active,statusFilter,api,post,tasks,busy
  const approve=()=>run(async()=>{await post('/api/tasks/'+bundle.task_id+'/versions/'+bundle.version+'/approve',{decision:'approve',reviewed_by:'研究者'});setBundle({...bundle,status:'approved'});notify('任务策略包已批准')});
  const launch=()=>run(async()=>{const receipt=await post('/api/tasks/'+bundle.task_id+'/launch');setBundle({...bundle,status:'loaded',receipt});notify('已绑定 Domain '+receipt.domain_id)});
  return <div hidden={!active} id="records-status-panel" role="tabpanel" aria-labelledby={'record-status-'+(status||'all')} className="strategy-records">
+  {page.catalog&&<p className="inline-notice" role="status">当前策略库含 RQ1 {page.catalog.rq1_count} 条。{page.catalog.snapshot?.kind==='rq1_directory_snapshot'&&<> 来源：{page.catalog.snapshot.label}快照，{when(page.catalog.snapshot.captured_at)}；此开发实例的后续审核独立保存。</>}{page.catalog.rq1_count===0&&' 此实例尚未导入 RQ1 历史记录。'}</p>}
   <div className="records-heading"><span className="row-count">{page.total} 条策略记录</span><button className="button primary" disabled={busy} onClick={()=>setEditor({...emptyDraft})}>＋ 新增策略</button></div>
   {editor&&<section className="panel strategy-editor"><div className="panel-head"><h2>{editor.id?'编辑策略':'新增策略'}{editor.statementId?' · 语句 v'+editor.version:''}</h2><button className="button ghost" onClick={()=>setEditor(null)}>取消</button></div>
    <label>策略内容<textarea rows="4" value={editor.text} onChange={e=>setEditor({...editor,text:e.target.value})}/></label>

@@ -147,7 +147,11 @@ def page(q="",status="",category="",context_scope="",source_repo="",archived="ac
         if extra_filters:
             items=[r for r in items if (not completeness or r["completeness"]==completeness) and (not adaptation or r["adaptation"]==adaptation) and (not loadable or r["loadable"]==(loadable=="yes"))]
             total=len(items);items=items[offset:offset+limit]
-    return {"items":items,"total":total,"limit":limit,"offset":offset}
+        rq1_count=con.execute("SELECT COUNT(*) FROM strategies WHERE source_kind='rq1_corpus'").fetchone()[0]
+        marker=con.execute("SELECT value FROM meta WHERE key='history_catalog_snapshot'").fetchone()
+        try:snapshot=json.loads(marker[0]) if marker else None
+        except (ValueError,TypeError):snapshot=None
+    return {"items":items,"total":total,"limit":limit,"offset":offset,"catalog":{"rq1_count":rq1_count,"snapshot":snapshot}}
 
 def detail(ident):
     with db.connect() as con: return record(con,require_strategy(con,ident),True)

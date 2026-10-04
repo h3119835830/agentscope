@@ -50,3 +50,13 @@ HistoryLibrary 管理当前生成 ID 和历史预览 ID；sessionStorage 延用 
 不覆盖正在改动的 `/opt/agentscope` 和 18000，不批量修改 721 条 RQ1，不涉及丰安途/Hermes 业务代码。该工作树共享已安装的只读 Node/DSH/ActPlane 依赖。Pi 沙箱只挂载固定扩展、系统提示和解析后的依赖目录，避免绝对依赖软链在沙箱中失效。
 
 入口：`sudo /opt/agentscope/.venv/bin/python scripts/history_service.py start|restart`；验收 `scripts/history_acceptance.py first-layer` 与 `rq5`，串行执行并检查其他实例活动域。当前运行证据见 REVIEW，代码入口默认路径适用于本机已安装环境。
+
+## 独立展示实例的 RQ1 历史目录延续
+
+独立运行库不等于空历史库。展示前使用 scripts/copy_rq1_catalog.py，从已有原库以 SQLite 只读事务取得 RQ1 目录快照，显式指定 source-db、target-db 和 expected-count。保留目录 ID、原文、来源/hash、审核/归档状态、目录修订和关联操作日志，不重新抽取、重新审批或生成批次。源目录当前没有转换语句版本；若以后已有转换版本，工具拒绝只复制目录，以免遗漏其关联历史。未导入任务、执行域、凭据、DSL、部署或运行事件。
+
+目标库写入前保存本机600权限备份；单事务追加、严格核对重复 ID 和内容，目标已发生修改则拒绝覆盖。复制已核验目录所引用的固定来源缓存，逐文件验证 hash，供后续单条转换使用。复制后目录逐行与源快照相等、目标既有记录保持。此过程不调用 LLM，不连接业务库，不开放原库写权限，也不自动把两实例审核状态同步。
+
+GET /api/history/records 增加可选 catalog 投影，包含 rq1_count 与 snapshot 元数据（来源标签、快照时间、记录数和摘要，不暴露凭据）。策略记录页标明当前库的 RQ1 数量及原库快照来源，零条时明确提示尚未导入；筛选条数与全库数据量分别展示。
+
+本机一次性导入命令：sudo /opt/agentscope/.venv/bin/python scripts/copy_rq1_catalog.py --source-db /var/lib/agentscope/agentscope.sqlite3 --target-db /var/lib/agentscope-history-v1/acceptance.sqlite3 --expected-count 721 --source-label '原策略库（18000）'。不是服务重启时自动覆盖审核状态的同步任务。
