@@ -1,6 +1,6 @@
 # History policy library
 
-AgentScope 0.2.0 keeps 历史策略库 as a first-level entry in the left sidebar. Its four second-level modules — 文档采集、策略语句抽取、策略转 DSL、策略记录与加载 — appear across the top of the main area below the breadcrumb. The sidebar can collapse to icons with accessible labels and remembers that preference; the duplicate body heading is removed. Public GitHub instruction files are input data and are never executed as instructions by the extraction client.
+AgentScope 0.2.0 keeps 历史策略库 as a first-level entry in the left sidebar. Its five second-level modules — 文档采集、策略语句抽取、策略转 DSL、策略记录与加载、采集与审计 — appear across the top of the main area below the breadcrumb. The sidebar can collapse to icons with accessible labels and remembers that preference; the duplicate body heading is removed. Public GitHub instruction files are input data and are never executed as instructions by the extraction client.
 
 The reusable entry points are `history.pipeline.extract_strategy_statements(MarkdownDocument)` and `generate_policy_artifact(StrategyStatementVersion)`. Inject a provider for tests or configure the independent tool-free DeepSeek client with the protected service environment described in [install-linux.md](install-linux.md). Both functions are independent of HTTP, SQLite and the privileged Broker. English and Chinese text are retained separately from exact source evidence.
 
@@ -19,3 +19,13 @@ The release design snapshots are in [history-library/](history-library/README.md
 The records module adopts the mac branch (41e5c3d) directory view: full statement text, server-side filters/pagination, manual creation, version-aware editing/history, and reversible archive. The catalog joins exact statement, DSL and deployment versions. Document edits never overwrite immutable source/version data; legacy edits preserve source fields and clear review. Archived records cannot enter future conversion or deployment, while previous runtime receipts remain available.
 
 Record management browser evidence and migration/regression checks: [2026-10-03 acceptance](acceptance/history-records-20261003.md).
+
+The default records view uses the persisted RQ1 candidate corpus (721 distinct repository/statement pairs), with 20 rows per page. A hash-verified bundled snapshot initializes SQLite through a background job once; re-imports preserve edits, review and archive state. The sample collection was reversibly archived at the user’s request. See [RQ1 persistence acceptance](acceptance/rq1-persistence-20261003.md).
+
+2026-10-03 按明确永久删除要求，现有非 RQ1 记录、关联产物/采集数据和备份已清除；全部来源归档数为 0，保留 721 条 RQ1。见 [永久清理验收](acceptance/rq1-only-purge-20261003.md)。
+
+2026-10-03 记录状态改为二级栏下方三级导航；详情改为正文旁入口和原生弹窗，明确未生成的伪代码/DSL 状态。见 [三级导航与详情验收](acceptance/status-navigation-details-20261003.md)。
+
+2026-10-04：采集与操作审计改为独立二级模块，支持类型、状态、搜索和分页；执行层级及上下文范围直接展开。转换页新增自然语言输入；RQ1 或手工目录记录可准备为待审转换语句，RQ1 固定来源重新核验，目录审批不自动继承。手工及 RQ1 原句无需额外译文即可登记审核；文档模型抽取的双语合同保持。元数据伪代码预览 effect=none，既不是论文原始产物，也不能加载。
+
+转换上下文增加经仓库范围核验的 target_paths / verified_targets；history-translate-v5 提供结构化执行域能力合同，保留未解决缺口。切换语句清除旧绑定上下文。伪代码由结构化记录渲染，实际执行仍由编译和批准的 DSL 承担。92 项测试、真实 DeepSeek/ActPlane 编译、真实 RQ1 隔离副本及浏览器验收见 [本轮 RFC/ADR/REVIEW/BUG](history-input-audit/REVIEW.md)。原库 721 状态保持，未重跑 DSH。

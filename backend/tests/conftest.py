@@ -5,6 +5,7 @@ from pathlib import Path
 
 os.environ["AGENTSCOPE_STATE_DIR"] = tempfile.mkdtemp(prefix="agentscope-test-")
 os.environ["AGENTSCOPE_ADMIN_TOKEN"] = "test-admin-token-not-for-production"
+os.environ["AGENTSCOPE_DEV_NO_AUTH"] = "0"
 os.environ["ACTPLANE_BIN"] = "/missing/actplane"
 os.environ["DSH_BIN"] = "/missing/dsh"
 os.environ["AGENTSCOPE_HISTORY_WORKER"] = "0"

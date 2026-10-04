@@ -1,5 +1,5 @@
 import json
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
 from .. import db
 from . import jobs, registry
@@ -32,6 +32,12 @@ def collect(body:CollectRequest):
 def list_jobs():
     with db.connect() as con:
         return [db.row_dict(r) for r in con.execute("SELECT * FROM history_jobs ORDER BY created_at DESC LIMIT 100")]
+
+@router.get('/activity')
+def activity(section:str='jobs',kind:str='',status:str='',q:str='',
+        limit:int=Query(default=20,ge=1,le=100),offset:int=Query(default=0,ge=0)):
+    from .activity import page
+    return invoke(page,section,kind,status,q,limit,offset)
 
 @router.get("/jobs/{ident}")
 def job(ident:str):

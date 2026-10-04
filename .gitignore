@@ -41,3 +41,15 @@ actplane/target/
 actplane/bpf/.output/
 actplane/.actplane/
 actplane/build/
+
+# Fixed public RQ1 seed files; runtime imports and databases stay ignored.
+!backend/agentscope_app/data/
+backend/agentscope_app/data/*
+!backend/agentscope_app/data/RQ1/
+backend/agentscope_app/data/RQ1/*
+!backend/agentscope_app/data/RQ1/corpus/
+backend/agentscope_app/data/RQ1/corpus/*
+!backend/agentscope_app/data/RQ1/corpus/manifest.jsonl
+!backend/agentscope_app/data/RQ1/corpus/candidate_rules.tsv
+!backend/agentscope_app/data/RQ1/corpus/provenance.json
+!backend/agentscope_app/data/RQ1/corpus/README.md

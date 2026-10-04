@@ -1,0 +1,5 @@
+
+# Preserve upstream corpus bytes and hashes across Windows/Mac checkouts.
+backend/agentscope_app/data/RQ1/corpus/manifest.jsonl -text
+# Upstream TSV contains intentional trailing spaces; do not rewrite the snapshot.
+backend/agentscope_app/data/RQ1/corpus/candidate_rules.tsv -text -whitespace

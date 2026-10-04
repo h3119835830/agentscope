@@ -1,0 +1,28 @@
+{
+  "dataset": {
+    "input_count": 866,
+    "unique_count": 721,
+    "inserted_count": 721,
+    "reused_count": 0,
+    "verified_count": 707,
+    "unverified_count": 14,
+    "repositories": 46,
+    "dataset_identity": "655a928115a205a9a7e9a9f5b60e73a96f27aea1b40dd4805ac11bf322bc9459",
+    "artifact_commit": "63db86945c9b8618a46aa68c8de214bc4b8343d9"
+  },
+  "validation": {
+    "backend_tests": 64,
+    "frontend_build": "passed",
+    "python_compile": "passed",
+    "real_repeat_import_inserted": 0,
+    "restart_row_fingerprint_unchanged": true,
+    "row_fingerprint_sha256": "42f8b35878e30549ce59a4f4d2db7aa4d6e0cbb0c5091615ddbf664ed4723bb5",
+    "seed_job_count": 1,
+    "archived_collection_records": 282,
+    "browser_page_ranges": [
+      "1-20 / 721",
+      "21-40 / 721"
+    ],
+    "browser_rows_per_page": 20
+  }
+}
