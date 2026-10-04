@@ -4,7 +4,7 @@
 
 ## 职责与数据流
 
-历史策略库只保留“策略生成”“策略记录与加载”“采集与审计”。一次输入锁定 GitHub commit，保存原始文件 SHA256，按完整段落、列表和围栏代码块组织语义块。65 行是目标大小，完整块不硬截断。大于 80 KB 的块或大于 120 KB 的复核上下文保留为待澄清。
+历史策略库只保留“策略生成”“策略记录与加载”“生成记录与审计”。一次输入锁定 GitHub commit，保存原始文件 SHA256，按完整段落、列表和围栏代码块组织语义块。65 行是目标大小，完整块不硬截断。大于 80 KB 的块或大于 120 KB 的复核上下文保留为待澄清。
 
 固定、无工具的 DeepSeek 流水线执行初次抽取、独立完整性二审、PolicyIR 生成。二审读取完整块、标题、相邻块、候选和结构化能力定义，保存公开结论、多段准确引用及调用元数据。完整性指原文要求是否完整；机器路径是否绑定归属适配。独立单条二审只审核选定候选，不执行整篇抽取任务。
 
@@ -18,11 +18,20 @@
 
 - `POST /api/history/generations`：GitHub 输入或确切 `statement_version_id` 二选一。GitHub 包含 repo_url/ref/additional_paths/include_instruction_files；后者默认 true，false 可只采集指定文件。request_key 绑定相同输入；固定 commit 缺省采用稳定键；活动相同输入复用批次。
 - `GET /api/history/generations`、`GET .../{id}`：批次、阶段、状态、统计与步骤。
+- `GET /api/history/generations/page`：生成记录分页，q/status/limit/offset，默认20、上限100，返回 items/total/limit/offset，按 created_at、id 倒序；静态路由先于 /{id} 注册。旧无参数列表保留数组和最近100条兼容合同。单条生成从其不可变语句来源投影仓库、commit、路径，搜索覆盖这些继承字段，不改写来源快照。列表统计默认排除描述性内容。
 - `GET .../{id}/results`：分页及 q、execution_level、context_scope、completeness、adaptation、loadable 筛选，返回证据、产物、编译、review_blockers 和 load_blockers。
 - `POST .../{id}/cancel`、`POST .../{id}/retry`：取消于当前调用返回/超时边界生效；重试复用有效完成步骤，重新执行失败候选及覆盖不完整的文档。保留原成功版本及历史作业。
 - `POST .../{id}/review`：一次事务批准/拒绝语句及产物，绑定 statement_version_id、expected_statement_hash、artifact_id、expected_artifact_hash。新版本需重新审核。旧分阶段接口保留兼容，但不能绕过加载校验。
 
 新增 history_generations、history_generation_steps、history_generation_results，不改写旧版本 JSON/hash。创建和重试的批次/作业在同一 SQLite 事务中排队。服务启动将运行中的批次标为 interrupted；取消不回滚已经完成的证据/结果。有保留结果的覆盖不完整或单条失败显示 partial，全部产物失败显示 failed，不能伪报全部成功。伪代码从结构化记录（含 PolicyIR 条件与规则）确定性渲染，仅供阅读。
+
+## 页面职责与浏览状态
+
+策略生成只负责来源输入、创建生成和本次结果审核，无历史选择器。无当前记录时显示输入，有结果时由“新建生成”弹窗发起；创建成功后才切换当前记录。页面保留来源、版本、五类筛选和策略产物详情，过程操作通过“查看生成记录”定位到第三模块。
+
+生成记录与审计默认展示每次生成的一条记录，另有后台作业、操作日志；重试不产生新的父生成记录。历史结果复用 GenerationResults 的只读模式，不提供选择或审核按钮；“继续审核”显式切换当前生成并回到策略生成页。取消、检查点重试、模型调用和过程诊断集中在记录详情中，阶段名称使用中文。
+
+HistoryLibrary 管理当前生成 ID 和历史预览 ID；sessionStorage 延用 historyGeneration 键。历史预览不覆盖当前对象，切换结果重建筛选、分页和勾选状态；刷新恢复当前对象，记录不存在时清理失效 ID 并显示输入空态，不自动选最近历史或测试记录。手工输入和 RQ1 单条转换继续共用原生成接口。此次页面调整无数据库迁移、不改变审批 hash 或加载权限。
 
 ## 适配与加载边界
 

@@ -278,3 +278,58 @@ def test_incomplete_coverage_checkpoint_is_retried_without_source_fetch(isolated
     assert generations.execute(run,provider)['status']=='completed'
     assert provider.calls[0][0]=='history-extract-v2'
     assert generations.get(run)['steps'][0]['step_key']=='source'
+
+
+def test_generation_record_pagination_search_and_legacy_list(isolated):
+    client,_=isolated;run=create_run();generations.execute(run,Provider())
+    with db.connect() as con:
+        for index in range(120):
+            con.execute("INSERT INTO history_generations(id,request_key,status,input_json,source_json,created_at) VALUES(?,?,?,?,?,?)",
+                (f'page-{index:03}',f'key-{index:03}','partial' if index%2 else 'completed',json.dumps({'repo_url':f'https://github.com/example/repo-{index:03}'}),json.dumps({'repository':f'example/repo-{index:03}','commit':SHA}),f'2030-01-01T12:{index//60:02}:{index%60:02}+08:00'))
+    page=client.get('/api/history/generations/page?limit=5&offset=5',headers=AUTH)
+    assert page.status_code==200
+    value=page.json();assert value['total']==121 and value['limit']==5 and value['offset']==5
+    assert [row['id'] for row in value['items']]==[f'page-{index:03}' for index in range(114,109,-1)]
+    assert isinstance(client.get('/api/history/generations',headers=AUTH).json(),list)
+    assert len(client.get('/api/history/generations',headers=AUTH).json())==100
+    filtered=client.get('/api/history/generations/page?status=partial&q=repo-119',headers=AUTH).json()
+    assert filtered['total']==1 and filtered['items'][0]['id']=='page-119'
+    rows=client.get('/api/history/generations/page',params={'q':run},headers=AUTH).json()['items']
+    assert rows[0]['statistics']=={'ready':1,'needs_adaptation':1}
+
+
+def test_generation_record_retries_are_grouped(isolated):
+    client,_=isolated;run=create_run()
+    class FailProvider(Provider):
+        def generate(self,system,payload,version):
+            if version=='history-policy-ir-v1':raise TimeoutError('test provider timeout')
+            return super().generate(system,payload,version)
+    assert generations.execute(run,FailProvider())['status']=='partial'
+    generations.retry(run);assert generations.execute(run,Provider())['status']=='completed'
+    value=client.get('/api/history/generations/page',headers=AUTH).json()
+    assert value['total']==1 and value['items'][0]['id']==run and value['items'][0]['status']=='completed'
+    with db.connect() as con:
+        jobs=con.execute("SELECT id,retry_of FROM history_jobs WHERE json_extract(input_json,'$.run_id')=? ORDER BY created_at",(run,)).fetchall()
+    assert len(jobs)==2 and jobs[1]['retry_of']==jobs[0]['id']
+
+
+def test_generation_record_query_bounds_and_missing_record(isolated):
+    client,_=isolated;run=create_run()
+    for query in ('limit=0','limit=101','offset=-1'):
+        assert client.get('/api/history/generations/page?'+query,headers=AUTH).status_code==422
+    assert client.get('/api/history/generations/page?status=unknown',headers=AUTH).status_code==409
+    assert client.get('/api/history/generations/page',params={'q':"' OR 1=1--"},headers=AUTH).json()['total']==0
+    assert client.get('/api/history/generations/missing-record',headers=AUTH).status_code==409
+    assert generations.get(run)['status']=='queued'
+
+
+def test_generation_record_search_inherits_single_statement_source(isolated):
+    client,_=isolated;parent=create_run();generations.execute(parent,Provider())
+    statement=generations.results(parent)['items'][0]['statement_version_id']
+    child=generations.create({'statement_version_id':statement})['id']
+    repo=client.get('/api/history/generations/page',params={'q':'example/repo'},headers=AUTH).json()
+    assert {row['id'] for row in repo['items']}=={parent,child}
+    path=client.get('/api/history/generations/page',params={'q':'AGENTS.md'},headers=AUTH).json()
+    assert path['total']==1 and path['items'][0]['id']==child
+    source=client.get('/api/history/generations/'+child,headers=AUTH).json()['source']
+    assert source=={'repository':'example/repo','commit':SHA,'path':'AGENTS.md'}

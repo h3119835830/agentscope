@@ -51,6 +51,11 @@ def generation_list():
     from .generations import list_runs
     return list_runs()
 
+@router.get("/generations/page")
+def generation_page(q:str="",status:str="",limit:int=Query(default=20,ge=1,le=100),offset:int=Query(default=0,ge=0)):
+    from .generations import page_runs
+    return invoke(page_runs,q,status,limit,offset)
+
 @router.get("/generations/{ident}")
 def generation_get(ident:str):
     from .generations import get

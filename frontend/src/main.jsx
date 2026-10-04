@@ -16,7 +16,7 @@ const short = (value, n = 12) => value ? `${value.slice(0, n)}…` : '—';
 const HISTORY_MODULES = [
   {page:'generate',title:'策略生成',icon:'⌘'},
   {page:'records',title:'策略记录与加载',icon:'⇥'},
-  {page:'audit',title:'采集与审计',icon:'▦'},
+  {page:'audit',title:'生成记录与审计',icon:'▦'},
 ];
 const when = value => value ? new Date(value).toLocaleString('zh-CN', { hour12: false }) : '—';
 

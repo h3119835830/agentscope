@@ -65,14 +65,43 @@ def get(ident):
         row=con.execute("SELECT * FROM history_generations WHERE id=?",(ident,)).fetchone()
         if not row: raise ValueError("生成批次不存在")
         value=db.row_dict(row)
+        project_source(con,value)
         value["steps"]=[db.row_dict(r) for r in con.execute("SELECT * FROM history_generation_steps WHERE run_id=? ORDER BY updated_at,step_key",(ident,))]
         value["statistics"]={r[0]:r[1] for r in con.execute("SELECT status,COUNT(*) FROM history_generation_results WHERE run_id=? GROUP BY status",(ident,))}
     return value
 
 
+def project_source(con,item):
+    if not item["source"] and item["input"].get("statement_version_id"):
+        statement=con.execute("SELECT record_json FROM strategy_statement_versions WHERE id=?",(item["input"]["statement_version_id"],)).fetchone()
+        if statement:item["source"]={k:v for k,v in json.loads(statement[0])["origin"].items() if k in ("repository","commit","path")}
+
+
 def list_runs():
     with db.connect() as con:
         return [db.row_dict(r) for r in con.execute("SELECT * FROM history_generations ORDER BY created_at DESC LIMIT 100")]
+
+
+def page_runs(q="",status="",limit=20,offset=0):
+    if status not in ("","queued","running","completed","partial","failed","cancelled","interrupted"):
+        raise ValueError("生成记录状态不合法")
+    filters=[];params=[]
+    if status:filters.append("g.status=?");params.append(status)
+    if q:
+        filters.append("(g.id LIKE ? OR g.input_json LIKE ? OR g.source_json LIKE ? OR json_extract(v.record_json,'$.origin.repository') LIKE ? OR json_extract(v.record_json,'$.origin.commit') LIKE ? OR json_extract(v.record_json,'$.origin.path') LIKE ?)")
+        params.extend(["%"+q+"%"]*6)
+    where=" WHERE "+" AND ".join(filters) if filters else ""
+    joined=" FROM history_generations g LEFT JOIN strategy_statement_versions v ON v.id=json_extract(g.input_json,'$.statement_version_id')"
+    with db.connect() as con:
+        total=con.execute("SELECT COUNT(*)"+joined+where,params).fetchone()[0]
+        rows=con.execute("SELECT g.*"+joined+where+" ORDER BY g.created_at DESC,g.id DESC LIMIT ? OFFSET ?",[*params,limit,offset]).fetchall()
+        items=[]
+        for row in rows:
+            item=db.row_dict(row)
+            item["statistics"]={r[0]:r[1] for r in con.execute("SELECT r.status,COUNT(*) FROM history_generation_results r JOIN strategy_statement_versions v ON v.id=r.statement_version_id WHERE r.run_id=? AND json_extract(v.record_json,'$.statement.content_type')!='description' GROUP BY r.status",(row["id"],))}
+            project_source(con,item)
+            items.append(item)
+    return {"items":items,"total":total,"limit":limit,"offset":offset}
 
 
 def cancel(ident):
