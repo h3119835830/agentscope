@@ -3,7 +3,7 @@ import json
 import re
 from dataclasses import dataclass
 from .llm import DeepSeekProvider
-from .capabilities import runtime_limits_for
+from .capabilities import runtime_limits_for, translation_capabilities
 from .models import (CandidateRule, ExtractionResult, MarkdownDocument,
                      PolicyArtifactCandidate, Statement, StrategyStatementVersion, Translation)
 
@@ -64,7 +64,7 @@ class PromptTemplates:
     extraction_version: str = "history-extract-v2"
     review_version: str = "history-extract-review-v2"
     translation: str = TRANSLATION_PROMPT
-    translation_version: str = "history-translate-v4"
+    translation_version: str = "history-translate-v5"
     dsl_reference: str = DSL_REFERENCE
 
 def digest(value):
@@ -176,7 +176,8 @@ def generate_policy_artifact(statement: StrategyStatementVersion, *, provider=No
             unresolved=["该语句未确认为可由 OS 事件执行的策略"])
     else:
         payload = {"statement": statement.model_dump(), "PREFIX":prefix,
-                   "VERIFIED_CONTEXT":statement.resolved_context, "grammar": templates.dsl_reference,"output_schema":Translation.model_json_schema(),
+                   "VERIFIED_CONTEXT":statement.resolved_context, "ENFORCEMENT_CAPABILITIES":translation_capabilities(),
+                   "grammar": templates.dsl_reference,"output_schema":Translation.model_json_schema(),
                    "compiler_diagnostic": compiler_diagnostic}
         result, meta = provider.generate(templates.translation,payload,templates.translation_version)
         runs.append(meta)
@@ -207,6 +208,6 @@ def generate_policy_artifact(statement: StrategyStatementVersion, *, provider=No
         "candidate_rule":translation.candidate_rule.model_dump(),
         "compile_check":{"required_hooks":translation.required_hooks,"state":state,"diagnostics":diagnostics,
                          "semantic_notes":translation.semantic_notes,"runtime_limits":runtime_limits_for(translation.actplane_dsl)},
-        "governance":{"authority":"repository_candidate","status":"pending_review","version":statement.version,"conflicts":[]}}
+        "governance":{"authority":"user_input_candidate" if statement.origin.document_id.startswith('manual-input-') else "repository_candidate","status":"pending_review","version":statement.version,"conflicts":[]}}
     return PolicyArtifactCandidate(statement_version_id=statement.id,policy_record=record,
         pseudo_code=render_policy_record(record),actplane_dsl=translation.actplane_dsl,state=state,llm_runs=runs)

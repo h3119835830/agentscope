@@ -54,6 +54,9 @@ def revise_statement(ident,changes):
     if "statement" in changes: content["statement"]={**content["statement"],**changes["statement"]}
     if "resolved_context" in changes:
         ctx=changes["resolved_context"]; task_id=ctx.get("task_id")
+        if set(ctx)-{'task_id','allowed_paths','target_paths','context_note'}:raise ValueError('未知的上下文输入字段')
+        for field in ('allowed_paths','target_paths'):
+            if not isinstance(ctx.get(field,[]),list) or len(ctx.get(field,[]))>100:raise ValueError('上下文路径必须是最多 100 项的列表')
         with db.connect() as con: task=con.execute("SELECT * FROM tasks WHERE id=?",(task_id,)).fetchone()
         if not task or task["status"] not in ("prepared","policy_review","approved"):
             raise ValueError("上下文只能绑定尚未启动的任务")
@@ -67,8 +70,14 @@ def revise_statement(ident,changes):
             if old.scope_path:
                 path.relative_to((workspace/old.scope_path).resolve())
             paths.append(str(path))
+        targets=[]
+        for rel in ctx.get('target_paths',[]):
+            path=(workspace/relative_path(rel)).resolve(strict=True);path.relative_to(workspace)
+            if old.scope_path:path.relative_to((workspace/old.scope_path).resolve())
+            if not path.is_file() and not path.is_dir():raise ValueError('策略操作对象必须为文件或目录')
+            targets.append({'relative_path':rel,'absolute_path':str(path),'kind':'directory' if path.is_dir() else 'file'})
         content["resolved_context"]={"task_id":task_id,"repository":task["repo"],"commit":task["commit_sha"],
-            "workspace":str(workspace),"allowed_paths":paths,"context_note":str(ctx.get("context_note",""))[:2000],
+            "workspace":str(workspace),"allowed_paths":paths,"verified_targets":targets,"context_note":str(ctx.get("context_note",""))[:2000],
             "modification_scope": {"universe":str(workspace)+"/**","authorized_subtrees":[p+"/**" for p in paths],
                 "unlisted_repository_paths":"not_authorized_for_modification", "outside_repository":"outside_this_scope",
                 "pattern_utf8_bytes":{p:len(p.encode()) for p in [str(workspace)+"/**",*[p+"/**" for p in paths]]}} if paths else None}
@@ -96,8 +105,10 @@ def review_statement(ident,decision,actor):
         from .sources import read_document
         if verify_evidence(read_document(record.origin.document_id),record.statement).evidence_state!="verified":
             raise ValueError("原文证据未定位，不能批准")
-        if not record.statement.text_en.strip(): raise ValueError("语句缺少英文译文")
-        if not record.statement.text_zh.strip(): raise ValueError("语句缺少中文译文")
+        with db.connect() as con:source_kind=con.execute('SELECT source_kind FROM strategies WHERE id=?',(record.strategy_id,)).fetchone()[0]
+        if source_kind=='history_document':
+            if not record.statement.text_en.strip(): raise ValueError("语句缺少英文译文")
+            if not record.statement.text_zh.strip(): raise ValueError("语句缺少中文译文")
     state="approved" if decision=="approve" else "rejected"
     with db.connect() as con:
         con.execute("UPDATE strategy_statement_versions SET review_status=?,reviewed_hash=content_sha256,reviewed_by=?,reviewed_at=? WHERE id=?",

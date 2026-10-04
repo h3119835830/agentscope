@@ -18,6 +18,7 @@ const HISTORY_MODULES = [
   {page:'extract',title:'策略语句抽取',icon:'≡'},
   {page:'translate',title:'策略转 DSL',icon:'⌘'},
   {page:'records',title:'策略记录与加载',icon:'⇥'},
+  {page:'audit',title:'采集与审计',icon:'▦'},
 ];
 const when = value => value ? new Date(value).toLocaleString('zh-CN', { hour12: false }) : '—';
 

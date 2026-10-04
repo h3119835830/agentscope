@@ -46,7 +46,8 @@ def revise(ident,values,actor,reason=""):
         if len(values["text"])<5: raise ValueError("策略内容至少五个字符")
     with db.connect() as con:
         row=mutable_strategy(con,ident)
-        if row["source_kind"]=="history_document": raise ValueError("文档策略必须修订确切语句版本，不能覆盖目录原文")
+        if row["source_kind"]=="history_document" or con.execute('SELECT 1 FROM strategy_statement_versions WHERE strategy_id=?',(ident,)).fetchone():
+            raise ValueError("已有转换语句的策略必须修订确切语句版本，不能覆盖目录原文")
         revision=row["revision"]+1
         con.execute("INSERT INTO strategy_revisions VALUES(?,?,?,?,?,?,?)",
             (uuid.uuid4().hex,ident,row["revision"],actor,reason,json.dumps(row,ensure_ascii=False),db.now()))
@@ -94,11 +95,13 @@ def record(con,row,details=False):
     if current: item["status"]=current["review_status"]
     item["artifacts"]=artifact_rows(con,item["id"])
     if details:
+        from .inputs import directory_preview
+        item['metadata_preview']=directory_preview(item)
         item["statement_versions"]=[db.row_dict(r) for r in con.execute("SELECT * FROM strategy_statement_versions WHERE strategy_id=? ORDER BY version DESC",(item["id"],))]
         item["revisions"]=[db.row_dict(r) for r in con.execute("SELECT * FROM strategy_revisions WHERE strategy_id=? ORDER BY revision DESC",(item["id"],))]
     return item
 
-def page(q="",status="",category="",context_scope="",source_repo="",archived="active",limit=20,offset=0,source_kind=""):
+def page(q="",status="",category="",context_scope="",source_repo="",archived="active",limit=20,offset=0,source_kind="",execution_layer=""):
     if archived not in {"active","archived","all"}: raise ValueError("归档筛选不合法")
     if source_kind not in {"","rq1_corpus","history_document","manual"}: raise ValueError("策略来源筛选不合法")
     filters=[];params=[]
@@ -123,6 +126,7 @@ def page(q="",status="",category="",context_scope="",source_repo="",archived="ac
         filters.append("COALESCE(REPLACE(json_extract(v.record_json,'$.statement.context_requirement'),'_','-'),s.context_scope)=?")
         params.append(context_scope)
     if source_repo: filters.append("s.source_repo LIKE ?");params.append("%"+source_repo+"%")
+    if execution_layer: filters.append('s.execution_layer=?');params.append(execution_layer)
     where=" WHERE "+" AND ".join(filters) if filters else ""
     join=""" FROM strategies s LEFT JOIN strategy_statement_versions v ON v.id=(
         SELECT id FROM strategy_statement_versions WHERE strategy_id=s.id ORDER BY version DESC LIMIT 1)"""

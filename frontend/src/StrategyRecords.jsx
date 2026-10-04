@@ -1,5 +1,6 @@
 import React,{useCallback,useEffect,useRef,useState} from 'react';
 import ArtifactPreview from './PolicyArtifactPreview.jsx';
+import PolicyInputForm from './PolicyInputForm.jsx';
 
 const pageSize=20;
 const levelNames={'semantic':'语义规则','semantic-only':'语义规则','semantic_only':'语义规则',content:'内容规则','per-event':'单事件规则',per_event:'单事件规则','cross-event':'跨事件规则',cross_event:'跨事件规则','not-applicable':'不适用',not_applicable:'不适用'};
@@ -31,7 +32,7 @@ function RecordDetails({detail,onClose,returnFocus}){
    <h3>版本与审核历史</h3><p>当前{detail.statement_version?'语句':'目录'}版本 v{detail.statement_version?.version||detail.revision} · <Status value={detail.status}/></p><p className="field-note">创建：{when(detail.created_at)}{detail.reviewed_at?' · 审核：'+when(detail.reviewed_at):''}</p>{detail.statement_versions.length?detail.statement_versions.map(v=><details key={v.id} className="revision-entry"><summary>语句 v{v.version} · {states[v.review_status]||v.review_status} · {when(v.created_at)}</summary><p>{v.record.statement.text_zh||v.record.statement.text_original}</p><blockquote>{v.record.statement.source_quote}</blockquote><small>版本 ID {v.id}<br/>内容 hash {v.content_sha256}</small></details>):<p className="field-note">本条为原句目录记录，尚无转换语句版本。</p>}
    {detail.revisions.map(v=><details className="revision-entry" key={v.id}><summary>修改前版本 v{v.revision} · {v.actor} · {when(v.created_at)}</summary><p>{v.snapshot.text}</p></details>)}
    {!detail.revisions.length&&<p className="field-note">暂无修改历史。</p>}
-   <h3>伪代码、DSL 与加载历史</h3>{detail.artifacts.length?detail.artifacts.map(a=><details key={a.id} className="revision-entry"><summary>语句 v{a.statement_version} / DSL v{a.version} · {states[a.review_status]} · {states[a.compile_state]}</summary><ArtifactPreview artifact={a}/></details>):<><div className="history-artifact-grid"><div><h4>策略记录伪代码</h4><div className="empty-box">尚未生成伪代码</div></div><div><h4>ActPlane DSL</h4><div className="empty-box">尚未生成 DSL</div></div></div><p className="field-note">当前只导入了{detail.source_kind==='rq1_corpus'?'RQ1 原句候选':'策略语句'}，尚无本项目转换产物。</p></>}
+   <h3>伪代码、DSL 与加载历史</h3>{detail.artifacts.length?detail.artifacts.map(a=><details key={a.id} className="revision-entry"><summary>语句 v{a.statement_version} / DSL v{a.version} · {states[a.review_status]} · {states[a.compile_state]}</summary><ArtifactPreview artifact={a}/></details>):<><div className="history-artifact-grid"><div><h4>元数据伪代码预览（待转换）</h4><pre>{detail.metadata_preview?.pseudo_code||'元数据未提供'}</pre></div><div><h4>ActPlane DSL</h4><div className="empty-box">尚未生成可执行 DSL</div><p className="field-note">原句或伪代码预览不会直接进入内核。需建立转换语句版本、审核、生成候选并编译。</p></div></div><p className="field-note">此预览由当前记录确定性渲染，执行规则为 none；不代表论文原始伪代码或已完成转换。</p></>}
  </div>
  </dialog>;
 }
@@ -40,6 +41,7 @@ export default function StrategyRecords({active,statusFilter,api,post,tasks,busy
  const [page,setPage]=useState({items:[],total:0}),[offset,setOffset]=useState(0);
  const [query,setQuery]=useState(''),[category,setCategory]=useState(''),[scope,setScope]=useState(''),[repository,setRepository]=useState(''),[archived,setArchived]=useState('active'),[sourceKind,setSourceKind]=useState('rq1_corpus');
  const [editor,setEditor]=useState(null),[detail,setDetail]=useState(null),[chosen,setChosen]=useState({});
+ const [preparing,setPreparing]=useState(null),[instructionLayer,setInstructionLayer]=useState('');
  const [targetTask,setTargetTask]=useState(''),[bundle,setBundle]=useState(null);
  const status=statusFilter;
  useEffect(()=>setOffset(0),[status]);
@@ -47,12 +49,12 @@ export default function StrategyRecords({active,statusFilter,api,post,tasks,busy
  const request=useRef(0);
  const load=useCallback(async()=>{
   const sequence=++request.current;
-  const params=new URLSearchParams({q:query,source_kind:sourceKind,category,context_scope:scope,source_repo:repository,status,archived,limit:String(pageSize),offset:String(offset)});
+  const params=new URLSearchParams({q:query,source_kind:sourceKind,category,context_scope:scope,execution_layer:instructionLayer,source_repo:repository,status,archived,limit:String(pageSize),offset:String(offset)});
   const data=await api('/api/history/records?'+params);
   if(sequence!==request.current)return;
   setPage(data);
   if(offset>0&&offset>=data.total)setOffset(Math.max(0,Math.floor((data.total-1)/pageSize)*pageSize));
- },[api,query,category,scope,repository,status,archived,offset,sourceKind]);
+ },[api,query,category,scope,instructionLayer,repository,status,archived,offset,sourceKind]);
  useEffect(()=>{
   if(!active)return;
   load().catch(e=>notify(e.message));
@@ -116,13 +118,14 @@ export default function StrategyRecords({active,statusFilter,api,post,tasks,busy
    <div className="strategy-editor-grid"><label>执行层级<select value={editor.category} onChange={e=>setEditor({...editor,category:e.target.value})}>{(editor.statementId?['semantic_only','content','per_event','cross_event','not_applicable']:['semantic','content','per-event','cross-event','not-applicable']).map(value=><option key={value} value={value}>{levelNames[value]}</option>)}</select></label><label>上下文范围<select value={editor.context_scope} onChange={e=>setEditor({...editor,context_scope:e.target.value})}>{(editor.statementId?['self_contained','project','task','not_applicable']:['self-contained','project','task','not-applicable']).map(value=><option key={value} value={value}>{scopeNames[value]}</option>)}</select></label>{!editor.id&&<label>来源链接（可选）<input value={editor.source_url} onChange={e=>setEditor({...editor,source_url:e.target.value})} placeholder="https://…"/></label>}</div>
    <button className="button primary" disabled={busy||editor.text.trim().length<5} onClick={save}>保存并进入审核</button>
   </section>}
+  {preparing&&<PolicyInputForm key={preparing.id} record={preparing} tasks={tasks} post={post} busy={busy} action={action} onCancel={()=>setPreparing(null)} onSaved={async()=>{setPreparing(null);await load();await reloadHistory();notify('待审转换语句已建立，请审核该新版本')}}/>}
   <div className="toolbar records-toolbar">
    <select aria-label="筛选策略来源" value={sourceKind} onChange={e=>filter(setSourceKind,e.target.value)}><option value="rq1_corpus">RQ1 策略</option><option value="history_document">文档抽取</option><option value="manual">手工新增</option><option value="">全部策略</option></select>
    <div className="search"><span>⌕</span><input value={query} onChange={e=>filter(setQuery,e.target.value)} placeholder="搜索策略内容或文件路径" aria-label="搜索策略记录"/></div>
   </div>
-  <details className="records-more-filters"><summary>更多筛选</summary><div className="toolbar records-toolbar">
-   <select aria-label="筛选执行层级" value={category} onChange={e=>filter(setCategory,e.target.value)}><option value="">全部层级</option>{['semantic','content','per-event','cross-event','not-applicable'].map(value=><option value={value} key={value}>{levelNames[value]}</option>)}</select>
-   <select aria-label="筛选上下文范围" value={scope} onChange={e=>filter(setScope,e.target.value)}><option value="">全部范围</option>{['self-contained','project','task','not-applicable'].map(value=><option value={value} key={value}>{scopeNames[value]}</option>)}</select>
+  <div className="record-primary-filters"><label>执行层级<select aria-label="筛选执行层级" value={category} onChange={e=>filter(setCategory,e.target.value)}><option value="">全部层级</option>{['semantic','content','per-event','cross-event','not-applicable'].map(value=><option value={value} key={value}>{levelNames[value]}</option>)}</select></label><label>上下文范围<select aria-label="筛选上下文范围" value={scope} onChange={e=>filter(setScope,e.target.value)}><option value="">全部范围</option>{['self-contained','project','task','not-applicable'].map(value=><option value={value} key={value}>{scopeNames[value]}</option>)}</select></label></div>
+  <details className="records-more-filters"><summary>来源与归档筛选</summary><div className="toolbar records-toolbar">
+   <select aria-label="筛选指令来源层" value={instructionLayer} onChange={e=>filter(setInstructionLayer,e.target.value)}><option value="">全部指令来源层</option><option value="repository_instruction">仓库指令</option><option value="manual_instruction">手工指令</option><option value="llm_candidate">文档抽取候选</option></select>
    <input className="repo-filter" aria-label="筛选仓库" value={repository} onChange={e=>filter(setRepository,e.target.value)} placeholder="仓库，如 owner/repo"/>
    <select aria-label="筛选归档状态" value={archived} onChange={e=>filter(setArchived,e.target.value)}><option value="active">有效策略</option><option value="archived">已归档</option><option value="all">全部记录</option></select>
   </div></details>
@@ -134,7 +137,7 @@ export default function StrategyRecords({active,statusFilter,api,post,tasks,busy
    const deployments=row.artifacts.flatMap(a=>a.deployments.map(d=>({...d,artifactVersion:a.version,statementVersion:a.statement_version})));
    return <tr key={row.id}>
     <td><input type="checkbox" aria-label={'选择策略 '+row.id} checked={!!selected} disabled={!!row.is_archived||(!selected&&!eligible.length)} onChange={e=>e.target.checked?choose(row,eligible[0].id):unchoose(row.id)}/></td>
-    <td className="record-text"><button className="record-open" disabled={busy} onClick={event=>inspect(row,event.currentTarget)}>详情 / 历史</button><div>{s?.text_zh||s?.text_original||row.text}</div><small>{row.source_kind==='manual'?'手工新增':row.source_kind==='rq1_corpus'?'RQ1 策略':'文档抽取'}{selected?' · 已选语句 v'+selected.statementVersion:''}</small><div className="record-actions">{!row.is_archived&&<>{row.status==='pending_review'&&<><button className="button tiny primary" disabled={busy||!!latest&&latest.record.statement.evidence_state!=='verified'} onClick={()=>review(row,'approve')}>通过</button><button className="button tiny ghost" disabled={busy} onClick={()=>review(row,'reject')}>拒绝</button></>}<button className="button tiny ghost" disabled={busy} onClick={()=>draft(row)}>编辑</button>{latest?.review_status==='approved'&&<button className="button tiny ghost" disabled={busy} onClick={()=>onTranslate(latest.id)}>转 DSL</button>}<button className="button tiny ghost" disabled={busy} onClick={()=>archive(row)}>归档</button></>}{!!row.is_archived&&<button className="button tiny primary" disabled={busy} onClick={()=>restore(row)}>恢复</button>}</div></td>
+    <td className="record-text"><button className="record-open" disabled={busy} onClick={event=>inspect(row,event.currentTarget)}>详情 / 历史</button><div>{s?.text_zh||s?.text_original||row.text}</div><small>{row.source_kind==='manual'?'手工新增':row.source_kind==='rq1_corpus'?'RQ1 策略':'文档抽取'}{selected?' · 已选语句 v'+selected.statementVersion:''}</small><div className="record-actions">{!row.is_archived&&<>{row.status==='pending_review'&&<><button className="button tiny primary" disabled={busy||!!latest&&latest.record.statement.evidence_state!=='verified'} onClick={()=>review(row,'approve')}>通过</button><button className="button tiny ghost" disabled={busy} onClick={()=>review(row,'reject')}>拒绝</button></>}<button className="button tiny ghost" disabled={busy} onClick={()=>draft(row)}>编辑</button>{!latest&&['rq1_corpus','manual'].includes(row.source_kind)&&<button className="button tiny ghost" disabled={busy||row.source_kind==='rq1_corpus'&&!row.source_verified} onClick={()=>setPreparing(row)}>准备转换输入</button>}{latest?.review_status==='approved'&&<button className="button tiny ghost" disabled={busy} onClick={()=>onTranslate(latest.id)}>转 DSL</button>}<button className="button tiny ghost" disabled={busy} onClick={()=>archive(row)}>归档</button></>}{!!row.is_archived&&<button className="button tiny primary" disabled={busy} onClick={()=>restore(row)}>恢复</button>}</div></td>
     <td data-label="层级 / 范围">{levelNames[s?.enforcement_level||row.category]||row.category}<small>{scopeNames[s?.context_requirement||row.context_scope]||row.context_scope}</small></td>
     <td data-label="来源与位置">{row.source_repo||'手工来源'}<small>{row.source_path?row.source_path+(s?.line_start||row.line_start?':'+(s?.line_start||row.line_start):''):'未定位到原始行'}</small></td>
     <td data-label="状态 / 版本">{row.is_archived?<span className="tag">已归档</span>:<Status value={selected?row.artifacts.find(a=>a.id===selected.artifactId)?.statement_review_status:row.status}/>}<small>{latest?'语句':'目录'} v{selected?.statementVersion||latest?.version||row.revision}</small>{eligible.length>0?<select className="artifact-choice" aria-label={'DSL 版本 '+row.id} value={selected?.artifactId||''} disabled={!!row.is_archived||busy} onChange={e=>e.target.value?choose(row,e.target.value):unchoose(row.id)}><option value="">选择 DSL 版本</option>{eligible.map(a=><option key={a.id} value={a.id}>语句 v{a.statement_version} / DSL v{a.version} · {short(a.id)}</option>)}</select>:<small>{row.artifacts.length?<Status value={row.artifacts[0].compile_state}/>:'未生成 DSL'}</small>}</td>

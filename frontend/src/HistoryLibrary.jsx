@@ -1,6 +1,8 @@
 import React, {useCallback,useEffect,useState} from 'react';
 import StrategyRecords from './StrategyRecords.jsx';
 import ArtifactPreview from './PolicyArtifactPreview.jsx';
+import HistoryAudit from './HistoryAudit.jsx';
+import PolicyInputForm from './PolicyInputForm.jsx';
 
 const labels={queued:'排队中',running:'处理中',completed:'已完成',failed:'失败',interrupted:'已中断',
  pending_review:'待审核',approved:'已通过候选',rejected:'已拒绝',candidate:'DSL 候选',
@@ -14,23 +16,26 @@ export default function HistoryLibrary({api,post,tasks,busy,action,notify,select
  const tab=moduleIndex;
  const [recordStatus,setRecordStatus]=useState('');
  const [docs,setDocs]=useState([]),[statements,setStatements]=useState([]),
- [artifacts,setArtifacts]=useState([]),[jobs,setJobs]=useState([]);
+ [artifacts,setArtifacts]=useState([]);
+ const [inputMode,setInputMode]=useState('reviewed');
  const [repo,setRepo]=useState('https://github.com/zeroclaw-labs/zeroclaw'),[ref,setRef]=useState('main'),[extra,setExtra]=useState('');
  const [documentIds,setDocumentIds]=useState([]),[preview,setPreview]=useState(null);
  const [q,setQ]=useState(''),[showAll,setShowAll]=useState(false),[detail,setDetail]=useState(null),[edit,setEdit]=useState('');
  const [statementId,setStatementId]=useState(''),[bindingTask,setBindingTask]=useState(''),[paths,setPaths]=useState(''),[note,setNote]=useState(''),[contextResolved,setContextResolved]=useState(false);
+ const [targetPaths,setTargetPaths]=useState('');
  const load=useCallback(async()=>{
-  const [d,s,a,j]=await Promise.all([api('/api/history/documents'),api('/api/history/statements'),
-    api('/api/history/artifacts'),api('/api/history/jobs')]);
-  setDocs(d);setStatements(s);setArtifacts(a);setJobs(j);
+  const [d,s,a]=await Promise.all([api('/api/history/documents'),api('/api/history/statements'),api('/api/history/artifacts')]);
+  setDocs(d);setStatements(s);setArtifacts(a);
  },[api]);
  useEffect(()=>{load().catch(e=>notify(e.message)); const timer=setInterval(()=>load().catch(()=>{}),5000); return()=>clearInterval(timer);},[load,notify]);
  const run=fn=>action(async()=>{await fn();await load();});
  const choose=(list,set,id,on)=>set(on?[...new Set([...list,id])]:list.filter(x=>x!==id));
- const readyTasks=tasks.filter(t=>['prepared','policy_review','approved'].includes(t.status));
+ const selectedStatement=statements.find(r=>r.id===statementId);
+ const readyTasks=tasks.filter(t=>['prepared','policy_review','approved'].includes(t.status)&&(!selectedStatement||t.repo===selectedStatement.record.origin.repository&&t.commit_sha===selectedStatement.record.origin.commit));
  const search=r=>JSON.stringify(r).toLowerCase().includes(q.toLowerCase());
  const currentStatements=statements.filter(r=>search(r)&&(showAll||r.record.statement.content_type!=='description'));
  const approvedStatements=statements.filter(r=>r.review_status==='approved');
+ const chooseStatement=id=>{setStatementId(id);setBindingTask('');setPaths('');setTargetPaths('');setNote('');setContextResolved(false);setInputMode('reviewed')};
  const collect=()=>run(async()=>{const j=await post('/api/history/sources',{repo_url:repo,ref,additional_paths:extra.split(/[\n,]/).map(x=>x.trim()).filter(Boolean)});notify('采集已排队：'+clip(j.id));});
  const extract=()=>run(async()=>{const j=await post('/api/history/extractions',{document_ids:documentIds});notify('抽取已排队：'+clip(j.id));onModuleChange(1);});
  const reviewStatement=(id,decision)=>run(async()=>{await post('/api/history/statements/'+id+'/review',{decision,reviewed_by:'研究者'});notify(decision==='approve'?'语句版本已通过':'语句已拒绝');});
@@ -39,9 +44,10 @@ export default function HistoryLibrary({api,post,tasks,busy,action,notify,select
    let id=statementId;
    if(bindingTask){
     const v=await post('/api/history/statements/'+id+'/revisions',{...(contextResolved?{statement:{uncertainties:[]}}:{}),resolved_context:{
-      task_id:bindingTask,allowed_paths:paths.split(/[\n,]/).map(x=>x.trim()).filter(Boolean),context_note:note}});
+      task_id:bindingTask,allowed_paths:paths.split(/[\n,]/).map(x=>x.trim()).filter(Boolean),target_paths:targetPaths.split(/[\n,]/).map(x=>x.trim()).filter(Boolean),context_note:note}});
     id=v.id;
     await post('/api/history/statements/'+id+'/review',{decision:'approve',reviewed_by:'研究者'});
+    setStatementId(id);
    }
    const j=await post('/api/history/statements/'+id+'/artifacts');notify('转换已排队：'+clip(j.id));
  });
@@ -89,15 +95,21 @@ export default function HistoryLibrary({api,post,tasks,busy,action,notify,select
    {detail&&<section className="panel history-detail"><div className="panel-head"><b>语句 v{detail.version}</b><button className="button tiny ghost" onClick={()=>setDetail(null)}>关闭</button></div><a href={detail.record.origin.url+'#L'+detail.record.statement.line_start} target="_blank" rel="noreferrer">查看来源</a><blockquote>{detail.record.statement.source_quote}</blockquote><label>语句、翻译与标签<textarea className="code-editor" rows="14" value={edit} onChange={e=>setEdit(e.target.value)}/></label><button className="button primary" disabled={busy} onClick={revise}>保存为待审核新版本</button></section>}
   </>}
   {tab===2&&<>
+   <section className="panel conversion-contract"><h2>策略语句 → 结构化规则 → DSL 候选</h2><p>输入自然语言策略和适用上下文，生成策略记录伪代码与 ActPlane DSL。伪代码用于审计展示；执行面加载的是编译并批准的 DSL。</p><p className="field-note">语义 / 内容规则可只有指导项，DSL 为空。RQ1 目录记录需先“准备转换输入”并审核新语句版本，才会出现在已审列表。</p><div className="segmented"><button className={inputMode==='reviewed'?'sel':''} onClick={()=>setInputMode('reviewed')}>选择已审语句</button><button className={inputMode==='manual'?'sel':''} onClick={()=>setInputMode('manual')}>输入新策略</button></div></section>
+   {inputMode==='manual'&&<PolicyInputForm tasks={tasks} post={post} busy={busy} action={action} onSaved={async()=>{await load();notify('已登记待审输入，请审核语句版本');onModuleChange(1)}}/>}
+   {inputMode==='reviewed'&&<>
    <section className="panel history-form"><div className="history-fields">
-    <label>已通过语句<select value={statementId} onChange={e=>setStatementId(e.target.value)}><option value="">选择语句版本</option>{approvedStatements.map(r=><option key={r.id} value={r.id}>{(r.record.statement.text_zh||r.record.statement.text_original).slice(0,90)} · v{r.version}</option>)}</select></label>
+    <label>已通过语句<select value={statementId} onChange={e=>chooseStatement(e.target.value)}><option value="">选择语句版本</option>{approvedStatements.map(r=><option key={r.id} value={r.id}>{(r.record.statement.text_zh||r.record.statement.text_original).slice(0,90)} · v{r.version}</option>)}</select></label>
     <label>绑定任务（需要上下文时）<select value={bindingTask} onChange={e=>setBindingTask(e.target.value)}><option value="">暂不绑定</option>{readyTasks.map(t=><option key={t.id} value={t.id}>{t.name} · {clip(t.id)}</option>)}</select></label>
-    {bindingTask&&<><label>允许修改的仓库目录（其余路径禁止修改）<textarea rows="2" value={paths} onChange={e=>setPaths(e.target.value)} placeholder="crates/zeroclaw-plugins"/></label><label>上下文说明<textarea rows="2" value={note} onChange={e=>setNote(e.target.value)} placeholder="本任务只修改指定模块；其他模块不属于任务范围"/></label></>}
+    {bindingTask&&<><label>策略操作对象（仓库相对路径，每行一个）<textarea rows="2" value={targetPaths} onChange={e=>setTargetPaths(e.target.value)} placeholder="tests&#10;.env"/><small>后端核验对象存在、位于当前仓库及指令范围内，再提供具体绝对路径。</small></label><label>允许修改的仓库目录（可选；填写后其余路径禁止修改）<textarea rows="2" value={paths} onChange={e=>setPaths(e.target.value)} placeholder="crates/zeroclaw-plugins"/></label><label>上下文说明<textarea rows="2" value={note} onChange={e=>setNote(e.target.value)} placeholder="说明操作对象、条件和例外；不替代实际路径核验"/></label></>}
    </div>{bindingTask&&<label className="inline-check"><input type="checkbox" checked={contextResolved} onChange={e=>setContextResolved(e.target.checked)}/>上述上下文已解决这条语句的待绑定参数</label>}<button className="button primary" disabled={busy||!statementId} onClick={translate}>{bindingTask?'批准上下文并生成候选':'生成伪代码 / DSL 候选'}</button></section>
+   {selectedStatement&&<section className="panel translation-input"><h3>本次转换输入</h3><label>已审策略原句<textarea rows="4" readOnly value={selectedStatement.record.statement.text_original}/></label><p className="field-note">执行层级：{selectedStatement.record.statement.enforcement_level} · 上下文范围：{selectedStatement.record.statement.context_requirement} · 内容 hash：{selectedStatement.content_sha256}</p><p className="field-note">来源：{selectedStatement.record.origin.path} · 缺失的任务路径或条件需绑定后才能生成可执行 DSL。</p></section>}
+   {!approvedStatements.length&&<div className="inline-notice">当前没有已审核的转换语句版本。可输入新策略，或在“策略记录与加载”准备 RQ1 输入；目录记录的“通过”不等于转换版本已审核。</div>}
+   </>}
    {artifacts.map(r=><section className="panel history-detail" key={r.id}><div className="panel-head"><b>DSL v{r.version} · {clip(r.id)}</b><div>{status(r.review_status)} {status(r.compile_state)}</div></div><ArtifactPreview artifact={r}/><div className="button-row">{r.review_status==='pending_review'&&<><button className="button success" disabled={busy||(!!r.artifact.actplane_dsl&&r.compile_state!=='compiled')} onClick={()=>reviewArtifact(r.id,'approve')}>通过候选</button><button className="button ghost" disabled={busy} onClick={()=>reviewArtifact(r.id,'reject')}>拒绝</button></>}<button className="button ghost" disabled={busy||!r.artifact.actplane_dsl||r.compile_state==="invalid_candidate"} onClick={()=>run(async()=>{await post('/api/history/artifacts/'+r.id+'/compile');notify('编译检查已排队');})}>重新编译</button></div></section>)}
-   {!artifacts.length&&<div className="empty-box">选择已通过语句，生成两个产物。</div>}
+   {!artifacts.length&&<div className="empty-box">尚无转换产物。语句审核通过后生成，语义指导项不会强行生成 DSL。</div>}
   </>}
-  <StrategyRecords statusFilter={recordStatus} active={tab===3} api={api} post={post} tasks={tasks} busy={busy} action={action} notify={notify} selectTask={selectTask} reloadHistory={load} onTranslate={ident=>{setStatementId(ident);onModuleChange(2)}}/>
-  <details className="panel history-detail"><summary>后台作业（{jobs.length}）</summary>{jobs.slice(0,15).map(j=><article className="history-job" key={j.id}><span>{({collect:'文档采集',extract:'语句抽取',translate:'DSL 转换',compile:'编译检查',rq1_import:'RQ1 语料准备'})[j.kind]}</span> {status(j.status)} <small>{clip(j.id)}</small>{j.error&&<p className="error">{j.error}</p>}{['failed','interrupted'].includes(j.status)&&<button className="button tiny ghost" disabled={busy} onClick={()=>run(async()=>{await post('/api/history/jobs/'+j.id+'/retry');notify('重试已排队');})}>重试</button>}<details><summary>结果</summary><pre>{JSON.stringify(j.result,null,2)}</pre></details></article>)}</details>
+  <StrategyRecords statusFilter={recordStatus} active={tab===3} api={api} post={post} tasks={tasks} busy={busy} action={action} notify={notify} selectTask={selectTask} reloadHistory={load} onTranslate={ident=>{chooseStatement(ident);onModuleChange(2)}}/>
+  {tab===4&&<HistoryAudit api={api} post={post} busy={busy} action={action} notify={notify}/>}
  </div></div>;
 }

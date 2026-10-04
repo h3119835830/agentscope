@@ -244,8 +244,8 @@ def review_strategy(strategy_id:str,body:ReviewRequest):
     from .history.api import invoke
     with db.connect() as con:
         row=invoke(mutable_strategy,con,strategy_id)
-        if row["source_kind"]=="history_document":
-            latest=con.execute("SELECT id FROM strategy_statement_versions WHERE strategy_id=? ORDER BY version DESC LIMIT 1",(strategy_id,)).fetchone()
+        latest=con.execute("SELECT id FROM strategy_statement_versions WHERE strategy_id=? ORDER BY version DESC LIMIT 1",(strategy_id,)).fetchone()
+        if latest:
             invoke(review_statement_version,latest["id"],body.decision,body.reviewed_by)
             return dict(con.execute("SELECT * FROM strategies WHERE id=?",(strategy_id,)).fetchone())
         cur=con.execute("UPDATE strategies SET status=?,reviewed_at=?,reviewed_by=? WHERE id=?",(status,db.now(),body.reviewed_by,strategy_id))
