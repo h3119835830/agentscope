@@ -23,15 +23,26 @@ app.include_router(history_router)
 app.include_router(catalog_router)
 app.include_router(bootstrap_router)
 app.include_router(agent_bridge_router)
+from .scope.api import router as scope_router
+from .scope.worker import worker as scope_worker
+app.include_router(scope_router)
 
 @app.middleware("http")
 async def protect_control_api(request: Request, call_next):
     path=request.url.path
+    if request.method in ("POST", "PUT", "PATCH", "DELETE") and path.startswith("/api/tasks/"):
+        pieces = path.split("/")
+        if len(pieces) > 4 and pieces[4] != "scope-manager":
+            with db.connect() as con:
+                managed = con.execute("SELECT 1 FROM scope_sessions WHERE task_id=?", (pieces[3],)).fetchone()
+            if managed:
+                return JSONResponse({"detail":"此任务由 ScopeManager 管理，请通过任务工作台提交和应用变更"}, status_code=409)
     if not path.startswith("/api/") or path in ("/api/health","/api/auth/mode") or path.startswith("/api/plugin/") or path.startswith("/api/generator/tasks/") or path.startswith("/api/agent/tasks/"):
         return await call_next(request)
     supplied=request.headers.get("authorization","")
     supplied=supplied[7:] if supplied.lower().startswith("bearer ") else ""
-    if development.passwordless(request) and not supplied:
+    scope_control = path.startswith("/api/scope-demo/") or (path.startswith("/api/tasks/") and "/scope-manager" in path)
+    if development.passwordless(request) and not supplied and not scope_control:
         return await call_next(request)
     if len(ADMIN_TOKEN)<32 or ADMIN_TOKEN=="replace-with-a-random-secret":
         return JSONResponse({"detail":"管理员口令未配置；请设置 AGENTSCOPE_ADMIN_TOKEN"},status_code=503)
@@ -189,10 +200,12 @@ async def startup():
     db.init_db()
     if os.getenv("AGENTSCOPE_HISTORY_WORKER","1")!="0" and os.getenv("AGENTSCOPE_RQ1_AUTO_IMPORT","1")!="0": corpus.ensure_seed_job()
     history_jobs.worker.start()
+    scope_worker.start()
 
 @app.on_event("shutdown")
 async def shutdown():
     history_jobs.worker.stop()
+    scope_worker.stop()
 
 @app.get("/api/health")
 def health(): return {"ok":True,"service":"AgentScope","version":"0.2.0"}
@@ -280,6 +293,19 @@ def task_context(task_id:str):
 
 @app.get("/api/plugin/tasks/{task_id}/scope")
 def plugin_scope(task_id:str,request:Request):
+    with db.connect() as con:
+        managed = con.execute("SELECT * FROM scope_sessions WHERE task_id=?", (task_id,)).fetchone()
+        if managed:
+            from .scope.api import agent_task
+            from .scope.manager import active
+            agent_task(task_id, request)
+            current = active(con, dict(managed))
+            task = require_task(task_id)
+            directories = current["payload"]["allowed_write_dirs"] if current else []
+            return {"task":{"id":task_id,"status":task["status"]},
+                    "policy":{"version":current["revision"] if current else None,"dsl":current["payload"]["dsl"] if current else ""},
+                    "runtime_restrictions":[{"path":str(Path(task["workspace"])/directories[0])}] if len(directories)==1 else [],
+                    "scope_request_rule":"使用 scope-manager 工具；此接口仅返回已核验快照。"}
     task,_=require_agent_task(task_id,request)
     with db.connect() as con:
         version=con.execute("SELECT version,layer,dsl_text,compile_json,change_summary,approved_by,approved_at FROM policy_versions WHERE task_id=? AND version=? AND status='approved'",(task_id,task["active_version"])).fetchone()
@@ -293,6 +319,8 @@ def plugin_scope(task_id:str,request:Request):
             "scope_request_rule":"所有变更只进入待审核队列；此接口不会批准或执行权限变更。"}
 
 def validate_scope_request(task,body,con):
+    if con.execute("SELECT 1 FROM scope_sessions WHERE task_id=?", (task["id"],)).fetchone():
+        raise HTTPException(409,"此任务的变更只能通过 ScopeManager 分析、审核与核验")
     if con.execute("SELECT 1 FROM bootstrap_contexts WHERE task_id=?",(task["id"],)).fetchone(): raise HTTPException(409,"RQ5 首版只接收第三层上下文与事件；不启用运行中策略修改")
     if task["status"]!="running": raise HTTPException(409,"只有运行中的任务可以申请运行时 Scope 变更")
     if body.kind not in ("restrict","expand"): raise HTTPException(400,"kind 必须为 restrict 或 expand")

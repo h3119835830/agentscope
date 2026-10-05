@@ -40,12 +40,60 @@ const textOutput = {
 }
 
 export function apply(ctx, config) {
+  let deliveredRevision = -1
+  const starts = new Map()
+  if (process.env.AGENTSCOPE_SCOPE_MANAGER === '1') {
+    ctx.on('tools/pre-execute', async (exec, next) => {
+      if (exec.name.startsWith('agentscope_')) return next()
+      let state
+      let paused = false
+      while (!exec.signal.aborted) {
+        state = await request(config, '/scope-manager/gate')
+        if (state.gate === 'open') break
+        if (['failed', 'closed'].includes(state.gate)) return { kind: 'deny', reason: 'Scope 执行已停止：' + state.gate }
+        if (!paused) {
+          paused = true
+          await request(config, '/scope-manager/tool-boundary', {method:'POST',body:JSON.stringify({args:{
+            name:exec.name,call_id:String(exec.callId),kind:'pause',snapshot_id:state.snapshot_id,
+          }})})
+        }
+        await new Promise(resolve => {
+          const done = () => { clearTimeout(timer); exec.signal.removeEventListener('abort', done); resolve() }
+          const timer = setTimeout(done, 400)
+          exec.signal.addEventListener('abort', done, { once: true })
+        })
+      }
+      if (exec.signal.aborted) return { kind: 'cancel' }
+      if (deliveredRevision !== state.message_revision) {
+        deliveredRevision = state.message_revision
+        await request(config, '/scope-manager/tool-boundary', {method:'POST',body:JSON.stringify({args:{
+          name:exec.name,call_id:String(exec.callId),kind:'context_delivery',snapshot_id:state.snapshot_id,
+        }})})
+        return { kind: 'deny', reason: '任务上下文已更新；先按照以下真实用户消息及已确认权限重新规划此操作：' +
+          JSON.stringify({ messages: state.messages.map(x => x.payload), allowed_write_dirs: state.scope.allowed_write_dirs,
+            allow_output: state.scope.allow_output, snapshot_id: state.snapshot_id }) }
+      }
+      starts.set(exec.callId, {snapshot_id:state.snapshot_id,message_revision:state.message_revision})
+      return next()
+    })
+    ctx.on('tools/post-execute', async (exec, result, next) => {
+      if (!exec.name.startsWith('agentscope_')) {
+        await request(config, '/scope-manager/tool-result', { method: 'POST', body: JSON.stringify({ args: {
+          name: exec.name, call_id: String(exec.callId || randomUUID()), succeeded: !result.isError,
+          started:starts.get(exec.callId) || null,
+        } }) })
+        starts.delete(exec.callId)
+      }
+      return next()
+    })
+  }
   ctx.tools.register(defineTool({
     name: 'agentscope_get_current_scope',
     description: '读取当前任务经人工批准的策略版本、历史策略参考和运行时限制。此工具只读。',
     parameters: {},
     output: textOutput,
     async execute() {
+      if (process.env.AGENTSCOPE_SCOPE_MANAGER === '1') return JSON.stringify(await request(config, '/scope-manager/gate'), null, 2)
       const value = await request(config, '/scope')
       const bridge = await request(config, '/context', {}, 'agent')
       return JSON.stringify({ ...value, agent_bridge: bridge }, null, 2)
@@ -65,6 +113,12 @@ export function apply(ctx, config) {
     async execute(args) {
       if (!['restrict', 'expand'].includes(args.kind)) throw new Error('kind 只能为 restrict 或 expand')
       if (args.justification.trim().length < 4) throw new Error('请提供至少 4 个字符的变更理由')
+      if (process.env.AGENTSCOPE_SCOPE_MANAGER === '1') {
+        const state = await request(config, '/scope-manager/gate')
+        return JSON.stringify(await request(config, '/scope-manager/changes', { method: 'POST', body: JSON.stringify({
+          kind: args.kind, text: args.justification, expected_snapshot: state.snapshot_id, request_key: args.request_key || randomUUID(),
+        }) }))
+      }
       const context = await request(config, '/context', {}, 'agent')
       const value = await request(config, '/scope-requests', {
         method: 'POST',
@@ -83,6 +137,10 @@ export function apply(ctx, config) {
     async execute(args) {
       const after = Number(args.after || 0)
       if (!Number.isSafeInteger(after) || after < 0) throw new Error('消息序号必须是非负整数')
+      if (process.env.AGENTSCOPE_SCOPE_MANAGER === '1') {
+        const state = await request(config, '/scope-manager/gate')
+        return JSON.stringify({ messages: state.messages, message_revision: state.message_revision })
+      }
       return JSON.stringify(await request(config, `/messages?after=${after}`, {}, 'agent'), null, 2)
     },
   }))
@@ -97,6 +155,7 @@ export function apply(ctx, config) {
     output: textOutput,
     async execute(args) {
       if (!['received', 'handled'].includes(args.status)) throw new Error('状态只能为 received 或 handled')
+      if (process.env.AGENTSCOPE_SCOPE_MANAGER === '1') return '消息是控制面的公开上下文；处理声明不改变权限。'
       return JSON.stringify(await request(config, `/messages/${encodeURIComponent(args.message_id)}/ack`, {
         method: 'POST', body: JSON.stringify({ status: args.status }),
       }, 'agent'), null, 2)
@@ -115,6 +174,10 @@ export function apply(ctx, config) {
     },
     output: textOutput,
     async execute(args) {
+      if (process.env.AGENTSCOPE_SCOPE_MANAGER === '1') return JSON.stringify(await request(config, '/scope-manager/report', {
+        method: 'POST', body: JSON.stringify({ args: { kind: args.kind, summary: args.summary,
+          request_key: args.request_key || randomUUID() } }),
+      }))
       const context = await request(config, '/context', {}, 'agent')
       return JSON.stringify(await request(config, '/feedback', { method: 'POST', body: JSON.stringify({
         kind: args.kind, summary: args.summary, operation: args.operation || '', target: args.target || '',

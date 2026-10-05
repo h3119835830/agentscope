@@ -21,10 +21,12 @@ and execution evidence; Pi assesses and generates policy candidates internally.
 - **Enforcement:** `actplane/` contains the ActPlane source snapshot. AgentScope
   stores policy metadata; ActPlane compiles and enforces supported rules.
 
-The complete third-layer runtime increment workflow is **not implemented**:
-event aggregation, runtime Pi assessment, full context snapshots, versioned
-increment review, and independent confirmation that a new rule is active remain
-open. Communication acceptance does not establish this workflow.
+The bounded **File Scope Demo** implements cold baseline verification, complete
+immutable snapshots, runtime Pi candidates, manual review, same-domain
+restrictions and checkpoint-based expansion/restart for a registered local DSH
+fixture. The workbench separates permissions, changes and execution records.
+General remote-Agent enforcement, dynamic network Scope and automatic history
+promotion remain outside this implementation.
 
 ## Documentation and acceptance
 
@@ -36,6 +38,8 @@ open. Communication acceptance does not establish this workflow.
 - [Task-agent communication contract](docs/agent-bridge-v1/RFC.md) and
   [acceptance and remaining work](docs/agent-bridge-v1/REVIEW.md)
 - [Linux VM installation](docs/install-linux.md)
+- [File Scope Demo contract and runbook](docs/scope-demo-v1/RFC.md), [decisions](docs/scope-demo-v1/ADR.md),
+  [acceptance](docs/scope-demo-v1/REVIEW.md), and [reproduced defects](docs/scope-demo-v1/BUG.md)
 
 ## Deployment and reproducibility
 
@@ -62,7 +66,9 @@ The DSH tools are listed in [the integration guide](integrations/dsh-agentscope/
 The HTTP adapter is documented in [its guide](integrations/http-agent/README.md).
 Remote HTTP connections provide communication, not proof of local kernel
 protection. Supported expansions create a new approved policy and restart the
-managed DSH process; conversation continuity is not guaranteed.
+managed DSH process. The file Demo restores authenticated messages, public
+progress and workspace hashes through a bounded checkpoint. Private model
+reasoning is not collected, and complete native-session replay is not claimed.
 
 ## License
 

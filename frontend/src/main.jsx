@@ -4,6 +4,7 @@ import './styles.css';
 import HistoryLibrary from './HistoryLibrary.jsx';
 import BootstrapPanel from './BootstrapPanel.jsx';
 import AgentBridge from './AgentBridge.jsx';
+import ScopeWorkbench from './ScopeWorkbench.jsx';
 
 const api = async (url, options = {}) => {
   const token = typeof sessionStorage === 'undefined' ? '' : sessionStorage.getItem('agentscopeAdminToken') || '';
@@ -27,7 +28,7 @@ function App() {
   const [loginError,setLoginError]=useState('');
   const [authReady,setAuthReady]=useState(false);
   const [developmentMode,setDevelopmentMode]=useState(false);
-  const [page, setPage] = useState(()=>new URLSearchParams(window.location.search).get('view')==='agent-bridge'?'agent-bridge':'overview');
+  const [page, setPage] = useState(()=>['agent-bridge','scope-demo'].includes(new URLSearchParams(window.location.search).get('view'))?new URLSearchParams(window.location.search).get('view'):'overview');
   const [sidebarCollapsed,setSidebarCollapsed]=useState(()=>{
     try {
       const saved=localStorage.getItem('agentscopeSidebarCollapsed');
@@ -35,6 +36,13 @@ function App() {
     } catch { return false; }
   });
   useEffect(()=>{try{localStorage.setItem('agentscopeSidebarCollapsed',String(sidebarCollapsed));}catch{}},[sidebarCollapsed]);
+  useEffect(()=>{
+    if(page!=='scope-demo')return;
+    const media=window.matchMedia('(max-width:650px)');
+    const compact=()=>{if(media.matches)setSidebarCollapsed(true);};
+    compact();media.addEventListener('change',compact);
+    return()=>media.removeEventListener('change',compact);
+  },[page]);
   const [historyModuleIndex,setHistoryModuleIndex]=useState(0);
   const [status, setStatus] = useState(null);
   const [dash, setDash] = useState(null);
@@ -131,6 +139,7 @@ function App() {
       <div className="side-label">工作区</div>
       <nav id="workspace-navigation" aria-label="工作区导航">
         <NavItem active={page === 'overview'} icon="▦" label="总览" onClick={() => setPage('overview')} />
+        <NavItem active={page === 'scope-demo'} icon="◉" label="任务工作台" onClick={() => setPage('scope-demo')} />
         <NavItem active={page === 'strategies'} icon="▤" label="历史策略库" count={dash?.stats?.pending_strategies} onClick={() => setPage('strategies')} />
         <NavItem active={page === 'task'} icon="◈" label="任务与启动审核" onClick={() => setPage('task')} />
         <NavItem active={page === 'runtime'} icon="⌁" label="运行时 Scope" onClick={() => setPage('runtime')} />
@@ -142,6 +151,7 @@ function App() {
     <main className="main">
       <header className="topbar"><div><span className="crumb">AgentScope</span><span className="slash">/</span><b>{pageTitle(page)}</b></div><div className="top-right"><span className={`status-pill ${status?.broker?.available && status?.bpf_lsm ? 'good' : 'warn'}`}><i />{status?.broker?.available && status?.bpf_lsm ? '执行面已连接' : '执行面待检查'}</span>{developmentMode ? <span className="status-pill good">本地开发 · 免口令</span> : <button className="avatar" title="锁定管控台" onClick={lock}>锁</button>}</div></header>
       {page === 'overview' && <Overview dash={dash} status={status} tasks={tasks} onSelect={selectTask} onNav={setPage} />}
+      {page === 'scope-demo' && <ScopeWorkbench api={api} post={post} notify={notify} />}
       {page === 'strategies' && <HistoryLibrary moduleIndex={historyModuleIndex} modules={HISTORY_MODULES} onModuleChange={setHistoryModuleIndex} api={api} post={post} tasks={tasks} busy={busy} action={withBusy} notify={notify} selectTask={selectTask} />}
       {page === 'task' && <TaskPage tasks={tasks} selected={selected} selectTask={selectTask} context={context} versions={versions} busy={busy} action={withBusy} notify={notify} refresh={refresh} />}
       {page === 'runtime' && <RuntimePage tasks={tasks} selected={selected} selectTask={selectTask} runtime={runtime} requests={requests} busy={busy} action={withBusy} refresh={refresh} notify={notify} />}
@@ -152,7 +162,7 @@ function App() {
   </div>;
 }
 
-function pageTitle(page) { return ({ overview: '总览', strategies: '历史策略库', task: '任务与启动审核', runtime: '运行时 Scope', 'agent-bridge':'运行时 Agent 接入', governance: '持久治理' })[page]; }
+function pageTitle(page) { return ({ overview: '总览', 'scope-demo':'任务工作台', strategies: '历史策略库', task: '任务与启动审核', runtime: '运行时 Scope', 'agent-bridge':'运行时 Agent 接入', governance: '持久治理' })[page]; }
 function NavItem({ active, icon, label, count, onClick }) { return <button className={`nav-item ${active ? 'active' : ''}`} aria-label={label} aria-current={active?'page':undefined} title={label} onClick={onClick}><span className="nav-icon" aria-hidden="true">{icon}</span><span className="nav-label">{label}</span>{count > 0 && <em>{count}</em>}</button>; }
 function Header({ eyebrow, title, description, action }) { return <div className="page-head"><div><div className="eyebrow">{eyebrow}</div><h1>{title}</h1><p>{description}</p></div>{action}</div>; }
 function Metric({ label, value, note, icon }) { return <div className="metric"><div className="metric-top"><span>{label}</span><span className="metric-icon">{icon}</span></div><strong>{value ?? '—'}</strong><small>{note}</small></div>; }

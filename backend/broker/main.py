@@ -123,10 +123,15 @@ def prepare_task_dsh_home(task_root):
 
 def control_state(policy_path): return Path(policy_path).parent/".actplane"/"control.json"
 
-def grant_agent_control_access(policy_path):
+def grant_agent_control_access(policy_path, trusted_relay=False):
     """Expose only this task domain's ActPlane control state to its in-domain relay."""
     root=control_state(policy_path).parent
     if not root.exists(): raise RuntimeError("ActPlane control state directory is missing")
+    if trusted_relay:
+        state = json.loads(control_state(policy_path).read_text())
+        socket_path = Path(state["socket_path"])
+        os.chown(socket_path, 0, 0)
+        os.chmod(socket_path, 0o600)
     for base,dirs,files in os.walk(root,followlinks=False):
         os.chown(base,0,TASK_GID); os.chmod(base,0o750)
         for name in dirs:
@@ -137,23 +142,24 @@ def grant_agent_control_access(policy_path):
             path=Path(base)/name
             if path.is_symlink(): continue
             os.chown(path,0,TASK_GID)
-            os.chmod(path,0o660 if path.name=="control.json" else 0o640)
+            os.chmod(path,0o640 if trusted_relay else 0o660 if path.name=="control.json" else 0o640)
 
-def grant_api_event_access(workspace):
+def grant_api_event_access(workspace, trusted_relay=False):
     """Allow the API task group to read kernel events without write access."""
     event_dir=Path(workspace)/".actplane"
     if not event_dir.exists(): return
     if event_dir.is_symlink(): raise RuntimeError("ActPlane event directory cannot be a symlink")
     event_dir=path_under(event_dir,workspace)
-    os.chown(event_dir,-1,TASK_GID); os.chmod(event_dir,0o2750)
+    os.chown(event_dir,0 if trusted_relay else -1,TASK_GID); os.chmod(event_dir,0o2750)
     events=event_dir/"events.jsonl"
     if events.exists():
         if events.is_symlink(): raise RuntimeError("ActPlane events cannot be a symlink")
         events=path_under(events,workspace)
-        os.chown(events,-1,TASK_GID); os.chmod(events,0o640)
+        os.chown(events,0 if trusted_relay else -1,TASK_GID); os.chmod(events,0o640)
 
-def launch(task_id,version,workspace,output_dir,prompt,dsl_text,policy_yaml,dsh_profile="headless",task_token="",agentscope_url="http://127.0.0.1:8000"):
+def launch(task_id,version,workspace,output_dir,prompt,dsl_text,policy_yaml,dsh_profile="headless",task_token="",agentscope_url="http://127.0.0.1:8000",scope_mode=""):
     checked_task(task_id)
+    if scope_mode not in ("", "cold", "managed"): raise ValueError("Scope runner mode invalid")
     if dsh_profile!="headless": raise ValueError("AgentScope 当前仅开放 DSH headless profile")
     if not DSH.exists(): raise RuntimeError(f"DSH CLI 不存在：{DSH}")
     if not RUNNER.exists(): raise RuntimeError(f"任务运行器不存在：{RUNNER}")
@@ -166,6 +172,15 @@ def launch(task_id,version,workspace,output_dir,prompt,dsl_text,policy_yaml,dsh_
             if other.get("watch") and other["watch"].poll() is None:
                 raise RuntimeError("ActPlane 当前使用单例运行时；请先停止现有 Agent 任务")
         files=compile_policy(task_id,version,policy_yaml,dsl_text,workspace)
+        if scope_mode:
+            protected_manifest = POLICY_ROOT / task_id / "scope-manifest.json"
+            if not protected_manifest.exists():
+                source = workspace.parent / "scope-manifest.json"
+                if source.is_symlink(): raise ValueError("Fixture manifest must not be a symlink")
+                manifest = json.loads(source.read_text())
+                if set(manifest) != {"backend/stats.py", "frontend/report.py", "tests/test_stats.py", "config/demo.json"}:
+                    raise ValueError("Unregistered fixture manifest")
+                write_file(protected_manifest, json.dumps(manifest), 0o440)
         policy_path=files["policy_path"]; watch_path=files["watch_path"]
         dsh_home=prepare_task_dsh_home(workspace.parent)
         log_dir=LOG_DIR; log_dir.mkdir(parents=True,exist_ok=True)
@@ -174,7 +189,7 @@ def launch(task_id,version,workspace,output_dir,prompt,dsl_text,policy_yaml,dsh_
         # watch engine must reserve file-flow hooks before its child domain is
         # created. The engine cannot enable write-rule classes retroactively.
         env=child_env(); env.update({"ACTPLANE_ATTACH_PID":"0","ACTPLANE_RESERVE_FILE_FLOW":"1",
-                                     "SUDO_UID":str(AGENT.pw_uid),"SUDO_GID":str(TASK_GID)})
+                                     "SUDO_UID":str(0 if scope_mode else AGENT.pw_uid),"SUDO_GID":str(0 if scope_mode else TASK_GID)})
         anchor=subprocess.Popen(["/usr/bin/sleep","infinity"],cwd=workspace,env=child_env(True),preexec_fn=user_preexec,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,start_new_session=True)
         env["ACTPLANE_ATTACH_PID"]=str(anchor.pid)
         watch=subprocess.Popen([str(ACTPLANE),"--policy",watch_path,"watch"],cwd=workspace,env=env,stdout=watch_log,stderr=subprocess.STDOUT,start_new_session=True)
@@ -185,31 +200,31 @@ def launch(task_id,version,workspace,output_dir,prompt,dsl_text,policy_yaml,dsh_
                 watch_log.flush(); watch_log.close()
                 raise RuntimeError((log_dir/f"{task_id}-v{version}-watch.log").read_text(errors="replace")[-5000:])
             if control_state(watch_path).exists():
-                grant_agent_control_access(watch_path)
-                grant_api_event_access(workspace)
+                grant_agent_control_access(watch_path, bool(scope_mode))
+                grant_api_event_access(workspace, bool(scope_mode))
                 break
             time.sleep(.2)
         else:
             watch.terminate(); anchor.terminate()
             raise RuntimeError("ActPlane watch 启动超时；请检查 /var/log/agentscope/*-watch.log")
         domain=secrets.randbelow(1_800_000_000)+100_000_000
-        result_path=workspace.parent/"tmp"/"scope-result.json"
-        task_env_path=result_path.parent/"agent-env.json"
+        result_path=workspace.parent/(".runtime-control/scope-result.json" if scope_mode else "tmp/scope-result.json")
+        task_env_path=workspace.parent/"tmp"/"agent-env.json"
         command=["--policy",watch_path,"control","launch-child","--child-id",str(domain),"--delta",files["dsl_path"],"--","/usr/bin/python3",str(RUNNER),
           "--task-id",task_id,"--domain-id",str(domain),"--env-file",str(task_env_path),"--request-file",str(RUNTIME/"commands"/task_id/"request.json"),
-          "--result-file",str(workspace.parent/"tmp"/"scope-result.json"),"--watch-policy",watch_path,"--actplane",str(ACTPLANE),
+          "--result-file",str(result_path),"--watch-policy",watch_path,"--actplane",str(ACTPLANE),
           "--workspace",str(workspace),"--dsh",str(DSH),"--dsh-home",str(dsh_home),"--profile",dsh_profile,"--prompt",prompt]
         cmd_root=RUNTIME/"commands"; cmd_root.mkdir(parents=True,exist_ok=True); os.chown(cmd_root,0,0); os.chmod(cmd_root,0o711)
         cmd_dir=cmd_root/task_id; cmd_dir.mkdir(parents=True,exist_ok=True); os.chown(cmd_dir,0,TASK_GID); os.chmod(cmd_dir,0o750)
         request_path=cmd_dir/"request.json"; request_path.unlink(missing_ok=True)
-        result_path.parent.mkdir(parents=True,exist_ok=True); os.chown(result_path.parent,0,TASK_GID); os.chmod(result_path.parent,0o2770)
-        write_file(task_env_path,json.dumps({"task_id":task_id,"task_token":task_token,"agentscope_url":agentscope_url}),0o660)
-        os.chown(result_path.parent,0,TASK_GID); os.chmod(result_path.parent,0o2770)
+        task_env_path.parent.mkdir(parents=True,exist_ok=True); os.chown(task_env_path.parent,0,TASK_GID); os.chmod(task_env_path.parent,0o2770)
+        write_file(task_env_path,json.dumps({"task_id":task_id,"task_token":task_token,"agentscope_url":agentscope_url,"scope_mode":scope_mode}),0o660)
+        os.chown(task_env_path.parent,0,TASK_GID); os.chmod(task_env_path.parent,0o2770)
         result_path.unlink(missing_ok=True)
         # ActPlane's watch daemon launches the child with its own environment,
         # not the launch-child CLI caller's environment. Pass task credentials
         # through a one-time task file; task_runner scrubs it before starting DSH.
-        launch_env=child_env(); launch_env.update({"SUDO_UID":str(AGENT.pw_uid),"SUDO_GID":str(TASK_GID),"TMPDIR":str(workspace.parent/"tmp")})
+        launch_env=child_env(); launch_env.update({"SUDO_UID":str(0 if scope_mode else AGENT.pw_uid),"SUDO_GID":str(0 if scope_mode else TASK_GID),"TMPDIR":str(workspace.parent/"tmp")})
         try:
             out=run_actplane(command,workspace,launch_env,35)
         except Exception:
@@ -220,7 +235,7 @@ def launch(task_id,version,workspace,output_dir,prompt,dsl_text,policy_yaml,dsh_
         domain_id=int(m.group(2)) if m else domain
         record={"task_id":task_id,"version":version,"workspace":str(workspace),"output_dir":str(output),"policy_path":policy_path,"watch_policy":watch_path,
           "watch":watch,"anchor":anchor,"watch_log":str(log_dir/f"{task_id}-v{version}-watch.log"),"watch_pid":watch.pid,"runner_pid":runner_pid,"domain_id":domain_id,
-          "request_path":str(request_path),"result_path":str(result_path),"dsl_path":files["dsl_path"]}
+          "request_path":str(request_path),"result_path":str(result_path),"dsl_path":files["dsl_path"],"scope_mode":scope_mode}
         TASKS[task_id]=record
         return {"task_id":task_id,"status":"running","runner_pid":runner_pid,"domain_id":domain_id,"watch_pid":watch.pid,
                 "version":version,"compile_state":"loaded","compile":files["compile"],"message":"ActPlane 控制平面已加载；DSH 已由 child domain 接管"}
@@ -238,7 +253,18 @@ def status(task_id):
     except Exception: children=[]
     child=next((c for c in children if int(c.get("child_id",-1))==record["domain_id"]),None)
     status=(child or {}).get("status",{})
-    return {"available":True,"status":state,"agent_status":status.get("state","unknown"),"domain_id":record["domain_id"],"runner_pid":record["runner_pid"],"watch_pid":record["watch_pid"],"child":child}
+    executor = None
+    if record.get("scope_mode") == "managed":
+        try:
+            children_file = Path("/proc") / str(record["runner_pid"]) / "task" / str(record["runner_pid"]) / "children"
+            for pid in children_file.read_text().split():
+                cmdline = (Path("/proc") / pid / "cmdline").read_bytes().split(b"\0")
+                if str(DSH).encode() in cmdline:
+                    executor = int(pid)
+                    break
+        except OSError: pass
+    return {"available":True,"status":state,"agent_status":status.get("state","unknown"),"domain_id":record["domain_id"],"runner_pid":record["runner_pid"],"watch_pid":record["watch_pid"],"child":child,
+            "executor":{"mode":record.get("scope_mode"),"pid":executor,"state":"running" if executor else "absent"}}
 
 def stop(task_id):
     checked_task(task_id)
@@ -315,7 +341,7 @@ def dispatch(m):
           "btf":Path("/sys/kernel/btf/vmlinux").exists(),"lsm":Path("/sys/kernel/security/lsm").read_text().strip(),"actplane":str(ACTPLANE),"dsh":str(DSH),"compatibility_build":"Installed local ActPlane; identify by binary hash/version and verify enforcement with runtime probes"}
     if action=="active":
         with LOCK:return {"tasks":[{"task_id":k,"version":v["version"],"domain_id":v["domain_id"],"runner_pid":v["runner_pid"],"status":"running" if v["watch"].poll() is None else "stopped"} for k,v in TASKS.items() if v["watch"].poll() is None]}
-    if action=="launch": return launch(m["task_id"],m["version"],m["workspace"],m["output_dir"],m["prompt"],m["dsl_text"],m["policy_yaml"],m.get("dsh_profile","headless"),m.get("task_token",""),m.get("agentscope_url","http://127.0.0.1:8000"))
+    if action=="launch": return launch(m["task_id"],m["version"],m["workspace"],m["output_dir"],m["prompt"],m["dsl_text"],m["policy_yaml"],m.get("dsh_profile","headless"),m.get("task_token",""),m.get("agentscope_url","http://127.0.0.1:8000"),m.get("scope_mode",""))
     if action=="restart":
         stop(m["task_id"])
         time.sleep(.5)
@@ -323,7 +349,57 @@ def dispatch(m):
     if action=="status": return status(m["task_id"])
     if action=="stop": return stop(m["task_id"])
     if action=="restrict": return restrict(m)
+    if action=="scope-verify": return scope_verify(m)
     raise ValueError("未授权的 broker operation")
+
+def scope_verify(message):
+    task_id = message["task_id"]
+    checked_task(task_id)
+    with LOCK: record = TASKS.get(task_id)
+    if not record or record.get("scope_mode") not in ("cold", "managed"): raise ValueError("Scope verification is restricted to registered demo runs")
+    if int(message.get("domain_id", -1)) != record["domain_id"]: raise ValueError("Verification domain changed")
+    directories = sorted(set(message.get("allowed_write_dirs", [])))
+    if not set(directories) <= {"backend", "frontend"}: raise ValueError("Unregistered verification paths")
+    events_path = Path(record["workspace"]) / ".actplane/events.jsonl"
+    baseline = len(events_path.read_text().splitlines()) if events_path.exists() else 0
+    request_id = secrets.token_hex(16)
+    request = {"request_id": request_id, "kind": "scope-verify", "directories": directories, "allow_output": message.get("allow_output") is True}
+    write_file(record["request_path"], json.dumps(request), 0o640)
+    deadline = time.time() + 24
+    while time.time() < deadline:
+        try:
+            result = json.loads(Path(record["result_path"]).read_text())
+            if result.get("request_id") == request_id:
+                if not result.get("ok"): raise RuntimeError("Scope verifier failed: " + str(result.get("error")))
+                probe = result["probe"]
+                break
+        except FileNotFoundError: pass
+        time.sleep(.2)
+    else: raise RuntimeError("Scope verification relay timed out")
+    time.sleep(.3)
+    lines = events_path.read_text().splitlines()[baseline:] if events_path.exists() else []
+    raw_events = []
+    for line in lines:
+        try: raw_events.append(json.loads(line))
+        except ValueError: pass
+    # Read authoritative kernel output and protected assets independently of Agent reports.
+    # First controlled launch seals the manifest outside the Agent writable envelope.
+    manifest_path = POLICY_ROOT / task_id / "scope-manifest.json"
+    manifest = json.loads(manifest_path.read_text())
+    protected = {p: hashlib.sha256((Path(record["workspace"]) / p).read_bytes()).hexdigest()
+                 for p in manifest if p.startswith(("tests/", "config/"))}
+    integrity = all(protected[p] == manifest[p] for p in protected)
+    binding = status(task_id)
+    related = [e for e in raw_events if e.get("domain_id") == record["domain_id"] and e.get("blocked") is True
+               and (e.get("pid") == probe["probe_pid"] or e.get("ppid") == probe["probe_pid"])]
+    events_confirmed = len(related) >= probe["denied_count"] and probe["probe_ppid"] == record["runner_pid"]
+    metadata = events_path.lstat()
+    trusted_events = not events_path.is_symlink() and metadata.st_uid == 0 and not metadata.st_mode & 0o022
+    return {"passed": probe["passed"] and integrity and events_confirmed and trusted_events and binding.get("runner_pid") == record["runner_pid"],
+            "domain_id": record["domain_id"], "runner_pid": record["runner_pid"], "probe": probe,
+            "kernel_events": related, "kernel_events_confirmed": events_confirmed, "root_owned_events": trusted_events,
+            "protected_integrity": integrity, "protected_hashes": protected, "event_baseline": baseline,
+            "source": "fixed_control_probe_and_kernel_events"}
 
 class Handler(socketserver.StreamRequestHandler):
     def handle(self):

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Runs DSH inside one ActPlane child domain and relays approved restrictive deltas."""
-import argparse, grp, hashlib, json, os, stat, subprocess, sys, time
+import argparse, grp, hashlib, json, os, pwd, stat, subprocess, sys, time
 from pathlib import Path
 
 def write_result(path, value):
@@ -37,6 +37,18 @@ def consume_agent_env(path, task_id):
         os.close(fd)
 
 def handle_request(req, args):
+    if req.get("kind") == "scope-verify":
+        command = ["/usr/bin/python3", str(Path(__file__).with_name("scope_probe.py")),
+                   "--workspace", args.workspace, "--dirs", ",".join(req["directories"])]
+        if req.get("allow_output"): command.append("--output")
+        command += ["--control-state", str(Path(args.watch_policy).parent / ".actplane/control.json")]
+        fd = getattr(args, "held_fd", None)
+        if fd is not None: command += ["--held-fd", str(fd)]
+        result = subprocess.run(command, capture_output=True, text=True, timeout=20, pass_fds=(fd,) if fd is not None else (),
+                                preexec_fn=demote_agent if os.getuid()==0 else None)
+        try: probe = json.loads(result.stdout)
+        except ValueError: return {"request_id": req["request_id"], "ok": False, "error": result.stderr[-1200:]}
+        return {"request_id": req["request_id"], "ok": result.returncode == 0, "probe": probe}
     if req.get("kind")!="restrict" or not req.get("delta_text"):
         return {"request_id":req.get("request_id"),"ok":False,"error":"只接受已经审核的限制型 Delta"}
     dsl=req["delta_text"]
@@ -52,6 +64,13 @@ def handle_request(req, args):
          "LOGNAME":os.environ.get("LOGNAME","agentscope-agent"),"NO_PROXY":"*","no_proxy":"*"}
     p=subprocess.run(cmd,capture_output=True,text=True,timeout=30,env=env,cwd=args.workspace)
     return {"request_id":req.get("request_id"),"ok":p.returncode==0,"output":p.stdout[-4000:],"error":p.stderr[-4000:],"applied_at":time.time()}
+
+def demote_agent():
+    agent = pwd.getpwnam(os.getenv("AGENTSCOPE_AGENT_USER", "agentscope-agent"))
+    group = grp.getgrnam(os.getenv("AGENTSCOPE_TASK_GROUP", "agentscope-task")).gr_gid
+    os.setgroups([group])
+    os.setgid(group)
+    os.setuid(agent.pw_uid)
 
 def main():
     ap=argparse.ArgumentParser()
@@ -73,18 +92,28 @@ def main():
        "PATH":os.environ.get("AGENTSCOPE_EXEC_PATH",os.environ.get("PATH","/usr/local/bin:/usr/bin:/bin")),
        "AGENTSCOPE_TASK_ID":args.task_id,"AGENTSCOPE_TASK_TOKEN":task_env["task_token"],
        "AGENTSCOPE_URL":task_env["agentscope_url"],"NO_PROXY":"*","no_proxy":"*"})
+    scope_mode = task_env.get("scope_mode", "")
+    if scope_mode:
+        agent = pwd.getpwnam(os.getenv("AGENTSCOPE_AGENT_USER", "agentscope-agent"))
+        env.update(USER=agent.pw_name, LOGNAME=agent.pw_name)
+        env["AGENTSCOPE_SCOPE_MANAGER"] = "1"
+        env["PYTHONDONTWRITEBYTECODE"] = "1"
+        env["TMPDIR"] = str(Path(args.workspace).parent / "tmp")
+        try: args.held_fd = os.open(str(Path(args.workspace) / "frontend/scope-held.txt"), os.O_RDWR)
+        except OSError: args.held_fd = None
     command=[args.dsh,"--profile",args.profile,args.prompt]
     try:
         # DSH's sandbox binds its session cwd as its single writable root.
         # Use this task's isolated root as the outer envelope; ActPlane still
         # decides the approved repository/output permissions within that root.
-        dsh=subprocess.Popen(command,cwd=str(Path(args.workspace).parent),env=env)
+        dsh=subprocess.Popen(command,cwd=str(Path(args.workspace).parent),env=env,
+                             preexec_fn=demote_agent if scope_mode and os.getuid()==0 else None) if scope_mode != "cold" else None
     except Exception as e:
         print(f"AgentScope: unable to launch DSH: {e}",file=sys.stderr,flush=True); return 127
-    print(f"AgentScope: DSH started pid={dsh.pid} profile={args.profile}",flush=True)
+    print(f"AgentScope: runner mode={scope_mode or 'legacy'} dsh_pid={dsh.pid if dsh else None} profile={args.profile}",flush=True)
     last_request=""
     req_path=Path(args.request_file)
-    while dsh.poll() is None:
+    while scope_mode or (dsh and dsh.poll() is None):
         try:
             if req_path.exists():
                 req=json.loads(req_path.read_text())
@@ -99,6 +128,6 @@ def main():
         except Exception as e:
             print(f"AgentScope: runtime relay error: {e}",file=sys.stderr,flush=True)
         time.sleep(0.25)
-    return dsh.wait()
+    return dsh.wait() if dsh else 0
 
 if __name__=="__main__": raise SystemExit(main())
