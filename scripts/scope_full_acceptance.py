@@ -1,14 +1,30 @@
 #!/usr/bin/env python3
 """Real Pi + DSH + kernel S0-S4 acceptance. Oracle stays outside generator/Agent context."""
 import hashlib
+import argparse
 import json
+import select
 import subprocess
+import sys
 import time
 import urllib.error
 import urllib.request
 from pathlib import Path
 from scope_acceptance import api, change, review, STATE, URL
 _task=None
+_live_ui=False
+
+def ui_checkpoint(stage, task, delta=None):
+    """Optional host-test handshake; never delivered to Pi/DSH or given approval authority."""
+    if not _live_ui:
+        return
+    message={"stage":"ui_checkpoint","checkpoint":stage,"task":task,"delta":delta}
+    print(json.dumps(message),flush=True)
+    if not select.select([sys.stdin],[],[],90)[0]:
+        raise RuntimeError("Live UI checkpoint timed out: "+stage)
+    ack=json.loads(sys.stdin.readline())
+    if ack!={"checkpoint":stage,"task":task,"status":"passed"}:
+        raise RuntimeError("Live UI checkpoint failed: "+stage)
 
 def wait_for(predicate, seconds=180):
     deadline=time.monotonic()+seconds
@@ -38,7 +54,10 @@ def run():
     records={}
     records["S0"]=api(base+"/cold",{})
     assert records["S0"]["current"]["verification"]["root_owned_events"]
-    records["S1"]=review(task,change(task,"task_grant","授权修改 backend/frontend，保护 tests/config，output 需要另行审批。"))
+    ui_checkpoint("S0",task)
+    grant=change(task,"task_grant","授权修改 backend/frontend，保护 tests/config，output 需要另行审批。")
+    ui_checkpoint("S1_pending",task,grant["id"])
+    records["S1"]=review(task,grant)
     initial=records["S1"]["current"]["binding"]
     execution=wait_for(lambda:api(base)["execution"].get("executor",{}).get("pid"),20)
     old_token=credential(execution)
@@ -49,10 +68,14 @@ def run():
     records["S1_native_frontend_complete"]={"executor":before["execution"]["executor"],
         "frontend_hash":hashlib.sha256((workspace/"frontend/report.py").read_bytes()).hexdigest()}
     print(json.dumps({"stage":"S1_DSH_frontend_completed","task":task}),flush=True)
-    records["S2"]=review(task,change(task,"restrict","暂时只修改 backend，停止修改 frontend；保护 tests/config。"))
+    ui_checkpoint("S1",task)
+    restriction=change(task,"restrict","暂时只修改 backend，停止修改 frontend；保护 tests/config。")
+    ui_checkpoint("S2_pending",task,restriction["id"])
+    records["S2"]=review(task,restriction)
     assert records["S2"]["current"]["binding"]["domain_id"]==initial["domain_id"]
     held=[c for c in records["S2"]["current"]["verification"]["probe"]["checks"] if c["name"]=="frontend:existing-fd"]
     assert held and held[0]["passed"] and not held[0]["allowed"]
+    ui_checkpoint("S2",task)
     # Await DSH's own output request, rather than synthesizing it as a user request.
     def dsh_request():
         current=api(base)
@@ -77,14 +100,19 @@ def run():
         native=change(task,"expand","依据 DSH 的公开申请，在当前已确认 Scope 上重新分析："+native["input"]["text"])
     assert not api(base)["current"]["payload"]["allow_output"]
     assert not (workspace.parent/"output/report.md").exists()
+    ui_checkpoint("S3_pending",task,native["id"])
     rejected=review(task,native,"reject")
     assert rejected["current"]["id"]==records["S2"]["current"]["id"]
     records["S3_rejected"]=rejected
+    ui_checkpoint("S3_rejected",task,native["id"])
     # Explicit approval of a new output request after rejection.
-    records["S3"]=review(task,change(task,"expand","允许 output 写入报告，保留 backend-only 和 tests/config 限制。"))
+    expansion=change(task,"expand","允许 output 写入报告，保留 backend-only 和 tests/config 限制。")
+    ui_checkpoint("S3_retry_pending",task,expansion["id"])
+    records["S3"]=review(task,expansion)
     assert records["S3"]["current"]["binding"]["domain_id"]!=initial["domain_id"]
     assert records["S3"]["current"]["payload"]["allowed_write_dirs"]==["backend"]
     assert plugin(task,old_token)==401
+    ui_checkpoint("S3",task)
     wait_for(lambda:(workspace.parent/"output/report.md").is_file())
     wait_for(lambda:api(base)["execution"].get("executor",{}).get("state")=="absent")
     result=subprocess.run(["/usr/bin/python3","-B","-m","unittest","discover","-s","tests","-v"],cwd=workspace,capture_output=True,text=True)
@@ -100,6 +128,7 @@ def run():
     final_binding=observed["current"]["binding"]
     records["S4"]=api(base+"/close",{})
     assert not records["S4"]["effective"]
+    ui_checkpoint("S4",task)
     for key in ("runner_pid","watch_pid"):
         proc=Path("/proc")/str(final_binding[key])
         assert not proc.exists() or "\nState:\tZ" in (proc/"status").read_text()
@@ -113,6 +142,9 @@ def run():
     print(json.dumps({"task":task,"passed":True,"stages":["S0","S1","S2","S3","S4"],"functional_tests":3,"evidence":str(dest)}),flush=True)
 
 if __name__=="__main__":
+    parser=argparse.ArgumentParser()
+    parser.add_argument("--live-ui",action="store_true",help="Wait for host browser assertions at real stage checkpoints")
+    _live_ui=parser.parse_args().live_ui
     try: run()
     except Exception as error:
         if _task:

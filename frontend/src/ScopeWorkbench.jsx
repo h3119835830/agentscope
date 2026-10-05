@@ -97,7 +97,7 @@ export default function ScopeWorkbench({api,post,notify}) {
         {!visibleDeltas.length&&<div className="scope-empty"><span aria-hidden="true">✓</span><h3>{reviewed?'暂无已处理申请':'没有待处理申请'}</h3><p>{ended?'本次任务的权限申请均已处理。':snapshot?'需要调整权限时，提出新要求。':'先在当前权限页验证冷启动。'}</p>
           {ended&&!reviewed&&data.deltas.length>0&&<button className="scope-link" onClick={()=>setReviewed(true)}>查看已处理申请</button>}</div>}
         <div className="scope-requests">{visibleDeltas.map(d=>{const c=candidateState(d,data),proposal=d.proposal?.proposal,base=data.snapshots.find(s=>s.id===d.base_snapshot_id),diff=scopeDiff(base?.payload,proposal);
-          return <article className="scope-request-row" key={d.id}><div><h3>{kinds[d.kind]}</h3><p>{proposal?diff.length?diff.map(r=>r.resource+' '+r.before+' → '+r.after).join('；'):'文件权限不变':'正在准备权限候选'}</p></div>
+          return <article className="scope-request-row" data-delta-id={d.id} key={d.id}><div><h3>{kinds[d.kind]}</h3><p>{proposal?diff.length?diff.map(r=>r.resource+' '+r.before+' → '+r.after).join('；'):'文件权限不变':'正在准备权限候选'}</p></div>
             <Badge tone={c.label==='已核验生效'?'good':c.stale&&d.review_status==='pending'||c.label==='分析失败'?'warn':'neutral'}>{c.label}</Badge>
             <button className="scope-button" aria-label={kinds[d.kind]+'，查看申请'} onClick={e=>open({type:'delta',title:kinds[d.kind],id:d.id},e)}>{c.ready?'审核申请':'查看申请'}</button></article>;})}</div>
       </section>}
@@ -137,7 +137,7 @@ export default function ScopeWorkbench({api,post,notify}) {
           <PermissionTable scope={historical.payload}/><p className="scope-muted">运行资产中的原生插件、凭据与平台底线保持保护。</p>
           {historical.verification&&<p>{historical.verification.probe?.checks?.filter(c=>c.passed).length||0} 项文件探针通过；执行域已核验。</p>}<Evidence value={historical}/></>}
         {detail?.type==='task'&&data&&<><h3>这次任务</h3><p>修复 backend 的文本统计，完善 frontend 的摘要，运行现有测试并将报告写入任务专属 output。</p>
-          <dl className="scope-detail-fields"><dt>执行 Agent</dt><dd>DSH</dd><dt>策略候选</dt><dd>Pi</dd><dt>任务 ID</dt><dd>{task}</dd><dt>当前状态</dt><dd>{state.label}</dd></dl><Evidence value={{task:data.task,session:data.session,execution:data.execution}}/></>}
+          <dl className="scope-detail-fields"><dt>场景来源</dt><dd>自建 Python 标准库项目</dd><dt>执行 Agent</dt><dd>DSH</dd><dt>策略候选</dt><dd>Pi</dd><dt>权限核验</dt><dd>{snapshot?.verification?.passed&&snapshot?.verification?.root_owned_events?'实际执行域文件探针与内核事件':'尚未取得完整核验证据'}</dd><dt>任务 ID</dt><dd>{task}</dd><dt>当前状态</dt><dd>{state.label}</dd></dl><Evidence value={{task:data.task,session:data.session,execution:data.execution}}/></>}
         {detail?.type==='settings'&&<><dl className="scope-detail-fields"><dt>任务执行</dt><dd>DSH headless</dd><dt>策略分析</dt><dd>Pi</dd><dt>权限管理</dt><dd>ScopeManager</dd><dt>文件限制</dt><dd>Broker / ActPlane</dd><dt>运行环境</dt><dd>本机独立 Demo</dd></dl>
           <p className="scope-muted">开放报告目录需要重启 DSH，保存公开任务进展后继续执行。</p></>}
         {detail?.type==='event'&&<><p>{when(detail.value.occurred_at)}</p><p>{detail.value.source==='agent_report'?'以下内容由 Agent 自报，独立验收需另行核验。':detail.value.source==='kernel'?'此文件操作被内核限制，具体路径和进程绑定见技术证据。':'公开执行结果和控制服务记录。'}</p>

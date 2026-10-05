@@ -16,6 +16,7 @@ if(launch.status!==0)throw new Error('Could not create local browser session');
     const url=new URL(JSON.parse(launch.stdout.trim()).url);url.searchParams.set('task',task);
     await page.goto(url.toString());
     await page.getByRole('heading',{name:'结束前的权限',exact:true}).waitFor();
+    const realScope=await page.evaluate(async id=>await (await fetch('/api/tasks/'+id+'/scope-manager')).json(),task);
     assert.equal(await page.getByLabel('管理员口令',{exact:true}).count(),0);
     assert.equal(await page.evaluate(()=>sessionStorage.getItem('agentscopeAdminToken')),null);
     assert.equal(await page.evaluate(()=>location.hash),'');
@@ -25,6 +26,11 @@ if(launch.status!==0)throw new Error('Could not create local browser session');
     assert.equal(await page.locator('.sidebar').isVisible(),false);
     assert.equal(await page.getByRole('button',{name:'结束并撤销',exact:true}).count(),0);
     await page.screenshot({path:path.join(output,'scope-desktop.png'),fullPage:true});
+    await page.getByRole('button',{name:'任务详情',exact:true}).click();
+    await page.getByRole('dialog').waitFor({state:'visible'});
+    assert.ok((await page.getByRole('dialog').innerText()).includes('自建 Python 标准库项目'));
+    assert.ok((await page.getByRole('dialog').innerText()).includes('实际执行域文件探针与内核事件'));
+    await page.keyboard.press('Escape');
     await page.getByRole('button',{name:'任务授权，查看记录'}).click();
     const drawer=page.getByRole('dialog');
     await drawer.waitFor({state:'visible'});
@@ -36,7 +42,7 @@ if(launch.status!==0)throw new Error('Could not create local browser session');
     await page.getByRole('tab',{name:'当前权限',exact:true}).focus();await page.keyboard.press('ArrowRight');
     assert.equal(await page.getByRole('tab',{name:'变更审核',exact:true}).getAttribute('aria-selected'),'true');
     await page.getByRole('button',{name:'查看已处理申请',exact:true}).click();
-    assert.equal(await page.locator('.scope-request-row').count(),4);
+    assert.equal(await page.locator('.scope-request-row').count(),realScope.deltas.filter(d=>d.review_status!=='pending').length);
     await page.getByRole('button',{name:'开放报告目录，查看申请'}).first().click();
     await drawer.waitFor({state:'visible'});
     assert.equal(await drawer.getByRole('button',{name:'批准并应用'}).count(),0);
@@ -133,7 +139,7 @@ if(launch.status!==0)throw new Error('Could not create local browser session');
     }
     assert.equal(errors.length,0,errors.join(';'));
     const result={task,noPasswordEntry:'passed',httpOnlySession:'passed',desktop:'passed',narrow423:'passed',compactRecords:'passed',
-      historicalScope:'passed',endedCannotApprove:'passed',tabs:'passed',keyboard:'passed',drawerFocus:'passed',taskSwitchRefresh:'passed',
+      historicalScope:'passed',endedCannotApprove:'passed',taskSource:'passed',tabs:'passed',keyboard:'passed',drawerFocus:'passed',taskSwitchRefresh:'passed',
       fixtureReplay:replay.length?replay:'not run',pageErrors:errors};
     fs.writeFileSync(path.join(output,'scope-ui.json'),JSON.stringify(result,null,2));console.log(JSON.stringify(result));
   } finally {await browser.close();}

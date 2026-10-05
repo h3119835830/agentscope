@@ -82,3 +82,16 @@ sudo /opt/agentscope/.venv/bin/python scripts/scope_full_acceptance.py
 实例数据在 /var/lib/agentscope-scope-demo，合成任务在 /s，独立端口 18003。私有 UI 与模型 profile 不修改其他实例；共享 UI 从已验证基线 9d54f92 构建恢复，可通过 AGENTSCOPE_LEGACY_UI_REF 显式指定基线。
 
 网络权限动态更新、远程执行控制、自动历史晋升与通用任意目录授权不属于此版本；文件读访问隔离也未作强制覆盖声明。
+
+## 真实页面与执行同步验收
+
+新增 scope_live_ui_acceptance.cjs，启动完整执行驱动的 --live-ui 模式；在十个实际阶段检查点
+读取真实 API 并检查桌面/423px 页面，检查通过后仅让测试驱动继续。检查点通道与权限控制
+接口分离，不进入 Pi/DSH 上下文，不赋予页面测试或 Agent 审批权。测试驱动按用户授权的
+固定 Demo 范围扮演审核者，审核仍经基础版本/hash 和实际加载核验链。
+
+任务详情明确当前场景为自建 Python 项目及实际域探针/内核事件的证据来源；主界面继续
+只显示简短记录。历史 API 回放和真实运行分别记录，回放不能计入执行验收。
+
+数据集选择、版本/资产冻结、目录映射、外部评测器与指标分离合同见 BENCHMARKS.md。
+既有 RQ5 素材可验证启动策略；尚未接入本工作台的动态 Scope，不因素材存在而声明支持。

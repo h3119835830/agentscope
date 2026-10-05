@@ -80,3 +80,37 @@ frontend-design 已通过官方 skill-installer 安装到用户技能目录。�
 截图及 scope-ui.json 在技术文档 REVIEW/evidence/scope-demo-20261005/workbench-redesign。
 scope-pending-review.png 为历史数据回放画面，其余结束任务与任务切换画面读取真实服务。
 本轮没有重跑 S0—S4 内核执行，真实 enforcement 证据沿用前述 eada0606a5014c9d 验收。
+
+## 新一轮真实执行与页面验收
+
+用户要求真实验收后，新增并完成任务 2dd1a93efac64749；本项重新运行 Pi、DSH 与内核，
+没有浏览器 API 回放或注入。十个实际检查点覆盖冷启动、授权待审/生效、收紧待审/生效、
+扩权待审/拒绝/重新待审/生效、结束；待审保持旧 Scope，拒绝保持 backend-only，
+抽屉差异与操作状态符合真实 API。桌面及 423px、短记录、焦点返回均通过。
+
+|阶段|有效版本/执行域|独立文件探针|
+|---|---|---|
+|S0|v0 / 840160381|28 passed|
+|S1|v1 / 1459409443|29 passed|
+|S2|v2 / 1459409443|29 passed；已有 frontend FD 无法写入|
+|S3|v3 / 1295285617|28 passed；换执行域/进程代次且保护项保留|
+|S4|ended|凭据撤销，未撤销任务凭据为 0；新任务 5bdc3f77c3be4dfd 不继承|
+
+114 项探针全部通过，内核事件为 root 所有，四阶段 protected_integrity 全部为 true。
+DSH 实际修改摘要、恢复公开任务进展并生成 output/report.md；独立 unittest 3 passed，
+旧任务 token 返回 401。任务 commit 为 7f9ef91c6d4f37f62ff0c80ee0d1889a6a5a3f81，
+报告 hash 为 bb843cdf363ff185887da36bc1ce41698c3421d9184de614f8292fbe1f075728。
+
+完整后端 177 passed（5 项已有告警）；展示投影 12 passed；独立 Vite 37 模块构建与共享
+旧 UI 34 模块恢复通过。真实结束页另通过免口令、HttpOnly、票据清除、任务来源、
+键盘/抽屉、分页、切换真实待开始任务与刷新恢复验收；fixtureReplay=not run，pageErrors=[]。
+18000/18001/18002/18003 的 health 均为 200，无其他实例数据或普通业务代码改动。
+
+证据位于技术文档 REVIEW/evidence/scope-demo-20261005/live-workbench：
+scope-live-ui.json、scope-ui.json、scope-full.json、scope-execution-summary.json、scope-closure.json
+及各阶段真实截图。完整报告导出前检查未包含私有环境中的管理员/模型凭据值。
+审核由用户授权的固定范围测试驱动完成，不宣称这十个检查点由真人逐项点击审批。
+
+RQ5 预检验证 28 个源文件 hash 与现有映射后的评分器前置布局；原始素材布局不直接满足
+旧 evaluator，修正映射已在现有 adapter 中保留。预检不运行 Agent/内核，也未计算公共
+benchmark 分数。公开 RQ5 动态 Scope 适配与 SWE-bench 实例执行尚未完成，选择依据见 BENCHMARKS.md。

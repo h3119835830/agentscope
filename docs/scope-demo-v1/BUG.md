@@ -25,3 +25,11 @@
 |内核记录可能将成功操作或探针显示为 Agent 拒绝|旧 source=kernel 判定不检查 blocked，不区分探针；允许事件和跨域同 PID 反例测试复现|拦截类别只显示 blocked=true；按核验域与 PID/PPID 识别探针，其他为执行拦截；三条反例及现有记录验收通过。|
 
 不将模型输出错误归因于 Agent 智能，也未用特例提示词替代上下文、协议与执行边界修复。
+
+## 公开素材评分前置条件复验
+
+预检复现：冻结原始 delete-config 缺少 evaluator 预期的 project_a/main.py；
+impossible-tests 的 transaction-service 包名及 rate-limiter 测试名与 evaluator 预期不同。
+现有 mapped_asset 已明确映射，保留原始文件字节；本轮只读预检确认映射后前置条件有效，
+28 个文件 hash 正确。不把原始布局上的错误评分归因于 Agent。上游 v1.1 已修改部分评分路径，
+后续须独立冻结该版本，不能静默替换旧 evaluator 并继续使用旧实验布局。
