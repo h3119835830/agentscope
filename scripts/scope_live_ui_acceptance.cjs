@@ -64,6 +64,17 @@ const entrance=JSON.parse(ticket.stdout.trim()).url; // One-use ticket stays in 
       assert.equal(new URL(page.url()).hash,'');
       assert.equal(await page.locator('.sidebar').isVisible(),false);
       await permissions(state.current.payload);
+      await page.getByRole('button',{name:'DSH 连接详情',exact:true}).click();
+      const connection=page.getByRole('dialog');await connection.waitFor({state:'visible'});
+      const copy=await connection.innerText();
+      if(state.session.phase==='ended')assert.ok(copy.includes('任务已结束')&&!copy.includes('PID '));
+      else if(state.session.phase==='cold')assert.ok(copy.includes('DSH 尚未启动')&&!copy.includes('PID '));
+      else if(state.effective&&state.execution.executor?.state==='running'){
+        assert.ok(copy.includes('PID '+state.execution.executor.pid));assert.ok(copy.includes('DSH 进程运行中'));
+      }else assert.ok(!copy.includes('DSH 进程运行中'));
+      assert.ok(copy.includes('空闲期间没有独立心跳'));
+      await page.screenshot({path:path.join(output,stage+'-connection.png'),fullPage:true});
+      await page.keyboard.press('Escape');
       if(stage==='S4'){
         assert.equal(state.effective,false);
         assert.equal(state.session.phase,'ended');
@@ -115,7 +126,7 @@ const entrance=JSON.parse(ticket.stdout.trim()).url; // One-use ticket stays in 
       report.checkpoints.push({stage,revision:state.current.revision,snapshot:state.current.id,domain:state.current.binding.domain_id,
         processEpoch:state.session.process_epoch,gate:state.session.gate,effective:state.effective,
         delta:event.delta,probeChecks:state.current.verification.probe.checks.length,
-        actualKernelEvidence:true,desktop:'passed',narrow423:'passed',compactRecords:'passed'});
+        actualKernelEvidence:true,connectionEvidence:'passed',desktop:'passed',narrow423:'passed',compactRecords:'passed'});
       fs.writeFileSync(path.join(output,'scope-live-ui.json'),JSON.stringify(report,null,2));
       console.log(JSON.stringify({stage:'browser_checked',checkpoint:stage,task,revision:state.current.revision}));
     };

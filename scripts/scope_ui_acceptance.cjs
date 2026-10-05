@@ -25,12 +25,24 @@ if(launch.status!==0)throw new Error('Could not create local browser session');
     assert.equal(await page.locator('.scope-stages button.done').count(),5);
     assert.equal(await page.locator('.sidebar').isVisible(),false);
     assert.equal(await page.getByRole('button',{name:'结束并撤销',exact:true}).count(),0);
+    await page.getByText('执行后端可用',{exact:true}).waitFor();
     await page.screenshot({path:path.join(output,'scope-desktop.png'),fullPage:true});
     await page.getByRole('button',{name:'任务详情',exact:true}).click();
     await page.getByRole('dialog').waitFor({state:'visible'});
     assert.ok((await page.getByRole('dialog').innerText()).includes('自建 Python 标准库项目'));
     assert.ok((await page.getByRole('dialog').innerText()).includes('实际执行域文件探针与内核事件'));
     await page.keyboard.press('Escape');
+    await page.getByRole('button',{name:'DSH 连接详情',exact:true}).click();
+    await page.getByRole('dialog').waitFor({state:'visible'});
+    assert.ok((await page.getByRole('dialog').innerText()).includes('任务已结束'));
+    assert.ok((await page.getByRole('dialog').innerText()).includes('历史回传'));
+    assert.ok((await page.getByRole('dialog').innerText()).includes('空闲期间没有独立心跳'));
+    assert.ok(!(await page.getByRole('dialog').innerText()).includes('PID '));
+    await page.screenshot({path:path.join(output,'scope-connection.png'),fullPage:true});
+    await page.setViewportSize({width:423,height:900});
+    await page.screenshot({path:path.join(output,'scope-connection-423.png'),fullPage:true});
+    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+    await page.setViewportSize({width:1440,height:1000});await page.keyboard.press('Escape');
     await page.getByRole('button',{name:'任务授权，查看记录'}).click();
     const drawer=page.getByRole('dialog');
     await drawer.waitFor({state:'visible'});
@@ -75,6 +87,9 @@ if(launch.status!==0)throw new Error('Could not create local browser session');
     assert.equal(new URL(page.url()).searchParams.get('task'),prepared.id);
     assert.equal(await page.getByLabel('选择 Demo 任务').inputValue(),prepared.id);
     assert.equal(await page.locator('.scope-stages button.done').count(),0);
+    await page.getByRole('button',{name:'DSH 连接详情',exact:true}).click();await page.getByRole('dialog').waitFor({state:'visible'});
+    assert.ok((await page.getByRole('dialog').innerText()).includes('DSH 尚未启动'));
+    assert.ok(!(await page.getByRole('dialog').innerText()).includes('PID '));await page.keyboard.press('Escape');
     await page.getByLabel('选择 Demo 任务').selectOption(task);
     await page.getByRole('heading',{name:'结束前的权限',exact:true}).waitFor();
     await page.setViewportSize({width:423,height:900});
@@ -139,7 +154,7 @@ if(launch.status!==0)throw new Error('Could not create local browser session');
     }
     assert.equal(errors.length,0,errors.join(';'));
     const result={task,noPasswordEntry:'passed',httpOnlySession:'passed',desktop:'passed',narrow423:'passed',compactRecords:'passed',
-      historicalScope:'passed',endedCannotApprove:'passed',taskSource:'passed',tabs:'passed',keyboard:'passed',drawerFocus:'passed',taskSwitchRefresh:'passed',
+      historicalScope:'passed',endedCannotApprove:'passed',taskSource:'passed',connectionEvidence:'passed',tabs:'passed',keyboard:'passed',drawerFocus:'passed',taskSwitchRefresh:'passed',
       fixtureReplay:replay.length?replay:'not run',pageErrors:errors};
     fs.writeFileSync(path.join(output,'scope-ui.json'),JSON.stringify(result,null,2));console.log(JSON.stringify(result));
   } finally {await browser.close();}

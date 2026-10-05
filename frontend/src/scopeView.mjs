@@ -3,7 +3,7 @@ export const kinds = {task_grant:'开放任务目录', restrict:'收紧修改范
 export const stages = [
   {key:'cold',title:'默认只读',note:'仓库不可写'},
   {key:'grant',title:'任务授权',note:'开放修改目录'},
-  {key:'restrict',title:'执行收紧',note:'保留 backend'},
+  {key:'restrict',title:'按需收紧',note:'用户要求时进行',optional:true},
   {key:'expand',title:'报告扩权',note:'开放 output'},
   {key:'close',title:'结束撤销',note:'清理临时权限'},
 ];
@@ -64,7 +64,27 @@ export function executionState(data, disconnected=false) {
   if(data.session.apply_id) return {label:'正在应用权限',tone:'warn',hint:'应用与核验完成后更新当前权限。'};
   if(data.session.phase==='cold') return {label:'等待任务授权',tone:'neutral',hint:data.current?'冷启动已核验，可提出任务授权。':'先验证默认只读权限。'};
   if(!data.effective) return {label:'执行域待确认',tone:'warn',hint:'当前仅能查看最近核验的权限记录。'};
+  if(data.execution?.executor?.state==='absent') return {label:'DSH 已退出',tone:'neutral',hint:'DSH 进程已退出，执行域仍保留；可查看任务结果并结束任务。'};
+  if(data.execution?.executor?.state!=='running'||!Number.isInteger(data.execution.executor.pid)||data.execution.executor.pid<=0)
+    return {label:'DSH 状态待确认',tone:'warn',hint:'执行域已核验，尚未确认 DSH 进程状态。'};
   return {label:'执行中',tone:'good',hint:'Agent 正在当前权限内执行。'};
+}
+export function connectionEvidence(data, disconnected=false) {
+  const ended=data.session.phase==='ended',cold=data.session.phase==='cold';
+  const executor=data.execution?.executor;
+  const running=!ended&&!cold&&!disconnected&&data.effective&&executor?.state==='running'&&Number.isInteger(executor.pid)&&executor.pid>0;
+  const domain=running?data.execution.domain_id:null;
+  const latest=source=>data.events.filter(e=>e.source===source).sort((a,b)=>new Date(b.occurred_at)-new Date(a.occurred_at))[0]||null;
+  const tool=latest('tool_result'),delivery=latest('boundary_context_delivery'),kernel=latest('kernel');
+  const toolDomain=data.snapshots.find(s=>s.id===tool?.payload.scope_snapshot)?.binding?.domain_id;
+  const probe=kernel&&data.snapshots.some(s=>s.verification?.probe?.probe_pid&&s.verification.domain_id===kernel.payload.event?.domain_id&&
+    [kernel.payload.event?.pid,kernel.payload.event?.ppid].includes(s.verification.probe.probe_pid));
+  return {running,pid:running?executor.pid:null,domain,
+    label:ended?'任务已结束':disconnected?'状态需回查':cold?'DSH 尚未启动':running?'DSH 进程运行中':
+      executor?.state==='absent'?'DSH 已退出':'DSH 状态未确认',
+    tone:running?'good':ended||cold||executor?.state==='absent'?'neutral':'warn',
+    tool,toolInCurrentDomain:!!tool&&running&&toolDomain===domain,delivery,kernel,kernelSource:kernel?probe?'核验探针':'内核操作记录':null,
+    historyOnly:ended||!running,heartbeatSupported:false};
 }
 const recordNames={user_message:'用户更新任务要求',agent_request:'Agent 申请权限',boundary_pause:'落实收紧前暂停执行',
   checkpoint:'保存任务进展',agent_report:'Agent 提交公开报告',candidate:'生成权限候选',review:'审核权限候选',

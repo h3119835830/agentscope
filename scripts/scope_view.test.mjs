@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {candidateState,executionState,proposalSummary,recordsFor,scopeDiff,stageEvidence} from '../frontend/src/scopeView.mjs';
+import {candidateState,connectionEvidence,executionState,proposalSummary,recordsFor,scopeDiff,stageEvidence} from '../frontend/src/scopeView.mjs';
 const snapshot=(revision,dirs=[],output=false)=>({id:'s'+revision,revision,confirmed_at:'2026-10-05T10:00:0'+revision+'Z',payload:{allowed_write_dirs:dirs,allow_output:output}});
 const fixture=()=>({session:{phase:'running',gate:'open',active_snapshot_id:'s2',message_revision:2,process_epoch:'p1',apply_id:null},
   current:snapshot(2,['backend']),effective:true,snapshots:[snapshot(2,['backend']),snapshot(1,['backend','frontend']),snapshot(0)],
@@ -76,4 +76,34 @@ test('no_change uses the actual API decision enum and does not claim an agent re
   const c={kind:'expand',proposal:{proposal:{decision:'no_change'}}};
   assert.equal(proposalSummary(c).includes('重启'),false);
   assert.equal(proposalSummary(c).includes('文件权限保持不变'),true);
+});
+test('a live execution domain without a DSH process cannot imply agent activity',()=>{
+  const d=fixture();d.execution={status:'running',domain_id:7,executor:{state:'absent',pid:null}};
+  assert.equal(executionState(d).label,'DSH 已退出');
+  assert.equal(connectionEvidence(d).running,false);
+  d.session.phase='cold';assert.equal(connectionEvidence(d).label,'DSH 尚未启动');
+  d.session.phase='running';delete d.execution.executor;
+  assert.equal(executionState(d).label,'DSH 状态待确认');
+  assert.equal(connectionEvidence(d).running,false);
+});
+test('ended or disconnected scope ignores historical running binding and callback evidence',()=>{
+  const d=fixture();d.current.binding={domain_id:7,status:'running'};
+  d.execution={status:'running',domain_id:7,executor:{state:'running',pid:42}};
+  d.events=[{source:'tool_result',occurred_at:'2026-10-05T11:00:00Z',payload:{scope_snapshot:'s2'}}];
+  d.session.phase='ended';assert.equal(connectionEvidence(d).pid,null);assert.equal(connectionEvidence(d).historyOnly,true);
+  d.session.phase='running';assert.equal(connectionEvidence(d,true).running,false);
+  d.effective=false;assert.equal(connectionEvidence(d).running,false);
+});
+test('a running DSH and an old-generation callback remain separate facts',()=>{
+  const d=fixture();d.current.binding={domain_id:7};d.snapshots[0].binding={domain_id:7};d.snapshots[1].binding={domain_id:6};
+  d.execution={domain_id:7,executor:{state:'running',pid:42}};
+  d.events=[{source:'tool_result',occurred_at:'2026-10-05T11:00:00Z',payload:{scope_snapshot:'s1'}}];
+  let c=connectionEvidence(d);assert.equal(c.running,true);assert.equal(c.toolInCurrentDomain,false);assert.equal(c.heartbeatSupported,false);
+  d.events.push({source:'tool_result',occurred_at:'2026-10-05T11:01:00Z',payload:{scope_snapshot:'s2'}});
+  c=connectionEvidence(d);assert.equal(c.toolInCurrentDomain,true);assert.equal(c.tool.occurred_at,'2026-10-05T11:01:00Z');
+});
+test('connection evidence identifies kernel probes instead of asserting DSH tool execution',()=>{
+  const d=fixture();d.snapshots[0].verification={domain_id:7,probe:{probe_pid:42}};
+  d.events=[{source:'kernel',occurred_at:'2026-10-05T11:00:00Z',payload:{event:{domain_id:7,ppid:42}}}];
+  const c=connectionEvidence(d);assert.equal(c.kernelSource,'核验探针');assert.equal(c.tool,null);assert.equal(c.running,false);
 });
