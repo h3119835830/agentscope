@@ -51,3 +51,32 @@
 新增 10 项身份边界测试，完整后端回归 177 passed（5 项已有弃用告警）；Vite 构建通过。全新 Chrome 浏览器没有预置管理员口令，启动链接进入工作台、地址清除票据、HttpOnly 会话、刷新恢复、桌面/423px/键盘/弹窗焦点均通过，pageErrors 为空。证据在 REVIEW/evidence/scope-demo-20261005/browser-entry。本次只修改访问入口，S0—S4 文件执行证据沿用上述真实验收，不宣称重新运行内核流程。
 
 用户当前 Codex 浏览器已显示 eada0606a5014c9d 的任务工作台和完整权限记录。日后可再次运行 Open-ScopeDemo.cmd，自动建立新浏览器会话。
+
+## 工作台信息与视觉重做
+
+用户指出页面混乱、不简约，记录外侧文字太多。本轮重做任务标题、简约导航、真实五阶段路径、
+权限表、审核抽屉和分页记录；不更改权限管理后端或第三方 DSH。
+
+调研主来源：
+- Anthropic frontend-design：明确设计方向、对照需求、实现后截图评审。
+  https://github.com/anthropics/skills/tree/8a1541c4a3ffa5a20a5a91de0dcf3f0bab1d1ef4/skills/frontend-design
+- Impeccable distill：参考信息层级和渐进披露，未安装/运行其引擎或 hooks。
+  https://github.com/pbakaus/impeccable/blob/main/plugin/skills/impeccable/reference/distill.md
+- UI UX Pro Max：比较其设计系统与可检索规范；本轮采用前两者的轻量工作流，未引入其运行工具。
+  https://github.com/nextlevelbuilder/ui-ux-pro-max-skill
+
+frontend-design 已通过官方 skill-installer 安装到用户技能目录。技能辅助设计，不代表满意度保证；
+交付判断来自用户需求与实际页面验收。设计取舍、颜色/字体/布局和信息合同在 DESIGN.md。
+
+|本轮验收|结果|
+|---|---|
+|完整后端回归|177 passed，5 项原有弃用告警；未修改后端。|
+|权限展示投影|12 passed：批准不生成生效阶段、提前结束不补齐阶段、版本/消息/进程过期不能批准、并发应用不能再批准、失败不冒充生效、拒绝收紧仍等待、探针/Agent/自报区分、待落实收紧阻止扩权审核、no_change 不声明重启。|
+|实际服务页面|全新浏览器免口令进入；结束任务五阶段记录、六类权限、历史标签、结束不可审批、审核原始说明折叠、记录最多八条且长路径/JSON不外显通过。|
+|交互与窄屏|桌面/423px、记录分页/筛选、Escape焦点返回、页签方向键、切换真实待开始任务后刷新恢复通过；页面无横向溢出，pageErrors=[]。|
+|历史数据回放|用既有真实 S1/S2/S3 数据在浏览器测试中拦截 API 回放五项状态：提交要求绑定有效基础版本、扩权待审差异、过期不批准与澄清原文保留、拒绝后收紧仍等待、应用失败仅显示历史。回放未批准或改变任何真实权限。|
+|构建与隔离|独立 Demo Vite 37 模块；其他实例 UI 从既有基线 34 模块恢复。无新增前端依赖、模型特例提示词、普通业务代码改动。|
+
+截图及 scope-ui.json 在技术文档 REVIEW/evidence/scope-demo-20261005/workbench-redesign。
+scope-pending-review.png 为历史数据回放画面，其余结束任务与任务切换画面读取真实服务。
+本轮没有重跑 S0—S4 内核执行，真实 enforcement 证据沿用前述 eada0606a5014c9d 验收。

@@ -146,7 +146,7 @@ function App() {
 
   if (!authenticated) return <div className="auth-gate"><form className="auth-card" onSubmit={connect}><div className="brand-mark">A</div><p className="eyebrow">本地策略管控</p><h1>连接 AgentScope</h1><p>输入虚拟机本地配置的管理员口令。任务级 DSH 凭据不能执行审批操作。</p><label>管理员口令<input autoFocus type="password" value={loginToken} onChange={event=>setLoginToken(event.target.value)} placeholder="AGENTSCOPE_ADMIN_TOKEN" /></label>{loginError&&<div className="inline-notice warning">{loginError}</div>}<button className="button primary full" disabled={!loginToken.trim()}>解锁管控台</button></form></div>;
 
-  return <div className={`shell ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+  return <div className={`shell ${sidebarCollapsed ? 'sidebar-collapsed' : ''} ${page==='scope-demo'?'scope-demo-shell':''}`}>
     <aside className="sidebar">
       <div className="sidebar-header"><div className="brand"><div className="brand-mark">A</div><div className="brand-copy"><b>AgentScope</b><small>策略管控台</small></div></div><button className="sidebar-toggle" aria-label={sidebarCollapsed?'展开侧栏':'收起侧栏'} title={sidebarCollapsed?'展开侧栏':'收起侧栏'} aria-expanded={!sidebarCollapsed} aria-controls="workspace-navigation" onClick={()=>setSidebarCollapsed(value=>!value)}><span aria-hidden="true">{sidebarCollapsed?'›':'‹'}</span></button></div>
       <div className="side-label">工作区</div>
@@ -162,7 +162,7 @@ function App() {
       <div className="side-foot" title={`Linux VM · ${status?.architecture || '连接中'} · ActPlane 执行后端`}><span className={`pulse ${status?.bpf_lsm ? 'ok' : 'bad'}`} /><span className="side-foot-copy">Linux VM · {status?.architecture || '连接中'}<br/><span className="muted">ActPlane 执行后端</span></span></div>
     </aside>
     <main className="main">
-      <header className="topbar"><div><span className="crumb">AgentScope</span><span className="slash">/</span><b>{pageTitle(page)}</b></div><div className="top-right"><span className={`status-pill ${status?.broker?.available && status?.bpf_lsm ? 'good' : 'warn'}`}><i />{status?.broker?.available && status?.bpf_lsm ? '执行面已连接' : '执行面待检查'}</span>{developmentMode ? <span className="status-pill good">本地开发 · 免口令</span> : <button className="avatar" title="锁定管控台" onClick={lock}>锁</button>}</div></header>
+      <header className="topbar">{page==='scope-demo'?<nav className="scope-app-nav" aria-label="Demo 导航"><b className="scope-app-brand">AgentScope</b><button aria-current="page" onClick={()=>setPage('scope-demo')}>任务工作台</button><button onClick={()=>setPage('strategies')}>历史策略库</button></nav>:<div><span className="crumb">AgentScope</span><span className="slash">/</span><b>{pageTitle(page)}</b></div>}<div className="top-right"><span className={`status-pill ${status?.broker?.available && status?.bpf_lsm ? 'good' : 'warn'}`}><i />{status?.broker?.available && status?.bpf_lsm ? '执行面已连接' : '执行面待检查'}</span>{developmentMode ? <span className="status-pill good">本地开发 · 免口令</span> : <button className="avatar" aria-label="锁定管控台" title="锁定管控台" onClick={lock}>锁</button>}</div></header>
       {page === 'overview' && <Overview dash={dash} status={status} tasks={tasks} onSelect={selectTask} onNav={setPage} />}
       {page === 'scope-demo' && <ScopeWorkbench api={api} post={post} notify={notify} />}
       {page === 'strategies' && <HistoryLibrary moduleIndex={historyModuleIndex} modules={HISTORY_MODULES} onModuleChange={setHistoryModuleIndex} api={api} post={post} tasks={tasks} busy={busy} action={withBusy} notify={notify} selectTask={selectTask} />}
