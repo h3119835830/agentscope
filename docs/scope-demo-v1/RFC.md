@@ -59,7 +59,11 @@ DSH 使用 /api/plugin/tasks/{id}/scope-manager/ 下的 gate、changes、tool-re
 
 ## 工作台与运行
 
-访问 http://127.0.0.1:18003/?view=scope-demo，使用已有管理员口令。三个页签为当前权限、变更审核、执行记录；已处理变更按需展开，配置在弹窗，DSL/IR/hash/完整证据在详情。窄屏自动收起侧栏。
+本机通过 scripts/Open-ScopeDemo.cmd 一键打开工作台，不需要输入管理员口令。启动器由已有本机控制凭据换取 5 分钟内有效、仅能使用一次的链接；浏览器兑换为 8 小时有效的 HttpOnly、SameSite=Strict 会话，立即移除地址中的票据。管理员口令不进入浏览器存储，刷新继续使用浏览器会话。过期后再次使用启动器即可。
+
+该功能仅对显式设置 AGENTSCOPE_LOCAL_BROWSER_LOGIN=1 的本机实例启用；匿名访问、DSH/Pi 任务凭据及浏览器会话本身均不能签发启动票据。浏览器写操作须同源，Agent/生成 API 仍只接受绑定任务的凭据。没有全局关闭控制 API 身份检查。
+
+工作台地址为 http://127.0.0.1:18003/?view=scope-demo。三个页签为当前权限、变更审核、执行记录；已处理变更按需展开，配置在弹窗，DSL/IR/hash/完整证据在详情。窄屏自动收起侧栏。
 
 已准备的开发机使用 /opt/agentscope-history-v1、/opt/agentscope/.venv/bin/python 和已安装的 ActPlane/DSH/Pi。此运行脚本依赖该准备环境，属于隔离验收实例，非通用安装器。
 

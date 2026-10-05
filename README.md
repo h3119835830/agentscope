@@ -41,6 +41,10 @@ promotion remain outside this implementation.
 - [File Scope Demo contract and runbook](docs/scope-demo-v1/RFC.md), [decisions](docs/scope-demo-v1/ADR.md),
   [acceptance](docs/scope-demo-v1/REVIEW.md), and [reproduced defects](docs/scope-demo-v1/BUG.md)
 
+On the prepared Windows/WSL Demo host, run [Open-ScopeDemo.cmd](scripts/Open-ScopeDemo.cmd)
+to enter without typing an administrator password. A one-time local launch ticket
+creates a separate browser session; DSH/Pi credentials remain candidate-only.
+
 ## Deployment and reproducibility
 
 The reference installation guide targets Ubuntu 24.04 ARM64 in a Linux VM.

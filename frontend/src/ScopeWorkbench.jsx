@@ -10,7 +10,10 @@ const initialText={task_grant:'授权修改 backend 和 frontend，保护 tests/
 const when=t=>new Date(t).toLocaleString('zh-CN',{hour12:false});
 
 export default function ScopeWorkbench({api,post,notify}) {
-  const [task,setTask]=useState(()=>localStorage.getItem('scopeDemoTask')||'');
+  const [task,setTask]=useState(()=>{
+    const selected=new URLSearchParams(window.location.search).get('task')||'';
+    return /^[a-f0-9]{16}$/.test(selected)?selected:localStorage.getItem('scopeDemoTask')||'';
+  });
   const [tasks,setTasks]=useState([]);
   const [data,setData]=useState(null);
   const [tab,setTab]=useState('current');

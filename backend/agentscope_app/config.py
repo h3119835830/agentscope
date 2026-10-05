@@ -19,6 +19,7 @@ RUNTIME_DIR = Path(os.getenv("AGENTSCOPE_RUNTIME_DIR", "/run/agentscope"))
 ACTPLANE_COMPAT = os.getenv("ACTPLANE_COMPAT", "")
 ADMIN_TOKEN = os.getenv("AGENTSCOPE_ADMIN_TOKEN", "")
 DEV_NO_AUTH = os.getenv("AGENTSCOPE_DEV_NO_AUTH", "0") == "1"
+LOCAL_BROWSER_LOGIN = os.getenv("AGENTSCOPE_LOCAL_BROWSER_LOGIN", "0") == "1"
 PUBLIC_BASE_URL = os.getenv("AGENTSCOPE_PUBLIC_URL", "http://127.0.0.1:8000").rstrip("/")
 SERVICE_HOME = Path(os.getenv("AGENTSCOPE_SERVICE_HOME", STATE_DIR))
 EXEC_PATH = os.getenv("AGENTSCOPE_EXEC_PATH", f"{ACTPLANE_BIN.parent}:{DSH_BIN.parent}:/usr/local/bin:/usr/bin:/bin")

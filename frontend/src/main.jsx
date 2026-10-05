@@ -28,6 +28,7 @@ function App() {
   const [loginError,setLoginError]=useState('');
   const [authReady,setAuthReady]=useState(false);
   const [developmentMode,setDevelopmentMode]=useState(false);
+  const [localBrowserMode,setLocalBrowserMode]=useState(false);
   const [page, setPage] = useState(()=>['agent-bridge','scope-demo'].includes(new URLSearchParams(window.location.search).get('view'))?new URLSearchParams(window.location.search).get('view'):'overview');
   const [sidebarCollapsed,setSidebarCollapsed]=useState(()=>{
     try {
@@ -73,7 +74,10 @@ function App() {
       sessionStorage.removeItem('agentscopeAdminToken'); setLoginError(e.message || '管理员口令无效');
     }
   };
-  const lock = () => { sessionStorage.removeItem('agentscopeAdminToken'); setAuthenticated(false); };
+  const lock = async () => {
+    if(localBrowserMode)await post('/api/auth/local-browser-close');
+    sessionStorage.removeItem('agentscopeAdminToken');setLocalBrowserMode(false);setAuthenticated(false);
+  };
   const refresh = useCallback(async () => {
     if (!authenticated) return;
     try {
@@ -95,6 +99,12 @@ function App() {
     let active=true;
     (async()=>{
       try {
+        const ticket=new URLSearchParams(window.location.hash.slice(1)).get('local-launch');
+        if(ticket){
+          window.history.replaceState(null,'',window.location.pathname+window.location.search);
+          sessionStorage.removeItem('agentscopeAdminToken');
+          await post('/api/auth/local-browser-redeem',{ticket});
+        }
         const response=await fetch('/api/auth/mode');
         if (!response.ok) throw new Error(`连接失败 (${response.status})`);
         const mode=await response.json();
@@ -102,6 +112,9 @@ function App() {
         if (mode.development_no_password) {
           sessionStorage.removeItem('agentscopeAdminToken');
           setLoginToken('');setDevelopmentMode(true);setAuthenticated(true);
+        } else if(mode.local_browser_session){
+          sessionStorage.removeItem('agentscopeAdminToken');
+          setLoginToken('');setLocalBrowserMode(true);setAuthenticated(true);
         } else {
           const saved=sessionStorage.getItem('agentscopeAdminToken') || '';
           if (saved) {

@@ -16,6 +16,7 @@ from .history.provider import ActPlaneProvider
 from .bootstrap.api import router as bootstrap_router, approved_prompt
 from .bootstrap.validation import verify_version
 from . import development
+from . import local_browser
 from .agent_bridge.api import router as agent_bridge_router
 
 app=FastAPI(title="AgentScope",version="0.2.0")
@@ -26,6 +27,7 @@ app.include_router(agent_bridge_router)
 from .scope.api import router as scope_router
 from .scope.worker import worker as scope_worker
 app.include_router(scope_router)
+app.include_router(local_browser.router)
 
 @app.middleware("http")
 async def protect_control_api(request: Request, call_next):
@@ -37,12 +39,15 @@ async def protect_control_api(request: Request, call_next):
                 managed = con.execute("SELECT 1 FROM scope_sessions WHERE task_id=?", (pieces[3],)).fetchone()
             if managed:
                 return JSONResponse({"detail":"此任务由 ScopeManager 管理，请通过任务工作台提交和应用变更"}, status_code=409)
-    if not path.startswith("/api/") or path in ("/api/health","/api/auth/mode") or path.startswith("/api/plugin/") or path.startswith("/api/generator/tasks/") or path.startswith("/api/agent/tasks/"):
+    if not path.startswith("/api/") or path in ("/api/health","/api/auth/mode","/api/auth/local-browser-redeem") or path.startswith("/api/plugin/") or path.startswith("/api/generator/tasks/") or path.startswith("/api/agent/tasks/"):
         return await call_next(request)
     supplied=request.headers.get("authorization","")
     supplied=supplied[7:] if supplied.lower().startswith("bearer ") else ""
     scope_control = path.startswith("/api/scope-demo/") or (path.startswith("/api/tasks/") and "/scope-manager" in path)
-    if development.passwordless(request) and not supplied and not scope_control:
+    mint_browser_ticket = path == "/api/auth/local-browser-ticket"
+    if not supplied and not mint_browser_ticket and local_browser.authorized(request):
+        return await call_next(request)
+    if development.passwordless(request) and not supplied and not scope_control and not mint_browser_ticket:
         return await call_next(request)
     if len(ADMIN_TOKEN)<32 or ADMIN_TOKEN=="replace-with-a-random-secret":
         return JSONResponse({"detail":"管理员口令未配置；请设置 AGENTSCOPE_ADMIN_TOKEN"},status_code=503)
@@ -216,7 +221,9 @@ def auth_check(): return {"ok":True}
 @app.get('/api/auth/mode')
 def auth_mode(request:Request):
     no_password=development.passwordless(request)
-    return {'development_no_password':no_password,'authentication_required':not no_password}
+    browser_session = local_browser.authorized(request)
+    return {'development_no_password':no_password,'local_browser_session':browser_session,
+            'authentication_required':not (no_password or browser_session)}
 
 @app.get("/api/status")
 def status():

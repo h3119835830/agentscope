@@ -117,6 +117,8 @@ def init_db():
         con.executescript(AGENT_BRIDGE_SCHEMA)
         from .scope.schema import SCHEMA as SCOPE_SCHEMA
         con.executescript(SCOPE_SCHEMA)
+        from .local_browser import SCHEMA as LOCAL_BROWSER_SCHEMA
+        con.executescript(LOCAL_BROWSER_SCHEMA)
         con.execute("INSERT OR REPLACE INTO meta(key,value) VALUES('history_schema_version','1')")
 
 def row_dict(row):
