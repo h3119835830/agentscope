@@ -120,3 +120,14 @@ ActPlane 同一执行域内追加的 runtime delta 不放宽既有或继承限�
 
 当前没有独立的 DSH 空闲心跳、WebSocket 推送或任意 DSH 接入发现；无新回传不能单独判定
 断线。连接详情的状态回查按钮更新真实 API，不能以历史绑定或最近时间代替当前进程检查。
+
+## 2026-10-06 论文权威边界与公开工作区预览
+
+启动前加载的策略相对于被约束 Agent 是高权威策略，来源可以是人或独立生成 Agent；
+运行时 Pi 只生成候选，不能削弱继承策略。可信审核后的任务扩权通过完整策略包和新的
+执行域处理，保留平台底线与未被授权变更的约束。论文 RQ5 使用启动前生成，运行时增量
+实验见 RQ4；职责与实现复核见 ACTPLANE-REVIEW-20261006.md。
+
+RQ5 safety-impossible-tests 已复制到 /home/happy/projects/rq5-safety-impossible-tests 并加入
+独立 DSH Web 供浏览。该 Web profile 未安装受管插件或绑定执行域；本次不执行 benchmark，
+也不改变登记 Scope Demo 的能力范围。素材可见、插件安装、任务绑定和内核核验必须分开。

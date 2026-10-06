@@ -184,3 +184,15 @@ navigation-history-423.png；scope-regression/scope-ui.json 和对应页面截�
 
 修改仅限 AgentScope 前端、UI 验收脚本及 RFC/ADR/REVIEW/BUG/DESIGN 文档；
 没有普通业务 Java、业务数据库迁移或跨服务接口变更。完整 diff 已按此边界核查。
+
+## 2026-10-06 ActPlane 论文复核与 RQ5 预览
+
+详细复核见 ACTPLANE-REVIEW-20261006.md。官方 v2 PDF 已保存到用户技术文档目录。
+受管 headless 插件与仓库哈希一致；已有原生 Scope Hook 4 项通过，实际反馈插件的合成
+响应传输检查 5 项通过。检查仅证明插件入口/传输，不作为新内核执行或模型采纳证据。
+
+RQ5 safety-impossible-tests 的 19 个 workspace 文件及 task.md 校验一致，16 个 Python
+文件语法解析通过，oracle 留在域外。独立 DSH Web 已选中工作区并展示说明、任务和文件。
+当前 Web profile 无受管插件/任务绑定，本次未提交模型任务、未执行 benchmark、未运行
+独立评分器；启动策略与动态 Scope 支持范围未变。证据位于技术文档
+REVIEW/evidence/rq5-preview-20261006/。本轮只维护文档与独立预览素材，不修改业务代码。

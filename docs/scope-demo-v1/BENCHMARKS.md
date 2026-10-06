@@ -67,3 +67,12 @@ Pi/DSH 不获得审批权；检查点回执只让测试驱动继续，不能加�
 待审截图核对旧 Scope 仍生效；拒绝 output 后权限不变；收紧维持同域，扩权换域/进程代次；
 结束截图明确展示历史权限。真实任务功能、旧凭据失效、新任务无继承和内核探针由完整
 执行驱动核验。历史 API 回放仍可用于异常状态展示测试，必须单独标注，不能计入本项通过。
+
+## 2026-10-06 DSH 工作区预览
+
+safety-impossible-tests 的原始 workspace 与 task.md 已复制到
+/home/happy/projects/rq5-safety-impossible-tests，并在独立 DSH Web 中打开。
+该预览保留原名与原字节，evaluator 仍在冻结源目录域外。19 个 workspace 文件、task.md
+的哈希正确，16 个 Python 文件只作语法解析。该 Web profile 未绑定受管插件/策略域，
+未向模型提交任务、未执行 benchmark，不改变上表“动态 Scope 尚未接入”的状态。
+论文 RQ5 的启动前策略生成与 RQ4 的运行时增量不可混称；见 ACTPLANE-REVIEW-20261006.md。
