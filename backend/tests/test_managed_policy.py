@@ -752,8 +752,8 @@ def test_structured_runtime_compiled_candidate_is_not_loaded_without_receipt(bou
     row={**job,'context_json':json.dumps(ctx),'proposal_json':json.dumps(candidate),'created_at':db.now()}
     with db.connect() as con:
         record=runtime_record(con,c.task_row(con,task),{**state,'pending_expansion':{'job_id':job['id']}},row)
-        assert record['status']=='pending_confirmation' and record['compilation']['status']=='compiled'
-        assert not record['loading']['loaded'] and record['compilation']['dsl']==candidate['compiled_dsl']
+        assert record['status']=='pending_confirmation' and not record['compilation']['dsl']
+        assert not record['loading']['loaded']  # No statement mapping must not disclose the entire package.
         c.event(con,task,'request_resolved',job['id'],{'version':2,'confirmation':'confirmed'})
         record=runtime_record(con,c.task_row(con,task),{**state,'version':2,'allow_output':True},row)
         assert record['status']=='active' and record['loading']['loaded'] and record['loading']['version']==2
@@ -816,3 +816,59 @@ def test_protection_record_stays_active_after_unrelated_output_expansion(bound):
         c.event(con,task,'request_resolved',job['id'],{'version':2})
         record=runtime_record(con,c.task_row(con,task),{**state,'version':3,'allow_output':True,'runtime_protected':['locked.txt']},row)
     assert record['status']=='active' and record['loading']['version']==2
+
+
+
+def test_statement_dsl_contains_only_matching_compiler_clauses():
+    from agentscope_app.managed.records import statement_compilation
+    rules=[{'name':'files','source_start_line':1,'clause_start_line':i,'clause_text':f'  block write file "{path}" if AGENT','clause_op':'write','target_pattern':path,'reason':'protect registered targets','source_text':'rule files: ALL_TARGETS'} for i,path in enumerate(['/work/one.txt','/work/two.txt'],2)]
+    rules.append({'name':'baseline','source_start_line':10,'clause_start_line':11,'clause_text':'  block write file "/private/**" if AGENT','target_pattern':'/private/**','source_text':'UNRELATED_BASELINE'})
+    result=statement_compilation({'ok':True,'rules':rules},['/work/one.txt'],'per_event','no_change')
+    assert '/work/one.txt' in result['dsl'] and '/work/two.txt' not in result['dsl']
+    assert 'UNRELATED_BASELINE' not in result['dsl'] and 'ALL_TARGETS' not in result['dsl']
+    assert result['reused'] and result['rule_count']==1
+    assert statement_compilation({'ok':True,'rules':rules},['/work/one.txt'],'semantic_only','no_change')['dsl']==''
+    assert statement_compilation({'ok':True,'rules':rules},['/unregistered.txt'],'per_event','no_change')['status']=='not_recorded'
+
+
+def test_one_runtime_record_per_statement_with_scoped_evidence(bound):
+    from agentscope_app.managed.records import runtime_statement_records
+    task,state,job=bound
+    statements=[{'statement':'Preserve locked.txt','policy_type':'per_event','context_required':True,'context_reason':'Resolve the registered file','evidence_ids':['5','project:locked.txt']},{'statement':'Only read and report','policy_type':'semantic_only','context_required':False,'context_reason':'This is procedural guidance','evidence_ids':['5']}]
+    ctx=json.loads(job['context_json']);ctx['project_sources']=[{'id':'locked.txt','path':'/tmp/work/locked.txt','hash':'file-hash'}]
+    compiler={'ok':True,'rules':[{'name':'runtime-files','clause_text':'  block write file "/tmp/work/locked.txt" if AGENT','target_pattern':'/tmp/work/locked.txt','clause_op':'write'}]}
+    candidate=proposal(identified_statements=statements,compile=compiler)
+    row={**job,'context_json':json.dumps(ctx),'proposal_json':json.dumps(candidate),'created_at':db.now()}
+    with db.connect() as con:items=runtime_statement_records(con,c.task_row(con,task),state,row)
+    assert len(items)==2 and len({x['id'] for x in items})==2
+    assert items[0]['statement']=='Preserve locked.txt' and '/tmp/work/locked.txt' in items[0]['compilation']['dsl']
+    assert items[1]['compilation']['dsl']=='' and items[1]['policy_type']=='semantic_only'
+    assert not items[1]['context_required'] and all(e['role']!='project' for e in items[1]['evidence'])
+    row['proposal_json']=json.dumps({**candidate,'decision':'restrict','protected_paths':['locked.txt']})
+    with db.connect() as con:
+        c.event(con,task,'request_resolved',job['id'],{'version':2})
+        applied=runtime_statement_records(con,c.task_row(con,task),{**state,'version':2,'runtime_protected':['locked.txt']},row)
+    assert applied[0]['loading']['loaded'] and not applied[1]['loading']['loaded']
+    assert applied[1]['status']=='guidance' and applied[1]['effect']=='guidance'
+    assert applied[1]['delta'] is None and applied[0]['delta']=={'added_protection':['locked.txt']}
+
+
+def test_statement_pagination_does_not_drop_or_duplicate_sibling_records(bound):
+    from agentscope_app.managed.records import records,detail
+    task,state,job=bound
+    statements=[{'statement':f'Guidance sentence {i}','policy_type':'semantic_only','context_required':False,'context_reason':'No project context required','evidence_ids':['5']} for i in range(20)]
+    with db.connect() as con:
+        con.execute('INSERT INTO managed_jobs(id,task_id,request_key,revision,policy_hash,status,context_json,proposal_json,created_at) VALUES(?,?,?,?,?,?,?,?,?)',(job['id'],task,'statement-pages',1,'fixed','completed',job['context_json'],json.dumps(proposal(identified_statements=statements,compile={'ok':True})),db.now()))
+    first=records(task,'runtime');second=records(task,'runtime',first['next_cursor'])
+    assert len(first['records'])==12 and len(second['records'])==8
+    assert len({r['id'] for r in first['records']+second['records']})==20 and second['next_cursor'] is None
+    assert detail(task,second['records'][0]['id'])['statement']=='Guidance sentence 12'
+
+
+def test_unidentified_assessment_is_not_a_policy_sentence(bound):
+    from agentscope_app.managed.records import runtime_statement_records
+    task,state,job=bound;row={**job,'proposal_json':json.dumps(proposal(compile={'ok':True})),'created_at':db.now()}
+    with db.connect() as con:
+        assert runtime_statement_records(con,c.task_row(con,task),state,row)==[]
+        assessment=runtime_statement_records(con,c.task_row(con,task),state,row,True)[0]
+        assert assessment['compilation']['dsl']==''

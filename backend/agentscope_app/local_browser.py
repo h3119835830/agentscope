@@ -85,6 +85,7 @@ def close(request: Request):
     value = request.cookies.get(COOKIE, "")
     with db.connect() as con:
         con.execute("UPDATE local_browser_access SET used_at=? WHERE hash=? AND kind='session'", (time.time(), digest(value)))
+        db.audit(con, None, "local_browser_locked", "local_operator", {"reason":"explicit_control_lock"})
     response = JSONResponse({"ok": True})
     response.delete_cookie(COOKIE, path="/api", httponly=True, samesite="strict")
     return response

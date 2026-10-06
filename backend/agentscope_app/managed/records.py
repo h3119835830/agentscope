@@ -2,7 +2,7 @@
 
 These views never authorize a candidate and never read a native private stream.
 """
-import hashlib,json
+import hashlib,json,re
 from . import controller as c
 from .. import db
 
@@ -100,36 +100,129 @@ def runtime_record(con,task,s,row):
         # clauses for changed targets and explicitly label the provenance.
         quotes=[b['quote'] for target in delta['added_protection'] for b in ctx.get('capabilities',{}).get('authorized_protection_targets',{}).get(target,[]) if b['request_id'] in p.get('evidence_ids',[])]
         statements=[{'statement':q,'context_required':True,'context_reason':'已读取项目来源确定实际保护对象','policy_type':'per_event','evidence_ids':p.get('evidence_ids',[]),'origin':'authenticated_target_clause'} for q in dict.fromkeys(quotes)]
-    text=statements[0]['statement'] if statements else source.get('text') if actor in ('native_user','user') else None
+    text=statements[0]['statement'] if statements else source.get('text') if actor in ('native_user','user','administrator') else None
     if not text:text={'no_change':'本轮上下文无需调整 OS 策略','guidance_only':'本轮更新任务指导，保持 OS 策略','expand':'任务执行权限扩展候选','restrict':'任务执行权限收紧候选'}.get(decision,'Pi 正在评估')
     comp=p.get('compile',{});full=p.get('compiled_dsl')
     if full and p.get('compiled_dsl_hash')!=digest(full):raise ValueError('Persisted compiled DSL hash mismatch')
-    dsl=full if full else clean_dsl(comp)
-    return {'id':'runtime:'+row['id'],'stage':'runtime','statement':text,'identified_statements':statements,'policy_type':'per_event' if decision in ('restrict','expand') else 'semantic_only' if decision=='guidance_only' else 'assessment','effect':decision,'context_required':True,'context_scope':'task','context_reason':'评估冻结任务、现行策略、运行上下文与已读取项目证据','classification_origin':'validated_snapshot_delta; historical_source_clause_when_available','status':status,'created_at':row['created_at'],'trigger':trigger,'evidence':ev,'explanation':p.get('explanation'),'delta':delta,'targets':delta['added_protection']+delta['removed_protection'],'operations':['write','unlink'] if decision in ('restrict','expand') else [],'compilation':{**compilation(comp,dsl,'submitted_compiled_bundle' if full else 'compiler_rule_sources_reconstructed; original_bundle_not_recorded'),'has_new_os_rule':decision in ('restrict','expand')},'loading':{'loaded':applied,'version':receipt.get('version'),'confirmation':receipt.get('confirmation'),'session_id':s.get('session_id'),'candidate_hash':p.get('hash'),'baseline_hash':ctx.get('baseline',{}).get('hash')}}
+    # Keep full-bundle integrity verification internal. A record never exports it.
+    scoped=compilation({},'', 'assessment_no_rule')
+    scoped.update(status='not_applicable',message='这是评估记录，没有逐句登记的 OS 规则。',has_new_os_rule=False)
+    return {'id':'runtime:'+row['id'],'stage':'runtime','statement':text,'identified_statements':statements,'policy_type':'per_event' if decision in ('restrict','expand') else 'semantic_only' if decision=='guidance_only' else 'assessment','effect':decision,'context_required':True,'context_scope':'task','context_reason':'评估冻结任务、现行策略、运行上下文与已读取项目证据','classification_origin':'validated_snapshot_delta; historical_source_clause_when_available','status':status,'created_at':row['created_at'],'trigger':trigger,'evidence':ev,'explanation':p.get('explanation'),'delta':delta,'targets':delta['added_protection']+delta['removed_protection'],'operations':['write','unlink'] if decision in ('restrict','expand') else [],'compilation':scoped,'loading':{'loaded':applied,'version':receipt.get('version'),'confirmation':receipt.get('confirmation'),'session_id':s.get('session_id'),'candidate_hash':p.get('hash'),'baseline_hash':ctx.get('baseline',{}).get('hash')}}
+
+def mentions(text,path):
+    # Match an actual registered path token, not a filename suffix or another file.
+    return bool(re.search(r'(?<![A-Za-z0-9_./-])'+re.escape(path)+r'(?![A-Za-z0-9_./-])',text))
+
+
+def statement_targets(statement,parent,ctx,task):
+    if statement.get('policy_type')=='semantic_only':return []
+    text=statement['statement'];ids=set(statement.get('evidence_ids',[]));targets=set()
+    for source in ctx.get('project_sources',[]):
+        if 'project:'+source['id'] in ids and mentions(text,source['id']):targets.add(source['path'])
+    for path,receipts in ctx.get('capabilities',{}).get('authorized_protection_targets',{}).items():
+        if any(r['request_id'] in ids and (r['quote']==text or mentions(text,path)) for r in receipts):targets.add(task['workspace']+'/'+path)
+    for path in parent['delta']['added_protection']+parent['delta']['removed_protection']:
+        if mentions(text,path):targets.add(task['workspace']+'/'+path)
+    if statement.get('origin')=='authenticated_delta_request':
+        if parent['delta']['output_before']!=parent['delta']['output_after']:targets.add(task['output_dir']+'/**')
+        if parent['delta']['write_scope_before']!=parent['delta']['write_scope_after']:targets.add(task['workspace']+'/**')
+    return sorted(targets)
+
+
+def statement_compilation(compiler,targets,policy_type,decision):
+    if policy_type=='semantic_only':return {'status':'not_applicable','dsl':'','origin':'semantic_guidance','message':'该语句属于语义指导，不生成 OS DSL。','has_new_os_rule':False}
+    matched=[r for r in compiler.get('rules',[]) if r.get('target_pattern') in targets and r.get('clause_text')]
+    groups={}
+    for rule in matched:
+        key=(rule.get('source_start_line',0),rule['name']);group=groups.setdefault(key,{'clauses':{},'reason':rule.get('reason')})
+        group['clauses'][rule.get('clause_start_line',0)]=rule['clause_text']
+    fragments=[]
+    for key in sorted(groups):
+        group=groups[key];lines=['rule '+key[1]+':']+[group['clauses'][line] for line in sorted(group['clauses'])]
+        if group['reason']:lines.append('  because '+c.quote_dsl(group['reason']))
+        fragments.append('\n'.join(lines))
+    dsl='\n\n'.join(fragments)
+    if dsl:
+        return {'status':'compiled' if compiler.get('ok') is True else 'not_verified','dsl':dsl,'dsl_hash':digest(dsl),'origin':'statement_compiler_clauses','rule_count':len(matched),'reused':decision in ('no_change','guidance_only'),'has_new_os_rule':decision in ('restrict','expand'),'clause_refs':[{'name':r['name'],'target':r['target_pattern'],'clause_start_line':r.get('clause_start_line'),'clause_hash':r.get('clause_hash')} for r in matched]}
+    permission=decision=='expand' and bool(targets)
+    return {'status':'not_applicable' if permission else 'not_recorded','dsl':'','origin':'permission_update' if permission else 'unmapped_statement','has_new_os_rule':False,'message':'该语句对应权限授予或解除限制，没有新增拒绝 DSL。' if permission else '未登记该语句与编译子句的可靠关联，不展示其他策略。'}
+
+
+def runtime_statement_records(con,task,state,row,include_assessments=False):
+    parent=runtime_record(con,task,state,row);ctx=decode(row,'context_json');proposal=decode(row,'proposal_json')
+    statements=parent['identified_statements']
+    if not statements and parent['effect'] in ('restrict','expand'):
+        source=next((x.get('content',{}) for x in ctx.get('sources',[]) if x['evidence_id']==ctx.get('request_evidence_id')),{})
+        if source.get('actor') in ('native_user','user','administrator') and source.get('text'):
+            statements=[{'statement':source['text'],'policy_type':'per_event','context_required':True,'context_reason':'历史认证请求与实际权限增量关联，未追补 Pi 逐句识别。','evidence_ids':proposal.get('evidence_ids',[]),'origin':'authenticated_delta_request'}]
+    if not statements:return [parent] if include_assessments else []
+    result=[]
+    for i,statement in enumerate(statements):
+        targets=statement_targets(statement,parent,ctx,task)
+        compiled=statement_compilation(proposal.get('compile',{}),targets,statement['policy_type'],parent['effect'])
+        evidence_ids=set(statement.get('evidence_ids',[]))
+        semantic=statement['policy_type']=='semantic_only'
+        delta={}
+        if not semantic:
+            for field in ('added_protection','removed_protection'):
+                relevant=[path for path in parent['delta'][field] if task['workspace']+'/'+path in targets]
+                if relevant:delta[field]=relevant
+            if task['output_dir']+'/**' in targets and parent['delta']['output_before']!=parent['delta']['output_after']:
+                delta.update(output_before=parent['delta']['output_before'],output_after=parent['delta']['output_after'])
+            if task['workspace']+'/**' in targets and parent['delta']['write_scope_before']!=parent['delta']['write_scope_after']:
+                delta.update(write_scope_before=parent['delta']['write_scope_before'],write_scope_after=parent['delta']['write_scope_after'])
+        loading={**parent['loading'],'loaded':parent['loading']['loaded'] and (bool(compiled['dsl']) or compiled['origin']=='permission_update')}
+        status='guidance' if semantic else 'unmapped' if compiled['status']=='not_recorded' and parent['status'] in ('active','partially_active') else parent['status']
+        result.append({**parent,'effect':'guidance' if semantic else parent['effect'],'status':status,'loading':loading,'delta':delta or None,'id':parent['id']+':statement:'+str(i),'statement':statement['statement'],'policy_type':statement['policy_type'],'context_required':statement['context_required'],'context_reason':statement['context_reason'],'classification_origin':statement.get('origin','pi_statement'),'targets':targets,'operations':sorted({r.get('clause_op') for r in proposal.get('compile',{}).get('rules',[]) if r.get('target_pattern') in targets and r.get('clause_op')}) if compiled['dsl'] else [],'identified_statements':[],'evidence':[e for e in parent['evidence'] if e['id'] in evidence_ids],'compilation':compiled})
+    return result
+
 
 def records(task_id,stage='startup',before=None,include_assessments=False):
     with db.connect() as con:
-        s=c.load(con,task_id);task=c.task_row(con,task_id)
-        if stage=='startup':items=startup_records(con,task,s);cursor=None
+        state=c.load(con,task_id);task=c.task_row(con,task_id)
+        if stage=='startup':items=startup_records(con,task,state);cursor=None
         else:
-            predicate="task_id=? AND proposal_json IS NOT NULL AND status='completed'";args=[task_id]
-            if not include_assessments:predicate+=" AND json_extract(proposal_json,'$.decision') IN ('restrict','expand','guidance_only')"
-            if before:predicate+=' AND rowid<?';args.append(before)
-            rows=con.execute('SELECT rowid AS cursor,* FROM managed_jobs WHERE '+predicate+' ORDER BY rowid DESC LIMIT 13',args).fetchall();items=[runtime_record(con,task,s,row) for row in rows[:12]];cursor=rows[11]['cursor'] if len(rows)>12 else None
+            boundary=None;offset=-1
+            if before is not None:
+                parts=str(before).split(':')
+                if not all(p.isdigit() for p in parts) or len(parts)>2:raise ValueError('Invalid record cursor')
+                boundary=int(parts[0]);offset=int(parts[1]) if len(parts)>1 else 10**6
+            items=[];cursors=[];first=True
+            while len(items)<13:
+                predicate="task_id=? AND proposal_json IS NOT NULL AND status='completed'";args=[task_id]
+                if boundary is not None:predicate+=' AND rowid<=?';args.append(boundary)
+                rows=con.execute('SELECT rowid AS cursor,* FROM managed_jobs WHERE '+predicate+' ORDER BY rowid DESC LIMIT 32',args).fetchall()
+                if not rows:break
+                for row in rows:
+                    children=runtime_statement_records(con,task,state,row,include_assessments)
+                    for index,item in enumerate(children):
+                        if first and row['cursor']==boundary and index<=offset:continue
+                        items.append(item);cursors.append(str(row['cursor'])+':'+str(index))
+                        if len(items)==13:break
+                    if len(items)==13:break
+                if len(items)==13:break
+                boundary=rows[-1]['cursor']-1;first=False
+            cursor=cursors[11] if len(items)>12 else None;items=items[:12]
         compact=[{k:v for k,v in record.items() if k not in ('evidence','explanation','compilation','loading','delta','identified_statements')}|{'compile_status':record['compilation']['status'],'loaded':record['loading'].get('loaded',False),'version':record['loading'].get('version')} for record in items]
         counts={r[0]:r[1] for r in con.execute("SELECT json_extract(proposal_json,'$.decision'),count(*) FROM managed_jobs WHERE task_id=? AND status='completed' AND proposal_json IS NOT NULL GROUP BY json_extract(proposal_json,'$.decision')",(task_id,))}
     return {'stage':stage,'records':compact,'next_cursor':cursor,'counts':counts,'hook':HOOKS[stage]}
 
+
 def detail(task_id,record_id):
     with db.connect() as con:
-        s=c.load(con,task_id);task=c.task_row(con,task_id)
+        state=c.load(con,task_id);task=c.task_row(con,task_id)
         if record_id.startswith('startup:'):
-            record=next((r for r in startup_records(con,task,s) if r['id']==record_id),None)
+            record=next((r for r in startup_records(con,task,state) if r['id']==record_id),None)
         elif record_id.startswith('runtime:'):
-            row=con.execute('SELECT * FROM managed_jobs WHERE task_id=? AND id=? AND proposal_json IS NOT NULL',(task_id,record_id[8:])).fetchone();record=runtime_record(con,task,s,row) if row else None
+            job_id=record_id[8:].split(':statement:')[0]
+            row=con.execute('SELECT * FROM managed_jobs WHERE task_id=? AND id=? AND proposal_json IS NOT NULL',(task_id,job_id)).fetchone()
+            children=runtime_statement_records(con,task,state,row,True) if row else []
+            record=next((r for r in children if r['id']==record_id),None)
+            if row and record_id=='runtime:'+job_id:record=children[0] if len(children)==1 else runtime_record(con,task,state,row)
         else:record=None
     if not record:raise ValueError('策略记录不属于当前任务')
     return record
+
 
 def execution_audit(task_id,category='os',before=None):
     kinds={'os':('kernel','operation_verified'),'tools':('tool_start','tool_result'),'control':('control_pause','failure','feedback_delivery','policy_active','closed')}

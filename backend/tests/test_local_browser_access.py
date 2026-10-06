@@ -90,3 +90,15 @@ def test_launcher_is_local_and_opt_in(monkeypatch,peer,enabled):
     monkeypatch.setattr(local_browser,"LOCAL_BROWSER_LOGIN",enabled)
     with TestClient(main.app,base_url=BASE,client=(peer,52000)) as client:
         assert client.post("/api/auth/local-browser-ticket",headers=ADMIN,json={}).status_code==403
+
+
+
+def test_control_lock_is_audited_and_restart_keeps_unrevoked_browser_session(browser):
+    connect(browser)
+    db.init_db()  # The session is persistent state, not an API process-local cache.
+    assert browser.get('/api/auth/check').status_code==200
+    response=browser.post('/api/auth/local-browser-close',headers=ORIGIN,json={})
+    assert response.status_code==200 and browser.get('/api/auth/check').status_code==401
+    with db.connect() as con:
+        row=con.execute("SELECT actor,details_json FROM audit_log WHERE action='local_browser_locked' ORDER BY created_at DESC LIMIT 1").fetchone()
+    assert row['actor']=='local_operator' and 'explicit_control_lock' in row['details_json']

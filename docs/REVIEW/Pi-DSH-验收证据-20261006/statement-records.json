@@ -1,0 +1,77 @@
+{
+  "schema": "StatementRecordAcceptance/1",
+  "task": "d5e21e674b464d16",
+  "backend_tests": 261,
+  "frontend_build": "index-ClERrAiG.js",
+  "records": [
+    {
+      "id": "runtime:1761cfbeed424e9eb9ca93dadc060db8:statement:0",
+      "statement": "继续保留 acceptance.txt，不得修改或删除。",
+      "policy_type": "per_event",
+      "compilation": {
+        "status": "compiled",
+        "dsl": "rule runtime-file-protection:\n  block write file \"/s/d5e21e674b464d16/r/acceptance.txt\" if AGENT\n  block unlink file \"/s/d5e21e674b464d16/r/acceptance.txt\" if AGENT\n  because \"Runtime task evidence requires preserving these registered objects.\"",
+        "dsl_hash": "1b8ae450762c2121425844436c701a961f132311de4132b198ef912deb0017c8",
+        "origin": "statement_compiler_clauses",
+        "rule_count": 2,
+        "reused": true,
+        "has_new_os_rule": false,
+        "clause_refs": [
+          {
+            "name": "runtime-file-protection",
+            "target": "/s/d5e21e674b464d16/r/acceptance.txt",
+            "clause_start_line": 65,
+            "clause_hash": "fnv1a64:ad2c97cf786ad18f"
+          },
+          {
+            "name": "runtime-file-protection",
+            "target": "/s/d5e21e674b464d16/r/acceptance.txt",
+            "clause_start_line": 66,
+            "clause_hash": "fnv1a64:75f3497f2b8c4127"
+          }
+        ]
+      },
+      "loading": {
+        "loaded": false,
+        "version": 7
+      },
+      "delta": null
+    },
+    {
+      "id": "runtime:1761cfbeed424e9eb9ca93dadc060db8:statement:1",
+      "statement": "本轮只读取它并报告，不修改工作区。",
+      "policy_type": "semantic_only",
+      "compilation": {
+        "status": "not_applicable",
+        "dsl": "",
+        "origin": "semantic_guidance",
+        "message": "该语句属于语义指导，不生成 OS DSL。",
+        "has_new_os_rule": false
+      },
+      "loading": {
+        "loaded": false,
+        "version": 7
+      },
+      "delta": null
+    }
+  ],
+  "runtime_visible_records": 5,
+  "session_id": "session-236b7d71-7d25-4703-8f54-1b87a632c8de",
+  "version": 7,
+  "domain_verified": true,
+  "effective": true,
+  "baseline_hash": "e28f00564bea5250b28ffe10856660d6c792149f64c4461ccaf0ff11e91d76ba",
+  "protected_file_hash": "73b19bc0a396c65805654dfe67656bd0d050c8521bcf39bd6851b07aec693b2b",
+  "same_session": true,
+  "same_version": true,
+  "same_baseline": true,
+  "same_protected_file": true,
+  "new_agent_messages": 0,
+  "new_os_probes": 0,
+  "browser_refresh_login_preserved": true,
+  "real_api_restart_login_preserved": true,
+  "control_lock_observed": true,
+  "credentials_exported": false,
+  "private_stream_exported": false,
+  "passed": true
+}
