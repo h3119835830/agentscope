@@ -42,6 +42,14 @@ struct {
 	__type(value, __u64);
 } te_pidns SEC(".maps");
 
+/* Loader-recorded feature budget; clients validate actual loaded classes. */
+struct {
+    __uint(type, BPF_MAP_TYPE_ARRAY);
+    __uint(max_entries, 1);
+    __type(key, __u32);
+    __type(value, __u32);
+} engine_features SEC(".maps");
+
 static __noinline pid_t te_task_pid(struct task_struct *task)
 {
 	struct pid *pid = BPF_CORE_READ(task, thread_pid);
@@ -247,6 +255,13 @@ struct {
 	__type(key, pid_t);
 	__type(value, __u32);
 } te_protected_pids SEC(".maps");
+
+struct {
+    __uint(type, BPF_MAP_TYPE_HASH);
+    __uint(max_entries, 16384);
+    __type(key, pid_t);
+    __type(value, __u64);
+} audit_call SEC(".maps");
 
 static __always_inline int te_pid_protected(pid_t pid)
 {
@@ -1150,6 +1165,9 @@ static __always_inline void emit_violation(pid_t pid, unsigned int rule_id,
 	v->op = op;
 	v->domain_id = domain_id;
 	v->session_root = te_root(pid);
+	v->process_domain_id = cap_domain_for_pid(pid);
+	__u64 *tag = bpf_map_lookup_elem(&audit_call, &pid);
+	v->tool_call_tag = tag ? *tag : 0;
 	v->timestamp_ns = bpf_ktime_get_ns();
 	v->taint_rule_id = rule_id;
 	v->conn_ip = conn_ip;
@@ -2044,7 +2062,9 @@ static __always_inline int te_handle_file_event(pid_t pid, const char *target,
 	struct eval_scratch *scratch = eval_scratch_buf();
 	struct te_rule_eval *eval;
 
-	if (!te_pid_active(pid))
+	/* Only the registered broker loader bypasses agent file rules. Managed
+	 * children cannot update the protected-pid map. */
+	if (!te_pid_active(pid) || te_pid_protected(pid))
 		return 0;
 	if (!scratch)
 		return 0;
@@ -2774,6 +2794,22 @@ int BPF_PROG(enforce_path_unlink, const struct path *dir, struct dentry *dentry)
 			      TE_MODE_BLOCK);
 }
 
+/* Hard-link aliases must not turn a protected source inode into a writable
+ * path. Both source and destination are checked before link creation. */
+SEC("lsm/path_link")
+int BPF_PROG(enforce_path_link, struct dentry *old_dentry,
+             const struct path *new_dir, struct dentry *new_dentry)
+{
+    struct path old_path = {};
+    bpf_core_read(&old_path.mnt, sizeof(old_path.mnt), &new_dir->mnt);
+    old_path.dentry = old_dentry;
+    int rc = te_handle_file(TE_REF_PATH, &old_path, 0, TE_ACCESS_WRITE, TE_MODE_BLOCK);
+    if (rc)
+        return rc;
+    return te_handle_file(TE_REF_PATH_DENTRY, new_dir, new_dentry,
+                          TE_ACCESS_WRITE, TE_MODE_BLOCK);
+}
+
 SEC("lsm/path_rename")
 int BPF_PROG(enforce_path_rename, const struct path *old_dir,
 	     struct dentry *old_dentry, const struct path *new_dir,
@@ -2813,7 +2849,7 @@ static __always_inline int te_protect_control_pid(struct task_struct *target)
 	pid_t caller = te_current_pid_tgid() >> 32;
 	pid_t target_tgid;
 
-	if (!te_pid_active(caller))
+	if (!te_pid_active(caller) || te_pid_protected(caller))
 		return 0;
 	if (!target)
 		return 0;
@@ -2853,7 +2889,7 @@ int BPF_PROG(enforce_bpf_syscall, int cmd, union bpf_attr *attr,
 	(void)attr;
 	(void)size;
 	(void)privileged;
-	if (!te_pid_active(caller))
+	if (!te_pid_active(caller) || te_pid_protected(caller))
 		return 0;
 
 	/* Runtime clients may need to open pinned maps while already managed.
@@ -2886,6 +2922,8 @@ int handle_fork(struct bpf_raw_tracepoint_args *ctx)
 
 	if (parent_tgid <= 0 || child_pid <= 0)
 		return 0;
+	__u64 *tag = bpf_map_lookup_elem(&audit_call, &parent_tgid);
+	if (tag) { __u64 inherited = *tag; bpf_map_update_elem(&audit_call, &child_pid, &inherited, BPF_ANY); }
 	te_fork(parent_tgid, child_pid);
 	te_copy_fork_fds(parent_tgid, child_pid);
 	return 0;
@@ -3030,6 +3068,7 @@ int handle_exit(struct trace_event_raw_sched_process_template *ctx)
 	te_exit(pid, exit_code);
 	te_delete_mmaps(pid);
 	bpf_map_delete_elem(&te_protected_pids, &pid);
+	bpf_map_delete_elem(&audit_call, &pid);
 	return 0;
 }
 

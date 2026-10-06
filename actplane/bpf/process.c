@@ -462,7 +462,11 @@ static int handle_event(void *ctx, void *data, size_t sz)
 	char prov_target_json[JSON_ESC_BUFSZ];
 	char comm_json[TASK_COMM_LEN * 6 + 3];
 	char prov_json[JSON_ESC_BUFSZ + 192];
-	(void)ctx; (void)sz;
+	(void)ctx;
+	if (sz < sizeof(*e)) {
+		fprintf(stderr, "ActPlane: incompatible audit event size %zu (expected %zu)\n", sz, sizeof(*e));
+		return 0;
+	}
 	if (e->type != EVENT_TYPE_TAINT_VIOLATION)
 		return 0;
 	if (e->conn_ip) { /* connect: format the network-order IPv4 */
@@ -486,13 +490,13 @@ static int handle_event(void *ctx, void *data, size_t sz)
 	}
 	printf("{\"timestamp\":%llu,\"event\":\"TAINT_VIOLATION\",\"effect\":\"%s\","
 	       "\"blocked\":%s,\"killed\":%s,\"comm\":%s,\"pid\":%d,\"ppid\":%d,"
-	       "\"op\":%u,\"domain_id\":%u,\"session_root\":%d,"
+	       "\"op\":%u,\"domain_id\":%u,\"process_domain_id\":%u,\"tool_call_tag\":\"%llu\",\"session_root\":%d,"
 	       "\"target\":%s,\"rule_id\":%u,\"taint_label\":%llu,"
 	       "\"matched_label\":%llu,\"matched_labels\":%llu,"
 	       "\"provenance\":%s}\n",
 	       e->timestamp_ns, effect_name(e->effect), e->blocked ? "true" : "false",
 	       e->killed ? "true" : "false", comm_json, e->pid, e->ppid,
-	       e->op, e->domain_id, e->session_root,
+	       e->op, e->domain_id, e->process_domain_id, e->tool_call_tag, e->session_root,
 	       target_json, e->taint_rule_id, e->taint_label, e->matched_label,
 	       e->matched_labels, prov_json);
 	fflush(stdout);
@@ -662,6 +666,7 @@ int main(int argc, char **argv)
 		bpf_program__set_autoload(skel->progs.enforce_path_truncate, false);
 		bpf_program__set_autoload(skel->progs.enforce_path_unlink, false);
 		bpf_program__set_autoload(skel->progs.enforce_path_rename, false);
+        bpf_program__set_autoload(skel->progs.enforce_path_link, false);
 	}
 	if (!enforce || !block_connect)
 		bpf_program__set_autoload(skel->progs.enforce_socket_connect, false);

@@ -233,6 +233,7 @@ struct Event {
     op: u32,
     domain_id: u32,
     session_root: i32,
+    process_domain_id: u32,
     timestamp_ns: u64,
     comm: [u8; COMM_LEN],
     filename: [u8; FILENAME_LEN],
@@ -247,6 +248,7 @@ struct Event {
     prov_op: u32,
     prov_ip: u32,
     prov_target: [u8; FILENAME_LEN],
+    tool_call_tag: u64,
 }
 
 /// Provenance for the label that caused a policy violation.
@@ -272,6 +274,8 @@ pub struct Violation {
     pub rule_id: u32,
     pub op: u32,
     pub domain_id: u32,
+    pub process_domain_id: u32,
+    pub tool_call_tag: u64,
     pub session_root: i32,
     pub label: u64,
     pub matched_label: u64,
@@ -1182,6 +1186,7 @@ const LSM_PROGS: &[(&str, &str)] = &[
     ("enforce_path_truncate", "path_truncate"),
     ("enforce_path_unlink", "path_unlink"),
     ("enforce_path_rename", "path_rename"),
+    ("enforce_path_link", "path_link"),
     ("enforce_socket_connect", "socket_connect"),
     ("enforce_socket_recvmsg", "socket_recvmsg"),
     ("enforce_task_kill", "task_kill"),
@@ -1395,7 +1400,8 @@ fn lsm_needed(
         | "enforce_file_truncate"
         | "enforce_path_truncate"
         | "enforce_path_unlink"
-        | "enforce_path_rename" => block_file,
+        | "enforce_path_rename"
+        | "enforce_path_link" => block_file,
         _ => false,
     }
 }
@@ -1721,7 +1727,7 @@ impl HookReserve {
             block_file: true,
             block_connect: true,
             advanced_tracepoints: true,
-            policy_features: PINNED_POLICY_FEATURES,
+            policy_features: PINNED_POLICY_FEATURES | if std::env::var_os("ACTPLANE_RESERVE_OPEN_RULES").is_some() { FEAT_OPEN_RULES } else { 0 },
         }
     }
 }
@@ -1801,6 +1807,15 @@ impl PinnedEngine {
         Ok(())
     }
 
+    fn loaded_policy_features(&self) -> io::Result<u32> {
+        let path = self.paths.map("engine_features");
+        if !path.exists() { return Ok(PINNED_POLICY_FEATURES); }
+        let data = MapData::from_pin(path).map_err(|e| err(format!("open engine features: {e}")))?;
+        let features: Array<_, u32> = Array::try_from(Map::Array(data))
+            .map_err(|e| err(format!("engine features: {e}")))?;
+        features.get(&0, 0).map_err(|e| err(format!("read engine features: {e}")))
+    }
+
     pub fn reload_handle(&self) -> io::Result<ReloadHandle> {
         Ok(ReloadHandle {
             cap_req_fd: dup_pinned_map_fd(&self.paths, "cap_req")?,
@@ -1810,7 +1825,7 @@ impl PinnedEngine {
             ts_counts_fd: dup_pinned_map_fd(&self.paths, "ts_counts")?,
             append_lock: Mutex::new(()),
             append_lock_file: Some(open_append_lock()?),
-            policy_features: PINNED_POLICY_FEATURES,
+            policy_features: self.loaded_policy_features()?,
         })
     }
 
@@ -2167,6 +2182,9 @@ impl Loader {
             }
         }
 
+        let mut features: Array<_, u32> = Array::try_from(bpf.map_mut("engine_features").ok_or_else(|| err("engine features missing"))?)
+            .map_err(|e| err(format!("engine features map: {e}")))?;
+        features.set(0, policy_features, 0).map_err(|e| err(format!("set engine features: {e}")))?;
         if let Some(paths) = pin_paths.as_ref() {
             let mut created = Vec::new();
             let pin_result = (|| -> io::Result<()> {
@@ -3027,6 +3045,8 @@ fn decode(e: &Event) -> Violation {
         rule_id: e.taint_rule_id,
         op: e.op,
         domain_id: e.domain_id,
+        process_domain_id: e.process_domain_id,
+        tool_call_tag: e.tool_call_tag,
         session_root: e.session_root,
         label: e.taint_label,
         matched_label: e.matched_label,
@@ -3057,7 +3077,8 @@ mod tests {
         assert_eq!(std::mem::size_of::<CRule>(), 224);
         assert_eq!(std::mem::size_of::<CConfig>(), 74_760);
         assert_eq!(std::mem::align_of::<Event>(), 8);
-        assert_eq!(std::mem::size_of::<Event>(), 384);
+        assert_eq!(std::mem::size_of::<Event>(), 392);
+        assert_eq!(std::mem::offset_of!(Event, tool_call_tag), 384);
     }
 
     #[test]

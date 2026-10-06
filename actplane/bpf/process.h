@@ -34,6 +34,7 @@ struct event {
 	unsigned int op;               /* enum taint_op for this matched operation */
 	unsigned int domain_id;         /* runtime domain whose rule matched */
 	int session_root;               /* root pid for session-scoped state */
+	unsigned int process_domain_id; /* active process domain; uses former ABI padding */
 	unsigned long long timestamp_ns;
 	char comm[TASK_COMM_LEN];
 	char filename[MAX_FILENAME_LEN]; /* offending exe / path ("" for connect) */
@@ -48,6 +49,7 @@ struct event {
 	unsigned int prov_op;            /* enum taint_op that introduced prov_label */
 	unsigned int prov_ip;            /* endpoint provenance, network order */
 	char prov_target[MAX_FILENAME_LEN]; /* file/exec provenance target */
+	unsigned long long tool_call_tag; /* broker-set identity inherited on fork */
 };
 
 #endif /* __PROCESS_H */
