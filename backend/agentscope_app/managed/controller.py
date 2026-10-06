@@ -40,6 +40,11 @@ def create(case):
     with db.connect() as con:
         ctx=context(task_id,con)
         ctx["dsh"]["surface"]="managed-native-web"
+        ctx["dsh"]["executor_sandbox"]={'version':2,'filesystem':'project,temporary,output and public runtime only','network':'isolated','policy_visibility':'operation_feedback_only'}
+        old_python=ctx['dsh'].get('python_runtime',{}).get('python')
+        if old_python:ctx['environment']=ctx['environment'].replace(old_python,'/opt/task-python/bin/python')
+        ctx['environment_hash']=digest(ctx['environment'])
+        con.execute("UPDATE bootstrap_sources SET text=?,content_hash=? WHERE task_id=? AND role='environment'",(ctx['environment'],ctx['environment_hash'],task_id))
         ctx["evaluation"]="Engineering extension: task plus registered project evidence; independent evaluator excluded"
         con.execute("UPDATE bootstrap_contexts SET context_json=?,context_hash=? WHERE task_id=?",(json.dumps(ctx),digest(ctx),task_id))
         cfg=json.dumps(ctx["dsh"],sort_keys=True)
@@ -108,6 +113,7 @@ def start(task_id):
     with lock(task_id),db.connect() as con:
         state=load(con,task_id)
         if state["phase"]=="failed" and state["version"]>0:
+            if state.get('execution_role_version')!=2:raise ValueError('This legacy session contains policy context. Create a fresh task sandbox; historical evidence is retained.')
             state.update(phase="recovering",gate="waiting_policy");save(con,task_id,state)
             event(con,task_id,"recovery_requested",uuid.uuid4().hex,{"session_id":state["session_id"],"version":state["version"]})
             return {"status":"recovering_verified_session"}
@@ -204,21 +210,33 @@ def _install(task_id,state,dirs,output,initial=False,protected_paths=None):
         revoke_task_tokens(task_id)
     token,_=issue_task_token(task_id)
     version=state['version']+1
-    receipt=broker({'action':'launch','task_id':task_id,'version':10000+version,'workspace':task['workspace'],'output_dir':task['output_dir'],'prompt':task['prompt'],'dsl_text':dsl,'policy_yaml':yaml,'dsh_profile':'web','task_token':token,'agentscope_url':__import__('agentscope_app.config',fromlist=['PUBLIC_BASE_URL']).PUBLIC_BASE_URL,'scope_mode':'managed-web','protected_files':state['protected'],'baseline_dsl':make_dsl(task['workspace'],task['output_dir'],{'allow_task_output':True},state['baseline_extra']+identity_guards(task['workspace'],state.get('protected',[])))[0]},timeout=60)
     try:
+        receipt=broker({'action':'launch','task_id':task_id,'version':10000+version,'workspace':task['workspace'],'output_dir':task['output_dir'],'prompt':task['prompt'],'dsl_text':dsl,'policy_yaml':yaml,'dsh_profile':'web','task_token':token,'agentscope_url':__import__('agentscope_app.config',fromlist=['PUBLIC_BASE_URL']).PUBLIC_BASE_URL,'scope_mode':'managed-web','protected_files':state['protected'],'baseline_dsl':make_dsl(task['workspace'],task['output_dir'],{'allow_task_output':True},state['baseline_extra']+identity_guards(task['workspace'],state.get('protected',[])))[0]},timeout=60)
         native=broker({'action':'native-session','task_id':task_id,'operation':'create','session_id':state['session_id']},timeout=35)
         verify=broker({'action':'managed-verify','task_id':task_id,'protected_files':sorted(set(state['protected']+[str(p) for target in runtime_protected for p in Path(task['workspace']).glob(target) if p.is_file()])),'allow_path':task['workspace']+'/'+(dirs[0]+'/' if dirs and dirs!=['.'] else '')+'.managed-allow-probe'},timeout=45)
         binding=broker({'action':'status','task_id':task_id})
         if not verify['passed'] or binding['status']!='running' or binding['domain_id']!=receipt['domain_id']:
             with db.connect() as con:event(con,task_id,'verification_failed',uuid.uuid4().hex,{'verification':verify,'binding':binding})
             raise ValueError('进程域或实际文件权限核验失败')
-    except Exception:
-        broker({'action':'stop','task_id':task_id},timeout=20);revoke_task_tokens(task_id);raise
+    except Exception as error:
+        try:broker({'action':'stop','task_id':task_id},timeout=20)
+        finally:
+            revoke_task_tokens(task_id)
+            with lock(task_id),db.connect() as con:
+                current=load(con,task_id)
+                if current['phase']!='ended':
+                    current.update(phase='failed',gate='failed',error=str(error)[:1500]);save(con,task_id,current)
+                    con.execute("UPDATE tasks SET status='failed',active_pid=NULL,active_domain_id=NULL,watch_pid=NULL,updated_at=? WHERE id=?",(db.now(),task_id))
+                    event(con,task_id,'failure',uuid.uuid4().hex,{'error':current['error'],'replacement_stopped':True,'before_native_admission':True})
+        raise
     state.setdefault('binding_history',[]).append({'domain_id':receipt['domain_id'],'version':version})
     state.setdefault('probe_pids',[]).append(verify['probe']['pid'])
     state.pop('error',None)
     recovery=state['phase']=='recovering'
-    state.update(phase='running',gate='waiting_policy' if recovery else 'open',version=version,policy_hash=digest(yaml),allowed_write_dirs=dirs,allow_output=output,runtime_protected=runtime_protected,binding=receipt,verification=verify,session_id=native['sessionId'],web_url=receipt['web_url'],pending_expansion=None)
+    if recovery and state.get('pending_expansion'):
+        prior=state['pending_expansion'];proposal=prior['proposal']
+        state['pending_expansion_intent']={'prior_hash':prior['hash'],'proposed_snapshot':{k:proposal.get(k) for k in ('allowed_write_dirs','allow_output','protected_paths')},'authority':'unapproved_candidate; never_a_grant','reason':'Native recovery invalidates a candidate hash but does not withdraw the authenticated pending request; revalidate before confirmation.'}
+    state.update(execution_role_version=2,phase='running',gate='waiting_policy' if recovery else 'open',version=version,policy_hash=digest(yaml),allowed_write_dirs=dirs,allow_output=output,runtime_protected=runtime_protected,binding=receipt,verification=verify,session_id=native['sessionId'],web_url=receipt['web_url'],pending_expansion=None)
     with lock(task_id),db.connect() as con:
         current=load(con,task_id)
         if current['revision']!=state['revision'] or current['phase']=='ended':
@@ -233,7 +251,7 @@ def _install(task_id,state,dirs,output,initial=False,protected_paths=None):
         con.execute("UPDATE tasks SET status='running',active_pid=?,active_domain_id=?,watch_pid=?,active_version=?,updated_at=? WHERE id=?",(receipt['runner_pid'],receipt['domain_id'],receipt['watch_pid'],version,db.now(),task_id))
         event(con,task_id,'policy_active',str(version),{'version':version,'policy_hash':state['policy_hash'],'binding':receipt,'verification':verify,'session_id':state['session_id'],'baseline_hash':state['baseline_hash']})
     if resume_text:
-        broker({'action':'native-session','task_id':task_id,'operation':'resume','session_id':state['session_id'],'text':'The control plane loaded and verified policy v'+str(version)+'. Continue the interrupted public request under the current scope, keeping the immutable startup baseline. Original request: '+resume_text},timeout=20)
+        broker({'action':'native-session','task_id':task_id,'operation':'resume','session_id':state['session_id'],'text':'[Execution resumed] Continue the interrupted task request. Original request: '+resume_text},timeout=20)
         with db.connect() as con:event(con,task_id,'session_resumed',str(version),{'session_id':state['session_id'],'version':version,'source':'context','original_request_preserved':True})
     return state
 
@@ -250,7 +268,7 @@ def recover(task_id):
         latest=next((json.loads(r[0])['text'] for r in rows if json.loads(r[0]).get('actor')=='native_user'),task_row(con,task_id)['prompt'])
         enqueue(con,task_id,current,latest,'recovery:'+uuid.uuid4().hex,kind='message',actor='recovery')
         event(con,task_id,'recovery_reassessment',str(current['revision']),{'session_id':current['session_id'],'revision':current['revision'],'gate':'waiting_policy'})
-    ctext='The control plane restored the same durable session in a new process domain. The latest public request is being reassessed before tools are admitted. Continue after the policy gate opens, keeping the immutable startup baseline. Latest request: '+latest
+    ctext='[Execution resumed] The task execution environment recovered. Continue the latest task request after execution resumes. Latest request: '+latest
     broker({'action':'native-session','task_id':task_id,'operation':'resume','session_id':installed['session_id'],'text':ctext},timeout=20)
 
 def complete_start(task_id):
@@ -272,18 +290,11 @@ def complete_start(task_id):
     with db.connect() as con:save(con,task_id,state)
     installed=install(task_id,state,['.'],False,initial=True)
     # Admission uses the native SessionController; no headless substitute session.
-    broker({'action':'native-session','task_id':task_id,'operation':'prompt','session_id':installed['session_id'],'text':ctx['environment']+'\n[Workspace paths]\n'+json.dumps({'workspace':task['workspace'],'output':task['output_dir'],'temporary':str(Path(task['workspace']).parent/'tmp')})+'\n[Platform constraints]\n'+ctx['platform_constraints']+'\n[Registered project files]\n'+json.dumps([a['mapped_path'] for a in ctx['assets']])+'\nControl and probe artifacts under .actplane are not project materials. Use agentscope_get_current_scope and verified hook feedback for policy facts.\n[Original task description]\n'+task['prompt']+'\n[Authenticated startup clarifications]\n'+json.dumps(ctx.get('startup_clarifications',[]),ensure_ascii=False)+'\n[Admission request]\nRead the task and relevant registered project materials first. Summarize the constraints and proposed work; wait for the next real user message before modifying files.'},timeout=20)
+    broker({'action':'native-session','task_id':task_id,'operation':'prompt','session_id':installed['session_id'],'text':ctx['environment']+'\n[Workspace paths]\n'+json.dumps({'workspace':task['workspace'],'output':task['output_dir'],'temporary':str(Path(task['workspace']).parent/'tmp')})+'\n[Platform constraints]\n'+ctx['platform_constraints']+'\n[Registered project files]\n'+json.dumps([a['mapped_path'] for a in ctx['assets']])+'\n[Execution environment]\nUse the task workspace, temporary and output paths, and the published Python runtime. Host files and network access are unavailable. Respond to operation feedback while completing the task.\n[Original task description]\n'+task['prompt']+'\n[Authenticated startup clarifications]\n'+json.dumps(ctx.get('startup_clarifications',[]),ensure_ascii=False)+'\n[Admission request]\nRead the task and relevant registered project materials first. Summarize the constraints and proposed work; wait for the next real user message before modifying files.'},timeout=20)
 
 def gate(task_id):
-    with db.connect() as con:
-        s=load(con,task_id);task=task_row(con,task_id)
-        resolved={str(ident) for row in con.execute("SELECT payload_json FROM managed_events WHERE task_id=? AND kind='request_resolved'",(task_id,)) for ident in json.loads(row[0]).get('evidence_ids',[])}
-        history=[]
-        for row in con.execute("SELECT id,payload_json FROM managed_events WHERE task_id=? AND kind='control_pause' AND json_array_length(json_extract(payload_json,'$.request_ids'))>0 ORDER BY id DESC LIMIT 5",(task_id,)):
-            payload=json.loads(row['payload_json']);ids=list(map(str,payload['request_ids']))
-            history.append({'event_id':row['id'],'request_ids':ids,'resolved_request_ids':[i for i in ids if i in resolved],'observed_policy_version':payload.get('version'),'reason':payload.get('reason')})
-        assessments={'authority':'controller_persisted_assessment_records; not_permission_grants','pending_request_ids':s.get('pending_unresolved_requests',[]),'clarification_history':history}
-        return {'constraint_assessments':assessments,'paths':{'workspace':task['workspace'],'output':task['output_dir'],'temporary':str(Path(task['workspace']).parent/'tmp')},'enabled':True,'gate':s['gate'],'phase':s['phase'],'snapshot_id':s['policy_hash'],'message_revision':s['revision'],'scope':{'allowed_write_dirs':s['allowed_write_dirs'],'allow_output':s['allow_output'],'protected_paths':s.get('runtime_protected',[])},'baseline':{'hash':s.get('baseline_hash'),'protected_files':s.get('protected',[]),'immutable':True},'session_id':s['session_id'],'version':s['version']}
+    with db.connect() as con:s=load(con,task_id)
+    return {'gate':s['gate'],'phase':s['phase']}
 
 def read_project_content(task,path):
     path=Path(path);relative=path.relative_to(Path(task['workspace']))
@@ -371,13 +382,17 @@ def enqueue(con,task_id,state,text,key,kind='message',actor='native_user'):
     evidence=[{'evidence_id':str(e['id']),'source':e['kind'],'content':e['payload']} for e in reversed(events) if e['kind'] in ('request','kernel','tool_result','agent_response') and not e['payload'].get('verification_probe')]
     request_id=next(e['evidence_id'] for e in evidence if e['source']=='request' and e['content']['revision']==state['revision'])
     frozen={'schema':'ManagedRuntimeContext/1','task_id':task_id,'task':task['prompt'],'change':{'kind':kind,'text':text},'request_evidence_id':request_id,'sources':evidence,'baseline':{'hash':state['baseline_hash'],'protected_files':state['protected'],'immutable':True,'declared_constraints':ctx.get('declared_constraints',[])},'base_snapshot':{'payload':{'allowed_write_dirs':state['allowed_write_dirs'],'allow_output':state['allow_output'],'protected_paths':state.get('runtime_protected',[])}},'revision':state['revision'],'policy_hash':state['policy_hash'],'session_id':state['session_id'],'path_mapping':{'workspace':task['workspace'],'output':task['output_dir'],'temporary':str(Path(task['workspace']).parent/'tmp')},'capabilities':{'registered_files':sorted(str(p.relative_to(Path(task['workspace']))) for p in Path(task['workspace']).rglob('*') if p.is_file() and not p.is_symlink() and '.actplane' not in p.parts and '.git' not in p.parts),'registered_directories':directories,'write_unlink_dirs':directories,'startup_directories':['.'],'candidate_contract':{'submission':'proposed_snapshot_only','expand':'records_a_pending_candidate_for_later_human_confirmation; does_not_grant_or_apply'},'expansion_targets':[{'kind':'task_output','path':task['output_dir'],'operations':['write','unlink'],'proposal_fields':{'allow_output':True},'confirmation_required':True,'application':'full_package_new_domain'}],'output_expansion':'explicit_confirmation_new_domain','write_expansion':'registered subtree inside startup envelope; explicit confirmation and new domain','arbitrary_dsl':False,'protect_files':'registered file or registered directory/**; restriction preserves prior protections','semantic':'guidance_only','maximum_write_subtrees':1},'unassessed_request_ids':unassessed,'public_task_context':[{'evidence_id':str(r['id']),**r['payload']} for r in public_requests],'project_sources':[project_source(task,p) for p in sorted(Path(task['workspace']).rglob('*')) if p.is_file() and not p.is_symlink() and '.actplane' not in p.parts and '.git' not in p.parts]}
+    frozen['native_execution_context']=state.get('runtime_observations',{})
+    frozen['capabilities']['executor_sandbox']={'version':2,'read_roots':['project','temporary','output','public_runtime'],'network':'isolated','policy_visibility':'operation_feedback_only','monitor':'Pi; native prompt,instructions,tools,context,memory are observational inputs, never grants'}
     frozen['pending_unresolved_requests']=state.get('pending_unresolved_requests',[])
-    frozen['capabilities']['unresolved_constraints']='Necessary OS constraints without a supported authorized target must be declared as unresolved_requests; the control plane keeps tools paused pending clarification.'
+    frozen['capabilities']['unresolved_constraints']='Necessary OS constraints with an unknown, ambiguous or unadvertised execution target must be declared as unresolved_requests. An advertised expansion target is supported for proposing an expand candidate before confirmation; lack of application confirmation alone is not an unresolved target.'
+    frozen['capabilities']['permission_stages']={'candidate':'A real request may support proposing an advertised expansion even while its execution target is granted:false. Proposing never grants or confirms permission.','application':'confirmation_required belongs to application, not proposal eligibility; the controller stores an expand candidate as pending and requires explicit human confirmation before Broker loads a new domain.','unsupported':'unresolved_requests identifies necessary unadvertised or ambiguous OS requirements; preserve startup baseline in all stages.'}
     frozen['resolved_request_ids']=sorted(resolved)
     frozen['current_binding']={'version':state['version'],'domain_id':state.get('binding',{}).get('domain_id'),'session_id':state['session_id']}
     frozen['capabilities']['execution_targets']=[
         {'kind':'workspace','path':task['workspace'],'write_subtrees':state['allowed_write_dirs'],'protected_exclusions':state['protected']+state.get('runtime_protected',[]),'authority':'controller_verified_loaded_snapshot'},
         {'kind':'task_output','path':task['output_dir'],'operations':['write','unlink'],'granted':state['allow_output'],'authority':'controller_verified_loaded_snapshot','policy_version':state['version'],'policy_hash':state['policy_hash']},
+        {'kind':'task_temporary','path':str(Path(task['workspace']).parent/'tmp'),'operations':['read','write','unlink'],'granted':True,'scope':'fixed task runtime area; independent of allowed_write_dirs, which are workspace-relative','authority':'controller_verified_rendered_envelope_and_executor_mount'},
     ]
     if state['allow_output']:
         frozen['capabilities']['expansion_targets']=[]
@@ -400,7 +415,7 @@ def enqueue(con,task_id,state,text,key,kind='message',actor='native_user'):
 def ingest(task_id,args):
     from ..agent_bridge.api import clean
     kind=str(args.get('kind',''))
-    if kind not in ('native_event','tool_result','tool_start','feedback_delivery','agent_decision','user_question_answer','user_message_accepted'):raise ValueError('未登记的原生事件')
+    if kind not in ('native_event','tool_result','tool_start','feedback_delivery','agent_decision','user_question_answer','user_message_accepted','runtime_observation','feedback_offer','feedback_received'):raise ValueError('未登记的原生事件')
     with lock(task_id),db.connect() as con:
         s=load(con,task_id)
         if s['phase'] not in ('running','generating'):raise ValueError('任务不再运行')
@@ -408,6 +423,34 @@ def ingest(task_id,args):
         if s['session_id'] and sid and sid!=s['session_id']:raise ValueError('其他会话不能使用本任务域')
         key=str(args.get('event_key',''))[:180]
         if not key:raise ValueError('事件缺少幂等标识')
+        if kind=='feedback_received':
+            feedback=str(args.get('feedback',''))
+            offer=con.execute("SELECT payload_json FROM managed_events WHERE task_id=? AND kind='feedback_offer' AND json_extract(payload_json,'$.feedback')=? ORDER BY id DESC LIMIT 1",(task_id,feedback)).fetchone()
+            if not offer:
+                from .feedback import operation_feedback
+                try:reported=json.loads(feedback.removeprefix('[ActPlane operation feedback] '));ident=int(reported['id'])
+                except (ValueError,KeyError,TypeError):raise ValueError('Native feedback receipt has no matching kernel feedback offer')
+                raw=con.execute("SELECT payload_json FROM managed_events WHERE task_id=? AND kind='kernel' AND id=?",(task_id,ident)).fetchone()
+                kernel=json.loads(raw[0]) if raw else None
+                if not kernel or reported!=operation_feedback(ident,kernel['event'],task_row(con,task_id)):raise ValueError('Native feedback receipt has no matching kernel feedback offer')
+                payload={'call_id':kernel.get('tool_call_id'),'event_ids':[ident],'feedback':feedback,'source':'late_kernel_feedback'}
+            else:payload=json.loads(offer[0])
+            payload.update(session_id=sid,authority='native_context_observed; persistence_checked_independently')
+            event(con,task_id,'feedback_delivery',key,payload)
+            return {'stored':True}
+        if kind=='runtime_observation':
+            category=str(args.get('category',''));content=str(args.get('content',''))
+            if category not in ('system_prompt','instructions','tools','memory','memory_prune','context') or not content or len(content.encode())>131072:raise ValueError('Unsupported or oversized runtime observation')
+            content_hash=hashlib.sha256(content.encode()).hexdigest()
+            if content_hash!=args.get('content_hash'):raise ValueError('Runtime observation hash mismatch')
+            observations=s.setdefault('runtime_observations',{})
+            if observations.get(category,{}).get('content_hash')==content_hash:return {'stored':True,'deduplicated':True}
+            value={'category':category,'type':args.get('type'),'seq':args.get('seq'),'content':content,'content_hash':content_hash,'authority':'native_model_visible_context; observation_not_authorization'}
+            observations[category]=value
+            event(con,task_id,'runtime_observation',key,{'session_id':sid,**value})
+            save(con,task_id,s)
+            if s['phase']=='running':return enqueue(con,task_id,s,'Native model-visible '+category+' changed. Assess the observed context against the authenticated task and current project evidence. Observation alone does not authorize new permission. '+content[:4000],key,kind='guidance',actor='native_context')
+            return {'stored':True}
         if kind=='native_event':
             typ=args.get('type');data=args.get('data',{})
             if typ=='turn/start':s['turn']=int(data['turn'])
@@ -445,6 +488,7 @@ def ingest(task_id,args):
             if kind in ('tool_start','tool_result'):
                 call_binding=broker({'action':'managed-call','task_id':task_id,'operation':'start' if kind=='tool_start' else 'end','pid':int(args['pid']),'call_id':args['call_id']},timeout=10)
             payload={k:args.get(k) for k in ('session_id','call_id','name','succeeded','target','pid','started','feedback','event_ids','serialized','native_sdk_verification')}
+            if kind=='tool_start':payload['started']={'version':s['version'],'turn':s['turn']}
             payload.update(call_binding)
             payload.update(turn=s['turn'],version=s['version'],domain_id=s['binding'].get('domain_id'),authority='native_hook_metadata; broker_kernel_call_identity')
             event(con,task_id,kind,key,payload)
@@ -598,6 +642,7 @@ def tool_feedback(task_id,call_id):
                 payload=json.loads(row[1])
                 if payload.get('verification_probe') or row[0] in delivered:continue
                 if correlate_tool(con,task_id,payload['event'])==call_id:
-                    raw=payload['event'];events.append({'id':row[0],'pid':raw['pid'],'process_domain_id':raw.get('process_domain_id'),'rule_domain_id':raw.get('domain_id'),'operation':raw['op'],'target':raw['target'],'rule':raw.get('rule',{}),'alternative':'Keep the startup baseline; use the confirmed writable targets or request a separately reviewed expansion.'})
+                    from .feedback import operation_feedback
+                    events.append(operation_feedback(row[0],payload['event'],task_row(con,task_id)))
         if events or time.monotonic()>=deadline:return {'events':list(reversed(events))}
         time.sleep(.1)

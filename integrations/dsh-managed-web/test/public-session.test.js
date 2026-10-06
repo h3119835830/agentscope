@@ -30,3 +30,19 @@ test('admitted queue messages cross the seam before turn dispatch',async()=>{
  assert.deepEqual(acceptedUserMessages(session,{type:'agent/inbox/spliced',data:{inserted:[{...human,source:{kind:'context'}}]}}),[]);
  assert.deepEqual(acceptedUserMessages(session,{type:'agent/inbox/spliced',data:{inserted:[human],outcome:'canceled'}}),[]);
 });
+
+
+import {receivedOperationFeedback} from '../lib/public-session.js';
+test('feedback offers count only after actual native context admission',()=>{
+ const s={id:'native'},m={source:{kind:'context'},content:[{type:'text',text:'[ActPlane operation feedback] denied'}]};
+ assert.equal(receivedOperationFeedback(s,{type:'tool/result',seq:1,data:{message:m}}).length,0);
+ assert.equal(receivedOperationFeedback(s,{type:'agent/inbox/spliced',seq:2,data:{inserted:[m],outcome:'canceled'}}).length,0);
+ assert.equal(receivedOperationFeedback(s,{type:'agent/inbox/spliced',seq:3,data:{inserted:[m],outcome:'accepted'}}).length,1);
+ assert.equal(receivedOperationFeedback(s,{type:'user/message',seq:4,data:{...m,source:{kind:'user'}}}).length,0);
+});
+
+test('several feedback contexts in one native event keep distinct receipt identities',()=>{
+ const message=text=>({source:{kind:'context'},content:[{type:'text',text:'[ActPlane operation feedback] '+text}]});
+ const receipts=receivedOperationFeedback({id:'native'},{type:'agent/inbox/spliced',seq:3,data:{inserted:[message('one'),message('two')]}});
+ assert.equal(receipts.length,2);assert.notEqual(receipts[0].event_key,receipts[1].event_key);
+});

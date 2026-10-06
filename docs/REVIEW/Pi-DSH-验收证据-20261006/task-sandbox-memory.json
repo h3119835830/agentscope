@@ -1,0 +1,30 @@
+{
+  "task": "d5e21e674b464d16",
+  "receipt": {
+    "compacted": true,
+    "source": "native_manual_compaction; verified by persisted summary hash"
+  },
+  "observations": {
+    "system_prompt": {
+      "content_hash": "7746286dd2ea7cdf56227027e8cd1d3afc9eaf86f70f05b48f4dc9a06a9fe1bc",
+      "seq": 494,
+      "type": "system/message"
+    },
+    "context": {
+      "content_hash": "3572bcc13b53dbcb23684a939b92f80dd1ee3e75221cf73507927f92ae4ec81e",
+      "seq": 510,
+      "type": "user/message"
+    },
+    "tools": {
+      "content_hash": "f48dca5eb9bc170d046e66a9b18d388dce5c6d08e98506a808b8a391ec71f8af",
+      "seq": 10,
+      "type": "request/header"
+    },
+    "memory": {
+      "content_hash": "a28084877985f3af6175403ddf5b320622320172e4fd9c01f3cb7d5e977afb51",
+      "seq": 509,
+      "type": "compaction/summary"
+    }
+  },
+  "private_content_exported": false
+}

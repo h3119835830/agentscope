@@ -125,6 +125,30 @@ def prepare_task_dsh_home(task_root):
             if path.is_symlink(): os.chown(path,AGENT.pw_uid,TASK_GID,follow_symlinks=False)
     return dest
 
+def prepare_public_runtime(task_root):
+    # Mount targets exist before entering the domain; sandbox construction must
+    # not need writes outside the task envelope even on its private tmpfs root.
+    task_root=Path(task_root)
+    skeleton=task_root/'.sandbox-root'
+    for relative in ['usr','etc/ssl','proc','dev','runtime/bin','opt/task-python','opt/dsh-runtime/node_modules',str(task_root/'r').lstrip('/'),str(task_root/'tmp').lstrip('/'),str(task_root/'output').lstrip('/')]:
+        (skeleton/relative).mkdir(parents=True,exist_ok=True)
+    (skeleton/'runtime/bin/node').touch(exist_ok=True)
+    (skeleton/'runtime/bin/rg').touch(exist_ok=True)
+    for name,target in [('bin','usr/bin'),('lib','usr/lib'),('lib64','usr/lib64'),('tmp',str(task_root/'tmp'))]:
+        path=skeleton/name
+        if not path.exists() and not path.is_symlink():path.symlink_to(target)
+    for base,dirs,files in os.walk(skeleton,followlinks=False):
+        os.chown(base,0,TASK_GID);os.chmod(base,0o550)
+        for name in files:
+            path=Path(base)/name
+            if not path.is_symlink():os.chown(path,0,TASK_GID);os.chmod(path,0o440)
+    source=Path('/var/lib/agentscope-rq5-v1/task-python/pyvenv.cfg')
+    public=Path(task_root)/'.public-runtime/pyvenv.cfg'
+    allowed=('home','include-system-site-packages','version','executable')
+    text='\n'.join(line for line in source.read_text().splitlines() if line.split('=',1)[0].strip() in allowed)+'\n'
+    write_file(public,text,0o440)
+    write_file(public.parent/'control-canary.txt','CONTROL_CANARY_NOT_PROJECT_MATERIAL\n',0o440)
+
 def validate_managed_paths(workspace, paths):
     if not isinstance(paths,list) or len(paths)>100:raise ValueError('Invalid protected path list')
     result=[]
@@ -158,7 +182,7 @@ def prepare_web_home(home):
     (profile/'package.json').write_text(json.dumps({'name':'managed-dsh-web','private':True,'dsh':{'profile':{'bundles':['@deepseek-ai/dsh-base','@deepseek-ai/dsh-web-app']}}}))
     notice=(global_nodes/'@deepseek-ai/dsh-client-ui-settings-models/lib/types/onboarding-copy.d.ts').read_text()
     version=re.search(r'WELCOME_NOTICE_VERSION = "([^"]+)"',notice).group(1)
-    (profile/'cordis.patch.yml').write_text(yaml.safe_dump([{'insert':[{'id':'agentscope-managed-web','name':'@agentscope/dsh-managed-web'}]},{'id':'ui-settings-general','config':{'welcomeNoticeVersion':version}}]))
+    (profile/'cordis.patch.yml').write_text(yaml.safe_dump([{'insert':[{'id':'managed-compaction-basic','name':'@deepseek-ai/dsh-compaction-basic','config':{'headroomTokens':4096,'maxTokens':4096,'retainTokens':4096}},{'id':'agentscope-managed-web','name':'@agentscope/dsh-managed-web'}]},{'id':'ui-settings-general','config':{'welcomeNoticeVersion':version}}]))
     for base,dirs,files in os.walk(profile,followlinks=False):
         os.chown(base,0,TASK_GID);os.chmod(base,0o2770)
         for name in files:
@@ -180,7 +204,7 @@ def native_session(message):
     with LOCK:record=TASKS.get(task_id)
     if not record or record.get('scope_mode')!='managed-web':raise ValueError('Not a managed native web task')
     operation=message.get('operation')
-    if operation not in ('create','prompt','inspect','cancel','flush','resume','open_url','verify_delayed_open'):raise ValueError('Native operation not allowed')
+    if operation not in ('create','prompt','inspect','cancel','flush','resume','open_url','verify_delayed_open','verify_task_sandbox','compact'):raise ValueError('Native operation not allowed')
     body={k:message.get(k) for k in ('operation','session_id','request_id','text','target')}
     if operation=='verify_delayed_open':
         path=Path(str(body.get('target','')));resolved=path.resolve();workspace=Path(record['workspace']).resolve()
@@ -189,7 +213,7 @@ def native_session(message):
     req=urllib.request.Request(f"http://127.0.0.1:{record['web_port']+100}/",data=json.dumps(body).encode(),headers={'Content-Type':'application/json','Authorization':'Bearer '+record['native_token']})
     for attempt in range(100):
         try:
-            with urllib.request.urlopen(req,timeout=32) as response:
+            with urllib.request.urlopen(req,timeout=65 if operation=='compact' else 32) as response:
                 result=json.load(response)
                 if operation=="create":
                     profile=Path(record["workspace"]).parent/".dsh/profiles/web"
@@ -410,6 +434,7 @@ def launch(task_id,version,workspace,output_dir,prompt,dsl_text,policy_yaml,dsh_
         dsh_home=prepare_task_dsh_home(workspace.parent)
         web_port,native_token=(prepare_web_home(dsh_home),secrets.token_urlsafe(36)) if scope_mode=="managed-web" else (None,None)
         if scope_mode=="managed-web":
+            prepare_public_runtime(workspace.parent)
             protected_files=validate_managed_paths(workspace,protected_files or [])
             manifest_path=POLICY_ROOT/task_id/"managed-manifest.json"
             hashes={p:hashlib.sha256(Path(p).read_bytes()).hexdigest() for p in protected_files}
@@ -525,7 +550,7 @@ def domain_members(record):
             status=(Path("/proc")/str(pid)/"status").read_text()
             state=next(l.split()[1] for l in status.splitlines() if l.startswith("State:"))
             if state not in ("Z","X"):members.append(pid)
-        except FileNotFoundError:pass
+        except (FileNotFoundError,ProcessLookupError):pass
     return sorted(set(members))
 
 def quiesce_domain(record):

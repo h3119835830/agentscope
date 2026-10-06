@@ -1,0 +1,39 @@
+{
+  "task": "d5e21e674b464d16",
+  "receipt": {
+    "report_path": "/s/d5e21e674b464d16/r/.task-sandbox-proof.json",
+    "calls": [
+      {
+        "call_id": "managed-verification:c528d079-ed3a-4910-b6c6-80685e662317",
+        "name": "read",
+        "is_error": true
+      },
+      {
+        "call_id": "managed-verification:de3b24ce-1fbe-4157-a400-ec15d378950d",
+        "name": "read",
+        "is_error": false
+      },
+      {
+        "call_id": "managed-verification:88ddf276-8b00-4cdd-979b-e8e081c8b6b9",
+        "name": "grep",
+        "is_error": false
+      },
+      {
+        "call_id": "managed-verification:57234845-9c04-4483-9fa8-34b87272fa53",
+        "name": "bash",
+        "is_error": false
+      }
+    ],
+    "source": "native_sdk_fixed_probe",
+    "attempted_by_agent": false
+  },
+  "namespace": {
+    "hidden_host_paths": true,
+    "no_control_environment": true,
+    "private_process_namespace": true,
+    "private_network_namespace": true,
+    "protected_open_denied": true,
+    "public_python_dependencies": true,
+    "legal_workspace_write": true
+  }
+}

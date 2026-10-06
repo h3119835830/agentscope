@@ -1,28 +1,37 @@
 import http from 'node:http';
 import {createRequester} from './transport.js';
-import {publicEvent,restorePublicSession,publicQuestionAnswer,acceptedUserMessages} from './public-session.js';
+import {publicEvent,restorePublicSession,publicQuestionAnswer,acceptedUserMessages,receivedOperationFeedback} from './public-session.js';
 import {createExecutionLane} from './execution-lane.js';
 import {randomUUID, timingSafeEqual} from 'node:crypto';
 import {createUserMessage} from '@deepseek-ai/dsh-llm';
-import {defineTool} from '@deepseek-ai/dsh-tools';
+import {installTaskSandbox,TASK_TOOLS} from './task-sandbox.js';
+import {runtimeObservation} from './runtime-observation.js';
+import {verifyTaskSandbox} from './verify-task-sandbox.js';
 export const name='agentscope-managed-native-web';
-export const inject=['tools','sessions','sessionController','connection','workspaceRegistry','sandboxPolicy'];
+export const inject=['tools','sessions','sessionController','connection','workspaceRegistry','sandboxPolicy','sandbox','subprocess','fs','systemPrompt'];
 const text = value => typeof value === 'string' ? value : (value?.content || value?.message?.content || []).filter(x=>x.type==='text').map(x=>x.text).join('\n');
 export function apply(ctx) {
  const task=process.env.AGENTSCOPE_TASK_ID, token=process.env.AGENTSCOPE_TASK_TOKEN;
  const base=process.env.AGENTSCOPE_URL, workspace=process.env.AGENTSCOPE_MANAGED_WORKSPACE;
  const port=Number(process.env.AGENTSCOPE_NATIVE_PORT), secret=process.env.AGENTSCOPE_NATIVE_TOKEN;
+ let compaction=null;
+ ctx.inject(['compaction'],child=>{compaction=child.compaction;child.on('dispose',()=>{compaction=null;});});
  let sid=null, turn=0, transportError=null, pending=Promise.resolve(); const starts=new Map(); const visible=[];
  const transport={retry_count:0,recovered_calls:0,state:'connected'};
  const request=createRequester({onRetry:()=>{transport.retry_count++;transport.state='retrying';},onRecovery:()=>{transport.recovered_calls++;transport.state='connected';}});
  async function api(path,args) {
   return request(base+'/api/plugin/tasks/'+task+'/managed/'+path,{method:args?'POST':'GET',headers:{'content-type':'application/json',authorization:'Bearer '+token},body:args?JSON.stringify({args}):undefined});
  }
+ for(const key of Object.keys(process.env))if(key.startsWith('AGENTSCOPE_')||key.startsWith('ACTPLANE_'))delete process.env[key];
  const acquire=createExecutionLane();
+ installTaskSandbox(ctx,workspace);
+ ctx.on('system-prompt/assemble',async(assembly,context,next)=>{
+  const result=await next();result.tools=result.tools.filter(tool=>TASK_TOOLS.has(tool.name));return result;
+ });
  const resolvePolicy=ctx.sandboxPolicy.resolve.bind(ctx.sandboxPolicy);
  ctx.sandboxPolicy.resolve=request=>{
   const policy=resolvePolicy(request);
-  return request?.session?.id===sid?{...policy,mode:policy.mode==='danger-full-access'?'workspace-write':policy.mode,workspaceRoot:workspace.slice(0,workspace.lastIndexOf('/'))}:policy;
+  return request?.session?.id===sid?{...policy,mode:policy.mode==='danger-full-access'?'workspace-write':policy.mode,workspaceRoot:workspace}:policy;
  };
  ctx.on('approval/request',async(req,next)=>{
   if(req.agent?.id!==sid)return next();
@@ -30,8 +39,11 @@ export function apply(ctx) {
   return 'rejected';
  });
  ctx.on('session/event',(session,event)=>{
-  if(sid && sid!==session.id)return;
+  if(!sid || sid!==session.id)return;
   const type=event.type, data=event.data||event;
+  try {const observation=runtimeObservation(session,event);if(observation)pending=pending.then(()=>api('events',observation)).catch(e=>{transportError=e;console.error('Runtime observation transport:',e.message);});}
+  catch(e){transportError=e;}
+  for(const received of receivedOperationFeedback(session,event))pending=pending.then(()=>api('events',received)).catch(e=>{transportError=e;});
   for(const accepted of acceptedUserMessages(session,event))pending=pending.then(()=>api('events',accepted)).catch(e=>{transportError=e;console.error('AgentScope accepted-message transport:',e.message);});
   const answered=publicQuestionAnswer(session,event);
   if(answered)pending=pending.then(()=>api('events',{kind:'user_question_answer',session_id:session.id,event_key:'question:'+answered.call_id,...answered})).catch(e=>{transportError=e;console.error('AgentScope question evidence transport:',e.message);});
@@ -45,6 +57,7 @@ export function apply(ctx) {
  });
  ctx.on('tools/pre-execute',async(exec,next)=>{
   if(!sid || exec.agent?.id!==sid)return {kind:'deny',reason:'Only the bound managed session can execute tools.'};
+  if(!TASK_TOOLS.has(exec.name))return {kind:'deny',reason:'This tool is unavailable in the task execution environment.'};
   return next();
  });
  // DSH preflights a whole parallel batch before dispatch. Serialize the bodies,
@@ -64,7 +77,7 @@ export function apply(ctx) {
    }
    exec.signal.throwIfAborted();
    let argumentsObject=exec.arguments;try{if(typeof argumentsObject==='string')argumentsObject=JSON.parse(argumentsObject);}catch{argumentsObject={};}
-   const start={session_id:sid,call_id:String(exec.callId),name:exec.name,pid:process.pid,native_sdk_verification:String(exec.callId).startsWith('managed-verification:'),kind:'tool_start',event_key:String(exec.callId),started:{version:state.version,turn},target:argumentsObject&&typeof argumentsObject==='object'?String(argumentsObject.path||argumentsObject.filePath||''):'',serialized:true};
+   const start={session_id:sid,call_id:String(exec.callId),name:exec.name,pid:process.pid,native_sdk_verification:String(exec.callId).startsWith('managed-verification:'),kind:'tool_start',event_key:String(exec.callId),started:{turn},target:argumentsObject&&typeof argumentsObject==='object'?String(argumentsObject.path||argumentsObject.filePath||argumentsObject.file_path||''):'',serialized:true};
    starts.set(exec.callId,start);await api('events',start);started=true;
    let result;
    try{result=await next();return result;}
@@ -80,16 +93,11 @@ export function apply(ctx) {
    const response=await api('feedback',{call_id:String(exec.callId)});
    const downstream=await next();
    if(!response.events.length)return downstream;
-   const message='[ActPlane verified OS feedback] '+JSON.stringify(response.events)+'\nThese records describe actual kernel denials. Keep the startup baseline and use a compliant alternative; denial is not authorization to expand.';
-   await api('events',{kind:'feedback_delivery',event_key:String(exec.callId),session_id:sid,call_id:String(exec.callId),name:exec.name,feedback:message,event_ids:response.events.map(e=>e.id)});
+   const message='[ActPlane operation feedback] '+JSON.stringify(response.events)+'\nAdjust the task operation using the available project materials. Ask the user if the task cannot be completed within this execution environment.';
+   await api('events',{kind:'feedback_offer',event_key:String(exec.callId),session_id:sid,call_id:String(exec.callId),name:exec.name,feedback:message,event_ids:response.events.map(e=>e.id)});
    return {...downstream,additionalContexts:[createUserMessage({content:[{type:'text',text:message}],source:{kind:'context'}}),...(downstream.additionalContexts||[])]};
   }
  });
- for(const [toolName,description,parameters,run] of [
-  ['agentscope_get_current_scope','Read the controller-verified current OS policy, immutable baseline, and bounded constraint assessment/resolution records. Use this tool for control-plane facts; historical reports do not establish current permissions.',{},()=>api('gate')],
-  ['agentscope_record_action_decision','Record your refusal or deferral of an operation. This is an Agent statement, not proof of kernel interception.',{decision:{type:'string',enum:['refuse','defer'],required:true},operation:{type:'string',required:true},target:{type:'string',required:true},reason:{type:'string',required:true}},args=>api('events',{kind:'agent_decision',event_key:randomUUID(),session_id:sid,decision:args.decision,operation:args.operation,target:args.target,reason:args.reason,turn})],
-  ['agentscope_request_scope_change','Request a candidate runtime change. Expansion requires separate human confirmation.',{kind:{type:'string',required:true},justification:{type:'string',required:true}},args=>api('change',{kind:args.kind,text:args.justification,request_key:randomUUID()})]
- ])ctx.tools.register(defineTool({name:toolName,description,parameters,output:{schema:{type:'string'},render:(_a,v)=>[{type:'text',text:v}]},async execute(args){return JSON.stringify(await run(args));}}));
  const server=http.createServer(async(req,res)=>{
   try{
    const supplied=req.headers.authorization||'',expected='Bearer '+secret;
@@ -97,18 +105,30 @@ export function apply(ctx) {
    let raw='';for await(const chunk of req){raw+=chunk;if(raw.length>18000)throw Error('request too large');}
    const data=JSON.parse(raw||'{}');const signal=AbortSignal.timeout(30000);let result;
    if(data.operation==='create'){
-    const registered=await ctx.workspaceRegistry.create(workspace,'受管任务 '+task);
+    const registered=await ctx.workspaceRegistry.create(workspace,'任务工作区');
     const created=await ctx.sessionController.create({workspaceId:registered.id,agentPreset:'standard',...(data.session_id?{sessionId:data.session_id}:{})});sid=created.sessionId;const found=await ctx.sessionController.resolveAgent(sid);if(found.error)throw found.error;const restored=restorePublicSession(found.agent.session);turn=restored.turn;visible.splice(0,visible.length,...restored.events);result=created;
    }else{
     if(!sid || data.session_id!==sid)throw Error('session binding mismatch');
     if(data.operation==='open_url')result={url:ctx.connection.authenticatedUrl('http://127.0.0.1:'+String(port-100)+'/')};
     else if(data.operation==='prompt')result=await ctx.sessionController.prompt({sessionId:sid,requestId:data.request_id||randomUUID(),mode:'queue',content:[{type:'text',text:data.text}],clientTimeZone:'Asia/Shanghai'},signal);
-    else if(data.operation==='verify_delayed_open'){
+    else if(data.operation==='compact'){
+      const found=await ctx.sessionController.resolveAgent(sid);if(found.error)throw found.error;
+      if(found.agent.status!=='idle'||(await api('gate')).gate!=='open')throw Error('Wait for the native session and analysis gate');
+      if(!compaction)throw Error('Native compaction engine unavailable.');
+      const compacted=await compaction.compactNow(found.agent,AbortSignal.timeout(60000));
+      await ctx.parallel('session/flush',found.agent.session);await pending;if(transportError)throw transportError;
+      result={compacted:!!compacted,session_id:sid,source:'native_manual_compaction',private_content_exported:false};
+     }
+     else if(data.operation==='verify_task_sandbox'){
+      const found=await ctx.sessionController.resolveAgent(sid);if(found.error)throw found.error;
+      if(found.agent.status!=='idle'||(await api('gate')).gate!=='open')throw Error('Wait for the native session and analysis gate');
+      result=await verifyTaskSandbox(ctx,found.agent,workspace,signal);
+     }
+     else if(data.operation==='verify_delayed_open'){
      const found=await ctx.sessionController.resolveAgent(sid);if(found.error)throw found.error;
      if(found.agent.status!=='idle')throw Error('Native session must be idle for independent verification');
      const state=await api('gate');
-     const targets=[...state.baseline.protected_files,...state.scope.protected_paths.filter(p=>!p.includes('*')).map(p=>workspace+'/'+p)];
-     if(state.gate!=='open'||!targets.includes(data.target))throw Error('Only confirmed protected files may be verified');
+     if(state.gate!=='open')throw Error('Execution is paused');
      const callId='managed-verification:'+randomUUID(),output=workspace+'/.managed-late-'+randomUUID()+'.txt';
      const program='import os,time;time.sleep(8)\ntry:\n fd=os.open('+JSON.stringify(data.target)+',os.O_WRONLY);os.close(fd);result="allowed"\nexcept PermissionError: result="blocked"\nopen('+JSON.stringify(output)+',"w").write(result)';
      const quote=value=>"'"+value.replaceAll("'","'\\''")+"'";

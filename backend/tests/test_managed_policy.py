@@ -554,16 +554,13 @@ def test_accepted_native_message_resolves_wait_without_duplicate_dispatch(bound,
         assert con.execute('SELECT count(*) FROM managed_jobs WHERE task_id=?',(task,)).fetchone()[0]==1
         payload=json.loads(con.execute("SELECT payload_json FROM managed_events WHERE task_id=? AND kind='request'",(task,)).fetchone()[0]);assert payload['accepted_turn']==2 and payload['dispatched_turn']==3 and payload['turn']==3
 
-def test_current_scope_reports_actual_clarification_history_and_resolution(bound):
+def test_executor_gate_hides_policy_and_assessment_records(bound):
     task,state,_=bound
     with db.connect() as con:
         c.event(con,task,'control_pause','necessary',{'request_ids':['7'],'reason':'Necessary OS boundary unresolved','version':1})
         c.event(con,task,'request_resolved','clarified',{'evidence_ids':['7','8'],'decision':'no_change'})
-    scope=c.gate(task);history=scope['constraint_assessments']['clarification_history']
-    assert scope['version']==1 and scope['gate']=='open'
-    assert history[0]['request_ids']==['7'] and history[0]['resolved_request_ids']==['7']
-    assert not scope['constraint_assessments']['pending_request_ids']
-    assert 'not_permission_grants' in scope['constraint_assessments']['authority']
+    assert c.gate(task)=={'gate':'open','phase':'running'}
+    with db.connect() as con:assert c.load(con,task)['baseline_hash']=='safety'
 
 
 def test_loaded_output_execution_target_survives_pending_target_removal(bound,monkeypatch):
@@ -648,3 +645,89 @@ def test_startup_clarification_requires_authenticated_control_plane(bound):
     with TestClient(app) as client:
         response=client.post('/api/managed/tasks/'+bound[0]+'/startup/clarify',json={'text':'Untrusted request'})
     assert response.status_code==401
+
+
+def test_runtime_observation_is_hashed_deduplicated_and_not_user_authority(bound,monkeypatch):
+    task,state,_=bound;calls=[]
+    def enqueue(con,task_id,s,text,key,**kw):
+        calls.append((s.copy(),kw));return {'id':'observed'}
+    monkeypatch.setattr(c,'enqueue',enqueue)
+    content='Task memory: preserve src/locked.py.'
+    payload={'kind':'runtime_observation','session_id':state['session_id'],'event_key':'context1','category':'memory','type':'compaction/summary','seq':42,'content':content,'content_hash':__import__('hashlib').sha256(content.encode()).hexdigest()}
+    assert c.ingest(task,payload)=={'id':'observed'}
+    assert calls[0][1]['actor']=='native_context'
+    assert c.ingest(task,{**payload,'event_key':'context2'})['deduplicated']
+    assert len(calls)==1
+    with db.connect() as con:
+        observation=c.load(con,task)['runtime_observations']['memory']
+        assert observation['content']==content and 'not_authorization' in observation['authority']
+    with pytest.raises(ValueError,match='hash mismatch'):c.ingest(task,{**payload,'content_hash':'forged'})
+
+
+def test_operation_feedback_contains_no_control_policy(bound):
+    from agentscope_app.managed.feedback import operation_feedback
+    raw={'pid':99,'process_domain_id':7,'op':'write','target':'/tmp/work/tests/test.py','rule':{'id':'private-rule','reason':'private DSL and full policy'}}
+    value=operation_feedback(1,raw,{'workspace':'/tmp/work','output_dir':'/tmp/output'})
+    assert value['target']==raw['target'] and value['result']=='denied'
+    assert not ({'pid','rule','version','policy_hash','process_domain_id','baseline'}&value.keys())
+    assert 'private-rule' not in json.dumps(value)
+    assert operation_feedback(2,{**raw,'target':'/opt/agentscope-history-v1/backend/secret'},{'workspace':'/tmp/work','output_dir':'/tmp/output'})['target']=='<outside task execution environment>'
+
+
+def test_feedback_receipt_requires_matching_kernel_offer(bound):
+    task,state,_=bound
+    args={'kind':'feedback_received','session_id':state['session_id'],'event_key':'received','feedback':'[ActPlane operation feedback] denied'}
+    with pytest.raises(ValueError,match='no matching'):c.ingest(task,args)
+    with db.connect() as con:c.event(con,task,'feedback_offer','call',{'call_id':'call','feedback':args['feedback'],'event_ids':[42]})
+    c.ingest(task,args)
+    with db.connect() as con:
+        value=json.loads(con.execute("select payload_json from managed_events where task_id=? and kind='feedback_delivery'",(task,)).fetchone()[0])
+        assert value['event_ids']==[42] and 'native_context_observed' in value['authority']
+
+
+def test_pi_context_publishes_fixed_temporary_area_as_already_granted(bound,monkeypatch):
+    task,state,_=bound;monkeypatch.setattr(c,'context',lambda *a:{})
+    with db.connect() as con:
+        job=c.enqueue(con,task,state,'Create a temporary task file','fixed-temporary')
+        frozen=json.loads(con.execute('SELECT context_json FROM managed_jobs WHERE id=?',(job['id'],)).fetchone()[0])
+        task_row=c.task_row(con,task)
+    temporary=next(t for t in frozen['capabilities']['execution_targets'] if t['kind']=='task_temporary')
+    assert temporary['path']==str(Path(task_row['workspace']).parent/'tmp')
+    assert temporary['granted'] and temporary['operations']==['read','write','unlink']
+    assert frozen['base_snapshot']['payload']['allowed_write_dirs']==['.']
+    assert all(x['kind']!='task_temporary' for x in frozen['capabilities']['expansion_targets'])
+
+
+def test_compaction_is_authenticated_control_plane_maintenance(bound):
+    with TestClient(app) as client:
+        assert client.post('/api/managed/tasks/'+bound[0]+'/compact',json={}).status_code==401
+
+
+def test_failed_native_admission_marks_replacement_failed_and_stops_domain(bound,monkeypatch):
+    task,state,_=bound;state={**state,'phase':'generating','gate':'applying'};calls=[]
+    with db.connect() as con:c.save(con,task,state)
+    def broker(request,**kw):
+        calls.append(request['action'])
+        if request['action']=='launch':return {'domain_id':77}
+        if request['action']=='native-session':raise RuntimeError('Native service unavailable')
+        if request['action']=='stop':return {'stopped':True}
+        raise AssertionError(request)
+    monkeypatch.setattr(c,'broker',broker)
+    with pytest.raises(RuntimeError,match='Native service unavailable'):c.install(task,state,['.'],False,initial=True)
+    with db.connect() as con:
+        failed=c.load(con,task);row=c.task_row(con,task)
+    assert failed['phase']=='failed' and failed['gate']=='failed'
+    assert row['active_pid'] is None and row['watch_pid'] is None
+    assert calls[-1]=='stop'
+
+
+def test_recovery_retains_unapproved_expansion_intent_without_grant(bound,monkeypatch):
+    task,state,_=bound
+    state={**state,'phase':'recovering','pending_expansion':{'hash':'old-candidate','proposal':proposal(decision='expand',allow_output=True,protected_paths=[])}}
+    with db.connect() as con:c.save(con,task,state)
+    replies={'launch':{'domain_id':51,'runner_pid':99,'watch_pid':98,'web_url':'http://127.0.0.1:18020/'},'native-session':{'sessionId':state['session_id']},'managed-verify':{'passed':True,'probe':{'pid':100}},'status':{'status':'running','domain_id':51}}
+    monkeypatch.setattr(c,'broker',lambda request,**kw:replies[request['action']])
+    installed=c.install(task,state,['.'],False,initial=True)
+    assert installed['pending_expansion'] is None and not installed['allow_output']
+    assert installed['pending_expansion_intent']['proposed_snapshot']['allow_output']
+    assert installed['pending_expansion_intent']['prior_hash']=='old-candidate'

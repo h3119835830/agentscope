@@ -27,12 +27,13 @@ def persisted_feedback(task_row,session_id,deliveries):
 const fs=require('node:fs'),zlib=require('node:zlib'),crypto=require('node:crypto');
 const input=JSON.parse(fs.readFileSync(0,'utf8')),buffer=fs.readFileSync(input.path);
 const rows=input.frames.map(([offset,size])=>zlib.zstdDecompressSync(buffer.subarray(offset,offset+size)).toString('utf8')).join('').split('\n');
-const results=[],userHashes=[],questionAnswers=[],questionCalls=new Set();
+const results=[],userHashes=[],questionAnswers=[],questionCalls=new Set(),memory=[];
 const digest=text=>crypto.createHash('sha256').update(text).digest('hex');
 const canonical=value=>Array.isArray(value)?'['+value.map(canonical).join(',')+']':value&&typeof value==='object'?'{'+Object.keys(value).sort().map(k=>JSON.stringify(k)+':'+canonical(value[k])).join(',')+'}':JSON.stringify(value);
 for(const line of rows){
  if(!line)continue;
  const event=JSON.parse(line),data=event.data||{};
+ if(event.type==='compaction/summary')memory.push({seq:event.seq,type:event.type,hash:digest((data.summary||[]).filter(p=>p.type==='text').map(p=>p.text).join('\n'))});
  if(event.type==='tool/call'&&data.name==='ask_user_question')questionCalls.add(String(data.callId));
  if(event.type==='tool/result'&&questionCalls.has(String(data.message?.toolCallId))&&!data.message?.isError){
   try{const reply=JSON.parse((data.message.content||[]).filter(p=>p.type==='text').map(p=>p.text).join('\n'));
@@ -45,18 +46,18 @@ for(const line of rows){
  for(const message of messages){
   if(message.source?.kind!=='context')continue;
   for(const part of message.content||[]){
-   if(part.type!=='text'||!part.text.startsWith('[ActPlane verified'))continue;
+   if(part.type!=='text'||!part.text.startsWith('[ActPlane verified')&&!part.text.startsWith('[ActPlane operation feedback]'))continue;
    results.push({hash:crypto.createHash('sha256').update(part.text).digest('hex'),event_type:event.type,source:'context'});
   }
  }
 }
-console.log(JSON.stringify({feedback:results,dispatched_user_message_hashes:userHashes,question_answers:questionAnswers}));
+console.log(JSON.stringify({feedback:results,dispatched_user_message_hashes:userHashes,question_answers:questionAnswers,runtime_memory:memory}));
 """
     result=subprocess.run(['/opt/agentscope/bin/node','-e',javascript],input=json.dumps({'path':str(path),'frames':frames}),text=True,capture_output=True,timeout=30,check=True)
     native=json.loads(result.stdout);hashes={record['hash'] for record in native['feedback']}
     receipts=[{'delivery_event_id':event['id'],'kernel_event_ids':event['payload'].get('event_ids',[]),'public_feedback_sha256':hashlib.sha256(event['payload']['feedback'].encode()).hexdigest()} for event in deliveries if event['payload'].get('feedback')]
     for receipt in receipts:receipt['native_context_persisted']=receipt['public_feedback_sha256'] in hashes
-    return {'passed':bool(receipts) and all(x['native_context_persisted'] for x in receipts),'session_id':session_id,'receipts':receipts,'dispatched_user_message_hashes':native['dispatched_user_message_hashes'],'question_answers':native['question_answers'],'private_content_exported':False}
+    return {'passed':bool(receipts) and all(x['native_context_persisted'] for x in receipts),'session_id':session_id,'receipts':receipts,'dispatched_user_message_hashes':native['dispatched_user_message_hashes'],'question_answers':native['question_answers'],'runtime_memory':native['runtime_memory'],'private_content_exported':False}
 
 def build(state_dir,task_ids,out):
     grouped={t:[] for t in task_ids}

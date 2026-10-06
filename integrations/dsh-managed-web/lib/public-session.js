@@ -1,3 +1,4 @@
+import {createHash} from 'node:crypto';
 // Only public content crosses the managed control/evidence seam.
 export function publicEvent(sessionId,event,currentTurn=0) {
  const type=event.type,data=event.data||{};
@@ -34,4 +35,11 @@ export function acceptedUserMessages(session,event) {
   event_key:'accepted:'+session.id+':'+message.source.rpcId,
   text:(message.content||[]).filter(part=>part.type==='text').map(part=>part.text).join('\n')
  }));
+}
+
+// Receipt only from actual Native context admission; a hook return is an offer.
+export function receivedOperationFeedback(session,event) {
+ if(event.type==='agent/inbox/spliced'&&event.data?.outcome==='canceled')return [];
+ const messages=event.type==='user/message'?[event.data]:event.type==='agent/inbox/spliced'?(event.data?.inserted||[]):[];
+ return messages.filter(message=>message.source?.kind==='context').map(message=>(message.content||[]).filter(part=>part.type==='text').map(part=>part.text).join('\n')).filter(content=>content.startsWith('[ActPlane operation feedback]')).map(feedback=>({kind:'feedback_received',session_id:session.id,event_key:'feedback-received:'+session.id+':'+event.seq+':'+createHash('sha256').update(feedback).digest('hex').slice(0,16),feedback}));
 }

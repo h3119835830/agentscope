@@ -1,0 +1,19 @@
+{
+  "task": "d5e21e674b464d16",
+  "before": {
+    "session_id": "session-236b7d71-7d25-4703-8f54-1b87a632c8de",
+    "version": 5,
+    "baseline_hash": "e28f00564bea5250b28ffe10856660d6c792149f64c4461ccaf0ff11e91d76ba",
+    "domain_id": 820679815
+  },
+  "after": {
+    "session_id": "session-236b7d71-7d25-4703-8f54-1b87a632c8de",
+    "version": 6,
+    "baseline_hash": "e28f00564bea5250b28ffe10856660d6c792149f64c4461ccaf0ff11e91d76ba"
+  },
+  "new_domain": true,
+  "same_session": true,
+  "baseline_retained": true,
+  "output_granted": true,
+  "output_created": true
+}

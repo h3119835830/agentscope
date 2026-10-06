@@ -150,3 +150,17 @@ def verify_deferred(task_id:str,body:OperationProbe):
     receipt=run(c.broker,{'action':'native-session','task_id':task_id,'operation':'verify_delayed_open','session_id':s['session_id'],'target':body.target},timeout=20)
     with db.connect() as con:c.event(con,task_id,'native_sdk_verification',receipt['call_id'],receipt)
     return receipt
+
+
+@router.post('/api/managed/tasks/{task_id}/verify-task-sandbox')
+def verify_task_sandbox(task_id:str):
+    with db.connect() as con:s=c.load(con,task_id)
+    if s['phase']!='running' or s['gate']!='open':raise HTTPException(409,'Wait for the bound task and analysis gate')
+    return run(c.broker,{'action':'native-session','task_id':task_id,'operation':'verify_task_sandbox','session_id':s['session_id']},timeout=40)
+
+
+@router.post('/api/managed/tasks/{task_id}/compact')
+def compact_native(task_id:str):
+    with db.connect() as con:s=c.load(con,task_id)
+    if s['phase']!='running' or s['gate']!='open':raise HTTPException(409,'Wait for the bound task and analysis gate')
+    return run(c.broker,{'action':'native-session','task_id':task_id,'operation':'compact','session_id':s['session_id']},timeout=70)

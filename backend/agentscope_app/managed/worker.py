@@ -123,7 +123,9 @@ class Worker:
                         pending=[(ident,p) for ident,p in pending if not p.get('verification_probe') and p.get('tool_call_id') and con.execute("SELECT 1 FROM managed_events WHERE task_id=? AND kind='tool_result' AND event_key=?",(task_id,p['tool_call_id'])).fetchone()]
                     for ident,payload in pending:
                         raw=payload['event']
-                        feedback='[ActPlane verified late OS feedback] '+json.dumps({'event_id':ident,'call_id':payload['tool_call_id'],'turn':payload.get('turn'),'pid':raw['pid'],'domain':raw.get('process_domain_id'),'operation':raw['op'],'target':raw['target'],'rule':raw.get('rule'), 'alternative':'Keep the immutable startup baseline; use confirmed writable targets or request a separately reviewed expansion.'})
+                        from .feedback import operation_feedback
+                        with db.connect() as con:task=c.task_row(con,task_id)
+                        feedback='[ActPlane operation feedback] '+json.dumps(operation_feedback(ident,raw,task))
                         acknowledgement=c.broker({'action':'native-session','task_id':task_id,'operation':'resume','session_id':state['session_id'],'text':feedback},timeout=10)
                         if not acknowledgement.get('persisted'):raise ValueError('Native feedback has no durable session acknowledgement')
                         with c.lock(task_id),db.connect() as con:c.event(con,task_id,'feedback_delivery','late:'+str(ident),{'session_id':state['session_id'],'call_id':payload['tool_call_id'],'event_ids':[ident],'feedback':feedback,'source':'durable_background_outbox','authority':'native_context_persisted'})
