@@ -23,7 +23,7 @@ if(launch.status!==0)throw new Error('Could not create local browser session');
     assert.ok((await context.cookies()).find(c=>c.name==='agentscopeLocalSession')?.httpOnly);
     assert.equal(await page.locator('.scope-pane .scope-permissions tbody tr').count(),6);
     assert.equal(await page.locator('.scope-stages button.done').count(),5);
-    assert.equal(await page.locator('.sidebar').isVisible(),false);
+    assert.equal(await page.locator('.sidebar').isVisible(),true);
     assert.equal(await page.getByRole('button',{name:'结束并撤销',exact:true}).count(),0);
     await page.getByText('执行后端可用',{exact:true}).waitFor();
     await page.screenshot({path:path.join(output,'scope-desktop.png'),fullPage:true});

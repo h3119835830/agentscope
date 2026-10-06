@@ -62,7 +62,7 @@ const entrance=JSON.parse(ticket.stdout.trim()).url; // One-use ticket stays in 
       assert.equal(await page.evaluate(()=>sessionStorage.getItem('agentscopeAdminToken')),null);
       assert.ok((await context.cookies()).find(c=>c.name==='agentscopeLocalSession')?.httpOnly);
       assert.equal(new URL(page.url()).hash,'');
-      assert.equal(await page.locator('.sidebar').isVisible(),false);
+      assert.equal(await page.locator('.sidebar').isVisible(),true);
       await permissions(state.current.payload);
       await page.getByRole('button',{name:'DSH 连接详情',exact:true}).click();
       const connection=page.getByRole('dialog');await connection.waitFor({state:'visible'});

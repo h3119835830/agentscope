@@ -1,5 +1,17 @@
 # BUG — 已复现问题与整改
 
+## 2026-10-06 公共导航与页面恢复
+
+|问题|复现与根因|修复与验收|
+|---|---|---|
+|任务工作台和历史策略库切换时连导航布局也变化|18003 实际页面复现：scope-demo-shell 隐藏侧栏并换顶部导航，strategies 恢复完整侧栏|移除模块特有的公共壳层 CSS 与 JSX，全部模块复用侧栏和面包屑；由 navigation_ui_acceptance.cjs 检查七模块布局、刷新、折叠与窄屏。|
+|历史策略库刷新跳回任务工作台|点击 setPage 只改变 React 状态，URL 仍为 view=scope-demo；刷新按 URL 初始化|统一 view/section/task 导航状态与 pushState/popstate，工作台任务选择受控；验收覆盖模块、二级页签及任务的刷新/前进/后退。|
+|运行时 Scope 选择任务跳到启动审核|RuntimePage 复用会调用 setPage('task') 的 selectTask|区分原模块内选择任务与明确打开启动审核；实际 UI 验收检查 runtime 下切换任务仍为 runtime。|
+
+验收结果与证据见 REVIEW 的 2026-10-06 公共导航章节。修改限 AgentScope 前端与验收脚本。
+
+## 2026-10-05 执行闭环与后续验收
+
 日期：2026-10-05。
 
 |问题|复现与根因|修复与验收|

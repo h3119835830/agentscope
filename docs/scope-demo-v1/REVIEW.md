@@ -149,3 +149,38 @@ Pi/DSH 或真人逐项点击批准。真实运行截图记录当时状态，不�
 scope-ui.json、scope-full.json、scope-execution-summary.json、scope-closure.json 及阶段截图。
 完整报告导出前检查私有环境凭据值未出现。现阶段仍缺空闲心跳和任意手工 DSH 自动接入，
 不能将这次展示修正描述为实现上述能力。
+
+## 2026-10-06 固定公共导航与 URL 状态
+
+用户确认以完整左侧工作区导航和顶部面包屑作为固定布局。此前只在 Scope Demo
+隐藏侧栏的选择已废弃：全部七个模块复用同一公共壳层，侧栏折叠仍由用户控制，
+650px 以下统一进入紧凑模式。公共顶栏沿用真实语义“执行后端可用”。
+
+App 统一持有 view/section/task，模块、历史策略库页签和任务切换同步到浏览器历史；
+刷新与 popstate 恢复真实选择。ScopeWorkbench 的任务选择受同一状态控制，切换任务
+时清理旧详情和页签。运行时 Scope/Agent 接入在原模块内选择任务，明确打开启动审核
+的入口才跳转。未修改控制 API、审批、凭据、策略、DSH/Pi 或 Broker。
+
+|验收|本轮结果|
+|---|---|
+|私有前端构建|Vite 38 模块通过，仅更新 /var/lib/agentscope-scope-demo/ui；未重启 API/Broker/DSH，未修改共享旧实例 UI。|
+|七模块桌面导航|实际 18003 服务、全新浏览器会话；七模块侧栏都为 244px，面包屑/选中项/URL 一致，各自刷新恢复正确。|
+|423px 窄屏|七模块侧栏保持可用，统一紧凑模式，页面无水平溢出。|
+|浏览器历史|模块、历史策略库二级页签和任务选择的后退/前进、刷新均通过；运行时切换任务保持 runtime。|
+|侧栏偏好|折叠后切换模块、刷新仍保留；恢复桌面后可手动展开。|
+|既有 Scope UI|真实已结束任务与待开始任务的切换、权限/连接详情、短记录、审核、键盘、焦点、窄屏通过；五个历史状态回放用例通过。|
+|展示状态回归|16 项 scope_view.test.mjs 通过，包括未核验不宣称生效、结束/旧域回传与进程存活区分。|
+|页面与读取请求|两套浏览器验收 pageErrors=[]；七模块导航的 failedReads=[]。|
+
+scope_ui_acceptance 的历史状态回放使用此前已公开的 Windows 证据镜像；虚拟机
+root 保护的原报告不能由普通账号通过 UNC 读取，未放宽任何报告目录权限。
+
+本轮不重新运行真实 DSH/Pi/内核生命周期，也不将历史回放或导航通过计作新的内核
+验收。既有运行执行证据保持其原始日期和结论；本轮完成的是公共导航与页面恢复修复。
+
+证据：技术文档 REVIEW/evidence/scope-demo-20261006/navigation/navigation-ui.json、
+navigation-scope-desktop.png、navigation-history-desktop.png、navigation-scope-423.png、
+navigation-history-423.png；scope-regression/scope-ui.json 和对应页面截图。
+
+修改仅限 AgentScope 前端、UI 验收脚本及 RFC/ADR/REVIEW/BUG/DESIGN 文档；
+没有普通业务 Java、业务数据库迁移或跨服务接口变更。完整 diff 已按此边界核查。

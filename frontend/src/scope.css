@@ -1,12 +1,3 @@
-.scope-demo-shell{--scope-ink:#23344b;--scope-muted:#607086;--scope-line:#e2e7ee;--scope-blue:#245da8;background:#f5f7fa;color:var(--scope-ink);font-family:"Microsoft YaHei","Noto Sans CJK SC","PingFang SC",sans-serif}
-.shell.scope-demo-shell .sidebar{display:none}
-.shell.scope-demo-shell .main{margin-left:0;width:100%}
-.scope-demo-shell .topbar{position:static;height:64px;padding:0 max(24px,calc((100vw - 1080px)/2));box-shadow:none}
-.scope-app-brand{font-size:17px;letter-spacing:-.3px;margin-right:32px}
-.scope-app-nav{display:flex;align-items:center;gap:24px}
-.scope-app-nav button{padding:22px 0 19px;border:0;border-bottom:2px solid transparent;background:none;color:#607086;font-size:13px}
-.scope-app-nav button[aria-current=page]{color:#23344b;border-bottom-color:#245da8;font-weight:600}
-.scope-demo-shell .top-right{gap:14px}.scope-demo-shell .status-pill,.scope-demo-shell .avatar{font-size:12px}
 .scope-workbench{--scope-ink:#23344b;--scope-muted:#607086;--scope-line:#e2e7ee;--scope-blue:#245da8;max-width:1128px;margin:0 auto;padding:36px 24px 48px;min-width:0;font-size:14px;line-height:1.6}
 .scope-workbench h1{font-size:26px;font-weight:650;line-height:1.35;letter-spacing:-.5px;margin:0 0 10px}
 .scope-workbench h2{font-size:18px;line-height:1.4;margin:0;font-weight:650}
@@ -24,7 +15,7 @@
 .scope-link,.scope-record-open{border:0;background:none;color:var(--scope-blue);font:inherit;font-size:12px;padding:4px 0;cursor:pointer}
 .scope-link.danger{color:#a5433d}.scope-button:disabled,.scope-link:disabled{opacity:.55;cursor:default}
 .scope-button:hover:enabled{filter:brightness(.97)}.scope-link:hover,.scope-record-open:hover{text-decoration:underline}
-.scope-workbench button:focus-visible,.scope-workbench select:focus-visible,.scope-workbench textarea:focus-visible,.scope-workbench summary:focus-visible,.scope-app-nav button:focus-visible{outline:3px solid #82b2eb;outline-offset:3px}
+.scope-workbench button:focus-visible,.scope-workbench select:focus-visible,.scope-workbench textarea:focus-visible,.scope-workbench summary:focus-visible{outline:3px solid #82b2eb;outline-offset:3px}
 .scope-badge{display:inline-block;color:#536176;background:#f0f3f7;border-radius:4px;padding:3px 8px;font-size:12px;font-weight:500;line-height:1.5;white-space:nowrap}
 .scope-badge.good{color:#246b52;background:#edf6f1}.scope-badge.warn{color:#8b591b;background:#fff3df}
 .scope-stages{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));margin-bottom:26px;background:#fff;border:1px solid var(--scope-line);border-radius:8px;overflow:auto}
@@ -89,9 +80,6 @@
   .scope-heading{flex-direction:column;gap:18px}.scope-stages button{padding:16px 12px;gap:8px}.scope-workbench{padding-top:28px}
 }
 @media(max-width:650px){
-  .scope-demo-shell .topbar{padding:0 16px;height:58px}.scope-app-brand{font-size:15px;margin-right:14px}
-  .scope-app-nav{gap:14px}.scope-app-nav button{font-size:12px;padding:20px 0 16px}
-  .scope-demo-shell .topbar .status-pill{display:none}.scope-demo-shell .top-right{gap:0}
   .scope-workbench{padding:24px 16px 32px}.scope-workbench h1{font-size:22px}.scope-heading{margin-bottom:22px}
   .scope-heading-actions{width:100%}.scope-heading-actions select{max-width:none;min-width:0;flex:1}
   .scope-stages{grid-template-columns:repeat(5,minmax(122px,1fr));margin-bottom:22px}.scope-stages button{padding:15px 12px;gap:8px}

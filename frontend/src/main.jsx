@@ -5,6 +5,7 @@ import HistoryLibrary from './HistoryLibrary.jsx';
 import BootstrapPanel from './BootstrapPanel.jsx';
 import AgentBridge from './AgentBridge.jsx';
 import ScopeWorkbench from './ScopeWorkbench.jsx';
+import {navigationTarget, readNavigation} from './navigation.mjs';
 
 const api = async (url, options = {}) => {
   const token = typeof sessionStorage === 'undefined' ? '' : sessionStorage.getItem('agentscopeAdminToken') || '';
@@ -29,7 +30,30 @@ function App() {
   const [authReady,setAuthReady]=useState(false);
   const [developmentMode,setDevelopmentMode]=useState(false);
   const [localBrowserMode,setLocalBrowserMode]=useState(false);
-  const [page, setPage] = useState(()=>['agent-bridge','scope-demo'].includes(new URLSearchParams(window.location.search).get('view'))?new URLSearchParams(window.location.search).get('view'):'overview');
+  const [navigation, setNavigation] = useState(()=>{
+    const initial=readNavigation(window.location.href);
+    if(initial.page==='scope-demo'&&!initial.task&&!new URLSearchParams(window.location.search).has('task')) {
+      try {const saved=localStorage.getItem('scopeDemoTask')||'';if(/^[a-f0-9]{16}$/.test(saved))initial.task=saved;} catch {}
+    }
+    return initial;
+  });
+  const {page,historyModuleIndex,task:selected}=navigation;
+  const navigate=useCallback(patch=>{
+    const target=navigationTarget(window.location.href,patch);
+    if(target!==window.location.pathname+window.location.search+window.location.hash)
+      window.history.pushState(null,'',target);
+    setNavigation(readNavigation(window.location.href));
+  },[]);
+  const setPage=next=>navigate({page:next});
+  const setHistoryModuleIndex=index=>navigate({page:'strategies',historyModuleIndex:index});
+  const setSelected=id=>navigate({task:id});
+  useEffect(()=>{
+    // Canonicalize the initial selection without creating a second browser-history entry.
+    window.history.replaceState(null,'',navigationTarget(window.location.href,navigation));
+    const restore=()=>setNavigation(readNavigation(window.location.href));
+    window.addEventListener('popstate',restore);
+    return()=>window.removeEventListener('popstate',restore);
+  },[]);
   const [sidebarCollapsed,setSidebarCollapsed]=useState(()=>{
     try {
       const saved=localStorage.getItem('agentscopeSidebarCollapsed');
@@ -38,23 +62,17 @@ function App() {
   });
   useEffect(()=>{try{localStorage.setItem('agentscopeSidebarCollapsed',String(sidebarCollapsed));}catch{}},[sidebarCollapsed]);
   useEffect(()=>{
-    if(page!=='scope-demo')return;
     const media=window.matchMedia('(max-width:650px)');
     const compact=()=>{if(media.matches)setSidebarCollapsed(true);};
     compact();media.addEventListener('change',compact);
     return()=>media.removeEventListener('change',compact);
-  },[page]);
-  const [historyModuleIndex,setHistoryModuleIndex]=useState(0);
+  },[]);
   const [status, setStatus] = useState(null);
   const [dash, setDash] = useState(null);
   const [strategies, setStrategies] = useState([]);
   const [strategyQuery, setStrategyQuery] = useState('');
   const [strategyStatus, setStrategyStatus] = useState('');
   const [tasks, setTasks] = useState([]);
-  const [selected, setSelected] = useState(()=>{
-    const value=new URLSearchParams(window.location.search).get('task')||'';
-    return /^[a-f0-9]{16}$/.test(value)?value:'';
-  });
   const [context, setContext] = useState(null);
   const [versions, setVersions] = useState([]);
   const [runtime, setRuntime] = useState(null);
@@ -140,13 +158,14 @@ function App() {
     catch (e) { notify(e.message); }
     finally { setBusy(false); }
   };
-  const selectTask = id => { setSelected(id); setPage('task'); };
+  const selectTask = id => setSelected(id);
+  const openTask = id => navigate({page:'task',task:id});
 
   if (!authReady) return <div className="auth-gate"><div className="auth-card"><div className="brand-mark">A</div><h1>正在连接 AgentScope</h1>{loginError ? <><p>{loginError}</p><button className="button primary full" onClick={()=>window.location.reload()}>重新连接</button></> : <p>正在加载本地工作区…</p>}</div></div>;
 
   if (!authenticated) return <div className="auth-gate"><form className="auth-card" onSubmit={connect}><div className="brand-mark">A</div><p className="eyebrow">本地策略管控</p><h1>连接 AgentScope</h1><p>输入虚拟机本地配置的管理员口令。任务级 DSH 凭据不能执行审批操作。</p><label>管理员口令<input autoFocus type="password" value={loginToken} onChange={event=>setLoginToken(event.target.value)} placeholder="AGENTSCOPE_ADMIN_TOKEN" /></label>{loginError&&<div className="inline-notice warning">{loginError}</div>}<button className="button primary full" disabled={!loginToken.trim()}>解锁管控台</button></form></div>;
 
-  return <div className={`shell ${sidebarCollapsed ? 'sidebar-collapsed' : ''} ${page==='scope-demo'?'scope-demo-shell':''}`}>
+  return <div className={`shell ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
     <aside className="sidebar">
       <div className="sidebar-header"><div className="brand"><div className="brand-mark">A</div><div className="brand-copy"><b>AgentScope</b><small>策略管控台</small></div></div><button className="sidebar-toggle" aria-label={sidebarCollapsed?'展开侧栏':'收起侧栏'} title={sidebarCollapsed?'展开侧栏':'收起侧栏'} aria-expanded={!sidebarCollapsed} aria-controls="workspace-navigation" onClick={()=>setSidebarCollapsed(value=>!value)}><span aria-hidden="true">{sidebarCollapsed?'›':'‹'}</span></button></div>
       <div className="side-label">工作区</div>
@@ -162,10 +181,10 @@ function App() {
       <div className="side-foot" title={`Linux VM · ${status?.architecture || '连接中'} · ActPlane 执行后端`}><span className={`pulse ${status?.bpf_lsm ? 'ok' : 'bad'}`} /><span className="side-foot-copy">Linux VM · {status?.architecture || '连接中'}<br/><span className="muted">ActPlane 执行后端</span></span></div>
     </aside>
     <main className="main">
-      <header className="topbar">{page==='scope-demo'?<nav className="scope-app-nav" aria-label="Demo 导航"><b className="scope-app-brand">AgentScope</b><button aria-current="page" onClick={()=>setPage('scope-demo')}>任务工作台</button><button onClick={()=>setPage('strategies')}>历史策略库</button></nav>:<div><span className="crumb">AgentScope</span><span className="slash">/</span><b>{pageTitle(page)}</b></div>}<div className="top-right"><span className={`status-pill ${status?.broker?.available && status?.bpf_lsm ? 'good' : 'warn'}`}><i />{status?.broker?.available && status?.bpf_lsm ? page==='scope-demo'?'执行后端可用':'执行面已连接' : page==='scope-demo'?'执行后端待检查':'执行面待检查'}</span>{developmentMode ? <span className="status-pill good">本地开发 · 免口令</span> : <button className="avatar" aria-label="锁定管控台" title="锁定管控台" onClick={lock}>锁</button>}</div></header>
-      {page === 'overview' && <Overview dash={dash} status={status} tasks={tasks} onSelect={selectTask} onNav={setPage} />}
-      {page === 'scope-demo' && <ScopeWorkbench api={api} post={post} notify={notify} />}
-      {page === 'strategies' && <HistoryLibrary moduleIndex={historyModuleIndex} modules={HISTORY_MODULES} onModuleChange={setHistoryModuleIndex} api={api} post={post} tasks={tasks} busy={busy} action={withBusy} notify={notify} selectTask={selectTask} />}
+      <header className="topbar"><div><span className="crumb">AgentScope</span><span className="slash">/</span><b>{pageTitle(page)}</b></div><div className="top-right"><span className={`status-pill ${status?.broker?.available && status?.bpf_lsm ? 'good' : 'warn'}`}><i />{status?.broker?.available && status?.bpf_lsm ? '执行后端可用' : '执行后端待检查'}</span>{developmentMode ? <span className="status-pill good">本地开发 · 免口令</span> : <button className="avatar" aria-label="锁定管控台" title="锁定管控台" onClick={lock}>锁</button>}</div></header>
+      {page === 'overview' && <Overview dash={dash} status={status} tasks={tasks} onSelect={openTask} onNav={setPage} />}
+      {page === 'scope-demo' && <ScopeWorkbench api={api} post={post} notify={notify} task={selected} onSelectTask={selectTask} />}
+      {page === 'strategies' && <HistoryLibrary moduleIndex={historyModuleIndex} modules={HISTORY_MODULES} onModuleChange={setHistoryModuleIndex} api={api} post={post} tasks={tasks} busy={busy} action={withBusy} notify={notify} selectTask={openTask} />}
       {page === 'task' && <TaskPage tasks={tasks} selected={selected} selectTask={selectTask} context={context} versions={versions} busy={busy} action={withBusy} notify={notify} refresh={refresh} />}
       {page === 'runtime' && <RuntimePage tasks={tasks} selected={selected} selectTask={selectTask} runtime={runtime} requests={requests} busy={busy} action={withBusy} refresh={refresh} notify={notify} />}
       {page === 'agent-bridge' && <AgentBridge tasks={tasks} selected={selected} onSelect={setSelected} api={api} post={post} notify={notify} />}

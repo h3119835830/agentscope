@@ -20,9 +20,7 @@ function Diff({base,next}) {
   return diff.length?<div className="scope-diff-list">{diff.map(row=><div key={row.resource}><b>{row.resource}</b><span>{row.before}</span><span aria-hidden="true">→</span>
     <Badge tone={row.after==='可读写'?'good':'neutral'}>{row.after}</Badge></div>)}</div>:<p className="scope-muted">文件权限不变。</p>;
 }
-export default function ScopeWorkbench({api,post,notify}) {
-  const [task,setTask]=useState(()=>{const selected=new URLSearchParams(window.location.search).get('task')||'';
-    return /^[a-f0-9]{16}$/.test(selected)?selected:localStorage.getItem('scopeDemoTask')||'';});
+export default function ScopeWorkbench({api,post,notify,task,onSelectTask}) {
   const [tasks,setTasks]=useState([]),[data,setData]=useState(null),[tab,setTab]=useState('current');
   const [kind,setKind]=useState('task_grant'),[text,setText]=useState(initialText.task_grant),[busy,setBusy]=useState(false);
   const [reviewed,setReviewed]=useState(false),[category,setCategory]=useState('scope'),[page,setPage]=useState(0);
@@ -31,7 +29,8 @@ export default function ScopeWorkbench({api,post,notify}) {
   const reload=async(id=task)=>{const list=await api('/api/tasks');setTasks(list.filter(t=>t.repo==='AgentScope/custom-scope-demo'));
     if(id)setData(await api('/api/tasks/'+id+'/scope-manager'));};
   useEffect(()=>{
-    let live=true,inFlight=false;setData(null);setError('');setPage(0);
+    let live=true,inFlight=false;setData(null);setError('');setPage(0);setTab('current');setReviewed(false);idempotence.current=null;
+    if(dialog.current?.open)dialog.current.close();setDetail(null);
     const fetchData=async()=>{if(inFlight)return;inFlight=true;try{
       const list=await api('/api/tasks');if(live)setTasks(list.filter(t=>t.repo==='AgentScope/custom-scope-demo'));
       if(task){const value=await api('/api/tasks/'+task+'/scope-manager');if(live){setData(value);setError('');}}
@@ -39,8 +38,7 @@ export default function ScopeWorkbench({api,post,notify}) {
     fetchData();const timer=setInterval(fetchData,3000);return()=>{live=false;clearInterval(timer);};
   },[task,api]);
   useEffect(()=>{if(detail){if(!dialog.current.open)dialog.current.showModal();dialog.current.querySelector('button')?.focus();}},[detail?.type,!!detail]);
-  const choose=id=>{setData(null);setTask(id);setTab('current');setReviewed(false);idempotence.current=null;localStorage.setItem('scopeDemoTask',id);
-    const url=new URL(window.location.href);if(id)url.searchParams.set('task',id);else url.searchParams.delete('task');window.history.replaceState(null,'',url.pathname+url.search);};
+  const choose=id=>{localStorage.setItem('scopeDemoTask',id);onSelectTask(id);};
   const perform=async fn=>{setBusy(true);setError('');try{const result=await fn();await reload(typeof result==='string'?result:task);return true;}
     catch(e){setError(e.message);notify('操作未完成，请查看错误详情。');return false;}finally{setBusy(false);}};
   const open=(value,event)=>{opener.current=event.currentTarget;setDetail(value);};
