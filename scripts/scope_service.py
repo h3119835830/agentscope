@@ -25,10 +25,12 @@ def environment():
                 "AGENTSCOPE_BROKER_SOCKET": "/run/agentscope-scope-demo/broker.sock", "AGENTSCOPE_PUBLIC_URL": URL,
                 "AGENTSCOPE_SERVICE_HOME": str(STATE), "AGENTSCOPE_UI_DIST": str(STATE / "ui"),
                 "AGENTSCOPE_DSH_HOME": str(STATE / "dsh-home"), "DSH_HOME": str(STATE / "dsh-home"),
+                "ACTPLANE_BPF_PIN_ROOT": "/sys/fs/bpf/agentscope-managed-v3",
                 "AGENTSCOPE_SCOPE_WORKER": "1", "AGENTSCOPE_BOOTSTRAP_TEST_LIBRARY": "1",
                 "AGENTSCOPE_DEV_NO_AUTH": "0", "AGENTSCOPE_RQ1_AUTO_IMPORT": "0",
                 "AGENTSCOPE_LOCAL_BROWSER_LOGIN": "1",
                 "PYTHONPATH": str(ROOT / "backend"), "AGENTSCOPE_RUNNER": str(ROOT / "backend/broker/task_runner.py")})
+    if (STATE / "bin/actplane").exists(): env["ACTPLANE_BIN"] = str(STATE / "bin/actplane")
     env["DSH_BIN"] = str(STATE / "dsh-home/profiles/headless/node_modules/@deepseek-ai/dsh/lib/bin.js")
     return env
 

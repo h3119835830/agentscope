@@ -27,6 +27,9 @@ app.include_router(agent_bridge_router)
 from .scope.api import router as scope_router
 from .scope.worker import worker as scope_worker
 app.include_router(scope_router)
+from .managed.api import router as managed_router
+from .managed.worker import worker as managed_worker
+app.include_router(managed_router)
 app.include_router(local_browser.router)
 
 @app.middleware("http")
@@ -34,11 +37,12 @@ async def protect_control_api(request: Request, call_next):
     path=request.url.path
     if request.method in ("POST", "PUT", "PATCH", "DELETE") and path.startswith("/api/tasks/"):
         pieces = path.split("/")
-        if len(pieces) > 4 and pieces[4] != "scope-manager":
+        if len(pieces) > 4:
             with db.connect() as con:
+                native_managed = con.execute("SELECT 1 FROM managed_tasks WHERE task_id=?", (pieces[3],)).fetchone()
                 managed = con.execute("SELECT 1 FROM scope_sessions WHERE task_id=?", (pieces[3],)).fetchone()
-            if managed:
-                return JSONResponse({"detail":"此任务由 ScopeManager 管理，请通过任务工作台提交和应用变更"}, status_code=409)
+            if native_managed or (managed and pieces[4] != "scope-manager"):
+                return JSONResponse({"detail":"此任务由受管工作台管理，请通过相应任务接口提交和应用变更"}, status_code=409)
     if not path.startswith("/api/") or path in ("/api/health","/api/auth/mode","/api/auth/local-browser-redeem") or path.startswith("/api/plugin/") or path.startswith("/api/generator/tasks/") or path.startswith("/api/agent/tasks/"):
         return await call_next(request)
     supplied=request.headers.get("authorization","")
@@ -206,11 +210,13 @@ async def startup():
     if os.getenv("AGENTSCOPE_HISTORY_WORKER","1")!="0" and os.getenv("AGENTSCOPE_RQ1_AUTO_IMPORT","1")!="0": corpus.ensure_seed_job()
     history_jobs.worker.start()
     scope_worker.start()
+    managed_worker.start()
 
 @app.on_event("shutdown")
 async def shutdown():
     history_jobs.worker.stop()
     scope_worker.stop()
+    managed_worker.stop()
 
 @app.get("/api/health")
 def health(): return {"ok":True,"service":"AgentScope","version":"0.2.0"}
@@ -458,7 +464,7 @@ def task_runtime(task_id:str):
                 with db.connect() as con:
                     con.execute("INSERT INTO runtime_events(id,task_id,kind,operation,target,decision,reason,occurred_at,raw_json,dedupe_key) VALUES(?,?,?,?,?,?,?,?,?,?) ON CONFLICT(dedupe_key) DO UPDATE SET reason=excluded.reason",(uuid.uuid4().hex,task_id,raw.get("type","policy_match"),op,target,decision,str(reason),str(raw.get("timestamp") or raw.get("time") or db.now()),json.dumps(raw,ensure_ascii=False),key))
         except Exception: pass
-    if runtime.get("agent_status")=="exited" and task["status"]=="running":
+    if runtime.get("agent_status")=="exited" and task["status"]=="running" and task["dsh_profile"]!="web":
         exit_status=(runtime.get("child") or {}).get("status") or {}
         exit_code=exit_status.get("code")
         signal=exit_status.get("signal")

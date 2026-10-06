@@ -98,3 +98,21 @@
 .agent-bridge code { overflow-wrap:anywhere; }
 .bridge-pair-dialog { border:1px solid #d7e1ef; border-radius:16px; padding:24px; width:min(520px,calc(100vw - 32px)); max-height:85vh; overflow:auto; box-shadow:0 24px 60px #20385533; }
 .bridge-pair-dialog::backdrop { background:#102b4b66; }
+
+.managed-overlay{position:fixed;inset:0;background:#132b4c44;display:flex;justify-content:flex-end;z-index:50}.managed-detail{width:min(680px,95vw);height:100vh;overflow:auto;margin:0;border-radius:0}.managed-detail pre{white-space:pre-wrap;overflow-wrap:anywhere}.managed-detail .panel-head{position:sticky;top:0;background:white}
+
+.managed-workbench .page-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.managed-workbench .page-heading h1{font-size:24px;line-height:1.3;margin:0 0 8px}
+.managed-workbench .page-heading p{font-size:13px;color:var(--muted);margin:0;line-height:1.6}
+.managed-workbench select{max-width:100%;min-height:36px;padding:7px 11px;border:1px solid #dce5f0;border-radius:7px;background:#fff;color:#244365;font:inherit;font-size:12px}
+.managed-workbench .tabs{display:flex;gap:22px;border-bottom:1px solid #e1e8f1;margin:20px 0}
+.managed-workbench .tabs button{border:0;background:transparent;padding:9px 0 12px;color:#74869f;font-size:13px;cursor:pointer}
+.managed-workbench .tabs button.active{color:#0756ad;border-bottom:2px solid #174369;font-weight:600}
+.managed-workbench table{width:100%;border-collapse:collapse;font-size:12px}
+.managed-workbench td,.managed-workbench th{padding:12px 10px;border-bottom:1px solid #edf1f7;text-align:left;vertical-align:top;line-height:1.6}
+.managed-workbench th{background:#f7f9fc;color:#70859e;font-weight:500}
+.managed-workbench td:first-child{white-space:nowrap;color:#7d8ca0}
+.managed-workbench td:last-child{white-space:nowrap}
+.managed-workbench .table-scroll{overflow-x:auto}
+
+.managed-workbench .managed-constraint{margin-top:18px}.managed-workbench .managed-constraint summary{cursor:pointer;color:#315d8e;font-size:13px}.managed-workbench .managed-constraint textarea{display:block;width:100%;box-sizing:border-box;margin:10px 0;border:1px solid #dce5f0;border-radius:7px;padding:10px;font:inherit;font-size:13px}

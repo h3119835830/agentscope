@@ -19,7 +19,9 @@ export default function (pi: ExtensionAPI) {
         const url = `${process.env.AGENTSCOPE_GENERATOR_URL}/api/generator/tasks/${process.env.AGENTSCOPE_GENERATOR_TASK}/jobs/${process.env.AGENTSCOPE_GENERATOR_JOB}/tools/${name}`;
         const response = await fetch(url, { method: "POST", signal, headers: { "Content-Type": "application/json", Authorization: `Bearer ${process.env.AGENTSCOPE_GENERATOR_TOKEN}` }, body: JSON.stringify(params) });
         const text = await response.text();
-        return { content: [{ type: "text", text }], details: { status: response.status }, isError: !response.ok };
+        let rejected = false;
+        try { rejected = JSON.parse(text).valid === false; } catch {}
+        return { content: [{ type: "text", text }], details: { status: response.status }, isError: !response.ok || rejected };
       },
     }));
   }

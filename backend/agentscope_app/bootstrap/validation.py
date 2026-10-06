@@ -9,7 +9,7 @@ from .library import approved_record
 
 CAPABILITIES = {"version": "bootstrap-ir/1", "operations": ["write", "unlink"],
                 "semantics": "block mutations to evidence-resolved files/subtrees; descendants inherit domain",
-                "directory_preservation":"Protect the directory itself and its /** descendants to cover directory rename as well as file mutations",
+                "object_scope":"Honor declared registered_existing_files sets using exact registered targets. Derived artifacts and adjacent legitimate files remain available. directory_subtree means an explicitly declared entire tree. Ancestor identity is guarded separately by the managed loader.",
                 "history_parameterization":"The reviewed configuration selector covers registered shell/Git configuration and JSON/TOML/YAML/INI/CONF/CFG assets; it excludes Python source and tests. A different object kind needs a current-task new candidate.",
                 "unsupported": ["dialogue semantics", "arbitrary command semantics", "new allow rules", "policy relaxation"],
                 "draft_schema": Draft.model_json_schema()}
@@ -27,11 +27,11 @@ def validate(task_id, draft, compile_bundle=True):
         sources = {r["id"]: dict(r) for r in con.execute("SELECT * FROM bootstrap_sources WHERE task_id=?", (task_id,))}
         task = dict(con.execute("SELECT * FROM tasks WHERE id=?", (task_id,)).fetchone())
         bindings = []
-        for atom in draft.atoms:
+        for atom_index,atom in enumerate(draft.atoms):
             if any(sid not in sources for sid in atom.evidence_ids): raise ValueError("unknown or cross-task evidence IDs: " + ", ".join(sid for sid in atom.evidence_ids if sid not in sources) + "; use actual IDs from list_policy_sources")
             evidence = [sources[sid] for sid in atom.evidence_ids]
             if any(digest(s["text"]) != s["content_hash"] for s in evidence): raise ValueError("registered evidence content hash mismatch")
-            if not any(s["role"] in ("task", "platform") for s in evidence): raise ValueError("constraint requires task/platform authority evidence")
+            if not any(s["role"] in ("task", "platform") for s in evidence): raise ValueError("atom["+str(atom_index)+"] paths="+json.dumps(atom.paths)+" lacks task/platform authority evidence; cited roles="+json.dumps({s["id"]:s["role"] for s in evidence})+"; actual task/platform source IDs="+json.dumps([s["id"] for s in sources.values() if s["role"] in ("task","platform")])+". Environment and assets resolve targets; they cannot authorize constraints.")
             asset_paths = [s["path"] for s in evidence if s["role"] == "asset"]
             resolved = []
             for target in atom.paths:
@@ -68,6 +68,13 @@ def validate(task_id, draft, compile_bundle=True):
             if requirement['intent']=='semantic_guidance':
                 if not draft.guidance and not draft.unresolved:raise ValueError('declared semantic requirement needs guidance or clarification: '+requirement['id'])
                 continue
+            if requirement.get('object_scope')=='registered_existing_files':
+                for atom in draft.atoms:
+                    if not set(atom.evidence_ids)&{s['id'] for s in authority}:continue
+                    for pattern in atom.paths:
+                        base=pattern.removesuffix('/**')
+                        if any(target.startswith(base+'/') for target in requirement['targets']):
+                            raise ValueError('overbroad registered object collection: '+requirement['id']+' protects existing files, not every descendant or derived artifact. Use exact authority-bound targets: '+json.dumps(requirement['targets']))
             for target in requirement['targets']:
                 for op in ('write','unlink'):
                     covered=any(op in atom.operations and set(atom.evidence_ids)&{s['id'] for s in authority}

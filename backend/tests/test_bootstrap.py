@@ -160,6 +160,13 @@ def test_expiry_and_validation_budget_are_enforced(created,client):
     with db.connect() as con:con.execute("UPDATE history_jobs SET status='running' WHERE id=?",(job['id'],))
     token=tools.issue(created['id'],job['id']);headers={'Authorization':'Bearer '+token}
     route=f"/api/generator/tasks/{created['id']}/jobs/{job['id']}/tools/validate_policy_draft"
+    base=route.removesuffix('validate_policy_draft')
+    client.post(base+'get_task_context',json={},headers=headers)
+    sources=client.post(base+'list_policy_sources',json={},headers=headers).json()['sources']
+    for source in sources:
+        if source['required_before_validation']:client.post(base+'read_policy_source',json={'source_id':source['id']},headers=headers)
+    client.post(base+'search_historical_policies',json={'query':'preserve assets'},headers=headers)
+    client.post(base+'get_enforcement_capabilities',json={},headers=headers)
     for _ in range(3):
         response=client.post(route,json={'draft':{}},headers=headers)
         assert response.status_code==200 and not response.json()['valid']
@@ -243,3 +250,58 @@ def test_completion_retains_binding_until_cleanup_is_confirmed(client,seed_task,
         task=con.execute('SELECT * FROM tasks WHERE id=?',(task_id,)).fetchone()
     assert (task['active_pid'] is None)==(not cleanup_fails)
     assert (task['active_domain_id'] is None)==(not cleanup_fails)
+
+
+def test_existing_test_object_collection_does_not_ban_derived_artifacts(created,monkeypatch):
+    import tempfile
+    from pathlib import Path
+    monkeypatch.setattr(scene,'WORKSPACE_ROOT',Path(tempfile.mkdtemp(prefix='')))
+    task=scene.create_scene('safety-impossible-tests',workspace_leaf='r',compact_paths=True);ctx=scene.context(task['id'])
+    requirement=ctx['declared_constraints'][0]
+    assert requirement['object_scope']=='registered_existing_files'
+    assert len(requirement['targets'])==5 and all(not p.endswith('/**') for p in requirement['targets'])
+    with db.connect() as con:
+        sources=[dict(r) for r in con.execute('select * from bootstrap_sources where task_id=?',(task['id'],))]
+    authority=next(s for s in sources if s['role']=='task')
+    assets=[s for s in sources if s['path'] in requirement['targets']]
+    atom={'decision':'new_candidate','statement':'Preserve the original test assets',
+          'reason':'Original senior-developed tests remain immutable',
+          'evidence_ids':[authority['id'],*[s['id'] for s in assets]],
+          'operations':['write','unlink'],'paths':requirement['targets']}
+    draft={'context_hash':ctx['context_hash'],'summary':'Original tests only','atoms':[atom]}
+    result=validate(task['id'],draft,compile_bundle=False)
+    assert result['valid']
+    assert '__pycache__' not in result['proposal']['actplane_dsl'] and '/tests/**' not in result['proposal']['actplane_dsl']
+    from pathlib import Path
+    directory=str(Path(next(p for p in requirement['targets'] if '/tests/' in p)).parent)
+    atom['paths']=[directory,directory+'/**']
+    with pytest.raises(ValueError,match='overbroad registered object collection'):validate(task['id'],draft,compile_bundle=False)
+
+
+def test_unread_citations_fail_before_compile_and_do_not_consume_draft_repairs(created,client,monkeypatch):
+    from agentscope_app import main
+    calls=[]
+    monkeypatch.setattr(main,'compile_policy',lambda *args:calls.append(args) or ('compiled',{},''))
+    job=client.post(f"/api/tasks/{created['id']}/bootstrap",headers=ADMIN).json()
+    with db.connect() as con:con.execute("UPDATE history_jobs SET status='running' WHERE id=?",(job['id'],))
+    token=tools.issue(created['id'],job['id']);headers={'Authorization':'Bearer '+token}
+    base=f"/api/generator/tasks/{created['id']}/jobs/{job['id']}/tools/"
+    def call(name,args={}):return client.post(base+name,json=args,headers=headers).json()
+    call('get_task_context');sources=call('list_policy_sources')['sources']
+    assert all(not x['read_receipt_verified'] for x in sources)
+    for source in sources:
+        if source['required_before_validation']:call('read_policy_source',{'source_id':source['id']})
+    call('search_historical_policies',{'query':'preserve project assets'});call('get_enforcement_capabilities')
+    platform=next(x for x in sources if x['role']=='platform')
+    assets=[x for x in sources if x['role']=='asset' and not '/.cache/' in x['path']]
+    draft={'context_hash':created['context_hash'],'summary':'Preserve registered platform assets','atoms':[{'decision':'new_candidate','statement':'Preserve mandatory original assets','reason':'Platform requirement','operations':['write','unlink'],'paths':[x['path'] for x in assets],'evidence_ids':[platform['id'],*[x['id'] for x in assets]]}]}
+    for i in range(4):
+        rejected=call('validate_policy_draft',{'draft':draft});assert not rejected['valid']
+        assert all(x['id'] in rejected['diagnostic'] for x in assets)
+    assert not calls
+    with db.connect() as con:assert con.execute('SELECT calls FROM bootstrap_validation_budget WHERE job_id=?',(job['id'],)).fetchone() is None
+    for source in assets:call('read_policy_source',{'source_id':source['id']})
+    listing=call('list_policy_sources')['sources'];assert all(x['read_receipt_verified'] for x in listing if x['id'] in {a['id'] for a in assets})
+    checked=call('validate_policy_draft',{'draft':draft});assert checked['valid'] and calls
+    with db.connect() as con:assert con.execute('SELECT calls FROM bootstrap_validation_budget WHERE job_id=?',(job['id'],)).fetchone()[0]==1
+    submitted=call('submit_task_policy_proposal',{'proposal_hash':checked['proposal_hash']});assert submitted['state']=='validated'

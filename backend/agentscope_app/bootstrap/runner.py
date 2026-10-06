@@ -49,11 +49,10 @@ def _run(task_id, job_id):
             environment = {"PATH": "/usr/bin:/bin", "HOME": "/home/pi", "PI_CODING_AGENT_DIR": "/home/pi/agent", "LANG": "C.UTF-8",
                            "DEEPSEEK_API_KEY": key, "AGENTSCOPE_GENERATOR_TOKEN": token, "AGENTSCOPE_GENERATOR_TASK": task_id,
                            "AGENTSCOPE_GENERATOR_JOB": job_id, "AGENTSCOPE_GENERATOR_URL": PUBLIC_BASE_URL}
-            cli = ["/runtime/node", "/pi/node_modules/@earendil-works/pi-coding-agent/dist/cli.js", "--print", "--no-session",
+            cli = ["/runtime/node", "/pi/node_modules/@earendil-works/pi-coding-agent/dist/cli.js", "--mode", "rpc", "--no-session",
                    "--provider", "agentscope-deepseek", "--model", "deepseek-flash", "--thinking", "off", "--no-builtin-tools",
                    "--tools", ",".join(TOOLS), "--no-extensions", "--extension", "/pi/extension.ts", "--no-skills",
-                   "--no-context-files", "--no-prompt-templates", "--no-themes", "--no-approve", "--offline", "--system-prompt", "/pi/bootstrap-system.md",
-                   "Generate the startup policy for the task bound to your tools. Complete the evidence/retrieval/validation/submission workflow. Do not execute the task."]
+                   "--no-context-files", "--no-prompt-templates", "--no-themes", "--no-approve", "--offline", "--system-prompt", "/pi/bootstrap-system.md"]
             command = ["/usr/bin/bwrap", "--die-with-parent", "--unshare-pid", "--unshare-ipc", "--unshare-uts",
                        "--ro-bind", "/usr", "/usr", "--ro-bind", "/lib", "/lib", "--ro-bind", "/lib64", "/lib64",
                        "--ro-bind", "/etc/ssl", "/etc/ssl", "--ro-bind", "/etc/resolv.conf", "/etc/resolv.conf",
@@ -64,16 +63,18 @@ def _run(task_id, job_id):
                        "--ro-bind", str((INTEGRATION/"node_modules").resolve(strict=True)), "/pi/node_modules",
                        "--bind", directory, "/home/pi",
                        "--proc", "/proc", "--dev", "/dev", "--tmpfs", "/tmp", "--chdir", "/home/pi", "--", *cli]
-            process = subprocess.Popen(command, env=environment, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, start_new_session=True)
-            deadline=time.monotonic()+180
-            while True:
-                try: stdout,stderr=process.communicate(timeout=min(1,max(.01,deadline-time.monotonic())));break
-                except subprocess.TimeoutExpired:
-                    with db.connect() as con:status=con.execute("SELECT status FROM history_jobs WHERE id=?",(job_id,)).fetchone()[0]
-                    if status!="running" or time.monotonic()>=deadline:
-                        os.killpg(process.pid,signal.SIGKILL);process.communicate()
-                        raise ValueError("Pi interrupted or exceeded 180 seconds; process group killed")
-            if process.returncode: raise ValueError("Pi process failed (exit %s); check configuration or model availability" % process.returncode)
+            from ..pi_rpc import drive
+            def status():
+                with db.connect() as con:
+                    row=con.execute("SELECT status FROM history_jobs WHERE id=?",(job_id,)).fetchone()
+                    submitted=con.execute("SELECT 1 FROM bootstrap_proposals WHERE job_id=?",(job_id,)).fetchone()
+                    credential=con.execute("SELECT calls FROM bootstrap_credentials WHERE job_id=?",(job_id,)).fetchone()
+                    latest=con.execute("SELECT tool,output_json FROM bootstrap_tool_events WHERE job_id=? ORDER BY occurred_at DESC LIMIT 1",(job_id,)).fetchone()
+                return {'cancelled':not row or row[0]!='running','submitted':bool(submitted),'submission':'present' if submitted else 'absent','remaining_tool_calls':40-(credential[0] if credential else 40),'last_tool':latest[0] if latest else None}
+            def trace(value):
+                with db.connect() as con:
+                    con.execute("INSERT INTO bootstrap_tool_events(id,job_id,tool,input_json,output_json,occurred_at) VALUES(?,?,?,?,?,?)",(__import__('uuid').uuid4().hex,job_id,'rpc_lifecycle','{}',json.dumps(value),db.now()))
+            runtime['lifecycle']=drive(command,environment,'Generate the startup policy for the task bound to your tools. Complete the evidence/retrieval/validation/submission workflow. Do not execute the task.',status,trace)
             # Neither reasoning streams nor ambient credential-bearing process output are persisted.
             with db.connect() as con:
                 proposal = con.execute("SELECT id,content_hash,state FROM bootstrap_proposals WHERE job_id=?", (job_id,)).fetchone()

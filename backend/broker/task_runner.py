@@ -37,6 +37,30 @@ def consume_agent_env(path, task_id):
         os.close(fd)
 
 def handle_request(req, args):
+    if req.get("kind") in ("managed-operation","managed-hold","managed-verify"):
+        import selectors
+        read_fd,write_fd=os.pipe()
+        request={**req,"ready_fd":read_fd}
+        helper="managed_probe.py" if req["kind"]=="managed-verify" else "managed_operation_probe.py"
+        child=subprocess.Popen(["/usr/bin/python3",str(Path(__file__).with_name(helper)),json.dumps(request)],cwd=args.workspace,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,start_new_session=True,pass_fds=(read_fd,),preexec_fn=demote_agent if os.getuid()==0 else None)
+        os.close(read_fd)
+        registry=Path(args.workspace)/".actplane/probes.jsonl"
+        fd=os.open(registry,os.O_WRONLY|os.O_APPEND|os.O_CREAT|os.O_NOFOLLOW,0o640)
+        try:
+            os.fchown(fd,0,grp.getgrnam("agentscope-task").gr_gid)
+            os.write(fd,(json.dumps({"pid":child.pid,"domain_id":args.domain_id,"request_id":req["request_id"]})+"\n").encode());os.fsync(fd)
+        finally:os.close(fd)
+        os.write(write_fd,b"1");os.close(write_fd)
+        try:
+            if req["kind"]=="managed-hold":
+                with selectors.DefaultSelector() as selector:
+                    selector.register(child.stdout,selectors.EVENT_READ)
+                    if not selector.select(10):raise TimeoutError("held capability probe timed out")
+                return {"request_id":req["request_id"],"ok":True,"probe":json.loads(child.stdout.readline())}
+            stdout,stderr=child.communicate(timeout=20)
+            return {"request_id":req["request_id"],"ok":child.returncode==0,"probe":json.loads(stdout)}
+        except Exception:
+            child.kill();child.wait();raise
     if req.get("kind") == "scope-verify":
         command = ["/usr/bin/python3", str(Path(__file__).with_name("scope_probe.py")),
                    "--workspace", args.workspace, "--dirs", ",".join(req["directories"])]
@@ -61,7 +85,8 @@ def handle_request(req, args):
          "--generated-by","AgentScope"]
     env={"PATH":os.environ.get("AGENTSCOPE_EXEC_PATH",os.environ.get("PATH","/usr/local/bin:/usr/bin:/bin")),
          "HOME":os.environ.get("HOME","/var/lib/agentscope-agent"),"USER":os.environ.get("USER","agentscope-agent"),
-         "LOGNAME":os.environ.get("LOGNAME","agentscope-agent"),"NO_PROXY":"*","no_proxy":"*"}
+         "LOGNAME":os.environ.get("LOGNAME","agentscope-agent"),"TMPDIR":str(Path(args.workspace).parent/"tmp"),"NO_PROXY":"*","no_proxy":"*"}
+    if os.getenv("ACTPLANE_BPF_PIN_ROOT"): env["ACTPLANE_BPF_PIN_ROOT"]=os.environ["ACTPLANE_BPF_PIN_ROOT"]
     p=subprocess.run(cmd,capture_output=True,text=True,timeout=30,env=env,cwd=args.workspace)
     return {"request_id":req.get("request_id"),"ok":p.returncode==0,"output":p.stdout[-4000:],"error":p.stderr[-4000:],"applied_at":time.time()}
 
@@ -102,6 +127,9 @@ def main():
         try: args.held_fd = os.open(str(Path(args.workspace) / "frontend/scope-held.txt"), os.O_RDWR)
         except OSError: args.held_fd = None
     command=[args.dsh,"--profile",args.profile,args.prompt]
+    if scope_mode=="managed-web":
+        env.update(AGENTSCOPE_MANAGED_WORKSPACE=args.workspace,AGENTSCOPE_NATIVE_PORT=str(task_env["web_port"]+100),AGENTSCOPE_NATIVE_TOKEN=task_env["native_token"])
+        command=[args.dsh,"web","--host","127.0.0.1","--port",str(task_env["web_port"]),"--no-open"]
     try:
         # DSH's sandbox binds its session cwd as its single writable root.
         # Use this task's isolated root as the outer envelope; ActPlane still

@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Root-only, allowlisted ActPlane broker. FastAPI never receives a shell."""
-import grp, hashlib, json, os, pwd, re, secrets, shutil, signal, socket, socketserver, subprocess, sys, tempfile, threading, time
+import grp, hashlib, json, os, pwd, re, secrets, shutil, signal, socket, socketserver, stat, subprocess, sys, tempfile, threading, time
 from pathlib import Path
 
 ACTPLANE=Path(os.getenv("ACTPLANE_BIN","/opt/agentscope/bin/actplane"))
+DSH_WEB=Path("/opt/agentscope/dsh/node_modules/.bin/dsh").resolve()
 DSH=Path(os.getenv("DSH_BIN","/opt/agentscope/dsh/node_modules/.bin/dsh"))
 REPO_ROOT=Path(__file__).resolve().parents[2]
 RUNNER=Path(os.getenv("AGENTSCOPE_RUNNER",REPO_ROOT/"backend/broker/task_runner.py"))
@@ -24,11 +25,14 @@ TASK_GID=grp.getgrnam(os.getenv("AGENTSCOPE_TASK_GROUP","agentscope-task")).gr_g
 TASKS={}; LOCK=threading.RLock()
 TASK_ID_RE=re.compile(r"^[a-f0-9]{16}$")
 
-def child_env(agent=False):
+def child_env(agent=False,task_id=None):
     home=AGENT.pw_dir if agent else SERVICE_HOME
     result={"PATH":EXEC_PATH,
       "HOME":home,"USER":AGENT.pw_name if agent else "root","LOGNAME":AGENT.pw_name if agent else "root",
       "NO_PROXY":"*","no_proxy":"*","LANG":"C.UTF-8"}
+    if os.getenv("ACTPLANE_BPF_PIN_ROOT"):
+        result["ACTPLANE_BPF_PIN_ROOT"]=str(Path(os.environ["ACTPLANE_BPF_PIN_ROOT"])/task_id) if task_id else os.environ["ACTPLANE_BPF_PIN_ROOT"]
+        result["ACTPLANE_RESERVE_OPEN_RULES"]="1"
     if os.getenv("AGENTSCOPE_DSH_DISABLE_BYTECODE")=="1":result["PYTHONDONTWRITEBYTECODE"]="1"
     return result
 
@@ -121,6 +125,222 @@ def prepare_task_dsh_home(task_root):
             if path.is_symlink(): os.chown(path,AGENT.pw_uid,TASK_GID,follow_symlinks=False)
     return dest
 
+def validate_managed_paths(workspace, paths):
+    if not isinstance(paths,list) or len(paths)>100:raise ValueError('Invalid protected path list')
+    result=[]
+    for p in paths:
+        target=Path(p)
+        if target.is_symlink() or not target.is_file():raise ValueError('Protected assets must exist as regular files')
+        resolved=path_under(p,workspace)
+        if target.stat().st_nlink!=1:raise ValueError('Protected asset has a pre-existing hardlink alias; launch blocked')
+        result.append(str(resolved))
+    return result
+
+def prepare_web_home(home):
+    import socket,yaml
+    credential=home/".credentials.yaml"
+    data=yaml.safe_load(credential.read_text())
+    data.setdefault("records",{}).setdefault("client-connection/browser-session",{"kind":"grant","payload":{"version":1,"secret":secrets.token_urlsafe(32)}})
+    credential.write_text(yaml.safe_dump(data,sort_keys=False));os.chown(credential,AGENT.pw_uid,TASK_GID);os.chmod(credential,0o600)
+    profile=home/'profiles/web';profile.mkdir(parents=True,exist_ok=True)
+    nodes=profile/'node_modules';nodes.mkdir(exist_ok=True)
+    global_nodes=Path('/opt/agentscope/dsh/node_modules')
+    for source in global_nodes.iterdir():
+        if source.name.startswith('@') and source.is_dir():
+            namespace=nodes/source.name;namespace.mkdir(exist_ok=True)
+            for pkg in source.iterdir():
+                target=namespace/pkg.name
+                if not target.exists():target.symlink_to(pkg,target_is_directory=True)
+        elif not (nodes/source.name).exists():(nodes/source.name).symlink_to(source,target_is_directory=source.is_dir())
+    plugin=nodes/'@agentscope/dsh-managed-web';plugin.parent.mkdir(exist_ok=True)
+    if plugin.exists():shutil.rmtree(plugin)
+    shutil.copytree(REPO_ROOT/'integrations/dsh-managed-web',plugin)
+    (profile/'package.json').write_text(json.dumps({'name':'managed-dsh-web','private':True,'dsh':{'profile':{'bundles':['@deepseek-ai/dsh-base','@deepseek-ai/dsh-web-app']}}}))
+    notice=(global_nodes/'@deepseek-ai/dsh-client-ui-settings-models/lib/types/onboarding-copy.d.ts').read_text()
+    version=re.search(r'WELCOME_NOTICE_VERSION = "([^"]+)"',notice).group(1)
+    (profile/'cordis.patch.yml').write_text(yaml.safe_dump([{'insert':[{'id':'agentscope-managed-web','name':'@agentscope/dsh-managed-web'}]},{'id':'ui-settings-general','config':{'welcomeNoticeVersion':version}}]))
+    for base,dirs,files in os.walk(profile,followlinks=False):
+        os.chown(base,0,TASK_GID);os.chmod(base,0o2770)
+        for name in files:
+            target=Path(base)/name
+            if not target.is_symlink():os.chown(target,0,TASK_GID);os.chmod(target,0o640)
+    # The native CLI resets this empty include root before any Agent exists.
+    root_config=profile/'cordis.yml'
+    if root_config.exists():os.chown(root_config,0,TASK_GID);os.chmod(root_config,0o660)
+    for port in range(18020,18040):
+        try:
+            with socket.socket() as a,socket.socket() as b:a.bind(('127.0.0.1',port));b.bind(('127.0.0.1',port+100))
+            return port
+        except OSError:continue
+    raise RuntimeError('No managed DSH web port available')
+
+def native_session(message):
+    import urllib.request,urllib.error
+    task_id=message['task_id'];checked_task(task_id)
+    with LOCK:record=TASKS.get(task_id)
+    if not record or record.get('scope_mode')!='managed-web':raise ValueError('Not a managed native web task')
+    operation=message.get('operation')
+    if operation not in ('create','prompt','inspect','cancel','flush','resume','open_url','verify_delayed_open'):raise ValueError('Native operation not allowed')
+    body={k:message.get(k) for k in ('operation','session_id','request_id','text','target')}
+    if operation=='verify_delayed_open':
+        path=Path(str(body.get('target','')));resolved=path.resolve();workspace=Path(record['workspace']).resolve()
+        if path!=resolved or workspace not in resolved.parents or not resolved.is_file() or '.actplane' in resolved.parts or '.dsh' in resolved.parts:raise ValueError('Fixed native probe target is not a regular project file')
+    if len(str(body.get('text') or ''))>12000:raise ValueError('Prompt too large')
+    req=urllib.request.Request(f"http://127.0.0.1:{record['web_port']+100}/",data=json.dumps(body).encode(),headers={'Content-Type':'application/json','Authorization':'Bearer '+record['native_token']})
+    for attempt in range(100):
+        try:
+            with urllib.request.urlopen(req,timeout=32) as response:
+                result=json.load(response)
+                if operation=="create":
+                    profile=Path(record["workspace"]).parent/".dsh/profiles/web"
+                    for base,dirs,files in os.walk(profile,followlinks=False):
+                        os.chown(base,0,TASK_GID);os.chmod(base,0o550)
+                        for name in files:
+                            p=Path(base)/name
+                            if not p.is_symlink():os.chown(p,0,TASK_GID);os.chmod(p,0o440)
+                return result
+        except urllib.error.HTTPError as error:
+            data=json.load(error);raise RuntimeError('Native SessionController: '+str(data.get('error')))
+        except urllib.error.URLError:
+            if operation!='create' or attempt==99:raise
+            time.sleep(.25)
+
+def managed_call(message):
+    task_id=message['task_id'];checked_task(task_id)
+    with LOCK:record=TASKS.get(task_id)
+    if not record or record.get('scope_mode')!='managed-web':raise ValueError('Missing managed native binding')
+    call_id=str(message.get('call_id',''))
+    if not call_id or len(call_id)>180:raise ValueError('Invalid tool call identity')
+    pid=int(message['pid'])
+    binding=status(task_id)
+    if binding['executor']['pid']!=pid or not binding['domain_verified']:raise ValueError('Tool issuer is not the bound native DSH process')
+    tag=int.from_bytes(hashlib.sha256((task_id+':'+call_id).encode()).digest()[:8],'little') or 1
+    value=tag if message['operation']=='start' else 0
+    key=[f'{v:02x}' for v in pid.to_bytes(4,'little')];encoded=[f'{v:02x}' for v in value.to_bytes(8,'little')]
+    result=subprocess.run(['/usr/sbin/bpftool','map','update','pinned',str(Path(record['pin_root'])/'maps/audit_call'),'key','hex',*key,'value','hex',*encoded],capture_output=True,text=True,timeout=5)
+    if result.returncode:raise RuntimeError('Kernel tool identity registration failed')
+    return {'kernel_call_tag':str(tag),'pid':pid,'domain_id':record['domain_id']}
+
+def managed_source_read(message):
+    task_id=message['task_id'];checked_task(task_id)
+    with LOCK:record=TASKS.get(task_id)
+    if not record or record.get('scope_mode')!='managed-web':raise ValueError('No managed source binding')
+    relative=Path(str(message.get('path','')))
+    if relative.is_absolute() or not relative.parts or any(x in ('.','..','.actplane','.git','.dsh') for x in relative.parts):raise ValueError('Source path outside registered project')
+    # Resolve each component through no-follow descriptors. A workspace symlink
+    # cannot turn this narrow read operation into arbitrary privileged access.
+    directory=os.open(record['workspace'],os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
+    try:
+        for part in relative.parts[:-1]:
+            child=os.open(part,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW,dir_fd=directory);os.close(directory);directory=child
+        fd=os.open(relative.name,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK,dir_fd=directory)
+        with os.fdopen(fd,'rb') as source:
+            metadata=os.fstat(source.fileno())
+            if not stat.S_ISREG(metadata.st_mode) or metadata.st_size>16*1024*1024:raise ValueError('Source is not a bounded regular project file')
+            raw=source.read(16*1024*1024+1)
+            if len(raw)>16*1024*1024:raise ValueError('Source exceeds limit')
+        return {'hash':hashlib.sha256(raw).hexdigest(),'content':raw.decode('utf-8',errors='replace')[:8000],'authority':'registered_project_read_by_broker'}
+    finally:os.close(directory)
+
+def managed_operation(message):
+    task_id=message['task_id'];checked_task(task_id)
+    with LOCK:record=TASKS.get(task_id)
+    if not record or record.get('scope_mode')!='managed-web':raise ValueError('No managed binding')
+    supplied=Path(message['target']);target=supplied.resolve()
+    ws=Path(record['workspace']).resolve();out=Path(record['output_dir']).resolve()
+    if supplied.is_symlink() or not any(target==base or base in target.parents for base in (ws,out)):raise ValueError('Probe target outside task')
+    if target==ws or target==out or '.actplane' in target.parts or target.is_dir():raise ValueError('Probe target is control material or directory')
+    operation=message['operation']
+    if operation not in ('read','write','unlink','rename','replace','symlink_write','hardlink','mmap_new','fd_write','hold','ancestor_rename','grandparent_rename'):raise ValueError('Probe operation not supported')
+    moved_parent=target.parent if operation=='ancestor_rename' else target.parent.parent if operation=='grandparent_rename' else None
+    if moved_parent and (moved_parent==ws or ws not in moved_parent.parents):raise ValueError('Directory probe would move the workspace boundary')
+    ident=secrets.token_hex(16);scratch=ws.parent/'tmp'/('probe-'+ident)
+    scratch.mkdir();os.chown(scratch,0,TASK_GID);os.chmod(scratch,0o2770)
+    original=target.read_bytes() if target.is_file() else None
+    attrs=target.stat() if target.is_file() else None
+    events=ws/'.actplane/events.jsonl';baseline=len(events.read_text().splitlines()) if events.exists() else 0
+    request={'request_id':ident,'kind':'managed-hold' if operation=='hold' else 'managed-operation','operation':operation,'target':str(target),'scratch':str(scratch)}
+    write_file(record['request_path'],json.dumps(request),0o640)
+    try:
+        for attempt in range(100):
+            try:
+                result=json.loads(Path(record['result_path']).read_text())
+                if result.get('request_id')==ident:break
+            except (FileNotFoundError,ValueError):pass
+            time.sleep(.1)
+        else:raise RuntimeError('Fixed OS operation timed out')
+        probe=result['probe'];raw=[]
+        for attempt in range(20):
+            raw=[]
+            for line in events.read_text().splitlines()[baseline:] if events.exists() else []:
+                e=json.loads(line)
+                if e.get('pid')==probe['pid'] and e.get('process_domain_id')==record['domain_id'] and e.get('blocked'):raw.append(e)
+            if raw or not probe.get('blocked'):break
+            time.sleep(.1)
+        after=target.read_bytes() if target.is_file() else None
+        alias=scratch/'hard-alias'
+        effect=after!=original or operation=='read' and probe['success'] or operation=='hardlink' and alias.exists() and alias.stat().st_ino==target.stat().st_ino or operation=='hold' and probe['success']
+        return {'probe':probe,'domain_id':record['domain_id'],'kernel_events':raw,'effect_verified':bool(effect),'before_hash':hashlib.sha256(original).hexdigest() if original is not None else None,'after_hash':hashlib.sha256(after).hexdigest() if after is not None else None}
+    finally:
+        if operation!='hold':
+            if moved_parent and (scratch/'directory-alias').is_dir():os.rename(scratch/'directory-alias',moved_parent)
+            if original is None:target.unlink(missing_ok=True)
+            elif not target.is_file() or target.read_bytes()!=original:target.write_bytes(original)
+            if attrs:os.chown(target,attrs.st_uid,attrs.st_gid);os.chmod(target,attrs.st_mode&0o7777)
+            shutil.rmtree(scratch)
+
+def managed_verify(message):
+    task_id=message['task_id'];checked_task(task_id)
+    with LOCK:record=TASKS.get(task_id)
+    if not record or record.get('scope_mode')!='managed-web':raise ValueError('Missing managed task binding')
+    protected=validate_managed_paths(record['workspace'],message.get('protected_files',[]))
+    allow=Path(message['allow_path']).resolve();ws=Path(record['workspace'])
+    if ws not in allow.parents:raise ValueError('Probe target escapes workspace')
+    backup={p:Path(p).read_bytes() for p in protected}
+    request_id=secrets.token_hex(16)
+    request={'request_id':request_id,'kind':'managed-verify','protected_files':protected,'allow_path':str(allow)}
+    write_file(record['request_path'],json.dumps(request),0o640)
+    result_path=Path(record['result_path'])
+    try:
+        for attempt in range(120):
+            try:
+                result=json.loads(result_path.read_text())
+                if result.get('request_id')==request_id:break
+            except (FileNotFoundError,ValueError):pass
+            time.sleep(.2)
+        else:raise RuntimeError('Managed permission probe timed out')
+        manifest=json.loads((POLICY_ROOT/task_id/'managed-manifest.json').read_text())
+        integrity=all(Path(p).exists() and hashlib.sha256(Path(p).read_bytes()).hexdigest()==h for p,h in manifest.items())
+        # Kernel feedback is drained asynchronously by the watcher.
+        deadline=time.monotonic()+3
+        events=ws/'.actplane/events.jsonl'
+        while time.monotonic()<deadline:
+            if events.exists():
+                matches=[]
+                for line in events.read_text().splitlines():
+                    try:
+                        e=json.loads(line)
+                        if e.get('pid')==result.get('probe',{}).get('pid') and e.get('process_domain_id',e.get('domain_id'))==record['domain_id'] and e.get('blocked') is True:matches.append(e)
+                    except ValueError:pass
+                if len(matches)>=result.get('probe',{}).get('denied',0):break
+            time.sleep(.1)
+        raw=[];events=ws/'.actplane/events.jsonl'
+        if events.exists():
+            st=events.lstat()
+            if events.is_symlink() or st.st_uid!=0 or st.st_mode&0o022:raise ValueError('Kernel audit ownership invalid')
+            for line in events.read_text().splitlines():
+                try:
+                    e=json.loads(line)
+                    if e.get('pid')==result.get('probe',{}).get('pid') and e.get('process_domain_id',e.get('domain_id'))==record['domain_id'] and e.get('blocked') is True:raw.append(e)
+                except ValueError:pass
+        probe=result.get('probe',{})
+        return {'passed':bool(result.get('ok') and integrity and len(raw)>=probe.get('denied',0)),'domain_id':record['domain_id'],'runner_pid':record['runner_pid'],'probe':probe,'kernel_events':raw,'integrity':integrity,'root_owned_events':True}
+    finally:
+        # Restore only isolated fixture bytes after a failed adversarial probe.
+        for p,original in backup.items():
+            if not Path(p).exists() or Path(p).read_bytes()!=original:Path(p).write_bytes(original)
+        allow.unlink(missing_ok=True)
+
 def control_state(policy_path): return Path(policy_path).parent/".actplane"/"control.json"
 
 def grant_agent_control_access(policy_path, trusted_relay=False):
@@ -157,10 +377,10 @@ def grant_api_event_access(workspace, trusted_relay=False):
         events=path_under(events,workspace)
         os.chown(events,0 if trusted_relay else -1,TASK_GID); os.chmod(events,0o640)
 
-def launch(task_id,version,workspace,output_dir,prompt,dsl_text,policy_yaml,dsh_profile="headless",task_token="",agentscope_url="http://127.0.0.1:8000",scope_mode=""):
+def launch(task_id,version,workspace,output_dir,prompt,dsl_text,policy_yaml,dsh_profile="headless",task_token="",agentscope_url="http://127.0.0.1:8000",scope_mode="",protected_files=None,baseline_dsl=None):
     checked_task(task_id)
-    if scope_mode not in ("", "cold", "managed"): raise ValueError("Scope runner mode invalid")
-    if dsh_profile!="headless": raise ValueError("AgentScope 当前仅开放 DSH headless profile")
+    if scope_mode not in ("", "cold", "managed", "managed-web"): raise ValueError("Scope runner mode invalid")
+    if dsh_profile not in ("headless","web") or (dsh_profile=="web" and scope_mode!="managed-web"): raise ValueError("DSH profile must match the managed launch mode")
     if not DSH.exists(): raise RuntimeError(f"DSH CLI 不存在：{DSH}")
     if not RUNNER.exists(): raise RuntimeError(f"任务运行器不存在：{RUNNER}")
     if len(task_token)<32: raise ValueError("AgentScope 任务凭据缺失或无效")
@@ -169,10 +389,15 @@ def launch(task_id,version,workspace,output_dir,prompt,dsl_text,policy_yaml,dsh_
     if len(prompt)>8000: raise ValueError("任务提示词过长")
     with LOCK:
         for other in TASKS.values():
-            if other.get("watch") and other["watch"].poll() is None:
+            if other.get("watch") and other["watch"].poll() is None and (scope_mode!="managed-web" or other.get("scope_mode")!="managed-web" or other["task_id"]==task_id):
                 raise RuntimeError("ActPlane 当前使用单例运行时；请先停止现有 Agent 任务")
         files=compile_policy(task_id,version,policy_yaml,dsl_text,workspace)
-        if scope_mode:
+        if scope_mode=="managed-web":
+            if not baseline_dsl or len(baseline_dsl)>60000:raise ValueError("Missing immutable startup baseline")
+            parent_dsl=re.sub(r"\bAGENT\b","COMMAND",baseline_dsl)
+            parent_yaml="version: 1\nfeedback:\n  path: "+json.dumps(str(workspace/".actplane/last-violation.txt"))+"\npolicy: |\n"+"\n".join("  "+line for line in parent_dsl.splitlines())+"\n"
+            write_file(files["watch_path"],parent_yaml,0o440)
+        if scope_mode and scope_mode!="managed-web":
             protected_manifest = POLICY_ROOT / task_id / "scope-manifest.json"
             if not protected_manifest.exists():
                 source = workspace.parent / "scope-manifest.json"
@@ -183,12 +408,20 @@ def launch(task_id,version,workspace,output_dir,prompt,dsl_text,policy_yaml,dsh_
                 write_file(protected_manifest, json.dumps(manifest), 0o440)
         policy_path=files["policy_path"]; watch_path=files["watch_path"]
         dsh_home=prepare_task_dsh_home(workspace.parent)
+        web_port,native_token=(prepare_web_home(dsh_home),secrets.token_urlsafe(36)) if scope_mode=="managed-web" else (None,None)
+        if scope_mode=="managed-web":
+            protected_files=validate_managed_paths(workspace,protected_files or [])
+            manifest_path=POLICY_ROOT/task_id/"managed-manifest.json"
+            hashes={p:hashlib.sha256(Path(p).read_bytes()).hexdigest() for p in protected_files}
+            if manifest_path.exists():
+                if json.loads(manifest_path.read_text())!=hashes:raise ValueError("Sealed startup asset integrity changed; refusing launch")
+            else:write_file(manifest_path,json.dumps(hashes),0o440)
         log_dir=LOG_DIR; log_dir.mkdir(parents=True,exist_ok=True)
         watch_log=open(log_dir/f"{task_id}-v{version}-watch.log","a",buffering=1)
         # Scope restrictions can be approved during a task, so the ActPlane
         # watch engine must reserve file-flow hooks before its child domain is
         # created. The engine cannot enable write-rule classes retroactively.
-        env=child_env(); env.update({"ACTPLANE_ATTACH_PID":"0","ACTPLANE_RESERVE_FILE_FLOW":"1",
+        env=child_env(task_id=task_id); env.update({"TMPDIR":str(workspace.parent/"tmp"),"ACTPLANE_ATTACH_PID":"0","ACTPLANE_RESERVE_FILE_FLOW":"1","ACTPLANE_ENABLE_ADVANCED_HOOKS":"1",
                                      "SUDO_UID":str(0 if scope_mode else AGENT.pw_uid),"SUDO_GID":str(0 if scope_mode else TASK_GID)})
         anchor=subprocess.Popen(["/usr/bin/sleep","infinity"],cwd=workspace,env=child_env(True),preexec_fn=user_preexec,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,start_new_session=True)
         env["ACTPLANE_ATTACH_PID"]=str(anchor.pid)
@@ -213,18 +446,18 @@ def launch(task_id,version,workspace,output_dir,prompt,dsl_text,policy_yaml,dsh_
         command=["--policy",watch_path,"control","launch-child","--child-id",str(domain),"--delta",files["dsl_path"],"--","/usr/bin/python3",str(RUNNER),
           "--task-id",task_id,"--domain-id",str(domain),"--env-file",str(task_env_path),"--request-file",str(RUNTIME/"commands"/task_id/"request.json"),
           "--result-file",str(result_path),"--watch-policy",watch_path,"--actplane",str(ACTPLANE),
-          "--workspace",str(workspace),"--dsh",str(DSH),"--dsh-home",str(dsh_home),"--profile",dsh_profile,"--prompt",prompt]
+          "--workspace",str(workspace),"--dsh",str(DSH_WEB if scope_mode=="managed-web" else DSH),"--dsh-home",str(dsh_home),"--profile",dsh_profile,"--prompt",prompt]
         cmd_root=RUNTIME/"commands"; cmd_root.mkdir(parents=True,exist_ok=True); os.chown(cmd_root,0,0); os.chmod(cmd_root,0o711)
         cmd_dir=cmd_root/task_id; cmd_dir.mkdir(parents=True,exist_ok=True); os.chown(cmd_dir,0,TASK_GID); os.chmod(cmd_dir,0o750)
         request_path=cmd_dir/"request.json"; request_path.unlink(missing_ok=True)
         task_env_path.parent.mkdir(parents=True,exist_ok=True); os.chown(task_env_path.parent,0,TASK_GID); os.chmod(task_env_path.parent,0o2770)
-        write_file(task_env_path,json.dumps({"task_id":task_id,"task_token":task_token,"agentscope_url":agentscope_url,"scope_mode":scope_mode}),0o660)
+        write_file(task_env_path,json.dumps({"task_id":task_id,"task_token":task_token,"agentscope_url":agentscope_url,"scope_mode":scope_mode,"web_port":web_port,"native_token":native_token,"pin_root":env.get("ACTPLANE_BPF_PIN_ROOT")}),0o660)
         os.chown(task_env_path.parent,0,TASK_GID); os.chmod(task_env_path.parent,0o2770)
         result_path.unlink(missing_ok=True)
         # ActPlane's watch daemon launches the child with its own environment,
         # not the launch-child CLI caller's environment. Pass task credentials
         # through a one-time task file; task_runner scrubs it before starting DSH.
-        launch_env=child_env(); launch_env.update({"SUDO_UID":str(0 if scope_mode else AGENT.pw_uid),"SUDO_GID":str(0 if scope_mode else TASK_GID),"TMPDIR":str(workspace.parent/"tmp")})
+        launch_env=child_env(task_id=task_id); launch_env.update({"SUDO_UID":str(0 if scope_mode else AGENT.pw_uid),"SUDO_GID":str(0 if scope_mode else TASK_GID),"TMPDIR":str(workspace.parent/"tmp")})
         try:
             out=run_actplane(command,workspace,launch_env,35)
         except Exception:
@@ -235,10 +468,18 @@ def launch(task_id,version,workspace,output_dir,prompt,dsl_text,policy_yaml,dsh_
         domain_id=int(m.group(2)) if m else domain
         record={"task_id":task_id,"version":version,"workspace":str(workspace),"output_dir":str(output),"policy_path":policy_path,"watch_policy":watch_path,
           "watch":watch,"anchor":anchor,"watch_log":str(log_dir/f"{task_id}-v{version}-watch.log"),"watch_pid":watch.pid,"runner_pid":runner_pid,"domain_id":domain_id,
-          "request_path":str(request_path),"result_path":str(result_path),"dsl_path":files["dsl_path"],"scope_mode":scope_mode}
+          "request_path":str(request_path),"result_path":str(result_path),"dsl_path":files["dsl_path"],"scope_mode":scope_mode,"web_port":web_port,"native_token":native_token,"pin_root":env.get("ACTPLANE_BPF_PIN_ROOT")}
+        if scope_mode=="managed-web":
+            # The root relay is a designated control process. The exception is
+            # keyed by its exact PID and never inherited by low-UID children.
+            status=(Path("/proc")/str(runner_pid)/"status").read_text()
+            if int(next(l.split()[1] for l in status.splitlines() if l.startswith("Uid:")))!=0:raise RuntimeError("Trusted relay UID mismatch")
+            key=[f"{v:02x}" for v in runner_pid.to_bytes(4,"little")]
+            updated=subprocess.run(["/usr/sbin/bpftool","map","update","pinned",str(Path(record["pin_root"])/"maps/te_protected_pids"),"key","hex",*key,"value","hex","01","00","00","00"],capture_output=True,text=True,timeout=5)
+            if updated.returncode:raise RuntimeError("Trusted relay registration failed: "+updated.stderr[:500])
         TASKS[task_id]=record
         return {"task_id":task_id,"status":"running","runner_pid":runner_pid,"domain_id":domain_id,"watch_pid":watch.pid,
-                "version":version,"compile_state":"loaded","compile":files["compile"],"message":"ActPlane 控制平面已加载；DSH 已由 child domain 接管"}
+                "web_url":f"http://127.0.0.1:{web_port}/" if web_port else None,"version":version,"compile_state":"loaded","compile":files["compile"],"message":"ActPlane 控制平面已加载；DSH 已由 child domain 接管"}
 
 def status(task_id):
     checked_task(task_id)
@@ -247,30 +488,85 @@ def status(task_id):
     if record["watch"].poll() is not None: state="stopped"
     else: state="running"
     output="[]"
-    try: output=run_actplane(["--policy",record["watch_policy"],"control","children"],record["workspace"],child_env(),6)
+    try: output=run_actplane(["--policy",record["watch_policy"],"control","children"],record["workspace"],child_env(task_id=task_id),6)
     except Exception as e: return {"available":True,"status":state,"error":str(e),"domain_id":record["domain_id"],"runner_pid":record["runner_pid"]}
     try: children=json.loads(output)
     except Exception: children=[]
     child=next((c for c in children if int(c.get("child_id",-1))==record["domain_id"]),None)
     status=(child or {}).get("status",{})
     executor = None
-    if record.get("scope_mode") == "managed":
+    if record.get("scope_mode") in ("managed","managed-web"):
         try:
             children_file = Path("/proc") / str(record["runner_pid"]) / "task" / str(record["runner_pid"]) / "children"
             for pid in children_file.read_text().split():
                 cmdline = (Path("/proc") / pid / "cmdline").read_bytes().split(b"\0")
-                if str(DSH).encode() in cmdline:
+                if str(DSH_WEB if record.get("scope_mode")=="managed-web" else DSH).encode() in cmdline:
                     executor = int(pid)
                     break
         except OSError: pass
-    return {"available":True,"status":state,"agent_status":status.get("state","unknown"),"domain_id":record["domain_id"],"runner_pid":record["runner_pid"],"watch_pid":record["watch_pid"],"child":child,
+    domain_verified=executor in domain_members(record) if record.get("scope_mode")=="managed-web" else None
+    if record.get("scope_mode")=="managed-web" and not domain_verified:state="unbound"
+    return {"domain_verified":domain_verified,"available":True,"status":state,"agent_status":status.get("state","unknown"),"domain_id":record["domain_id"],"runner_pid":record["runner_pid"],"watch_pid":record["watch_pid"],"child":child,
             "executor":{"mode":record.get("scope_mode"),"pid":executor,"state":"running" if executor else "absent"}}
+
+def domain_members(record):
+    pin=record.get("pin_root")
+    if not pin:return []
+    result=subprocess.run(["/usr/sbin/bpftool","-j","map","dump","pinned",str(Path(pin)/"maps/cap_task")],capture_output=True,text=True,timeout=5)
+    if result.returncode:raise RuntimeError("Cannot inspect live task domain")
+    def integer(value):
+        if isinstance(value,int):return value
+        return int.from_bytes(bytes(int(x,16) if isinstance(x,str) else x for x in value),"little")
+    members=[]
+    for row in json.loads(result.stdout):
+        if integer(row["value"])!=record["domain_id"]:continue
+        pid=integer(row["key"])
+        try:
+            status=(Path("/proc")/str(pid)/"status").read_text()
+            state=next(l.split()[1] for l in status.splitlines() if l.startswith("State:"))
+            if state not in ("Z","X"):members.append(pid)
+        except FileNotFoundError:pass
+    return sorted(set(members))
+
+def quiesce_domain(record):
+    # Stop every member from the authoritative kernel map, including detached
+    # descendants; pidfds prevent signalling an unrelated reused PID.
+    handles={}
+    for attempt in range(20):
+        members=domain_members(record)
+        for pid in members:
+            try:
+                status=(Path("/proc")/str(pid)/"status").read_text()
+                tgid=int(next(l.split()[1] for l in status.splitlines() if l.startswith("Tgid:")))
+                if tgid not in handles:handles[tgid]=os.pidfd_open(tgid)
+                signal.pidfd_send_signal(handles[tgid],signal.SIGSTOP)
+            except (ProcessLookupError,FileNotFoundError):pass
+        again=domain_members(record)
+        if set(again)<=set(members):break
+        time.sleep(.05)
+    killed=[]
+    for pid,fd in handles.items():
+        try:signal.pidfd_send_signal(fd,signal.SIGKILL);killed.append(pid)
+        except ProcessLookupError:pass
+        finally:os.close(fd)
+    for attempt in range(40):
+        if not domain_members(record):return killed
+        time.sleep(.05)
+    raise RuntimeError("Task domain did not quiesce; replacement policy is blocked")
+
+def remove_task_engine(record):
+    if not record.get("pin_root"):return
+    base=Path(os.environ["ACTPLANE_BPF_PIN_ROOT"]).resolve()
+    target=Path(record["pin_root"]).resolve()
+    if target.parent!=base or target.name!=record["task_id"]:raise RuntimeError("Engine cleanup path mismatch")
+    if target.exists():shutil.rmtree(target)
 
 def stop(task_id):
     checked_task(task_id)
-    with LOCK: record=TASKS.pop(task_id,None)
+    with LOCK: record=TASKS.get(task_id)
     if not record: return {"task_id":task_id,"status":"not_running"}
-    try: run_actplane(["--policy",record["watch_policy"],"control","stop","--child-id",record["domain_id"]],record["workspace"],child_env(),10)
+    killed=quiesce_domain(record) if record.get("scope_mode")=="managed-web" else []
+    try: run_actplane(["--policy",record["watch_policy"],"control","stop","--child-id",record["domain_id"]],record["workspace"],child_env(task_id=task_id),10)
     except Exception: pass
     try: record["watch"].send_signal(signal.SIGINT)
     except Exception: pass
@@ -284,7 +580,9 @@ def stop(task_id):
     try:
         with open(record["watch_log"],"a") as log: log.write("\\nAgentScope: task stopped\\n")
     except Exception: pass
-    return {"task_id":task_id,"status":"stopped","domain_id":record["domain_id"]}
+    remove_task_engine(record)
+    with LOCK:TASKS.pop(task_id,None)
+    return {"task_id":task_id,"status":"stopped","domain_id":record["domain_id"],"quiesced_pids":killed,"writable_fds_and_mappings":"revoked_by_process_termination"}
 
 def restrict(message):
     task_id=message["task_id"]; checked_task(task_id); dsl=validate_restrictive_delta(message.get("delta_text"))
@@ -309,8 +607,17 @@ def restrict(message):
         time.sleep(.25)
     raise RuntimeError("Scope relay did not acknowledge the approved Delta within 22 seconds")
 
+_task_relay_locks={}
 def dispatch(m):
+    if m.get('action') in ('managed-operation','managed-verify','restrict','scope-verify','stop','launch','restart'):
+        checked_task(m['task_id'])
+        with LOCK:relay_lock=_task_relay_locks.setdefault(m['task_id'],threading.RLock())
+        with relay_lock:return _dispatch(m)
+    return _dispatch(m)
+
+def _dispatch(m):
     action=m.get("action")
+    if action=="managed-call":return managed_call(m)
     if action=="dsh-config-facts":
         import yaml
         patch=GLOBAL_DSH_HOME/"profiles/headless/cordis.patch.yml"
@@ -341,7 +648,7 @@ def dispatch(m):
           "btf":Path("/sys/kernel/btf/vmlinux").exists(),"lsm":Path("/sys/kernel/security/lsm").read_text().strip(),"actplane":str(ACTPLANE),"dsh":str(DSH),"compatibility_build":"Installed local ActPlane; identify by binary hash/version and verify enforcement with runtime probes"}
     if action=="active":
         with LOCK:return {"tasks":[{"task_id":k,"version":v["version"],"domain_id":v["domain_id"],"runner_pid":v["runner_pid"],"status":"running" if v["watch"].poll() is None else "stopped"} for k,v in TASKS.items() if v["watch"].poll() is None]}
-    if action=="launch": return launch(m["task_id"],m["version"],m["workspace"],m["output_dir"],m["prompt"],m["dsl_text"],m["policy_yaml"],m.get("dsh_profile","headless"),m.get("task_token",""),m.get("agentscope_url","http://127.0.0.1:8000"),m.get("scope_mode",""))
+    if action=="launch": return launch(m["task_id"],m["version"],m["workspace"],m["output_dir"],m["prompt"],m["dsl_text"],m["policy_yaml"],m.get("dsh_profile","headless"),m.get("task_token",""),m.get("agentscope_url","http://127.0.0.1:8000"),m.get("scope_mode",""),m.get("protected_files"),m.get("baseline_dsl"))
     if action=="restart":
         stop(m["task_id"])
         time.sleep(.5)
@@ -350,6 +657,10 @@ def dispatch(m):
     if action=="stop": return stop(m["task_id"])
     if action=="restrict": return restrict(m)
     if action=="scope-verify": return scope_verify(m)
+    if action=="native-session": return native_session(m)
+    if action=="managed-source-read":return managed_source_read(m)
+    if action=="managed-operation":return managed_operation(m)
+    if action=="managed-verify": return managed_verify(m)
     raise ValueError("未授权的 broker operation")
 
 def scope_verify(message):

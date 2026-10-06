@@ -30,10 +30,6 @@ def invoke(task_id, job_id, tool, args, token):
         if not changed: raise HTTPException(429, "generation tool budget exhausted")
         job = con.execute("SELECT status FROM history_jobs WHERE id=? AND kind='task_bootstrap'", (job_id,)).fetchone()
         if not job or job["status"] != "running": raise HTTPException(409, "generation job is not running")
-        if tool=="validate_policy_draft":
-            con.execute("INSERT OR IGNORE INTO bootstrap_validation_budget(job_id,calls) VALUES(?,0)",(job_id,))
-            if not con.execute("UPDATE bootstrap_validation_budget SET calls=calls+1 WHERE job_id=? AND calls<3",(job_id,)).rowcount:
-                raise HTTPException(429,"initial validation plus at most two repair rounds")
     try:
         result = execute(task_id, job_id, tool, args)
     except (ValueError, KeyError) as error:
@@ -46,7 +42,7 @@ def execute(task_id, job_id, tool, args):
     allowed = {"get_task_context": set(), "list_policy_sources": set(), "get_enforcement_capabilities": set(),
                "read_policy_source": {"source_id"}, "search_historical_policies": {"query"},
                "validate_policy_draft": {"draft"}, "submit_task_policy_proposal": {"proposal_hash"}}
-    if set(args) != allowed[tool]: raise ValueError("tool parameters must match schema exactly")
+    if set(args) != allowed[tool]: raise ValueError("tool parameters must match schema exactly; expected keys="+json.dumps(sorted(allowed[tool]))+"; received keys="+json.dumps(sorted(args)))
     if tool == "get_task_context":
         ctx=context(task_id)
         with db.connect() as con:source=con.execute("SELECT id,text,content_hash FROM bootstrap_sources WHERE task_id=? AND role='task'",(task_id,)).fetchone()
@@ -56,7 +52,9 @@ def execute(task_id, job_id, tool, args):
     if tool in ("list_policy_sources", "read_policy_source"):
         with db.connect() as con:
             if tool == "list_policy_sources":
-                return {"sources": [dict(r) for r in con.execute("SELECT id,role,path,content_hash,length(text) bytes FROM bootstrap_sources WHERE task_id=?", (task_id,))]}
+                receipts={json.loads(r['input_json']).get('source_id'):json.loads(r['output_json']).get('content_hash') for r in con.execute("SELECT input_json,output_json FROM bootstrap_tool_events WHERE job_id=? AND tool='read_policy_source'",(job_id,)) if json.loads(r['output_json']).get('content_hash')}
+                sources=[dict(r) for r in con.execute("SELECT id,role,path,content_hash,length(text) bytes FROM bootstrap_sources WHERE task_id=?", (task_id,))]
+                return {"sources":[{**source,'read_receipt_verified':receipts.get(source['id'])==source['content_hash'],'required_before_validation':source['role'] in ('task','platform','environment','dsh_config')} for source in sources]}
             row = con.execute("SELECT * FROM bootstrap_sources WHERE task_id=? AND id=?", (task_id, args["source_id"])).fetchone()
         if not row: raise ValueError("source is not registered for this task")
         if digest(row["text"]) != row["content_hash"]: raise ValueError("source hash mismatch")
@@ -73,7 +71,16 @@ def execute(task_id, job_id, tool, args):
             raise ValueError("understand the task, inspect evidence, retrieve history and query capabilities before validation")
         with db.connect() as con:core={r[0] for r in con.execute("SELECT id FROM bootstrap_sources WHERE task_id=? AND role IN ('task','platform','environment','dsh_config')",(task_id,))}
         read={json.loads(e['input_json']).get('source_id') for e in events if e['tool']=='read_policy_source' and json.loads(e['output_json']).get('content_hash')}
-        if not core.issubset(read):raise ValueError('read all pinned task/platform/environment/DSH sources before validation')
+        if not core.issubset(read):raise ValueError('Unread required source IDs: '+json.dumps(sorted(core-read)))
+        if not isinstance(args['draft'],dict):raise ValueError('draft must be a JSON object')
+        cited={source for atom in args['draft'].get('atoms',[]) for source in atom.get('evidence_ids',[])}
+        if not cited.issubset(read):raise ValueError('Unread referenced source IDs: '+json.dumps(sorted(cited-read))+'; obtain read_policy_source receipts before validating this draft')
+        # Evidence completion is not a semantic draft repair. Only a candidate
+        # with all referenced receipts consumes the initial/two-repair budget.
+        with db.connect() as con:
+            con.execute("INSERT OR IGNORE INTO bootstrap_validation_budget(job_id,calls) VALUES(?,0)",(job_id,))
+            if not con.execute("UPDATE bootstrap_validation_budget SET calls=calls+1 WHERE job_id=? AND calls<3",(job_id,)).rowcount:
+                raise HTTPException(429,'initial validation plus at most two repair rounds')
         result = validate(task_id, args["draft"])
         if result["valid"] or result["state"] == "needs_clarification":
             with db.connect() as con:
@@ -88,10 +95,10 @@ def execute(task_id, job_id, tool, args):
     required = {"get_task_context", "list_policy_sources", "read_policy_source", "search_historical_policies", "get_enforcement_capabilities", "validate_policy_draft"}
     if not required.issubset({e["tool"] for e in events}): raise ValueError("understand, inspect, retrieve and validate before submission")
     # Referenced evidence must actually have been returned to this job.
-    read_ids = {json.loads(e["input_json"]).get("source_id") for e in events if e["tool"] == "read_policy_source"}
+    read_ids = {json.loads(e["input_json"]).get("source_id") for e in events if e["tool"] == "read_policy_source" and json.loads(e["output_json"]).get("content_hash")}
     retrieved = {(m["id"], m["hash"]) for e in events if e["tool"] == "search_historical_policies" for m in json.loads(e["output_json"]).get("matches", [])}
     for atom in result["proposal"]["draft"].get("atoms", []):
-        if not set(atom["evidence_ids"]).issubset(read_ids): raise ValueError("proposal cites unread evidence")
+        if not set(atom["evidence_ids"]).issubset(read_ids): raise ValueError("proposal cites unread evidence IDs: "+json.dumps(sorted(set(atom["evidence_ids"])-read_ids)))
         if atom.get("history_id") and (atom["history_id"], atom.get("history_hash")) not in retrieved: raise ValueError("reuse references history not retrieved by this job")
     if not any(e["tool"] == "validate_policy_draft" and json.loads(e["output_json"]).get("proposal_hash") == result["proposal_hash"] and (json.loads(e["output_json"]).get("valid") or json.loads(e["output_json"]).get("state")=="needs_clarification") for e in events):
         raise ValueError("submit the exact validated draft")

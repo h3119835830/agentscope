@@ -4,7 +4,12 @@ import tempfile
 from pathlib import Path
 
 os.environ["AGENTSCOPE_STATE_DIR"] = tempfile.mkdtemp(prefix="agentscope-test-")
-os.environ["AGENTSCOPE_ADMIN_TOKEN"] = "test-admin-token-not-for-production"
+# Never inherit a service database, broker socket, task tree, or worker setting.
+for setting in ('AGENTSCOPE_DB','AGENTSCOPE_TASK_ROOT','AGENTSCOPE_POLICY_DIR','AGENTSCOPE_LOG_DIR','AGENTSCOPE_CORPUS_ROOT','AGENTSCOPE_SERVICE_HOME','AGENTSCOPE_RUNTIME_DIR','AGENTSCOPE_DSH_HOME','DSH_HOME','AGENTSCOPE_PUBLIC_URL'):
+    os.environ.pop(setting,None)
+os.environ['AGENTSCOPE_BROKER_SOCKET']=str(Path(os.environ['AGENTSCOPE_STATE_DIR'])/'unavailable.sock')
+os.environ['AGENTSCOPE_SCOPE_WORKER']='0'
+os.environ['AGENTSCOPE_ADMIN_TOKEN'] = "test-admin-token-not-for-production"
 os.environ["AGENTSCOPE_DEV_NO_AUTH"] = "0"
 os.environ["ACTPLANE_BIN"] = "/missing/actplane"
 os.environ["DSH_BIN"] = "/missing/dsh"
