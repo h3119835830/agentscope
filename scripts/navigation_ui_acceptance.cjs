@@ -8,7 +8,7 @@ const launch=spawnSync('wsl.exe',['-d','Ubuntu','-u','root','--','/opt/agentscop
   '/opt/agentscope-history-v1/scripts/scope_browser_ticket.py'],{encoding:'utf8',windowsHide:true});
 assert.equal(launch.status,0,'Could not create local browser session');
 const modules=[['overview','总览'],['scope-demo','任务工作台'],['strategies','历史策略库'],
-  ['task','任务与启动审核'],['runtime','运行时 Scope'],['agent-bridge','运行时 Agent 接入'],['governance','持久治理']];
+  ['task','任务与启动审核'],['agent-bridge','运行时 Agent 接入'],['governance','持久治理']];
 
 (async()=>{
   fs.mkdirSync(output,{recursive:true});
@@ -26,7 +26,7 @@ const modules=[['overview','总览'],['scope-demo','任务工作台'],['strategi
     const assertPage=async(view,label)=>{
       await sidebar.getByRole('button',{name:label,exact:true}).waitFor({state:'visible'});
       await page.waitForFunction(name=>document.querySelector('#workspace-navigation button[aria-current="page"]')?.getAttribute('aria-label')===name,label);
-      assert.equal(await sidebar.getByRole('button').count(),7);
+      assert.equal(await sidebar.getByRole('button').count(),6);
       assert.equal(await page.locator('.sidebar').isVisible(),true);
       assert.equal(await page.locator('.topbar').count(),1);
       assert.equal(await page.locator('.scope-app-nav').count(),0);
@@ -35,7 +35,7 @@ const modules=[['overview','总览'],['scope-demo','任务工作台'],['strategi
       assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Page overflow: '+view);
     };
     const visit=async(view,label)=>{await sidebar.getByRole('button',{name:label,exact:true}).click();await assertPage(view,label);};
-    await page.getByRole('heading',{name:'结束前的权限',exact:true}).waitFor();
+    await page.getByRole('heading',{name:'任务工作台',exact:true}).waitFor();
     assert.equal(await page.getByLabel('管理员口令',{exact:true}).count(),0);
     assert.equal(await page.evaluate(()=>sessionStorage.getItem('agentscopeAdminToken')),null);
     assert.ok((await context.cookies()).find(c=>c.name==='agentscopeLocalSession')?.httpOnly);
@@ -63,26 +63,30 @@ const modules=[['overview','总览'],['scope-demo','任务工作台'],['strategi
     await visit('scope-demo','任务工作台');
     await page.goBack();await assertPage('strategies','历史策略库');
     await page.goForward();await assertPage('scope-demo','任务工作台');
-    await page.getByRole('heading',{name:'结束前的权限',exact:true}).waitFor();
+    await page.getByRole('heading',{name:'任务工作台',exact:true}).waitFor();
     report.moduleBackForward='passed';
     await page.screenshot({path:path.join(output,'navigation-scope-desktop.png'),fullPage:true});
 
     const tasks=await page.evaluate(async()=>await(await fetch('/api/tasks')).json());
-    const prepared=tasks.find(t=>t.repo==='AgentScope/custom-scope-demo'&&t.status==='prepared');
-    assert.ok(prepared,'An existing prepared task is required; never create or authorize tasks here');
-    await page.getByLabel('选择 Demo 任务').selectOption(prepared.id);
-    await page.getByRole('heading',{name:'默认文件权限',exact:true}).waitFor();
-    await page.goBack();await page.getByRole('heading',{name:'结束前的权限',exact:true}).waitFor();
-    assert.equal(await page.getByLabel('选择 Demo 任务').inputValue(),task);
-    await page.goForward();await page.getByRole('heading',{name:'默认文件权限',exact:true}).waitFor();
-    assert.equal(await page.getByLabel('选择 Demo 任务').inputValue(),prepared.id);
-    await page.reload();await page.getByRole('heading',{name:'默认文件权限',exact:true}).waitFor();
-    report.taskRefreshAndBackForward='passed';
-    await visit('runtime','运行时 Scope');
-    await page.locator('.task-select').selectOption(task);
-    await assertPage('runtime','运行时 Scope');
+    const other=tasks.find(t=>t.dsh_profile==='web'&&t.id!==task);
+    assert.ok(other,'An existing second registered managed workspace is required');
+    const switchWorkspace=async()=>{
+      await page.getByRole('button',{name:'切换工作区',exact:true}).click();
+      await page.locator('.workspace-option').filter({hasText:other.workspace}).click();
+      await page.locator('.workspace-strip code').filter({hasText:other.workspace}).waitFor();
+    };
+    await switchWorkspace();
+    assert.equal(new URL(page.url()).searchParams.get('task'),other.id);
+    await page.goBack();await page.locator('.workspace-strip').waitFor();
     assert.equal(new URL(page.url()).searchParams.get('task'),task);
-    report.runtimeTaskSelectionStaysInModule='passed';
+    await page.goForward();await page.locator('.workspace-strip').waitFor();
+    assert.equal(new URL(page.url()).searchParams.get('task'),other.id);
+    await page.reload();await page.locator('.workspace-strip').waitFor();
+    report.taskRefreshAndBackForward='passed';
+    await page.goto('http://127.0.0.1:18003/?view=runtime&task='+task);
+    await assertPage('scope-demo','任务工作台');
+    assert.equal(new URL(page.url()).searchParams.get('task'),task);
+    report.retiredRuntimeRedirect='passed';
 
     await page.getByRole('button',{name:'收起侧栏',exact:true}).click();
     await visit('strategies','历史策略库');
@@ -97,7 +101,7 @@ const modules=[['overview','总览'],['scope-demo','任务工作台'],['strategi
       report.narrow423.push({view,overflow:'none',sidebar:'visible'});
     }
     await visit('scope-demo','任务工作台');
-    await page.getByRole('heading',{name:'结束前的权限',exact:true}).waitFor();
+    await page.getByRole('heading',{name:'任务工作台',exact:true}).waitFor();
     await page.screenshot({path:path.join(output,'navigation-scope-423.png'),fullPage:true});
     await visit('strategies','历史策略库');
     await page.screenshot({path:path.join(output,'navigation-history-423.png'),fullPage:true});

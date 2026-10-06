@@ -4,7 +4,6 @@ import './styles.css';
 import HistoryLibrary from './HistoryLibrary.jsx';
 import BootstrapPanel from './BootstrapPanel.jsx';
 import AgentBridge from './AgentBridge.jsx';
-import ScopeWorkbench from './ScopeWorkbench.jsx';
 import ManagedWorkbench from './ManagedWorkbench.jsx';
 import {navigationTarget, readNavigation} from './navigation.mjs';
 
@@ -33,9 +32,6 @@ function App() {
   const [localBrowserMode,setLocalBrowserMode]=useState(false);
   const [navigation, setNavigation] = useState(()=>{
     const initial=readNavigation(window.location.href);
-    if(initial.page==='scope-demo'&&!initial.task&&!new URLSearchParams(window.location.search).has('task')) {
-      try {const saved=localStorage.getItem('scopeDemoTask')||'';if(/^[a-f0-9]{16}$/.test(saved))initial.task=saved;} catch {}
-    }
     return initial;
   });
   const {page,historyModuleIndex,task:selected}=navigation;
@@ -76,8 +72,6 @@ function App() {
   const [tasks, setTasks] = useState([]);
   const [context, setContext] = useState(null);
   const [versions, setVersions] = useState([]);
-  const [runtime, setRuntime] = useState(null);
-  const [requests, setRequests] = useState([]);
   const [governance, setGovernance] = useState([]);
   const [toast, setToast] = useState('');
   const [busy, setBusy] = useState(false);
@@ -104,15 +98,14 @@ function App() {
         api('/api/status'), api('/api/dashboard'), api('/api/tasks'), api('/api/governance'),
       ]);
       setStatus(s); setDash(d); setTasks(t); setGovernance(g);
-      if (selected) {
-        const [c, v, r, q] = await Promise.all([
+      if (selected && page==='task') {
+        const [c, v] = await Promise.all([
           api(`/api/tasks/${selected}/context`), api(`/api/tasks/${selected}/versions`),
-          api(`/api/tasks/${selected}/runtime`), api(`/api/tasks/${selected}/scope-requests`),
         ]);
-        setContext(c); setVersions(v); setRuntime(r); setRequests(q);
+        setContext(c); setVersions(v);
       }
     } catch (e) { notify(e.message); }
-  }, [selected, notify, authenticated]);
+  }, [selected, page, notify, authenticated]);
 
   useEffect(() => {
     let active=true;
@@ -175,7 +168,6 @@ function App() {
         <NavItem active={page === 'scope-demo'} icon="◉" label="任务工作台" onClick={() => setPage('scope-demo')} />
         <NavItem active={page === 'strategies'} icon="▤" label="历史策略库" count={dash?.stats?.pending_strategies} onClick={() => setPage('strategies')} />
         <NavItem active={page === 'task'} icon="◈" label="任务与启动审核" onClick={() => setPage('task')} />
-        <NavItem active={page === 'runtime'} icon="⌁" label="运行时 Scope" onClick={() => setPage('runtime')} />
         <NavItem active={page === 'agent-bridge'} icon="⇄" label="运行时 Agent 接入" onClick={() => setPage('agent-bridge')} />
         <NavItem active={page === 'governance'} icon="⟳" label="持久治理" count={dash?.stats?.pending_governance} onClick={() => setPage('governance')} />
       </nav>
@@ -187,7 +179,6 @@ function App() {
       {page === 'scope-demo' && <ManagedWorkbench api={api} post={post} notify={notify} task={selected} onSelectTask={selectTask} />}
       {page === 'strategies' && <HistoryLibrary moduleIndex={historyModuleIndex} modules={HISTORY_MODULES} onModuleChange={setHistoryModuleIndex} api={api} post={post} tasks={tasks} busy={busy} action={withBusy} notify={notify} selectTask={openTask} />}
       {page === 'task' && <TaskPage tasks={tasks} selected={selected} selectTask={selectTask} context={context} versions={versions} busy={busy} action={withBusy} notify={notify} refresh={refresh} />}
-      {page === 'runtime' && (tasks.find(t=>t.id===selected)?.dsh_profile==='web' ? <ManagedWorkbench api={api} post={post} notify={notify} task={selected} onSelectTask={selectTask} initialTab="policy" /> : <RuntimePage tasks={tasks} selected={selected} selectTask={selectTask} runtime={runtime} requests={requests} busy={busy} action={withBusy} refresh={refresh} notify={notify} />)}
       {page === 'agent-bridge' && <AgentBridge tasks={tasks} selected={selected} onSelect={setSelected} api={api} post={post} notify={notify} />}
       {page === 'governance' && <Governance rows={governance} busy={busy} action={withBusy} notify={notify} />}
     </main>
@@ -195,7 +186,7 @@ function App() {
   </div>;
 }
 
-function pageTitle(page) { return ({ overview: '总览', 'scope-demo':'任务工作台', strategies: '历史策略库', task: '任务与启动审核', runtime: '运行时 Scope', 'agent-bridge':'运行时 Agent 接入', governance: '持久治理' })[page]; }
+function pageTitle(page) { return ({ overview: '总览', 'scope-demo':'任务工作台', strategies: '历史策略库', task: '任务与启动审核', 'agent-bridge':'运行时 Agent 接入', governance: '持久治理' })[page]; }
 function NavItem({ active, icon, label, count, onClick }) { return <button className={`nav-item ${active ? 'active' : ''}`} aria-label={label} aria-current={active?'page':undefined} title={label} onClick={onClick}><span className="nav-icon" aria-hidden="true">{icon}</span><span className="nav-label">{label}</span>{count > 0 && <em>{count}</em>}</button>; }
 function Header({ eyebrow, title, description, action }) { return <div className="page-head"><div><div className="eyebrow">{eyebrow}</div><h1>{title}</h1><p>{description}</p></div>{action}</div>; }
 function Metric({ label, value, note, icon }) { return <div className="metric"><div className="metric-top"><span>{label}</span><span className="metric-icon">{icon}</span></div><strong>{value ?? '—'}</strong><small>{note}</small></div>; }
@@ -247,20 +238,6 @@ function TaskPage({ tasks, selected, selectTask, context, versions, busy, action
   </div>;
 }
 function Toggle({ label, desc, checked, onChange }) { return <label className="toggle-card"><div><b>{label}</b><small>{desc}</small></div><button type="button" role="switch" aria-checked={checked} className={`switch ${checked?'on':''}`} onClick={()=>onChange(!checked)}><i/></button></label>; }
-
-function RuntimePage({ tasks, selected, selectTask, runtime, requests, busy, action, refresh, notify }) {
-  const [kind,setKind]=useState('restrict'); const [path,setPath]=useState(''); const [reason,setReason]=useState(''); const task=tasks.find(t=>t.id===selected);
-  const submit=()=>action(async()=>{await post(`/api/tasks/${selected}/scope-requests`,{kind,path:path||null,justification:reason,requested_by:'用户'});setReason('');notify('Scope 申请已提交，需审核后执行');});
-  const review=(id,decision)=>action(async()=>{const r=await post(`/api/tasks/${selected}/scope-requests/${id}/review`,{decision,reviewed_by:'研究者',notes:''});notify(r.status==='approved'?(r.result?.status==='delta_applied'?'限制 Delta 已在当前任务域中生效':'扩权已审核，旧进程已停止并按新版本重启'):'Scope 申请已拒绝');await refresh();});
-  return <div className="content"><Header eyebrow="第三层 · 运行时 Scope" title="运行事件与权限范围" description="只允许当前任务追加收紧 Delta；扩大权限必须单独审批，并由 ActPlane 停止旧进程、绑定新策略版本后重启。" action={<select className="task-select" value={selected} onChange={e=>selectTask(e.target.value)}><option value="">选择一个任务</option>{tasks.map(t=><option value={t.id} key={t.id}>{t.repo} · {t.status}</option>)}</select>} />
-    {!task?<div className="panel empty-box">请先选择一项任务查看运行状态与 Scope 变更记录。</div>:<>
-      <div className="runtime-banner panel"><div className="runtime-symbol">⌁</div><div><small>ActPlane 运行时状态</small><b>{runtime?.runtime?.agent_status==='exited'?'DSH 会话已结束':runtime?.runtime?.status==='running'?'受管进程域运行中':task.status==='running'?'运行状态待同步':'任务未运行'}</b><span>{task.repo} @ {short(task.commit_sha,12)} · domain {runtime?.runtime?.domain_id || task.active_domain_id || '—'}</span></div><button className="button ghost" onClick={refresh}>刷新事件</button></div>
-      <div className="grid-two runtime-grid"><section className="panel"><div className="panel-head"><div><h2>申请更新 Scope</h2><p>所有变更均先进入审批队列，保存理由和操作人。</p></div></div><div className="segmented"><button className={kind==='restrict'?'sel':''} onClick={()=>setKind('restrict')}>追加限制</button><button className={kind==='expand'?'sel':''} onClick={()=>setKind('expand')}>申请扩权</button></div>{kind==='restrict'?<label>限制后允许写入的仓库路径<input value={path} onChange={e=>setPath(e.target.value)} placeholder={`${task.workspace}/src`} /><small>新规则会拒绝该路径之外的写入；路径必须位于当前仓库工作区内。</small></label>:<div className="inline-notice warning">扩权仅提供受控任务输出目录写入能力；批准后旧 DSH 进程将停止，再使用新版本策略在同一仓库工作区启动。</div>}<label>变更理由<textarea rows="3" value={reason} onChange={e=>setReason(e.target.value)} placeholder="说明为何需要这项 Scope 变更"/></label><button className="button primary" disabled={busy||task.status!=='running'||reason.trim().length<4||(kind==='restrict'&&!path.trim())} onClick={submit}>提交审批</button>{task.status!=='running'&&<small className="field-note">只有运行中的任务能提交运行时 Scope 变更。</small>}</section>
-        <section className="panel"><div className="panel-head"><div><h2>待审核申请</h2><p>拒绝或批准；批准扩权会记录新版本和新进程域。</p></div><StatusTag kind={requests.some(r=>r.status==='pending_review')?'warn':'neutral'}>{requests.filter(r=>r.status==='pending_review').length} 待处理</StatusTag></div><div className="request-list">{requests.map(r=><article className="request-card" key={r.id}><div className="request-top"><b>{r.kind==='restrict'?'追加限制':'申请扩权'}</b>{stateTag(r.status)}</div><p>{r.requested_change}</p>{r.path&&<code>{r.path}</code>}<blockquote>{r.justification}</blockquote><small>{r.requested_by} · {when(r.created_at)}</small>{r.status==='pending_review'&&<div className="actions"><button className="button tiny primary" disabled={busy} onClick={()=>review(r.id,'approve')}>批准并执行</button><button className="button tiny ghost" disabled={busy} onClick={()=>review(r.id,'reject')}>拒绝</button></div>}{r.result_json&&<details><summary>执行结果</summary><pre>{typeof r.result_json==='string'?r.result_json:JSON.stringify(r.result_json,null,2)}</pre></details>}</article>)}{requests.length===0&&<div className="empty-box">暂无 Scope 申请记录。</div>}</div></section></div>
-      <section className="panel"><div className="panel-head"><div><h2>内核事件与命中原因</h2><p>来源为 ActPlane 运行目录的事件日志；显示已观察到的执行结果。</p></div><StatusTag>{runtime?.events?.length||0} 条</StatusTag></div><div className="table-scroll"><table><thead><tr><th>时间</th><th>事件 / 操作</th><th>对象</th><th>判定</th><th>命中原因</th></tr></thead><tbody>{(runtime?.events||[]).map(ev=><tr key={ev.id}><td>{when(ev.occurred_at)}</td><td>{ev.kind}<small>{ev.operation||'—'}</small></td><td className="break-cell">{ev.target||'—'}</td><td>{ev.decision||'—'}</td><td>{ev.reason}</td></tr>)}{!runtime?.events?.length&&<EmptyRow cols={5} text="当前没有已采集的 ActPlane 策略命中事件。"/>}</tbody></table></div></section>
-    </>}
-  </div>;
-}
 
 function Governance({ rows, busy, action, notify }) {
   const [title,setTitle]=useState('');const [kind,setKind]=useState('memory_diff');const [content,setContent]=useState('');const [source,setSource]=useState('');

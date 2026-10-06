@@ -9,6 +9,14 @@ from ..bootstrap.scene import context, create_scene, digest
 from ..services.policy import make_dsl, quote_dsl
 from ..scope.manager import lock
 
+class IdentifiedStatement(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    statement: str = Field(min_length=3,max_length=2000)
+    context_required: bool
+    context_reason: str = Field(min_length=3,max_length=500)
+    policy_type: Literal["per_event","cross_event","content","semantic_only"]
+    evidence_ids: list[str] = Field(min_length=1,max_length=30)
+
 class Candidate(BaseModel):
     model_config = ConfigDict(extra="forbid")
     decision: Literal["restrict", "expand", "guidance_only", "no_change"]
@@ -18,6 +26,7 @@ class Candidate(BaseModel):
     evidence_ids: list[str] = Field(min_length=1, max_length=30)
     explanation: str = Field(min_length=4, max_length=2000)
     unresolved_requests: list[str] = Field(default_factory=list,max_length=30)
+    identified_statements: list[IdentifiedStatement] = Field(default_factory=list,max_length=20)
 
 
 def save(con, task_id, state):
@@ -514,6 +523,8 @@ def validate_candidate(job,args):
             if actual!=entry['hash']:raise ValueError('历史模板哈希不匹配')
             ids.update([entry['id'],'history:'+entry['id']])
     if not set(p.evidence_ids)<=ids or ctx['request_evidence_id'] not in p.evidence_ids:raise ValueError('候选必须引用已读取的本轮证据: '+json.dumps({'required_request_id':ctx['request_evidence_id'],'received':p.evidence_ids,'unknown':sorted(set(p.evidence_ids)-ids),'readable_evidence_ids':sorted(ids),'unread_project_sources':[value.removeprefix('project:') for value in sorted(set(p.evidence_ids)-ids) if value.startswith('project:')],'read_tool':'read_runtime_source'}))
+    for statement in p.identified_statements:
+        if not set(statement.evidence_ids)<=set(p.evidence_ids):raise ValueError('Identified statement must cite candidate evidence')
     pending=set(ctx.get('unassessed_request_ids',[]))
     if not set(p.unresolved_requests)<=pending:raise ValueError('Unresolved constraints must identify unassessed authenticated request IDs')
     if p.unresolved_requests and p.decision not in ('no_change','guidance_only'):raise ValueError('An unresolved necessary constraint cannot accompany a permission application')
@@ -561,7 +572,7 @@ def validate_candidate(job,args):
     from ..main import compile_policy
     status,diagnostic,error=compile_policy(yaml,task['id'],12000+s['revision'])
     if status!='compiled':raise ValueError('候选编译失败: '+str(error))
-    return {**p.model_dump(),'hash':digest({'proposal':p.model_dump(),'context':ctx}),'compile':diagnostic}
+    return {**p.model_dump(),'hash':digest({'proposal':p.model_dump(),'context':ctx}),'compile':diagnostic,'compiled_dsl':dsl,'compiled_dsl_hash':hashlib.sha256(dsl.encode()).hexdigest()}
 
 def finish_job(job):
     with lock(job['task_id']),db.connect() as con:

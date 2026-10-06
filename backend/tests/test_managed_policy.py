@@ -731,3 +731,88 @@ def test_recovery_retains_unapproved_expansion_intent_without_grant(bound,monkey
     assert installed['pending_expansion'] is None and not installed['allow_output']
     assert installed['pending_expansion_intent']['proposed_snapshot']['allow_output']
     assert installed['pending_expansion_intent']['prior_hash']=='old-candidate'
+
+
+
+def test_compiled_record_preserves_exact_dsl_and_annotation_has_no_authority(bound):
+    statement={'statement':'Task needs an output file','context_required':True,'context_reason':'Resolve the output path from task context','policy_type':'per_event','evidence_ids':['5']}
+    result=c.validate_candidate(bound[2],proposal(identified_statements=[statement]))
+    assert result['compiled_dsl_hash']==__import__('hashlib').sha256(result['compiled_dsl'].encode()).hexdigest()
+    assert result['identified_statements'][0]['statement']==statement['statement']
+    assert not result['allow_output']
+    with pytest.raises(ValueError,match='不能修改权限'):c.validate_candidate(bound[2],proposal(allow_output=True,identified_statements=[statement]))
+    with pytest.raises(ValueError,match='cite candidate evidence'):c.validate_candidate(bound[2],proposal(identified_statements=[{**statement,'evidence_ids':['invented']}]))
+
+
+def test_structured_runtime_compiled_candidate_is_not_loaded_without_receipt(bound):
+    from agentscope_app.managed.records import runtime_record
+    task,state,job=bound
+    ctx=json.loads(job['context_json']);ctx.update(path_mapping={'workspace':'/tmp/work'},sources=[{'evidence_id':'5','content':{'actor':'native_user','text':'Allow task output','turn':3}}])
+    candidate={'decision':'expand','allowed_write_dirs':['.'],'allow_output':True,'protected_paths':[],'evidence_ids':['5'],'compile':{'ok':True},'explanation':'Output requested','hash':'candidate','compiled_dsl':'rule candidate:\n  block write file "/private" if AGENT','compiled_dsl_hash':__import__('hashlib').sha256(b'rule candidate:\n  block write file "/private" if AGENT').hexdigest()}
+    row={**job,'context_json':json.dumps(ctx),'proposal_json':json.dumps(candidate),'created_at':db.now()}
+    with db.connect() as con:
+        record=runtime_record(con,c.task_row(con,task),{**state,'pending_expansion':{'job_id':job['id']}},row)
+        assert record['status']=='pending_confirmation' and record['compilation']['status']=='compiled'
+        assert not record['loading']['loaded'] and record['compilation']['dsl']==candidate['compiled_dsl']
+        c.event(con,task,'request_resolved',job['id'],{'version':2,'confirmation':'confirmed'})
+        record=runtime_record(con,c.task_row(con,task),{**state,'version':2,'allow_output':True},row)
+        assert record['status']=='active' and record['loading']['loaded'] and record['loading']['version']==2
+        corrupted={**row,'proposal_json':json.dumps({**candidate,'compiled_dsl':'tampered'})}
+        with pytest.raises(ValueError,match='hash mismatch'):runtime_record(con,c.task_row(con,task),state,corrupted)
+
+
+def test_workspace_resolver_matches_declared_session_and_never_guesses(bound,monkeypatch,seed_task):
+    from agentscope_app.managed.records import binding
+    task,state,_=bound
+    monkeypatch.setattr(c,'broker',lambda *_:{'status':'running','domain_id':7,'domain_verified':True})
+    assert binding(task_id=task,session_id='session-native')['binding']['task_id']==task
+    assert binding(task_id=task,workspace='/tmp/work')['binding']['process_verified']
+    other=uuid.uuid4().hex[:16];seed_task(other)
+    with db.connect() as con:c.save(con,other,{**state,'session_id':'session-other'})
+    assert binding(workspace='/tmp/work')['status']=='ambiguous'
+    assert binding(workspace='/other/work')['status']=='unmatched'
+    assert binding(session_id='foreign')['status']=='unmatched'
+    with db.connect() as con:c.save(con,task,{**state,'phase':'ended'})
+    assert task not in {b['task_id'] for b in binding()['candidates']}  # history is not an active auto selection
+    assert binding(task_id=task)['status']=='matched'  # explicit historical selection remains readable
+
+
+def test_execution_audit_separates_tools_from_os_and_marks_probe_source(bound):
+    from agentscope_app.managed.records import execution_audit
+    task,state,_=bound
+    with db.connect() as con:
+        c.event(con,task,'kernel','denied',{'event':{'op':'write','target':'/tmp/work/tests/test.py','pid':111},'version':1})
+        c.event(con,task,'tool_result','success',{'call_id':'success','name':'bash','succeeded':True})
+        c.event(con,task,'operation_verified','probe',{'probe':{'operation':'read','target':'/tmp/work/allowed.py','pid':112},'classification':'correct_allow'})
+    os=execution_audit(task,'os')['records'];tools=execution_audit(task,'tools')['records']
+    assert {x['kind'] for x in os}=={'kernel','operation_verified'}
+    assert next(x for x in os if x['kind']=='operation_verified')['source']=='independent_probe'
+    assert tools[0]['result']=='success' and tools[0]['source']=='native_tool'
+    assert all(x['kind']!='tool_result' for x in os)
+    with db.connect() as con:
+        c.event(con,task,'tool_start','probe-call',{'call_id':'probe-call','name':'read','verification_probe':True})
+        c.event(con,task,'tool_result','probe-result',{'call_id':'probe-call','name':'read','succeeded':True})
+    assert execution_audit(task,'tools')['records'][0]['source']=='independent_probe'
+
+
+def test_structured_record_endpoints_require_admin_auth(bound):
+    with TestClient(app) as client:
+        for path in ['/api/managed/workspace-binding','/api/managed/tasks/'+bound[0]+'/strategy-records','/api/managed/tasks/'+bound[0]+'/execution-audit','/api/managed/tasks/'+bound[0]+'/workbench']:
+            assert client.get(path).status_code==401
+
+
+def test_record_details_cannot_read_foreign_job_or_native_stream(bound):
+    from agentscope_app.managed.records import detail,workbench
+    with pytest.raises(ValueError,match='不属于当前任务'):detail(bound[0],'runtime:foreign')
+    assert not {'events','runtime_observations','baseline_extra','jobs'}&workbench(bound[0])['state'].keys()
+
+
+def test_protection_record_stays_active_after_unrelated_output_expansion(bound):
+    from agentscope_app.managed.records import runtime_record
+    task,state,job=bound
+    proposal={'decision':'restrict','allowed_write_dirs':['.'],'allow_output':False,'protected_paths':['locked.txt'],'evidence_ids':['5'],'compile':{'ok':True}}
+    row={**job,'proposal_json':json.dumps(proposal),'created_at':db.now()}
+    with db.connect() as con:
+        c.event(con,task,'request_resolved',job['id'],{'version':2})
+        record=runtime_record(con,c.task_row(con,task),{**state,'version':3,'allow_output':True,'runtime_protected':['locked.txt']},row)
+    assert record['status']=='active' and record['loading']['version']==2
