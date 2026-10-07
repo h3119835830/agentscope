@@ -1,0 +1,74 @@
+{
+  "schema": "TaskArchivePublicAcceptance/1",
+  "date": "2026-10-07",
+  "evidence_origin": "root agent real runtime receipts; subagent independently reviewed and exported field whitelist",
+  "scope": [
+    "two logical task IDs remain separate despite common source workspace",
+    "v3 restriction and v4 expansion",
+    "independent file denial/effect probes",
+    "actual DSH output and functional unittest",
+    "plugin gate closure replay 200 to 401",
+    "all task credentials revoked and registered processes dead"
+  ],
+  "not_proven": [
+    "all operating system syscalls audited",
+    "tool success implies kernel allow",
+    "native DSH observation implies managed execution",
+    "old plugin credential replay during v3 rotation",
+    "final fields/records UI, historical graph and default highlights after concurrent user-session integration"
+  ],
+  "native_api_unavailable_ui": {
+    "screenshot": "control-api-unavailable.jpg",
+    "manual_check_result": "unknown",
+    "native_pid_after_recovery": 870966,
+    "pid_unchanged": true,
+    "authority": "root runtime and UI observation"
+  },
+  "credential_handling": "only HTTP outcomes, revocation booleans and counts; no token values, token hashes or database copies",
+  "private_content_exported": false,
+  "source_regression": {
+    "backend_passed": 410,
+    "skipped": 52,
+    "warnings": 5,
+    "seconds": 12.16,
+    "TMPDIR": "/tmp/a",
+    "basetemp": "/tmp/a/t",
+    "prior_path_limit_failure_preserved": true,
+    "frontend_tests": 51,
+    "frontend_build": "passed; final deployed index-BVZOdasf.js / index-CKbQv6NF.css",
+    "archive_highlights_tests_passed": 65,
+    "final_full_after_highlights": "403 passed, 52 skipped, 5 warnings",
+    "temporary_index_diffcheck_including_untracked": "pass",
+    "archive_historical_tests_passed": 72,
+    "final_full_after_historical": "410 passed, 52 skipped, 5 warnings",
+    "final_backend_log": "/tmp/a/task-archive-historical-final-backend.log",
+    "latest_observer_ttl_included": true
+  },
+  "specific_ui_acceptance": {
+    "archive_width_px": 423,
+    "escape_restores_archive_button_focus": true,
+    "search_and_ended_filter_preserved": true,
+    "workspace_drawer_url_reload_file_count": 7,
+    "connection_table_423px": true,
+    "connection_columns_mobile": [
+      "instance",
+      "status",
+      "operation"
+    ],
+    "connection_columns_desktop": 5,
+    "version_scope": "prior staged UI screenshots; current fields/records renderer and historical graph await unified acceptance",
+    "final_renderer": "field_record_tabs",
+    "stage_tabs_preserve_module_url": true,
+    "refresh_and_back_restore_archive": true,
+    "escape_focus_after_direct_url_refresh": true,
+    "critical_v3_v4_visible": true,
+    "historical_graph_versions": [
+      3,
+      4
+    ],
+    "historical_dsl_available": true,
+    "baseline_missing_material_explicit": true,
+    "archive_document_width_px": 423,
+    "table_and_graph_scroll_locally": true
+  }
+}

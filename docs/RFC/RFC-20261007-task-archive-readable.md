@@ -1,0 +1,17 @@
+# 任务档案字段与记录展示
+
+任务档案采用任务概览、准备与授权、执行与权限、结束与结果四个页签。概览展示身份、目标、逐条约束；阶段页按关键记录、工具记录、内核记录、审计记录分类展示表格，避免将完整事件流纵向堆在一个页面。
+
+实现为 `frontend/src/TaskArchiveDetails.jsx`、`archiveRecords.mjs`、`archiveRecords.css`，由 `TaskArchive.jsx` 接入。档案列表沿用现有实现。
+
+数据继续使用现有只读接口：任务 archive、events 和单条 event 详情。阶段及分类使用服务端 stage/category 参数；每次最多载入 50 条，前端每页展示 12 条。搜索和筛选作用于已载入记录，明确展示已载入数量、总量和继续载入入口。
+
+记录详情按中文字段展示；嵌套记录按需展开，原始 JSON 收在二级技术详情。通用固定约束提供中文译文并保留英文原文；重复要求仅在展示层合并，并保留全部来源及作用对象。
+
+本次修改不改变策略生成、审批、装载、任务执行和权限合同。历史装载仍标记为历史事实，操作来源只取 action_source，来源工作区身份不冒充执行实例。来源缺失、字段值为 false 或 0 都如实呈现。
+
+阶段默认展示后端 stage_previews[stage].highlights 中的关键权限回执，独立于最新 50 条分页记录；最多 20 条。无权限变化的评估归入全部记录，不能与真实收紧/扩展混合。“全部记录”继续按分类和游标读取。兼容早期 stage_previews 数组，缺少 highlights 时直接显示全部记录。
+
+概览内联接入 ArchiveDomains，只在展开后读取 /archive/domains?version= 与 /archive/domains/{key}。历史图和 DSL 使用历史只读证据接口，不查询或操作 Broker。来源 Agent 与受管执行实例分列。无完整 graph nodes/edges/versions 的响应转为局部提示，避免档案整体空白。
+
+历史域缺失材料如实展示 API notice 与 missing_sources；本次实际提示“底线域加载材料未记录”，仅画3个已记录域/进程节点，不补 D0 或缺失 DSL。组件4项测试在最后提示调整后通过。

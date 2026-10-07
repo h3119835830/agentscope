@@ -48,9 +48,19 @@ def workspaces(agent_id: str):
     return call(r.workspaces, agent_id)
 
 
-@router.post('/api/workspace-agents/dsh/workspaces')
-def create_workspace(body: Workspace):
-    return call(r.create_workspace, body.name.strip(), body.path.strip())
+@router.post('/api/workspace-agents/{agent_id}/workspaces')
+def create_workspace(agent_id: str, body: Workspace):
+    return call(r.create_workspace, body.name.strip(), body.path.strip(), agent_id)
+
+
+@router.post('/api/workspace-agents/{agent_id}/check')
+def check(agent_id: str):
+    return call(r.connect, agent_id)
+
+
+@router.get('/api/workspace-agents/{agent_id}/directories')
+def directories(agent_id: str, path: str = ''):
+    return call(r.directories, agent_id, path)
 
 
 @router.get('/api/agent-workspaces/{workspace_id}/files')

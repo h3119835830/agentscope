@@ -1,0 +1,116 @@
+{
+  "list": {
+    "id": "managed_events:19458:record",
+    "kind": "operation_verified",
+    "task_id": "bef449047cd24af6",
+    "time": "2026-10-07T13:50:20.960387+00:00",
+    "source": "managed_events",
+    "storage_source": "managed_events",
+    "action_source": "independent_probe",
+    "history_only": true,
+    "detail": {
+      "domain_id": 421785620,
+      "authority": "independent_fixed_operation_probe",
+      "action_source": "independent_probe",
+      "classification": "correct_block",
+      "expected": "deny",
+      "effect_verified": false,
+      "before_hash": "ccd7164e9a7f6222abea435a78daf3fc7fd96065d38218d2b3da53b5e33da66f",
+      "after_hash": "ccd7164e9a7f6222abea435a78daf3fc7fd96065d38218d2b3da53b5e33da66f",
+      "operation": "write",
+      "target": "/s/bef449047cd24af6/r/config/settings.json",
+      "pid": 959626,
+      "meaning": "independent_operation_probe; classification is a historical verification receipt",
+      "probe": {
+        "operation": "write",
+        "target": "/s/bef449047cd24af6/r/config/settings.json",
+        "pid": 959626,
+        "ppid": 944897,
+        "attempted": true,
+        "blocked": true,
+        "success": false,
+        "errno": 1
+      },
+      "probe_binding": {
+        "domain_verified": true,
+        "process_cgroup": "/sys/fs/cgroup/agentscope-scope-demo/bef449047cd24af6-421785620",
+        "starttime": "2456016"
+      },
+      "kernel_events": [
+        {
+          "pid": 959626,
+          "ppid": 944897,
+          "op": "write",
+          "target": "/s/bef449047cd24af6/r/config/settings.json",
+          "blocked": true,
+          "domain_id": 1139067470,
+          "process_domain_id": 421785620,
+          "rule_id": 3,
+          "rule": {
+            "name": "bootstrap-1",
+            "clause_hash": "fnv1a64:fef8f5b580c37307",
+            "clause_op": "write",
+            "target_pattern": "/s/bef449047cd24af6/r/config/settings.json"
+          }
+        }
+      ]
+    }
+  },
+  "detail": {
+    "id": "managed_events:19458:record",
+    "kind": "operation_verified",
+    "task_id": "bef449047cd24af6",
+    "time": "2026-10-07T13:50:20.960387+00:00",
+    "source": "managed_events",
+    "storage_source": "managed_events",
+    "action_source": "independent_probe",
+    "history_only": true,
+    "detail": {
+      "domain_id": 421785620,
+      "authority": "independent_fixed_operation_probe",
+      "action_source": "independent_probe",
+      "classification": "correct_block",
+      "expected": "deny",
+      "effect_verified": false,
+      "before_hash": "ccd7164e9a7f6222abea435a78daf3fc7fd96065d38218d2b3da53b5e33da66f",
+      "after_hash": "ccd7164e9a7f6222abea435a78daf3fc7fd96065d38218d2b3da53b5e33da66f",
+      "operation": "write",
+      "target": "/s/bef449047cd24af6/r/config/settings.json",
+      "pid": 959626,
+      "meaning": "independent_operation_probe; classification is a historical verification receipt",
+      "probe": {
+        "operation": "write",
+        "target": "/s/bef449047cd24af6/r/config/settings.json",
+        "pid": 959626,
+        "ppid": 944897,
+        "attempted": true,
+        "blocked": true,
+        "success": false,
+        "errno": 1
+      },
+      "probe_binding": {
+        "domain_verified": true,
+        "process_cgroup": "/sys/fs/cgroup/agentscope-scope-demo/bef449047cd24af6-421785620",
+        "starttime": "2456016"
+      },
+      "kernel_events": [
+        {
+          "pid": 959626,
+          "ppid": 944897,
+          "op": "write",
+          "target": "/s/bef449047cd24af6/r/config/settings.json",
+          "blocked": true,
+          "domain_id": 1139067470,
+          "process_domain_id": 421785620,
+          "rule_id": 3,
+          "rule": {
+            "name": "bootstrap-1",
+            "clause_hash": "fnv1a64:fef8f5b580c37307",
+            "clause_op": "write",
+            "target_pattern": "/s/bef449047cd24af6/r/config/settings.json"
+          }
+        }
+      ]
+    }
+  }
+}

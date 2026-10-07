@@ -1,0 +1,18 @@
+{
+  "phase": "running",
+  "gate": "open",
+  "version": 4,
+  "domain": 421785620,
+  "runner": 944897,
+  "executor": 944921,
+  "session_id": "session-e6a4e826-1062-47e1-8b5e-0c61b4b0bc06",
+  "allow_output": true,
+  "runtime_protected": [
+    "frontend/report.py"
+  ],
+  "effective": true,
+  "active_tools": 0,
+  "protected_hashes_unchanged": true,
+  "task_id": "bef449047cd24af6",
+  "same_native_session_as_v3": true
+}

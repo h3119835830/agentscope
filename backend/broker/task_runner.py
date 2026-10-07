@@ -75,6 +75,36 @@ def verify_probe_binding(args,pid):
     stat=(Path('/proc')/str(pid)/'stat').read_text()
     return {'domain_verified':True,'process_cgroup':str(group),'starttime':stat.rsplit(')',1)[1].split()[19]}
 
+def append_probe_record(workspace, record):
+    """Append only to a protected registry; never rely on the service umask."""
+    task_gid = grp.getgrnam("agentscope-task").gr_gid
+    directory = Path(workspace) / ".actplane"
+    directory_fd = os.open(directory, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
+    try:
+        parent = os.fstat(directory_fd)
+        if parent.st_uid != 0 or parent.st_gid != task_gid or parent.st_mode & 0o022:
+            raise ValueError("Probe registry directory is not protected control material")
+        fd = os.open("probes.jsonl", os.O_WRONLY | os.O_APPEND | os.O_CREAT |
+                     os.O_NOFOLLOW | os.O_CLOEXEC | os.O_NONBLOCK, 0o640, dir_fd=directory_fd)
+        try:
+            info = os.fstat(fd)
+            if not stat.S_ISREG(info.st_mode) or info.st_uid != 0 or info.st_nlink != 1 or info.st_mode & 0o022:
+                raise ValueError("Probe registry is not a protected regular root-owned file")
+            os.fchown(fd, 0, task_gid)
+            os.fchmod(fd, 0o640)
+            verified = os.fstat(fd)
+            if verified.st_uid != 0 or verified.st_gid != task_gid or stat.S_IMODE(verified.st_mode) != 0o640:
+                raise ValueError("Probe registry permissions could not be established")
+            raw = (json.dumps(record) + "\n").encode()
+            if os.write(fd, raw) != len(raw):
+                raise OSError("Incomplete probe registry append")
+            os.fsync(fd)
+        finally:
+            os.close(fd)
+    finally:
+        os.close(directory_fd)
+
+
 def handle_request(req, args):
     if req.get("kind") in ("managed-operation","managed-hold","managed-verify"):
         import selectors
@@ -90,12 +120,8 @@ def handle_request(req, args):
         try:
             child.stdin.write(code);child.stdin.close();child.stdin=None
             binding=verify_probe_binding(args,child.pid)
-            registry=Path(args.workspace)/".actplane/probes.jsonl"
-            fd=os.open(registry,os.O_WRONLY|os.O_APPEND|os.O_CREAT|os.O_NOFOLLOW,0o640)
-            try:
-                os.fchown(fd,0,grp.getgrnam("agentscope-task").gr_gid)
-                os.write(fd,(json.dumps({"pid":child.pid,"domain_id":args.domain_id,"request_id":req["request_id"],**binding})+"\n").encode());os.fsync(fd)
-            finally:os.close(fd)
+            append_probe_record(args.workspace, {"pid": child.pid, "domain_id": args.domain_id,
+                                                "request_id": req["request_id"], **binding})
             os.write(write_fd,b"1")
             if req["kind"]=="managed-hold":
                 with selectors.DefaultSelector() as selector:

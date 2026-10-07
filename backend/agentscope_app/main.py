@@ -31,7 +31,10 @@ from .managed.worker import worker as managed_worker
 app.include_router(managed_router)
 from .workspaces.api import router as workspace_router
 from .workspaces.registry import init as init_workspaces
+from .workspaces.observer import observer as workspace_observer
 app.include_router(workspace_router)
+from .archive.api import router as archive_router
+app.include_router(archive_router)
 
 @app.middleware("http")
 async def protect_control_api(request: Request, call_next):
@@ -211,12 +214,14 @@ async def startup():
     history_jobs.worker.start()
     scope_worker.start()
     managed_worker.start()
+    workspace_observer.start()
 
 @app.on_event("shutdown")
 async def shutdown():
     history_jobs.worker.stop()
     scope_worker.stop()
     managed_worker.stop()
+    workspace_observer.stop()
 
 @app.get("/api/health")
 def health(): return {"ok":True,"service":"AgentScope","version":"0.2.0"}

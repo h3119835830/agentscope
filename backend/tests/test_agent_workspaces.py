@@ -23,7 +23,6 @@ def workspace(client, tmp_path, monkeypatch):
     monkeypatch.setenv('AGENTSCOPE_TASK_GROUP', grp.getgrgid(os.getgid()).gr_name)
     monkeypatch.setattr(r, 'effective_dsh', lambda: RUNTIME.copy())
     monkeypatch.setattr(scene, 'effective_dsh', lambda: RUNTIME.copy())
-    r.connect('dsh')
     value = r.create_workspace('Current project')
     root = Path(value['path'])
     (root / 'tests').mkdir()

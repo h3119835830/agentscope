@@ -1,0 +1,7 @@
+- insert:
+    - id: agentscope-instance-bridge
+      name: '@agentscope/dsh-instance-bridge'
+      config:
+        instanceId: native-dsh
+        socketPath: /run/agentscope-dsh/instance.sock
+        roots: []

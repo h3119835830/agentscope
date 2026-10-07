@@ -19,6 +19,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import pytest
 from fastapi.testclient import TestClient
+os.environ.setdefault('AGENTSCOPE_INSTANCE_WORKER', '0')
 from agentscope_app import db
 from agentscope_app.main import app
 

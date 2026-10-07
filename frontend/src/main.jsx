@@ -5,6 +5,8 @@ import HistoryLibrary from './HistoryLibrary.jsx';
 import TaskHub from './TaskHub.jsx';
 import AgentWorkspaces from './AgentWorkspaces.jsx';
 import ManagedWorkbench from './ManagedWorkbench.jsx';
+import {uniqueTasks,selectableTasks,isTaskEnded} from './consoleState.mjs';
+import TaskArchive from './TaskArchive.jsx';
 import {navigationTarget, readNavigation} from './navigation.mjs';
 
 const api = async (url, options = {}) => {
@@ -71,10 +73,10 @@ function App() {
   const notify = useCallback(message => { setToast(message); setTimeout(() => setToast(''), 4200); }, []);
   const refresh = useCallback(async () => {
     try {
-      const [s, d, t, g] = await Promise.all([
-        api('/api/status'), api('/api/dashboard'), api('/api/tasks'), api('/api/governance'),
+      const [s, d, t, g, wt] = await Promise.all([
+        api('/api/status'), api('/api/dashboard'), api('/api/tasks'), api('/api/governance'),api('/api/workspace-tasks'),
       ]);
-      setStatus(s); setDash(d); setTasks(t); setGovernance(g);
+      setStatus(s); setDash(d); setTasks(uniqueTasks([...t,...(wt.records||[])])); setGovernance(g);
     } catch (e) { notify(e.message); }
   }, [selected, page, notify]);
   useEffect(() => { refresh(); const timer = setInterval(refresh, 7000); return () => clearInterval(timer); }, [refresh]);
@@ -90,8 +92,8 @@ function App() {
     finally { setBusy(false); }
   };
   const selectTask = id => setSelected(id);
-  const openTask = id => navigate({page:'task',task:id});
-  const createTask = (workspace='') => {setWorkspaceSeed(workspace);navigate({page:'task',task:''});};
+  const openTask = id => navigate({page:'history',archiveTask:id});
+  const createTask = (workspace='') => {setWorkspaceSeed(workspace);navigate({page:'workbench',task:'',workbenchSection:'startup',workspace});};
 
   return <div className={`shell ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
     <aside className="sidebar">
@@ -99,9 +101,9 @@ function App() {
       <div className="side-label">工作区</div>
       <nav id="workspace-navigation" aria-label="工作区导航">
         <NavItem active={page === 'overview'} icon="▦" label="总览" onClick={() => setPage('overview')} />
-        <NavItem active={page === 'agent-bridge'} icon="⇄" label="Agent 与工作区" onClick={() => setPage('agent-bridge')} />
-        <NavItem active={page === 'task'} icon="◈" label="任务与场景策略" onClick={() => setPage('task')} />
-        <NavItem active={page === 'scope-demo'} icon="◉" label="任务工作台" onClick={() => setPage('scope-demo')} />
+        <NavItem active={page === 'connections'} icon="⇄" label="Agent连接" onClick={() => setPage('connections')} />
+        <NavItem active={page === 'workbench'} icon="◈" label="策略工作台" onClick={() => setPage('workbench')} />
+        <NavItem active={page === 'history'} icon="▤" label="任务历史" onClick={() => setPage('history')} />
         <NavItem active={page === 'strategies'} icon="▤" label="历史策略库" count={dash?.stats?.pending_strategies} onClick={() => setPage('strategies')} />
         <NavItem active={page === 'governance'} icon="⟳" label="持久治理" count={dash?.stats?.pending_governance} onClick={() => setPage('governance')} />
       </nav>
@@ -110,17 +112,17 @@ function App() {
     <main className="main">
       <header className="topbar"><div><span className="crumb">AgentScope</span><span className="slash">/</span><b>{pageTitle(page)}</b></div><div className="top-right"><span className={`status-pill ${status?.broker?.available && status?.bpf_lsm ? 'good' : 'warn'}`}><i />{status?.broker?.available && status?.bpf_lsm ? '执行后端可用' : '执行后端待检查'}</span></div></header>
       {page === 'overview' && <Overview dash={dash} status={status} tasks={tasks} onSelect={openTask} onCreate={createTask} onNav={setPage} />}
-      {page === 'scope-demo' && <ManagedWorkbench api={api} post={post} notify={notify} task={selected} onSelectTask={selectTask} onCreateTask={createTask} onTaskRecord={openTask} />}
+      <div hidden={page!=='workbench'}><div className="content workbench-selector"><label>当前任务<select aria-label="当前工作台任务" value={selected} onChange={e=>navigate({task:e.target.value})}><option value="">新建任务</option>{selected&&!selectableTasks(tasks).some(t=>t.id===selected)&&<option value={selected}>{isTaskEnded(tasks.find(t=>t.id===selected))?'历史任务（只读）':'选定任务（查看与恢复）'}</option>}{selectableTasks(tasks).map(t=><option key={t.id} value={t.id}>{t.name||t.id}</option>)}</select></label></div>{!selected?<TaskHub api={api} post={post} notify={notify} tasks={tasks} task="" onSelectTask={id=>navigate({task:id,workbenchSection:'startup'})} onFollowTask={id=>navigate({task:id})} onAgents={()=>setPage('connections')} workspaceSeed={navigation.workspace} agentSeed={navigation.agent} onContext={context=>navigate(context)} createOnly/>:<ManagedWorkbench api={api} post={post} notify={notify} task={selected} onSelectTask={selectTask} onCreateTask={createTask} onTaskRecord={()=>navigate({workbenchSection:'startup'})} readOnly={isTaskEnded(tasks.find(t=>t.id===selected))} sourceTask={tasks.find(t=>t.id===selected)} section={navigation.workbenchSection} onSection={workbenchSection=>navigate({workbenchSection})}/>}</div>
+      <div hidden={page!=='history'}><TaskArchive api={api} navigation={navigation} navigate={navigate}/></div>
       {page === 'strategies' && <HistoryLibrary moduleIndex={historyModuleIndex} modules={HISTORY_MODULES} onModuleChange={setHistoryModuleIndex} api={api} post={post} tasks={tasks} busy={busy} action={withBusy} notify={notify} selectTask={openTask} />}
-      {page === 'task' && <TaskHub api={api} post={post} notify={notify} tasks={tasks} task={selected} onSelectTask={selectTask} onFollowTask={id=>navigate({page:'scope-demo',task:id})} onAgents={()=>setPage('agent-bridge')} workspaceSeed={workspaceSeed} />}
-      {page === 'agent-bridge' && <AgentWorkspaces api={api} post={post} notify={notify} onCreateTask={createTask} />}
+      <div hidden={page!=='connections'}><AgentWorkspaces api={api} post={post} notify={notify} onCreateTask={createTask} tasks={tasks} active={page==='connections'} agentSeed={navigation.connectionAgent} workspaceSeed={navigation.connectionWorkspace} onContext={context=>navigate(context)} /></div>
       {page === 'governance' && <Governance rows={governance} busy={busy} action={withBusy} notify={notify} />}
     </main>
     {toast && <div className="toast">{toast}</div>}
   </div>;
 }
 
-function pageTitle(page) { return ({ overview: '总览', 'scope-demo':'任务工作台', strategies: '历史策略库', task: '任务与场景策略', 'agent-bridge':'Agent 与工作区', governance: '持久治理' })[page]; }
+function pageTitle(page) { return ({ overview: '总览', workbench:'策略工作台',history:'任务历史',connections:'Agent连接', strategies: '历史策略库', task: '任务与场景策略', 'agent-bridge':'Agent 与工作区', governance: '持久治理' })[page]; }
 function NavItem({ active, icon, label, count, onClick }) { return <button className={`nav-item ${active ? 'active' : ''}`} aria-label={label} aria-current={active?'page':undefined} title={label} onClick={onClick}><span className="nav-icon" aria-hidden="true">{icon}</span><span className="nav-label">{label}</span>{count > 0 && <em>{count}</em>}</button>; }
 function Header({ eyebrow, title, description, action }) { return <div className="page-head"><div><div className="eyebrow">{eyebrow}</div><h1>{title}</h1><p>{description}</p></div>{action}</div>; }
 function Metric({ label, value, note, icon }) { return <div className="metric"><div className="metric-top"><span>{label}</span><span className="metric-icon">{icon}</span></div><strong>{value ?? '—'}</strong><small>{note}</small></div>; }
@@ -134,7 +136,7 @@ function Overview({ dash, status, tasks, onSelect, onCreate, onNav }) {
         <div className="env-list"><EnvRow label="Linux 内核" value={`${status?.kernel || '检测中'} · ${status?.architecture || ''}`} ok={!!status?.kernel}/><EnvRow label="BPF-LSM" value={status?.lsm || '检测中'} ok={!!status?.bpf_lsm}/><EnvRow label="ActPlane CLI" value={status?.actplane_cli ? '已安装' : '未安装'} ok={!!status?.actplane_cli}/><EnvRow label="DSH CLI" value={status?.dsh_cli ? '已安装' : '未安装'} ok={!!status?.dsh_cli}/><EnvRow label="特权代理" value={status?.broker?.available ? '已连接' : status?.broker?.error || '未连接'} ok={!!status?.broker?.available}/></div>
         {!status?.bpf_lsm && <div className="inline-notice warning">当前环境未报告 BPF-LSM；此状态下策略不能标记为“内核已执行”。</div>}
       </section>
-    <section className="panel table-panel"><div className="panel-head"><div><h2>最近任务</h2><p>查看任务的工作区快照、策略与执行记录。</p></div><button className="button ghost" onClick={() => onNav('task')}>查看全部 →</button></div><TaskTable tasks={tasks.slice(0,6)} onSelect={onSelect}/></section>
+    <section className="panel table-panel"><div className="panel-head"><div><h2>最近任务</h2><p>查看任务的工作区快照、策略与执行记录。</p></div><button className="button ghost" onClick={() => onNav('history')}>查看全部 →</button></div><TaskTable tasks={tasks.slice(0,6)} onSelect={onSelect}/></section>
   </div>;
 }
 function EnvRow({ label, value, ok }) { return <div className="env-row"><span><i className={ok ? 'dot good' : 'dot warn'} />{label}</span><b>{value}</b></div>; }

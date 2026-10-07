@@ -220,7 +220,7 @@ def native_session(message):
     with LOCK:record=TASKS.get(task_id)
     if not record or record.get('scope_mode')!='managed-web':raise ValueError('Not a managed native web task')
     operation=message.get('operation')
-    if operation not in ('create','prompt','inspect','cancel','flush','resume','open_url','verify_delayed_open','verify_task_sandbox','compact'):raise ValueError('Native operation not allowed')
+    if operation not in ('create','prompt','inspect','cancel','flush','resume','open_url','verify_delayed_open','verify_task_sandbox','compact','observe'):raise ValueError('Native operation not allowed')
     body={k:message.get(k) for k in ('operation','session_id','request_id','text','target')}
     if operation=='verify_delayed_open':
         path=Path(str(body.get('target','')));resolved=path.resolve();workspace=Path(record['workspace']).resolve()
@@ -229,7 +229,7 @@ def native_session(message):
     req=urllib.request.Request(f"http://127.0.0.1:{record['web_port']+100}/",data=json.dumps(body).encode(),headers={'Content-Type':'application/json','Authorization':'Bearer '+record['native_token']})
     for attempt in range(100):
         try:
-            with urllib.request.urlopen(req,timeout=65 if operation=='compact' else 32) as response:
+            with urllib.request.urlopen(req,timeout=1.1 if operation=='observe' else 65 if operation=='compact' else 32) as response:
                 result=json.load(response)
                 if operation=="create":
                     profile=Path(record["workspace"]).parent/".dsh/profiles/web"
@@ -798,6 +798,14 @@ def dispatch(m):
 
 def _dispatch(m):
     action=m.get("action")
+    if action in ('dsh-instance-inventory', 'dsh-instance-observe', 'dsh-workspace-operation'):
+        sys.path.insert(0, str(REPO_ROOT/'backend'))
+        from agentscope_app.workspaces import broker_instances as instances
+        if action == 'dsh-instance-inventory':
+            return instances.inventory(TASKS, LOCK)
+        if action == 'dsh-instance-observe':
+            return instances.observe(m['instance_id'], TASKS, LOCK, status, native_session, m.get('session_id'))
+        return instances.workspace_operation(m)
     if action=="managed-call":return managed_call(m)
     if action=="dsh-config-facts":
         import yaml

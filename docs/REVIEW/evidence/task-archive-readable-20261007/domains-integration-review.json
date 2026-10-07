@@ -1,0 +1,8 @@
+{
+  "component_integrated": true,
+  "api_path": "/api/tasks/bef449047cd24af6/archive/domains",
+  "live_api_at_1421_utc": "HTML SPA fallback, endpoint not deployed",
+  "browser_failure_on_expansion": "TypeError: Cannot read properties of undefined (reading filter), DomainGraph graph.nodes",
+  "recommendation": "ArchiveDomains must validate nodes/edges/versions before rendering DomainGraph; unexpected HTML or incomplete payload must show local error, never blank entire archive. Domain API will need coordinated deployment.",
+  "resolution": "Frontend validates graph arrays and shows local error; isolated200HTML response test passed, retry against realAPI succeeded; final backend now deployed."
+}
