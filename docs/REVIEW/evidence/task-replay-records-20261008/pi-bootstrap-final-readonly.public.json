@@ -1,0 +1,180 @@
+{
+  "observed_at": "2026-10-07T17:03:50.288071+00:00",
+  "observation_scope": "Read-only SQLite mode=ro/query_only, bootstrap GET and service/source metadata; no broker/status/check, model or task mutation.",
+  "database_query_only": true,
+  "tasks": [
+    {
+      "task_id": "0dae79b573f14bca",
+      "jobs": [
+        {
+          "id": "d5cb5fcc741848589eff12f2be82404c",
+          "status": "failed",
+          "error": "ValueError: Pi settled without a server-validated submission",
+          "created_at": "2026-10-07T16:40:43.750033+00:00",
+          "finished_at": "2026-10-07T16:41:38.497492+00:00"
+        }
+      ],
+      "proposals": [],
+      "task_status": {
+        "status": "failed",
+        "active_version": 0,
+        "active_domain_id": null,
+        "active_pid": null,
+        "watch_pid": null
+      },
+      "phase": "failed",
+      "gate": "failed",
+      "effective_version": 0,
+      "session_present": false,
+      "policy_version_count": 0,
+      "execution_credential_count": 0,
+      "unrevoked_pi_credential_count": 0,
+      "context_hash": "81b5fb12afd129fa4834ee2149ad876342dfd87474427615fb7f627aff643009",
+      "context_json_sha256": "70f07f460747bf8f9f7ab82075708d5ec124f7f0f2811a5657a01164e1e26d81",
+      "source_manifest_hash": "014d1db9e3ccaffdabb5861c0a610963150dd19f0b9eef4e1da1f37b0a438323",
+      "asset_count": 20,
+      "frozen_asset_file_hashes_match": true,
+      "project_root_mapping": {},
+      "draft_counts": [],
+      "validations": [
+        {
+          "valid": false,
+          "diagnostic": "Unread referenced source IDs: [\"70e74ff932064337904a5ecf5a9a3d0a\"]; obtain read_policy_source receipts before validating this draft"
+        },
+        {
+          "valid": false,
+          "diagnostic": "IR pattern 超过 64 UTF-8 bytes 或包含控制字符"
+        },
+        {
+          "valid": false,
+          "diagnostic": "IR pattern 超过 64 UTF-8 bytes 或包含控制字符"
+        },
+        {
+          "valid": false,
+          "diagnostic": "IR pattern 超过 64 UTF-8 bytes 或包含控制字符"
+        }
+      ]
+    },
+    {
+      "task_id": "ad7c53a17c334c7b",
+      "jobs": [
+        {
+          "id": "948e76e023fe480aa959a62a8d556eb1",
+          "status": "completed",
+          "error": null,
+          "created_at": "2026-10-07T16:52:18.510661+00:00",
+          "finished_at": "2026-10-07T16:53:00.134033+00:00"
+        }
+      ],
+      "proposals": [
+        {
+          "id": "8ed88d1cd02a4163805b0848ea794afe",
+          "job_id": "948e76e023fe480aa959a62a8d556eb1",
+          "state": "validated",
+          "content_hash": "2110979ff1c1b7a72e993a302d616a085d7c0f4a2056030ce16ad2baeff66062"
+        }
+      ],
+      "task_status": {
+        "status": "policy_review",
+        "active_version": 0,
+        "active_domain_id": null,
+        "active_pid": null,
+        "watch_pid": null
+      },
+      "phase": "policy_review",
+      "gate": "waiting_confirmation",
+      "effective_version": 0,
+      "session_present": false,
+      "policy_version_count": 0,
+      "execution_credential_count": 0,
+      "unrevoked_pi_credential_count": 0,
+      "context_hash": "cfaa613a506b719b0f6de7294194b936b97225552a2886556bea684667ca86d8",
+      "context_json_sha256": "3c1dcfd63441971990b1d33fbb5bc4eabd55dab23e6ca8404c2074d4613ba590",
+      "source_manifest_hash": "014d1db9e3ccaffdabb5861c0a610963150dd19f0b9eef4e1da1f37b0a438323",
+      "asset_count": 20,
+      "frozen_asset_file_hashes_match": true,
+      "project_root_mapping": {
+        "workspace/transaction-verification-service": "p0"
+      },
+      "draft_counts": [
+        {
+          "atoms": 2,
+          "guidance": 7
+        }
+      ],
+      "validations": [
+        {
+          "valid": false,
+          "diagnostic": "Unread referenced source IDs: [\"7f4bcaa9820c4a598ce013ebacdc5ebf\", \"f7758b9a03064d0985814857f7d5f45d\"]; obtain read_policy_source receipts before validating this draft"
+        },
+        {
+          "valid": true,
+          "state": "validated",
+          "compile_state": "compiled",
+          "diagnostic": ""
+        }
+      ]
+    }
+  ],
+  "service": {
+    "name": "agentscope-scope-demo-api.service",
+    "pid": 1071142,
+    "working_directory": "/opt/agentscope-task-archive-20261007",
+    "started": "Thu 2026-10-08 00:51:21 CST"
+  },
+  "deployed_source_files": [
+    {
+      "path": "backend/agentscope_app/policy_ir.py",
+      "sha256": "ed617548306a7b557f63980375b731419a5b2f8097e2f051d25b79c9ab863682",
+      "mtime_utc": "2026-10-07T16:47:53.572127+00:00",
+      "mtime_precedes_running_api_start": true
+    },
+    {
+      "path": "backend/agentscope_app/pi_rpc.py",
+      "sha256": "496853984a3bd04e35e8781675893d373130581249856a5adac9beb575a1e4d2",
+      "mtime_utc": "2026-10-07T16:45:09.256116+00:00",
+      "mtime_precedes_running_api_start": true
+    },
+    {
+      "path": "backend/agentscope_app/bootstrap/validation.py",
+      "sha256": "72430c11e1403cae8afc8b1a4b0484a4eea0e7d7b03178ec1fe6d357c9a8f156",
+      "mtime_utc": "2026-10-07T16:47:53.572127+00:00",
+      "mtime_precedes_running_api_start": true
+    },
+    {
+      "path": "backend/agentscope_app/bootstrap/runner.py",
+      "sha256": "a6fb2e122a36fe4579ba87fea0adc0e188695ea3bced62c17d77f77695a03df8",
+      "mtime_utc": "2026-10-07T16:47:53.572127+00:00",
+      "mtime_precedes_running_api_start": true
+    },
+    {
+      "path": "backend/agentscope_app/bootstrap/tools.py",
+      "sha256": "564a8f72ab7f2bde661feddd2d5bcbe305c6844a0fda0b15641ce2dd10b5013c",
+      "mtime_utc": "2026-10-07T16:45:09.252115+00:00",
+      "mtime_precedes_running_api_start": true
+    },
+    {
+      "path": "backend/agentscope_app/workspaces/layout.py",
+      "sha256": "4dc223378114aaf40b3f1b676437ca5e1eb92927edab609319b4b722eb669269",
+      "mtime_utc": "2026-10-07T16:49:58.516135+00:00",
+      "mtime_precedes_running_api_start": true
+    },
+    {
+      "path": "backend/agentscope_app/workspaces/registry.py",
+      "sha256": "2f22873ce0da8b080e129b1e9a071fb9da5f9234f1cf46e15ce6161909c29d68",
+      "mtime_utc": "2026-10-07T16:47:17.600125+00:00",
+      "mtime_precedes_running_api_start": true
+    }
+  ],
+  "actions": {
+    "model_invoked": false,
+    "broker_or_connection_checked": false,
+    "policy_approved_or_loaded": false,
+    "task_started_or_retried": false,
+    "service_changed": false,
+    "git_changed": false,
+    "production_data_changed": false
+  },
+  "same_source_asset_hashes": true,
+  "original_context_unchanged_since_retry_receipt": true
+}

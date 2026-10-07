@@ -15,3 +15,5 @@
 集成期间另一会话曾覆盖 API 工作目录，独立 GET 发现部署合同不匹配，保留 api-predeployment-mismatch.public.json。随后合并连接历史源码，统一 API 到本候选，复跑通过。旧部署回执保留为历史，统一版本回执为 unified-deployment.public.json（Cgg95WzE/CUPFpjOF）。后续任务回放构建另有回执，不能用旧资产 hash 冒充最终页面。
 
 本次未重新执行 DSH/内核探针，使用旧任务留下的真实材料检验历史展示。缺失子项的安全行为由回归测试覆盖；未在生产库人为损坏材料制造浏览器样本。
+
+2026-10-08 发布整理：`api-predeployment-mismatch.public.json` 仅将 CRLF 归一为 LF，JSON 数据保持一致。原始字节 SHA256 `396788e48b011fee48a9c1de6e766606db15ef916d9baeea7e02bbaa72844887`；归一后 SHA256 `17aad9df0fdb75cfed0d6c5e4827d325a6d0ec372a5a53b09e242981af4e76ea`。该证据仍只代表发布前部署不匹配，不能代表最终运行版本。
