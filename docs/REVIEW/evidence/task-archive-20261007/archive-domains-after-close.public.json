@@ -1,0 +1,95 @@
+{
+  "schema": "TaskArchiveHistoricalDomainsAcceptance/1",
+  "task_id": "bef449047cd24af6",
+  "observed_after_task_closed": true,
+  "versions": [
+    {
+      "version": 3,
+      "live": false,
+      "historical": true,
+      "history_only": true,
+      "nodes": [
+        {
+          "kind": "domain",
+          "role": "task",
+          "domain_id": 410489984,
+          "available": true,
+          "historical": true
+        },
+        {
+          "kind": "process",
+          "role": "runner",
+          "pid": 918965,
+          "historical": true
+        },
+        {
+          "kind": "process",
+          "role": "watch",
+          "pid": 918609,
+          "historical": true
+        }
+      ],
+      "missing_sources": [
+        {
+          "key": "v3:baseline",
+          "role": "baseline",
+          "reason": "trusted_baseline_material_not_recorded"
+        }
+      ],
+      "task_dsl_available": true,
+      "task_dsl_chars": 4656,
+      "labels": [
+        "AGENT"
+      ]
+    },
+    {
+      "version": 4,
+      "live": false,
+      "historical": true,
+      "history_only": true,
+      "nodes": [
+        {
+          "kind": "domain",
+          "role": "task",
+          "domain_id": 421785620,
+          "available": true,
+          "historical": true
+        },
+        {
+          "kind": "process",
+          "role": "runner",
+          "pid": 944897,
+          "historical": true
+        },
+        {
+          "kind": "process",
+          "role": "watch",
+          "pid": 944496,
+          "historical": true
+        }
+      ],
+      "missing_sources": [
+        {
+          "key": "v4:baseline",
+          "role": "baseline",
+          "reason": "trusted_baseline_material_not_recorded"
+        }
+      ],
+      "task_dsl_available": true,
+      "task_dsl_chars": 4439,
+      "labels": [
+        "AGENT"
+      ]
+    }
+  ],
+  "task_job_event_counts_unchanged": true,
+  "counts_before": {
+    "managed_jobs": 12,
+    "managed_events": 303
+  },
+  "counts_after": {
+    "managed_jobs": 12,
+    "managed_events": 303
+  },
+  "scope": "historical receipt and hash-verified task policy; missing baseline material explicitly unavailable; no live PID assertion"
+}

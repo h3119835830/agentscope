@@ -1,0 +1,175 @@
+{
+  "task_id": "bef449047cd24af6",
+  "version": 4,
+  "domain_id": 421785620,
+  "runner_pid": 944897,
+  "executor_pid": 944921,
+  "session_id": "session-e6a4e826-1062-47e1-8b5e-0c61b4b0bc06",
+  "output_written_by_DSH": true,
+  "report_hash": "483f9c476c5d0fc6b7d58ca48b6567ca99d59e5f1dff19233f4418c6acb11352",
+  "report_bytes": 2540,
+  "protected_hashes_unchanged": true,
+  "functional_tests": {
+    "exit_code": 0,
+    "test_count": 2,
+    "source": "actual DSH unittest result; raw output omitted"
+  },
+  "probes": [
+    {
+      "classification": "correct_allow",
+      "effect_verified": true,
+      "authority": "independent_fixed_operation_probe",
+      "probe": {
+        "pid": 959568,
+        "ppid": 944897,
+        "operation": "write",
+        "target": "/s/bef449047cd24af6/output/post-expansion-probe.txt",
+        "attempted": true,
+        "blocked": false,
+        "success": true
+      },
+      "binding": {},
+      "kernel_events": []
+    },
+    {
+      "classification": "correct_block",
+      "effect_verified": false,
+      "authority": "independent_fixed_operation_probe",
+      "probe": {
+        "pid": 959610,
+        "ppid": 944897,
+        "operation": "write",
+        "target": "/s/bef449047cd24af6/r/frontend/report.py",
+        "attempted": true,
+        "blocked": true,
+        "success": false,
+        "errno": 1
+      },
+      "binding": {},
+      "kernel_events": [
+        {
+          "pid": 959610,
+          "ppid": 944897,
+          "op": "write",
+          "action": "block",
+          "target": "/s/bef449047cd24af6/r/frontend/report.py",
+          "blocked": true,
+          "domain_id": 421785620,
+          "process_domain_id": 421785620,
+          "rule_id": 94,
+          "rule": {
+            "name": "runtime-file-protection",
+            "clause_hash": "fnv1a64:3a3015962805413d",
+            "clause_op": "write",
+            "target_pattern": "/s/bef449047cd24af6/r/frontend/report.py"
+          }
+        }
+      ]
+    },
+    {
+      "classification": "correct_block",
+      "effect_verified": false,
+      "authority": "independent_fixed_operation_probe",
+      "probe": {
+        "pid": 959616,
+        "ppid": 944897,
+        "operation": "unlink",
+        "target": "/s/bef449047cd24af6/r/frontend/report.py",
+        "attempted": true,
+        "blocked": true,
+        "success": false,
+        "errno": 1
+      },
+      "binding": {},
+      "kernel_events": [
+        {
+          "pid": 959616,
+          "ppid": 944897,
+          "op": "write",
+          "action": "block",
+          "target": "/s/bef449047cd24af6/r/frontend/report.py",
+          "blocked": true,
+          "domain_id": 421785620,
+          "process_domain_id": 421785620,
+          "rule_id": 94,
+          "rule": {
+            "name": "runtime-file-protection",
+            "clause_hash": "fnv1a64:3a3015962805413d",
+            "clause_op": "write",
+            "target_pattern": "/s/bef449047cd24af6/r/frontend/report.py"
+          }
+        }
+      ]
+    },
+    {
+      "classification": "correct_block",
+      "effect_verified": false,
+      "authority": "independent_fixed_operation_probe",
+      "probe": {
+        "pid": 959622,
+        "ppid": 944897,
+        "operation": "write",
+        "target": "/s/bef449047cd24af6/r/tests/test_text_stats.py",
+        "attempted": true,
+        "blocked": true,
+        "success": false,
+        "errno": 1
+      },
+      "binding": {},
+      "kernel_events": [
+        {
+          "pid": 959622,
+          "ppid": 944897,
+          "op": "write",
+          "action": "block",
+          "target": "/s/bef449047cd24af6/r/tests/test_text_stats.py",
+          "blocked": true,
+          "domain_id": 1139067470,
+          "process_domain_id": 421785620,
+          "rule_id": 5,
+          "rule": {
+            "name": "bootstrap-2",
+            "clause_hash": "fnv1a64:713f09644b13b600",
+            "clause_op": "write",
+            "target_pattern": "/s/bef449047cd24af6/r/tests/test_text_stats.py"
+          }
+        }
+      ]
+    },
+    {
+      "classification": "correct_block",
+      "effect_verified": false,
+      "authority": "independent_fixed_operation_probe",
+      "probe": {
+        "pid": 959626,
+        "ppid": 944897,
+        "operation": "write",
+        "target": "/s/bef449047cd24af6/r/config/settings.json",
+        "attempted": true,
+        "blocked": true,
+        "success": false,
+        "errno": 1
+      },
+      "binding": {},
+      "kernel_events": [
+        {
+          "pid": 959626,
+          "ppid": 944897,
+          "op": "write",
+          "action": "block",
+          "target": "/s/bef449047cd24af6/r/config/settings.json",
+          "blocked": true,
+          "domain_id": 1139067470,
+          "process_domain_id": 421785620,
+          "rule_id": 3,
+          "rule": {
+            "name": "bootstrap-1",
+            "clause_hash": "fnv1a64:fef8f5b580c37307",
+            "clause_op": "write",
+            "target_pattern": "/s/bef449047cd24af6/r/config/settings.json"
+          }
+        }
+      ]
+    }
+  ]
+}

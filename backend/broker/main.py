@@ -220,7 +220,7 @@ def native_session(message):
     with LOCK:record=TASKS.get(task_id)
     if not record or record.get('scope_mode')!='managed-web':raise ValueError('Not a managed native web task')
     operation=message.get('operation')
-    if operation not in ('create','prompt','inspect','cancel','flush','resume','open_url','verify_delayed_open','verify_task_sandbox','compact'):raise ValueError('Native operation not allowed')
+    if operation not in ('create','prompt','inspect','cancel','flush','resume','open_url','verify_delayed_open','verify_task_sandbox','compact','observe'):raise ValueError('Native operation not allowed')
     body={k:message.get(k) for k in ('operation','session_id','request_id','text','target')}
     if operation=='verify_delayed_open':
         path=Path(str(body.get('target','')));resolved=path.resolve();workspace=Path(record['workspace']).resolve()
@@ -229,7 +229,7 @@ def native_session(message):
     req=urllib.request.Request(f"http://127.0.0.1:{record['web_port']+100}/",data=json.dumps(body).encode(),headers={'Content-Type':'application/json','Authorization':'Bearer '+record['native_token']})
     for attempt in range(100):
         try:
-            with urllib.request.urlopen(req,timeout=65 if operation=='compact' else 32) as response:
+            with urllib.request.urlopen(req,timeout=1.1 if operation=='observe' else 65 if operation=='compact' else 32) as response:
                 result=json.load(response)
                 if operation=="create":
                     profile=Path(record["workspace"]).parent/".dsh/profiles/web"
@@ -607,13 +607,43 @@ def status(task_id):
                     executor = int(pid)
                     break
         except OSError: pass
-    domain_verified=executor in domain_members(record) if record.get("scope_mode")=="managed-web" else None
+    members=domain_members(record) if record.get("scope_mode")=="managed-web" else []
+    domain_verified=executor in members if record.get("scope_mode")=="managed-web" else None
     group=task_cgroup(record)
     scoped_members={int(pid) for pid in (group/'cgroup.procs').read_text().split()} if group else set()
     cgroup_verified=record['runner_pid'] in scoped_members and executor in scoped_members if group else None
     if record.get("scope_mode")=="managed-web" and (not domain_verified or group and not cgroup_verified):state="unbound"
-    return {"process_cgroup":record.get('process_cgroup'),"cgroup_inode":record.get('cgroup_inode'),"cgroup_verified":cgroup_verified,"domain_verified":domain_verified,"available":True,"status":state,"agent_status":status.get("state","unknown"),"domain_id":record["domain_id"],"runner_pid":record["runner_pid"],"watch_pid":record["watch_pid"],"child":child,
+    processes=process_snapshot(task_id,{'verified':state=='running' and domain_verified is True and cgroup_verified is True,'domain_id':record['domain_id'],'domain_members':members,'process_cgroup':record.get('process_cgroup'),'cgroup_inode':record.get('cgroup_inode'),'runner_pid':record.get('runner_pid'),'executor':{'pid':executor}})
+    return {"processes":processes,"process_cgroup":record.get('process_cgroup'),"cgroup_inode":record.get('cgroup_inode'),"cgroup_verified":cgroup_verified,"domain_verified":domain_verified,"available":True,"status":state,"agent_status":status.get("state","unknown"),"domain_id":record["domain_id"],"runner_pid":record["runner_pid"],"watch_pid":record["watch_pid"],"child":child,
             "executor":{"mode":record.get("scope_mode"),"pid":executor,"state":"running" if executor else "absent"}}
+
+def process_snapshot(task_id,execution):
+    """Read only admitted task-cgroup PIDs. Cgroup membership is not a label proof."""
+    if not execution.get('verified'):return []
+    path=Path(execution.get('process_cgroup','/missing'))
+    if path.parent.parent!=Path('/sys/fs/cgroup') or path.name!=f"{task_id}-{execution['domain_id']}":return []
+    try:
+        st=path.lstat()
+        if path.resolve()!=path or st.st_uid!=0 or st.st_ino!=execution.get('cgroup_inode'):return []
+        before={int(p) for p in (path/'cgroup.procs').read_text().split()}
+        result=[]
+        for pid in sorted(before)[:64]:
+            try:
+                proc=Path('/proc')/str(pid);raw=(proc/'stat').read_text();fields=raw[raw.rindex(')')+2:].split()
+                if fields[0] in ('Z','X'):continue
+                # Start ticks bind this sample to a process instance, not a reusable PID.
+                again=(proc/'stat').read_text();other=again[again.rindex(')')+2:].split()
+                if fields[19]!=other[19] or fields[1]!=other[1]:continue
+                name=raw[raw.index('(')+1:raw.rindex(')')]
+                role='agent' if pid==execution.get('executor',{}).get('pid') else 'runner' if pid==execution.get('runner_pid') else 'child'
+                result.append({'key':f'pid:{pid}:{fields[19]}','kind':'process','pid':pid,'ppid':int(fields[1]),'start_ticks':fields[19],
+                    'title':'DSH Agent' if role=='agent' else 'Task runner' if role=='runner' else ''.join(ch for ch in name if ch.isprintable())[:60],
+                    'role':role,'membership':'task_cgroup','domain_verified':pid in execution.get('domain_members',[])})
+            except (OSError,ValueError,IndexError):continue
+        after={int(p) for p in (path/'cgroup.procs').read_text().split()}
+        return [p for p in result if p['pid'] in after]
+    except (OSError,ValueError):return []
+
 
 def domain_members(record):
     pin=record.get("pin_root")
@@ -768,6 +798,14 @@ def dispatch(m):
 
 def _dispatch(m):
     action=m.get("action")
+    if action in ('dsh-instance-inventory', 'dsh-instance-observe', 'dsh-workspace-operation'):
+        sys.path.insert(0, str(REPO_ROOT/'backend'))
+        from agentscope_app.workspaces import broker_instances as instances
+        if action == 'dsh-instance-inventory':
+            return instances.inventory(TASKS, LOCK)
+        if action == 'dsh-instance-observe':
+            return instances.observe(m['instance_id'], TASKS, LOCK, status, native_session, m.get('session_id'))
+        return instances.workspace_operation(m)
     if action=="managed-call":return managed_call(m)
     if action=="dsh-config-facts":
         import yaml

@@ -1,0 +1,14 @@
+{
+  "phase": "running",
+  "gate": "open",
+  "version": 3,
+  "domain": 410489984,
+  "runner": 918965,
+  "executor": 918972,
+  "session_id": "session-e6a4e826-1062-47e1-8b5e-0c61b4b0bc06",
+  "effective": true,
+  "held_fd_alive": false,
+  "protected_hashes_unchanged": true,
+  "task_id": "bef449047cd24af6",
+  "credential_rotation_evidence": "authoritative task_credentials revoked records; no old plugin credential replay claimed"
+}

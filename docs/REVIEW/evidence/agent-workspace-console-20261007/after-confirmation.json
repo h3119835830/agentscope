@@ -1,0 +1,16 @@
+{
+  "observed_at": "2026-10-07T20:04:48.2822391+08:00",
+  "task_id": "3706103b84f64746",
+  "phase": "running",
+  "gate": "open",
+  "version": 1,
+  "session_id": "session-183b3cd3-8287-4766-99f1-f089743fb002",
+  "execution_status": "running",
+  "process_verified": true,
+  "domain_verified": true,
+  "cgroup_verified": true,
+  "runner_pid": 819631,
+  "executor_pid": 819654,
+  "domain_id": 923810265,
+  "effective": true
+}

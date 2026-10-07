@@ -10,6 +10,11 @@ class Message(BaseModel):
     text:str=Field(min_length=1,max_length=8000)
     request_key:str=Field(default_factory=lambda:uuid.uuid4().hex)
     kind:str='message'
+class ChangeReview(BaseModel):
+    decision:Literal["approve","reject","clarify"]
+    expected_hash:str=Field(min_length=1,max_length=128)
+    text:str=Field(default="",max_length=8000)
+
 class Confirmation(BaseModel):
     expected_hash:str
 
@@ -32,6 +37,8 @@ def policy(task_id:str):return run(c.policy_details,task_id)
 def audit(task_id:str,category:Literal['all','kernel','agent_refusal','control_pause','allowed']='all',before:int|None=None):return run(c.audit_history,task_id,category,before)
 @router.post('/api/managed/tasks/{task_id}/changes')
 def changes(task_id:str,body:Message):return run(c.change,task_id,body.text,body.request_key,body.kind)
+@router.post('/api/managed/tasks/{task_id}/changes/{job_id}/review')
+def review_change(task_id:str,job_id:str,body:ChangeReview):return run(c.review_change,task_id,job_id,body.decision,body.expected_hash,body.text)
 @router.post('/api/managed/tasks/{task_id}/expansion/confirm')
 def confirm(task_id:str,body:Confirmation):return run(c.confirm_expansion,task_id,body.expected_hash)
 @router.post('/api/managed/tasks/{task_id}/close')
@@ -46,7 +53,7 @@ def prompt(task_id:str,body:Message):
 def native(task_id:str):
     with c.lock(task_id),db.connect() as con:s=c.load(con,task_id)
     if s['gate']=='applying':return {'session_id':s['session_id'],'status':'policy_transition','events':[],'turn':s['turn']}
-    return run(c.broker,{'action':'native-session','task_id':task_id,'operation':'inspect','session_id':s['session_id']},timeout=10)
+    return run(c.broker,{'action':'native-session','task_id':task_id,'operation':'observe','session_id':s['session_id']},timeout=10)
 
 def authenticate(task_id,request):
     from ..main import require_agent_task
@@ -169,9 +176,9 @@ def compact_native(task_id:str):
 
 
 @router.get('/api/managed/workspace-binding')
-def workspace_binding(task_id:str='',workspace:str='',session_id:str=''):
+def workspace_binding(task_id:str='',workspace:str='',session_id:str='',include_inactive:bool=False):
     from .records import binding
-    return run(binding,task_id,workspace,session_id)
+    return run(binding,task_id,workspace,session_id,include_inactive)
 @router.get('/api/managed/tasks/{task_id}/strategy-records')
 def strategy_records(task_id:str,stage:Literal['startup','runtime']='startup',before:str|None=None,include_assessments:bool=False):
     from .records import records
@@ -189,3 +196,13 @@ def execution_audit(task_id:str,category:Literal['os','tools','control']='os',be
 def workbench(task_id:str):
     from .records import workbench
     return run(workbench,task_id)
+
+@router.get('/api/managed/tasks/{task_id}/domain-graph')
+def domain_graph(task_id:str,version:int|None=None):
+    from .topology import graph
+    return run(graph,task_id,version)
+
+@router.get('/api/managed/tasks/{task_id}/domains/{key}')
+def domain_detail(task_id:str,key:str):
+    from .topology import domain_detail
+    return run(domain_detail,task_id,key)

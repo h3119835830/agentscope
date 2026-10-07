@@ -138,7 +138,8 @@ export function apply(ctx) {
      if(execution.isError)throw Error('Native fixed verification tool failed: '+String(execution.error?.message||'unknown').slice(0,800));
      result={call_id:callId,result_path:output,target:data.target,source:'native_sdk_fixed_probe',attempted_by_agent:false};
     }
-    else if(data.operation==='inspect'){const found=await ctx.sessionController.resolveAgent(sid);if(found.error)throw found.error;result={session_id:sid,events:visible,turn,active_tools:starts.size,status:found.agent.status,transport:{...transport}};}
+    else if(data.operation==='observe'){const snapshot=await ctx.sessionController.inspect(sid,signal);if(snapshot?.error)throw Error('Native session unavailable');result={session_id:sid,status:'observed',events:visible,turn,active_tools:starts.size,transport:{...transport},observational:true};}
+     else if(data.operation==='inspect'){const found=await ctx.sessionController.resolveAgent(sid);if(found.error)throw found.error;result={session_id:sid,events:visible,turn,active_tools:starts.size,status:found.agent.status,transport:{...transport}};}
     else if(data.operation==='flush'){const found=await ctx.sessionController.resolveAgent(sid);if(found.error)throw found.error;await found.agent.whenIdle();await ctx.parallel('session/flush',found.agent.session);await pending;if(transportError)throw transportError;result={flushed:true};}
     else if(data.operation==='resume'){const found=await ctx.sessionController.resolveAgent(sid);if(found.error)throw found.error;found.agent.followup(createUserMessage({content:[{type:'text',text:data.text}],source:{kind:'context'}}));await ctx.parallel('session/flush',found.agent.session);await pending;if(transportError)throw transportError;result={accepted:true,persisted:true};}
     else if(data.operation==='cancel'){result=ctx.sessionController.cancel({sessionId:sid});}

@@ -36,12 +36,37 @@ def consume_agent_env(path, task_id):
     finally:
         os.close(fd)
 
+def lookup_process_domain(pin_root,pid):
+    """Read cap_task without requiring permission to retrieve its BTF object."""
+    import ctypes
+    class Options(ctypes.Structure):
+        _fields_=[('sz',ctypes.c_size_t),('file_flags',ctypes.c_uint)]
+    library=ctypes.CDLL('libbpf.so.1',use_errno=True)
+    library.bpf_obj_get_opts.argtypes=[ctypes.c_char_p,ctypes.POINTER(Options)]
+    library.bpf_obj_get_opts.restype=ctypes.c_int
+    library.bpf_map_lookup_elem.argtypes=[ctypes.c_int,ctypes.c_void_p,ctypes.c_void_p]
+    library.bpf_map_lookup_elem.restype=ctypes.c_int
+    options=Options(ctypes.sizeof(Options),1<<3)  # BPF_F_RDONLY
+    fd=library.bpf_obj_get_opts(os.fsencode(Path(pin_root)/'maps/cap_task'),ctypes.byref(options))
+    if fd<0:raise RuntimeError('Cannot open the fixed task domain map read-only: '+str(ctypes.get_errno()))
+    try:
+        key,value=ctypes.c_uint(pid),ctypes.c_uint()
+        if library.bpf_map_lookup_elem(fd,ctypes.byref(key),ctypes.byref(value))!=0:
+            raise RuntimeError('Fixed probe has no verified kernel domain: '+str(ctypes.get_errno()))
+        return value.value
+    finally:os.close(fd)
+
 def verify_probe_binding(args,pid):
     key=[f"{v:02x}" for v in pid.to_bytes(4,'little')]
     result=subprocess.run(['/usr/sbin/bpftool','-j','map','lookup','pinned',str(Path(args.pin_root)/'maps/cap_task'),'key','hex',*key],capture_output=True,text=True,timeout=5)
     if result.returncode:raise RuntimeError('Fixed probe has no verified kernel domain')
-    value=json.loads(result.stdout)['value']
-    domain=value if isinstance(value,int) else int.from_bytes(bytes(int(x,16) if isinstance(x,str) else x for x in value),'little')
+    lookup=json.loads(result.stdout)
+    if 'value' not in lookup:
+        if lookup.get('error')!='failed to get btf':raise RuntimeError('Fixed probe has no verified kernel domain: '+str(lookup.get('error','missing map value')))
+        domain=lookup_process_domain(args.pin_root,pid)
+    else:
+        value=lookup['value']
+        domain=value if isinstance(value,int) else int.from_bytes(bytes(int(x,16) if isinstance(x,str) else x for x in value),'little')
     if domain!=args.domain_id:raise RuntimeError('Fixed probe kernel domain mismatch')
     own=Path('/proc/self/cgroup').read_text()
     actual=(Path('/proc')/str(pid)/'cgroup').read_text()
@@ -49,6 +74,36 @@ def verify_probe_binding(args,pid):
     if actual!=own or group.name not in actual:raise RuntimeError('Fixed probe process scope mismatch')
     stat=(Path('/proc')/str(pid)/'stat').read_text()
     return {'domain_verified':True,'process_cgroup':str(group),'starttime':stat.rsplit(')',1)[1].split()[19]}
+
+def append_probe_record(workspace, record):
+    """Append only to a protected registry; never rely on the service umask."""
+    task_gid = grp.getgrnam("agentscope-task").gr_gid
+    directory = Path(workspace) / ".actplane"
+    directory_fd = os.open(directory, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
+    try:
+        parent = os.fstat(directory_fd)
+        if parent.st_uid != 0 or parent.st_gid != task_gid or parent.st_mode & 0o022:
+            raise ValueError("Probe registry directory is not protected control material")
+        fd = os.open("probes.jsonl", os.O_WRONLY | os.O_APPEND | os.O_CREAT |
+                     os.O_NOFOLLOW | os.O_CLOEXEC | os.O_NONBLOCK, 0o640, dir_fd=directory_fd)
+        try:
+            info = os.fstat(fd)
+            if not stat.S_ISREG(info.st_mode) or info.st_uid != 0 or info.st_nlink != 1 or info.st_mode & 0o022:
+                raise ValueError("Probe registry is not a protected regular root-owned file")
+            os.fchown(fd, 0, task_gid)
+            os.fchmod(fd, 0o640)
+            verified = os.fstat(fd)
+            if verified.st_uid != 0 or verified.st_gid != task_gid or stat.S_IMODE(verified.st_mode) != 0o640:
+                raise ValueError("Probe registry permissions could not be established")
+            raw = (json.dumps(record) + "\n").encode()
+            if os.write(fd, raw) != len(raw):
+                raise OSError("Incomplete probe registry append")
+            os.fsync(fd)
+        finally:
+            os.close(fd)
+    finally:
+        os.close(directory_fd)
+
 
 def handle_request(req, args):
     if req.get("kind") in ("managed-operation","managed-hold","managed-verify"):
@@ -65,12 +120,8 @@ def handle_request(req, args):
         try:
             child.stdin.write(code);child.stdin.close();child.stdin=None
             binding=verify_probe_binding(args,child.pid)
-            registry=Path(args.workspace)/".actplane/probes.jsonl"
-            fd=os.open(registry,os.O_WRONLY|os.O_APPEND|os.O_CREAT|os.O_NOFOLLOW,0o640)
-            try:
-                os.fchown(fd,0,grp.getgrnam("agentscope-task").gr_gid)
-                os.write(fd,(json.dumps({"pid":child.pid,"domain_id":args.domain_id,"request_id":req["request_id"],**binding})+"\n").encode());os.fsync(fd)
-            finally:os.close(fd)
+            append_probe_record(args.workspace, {"pid": child.pid, "domain_id": args.domain_id,
+                                                "request_id": req["request_id"], **binding})
             os.write(write_fd,b"1")
             if req["kind"]=="managed-hold":
                 with selectors.DefaultSelector() as selector:
@@ -79,7 +130,11 @@ def handle_request(req, args):
                 return {"request_id":req["request_id"],"ok":True,"probe":json.loads(child.stdout.readline()),"binding":binding}
             stdout,stderr=child.communicate(timeout=20)
             return {"request_id":req["request_id"],"ok":child.returncode==0,"probe":json.loads(stdout),"binding":binding}
-        except Exception:
+        except Exception as error:
+            exited=child.poll()
+            if exited is not None:
+                diagnostic=child.stderr.read(1500)
+                raise RuntimeError(f'Fixed probe exited {exited} before admission: '+diagnostic) from error
             child.kill();child.wait();raise
         finally:os.close(write_fd)
     if req.get("kind") == "scope-verify":

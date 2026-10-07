@@ -1,0 +1,32 @@
+{
+  "task_id": "3706103b84f64746",
+  "source_preserved": true,
+  "protected_tests_and_config_preserved": true,
+  "application_source_changed": true,
+  "unit_tests": {
+    "passed": 2,
+    "failed": 0
+  },
+  "files": [
+    {
+      "file": "README.md",
+      "source_unchanged": true,
+      "task_unchanged": true
+    },
+    {
+      "file": "config/app.json",
+      "source_unchanged": true,
+      "task_unchanged": true
+    },
+    {
+      "file": "main.py",
+      "source_unchanged": true,
+      "task_unchanged": false
+    },
+    {
+      "file": "tests/test_main.py",
+      "source_unchanged": true,
+      "task_unchanged": true
+    }
+  ]
+}

@@ -9,7 +9,7 @@ from ..services import policy_normalization as normalization
 
 HOOKS={
  'startup':{'name':'DSH 启动前','events':['任务描述与已登记项目材料'],'sequence':['读取必读来源','Pi 识别策略','校验与编译','Broker 加载并核验','放行 DSH']},
- 'runtime':{'name':'DSH 运行时','events':['真实用户消息','system/developer 提示词','工具 schema 与有效上下文','compaction 记忆','ActPlane 内核拒绝','已验证的误拦截'],'sequence':['Native hook 接收变化','冻结上下文并暂停新工具','Pi 评估增量','收紧自动加载 / 扩权待确认','核验后继续执行']}}
+ 'runtime':{'name':'DSH 运行时','events':['真实用户消息','system/developer 提示词','工具 schema 与有效上下文','compaction 记忆','ActPlane 内核拒绝','已验证的误拦截'],'sequence':['Native hook 接收变化','冻结上下文并暂停新工具','Pi 评估增量','收紧与扩权均人工审核','核验后继续执行']}}
 
 def digest(text):return hashlib.sha256(text.encode()).hexdigest()
 def decode(row,key):return json.loads(row[key]) if row and row[key] else {}
@@ -25,18 +25,19 @@ def compilation(compiler,dsl,origin):
 def evidence(row):
     return {'id':row['id'],'role':row.get('role','project'),'path':row.get('path'),'content_hash':row.get('content_hash',row.get('hash')),'read_verified':row.get('read_verified',False)}
 
-def binding(task_id='',workspace='',session_id=''):
+def binding(task_id='',workspace='',session_id='',include_inactive=False):
     if workspace:workspace=workspace.rstrip('/')
     with db.connect() as con:
         rows=[]
-        for row in con.execute('SELECT m.task_id,m.state_json,t.name,t.workspace FROM managed_tasks m JOIN tasks t ON t.id=m.task_id ORDER BY m.updated_at DESC'):
+        for row in con.execute('SELECT m.task_id,m.state_json,m.updated_at,t.name,t.workspace,t.dsh_profile FROM managed_tasks m JOIN tasks t ON t.id=m.task_id ORDER BY m.updated_at DESC'):
             s=decode(row,'state_json')
             if task_id and row['task_id']!=task_id:continue
             if workspace and row['workspace']!=workspace:continue
             if session_id and s.get('session_id')!=session_id:continue
-            if not (task_id or workspace or session_id) and s.get('phase') not in ('running','recovering','generating','prepared'):continue
-            rows.append({'task_id':row['task_id'],'name':row['name'],'workspace':row['workspace'],'session_id':s.get('session_id'),'phase':s['phase'],'binding_declared':bool(s.get('binding'))})
-    selected=rows[0] if len(rows)==1 else None
+            if include_inactive and not (task_id or workspace or session_id) and row['dsh_profile']!='web':continue
+            if not (task_id or workspace or session_id or include_inactive) and s.get('phase') not in ('running','recovering','generating','prepared'):continue
+            rows.append({'task_id':row['task_id'],'name':row['name'],'workspace':row['workspace'],'session_id':s.get('session_id'),'phase':s['phase'],'version':s.get('version',0),'updated_at':row['updated_at'],'binding_declared':bool(s.get('binding'))})
+    selected=rows[0] if len(rows)==1 and (not include_inactive or task_id or workspace or session_id) else None
     if selected and selected['binding_declared']:
         live=workbench(selected['task_id']);selected['process_verified']=live['execution'].get('domain_verified') is True
         selected['effective']=live['effective']
@@ -46,9 +47,29 @@ def workbench(task_id):
     with db.connect() as con:state=c.load(con,task_id)
     try:execution=c.broker({'action':'status','task_id':task_id})
     except Exception:execution={'status':'unavailable'}
-    effective=state['phase']=='running' and state['gate']=='open' and execution.get('status')=='running' and execution.get('domain_id')==state.get('binding',{}).get('domain_id')
-    keys=('phase','gate','version','session_id','web_url','error','startup_proposal','pending_expansion','execution_role_version')
-    return {'state':{k:state[k] for k in keys if k in state},'execution':{k:execution[k] for k in ('status','domain_id','domain_verified') if k in execution},'effective':effective}
+    # A concurrent restart/close invalidates this observation, even if the old
+    # broker response was healthy. Never turn a stored binding into live proof.
+    with db.connect() as con:current=c.load(con,task_id)
+    stable=all(current.get(k)==state.get(k) for k in ('phase','gate','version','binding','session_id'))
+    state=current
+    executor=execution.get('executor') or {}
+    verified=bool(stable and state['phase']=='running' and execution.get('status')=='running'
+        and execution.get('domain_id')==state.get('binding',{}).get('domain_id')
+        and execution.get('domain_verified') is True and execution.get('cgroup_verified') is True
+        and executor.get('state')=='running' and isinstance(executor.get('pid'),int) and executor['pid']>0)
+    policy_verified=bool(verified and state.get('version',0)>0 and state.get('policy_hash') and state.get('verification',{}).get('passed') is True)
+    effective=policy_verified and state['gate']=='open'
+    keys=('phase','gate','version','session_id','web_url','error','startup_proposal','pending_expansion','pending_change','pending_restriction_intent','last_apply_error','execution_role_version')
+    live={k:execution[k] for k in ('status','domain_id','domain_verified','cgroup_verified','runner_pid','watch_pid','agent_status') if k in execution}
+    live['executor']={k:executor[k] for k in ('mode','pid','state') if k in executor}
+    live.update(verified=verified,observation_stable=stable,checked_at=db.now())
+    live['processes']=[{k:p[k] for k in ('key','kind','pid','ppid','start_ticks','title','role','membership','domain_verified') if k in p}
+        for p in execution.get('processes',[])[:64]] if verified else []
+    return {'state':{k:state[k] for k in keys if k in state},'execution':live,'effective':effective,'policy_verified':policy_verified,
+        'resources':{'allowed_write_dirs':state.get('allowed_write_dirs',[]),'allow_output':state.get('allow_output',False),
+                     'protected':state.get('protected',[]),'runtime_protected':state.get('runtime_protected',[])},
+        'last_binding':{k:state.get('binding',{}).get(k) for k in ('domain_id','runner_pid','watch_pid')},
+        'observation':{'mode':'poll','interval_ms':3000,'file_coverage':'kernel_denials_and_independent_verified_operations'}}
 
 def startup_records(con,task,s,persist_links=False):
     rows=con.execute('SELECT * FROM bootstrap_proposals WHERE task_id=? ORDER BY created_at DESC',(task['id'],)).fetchall()
@@ -57,7 +78,7 @@ def startup_records(con,task,s,persist_links=False):
     sources={r['id']:dict(r) for r in con.execute('SELECT * FROM bootstrap_sources WHERE task_id=?',(task['id'],))}
     reads={decode(r,'input_json').get('source_id'):decode(r,'output_json').get('content_hash') for r in con.execute("SELECT input_json,output_json FROM bootstrap_tool_events WHERE job_id=? AND tool='read_policy_source'",(row['job_id'],))}
     loaded=s.get('startup_proposal')==row['id'] and s.get('version',0)>0
-    status='revoked' if loaded and s['phase']=='ended' else 'active' if loaded and s['phase']=='running' else 'paused' if loaded else row['state']
+    status='revoked' if loaded and s['phase']=='ended' else 'loaded' if loaded and s['phase']=='running' else 'paused' if loaded else row['state']
     records=[]
     for i,atom in enumerate(draft.get('atoms',[])):
         ev=[evidence({**sources[sid],'read_verified':reads.get(sid)==sources[sid]['content_hash']}) for sid in atom['evidence_ids'] if sid in sources]
@@ -92,12 +113,13 @@ def runtime_record(con,task,s,row):
     if p.get('allowed_write_dirs')!=before.get('allowed_write_dirs'):retained.append(p.get('allowed_write_dirs')==s.get('allowed_write_dirs'))
     if p.get('allow_output')!=before.get('allow_output'):retained.append(p.get('allow_output')==s.get('allow_output'))
     same=bool(retained) and all(retained)
-    status='revoked' if applied and s['phase']=='ended' else 'active' if applied and same and s['phase']=='running' else 'paused' if applied and same else 'partially_active' if applied and any(retained) and s['phase']=='running' else 'superseded' if applied else 'pending_confirmation' if (s.get('pending_expansion') or {}).get('job_id')==row['id'] else 'needs_clarification' if p.get('unresolved_requests') else 'assessed' if decision in ('no_change','guidance_only') else 'expired'
+    status='revoked' if applied and s['phase']=='ended' else 'loaded' if applied and same and s['phase']=='running' else 'paused' if applied and same else 'partially_loaded' if applied and any(retained) and s['phase']=='running' else 'superseded' if applied else 'pending_confirmation' if (s.get('pending_change') or s.get('pending_expansion') or {}).get('job_id')==row['id'] else 'needs_clarification' if p.get('unresolved_requests') else 'assessed' if decision in ('no_change','guidance_only') else 'expired'
     source=next((x.get('content',{}) for x in ctx.get('sources',[]) if x['evidence_id']==ctx.get('request_evidence_id')),{});actor=source.get('actor','native_user')
     native=ctx.get('native_execution_context',{})
     dispatched=con.execute("SELECT payload_json FROM managed_events WHERE task_id=? AND kind='request' AND id=?",(task['id'],ctx.get('request_evidence_id'))).fetchone()
     dispatch=decode(dispatched,'payload_json')
     trigger={'name':{'native_context':'原生上下文变化','kernel':'ActPlane 拒绝反馈','verified_feedback':'误拦截复核','recovery':'原生会话恢复','control_review':'控制面复核','native_user':'真实用户消息','user':'管理员约束','DSH':'执行能力申请'}.get(actor,actor),'actor':actor,'request_id':ctx.get('request_evidence_id'),'job_id':row['id'],'revision':row['revision'],'turn':dispatch.get('dispatched_turn',source.get('turn')),'accepted_turn':source.get('turn'),'observations':[{'category':v['category'],'type':v['type'],'seq':v['seq'],'content_hash':v['content_hash']} for v in native.values()]}
+    base_binding=ctx.get('current_binding') or {}
     before=ctx.get('base_snapshot',{}).get('payload',{});delta={'added_protection':sorted(set(p.get('protected_paths',[]))-set(before.get('protected_paths',[]))),'removed_protection':sorted(set(before.get('protected_paths',[]))-set(p.get('protected_paths',[]))),'write_scope_before':before.get('allowed_write_dirs'),'write_scope_after':p.get('allowed_write_dirs'),'output_before':before.get('allow_output'),'output_after':p.get('allow_output')}
     ev=[]
     for sid in p.get('evidence_ids',[]):
@@ -119,7 +141,7 @@ def runtime_record(con,task,s,row):
     # Keep full-bundle integrity verification internal. A record never exports it.
     scoped=compilation({},'', 'assessment_no_rule')
     scoped.update(status='not_applicable',message='这是评估记录，没有逐句登记的 OS 规则。',has_new_os_rule=False)
-    return {'id':'runtime:'+row['id'],'stage':'runtime','statement':text,'identified_statements':statements,'policy_type':'per_event' if decision in ('restrict','expand') else 'semantic_only' if decision=='guidance_only' else 'assessment','effect':decision,'context_required':True,'context_scope':'task','context_reason':'评估冻结任务、现行策略、运行上下文与已读取项目证据','classification_origin':'validated_snapshot_delta; historical_source_clause_when_available','status':status,'created_at':row['created_at'],'trigger':trigger,'evidence':ev,'explanation':p.get('explanation'),'delta':delta,'targets':delta['added_protection']+delta['removed_protection'],'operations':['write','unlink'] if decision in ('restrict','expand') else [],'compilation':scoped,'loading':{'loaded':applied,'version':receipt.get('version'),'confirmation':receipt.get('confirmation'),'session_id':s.get('session_id'),'candidate_hash':p.get('hash'),'baseline_hash':ctx.get('baseline',{}).get('hash')}}
+    return {'id':'runtime:'+row['id'],'stage':'runtime','base_version':base_binding.get('version'),'base_policy_hash':ctx.get('policy_hash'),'process_generation':{k:base_binding.get(k) for k in ('domain_id','runner_pid','session_id')},'statement':text,'identified_statements':statements,'policy_type':'per_event' if decision in ('restrict','expand') else 'semantic_only' if decision=='guidance_only' else 'assessment','effect':decision,'context_required':True,'context_scope':'task','context_reason':'评估冻结任务、现行策略、运行上下文与已读取项目证据','classification_origin':'validated_snapshot_delta; historical_source_clause_when_available','status':status,'created_at':row['created_at'],'trigger':trigger,'evidence':ev,'explanation':p.get('explanation'),'delta':delta,'targets':delta['added_protection']+delta['removed_protection'],'operations':['write','unlink'] if decision in ('restrict','expand') else [],'compilation':scoped,'loading':{'loaded':applied,'version':receipt.get('version'),'confirmation':receipt.get('confirmation'),'session_id':ctx.get('session_id'),'candidate_hash':p.get('hash'),'baseline_hash':ctx.get('baseline',{}).get('hash')}}
 
 def mentions(text,path):
     # Match an actual registered path token, not a filename suffix or another file.
@@ -235,9 +257,11 @@ def detail(task_id,record_id):
         elif record_id.startswith('runtime:'):
             job_id=record_id[8:].split(':statement:')[0]
             row=con.execute('SELECT * FROM managed_jobs WHERE task_id=? AND id=? AND proposal_json IS NOT NULL',(task_id,job_id)).fetchone()
-            children=runtime_statement_records(con,task,state,row,True) if row else []
-            record=next((r for r in children if r['id']==record_id),None)
-            if row and record_id=='runtime:'+job_id:record=children[0] if len(children)==1 else runtime_record(con,task,state,row)
+            if row and record_id=='runtime:'+job_id:
+                record=runtime_record(con,task,state,row)
+            else:
+                children=runtime_statement_records(con,task,state,row,True) if row else []
+                record=next((r for r in children if r['id']==record_id),None)
         else:record=None
     if not record:raise ValueError('策略记录不属于当前任务')
     return record
@@ -288,7 +312,7 @@ def remap_loaded(record,state):
             source=refs[0]
             link['proposed_reference']={'bundle_hash':link['bundle_hash'],'clause_id':link['clause_id']}
             link.update(bundle_hash=active['bundle_hash'],clause_id=source['clause_id'])
-            link['current_loading']={'bundle_hash':active['bundle_hash'],'version':state['version'],'clause_id':source['clause_id'],'domain_id':binding.get('domain_id'),'active':state.get('phase')=='running'}
+            link['current_loading']={'bundle_hash':active['bundle_hash'],'version':state['version'],'clause_id':source['clause_id'],'domain_id':binding.get('domain_id'),'active':False,'evidence_kind':'stored_loading_receipt','live_verified':False}
             if not link.get('first_loading'):link['first_loading']=dict(link['current_loading'])
             link['inherited_loading']=[ref for ref in active.get('inherited_references',[]) if ref['logical_rule_id']==link['logical_rule_id'] and ref['operation']==link['operation'] and ref['target']==link['target']]
     normal['execution_changed']=record.get('effect') not in ('no_change','guidance_only','guidance') and any(link['relation'] in ('new','equivalent_retained') for link in normal['links']) and record.get('loading',{}).get('loaded',False)

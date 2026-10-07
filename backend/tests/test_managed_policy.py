@@ -98,7 +98,7 @@ def test_confirmation_rechecks_project_hash(bound,tmp_path):
     with db.connect() as con:
         con.execute('UPDATE tasks SET workspace=? WHERE id=?',(str(tmp_path),task))
         c.save(con,task,{**state,'pending_expansion':{'job_id':'confirm-job','hash':'proposal','proposal':proposal(decision='expand',allow_output=True)}})
-        con.execute("INSERT INTO managed_jobs(id,task_id,request_key,revision,policy_hash,context_json,created_at) VALUES(?,?,?,?,?,?,?)",('confirm-job',task,'k',1,'fixed',json.dumps({'project_sources':[{'path':str(source),'hash':'old'}]}),db.now()))
+        con.execute("INSERT INTO managed_jobs(id,task_id,request_key,revision,policy_hash,context_json,proposal_json,status,created_at) VALUES(?,?,?,?,?,?,?,?,?)",('confirm-job',task,'k',1,'fixed',json.dumps({'project_sources':[{'path':str(source),'hash':'old'}]}),json.dumps({**proposal(decision='expand',allow_output=True),'hash':'proposal'}),'completed',db.now()))
     with pytest.raises(ValueError,match='项目证据改变'):c.confirm_expansion(task,'proposal')
 
 def test_probe_denials_never_become_native_tool_feedback(bound):
@@ -724,7 +724,7 @@ def test_failed_native_admission_marks_replacement_failed_and_stops_domain(bound
 
 def test_recovery_retains_unapproved_expansion_intent_without_grant(bound,monkeypatch):
     task,state,_=bound
-    state={**state,'phase':'recovering','pending_expansion':{'hash':'old-candidate','proposal':proposal(decision='expand',allow_output=True,protected_paths=[])}}
+    state={**state,'phase':'recovering','pending_expansion':{'job_id':bound[2]['id'],'hash':'old-candidate','proposal':proposal(decision='expand',allow_output=True,protected_paths=[])}}
     with db.connect() as con:c.save(con,task,state)
     replies={'launch':{'domain_id':51,'runner_pid':99,'watch_pid':98,'web_url':'http://127.0.0.1:18020/'},'native-session':{'sessionId':state['session_id']},'managed-verify':{'passed':True,'probe':{'pid':100}},'status':{'status':'running','domain_id':51}}
     monkeypatch.setattr(c,'broker',lambda request,**kw:replies[request['action']])
@@ -757,7 +757,7 @@ def test_structured_runtime_compiled_candidate_is_not_loaded_without_receipt(bou
         assert not record['loading']['loaded']  # No statement mapping must not disclose the entire package.
         c.event(con,task,'request_resolved',job['id'],{'version':2,'confirmation':'confirmed'})
         record=runtime_record(con,c.task_row(con,task),{**state,'version':2,'allow_output':True},row)
-        assert record['status']=='active' and record['loading']['loaded'] and record['loading']['version']==2
+        assert record['status']=='loaded' and record['loading']['loaded'] and record['loading']['version']==2
         corrupted={**row,'proposal_json':json.dumps({**candidate,'compiled_dsl':'tampered'})}
         with pytest.raises(ValueError,match='hash mismatch'):runtime_record(con,c.task_row(con,task),state,corrupted)
 
@@ -808,7 +808,7 @@ def test_record_details_cannot_read_foreign_job_or_native_stream(bound):
     assert not {'events','runtime_observations','baseline_extra','jobs'}&workbench(bound[0])['state'].keys()
 
 
-def test_protection_record_stays_active_after_unrelated_output_expansion(bound):
+def test_protection_record_stays_loaded_after_unrelated_output_expansion(bound):
     from agentscope_app.managed.records import runtime_record
     task,state,job=bound
     proposal={'decision':'restrict','allowed_write_dirs':['.'],'allow_output':False,'protected_paths':['locked.txt'],'evidence_ids':['5'],'compile':{'ok':True}}
@@ -816,7 +816,7 @@ def test_protection_record_stays_active_after_unrelated_output_expansion(bound):
     with db.connect() as con:
         c.event(con,task,'request_resolved',job['id'],{'version':2})
         record=runtime_record(con,c.task_row(con,task),{**state,'version':3,'allow_output':True,'runtime_protected':['locked.txt']},row)
-    assert record['status']=='active' and record['loading']['version']==2
+    assert record['status']=='loaded' and record['loading']['version']==2
 
 
 
@@ -873,3 +873,19 @@ def test_unidentified_assessment_is_not_a_policy_sentence(bound):
         assert runtime_statement_records(con,c.task_row(con,task),state,row)==[]
         assessment=runtime_statement_records(con,c.task_row(con,task),state,row,True)[0]
         assert assessment['compilation']['dsl']==''
+
+
+def test_pending_parent_detail_preserves_full_delta_with_one_statement(bound):
+    from agentscope_app.managed.records import detail
+    task,state,job=bound
+    ctx=json.loads(job['context_json'])
+    ctx['current_binding']={'version':3,'domain_id':41,'runner_pid':95,'session_id':'original-session'}
+    candidate=proposal(decision='expand',allow_output=True,identified_statements=[{'statement':'Write output report','policy_type':'per_event','context_required':False,'context_reason':'Supported task output target','evidence_ids':['5']}])
+    with db.connect() as con:
+        con.execute('INSERT INTO managed_jobs(id,task_id,request_key,revision,policy_hash,status,context_json,proposal_json,created_at) VALUES(?,?,?,?,?,?,?,?,?)',(job['id'],task,'parent-detail',job['revision'],job['policy_hash'],'completed',json.dumps(ctx),json.dumps(candidate),db.now()))
+    parent=detail(task,'runtime:'+job['id'])
+    assert parent['id']=='runtime:'+job['id']
+    assert parent['delta']['output_before'] is False and parent['delta']['output_after'] is True
+    assert parent['delta']['write_scope_before']==['.']==parent['delta']['write_scope_after']
+    assert parent['base_version']==3
+    assert parent['process_generation']=={'domain_id':41,'runner_pid':95,'session_id':'original-session'}
