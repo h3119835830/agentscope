@@ -766,6 +766,26 @@ pub struct RuleMeta {
     pub target_arg: Option<String>,
     pub clause_source_index: usize,
     pub source: Option<RuleSourceMeta>,
+    /// Read-only lowered semantics; never consumed by the kernel loader.
+    pub semantics: RuleSemantics,
+}
+
+#[derive(Clone, Default)]
+pub struct RuleSemantics {
+    pub target_match: u8,
+    pub target_literal: String,
+    pub condition_kind: u8,
+    pub condition_negated: bool,
+    pub condition_match: u8,
+    pub condition_literal: String,
+    pub required_labels: Vec<String>,
+    pub forbidden_labels: Vec<String>,
+    pub source_bindings: Vec<(String, String, String)>,
+    pub gate_mask: u64,
+    pub gate_index: u32,
+    pub since_mask: u64,
+    pub has_transforms: bool,
+    pub condition_source: String,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -1003,6 +1023,22 @@ pub fn compile_with_labels(
                             target_arg: cl.target.arg.clone(),
                             clause_source_index: cl.source_index,
                             source: None,
+                            semantics: RuleSemantics {
+                                target_match: tm,
+                                target_literal: tlit.clone(),
+                                condition_kind: ck,
+                                condition_negated: cneg != 0,
+                                condition_match: cm,
+                                condition_literal: clit.clone(),
+                                required_labels: { let mut v: Vec<_> = ctx.labels.iter().filter(|(_, bit)| req & **bit != 0).map(|(name, _)| name.clone()).collect(); v.sort(); v },
+                                forbidden_labels: { let mut v: Vec<_> = ctx.labels.iter().filter(|(_, bit)| forbid & **bit != 0).map(|(name, _)| name.clone()).collect(); v.sort(); v },
+                                source_bindings: { let mut v: Vec<_> = pol.sources.iter().map(|s| (s.label.clone(), format!("{:?}", s.kind), s.pattern.clone())).collect(); v.sort(); v },
+                                gate_mask: gate,
+                                gate_index: gate_idx,
+                                since_mask,
+                                has_transforms: !pol.xforms.is_empty(),
+                                condition_source: format!("{:?}", cl.unless),
+                            },
                         });
                         let mut cr = CRule {
                             op,

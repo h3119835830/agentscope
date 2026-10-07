@@ -9,8 +9,11 @@ from scope_service import environment, STATE, URL
 
 ENV = environment()
 def api(path, body=None):
+    headers={"Content-Type":"application/json"}
+    if ENV.get("AGENTSCOPE_DEV_NO_AUTH") != "1":
+        headers["Authorization"]="Bearer "+ENV["AGENTSCOPE_ADMIN_TOKEN"]
     request = urllib.request.Request(URL + path, data=None if body is None else json.dumps(body, ensure_ascii=False).encode(),
-        headers={"Authorization": "Bearer " + ENV["AGENTSCOPE_ADMIN_TOKEN"], "Content-Type": "application/json"})
+        headers=headers)
     with urllib.request.urlopen(request, timeout=100) as response: return json.load(response)
 
 def change(task, kind, text):

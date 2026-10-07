@@ -1,0 +1,15 @@
+@media(max-width:600px){
+ .agent-connections .connection-instances,.agent-connections .connection-workspaces{table-layout:fixed;width:100%}
+ .agent-connections .connection-instances th:nth-child(3),.agent-connections .connection-instances td:nth-child(3),.agent-connections .connection-instances th:nth-child(4),.agent-connections .connection-instances td:nth-child(4){display:none}
+ .agent-connections .connection-instances th:first-child{width:32%}
+ .agent-connections .connection-instances th:nth-child(2){width:30%}
+ .agent-connections .connection-instances th:last-child{width:38%}
+ .agent-connections .connection-instances td,.agent-connections .connection-workspaces td{word-break:normal;overflow-wrap:normal;padding-left:7px;padding-right:7px}
+ .agent-connections .connection-instances td:first-child b,.agent-connections .connection-workspaces td:first-child b,.agent-connections .connection-workspaces .task-path{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;word-break:normal;overflow-wrap:normal}
+ .agent-connections .connection-instances .tag{white-space:nowrap;font-size:11px;padding-left:5px;padding-right:5px}
+ .agent-connections .connection-instances td:last-child .actions,.agent-connections .connection-workspaces td:last-child .actions{flex-direction:column;align-items:flex-start;gap:7px}
+ .agent-connections .connection-instances .button,.agent-connections .connection-workspaces .button{white-space:nowrap;max-width:100%;padding-left:8px;padding-right:8px}
+ .agent-connections .connection-workspaces th:first-child{width:42%}
+ .agent-connections .connection-workspaces th:nth-child(2){width:20%}
+ .agent-connections .connection-workspaces th:last-child{width:38%}
+}

@@ -1,0 +1,60 @@
+{
+  "status": "UI stable; ready for coordinated final build/deployment",
+  "ready_for_coordinated_deployment": true,
+  "owned_frontend_files": [
+    "TaskArchive.jsx",
+    "TaskArchiveDetails.jsx",
+    "archiveRecords.mjs",
+    "archiveRecords.css",
+    "archiveRecords.test.mjs"
+  ],
+  "shared_integration_change": "ArchiveDomains.jsx validates nodes/edges/versions before rendering; invalid response becomes local error. Overview integrates ArchiveDomains with api and separates source Agent from managed execution instance.",
+  "source_sha256": {
+    "TaskArchive.jsx": "f4e3a53bd0c3a1bb2a96c6af763e0581ed4007d01626646b53e77069c435cf8b",
+    "TaskArchiveDetails.jsx": "b803dd8ca8298753caf35564b0155a34ef0622fc0001e3e43ee25e8ebb86c6df",
+    "archiveRecords.mjs": "a274412af035d94a7ed584967ea2f48beea5f60c157b2f3f0895f3dc7b12aaf8",
+    "archiveRecords.css": "510bd8f108aebedfb6f68f7d6f2387201e9c51243d4705634003b27b591bfbc3",
+    "archiveRecords.test.mjs": "a411b9673af2edfa9c1e99029893ac378b9ffe8117c14a489a15cf3e9be85e4f",
+    "ArchiveDomains.jsx": "b0738227fefc2e7388cc54e33fb796f1f204c6e9a549b2ea6fc4436df867253c"
+  },
+  "frontend_tests": {
+    "command": "node --test --test-reporter=dot src/*.test.mjs",
+    "passed": 51,
+    "failed": 0
+  },
+  "build": {
+    "out_dir": "/tmp/agentscope-archive-readable-20261007/dist",
+    "modules": 52,
+    "js": "index-C_B5QABt.js",
+    "css": "index-CKbQv6NF.css"
+  },
+  "browser_acceptance": {
+    "static_preview": "http://127.0.0.1:18023",
+    "data_api": "http://127.0.0.1:18003",
+    "tasks": [
+      "4821ac737a1a4f65",
+      "bef449047cd24af6"
+    ],
+    "overview": "Chinese field grid; source Agent and managed execution instance separate; six translated constraint rows; originals folded; default visible raw JSON none",
+    "highlights": "15 global historical permission events include v4 and v3 beyond latest50; no-change assessments stay in all records",
+    "records": "search settings.json matched one operation probe; effect booleans displayed false correctly; detail and back restore row focus; loaded100/238 with14 verified operations filter; page2/9 reached; empty closure kernel0/0",
+    "domains": "actual history v4 graph loaded; task domain421785620 hash verified and4439 characterDSL folded; v3 selection request succeeded",
+    "modal": "Escape closes dialog and restores html/body overflow; viewport423x900 fits exactly; table overflow local; viewport reset; opening archive from task row and Escape restores focus to same 完整档案 button.",
+    "screenshots": [
+      "overview.jpg",
+      "records.jpg",
+      "narrow.jpg"
+    ],
+    "domain_unavailable": "Isolated preview only simulated HTTP200 HTML for domain list; local error shown with task fields/dialog intact; switching back to realAPI and retry restored actual task graph.",
+    "missing_sources": "Actual API notice and baseline missing-material warning shown; graph exactly3 recorded nodes, no invented D0."
+  },
+  "deployment_boundary": "Main thread published final build to actual18003 UI. This UI thread independently verified loaded index-C_B5QABt.js, field overview on task4821ac737a1a4f65 and15 global permission rows includingv4/v3 onbef449047cd24af6. Final overview/records screenshots now come from18003.",
+  "backend_or_dsh_restarted_by_this_ui_turn": false,
+  "git_commit": false,
+  "git_push": false,
+  "stable_final": true,
+  "additional_verification": "ArchiveDomains4 tests passed after final notice display; git diff --check passed before final docs.",
+  "deployed_and_browser_verified": true,
+  "preview_stopped": true,
+  "temporary_validation_tab_closed": true
+}

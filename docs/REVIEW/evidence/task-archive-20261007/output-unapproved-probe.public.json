@@ -1,0 +1,40 @@
+{
+  "classification": "correct_block",
+  "expected": "deny",
+  "effect_verified": true,
+  "authority": "independent_fixed_operation_probe",
+  "domain_id": 410489984,
+  "probe": {
+    "pid": 942230,
+    "ppid": 918965,
+    "operation": "write",
+    "target": "/s/bef449047cd24af6/output/summary.txt",
+    "attempted": true,
+    "blocked": true,
+    "success": false,
+    "errno": 1
+  },
+  "binding": {},
+  "kernel_events": [
+    {
+      "pid": 942230,
+      "ppid": 918965,
+      "op": "write",
+      "action": "block",
+      "target": "/s/bef449047cd24af6/output/summary.txt",
+      "blocked": true,
+      "domain_id": 410489984,
+      "process_domain_id": 410489984,
+      "rule_id": 49,
+      "rule": {
+        "name": "deny-task-output",
+        "clause_hash": "fnv1a64:af18993ceec7fc30",
+        "clause_op": "write",
+        "target_pattern": "/s/bef449047cd24af6/output/**"
+      }
+    }
+  ],
+  "task_id": "bef449047cd24af6",
+  "version": 3,
+  "operator_pause": true
+}

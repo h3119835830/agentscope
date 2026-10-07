@@ -1,0 +1,101 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "credential-free GET /api/tasks",
+      "passed": true
+    },
+    {
+      "name": "credential-free GET /api/dashboard",
+      "passed": true
+    },
+    {
+      "name": "credential-free GET /api/status",
+      "passed": true
+    },
+    {
+      "name": "credential-free GET /api/strategies",
+      "passed": true
+    },
+    {
+      "name": "credential-free GET /api/governance",
+      "passed": true
+    },
+    {
+      "name": "credential-free GET /api/managed/tasks/d5e21e674b464d16",
+      "passed": true
+    },
+    {
+      "name": "credential-free GET /api/managed/tasks/d5e21e674b464d16/policy",
+      "passed": true
+    },
+    {
+      "name": "confirmation reaches validation without authentication",
+      "passed": true
+    },
+    {
+      "name": "task bearer cannot call control API",
+      "passed": true
+    },
+    {
+      "name": "task credential still required /api/plugin/tasks/d5e21e674b464d16/managed/gate",
+      "passed": true
+    },
+    {
+      "name": "task credential still required /api/plugin/tasks/d5e21e674b464d16/scope",
+      "passed": true
+    },
+    {
+      "name": "Pi credential still required",
+      "passed": true
+    },
+    {
+      "name": "foreign Origin refused https://outside.example",
+      "passed": true
+    },
+    {
+      "name": "foreign Origin refused http://127.0.0.1:18000",
+      "passed": true
+    },
+    {
+      "name": "removed browser endpoint connect",
+      "passed": true
+    },
+    {
+      "name": "removed browser endpoint ticket",
+      "passed": true
+    },
+    {
+      "name": "removed browser endpoint redeem",
+      "passed": true
+    },
+    {
+      "name": "removed browser endpoint close",
+      "passed": true
+    },
+    {
+      "name": "no browser session mode",
+      "passed": true
+    },
+    {
+      "name": "existing task and policy unchanged",
+      "passed": true
+    },
+    {
+      "name": "broker process unchanged",
+      "passed": true
+    },
+    {
+      "name": "running Demo has no administrator credential",
+      "passed": true
+    },
+    {
+      "name": "Demo configuration needs no admin token",
+      "passed": true
+    }
+  ],
+  "task_phase": "failed",
+  "gate": "failed",
+  "version": 7,
+  "broker_restarted": false
+}

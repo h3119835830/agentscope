@@ -1,26 +1,10 @@
-export const pages = ['overview', 'scope-demo', 'strategies', 'task', 'agent-bridge', 'governance'];
-export const historySections = ['generate', 'records', 'audit'];
-
-export function readNavigation(href) {
-  const url = new URL(href);
-  const rawView = url.searchParams.get('view');
-  const view = rawView==='runtime'?'scope-demo':rawView;
-  const section = historySections.indexOf(url.searchParams.get('section'));
-  const task = url.searchParams.get('task') || '';
-  return {page: pages.includes(view) ? view : 'overview', historyModuleIndex: Math.max(0, section),
-    task: /^[a-f0-9]{16}$/.test(task) ? task : ''};
+export const pages = ['overview','connections','workbench','history','strategies','governance'];
+export const historySections = ['generate','records','audit'];
+export const workbenchSections = ['startup','runtime','overview','audit'];
+export const archivePanes = ['overview','startup','runtime','audit','closure'];
+const aliases={'agent-bridge':'connections','task':'workbench','scope-demo':'workbench','runtime':'workbench'};
+export function readNavigation(href){
+ const u=new URL(href),raw=u.searchParams.get('view'),page=aliases[raw]||raw;
+ return {agent:u.searchParams.get('agent')||'native-dsh',workspace:u.searchParams.get('workspace')||'',connectionAgent:u.searchParams.get('connectionAgent')||'',connectionWorkspace:u.searchParams.get('connectionWorkspace')||'',page:pages.includes(page)?page:'overview',historyModuleIndex:Math.max(0,historySections.indexOf(u.searchParams.get('section'))),task:u.searchParams.get('task')||'',workbenchSection:workbenchSections.includes(u.searchParams.get('stage'))?u.searchParams.get('stage'):(raw==='task'?'startup':'overview'),archiveTask:u.searchParams.get('archive')||'',archivePane:archivePanes.includes(u.searchParams.get('archivePane'))?u.searchParams.get('archivePane'):'startup',query:u.searchParams.get('q')||'',filter:u.searchParams.get('filter')||'history',listPage:Math.max(0,Number(u.searchParams.get('listPage'))||0)};
 }
-
-export function navigationTarget(href, patch) {
-  const url = new URL(href), next = {...readNavigation(href), ...patch};
-  if(next.page==='runtime')next.page='scope-demo';
-  if (!pages.includes(next.page)) throw new RangeError('Unknown module');
-  if (!Number.isInteger(next.historyModuleIndex) || !historySections[next.historyModuleIndex]) throw new RangeError('Unknown history section');
-  if (next.task && !/^[a-f0-9]{16}$/.test(next.task)) throw new RangeError('Invalid task');
-  url.searchParams.set('view', next.page);
-  if (next.page === 'strategies' || url.searchParams.has('section') || next.historyModuleIndex !== 0)
-    url.searchParams.set('section', historySections[next.historyModuleIndex]);
-  if (next.task) url.searchParams.set('task', next.task);
-  else url.searchParams.delete('task');
-  return url.pathname + url.search + url.hash;
-}
+export function navigationTarget(href,patch){const u=new URL(href),n={...readNavigation(href),...patch};n.page=aliases[n.page]||n.page;if(!pages.includes(n.page))throw new RangeError('Unknown module');if(!historySections[n.historyModuleIndex])throw new RangeError('Unknown history section');u.searchParams.set('view',n.page);for(const [key,value] of Object.entries({agent:n.agent,workspace:n.workspace,connectionAgent:n.connectionAgent,connectionWorkspace:n.connectionWorkspace,task:n.task,stage:n.workbenchSection,archive:n.archiveTask,archivePane:n.archivePane,q:n.query,filter:n.filter,listPage:n.listPage||'',section:historySections[n.historyModuleIndex]})){if(value)u.searchParams.set(key,value);else u.searchParams.delete(key);}return u.pathname+u.search+u.hash;}

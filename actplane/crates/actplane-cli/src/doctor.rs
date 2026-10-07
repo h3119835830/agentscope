@@ -1584,6 +1584,23 @@ fn rule_meta_json(compiled: &dsl::Compiled) -> Vec<Value> {
                 "target_pattern": rule.target_pattern,
                 "target_arg": rule.target_arg,
                 "reason": rule.reason,
+                "semantics": {
+                    "schema": "actplane.rule-semantics.v1",
+                    "target_match": rule.semantics.target_match,
+                    "target_literal": rule.semantics.target_literal,
+                    "condition_kind": rule.semantics.condition_kind,
+                    "condition_negated": rule.semantics.condition_negated,
+                    "condition_match": rule.semantics.condition_match,
+                    "condition_literal": rule.semantics.condition_literal,
+                    "required_labels": rule.semantics.required_labels,
+                    "forbidden_labels": rule.semantics.forbidden_labels,
+                    "source_bindings": rule.semantics.source_bindings,
+                    "gate_mask": rule.semantics.gate_mask.to_string(),
+                    "gate_index": rule.semantics.gate_index,
+                    "since_mask": rule.semantics.since_mask.to_string(),
+                    "has_transforms": rule.semantics.has_transforms,
+                    "condition_source": rule.semantics.condition_source,
+                },
             });
             if let Some(source) = &rule.source {
                 value["source_ref"] = json!(source.source_ref);

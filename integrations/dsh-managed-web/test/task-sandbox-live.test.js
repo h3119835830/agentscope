@@ -6,7 +6,7 @@ import {join} from 'node:path';
 import {spawnSync} from 'node:child_process';
 import {installTaskSandbox,sandboxArgv,taskLayout} from '../lib/task-sandbox.js';
 if(process.getuid()===0){const groups=readFileSync('/etc/group','utf8').split('\n');const gid=Number(groups.find(line=>line.startsWith('agentscope-task:')).split(':')[2]);const users=readFileSync('/etc/passwd','utf8').split('\n');const uid=Number(users.find(line=>line.startsWith('agentscope-agent:')).split(':')[2]);process.setgroups([gid]);process.setgid(gid);process.setuid(uid);}
-const root=mkdtempSync('/s/task-sandbox-test-');
+const root=mkdtempSync(join(process.env.AGENTSCOPE_SANDBOX_TEST_ROOT||'/s','task-sandbox-test-'));
 for(const folder of ['r','tmp','tmp/home','output','.public-runtime','r/.actplane'])mkdirSync(join(root,folder),{recursive:true});
 writeFileSync(join(root,'.public-runtime/pyvenv.cfg'),readFileSync('/var/lib/agentscope-rq5-v1/task-python/pyvenv.cfg','utf8').split('\n').filter(line=>!line.startsWith('command')).join('\n'));
 writeFileSync(join(root,'r/.actplane/audit'), 'PRIVATE-CONTROL');
@@ -17,7 +17,7 @@ const layout=taskLayout(join(root,'r'));
 const ctx={sandbox:{},subprocess:{spawn:s=>s},fs:{watch:()=>{} }};
 installTaskSandbox(ctx,layout.workspace);
 test('real namespace cannot see control roots, credentials, other tasks, parent processes or network',()=>{
- const code=`import os,socket,json\npaths=['/opt/agentscope-history-v1','/var/lib/agentscope-scope-demo','/run/agentscope-scope-demo','/s/another-task','/root','${root}/.dsh','${root}/r/.actplane/audit']\nr={'hidden':[not os.path.exists(p) for p in paths], 'safe_env':not any(k.startswith(('AGENTSCOPE_','ACTPLANE_','DSH_')) for k in os.environ)}\ns=socket.socket();s.settimeout(.2)\ntry:s.connect(('127.0.0.1',18003));r['network_hidden']=False\nexcept OSError:r['network_hidden']=True\nr['pids']=len([p for p in os.listdir('/proc') if p.isdigit()]);print(json.dumps(r))`;
+ const code=`import os,socket,json\npaths=['/opt/agentscope-history-v1','/var/lib/agentscope-scope-demo','/run/agentscope-scope-demo','/var/lib/agentscope-normalization-v1','/run/agentscope-normalization-v1','/n/another-task','/s/another-task','/root','${root}/.dsh','${root}/r/.actplane/audit']\nr={'hidden':[not os.path.exists(p) for p in paths], 'safe_env':not any(k.startswith(('AGENTSCOPE_','ACTPLANE_','DSH_')) for k in os.environ)}\ns=socket.socket();s.settimeout(.2)\ntry:s.connect(('127.0.0.1',18003));r['network_hidden']=False\nexcept OSError:r['network_hidden']=True\nr['pids']=len([p for p in os.listdir('/proc') if p.isdigit()]);print(json.dumps(r))`;
  const argv=sandboxArgv(['/usr/bin/python3','-c',code],layout);
  const p=spawnSync(argv[0],argv.slice(1),{encoding:'utf8',env:{...process.env,AGENTSCOPE_URL:'PRIVATE-CONTROL',AGENTSCOPE_TASK_TOKEN:'PRIVATE-TOKEN'}});
  assert.equal(p.status,0,p.stderr);const r=JSON.parse(p.stdout);assert.ok(r.hidden.every(Boolean));assert.ok(r.safe_env&&r.network_hidden);assert.ok(r.pids<=3);

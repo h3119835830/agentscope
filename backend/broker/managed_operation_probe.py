@@ -9,8 +9,9 @@ scratch.mkdir(exist_ok=True)
 row={'pid':os.getpid(),'ppid':os.getppid(),'operation':op,'target':str(target),'attempted':True,'blocked':False,'success':False}
 try:
     if op=='hold':
-        target.write_bytes(b'A'*4096)
-        fd=os.open(target,os.O_RDWR);mapping=mmap.mmap(fd,4096,flags=mmap.MAP_SHARED,prot=mmap.PROT_READ|mmap.PROT_WRITE)
+        # Hold pre-existing capabilities without changing the Agent's file.
+        # Resizing here would contaminate the frozen dialogue and its evidence.
+        fd=os.open(target,os.O_RDWR);mapping=mmap.mmap(fd,0,flags=mmap.MAP_SHARED,prot=mmap.PROT_READ|mmap.PROT_WRITE)
         print(json.dumps({**row,'success':True,'fd_open':True,'shared_mapping':True}),flush=True)
         while True:time.sleep(1)
     if op=='read':row['sha256']=hashlib.sha256(target.read_bytes()).hexdigest()

@@ -1,11 +1,7 @@
 /* UI acceptance against the isolated service; optional historical fixture replay never applies real grants. */
 const {chromium}=require(process.env.PLAYWRIGHT_MODULE || 'playwright');
-const {spawnSync}=require('node:child_process');
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
 const [task,output,fixturePath]=process.argv.slice(2);
-const launch=spawnSync('wsl.exe',['-d','Ubuntu','-u','root','--','/opt/agentscope/.venv/bin/python',
-  '/opt/agentscope-history-v1/scripts/scope_browser_ticket.py'],{encoding:'utf8',windowsHide:true});
-if(launch.status!==0)throw new Error('Could not create local browser session');
 (async()=>{
   fs.mkdirSync(output,{recursive:true});
   const browser=await chromium.launch({headless:true,channel:process.env.PLAYWRIGHT_CHANNEL||'chrome'});
@@ -13,14 +9,14 @@ if(launch.status!==0)throw new Error('Could not create local browser session');
     const context=await browser.newContext({viewport:{width:1440,height:1000}});
     const page=await context.newPage(),errors=[];
     page.on('pageerror',e=>errors.push(e.message));
-    const url=new URL(JSON.parse(launch.stdout.trim()).url);url.searchParams.set('task',task);
+    const url=new URL('http://127.0.0.1:18003/?view=scope-demo');url.searchParams.set('task',task);
     await page.goto(url.toString());
     await page.getByRole('heading',{name:'结束前的权限',exact:true}).waitFor();
     const realScope=await page.evaluate(async id=>await (await fetch('/api/tasks/'+id+'/scope-manager')).json(),task);
     assert.equal(await page.getByLabel('管理员口令',{exact:true}).count(),0);
     assert.equal(await page.evaluate(()=>sessionStorage.getItem('agentscopeAdminToken')),null);
     assert.equal(await page.evaluate(()=>location.hash),'');
-    assert.ok((await context.cookies()).find(c=>c.name==='agentscopeLocalSession')?.httpOnly);
+    assert.equal((await context.cookies()).some(c=>c.name==='agentscopeLocalSession'),false);
     assert.equal(await page.locator('.scope-pane .scope-permissions tbody tr').count(),6);
     assert.equal(await page.locator('.scope-stages button.done').count(),5);
     assert.equal(await page.locator('.sidebar').isVisible(),true);
@@ -153,7 +149,7 @@ if(launch.status!==0)throw new Error('Could not create local browser session');
       await replayPage.close();
     }
     assert.equal(errors.length,0,errors.join(';'));
-    const result={task,noPasswordEntry:'passed',httpOnlySession:'passed',desktop:'passed',narrow423:'passed',compactRecords:'passed',
+    const result={task,noPasswordEntry:'passed',noBrowserSession:'passed',desktop:'passed',narrow423:'passed',compactRecords:'passed',
       historicalScope:'passed',endedCannotApprove:'passed',taskSource:'passed',connectionEvidence:'passed',tabs:'passed',keyboard:'passed',drawerFocus:'passed',taskSwitchRefresh:'passed',
       fixtureReplay:replay.length?replay:'not run',pageErrors:errors};
     fs.writeFileSync(path.join(output,'scope-ui.json'),JSON.stringify(result,null,2));console.log(JSON.stringify(result));

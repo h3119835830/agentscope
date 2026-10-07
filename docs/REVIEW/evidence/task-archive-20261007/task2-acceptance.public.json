@@ -1,0 +1,363 @@
+{
+  "schema": "Task2IndependentAcceptance/1",
+  "task_id": "4821ac737a1a4f65",
+  "initial": {
+    "phase": "running",
+    "gate": "open",
+    "session_id": "session-d33bb38f-d3ea-497c-8f25-3c134d439e58",
+    "version": 1,
+    "execution": {
+      "domain_id": 895465058,
+      "runner_pid": 871983,
+      "executor": {
+        "mode": "managed-web",
+        "pid": 871995,
+        "state": "running"
+      },
+      "domain_verified": true,
+      "cgroup_verified": true
+    }
+  },
+  "passed": true,
+  "grandparent_rename": {
+    "skipped": true,
+    "reason": "target grandparent would be workspace boundary; ancestor_rename already independently blocked",
+    "existing_probe_pid": 887130
+  },
+  "fixture_baseline": {
+    "path": "/opt/agentscope-task-archive-20261007/fixtures/task-archive-text-stats",
+    "files": 7,
+    "all_seven_original_hashes_match": true
+  },
+  "probes": [
+    {
+      "classification": "correct_block",
+      "expected": "deny",
+      "effect_verified": false,
+      "domain_id": 895465058,
+      "before_hash": "fe7d016f022f928ca21dc05e60b69c3a81585deffbc07521dcc7b53d4bb0f9e8",
+      "after_hash": "fe7d016f022f928ca21dc05e60b69c3a81585deffbc07521dcc7b53d4bb0f9e8",
+      "probe": {
+        "pid": 894279,
+        "ppid": 871983,
+        "operation": "replace",
+        "target": "/s/4821ac737a1a4f65/r/backend/text_stats.py",
+        "attempted": true,
+        "blocked": true,
+        "success": false,
+        "errno": 1,
+        "sha256": null
+      },
+      "binding": {
+        "domain_verified": true,
+        "process_cgroup": "/sys/fs/cgroup/agentscope-scope-demo/4821ac737a1a4f65-895465058",
+        "starttime": "2351084"
+      },
+      "kernel_events": [
+        {
+          "id": null,
+          "pid": 894279,
+          "ppid": 871983,
+          "operation": null,
+          "action": "block",
+          "target": "/s/4821ac737a1a4f65/r/backend/text_stats.py",
+          "blocked": true,
+          "domain_id": 1610279096,
+          "process_domain_id": 895465058,
+          "rule": {
+            "name": "bootstrap-3",
+            "clause_hash": "fnv1a64:475303601b3e0095",
+            "clause_op": "write",
+            "target_pattern": "/s/4821ac737a1a4f65/r/backend/text_stats.py"
+          }
+        }
+      ]
+    },
+    {
+      "classification": "correct_block",
+      "expected": "deny",
+      "effect_verified": false,
+      "domain_id": 895465058,
+      "before_hash": "fe7d016f022f928ca21dc05e60b69c3a81585deffbc07521dcc7b53d4bb0f9e8",
+      "after_hash": "fe7d016f022f928ca21dc05e60b69c3a81585deffbc07521dcc7b53d4bb0f9e8",
+      "probe": {
+        "pid": 894283,
+        "ppid": 871983,
+        "operation": "symlink_write",
+        "target": "/s/4821ac737a1a4f65/r/backend/text_stats.py",
+        "attempted": true,
+        "blocked": true,
+        "success": false,
+        "errno": 1,
+        "sha256": null
+      },
+      "binding": {
+        "domain_verified": true,
+        "process_cgroup": "/sys/fs/cgroup/agentscope-scope-demo/4821ac737a1a4f65-895465058",
+        "starttime": "2351112"
+      },
+      "kernel_events": [
+        {
+          "id": null,
+          "pid": 894283,
+          "ppid": 871983,
+          "operation": null,
+          "action": "block",
+          "target": "/s/4821ac737a1a4f65/r/backend/text_stats.py",
+          "blocked": true,
+          "domain_id": 1610279096,
+          "process_domain_id": 895465058,
+          "rule": {
+            "name": "bootstrap-3",
+            "clause_hash": "fnv1a64:475303601b3e0095",
+            "clause_op": "write",
+            "target_pattern": "/s/4821ac737a1a4f65/r/backend/text_stats.py"
+          }
+        }
+      ]
+    },
+    {
+      "classification": "correct_block",
+      "expected": "deny",
+      "effect_verified": false,
+      "domain_id": 895465058,
+      "before_hash": "fe7d016f022f928ca21dc05e60b69c3a81585deffbc07521dcc7b53d4bb0f9e8",
+      "after_hash": "fe7d016f022f928ca21dc05e60b69c3a81585deffbc07521dcc7b53d4bb0f9e8",
+      "probe": {
+        "pid": 894287,
+        "ppid": 871983,
+        "operation": "hardlink",
+        "target": "/s/4821ac737a1a4f65/r/backend/text_stats.py",
+        "attempted": true,
+        "blocked": true,
+        "success": false,
+        "errno": 1,
+        "sha256": null
+      },
+      "binding": {
+        "domain_verified": true,
+        "process_cgroup": "/sys/fs/cgroup/agentscope-scope-demo/4821ac737a1a4f65-895465058",
+        "starttime": "2351140"
+      },
+      "kernel_events": [
+        {
+          "id": null,
+          "pid": 894287,
+          "ppid": 871983,
+          "operation": null,
+          "action": "block",
+          "target": "/s/4821ac737a1a4f65/r/backend/text_stats.py",
+          "blocked": true,
+          "domain_id": 1610279096,
+          "process_domain_id": 895465058,
+          "rule": {
+            "name": "bootstrap-3",
+            "clause_hash": "fnv1a64:475303601b3e0095",
+            "clause_op": "write",
+            "target_pattern": "/s/4821ac737a1a4f65/r/backend/text_stats.py"
+          }
+        }
+      ]
+    },
+    {
+      "classification": "correct_block",
+      "expected": "deny",
+      "effect_verified": false,
+      "domain_id": 895465058,
+      "before_hash": "fe7d016f022f928ca21dc05e60b69c3a81585deffbc07521dcc7b53d4bb0f9e8",
+      "after_hash": "fe7d016f022f928ca21dc05e60b69c3a81585deffbc07521dcc7b53d4bb0f9e8",
+      "probe": {
+        "pid": 894340,
+        "ppid": 871983,
+        "operation": "mmap_new",
+        "target": "/s/4821ac737a1a4f65/r/backend/text_stats.py",
+        "attempted": true,
+        "blocked": true,
+        "success": false,
+        "errno": 1,
+        "sha256": null
+      },
+      "binding": {
+        "domain_verified": true,
+        "process_cgroup": "/sys/fs/cgroup/agentscope-scope-demo/4821ac737a1a4f65-895465058",
+        "starttime": "2351167"
+      },
+      "kernel_events": [
+        {
+          "id": null,
+          "pid": 894340,
+          "ppid": 871983,
+          "operation": null,
+          "action": "block",
+          "target": "/s/4821ac737a1a4f65/r/backend/text_stats.py",
+          "blocked": true,
+          "domain_id": 1610279096,
+          "process_domain_id": 895465058,
+          "rule": {
+            "name": "bootstrap-3",
+            "clause_hash": "fnv1a64:475303601b3e0095",
+            "clause_op": "write",
+            "target_pattern": "/s/4821ac737a1a4f65/r/backend/text_stats.py"
+          }
+        }
+      ]
+    },
+    {
+      "classification": "correct_allow",
+      "expected": "allow",
+      "effect_verified": true,
+      "domain_id": 895465058,
+      "before_hash": "2c9315aa54d80a70ab0b2ab979c91c7821263ec68e3a05402962d14bf58d3ea2",
+      "after_hash": "1e257f6426471c15a642ebc8437515fd29e07b9ad8197fdccc52554f4cd9e785",
+      "probe": {
+        "pid": 894344,
+        "ppid": 871983,
+        "operation": "write",
+        "target": "/s/4821ac737a1a4f65/r/allowed-acceptance.txt",
+        "attempted": true,
+        "blocked": false,
+        "success": true,
+        "errno": null,
+        "sha256": null
+      },
+      "binding": {
+        "domain_verified": true,
+        "process_cgroup": "/sys/fs/cgroup/agentscope-scope-demo/4821ac737a1a4f65-895465058",
+        "starttime": "2351196"
+      },
+      "kernel_events": []
+    },
+    {
+      "classification": "correct_allow",
+      "expected": "allow",
+      "effect_verified": true,
+      "domain_id": 895465058,
+      "before_hash": "2c9315aa54d80a70ab0b2ab979c91c7821263ec68e3a05402962d14bf58d3ea2",
+      "after_hash": "2c9315aa54d80a70ab0b2ab979c91c7821263ec68e3a05402962d14bf58d3ea2",
+      "probe": {
+        "pid": 894348,
+        "ppid": 871983,
+        "operation": "read",
+        "target": "/s/4821ac737a1a4f65/r/allowed-acceptance.txt",
+        "attempted": true,
+        "blocked": false,
+        "success": true,
+        "errno": null,
+        "sha256": "2c9315aa54d80a70ab0b2ab979c91c7821263ec68e3a05402962d14bf58d3ea2"
+      },
+      "binding": {
+        "domain_verified": true,
+        "process_cgroup": "/sys/fs/cgroup/agentscope-scope-demo/4821ac737a1a4f65-895465058",
+        "starttime": "2351223"
+      },
+      "kernel_events": []
+    }
+  ],
+  "original_hash_checks": [
+    {
+      "path": "README.md",
+      "unchanged": true,
+      "fixture_unchanged": true
+    },
+    {
+      "path": "backend/__init__.py",
+      "unchanged": true,
+      "fixture_unchanged": true
+    },
+    {
+      "path": "backend/text_stats.py",
+      "unchanged": true,
+      "fixture_unchanged": true
+    },
+    {
+      "path": "config/settings.json",
+      "unchanged": true,
+      "fixture_unchanged": true
+    },
+    {
+      "path": "frontend/__init__.py",
+      "unchanged": true,
+      "fixture_unchanged": true
+    },
+    {
+      "path": "frontend/report.py",
+      "unchanged": true,
+      "fixture_unchanged": true
+    },
+    {
+      "path": "tests/test_text_stats.py",
+      "unchanged": true,
+      "fixture_unchanged": true
+    }
+  ],
+  "connection_observation": {
+    "no_pi_jobs_or_dsh_tools_added": true,
+    "before": {
+      "pi_job_count": 4,
+      "dsh_tool_start": 7,
+      "dsh_tool_result": 7,
+      "native_active_tools": 0,
+      "phase": "running",
+      "gate": "open",
+      "domain_id": 895465058,
+      "executor_pid": 871995
+    },
+    "after": {
+      "pi_job_count": 4,
+      "dsh_tool_start": 7,
+      "dsh_tool_result": 7,
+      "native_active_tools": 0,
+      "phase": "running",
+      "gate": "open",
+      "domain_id": 895465058,
+      "executor_pid": 871995
+    },
+    "rounds": 3
+  },
+  "archive_verification": {
+    "task_id": "4821ac737a1a4f65",
+    "history_only": true,
+    "all_event_task_ids_match": true,
+    "cross_task_string_check": {
+      "passed": true,
+      "other_task_id_excluded": "bef449047cd24af6",
+      "checked_responses": 230,
+      "filtered_index_checked": true
+    },
+    "categories": [
+      {
+        "category": "timeline",
+        "total": 82,
+        "returned": 82,
+        "complete": true,
+        "all_event_task_ids_match": true,
+        "representative_detail_checked": true
+      },
+      {
+        "category": "tools",
+        "total": 74,
+        "returned": 74,
+        "complete": true,
+        "all_event_task_ids_match": true,
+        "representative_detail_checked": true
+      },
+      {
+        "category": "kernel",
+        "total": 16,
+        "returned": 16,
+        "complete": true,
+        "all_event_task_ids_match": true,
+        "representative_detail_checked": true
+      },
+      {
+        "category": "audit",
+        "total": 3,
+        "returned": 3,
+        "complete": true,
+        "all_event_task_ids_match": true,
+        "representative_detail_checked": true
+      }
+    ]
+  },
+  "observation_phase": "during parallel task execution; later closure is in closed-acceptance.public.json"
+}

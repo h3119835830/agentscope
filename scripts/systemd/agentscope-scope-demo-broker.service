@@ -1,0 +1,22 @@
+[Unit]
+Description=AgentScope isolated Scope Demo broker (18003)
+Requires=agentscope-bpffs.service
+After=network.target agentscope-bpffs.service
+
+[Service]
+Type=exec
+User=root
+Group=root
+WorkingDirectory=/opt/agentscope-history-v1
+Environment=AGENTSCOPE_SERVICE_PROFILE=scope-demo
+ExecStart=/opt/agentscope/.venv/bin/python /opt/agentscope-history-v1/scripts/scope_systemd_exec.py broker
+ExecStartPost=/opt/agentscope/.venv/bin/python /opt/agentscope-history-v1/scripts/scope_systemd_exec.py broker-ready
+Restart=no
+TimeoutStartSec=25
+TimeoutStopSec=20
+UMask=0077
+StandardOutput=append:/var/lib/agentscope-scope-demo/broker.log
+StandardError=inherit
+
+[Install]
+WantedBy=multi-user.target

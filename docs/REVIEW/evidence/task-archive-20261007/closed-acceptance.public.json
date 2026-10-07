@@ -1,0 +1,46 @@
+[
+  {
+    "task_id": "bef449047cd24af6",
+    "phase": "ended",
+    "gate": "closed",
+    "version": 4,
+    "effective": false,
+    "processes_dead": {
+      "944897": true,
+      "944496": true,
+      "944921": true
+    },
+    "all_credentials_revoked": true,
+    "closed_event_count": 1,
+    "credential_revocation": {
+      "route": "/api/plugin/tasks/{task_id}/managed/gate",
+      "before_http": 200,
+      "after_http": 401,
+      "receipt_count": 4,
+      "database_all_revoked": true,
+      "raw_value_or_hash_exported": false
+    }
+  },
+  {
+    "task_id": "4821ac737a1a4f65",
+    "phase": "ended",
+    "gate": "closed",
+    "version": 1,
+    "effective": false,
+    "processes_dead": {
+      "871983": true,
+      "871861": true,
+      "871995": true
+    },
+    "all_credentials_revoked": true,
+    "closed_event_count": 1,
+    "credential_revocation": {
+      "route": "/api/plugin/tasks/{task_id}/managed/gate",
+      "before_http": 200,
+      "after_http": 401,
+      "receipt_count": 1,
+      "database_all_revoked": true,
+      "raw_value_or_hash_exported": false
+    }
+  }
+]

@@ -1,0 +1,118 @@
+{
+  "date": "2026-10-07",
+  "base_url": "http://127.0.0.1:18003",
+  "result": "pass",
+  "blocking_issues": [],
+  "assets": [
+    "index-Y_5x-wWv.js",
+    "index-D67YD5dc.css"
+  ],
+  "read_only_acceptance": true,
+  "checks": {
+    "empty_workbench_history_entry": true,
+    "history_list_opens_startup": true,
+    "five_visible_archive_tabs": true,
+    "startup_compile_approval_loading_distinct": true,
+    "startup_complete_dsl": true,
+    "runtime_v3_protection_delta": true,
+    "runtime_v4_output_expansion_delta": true,
+    "runtime_detail_duplicate_proposal_folded": true,
+    "audit_sources_not_conflated": true,
+    "process_rule_domains_distinct": true,
+    "same_call_tool_target_restored": true,
+    "control_operations_chinese": true,
+    "archive_pane_refresh_restore": true,
+    "browser_back_restore": true,
+    "keyboard_arrow_home_escape": true,
+    "close_focus_restore": true,
+    "narrow_page_no_horizontal_overflow": true,
+    "narrow_detail_accessible": true,
+    "viewport_reset": true
+  },
+  "audit_counts": {
+    "bef449047cd24af6": {
+      "os": 40,
+      "tools": 48,
+      "control": 19
+    },
+    "4821ac737a1a4f65": {
+      "os": 28,
+      "tools": 14,
+      "control": 7
+    }
+  },
+  "kernel_example": {
+    "task": "bef449047cd24af6",
+    "event_id": "managed_events:19461:record",
+    "pid": 959626,
+    "process_domain_id": 421785620,
+    "rule_domain_id": 1139067470,
+    "rule_name": "bootstrap-1",
+    "rule_id": 3,
+    "source": "independent_probe"
+  },
+  "narrow_viewport": {
+    "width": 423,
+    "height": 900,
+    "body_client_scroll": [
+      423,
+      423
+    ],
+    "dialog_client_scroll": [
+      422,
+      422
+    ],
+    "tabs_client_scroll": [
+      422,
+      422
+    ],
+    "table_internal_client_scroll": [
+      373,
+      570
+    ]
+  },
+  "notes": [
+    "审计tools为开始和结果事件数，不等同独立调用次数。",
+    "OS包含内核拒绝及独立效果核验；上述kernel例由独立探针触发。",
+    "历史记录不表示当前PID在线或当前策略生效。",
+    "窄屏审计表内部可横向滚动，页面本身无横向溢出。",
+    "本次只做GET及页面导航，没有创建任务、加载策略或运行DSH。"
+  ],
+  "screenshots": [
+    "empty-workbench-entry.jpg",
+    "startup-policy.jpg",
+    "startup-dsl.jpg",
+    "runtime-policies.jpg",
+    "runtime-v3-final.jpg",
+    "runtime-v4-final.jpg",
+    "os-audit.jpg",
+    "os-rule-detail.jpg",
+    "dsh-tools-final.jpg",
+    "control-final.jpg",
+    "audit-narrow.jpg",
+    "os-detail-narrow.jpg"
+  ],
+  "labels_only_final_asset": "index-KgXGan-t.js",
+  "labels_only_check": {
+    "result": "pass",
+    "task_id": "bef449047cd24af6",
+    "version": 4,
+    "screenshot": "runtime-v4-final.jpg",
+    "verified_labels": [
+      "允许操作",
+      "权限变化",
+      "新增保护",
+      "解除运行时保护",
+      "变更前可写目录",
+      "变更后可写目录",
+      "变更前输出可写",
+      "变更后输出可写"
+    ],
+    "verified_operations": [
+      "写入",
+      "删除"
+    ],
+    "full_regression_repeated": false,
+    "viewport_reset": true
+  }
+}

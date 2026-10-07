@@ -9,7 +9,7 @@ pub mod parse;
 
 use std::collections::HashMap;
 
-pub use lower::{Compiled, RuleMeta, RuleSourceMeta, compile};
+pub use lower::{Compiled, RuleMeta, RuleSemantics, RuleSourceMeta, compile};
 
 /// Parse + compile DSL source text to a kernel config blob + reason table.
 pub fn compile_str(src: &str) -> Result<Compiled, String> {
@@ -767,4 +767,16 @@ rule secret:
             Some("              notify exec \"git\" if B")
         );
     }
+    #[test]
+    fn semantic_metadata_preserves_conditions_labels_and_match_kind() {
+        let c = ok("source A = exec \"**\"\nrule r:\n  block write file \"/tmp/a\" if A unless target \"/tmp/safe/**\"\n  block unlink file \"/tmp/a\" if not A\n  because \"context\"\n");
+        assert_eq!(c.meta[0].semantics.target_literal, "/tmp/a");
+        assert_eq!(c.meta[0].semantics.condition_literal, "/tmp/safe/");
+        assert_ne!(c.meta[0].semantics.condition_kind, 0);
+        assert_eq!(c.meta[0].semantics.required_labels, vec!["A"]);
+        assert_eq!(c.meta[1].semantics.forbidden_labels, vec!["A"]);
+        assert!(!c.meta[0].semantics.has_transforms);
+        assert_eq!(c.meta[0].semantics.source_bindings.len(), 1);
+    }
+
 }

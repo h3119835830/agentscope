@@ -1,0 +1,128 @@
+[
+  {
+    "id": 19073,
+    "operation": "bash",
+    "result": "success",
+    "time": "2026-10-07T20:02:57.960855+08:00",
+    "source": "native_tool"
+  },
+  {
+    "id": 19072,
+    "operation": "bash",
+    "result": "started",
+    "time": "2026-10-07T20:02:57.814155+08:00",
+    "source": "native_tool"
+  },
+  {
+    "id": 19071,
+    "operation": "bash",
+    "result": "success",
+    "time": "2026-10-07T20:02:56.704747+08:00",
+    "source": "native_tool"
+  },
+  {
+    "id": 19070,
+    "operation": "bash",
+    "result": "started",
+    "time": "2026-10-07T20:02:56.55826+08:00",
+    "source": "native_tool"
+  },
+  {
+    "id": 19069,
+    "operation": "edit",
+    "result": "success",
+    "time": "2026-10-07T20:02:51.886555+08:00",
+    "source": "native_tool"
+  },
+  {
+    "id": 19068,
+    "operation": "edit",
+    "result": "started",
+    "time": "2026-10-07T20:02:51.583824+08:00",
+    "source": "native_tool"
+  },
+  {
+    "id": 19039,
+    "operation": "bash",
+    "result": "success",
+    "time": "2026-10-07T20:01:52.947486+08:00",
+    "source": "native_tool"
+  },
+  {
+    "id": 19038,
+    "operation": "bash",
+    "result": "started",
+    "time": "2026-10-07T20:01:52.846502+08:00",
+    "source": "native_tool"
+  },
+  {
+    "id": 19037,
+    "operation": "bash",
+    "result": "success",
+    "time": "2026-10-07T20:01:48.82948+08:00",
+    "source": "native_tool"
+  },
+  {
+    "id": 19036,
+    "operation": "bash",
+    "result": "started",
+    "time": "2026-10-07T20:01:48.679574+08:00",
+    "source": "native_tool"
+  },
+  {
+    "id": 19035,
+    "operation": "read",
+    "result": "success",
+    "time": "2026-10-07T20:01:38.135517+08:00",
+    "source": "native_tool"
+  },
+  {
+    "id": 19034,
+    "operation": "read",
+    "result": "started",
+    "time": "2026-10-07T20:01:37.884814+08:00",
+    "source": "native_tool"
+  },
+  {
+    "id": 19033,
+    "operation": "read",
+    "result": "success",
+    "time": "2026-10-07T20:01:37.836187+08:00",
+    "source": "native_tool"
+  },
+  {
+    "id": 19032,
+    "operation": "read",
+    "result": "started",
+    "time": "2026-10-07T20:01:37.534858+08:00",
+    "source": "native_tool"
+  },
+  {
+    "id": 19031,
+    "operation": "read",
+    "result": "success",
+    "time": "2026-10-07T20:01:37.486266+08:00",
+    "source": "native_tool"
+  },
+  {
+    "id": 19030,
+    "operation": "read",
+    "result": "started",
+    "time": "2026-10-07T20:01:37.183213+08:00",
+    "source": "native_tool"
+  },
+  {
+    "id": 19029,
+    "operation": "read",
+    "result": "success",
+    "time": "2026-10-07T20:01:37.080823+08:00",
+    "source": "native_tool"
+  },
+  {
+    "id": 19028,
+    "operation": "read",
+    "result": "started",
+    "time": "2026-10-07T20:01:36.782503+08:00",
+    "source": "native_tool"
+  }
+]

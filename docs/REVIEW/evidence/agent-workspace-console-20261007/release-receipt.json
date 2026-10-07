@@ -1,0 +1,35 @@
+{
+  "observed_at": "2026-10-07T20:21:14.5862054+08:00",
+  "instance": "http://127.0.0.1:18003",
+  "api_pid": 846608,
+  "api_started_at": "2026-10-07 20:15:04 CST",
+  "broker_pid": 810937,
+  "broker_started_at": "2026-10-07 19:49:47 CST",
+  "broker_restarted": false,
+  "backend_tests_passed": 326,
+  "frontend_tests_passed": 2,
+  "frontend_build": "passed",
+  "frontend_assets": [
+    "/assets/index-D4S1dlyP.js",
+    "/assets/index-zWs85N1U.css"
+  ],
+  "ui_checks": [
+    "connect_agent",
+    "list_existing_files",
+    "refresh_added_files",
+    "choose_workspace",
+    "generate_scene_policy",
+    "explicit_review_before_loading",
+    "live_process_domain_cgroup",
+    "task_list_return",
+    "history_search",
+    "file_evidence_table",
+    "generation_table",
+    "version_table",
+    "single_rule_dsl",
+    "responsive_750",
+    "execution_workspace_readback"
+  ],
+  "acceptance_task": "3706103b84f64746",
+  "acceptance_task_closed": true
+}

@@ -1,0 +1,418 @@
+{
+  "schema": "Task1RestrictionProbe/1",
+  "task_id": "bef449047cd24af6",
+  "version": 3,
+  "session_id": "session-e6a4e826-1062-47e1-8b5e-0c61b4b0bc06",
+  "execution": {
+    "domain_id": 410489984,
+    "runner_pid": 918965,
+    "executor_pid": 918972,
+    "domain_verified": true,
+    "cgroup_verified": true
+  },
+  "source": "independent_fixed_operation_probe",
+  "attempted_by_agent": false,
+  "protected_before": {
+    "tests/test_text_stats.py": "f24304ee850344cf09479f776b249f8560797d79472ed6e436d508232072a305",
+    "config/settings.json": "ccd7164e9a7f6222abea435a78daf3fc7fd96065d38218d2b3da53b5e33da66f",
+    "frontend/report.py": "0859bfc7a329e703f02f642d0bc24ef4f7abbe34666854440361f1ff3f03fa5e"
+  },
+  "protected_after": {
+    "tests/test_text_stats.py": "f24304ee850344cf09479f776b249f8560797d79472ed6e436d508232072a305",
+    "config/settings.json": "ccd7164e9a7f6222abea435a78daf3fc7fd96065d38218d2b3da53b5e33da66f",
+    "frontend/report.py": "0859bfc7a329e703f02f642d0bc24ef4f7abbe34666854440361f1ff3f03fa5e"
+  },
+  "tests_config_fixture_match": true,
+  "passed": true,
+  "indirect_script_scope": "symlink_write runs in the fixed independent Python probe script and follows a scratch symlink; no DSH model/tool execution is claimed",
+  "probes": [
+    {
+      "classification": "correct_block",
+      "expected": "deny",
+      "effect_verified": false,
+      "authority": "independent_fixed_operation_probe",
+      "domain_id": 410489984,
+      "before_hash": "0859bfc7a329e703f02f642d0bc24ef4f7abbe34666854440361f1ff3f03fa5e",
+      "after_hash": "0859bfc7a329e703f02f642d0bc24ef4f7abbe34666854440361f1ff3f03fa5e",
+      "probe": {
+        "pid": 928968,
+        "ppid": 918965,
+        "operation": "write",
+        "target": "/s/bef449047cd24af6/r/frontend/report.py",
+        "attempted": true,
+        "blocked": true,
+        "success": false,
+        "errno": 1,
+        "sha256": null
+      },
+      "binding": {
+        "domain_verified": true,
+        "process_cgroup": "/sys/fs/cgroup/agentscope-scope-demo/bef449047cd24af6-410489984",
+        "starttime": "2412287"
+      },
+      "kernel_events": [
+        {
+          "id": null,
+          "pid": 928968,
+          "ppid": 918965,
+          "op": "write",
+          "operation": null,
+          "action": "block",
+          "target": "/s/bef449047cd24af6/r/frontend/report.py",
+          "blocked": true,
+          "domain_id": 410489984,
+          "process_domain_id": 410489984,
+          "rule_id": 96
+        }
+      ]
+    },
+    {
+      "classification": "correct_block",
+      "expected": "deny",
+      "effect_verified": false,
+      "authority": "independent_fixed_operation_probe",
+      "domain_id": 410489984,
+      "before_hash": "0859bfc7a329e703f02f642d0bc24ef4f7abbe34666854440361f1ff3f03fa5e",
+      "after_hash": "0859bfc7a329e703f02f642d0bc24ef4f7abbe34666854440361f1ff3f03fa5e",
+      "probe": {
+        "pid": 928974,
+        "ppid": 918965,
+        "operation": "unlink",
+        "target": "/s/bef449047cd24af6/r/frontend/report.py",
+        "attempted": true,
+        "blocked": true,
+        "success": false,
+        "errno": 1,
+        "sha256": null
+      },
+      "binding": {
+        "domain_verified": true,
+        "process_cgroup": "/sys/fs/cgroup/agentscope-scope-demo/bef449047cd24af6-410489984",
+        "starttime": "2412314"
+      },
+      "kernel_events": [
+        {
+          "id": null,
+          "pid": 928974,
+          "ppid": 918965,
+          "op": "write",
+          "operation": null,
+          "action": "block",
+          "target": "/s/bef449047cd24af6/r/frontend/report.py",
+          "blocked": true,
+          "domain_id": 410489984,
+          "process_domain_id": 410489984,
+          "rule_id": 96
+        }
+      ]
+    },
+    {
+      "classification": "correct_block",
+      "expected": "deny",
+      "effect_verified": false,
+      "authority": "independent_fixed_operation_probe",
+      "domain_id": 410489984,
+      "before_hash": "0859bfc7a329e703f02f642d0bc24ef4f7abbe34666854440361f1ff3f03fa5e",
+      "after_hash": "0859bfc7a329e703f02f642d0bc24ef4f7abbe34666854440361f1ff3f03fa5e",
+      "probe": {
+        "pid": 928998,
+        "ppid": 918965,
+        "operation": "symlink_write",
+        "target": "/s/bef449047cd24af6/r/frontend/report.py",
+        "attempted": true,
+        "blocked": true,
+        "success": false,
+        "errno": 1,
+        "sha256": null
+      },
+      "binding": {
+        "domain_verified": true,
+        "process_cgroup": "/sys/fs/cgroup/agentscope-scope-demo/bef449047cd24af6-410489984",
+        "starttime": "2412342"
+      },
+      "kernel_events": [
+        {
+          "id": null,
+          "pid": 928998,
+          "ppid": 918965,
+          "op": "write",
+          "operation": null,
+          "action": "block",
+          "target": "/s/bef449047cd24af6/r/frontend/report.py",
+          "blocked": true,
+          "domain_id": 410489984,
+          "process_domain_id": 410489984,
+          "rule_id": 96
+        }
+      ]
+    },
+    {
+      "classification": "correct_block",
+      "expected": "deny",
+      "effect_verified": false,
+      "authority": "independent_fixed_operation_probe",
+      "domain_id": 410489984,
+      "before_hash": "0859bfc7a329e703f02f642d0bc24ef4f7abbe34666854440361f1ff3f03fa5e",
+      "after_hash": "0859bfc7a329e703f02f642d0bc24ef4f7abbe34666854440361f1ff3f03fa5e",
+      "probe": {
+        "pid": 929007,
+        "ppid": 918965,
+        "operation": "ancestor_rename",
+        "target": "/s/bef449047cd24af6/r/frontend/report.py",
+        "attempted": true,
+        "blocked": true,
+        "success": false,
+        "errno": 1,
+        "sha256": null
+      },
+      "binding": {
+        "domain_verified": true,
+        "process_cgroup": "/sys/fs/cgroup/agentscope-scope-demo/bef449047cd24af6-410489984",
+        "starttime": "2412370"
+      },
+      "kernel_events": [
+        {
+          "id": null,
+          "pid": 929007,
+          "ppid": 918965,
+          "op": "write",
+          "operation": null,
+          "action": "block",
+          "target": "/s/bef449047cd24af6/r/frontend",
+          "blocked": true,
+          "domain_id": 410489984,
+          "process_domain_id": 410489984,
+          "rule_id": 92
+        }
+      ]
+    },
+    {
+      "classification": "correct_block",
+      "expected": "deny",
+      "effect_verified": false,
+      "authority": "independent_fixed_operation_probe",
+      "domain_id": 410489984,
+      "before_hash": "0859bfc7a329e703f02f642d0bc24ef4f7abbe34666854440361f1ff3f03fa5e",
+      "after_hash": "0859bfc7a329e703f02f642d0bc24ef4f7abbe34666854440361f1ff3f03fa5e",
+      "probe": {
+        "pid": 929032,
+        "ppid": 918965,
+        "operation": "replace",
+        "target": "/s/bef449047cd24af6/r/frontend/report.py",
+        "attempted": true,
+        "blocked": true,
+        "success": false,
+        "errno": 1,
+        "sha256": null
+      },
+      "binding": {
+        "domain_verified": true,
+        "process_cgroup": "/sys/fs/cgroup/agentscope-scope-demo/bef449047cd24af6-410489984",
+        "starttime": "2412398"
+      },
+      "kernel_events": [
+        {
+          "id": null,
+          "pid": 929032,
+          "ppid": 918965,
+          "op": "write",
+          "operation": null,
+          "action": "block",
+          "target": "/s/bef449047cd24af6/r/frontend/report.py",
+          "blocked": true,
+          "domain_id": 410489984,
+          "process_domain_id": 410489984,
+          "rule_id": 96
+        }
+      ]
+    },
+    {
+      "classification": "correct_block",
+      "expected": "deny",
+      "effect_verified": false,
+      "authority": "independent_fixed_operation_probe",
+      "domain_id": 410489984,
+      "before_hash": "0859bfc7a329e703f02f642d0bc24ef4f7abbe34666854440361f1ff3f03fa5e",
+      "after_hash": "0859bfc7a329e703f02f642d0bc24ef4f7abbe34666854440361f1ff3f03fa5e",
+      "probe": {
+        "pid": 929079,
+        "ppid": 918965,
+        "operation": "hardlink",
+        "target": "/s/bef449047cd24af6/r/frontend/report.py",
+        "attempted": true,
+        "blocked": true,
+        "success": false,
+        "errno": 1,
+        "sha256": null
+      },
+      "binding": {
+        "domain_verified": true,
+        "process_cgroup": "/sys/fs/cgroup/agentscope-scope-demo/bef449047cd24af6-410489984",
+        "starttime": "2412426"
+      },
+      "kernel_events": [
+        {
+          "id": null,
+          "pid": 929079,
+          "ppid": 918965,
+          "op": "write",
+          "operation": null,
+          "action": "block",
+          "target": "/s/bef449047cd24af6/r/frontend/report.py",
+          "blocked": true,
+          "domain_id": 410489984,
+          "process_domain_id": 410489984,
+          "rule_id": 96
+        }
+      ]
+    },
+    {
+      "classification": "correct_block",
+      "expected": "deny",
+      "effect_verified": false,
+      "authority": "independent_fixed_operation_probe",
+      "domain_id": 410489984,
+      "before_hash": "0859bfc7a329e703f02f642d0bc24ef4f7abbe34666854440361f1ff3f03fa5e",
+      "after_hash": "0859bfc7a329e703f02f642d0bc24ef4f7abbe34666854440361f1ff3f03fa5e",
+      "probe": {
+        "pid": 929083,
+        "ppid": 918965,
+        "operation": "mmap_new",
+        "target": "/s/bef449047cd24af6/r/frontend/report.py",
+        "attempted": true,
+        "blocked": true,
+        "success": false,
+        "errno": 1,
+        "sha256": null
+      },
+      "binding": {
+        "domain_verified": true,
+        "process_cgroup": "/sys/fs/cgroup/agentscope-scope-demo/bef449047cd24af6-410489984",
+        "starttime": "2412453"
+      },
+      "kernel_events": [
+        {
+          "id": null,
+          "pid": 929083,
+          "ppid": 918965,
+          "op": "write",
+          "operation": null,
+          "action": "block",
+          "target": "/s/bef449047cd24af6/r/frontend/report.py",
+          "blocked": true,
+          "domain_id": 410489984,
+          "process_domain_id": 410489984,
+          "rule_id": 96
+        }
+      ]
+    },
+    {
+      "classification": "correct_allow",
+      "expected": "allow",
+      "effect_verified": true,
+      "authority": "independent_fixed_operation_probe",
+      "domain_id": 410489984,
+      "before_hash": "f24304ee850344cf09479f776b249f8560797d79472ed6e436d508232072a305",
+      "after_hash": "f24304ee850344cf09479f776b249f8560797d79472ed6e436d508232072a305",
+      "probe": {
+        "pid": 929094,
+        "ppid": 918965,
+        "operation": "read",
+        "target": "/s/bef449047cd24af6/r/tests/test_text_stats.py",
+        "attempted": true,
+        "blocked": false,
+        "success": true,
+        "errno": null,
+        "sha256": "f24304ee850344cf09479f776b249f8560797d79472ed6e436d508232072a305"
+      },
+      "binding": {
+        "domain_verified": true,
+        "process_cgroup": "/sys/fs/cgroup/agentscope-scope-demo/bef449047cd24af6-410489984",
+        "starttime": "2412481"
+      },
+      "kernel_events": []
+    },
+    {
+      "classification": "correct_allow",
+      "expected": "allow",
+      "effect_verified": true,
+      "authority": "independent_fixed_operation_probe",
+      "domain_id": 410489984,
+      "before_hash": "ccd7164e9a7f6222abea435a78daf3fc7fd96065d38218d2b3da53b5e33da66f",
+      "after_hash": "ccd7164e9a7f6222abea435a78daf3fc7fd96065d38218d2b3da53b5e33da66f",
+      "probe": {
+        "pid": 929144,
+        "ppid": 918965,
+        "operation": "read",
+        "target": "/s/bef449047cd24af6/r/config/settings.json",
+        "attempted": true,
+        "blocked": false,
+        "success": true,
+        "errno": null,
+        "sha256": "ccd7164e9a7f6222abea435a78daf3fc7fd96065d38218d2b3da53b5e33da66f"
+      },
+      "binding": {
+        "domain_verified": true,
+        "process_cgroup": "/sys/fs/cgroup/agentscope-scope-demo/bef449047cd24af6-410489984",
+        "starttime": "2412509"
+      },
+      "kernel_events": []
+    },
+    {
+      "classification": "correct_allow",
+      "expected": "allow",
+      "effect_verified": true,
+      "authority": "independent_fixed_operation_probe",
+      "domain_id": 410489984,
+      "before_hash": "ef951aeea91b110ec9aa8e22cd68613eafc1542307319b891690ebe7769af5f4",
+      "after_hash": "764ab280faf7cd979a6a171e6c3662acc7fce1ac56f084cbdc2905a0d8a83b22",
+      "probe": {
+        "pid": 929188,
+        "ppid": 918965,
+        "operation": "write",
+        "target": "/s/bef449047cd24af6/r/allowed-restriction-acceptance.txt",
+        "attempted": true,
+        "blocked": false,
+        "success": true,
+        "errno": null,
+        "sha256": null
+      },
+      "binding": {
+        "domain_verified": true,
+        "process_cgroup": "/sys/fs/cgroup/agentscope-scope-demo/bef449047cd24af6-410489984",
+        "starttime": "2412537"
+      },
+      "kernel_events": []
+    },
+    {
+      "classification": "correct_allow",
+      "expected": "allow",
+      "effect_verified": true,
+      "authority": "independent_fixed_operation_probe",
+      "domain_id": 410489984,
+      "before_hash": "ef951aeea91b110ec9aa8e22cd68613eafc1542307319b891690ebe7769af5f4",
+      "after_hash": "ef951aeea91b110ec9aa8e22cd68613eafc1542307319b891690ebe7769af5f4",
+      "probe": {
+        "pid": 929192,
+        "ppid": 918965,
+        "operation": "read",
+        "target": "/s/bef449047cd24af6/r/allowed-restriction-acceptance.txt",
+        "attempted": true,
+        "blocked": false,
+        "success": true,
+        "errno": null,
+        "sha256": "ef951aeea91b110ec9aa8e22cd68613eafc1542307319b891690ebe7769af5f4"
+      },
+      "binding": {
+        "domain_verified": true,
+        "process_cgroup": "/sys/fs/cgroup/agentscope-scope-demo/bef449047cd24af6-410489984",
+        "starttime": "2412565"
+      },
+      "kernel_events": []
+    }
+  ],
+  "counts": {
+    "correct_block": 7,
+    "correct_allow": 4
+  }
+}

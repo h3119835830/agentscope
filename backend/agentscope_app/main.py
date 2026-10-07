@@ -16,7 +16,6 @@ from .history.provider import ActPlaneProvider
 from .bootstrap.api import router as bootstrap_router, approved_prompt
 from .bootstrap.validation import verify_version
 from . import development
-from . import local_browser
 from .agent_bridge.api import router as agent_bridge_router
 
 app=FastAPI(title="AgentScope",version="0.2.0")
@@ -30,7 +29,13 @@ app.include_router(scope_router)
 from .managed.api import router as managed_router
 from .managed.worker import worker as managed_worker
 app.include_router(managed_router)
-app.include_router(local_browser.router)
+from .workspaces.api import router as workspace_router
+from .workspaces.registry import init as init_workspaces
+from .workspaces.scene_read import init as init_scene_reads
+from .workspaces.observer import observer as workspace_observer
+app.include_router(workspace_router)
+from .archive.api import router as archive_router
+app.include_router(archive_router)
 
 @app.middleware("http")
 async def protect_control_api(request: Request, call_next):
@@ -43,15 +48,13 @@ async def protect_control_api(request: Request, call_next):
                 managed = con.execute("SELECT 1 FROM scope_sessions WHERE task_id=?", (pieces[3],)).fetchone()
             if native_managed or (managed and pieces[4] != "scope-manager"):
                 return JSONResponse({"detail":"此任务由受管工作台管理，请通过相应任务接口提交和应用变更"}, status_code=409)
-    if not path.startswith("/api/") or path in ("/api/health","/api/auth/mode","/api/auth/local-browser-redeem") or path.startswith("/api/plugin/") or path.startswith("/api/generator/tasks/") or path.startswith("/api/agent/tasks/"):
+    if not path.startswith("/api/") or path in ("/api/health","/api/auth/mode") or path.startswith("/api/scene-reader/jobs/") or path.startswith("/api/plugin/") or path.startswith("/api/generator/tasks/") or path.startswith("/api/agent/tasks/"):
         return await call_next(request)
     supplied=request.headers.get("authorization","")
     supplied=supplied[7:] if supplied.lower().startswith("bearer ") else ""
-    scope_control = path.startswith("/api/scope-demo/") or (path.startswith("/api/tasks/") and "/scope-manager" in path)
-    mint_browser_ticket = path == "/api/auth/local-browser-ticket"
-    if not supplied and not mint_browser_ticket and local_browser.authorized(request):
-        return await call_next(request)
-    if development.passwordless(request) and not supplied and not scope_control and not mint_browser_ticket:
+    if development.passwordless(request):
+        if supplied:
+            return JSONResponse({"detail":"任务凭据不能调用本机控制接口"}, status_code=401)
         return await call_next(request)
     if len(ADMIN_TOKEN)<32 or ADMIN_TOKEN=="replace-with-a-random-secret":
         return JSONResponse({"detail":"管理员口令未配置；请设置 AGENTSCOPE_ADMIN_TOKEN"},status_code=503)
@@ -207,16 +210,20 @@ def create_policy_version(task,version,layer,settings,strategy_ids,summary,extra
 @app.on_event("startup")
 async def startup():
     db.init_db()
+    init_workspaces()
+    init_scene_reads()
     if os.getenv("AGENTSCOPE_HISTORY_WORKER","1")!="0" and os.getenv("AGENTSCOPE_RQ1_AUTO_IMPORT","1")!="0": corpus.ensure_seed_job()
     history_jobs.worker.start()
     scope_worker.start()
     managed_worker.start()
+    workspace_observer.start()
 
 @app.on_event("shutdown")
 async def shutdown():
     history_jobs.worker.stop()
     scope_worker.stop()
     managed_worker.stop()
+    workspace_observer.stop()
 
 @app.get("/api/health")
 def health(): return {"ok":True,"service":"AgentScope","version":"0.2.0"}
@@ -227,9 +234,7 @@ def auth_check(): return {"ok":True}
 @app.get('/api/auth/mode')
 def auth_mode(request:Request):
     no_password=development.passwordless(request)
-    browser_session = local_browser.authorized(request)
-    return {'development_no_password':no_password,'local_browser_session':browser_session,
-            'authentication_required':not (no_password or browser_session)}
+    return {'development_no_password':no_password,'authentication_required':not no_password}
 
 @app.get("/api/status")
 def status():

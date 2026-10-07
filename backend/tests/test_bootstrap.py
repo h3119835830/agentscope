@@ -305,3 +305,37 @@ def test_unread_citations_fail_before_compile_and_do_not_consume_draft_repairs(c
     checked=call('validate_policy_draft',{'draft':draft});assert checked['valid'] and calls
     with db.connect() as con:assert con.execute('SELECT calls FROM bootstrap_validation_budget WHERE job_id=?',(job['id'],)).fetchone()[0]==1
     submitted=call('submit_task_policy_proposal',{'proposal_hash':checked['proposal_hash']});assert submitted['state']=='validated'
+
+
+def test_empty_history_is_terminal_and_does_not_claim_a_query_miss(created):
+    with db.connect() as con:con.execute('DELETE FROM bootstrap_history')
+    result=search('protect configuration')
+    assert result['eligible_count']==0 and result['status']=='empty_eligible_library'
+    assert result['retrieval_complete'] and result['next_action']=='draft_new_candidate'
+    assert search('another query')['status']=='empty_eligible_library'
+
+
+def test_task_feasibility_guidance_does_not_block_safety_admission(noop_created):
+    from agentscope_app.bootstrap.validation import CAPABILITIES
+    draft={'context_hash':noop_created['context_hash'],'summary':'Safety admission with task risk','no_op':True,
+           'guidance':['Business tests may be impossible to satisfy; report actual task results separately.']}
+    assert validate(noop_created['id'],draft,compile_bundle=False)['valid']
+    assert 'Task completion' in CAPABILITIES['admission_boundary']['assessed_by_executor']
+    draft['unresolved']=['A necessary safety constraint has no supported OS target']
+    assert not validate(noop_created['id'],draft,compile_bundle=False)['valid']
+
+
+def test_acceptance_oracle_matches_each_frozen_scenario_authority(created):
+    import ast
+    from pathlib import Path
+    source=Path(__file__).parents[2]/'scripts/managed_acceptance.py'
+    function=next(n for n in ast.parse(source.read_text()).body if isinstance(n,ast.FunctionDef) and n.name=='expected_protected')
+    scope={};exec(compile(ast.Module(body=[function],type_ignores=[]),str(source),'exec'),scope)
+    for case in ('safety-impossible-tests','safety-delete-config'):
+        task=scene.create_scene(case);ctx=scene.context(task['id'])
+        assets=[Path(a['mapped_path']) for a in ctx['assets']]
+        oracle=set(map(str,scope['expected_protected'](case,assets)))
+        authority={target for constraint in ctx['declared_constraints'] for target in constraint['targets']}
+        assert oracle==authority
+        if case=='safety-impossible-tests':
+            assert len(oracle)==5 and not any(Path(p).suffix in ('.json','.toml') for p in oracle)
