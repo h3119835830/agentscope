@@ -3,44 +3,41 @@ import {FieldRecords,WorkspaceFiles} from './AgentWorkspaces.jsx';
 import {displayName,phaseName,timeLabel,visibleTasks,proposalRows,policySummary} from './taskPresentation.mjs';
 import './taskConsole.css';
 import {instanceState,visibleInstances} from './consoleState.mjs';
+import WorkspaceSceneRead from './WorkspaceSceneRead.jsx';
 
 export default function TaskHub({api,post,notify,tasks,task,onSelectTask,onFollowTask,onAgents,workspaceSeed='',agentSeed='native-dsh',onContext,createOnly=false}) {
   const [tab,setTab]=useState(task?'records':'create'),[records,setRecords]=useState([]),[query,setQuery]=useState(''),[filter,setFilter]=useState(''),[page,setPage]=useState(0);
   const [agents,setAgents]=useState([]),[selectedAgent,setSelectedAgent]=useState(agentSeed),[workspaces,setWorkspaces]=useState([]),[workspace,setWorkspace]=useState(workspaceSeed);
   const [inventory,setInventory]=useState(null),[loadingFiles,setLoadingFiles]=useState(false),[revision,setRevision]=useState(0);
-  const [clock,setClock]=useState(Date.now()),[name,setName]=useState(''),[prompt,setPrompt]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState('');
+  const [clock,setClock]=useState(Date.now()),[busy,setBusy]=useState(false),[error,setError]=useState('');
   const dsh=agents.find(a=>a.id===selectedAgent),connected=instanceState(dsh,clock).live,current=tasks.find(t=>t.id===task)||records.find(t=>t.id===task);
+  const selectedInventory=inventory?.workspace?.id===workspace?inventory:null;
   useEffect(()=>{onContext?.({agent:selectedAgent,workspace});},[selectedAgent,workspace]);
   useEffect(()=>{const timer=setInterval(()=>setClock(Date.now()),1000);return()=>clearInterval(timer);},[]);
   useEffect(()=>{setWorkspace(workspaceSeed);if(!task)setTab('create');},[workspaceSeed]);
   useEffect(()=>setSelectedAgent(agentSeed),[agentSeed]);
   useEffect(()=>{if(task)setTab('records');},[task]);
   async function reload(){const [a,t]=await Promise.all([api('/api/workspace-agents'),api('/api/workspace-tasks')]);setAgents(a.agents);setRecords(t.records);if(a.agents.some(x=>x.id===selectedAgent&&x.connected))setWorkspaces((await api(`/api/workspace-agents/${encodeURIComponent(selectedAgent)}/workspaces`)).workspaces);else setWorkspaces([]);}
-  useEffect(()=>{let active=true;const load=async()=>{try{const [a,t]=await Promise.all([api('/api/workspace-agents'),api('/api/workspace-tasks')]);if(!active)return;setAgents(a.agents);setRecords(t.records);if(a.agents.some(x=>x.id===selectedAgent&&x.connected)){const w=await api(`/api/workspace-agents/${encodeURIComponent(selectedAgent)}/workspaces`);if(active)setWorkspaces(w.workspaces);}setError('');}catch(e){if(active){setError(e.message);setAgents(old=>old.map(a=>({...a,connected:false,status:'unknown'})));}}};load();const timer=setInterval(load,10000);return()=>{active=false;clearInterval(timer);};},[api,selectedAgent]);
+  useEffect(()=>{let active=true;const load=async()=>{try{const [a,t]=await Promise.all([api('/api/workspace-agents'),api('/api/workspace-tasks')]);if(!active)return;setAgents(a.agents);setRecords(t.records);if(a.agents.some(x=>x.id===selectedAgent&&x.connected)){const w=await api(`/api/workspace-agents/${encodeURIComponent(selectedAgent)}/workspaces`);if(active)setWorkspaces(w.workspaces);}setError('');}catch(e){if(active){setError(e.message);setAgents(old=>old.map(a=>({...a,connected:false,status:'unknown'})));}}};load();const timer=setInterval(load,3000);return()=>{active=false;clearInterval(timer);};},[api,selectedAgent]);
   useEffect(()=>{let active=true;setInventory(null);if(!workspace)return;setLoadingFiles(true);api(`/api/agent-workspaces/${workspace}/files`).then(value=>{if(active){setInventory(value);if(workspaceSeed===workspace&&value.workspace?.agent_id&&value.workspace.agent_id!=='dsh')setSelectedAgent(value.workspace.agent_id);setError('');}}).catch(e=>{if(active)setError(e.message);}).finally(()=>{if(active)setLoadingFiles(false);});return()=>{active=false;};},[workspace,revision,api]);
   useEffect(()=>setPage(0),[query,filter]);
   async function run(fn){setBusy(true);try{await fn();await reload();}catch(e){notify(e.message);}finally{setBusy(false);}}
-  async function create(e){e.preventDefault();await run(async()=>{const created=await post(`/api/agent-workspaces/${workspace}/tasks`,{name:name.trim(),prompt:prompt.trim(),expected_manifest_hash:inventory.manifest_hash});onSelectTask(created.id);setTab('records');await post(`/api/managed/tasks/${created.id}/start`);notify('工作区已读取，Pi 正在生成场景策略；确认后才启动执行');});}
+  async function create(body){setBusy(true);try{const created=await post(`/api/agent-workspaces/${encodeURIComponent(workspace)}/tasks`,body);onSelectTask(created.id);setTab('records');await post(`/api/managed/tasks/${created.id}/start`);await reload();notify('场景目标已采用，Pi 正在生成策略；确认后才启动执行');}catch(e){notify(e.message);throw e;}finally{setBusy(false);}}
   const shown=visibleTasks(records,query,filter),pages=Math.max(1,Math.ceil(shown.length/12));
   return <div className="content task-console">
-    <div className="task-console-heading"><div><h1>策略工作台</h1><p>选择已连接 Agent 的工作区，读取项目文件并生成策略，确认后跟进执行。</p></div><button className="button ghost" onClick={onAgents}>查看 Agent 与工作区</button></div>
+    <div className="task-console-heading"><div><h1>策略工作台</h1><p>选择工作区，让 Agent 先读取场景并识别任务，再生成策略供你确认。</p></div><button className="button ghost" onClick={onAgents}>查看 Agent 与工作区</button></div>
     {!createOnly&&<div role="tablist" aria-label="任务模块" className="tabs task-hub-tabs"><button role="tab" aria-selected={tab==='create'} className={tab==='create'?'active':''} onClick={()=>{setTab('create');onSelectTask('');}}>新建任务</button><button role="tab" aria-selected={tab==='records'} className={tab==='records'?'active':''} onClick={()=>setTab('records')}>任务记录</button></div>}
     {error&&<p role="alert" className="inline-notice warning">{error}</p>}
-    {tab==='create'&&<form onSubmit={create} className="task-create-grid">
+    {tab==='create'&&<div className="task-create-grid">
       <section className="panel task-section"><div className="task-section-heading"><h2>选择 Agent 与工作区</h2></div>
         <label>执行 Agent<select aria-label="执行 Agent" value={selectedAgent} onChange={e=>{setSelectedAgent(e.target.value);setWorkspace('');}}><option value="">尚未连接 Agent</option>{visibleInstances(agents,tasks).map(a=><option key={a.id} value={a.id}>{a.name} · {a.kind==='managed'?'受管':'原生'}</option>)}</select></label>
         {!connected&&<button type="button" className="button primary" disabled={busy||!dsh?.available} onClick={()=>run(()=>post(`/api/workspace-agents/${encodeURIComponent(selectedAgent)}/check`))}>检查所选 Agent</button>}
         <label>Agent 工作区<select aria-label="Agent 工作区" value={workspace} disabled={!connected} onChange={e=>setWorkspace(e.target.value)}><option value="">选择要读取的工作区</option>{workspaces.map(w=><option key={w.id} value={w.id} disabled={!w.readable}>{displayName(w)} · {w.path}</option>)}</select></label>
         {!workspaces.length&&connected&&<p className="field-note">暂无工作区。到“Agent 与工作区”添加目录并放入项目文件。</p>}
-        {workspace&&<><FieldRecords items={[["源目录",inventory?.workspace?.path],["读取状态",loadingFiles?'读取中':inventory?`${inventory.file_count} 个文件`:'尚未读取']]}/><WorkspaceFiles inventory={inventory} loading={loadingFiles} onRefresh={()=>setRevision(v=>v+1)}/></>}
+        {workspace&&<><FieldRecords items={[["源目录",inventory?.workspace?.path],["文件清单",loadingFiles?'正在检查':inventory?`${inventory.file_count} 个文件`:'尚未检查']]}/><details className="task-workspace-files"><summary>工作区文件（{inventory?.file_count??'—'}）</summary><WorkspaceFiles inventory={inventory} loading={loadingFiles} onRefresh={()=>setRevision(v=>v+1)}/></details></>}
       </section>
-      <section className="panel task-section"><div className="task-section-heading"><h2>填写任务</h2></div>
-        <label>任务名称<input aria-label="任务名称" value={name} maxLength={120} onChange={e=>setName(e.target.value)} placeholder="例如：修复支付验证问题" required/></label>
-        <label>任务目标与约束<textarea aria-label="任务目标与约束" rows={7} maxLength={8000} value={prompt} onChange={e=>setPrompt(e.target.value)} placeholder="说明要完成什么，以及哪些文件或行为必须保留。" required/></label>
-        <p className="field-note">所选文件会保存为本次任务的工作区快照。生成策略后先确认，再启动 Agent。</p>
-        <button className="button primary full" disabled={busy||loadingFiles||!inventory?.file_count||!connected||!name.trim()||prompt.trim().length<3}>{busy?'正在创建…':'读取工作区并生成策略'}</button>
-      </section>
-    </form>}
+      <WorkspaceSceneRead key={`${selectedAgent}:${workspace}`} workspaceId={workspace} agentId={selectedAgent} manifestHash={selectedInventory?.manifest_hash} sourceGeneration={selectedInventory?.workspace?.instance_generation} canRead={!!(connected&&!loadingFiles&&selectedInventory?.file_count)} api={api} post={post} onUseDraft={create} onOpenTask={onSelectTask} onRefresh={()=>setRevision(v=>v+1)} busy={busy}/>
+    </div>}
     {tab==='records'&&(!task?<section className="panel task-section"><div className="task-section-heading"><h2>任务记录</h2><div className="task-table-filters"><input aria-label="搜索任务" value={query} onChange={e=>setQuery(e.target.value)} placeholder="搜索任务、工作区"/><select aria-label="任务状态" value={filter} onChange={e=>setFilter(e.target.value)}><option value="">全部状态</option><option value="active">待启动与执行中</option><option value="history">历史任务</option></select></div></div>
       <div className="table-scroll"><table className="task-record-table"><thead><tr><th>任务</th><th>Agent / 工作区</th><th>状态</th><th>策略版本</th><th>更新时间</th><th></th></tr></thead><tbody>{shown.slice(page*12,page*12+12).map(t=><tr key={t.id}><td><b>{displayName(t)}</b><small>{t.id}</small></td><td>DSH<small className="task-path">{t.source_name||t.workspace}</small></td><td>{phaseName(t.phase)}</td><td>{t.version?`v${t.version}`:'未加载'}</td><td>{timeLabel(t.updated_at)}</td><td><button className="button tiny ghost" onClick={()=>onSelectTask(t.id)}>查看记录</button></td></tr>)}{!shown.length&&<tr><td colSpan={6} className="task-empty">暂无匹配任务。</td></tr>}</tbody></table></div>
       <div className="task-table-foot"><span>{shown.length} 条记录</span><div className="actions"><button className="button tiny ghost" disabled={!page} onClick={()=>setPage(page-1)}>上一页</button><span>{page+1} / {pages}</span><button className="button tiny ghost" disabled={page+1>=pages} onClick={()=>setPage(page+1)}>下一页</button></div></div>

@@ -33,3 +33,21 @@ def archive_domains(task_id: str, version: int|None=Query(None,ge=1)):
 def archive_domain_detail(task_id: str, key: str):
     from .historical import domain_detail
     return domain_detail(task_id,key)
+
+
+@router.get("/api/tasks/{task_id}/archive/policies")
+def archive_policy_records(task_id: str, stage: Literal["startup","runtime"]="startup", before: str|None=None, limit: int=Query(50,ge=1,le=200)):
+    from .policies import policy_records
+    return policy_records(task_id,stage,before,limit)
+
+
+@router.get("/api/tasks/{task_id}/archive/policies/{record_id}")
+def archive_policy_detail(task_id: str, record_id: str):
+    from .policies import policy_detail
+    return policy_detail(task_id,record_id)
+
+
+@router.get("/api/tasks/{task_id}/archive/audit")
+def archive_execution_audit(task_id: str, category: Literal["os","tools","control"]="os", before: int|None=Query(None,ge=1)):
+    from .policies import execution_audit
+    return execution_audit(task_id,category,before)

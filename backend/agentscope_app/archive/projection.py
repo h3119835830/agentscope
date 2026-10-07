@@ -56,6 +56,12 @@ def index(con):
     add("history_jobs","id","finished_at","'preparation'","timeline","'startup_finished'",job_where+" AND finished_at IS NOT NULL","finished")
     add("bootstrap_proposals","id","created_at","'preparation'","timeline","'startup_candidate'")
     add("bootstrap_results","task_id","created_at","'preparation'","timeline","'startup_result'")
+    add("workspace_scene_reads","id","updated_at","'preparation'","timeline","'workspace_scene_read'")
+    if "workspace_scene_reads" in available:
+        scene_job="kind='workspace_scene_read' AND EXISTS (SELECT 1 FROM workspace_scene_reads s WHERE s.job_id=history_jobs.id AND s.task_id=:task)"
+        add("history_jobs","id","created_at","'preparation'","timeline","'scene_read_queued'",scene_job)
+        add("history_jobs","id","finished_at","'preparation'","timeline","'scene_read_finished'",scene_job+" AND finished_at IS NOT NULL","finished")
+        add("scene_read_events","id","occurred_at","'preparation'","tools","tool","EXISTS (SELECT 1 FROM workspace_scene_reads s WHERE s.id=scene_read_events.read_id AND s.task_id=:task)")
     add("policy_versions","id","created_at","'preparation'","timeline","'policy_version'")
     add("policy_versions","id","approved_at","'preparation'","timeline","'policy_review'","task_id=:task AND approved_at IS NOT NULL","review")
     add("history_compilations","id","created_at","'preparation'","timeline","'compilation'")
@@ -173,12 +179,18 @@ def detail_payload(con,item,row,include_records=True):
         return pick(row,"workspace","ended_at")|{"status":"ended"}
     if source=="bootstrap_contexts":
         ctx=decode(row.get("context_json"))
-        return {**pick(row,"context_hash","scenario_id"),**pick(ctx,"declared_constraints","execution_constraints","platform_constraints","environment","mapping","assets","scenario_commit","scenario_hash")}
+        return {**pick(row,"context_hash","scenario_id"),**pick(ctx,"declared_constraints","execution_constraints","platform_constraints","environment","mapping","assets","scenario_commit","scenario_hash","accepted_task_constraints","workspace_scene_read")}
     if source=="bootstrap_sources": return pick(row,"role","path","content_hash") | {"snapshot":"persisted_source_hash","content":"not_exported"}
     if source=="evidence":return pick(row,"kind","title","uri","file_path","commit_sha","line_start","line_end","content_sha256","excerpt")
+    if source=="history_jobs" and row.get("kind")=="workspace_scene_read":return pick(row,"status","error","created_at","started_at","finished_at")|{"read_only":True,"action_source":"pi_scene_reader"}
     if source=="history_jobs":return pick(row,"status","error","created_at","started_at","finished_at","retry_of")|{"result":receipt_projection(decode(row.get("result_json")))}
     if source=="bootstrap_proposals":return pick(row,"job_id","state","context_hash","content_hash")|{"proposal":proposal_projection(decode(row.get("proposal_json"))),"validation":pick(decode(row.get("validation_json")),"ok","errors","warnings","source_reads","normalization")|{"compiler":compiler_projection(decode(row.get("validation_json")).get("compiler",{}))}}
     if source=="bootstrap_results":return {"result":receipt_projection(decode(row.get("result_json")))}
+    if source=="workspace_scene_reads":
+        from ..workspaces.scene_read import get
+        reading=get(row['workspace_id'],row['id'])
+        return pick(reading,"status","read_only","manifest_hash","source_generation","draft","draft_hash","evidence","runtime","created_at","updated_at")|{"action_source":"pi_scene_reader","meaning":"historical read-only task draft; adoption is not policy loading"}
+    if source=="scene_read_events":return {"tool":row['tool'],"receipt":decode(row.get('metadata_json')),"action_source":"pi_scene_reader"}
     if source=="policy_versions":return pick(row,"version","layer","status","dsl_text","compile_state","change_summary","approved_by","approved_at")|{"evidence_ids":decode(row.get("evidence_ids")),"source_strategy_ids":decode(row.get("source_strategy_ids")),"compile":compiler_projection(decode(row.get("compile_json")))}
     if source=="history_compilations":return pick(row,"policy_version_id","artifact_id","input_hash","state","compiler_version")|{"compile":compiler_projection(decode(row.get("result_json")))}
     if source=="history_deployments":return pick(row,"policy_version_id","bundle_hash","status","domain_id","runner_pid","created_at","ended_at")|{"receipt":receipt_projection(decode(row.get("receipt_json")))}
@@ -228,6 +240,8 @@ def project(con,item,with_detail=False):
         if not result["job_id"] and con.execute("SELECT 1 FROM managed_jobs WHERE task_id=? AND id=?",(row["task_id"],row["event_key"])).fetchone():
             result["job_id"]=row["event_key"]
         result["evidence_refs"]=payload.get("evidence_ids",[])
+    elif item["source"]=="scene_read_events":
+        result["job_id"]=row["read_id"]
     elif item["source"]=="managed_jobs":
         resolved=con.execute("SELECT payload_json FROM managed_events WHERE task_id=? AND kind='request_resolved' AND event_key=?",(row["task_id"],row["id"])).fetchone()
         if resolved:result["version"]=decode(resolved[0]).get("version")
@@ -290,11 +304,11 @@ def header(con,task):
             entry={**pick(receipt.get("binding",{}),"domain_id","runner_pid","watch_pid"),"created_at":time,**pick(receipt,"session_id"),**entry,"source":"managed_events.policy_active"}
         binding_history.append(entry)
     execution={"status":"recorded" if state.get("binding") else "not_recorded","instance_id":"managed:"+task["id"] if managed else None,"session_id":state.get("session_id"),"phase":state.get("phase"),"gate":state.get("gate"),"last_binding":pick(state.get("binding",{}),"domain_id","runner_pid","watch_pid"),"binding_history":binding_history,"observation":"historical_receipts; live_state_not_checked"}
-    return safe({"name":task["name"],"status":task["status"],"goal":task["prompt"],"constraints":pick(ctx,"declared_constraints","execution_constraints","platform_constraints"),"workspace":task["workspace"],"output_dir":task["output_dir"],"repository":pick(task,"repo","repo_url","commit_sha","ref_requested"),"source":source,"execution":execution,"created_at":task["created_at"],"updated_at":task["updated_at"],"ended_at":task["ended_at"],"history_only":True})
+    return safe({"name":task["name"],"status":task["status"],"goal":task["prompt"],"constraints":pick(ctx,"declared_constraints","execution_constraints","platform_constraints","accepted_task_constraints"),"workspace":task["workspace"],"output_dir":task["output_dir"],"repository":pick(task,"repo","repo_url","commit_sha","ref_requested"),"source":source,"execution":execution,"created_at":task["created_at"],"updated_at":task["updated_at"],"ended_at":task["ended_at"],"history_only":True})
 
 def stage_preview(con,task_id,stage,query):
     """Critical receipts are selected across the task, independently of recent pages."""
-    kinds=("policy_active","deployment","launch_receipt","startup_confirmed","startup_rejected","policy_review","policy_approved","policy_rejected","change_review","change_apply_failed","failure","recovering","recovered","recovery","recovery_requested","recovery_reassessment","recovery_started","recovery_completed","session_resumed","session_recovered","closed","close_failed","closure_requested","cleanup_result","task_ended","deployment_ended","task_stopped","task_execution_finished","revocation")
+    kinds=("workspace_scene_read","policy_active","deployment","launch_receipt","startup_confirmed","startup_rejected","policy_review","policy_approved","policy_rejected","change_review","change_apply_failed","failure","recovering","recovered","recovery","recovery_requested","recovery_reassessment","recovery_started","recovery_completed","session_resumed","session_recovered","closed","close_failed","closure_requested","cleanup_result","task_ended","deployment_ended","task_stopped","task_execution_finished","revocation")
     params={"task":task_id,"stage":stage,"limit":20}
     names=",".join("'"+k+"'" for k in kinds)
     predicate="stage=:stage AND category='timeline' AND kind IN ("+names+")"

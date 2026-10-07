@@ -8,7 +8,7 @@ from .registry import load_statement,save_artifact,save_extraction
 from .sources import collect_documents,read_document
 
 def enqueue(kind,payload,retry_of=None):
-    if kind not in ("collect","extract","translate","compile","rq1_import","task_bootstrap","history_generation"): raise ValueError("作业类型不支持")
+    if kind not in ("collect","extract","translate","compile","rq1_import","task_bootstrap","history_generation","workspace_scene_read"): raise ValueError("作业类型不支持")
     ident=uuid.uuid4().hex
     if kind=="task_bootstrap": payload={**payload,"job_id":ident}
     with db.connect() as con:
@@ -18,6 +18,9 @@ def enqueue(kind,payload,retry_of=None):
     return {"id":ident,"status":"queued"}
 
 def execute(kind,payload):
+    if kind=="workspace_scene_read":
+        from ..workspaces.scene_read import run
+        return run(payload["read_id"])
     if kind=="history_generation":
         from .generations import execute as generate
         return generate(payload["run_id"])
@@ -85,6 +88,8 @@ class Worker:
         with db.connect() as con:
             con.execute("UPDATE history_jobs SET status='interrupted',error='服务重启中断，允许重试',finished_at=? WHERE status='running'",(db.now(),))
             con.execute("UPDATE history_generations SET status='interrupted',error='服务重启中断，允许从检查点重试',finished_at=? WHERE status='running'",(db.now(),))
+            if con.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='scene_read_credentials'").fetchone():
+                con.execute("UPDATE scene_read_credentials SET revoked_at=? WHERE revoked_at IS NULL",(db.now(),))
             con.execute("UPDATE bootstrap_credentials SET revoked_at=? WHERE revoked_at IS NULL",(db.now(),))
             con.execute("UPDATE tasks SET status='prepared' WHERE status='bootstrapping' AND NOT EXISTS (SELECT 1 FROM history_jobs j WHERE j.kind='task_bootstrap' AND json_extract(j.input_json,'$.task_id')=tasks.id AND j.status='queued')")
         self.stop_event.clear()
@@ -100,6 +105,7 @@ class Worker:
         if not changed: return True
         try:
             payload=json.loads(row["input_json"])
+            if row["kind"]=="workspace_scene_read":payload={"read_id":payload["read_id"]}
             if row["kind"]=="task_bootstrap":payload={k:payload[k] for k in ("task_id","job_id")}
             result=execute(row["kind"],payload)
             state=result.get("status","completed") if row["kind"]=="history_generation" else "completed"

@@ -115,3 +115,5 @@
 .managed-workbench .table-scroll{overflow-x:auto}
 
 .managed-workbench .managed-constraint{margin-top:18px}.managed-workbench .managed-constraint summary{cursor:pointer;color:#315d8e;font-size:13px}.managed-workbench .managed-constraint textarea{display:block;width:100%;box-sizing:border-box;margin:10px 0;border:1px solid #dce5f0;border-radius:7px;padding:10px;font:inherit;font-size:13px}
+
+.workbench-selector{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.workbench-selector label{flex:1;min-width:240px}.workbench-selector>.button{white-space:nowrap}@media(max-width:650px){.workbench-selector label{min-width:0;width:100%;flex-basis:100%}}

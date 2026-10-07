@@ -1,0 +1,35 @@
+.scene-read .scene-description{margin:0 0 18px;color:#6c8099;font-size:13px;line-height:1.75;max-width:65ch}
+.scene-read .scene-status{display:flex;align-items:center;gap:10px;margin:0 0 16px;font-size:13px}
+.scene-read .scene-status p{margin:0;line-height:1.7}
+.scene-read .scene-result{border-top:1px solid var(--task-line);margin-top:18px;padding-top:18px}
+.scene-read .scene-result h3{font-size:14px;margin:0 0 14px}
+.scene-read .scene-fields{display:grid;grid-template-columns:80px minmax(0,1fr);gap:12px 16px;font-size:13px;line-height:1.75;margin:0}
+.scene-read .scene-fields dt{color:#6c8099}
+.scene-read .scene-fields dd{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;min-width:0}
+.scene-read .scene-constraints{margin:0;padding-left:18px}
+.scene-read .scene-constraints li+li{margin-top:7px}
+.scene-read .scene-goal-details{white-space:normal}
+.scene-read .scene-goal-details>summary{list-style:none;cursor:pointer}
+.scene-read .scene-goal-details>summary::-webkit-details-marker{display:none}
+.scene-read .scene-goal-preview{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;white-space:pre-wrap;overflow-wrap:anywhere}
+.scene-read .scene-disclosure-toggle{display:block;margin-top:6px;color:var(--task-blue)}
+.scene-read .scene-goal-details .scene-when-open{display:none}
+.scene-read .scene-goal-details[open] .scene-goal-preview,.scene-read .scene-goal-details[open] .scene-when-closed{display:none}
+.scene-read .scene-goal-details[open] .scene-when-open{display:block;margin-top:0}
+.scene-read .scene-goal-full{margin:10px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.scene-read .scene-more-constraints{margin-top:10px;white-space:normal}
+.scene-read .scene-more-constraints>summary{color:var(--task-blue);cursor:pointer}
+.scene-read .scene-more-constraints[open]>summary{margin-bottom:10px}
+.scene-read .scene-more-constraints li{white-space:pre-wrap}
+.scene-read .scene-goal-details>summary:focus-visible,.scene-read .scene-more-constraints>summary:focus-visible{outline:2px solid var(--task-blue);outline-offset:3px;border-radius:2px}
+.scene-read .scene-sources{margin:18px 0;font-size:13px;line-height:1.7}
+.scene-read .scene-sources summary,.task-workspace-files summary{color:var(--task-blue);cursor:pointer}
+.scene-read .scene-sources[open]>summary{margin-bottom:12px}
+.scene-read .scene-supplement{margin:18px 0 0;padding-top:18px;border-top:1px solid var(--task-line)}
+.scene-read .scene-supplement label{margin-bottom:12px}
+.scene-read .scene-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:18px}
+.scene-read .scene-actions .button{white-space:normal}
+.scene-read .scene-error{font-size:13px;line-height:1.75;overflow-wrap:anywhere}
+.task-workspace-files{margin-top:20px;border-top:1px solid var(--task-line);padding-top:16px;font-size:13px}
+.task-workspace-files[open]>.task-file-section{border-top:0;margin-top:14px;padding-top:0}
+@media(max-width:650px){.scene-read .scene-fields{grid-template-columns:70px minmax(0,1fr);gap:10px}.scene-read .scene-actions{align-items:stretch;flex-direction:column}.scene-read .scene-actions button{width:100%}}

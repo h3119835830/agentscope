@@ -31,6 +31,7 @@ from .managed.worker import worker as managed_worker
 app.include_router(managed_router)
 from .workspaces.api import router as workspace_router
 from .workspaces.registry import init as init_workspaces
+from .workspaces.scene_read import init as init_scene_reads
 from .workspaces.observer import observer as workspace_observer
 app.include_router(workspace_router)
 from .archive.api import router as archive_router
@@ -47,7 +48,7 @@ async def protect_control_api(request: Request, call_next):
                 managed = con.execute("SELECT 1 FROM scope_sessions WHERE task_id=?", (pieces[3],)).fetchone()
             if native_managed or (managed and pieces[4] != "scope-manager"):
                 return JSONResponse({"detail":"此任务由受管工作台管理，请通过相应任务接口提交和应用变更"}, status_code=409)
-    if not path.startswith("/api/") or path in ("/api/health","/api/auth/mode") or path.startswith("/api/plugin/") or path.startswith("/api/generator/tasks/") or path.startswith("/api/agent/tasks/"):
+    if not path.startswith("/api/") or path in ("/api/health","/api/auth/mode") or path.startswith("/api/scene-reader/jobs/") or path.startswith("/api/plugin/") or path.startswith("/api/generator/tasks/") or path.startswith("/api/agent/tasks/"):
         return await call_next(request)
     supplied=request.headers.get("authorization","")
     supplied=supplied[7:] if supplied.lower().startswith("bearer ") else ""
@@ -210,6 +211,7 @@ def create_policy_version(task,version,layer,settings,strategy_ids,summary,extra
 async def startup():
     db.init_db()
     init_workspaces()
+    init_scene_reads()
     if os.getenv("AGENTSCOPE_HISTORY_WORKER","1")!="0" and os.getenv("AGENTSCOPE_RQ1_AUTO_IMPORT","1")!="0": corpus.ensure_seed_job()
     history_jobs.worker.start()
     scope_worker.start()

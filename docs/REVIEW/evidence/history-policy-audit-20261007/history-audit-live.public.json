@@ -1,0 +1,608 @@
+{
+  "before": {
+    "tasks": 300,
+    "managed_tasks": 121,
+    "policy_versions": 120,
+    "task_credentials": 299,
+    "managed_events": 19387,
+    "managed_jobs": 669,
+    "history_jobs": 70
+  },
+  "tasks": [
+    {
+      "task_id": "bef449047cd24af6",
+      "policies": {
+        "startup": {
+          "jobs": 2,
+          "details": [
+            {
+              "id": "startup_job:1500576efda74af9ba40db45cbc4467d",
+              "generation_status": "completed",
+              "decision": null,
+              "review_status": "approved",
+              "compile_status": "compiled",
+              "dsl_bytes": 590,
+              "loaded": true,
+              "version": 1,
+              "delta": null,
+              "statement_count": 7
+            },
+            {
+              "id": "startup_job:64804c741ae2460e94356b6fcb23f351",
+              "generation_status": "failed",
+              "decision": null,
+              "review_status": "not_recorded",
+              "compile_status": "not_recorded",
+              "dsl_bytes": 0,
+              "loaded": false,
+              "version": null,
+              "delta": null,
+              "statement_count": 0
+            }
+          ]
+        },
+        "runtime": {
+          "jobs": 12,
+          "details": [
+            {
+              "id": "runtime:ea902043e9174a528b9a370788853f11",
+              "generation_status": "completed",
+              "decision": "no_change",
+              "review_status": "not_recorded",
+              "compile_status": "compiled",
+              "dsl_bytes": 4442,
+              "loaded": false,
+              "version": null,
+              "delta": {
+                "added_protection": [],
+                "removed_protection": [],
+                "write_scope_before": [
+                  "."
+                ],
+                "write_scope_after": [
+                  "."
+                ],
+                "output_before": true,
+                "output_after": true
+              },
+              "statement_count": 6
+            },
+            {
+              "id": "runtime:19fa3309acf142119890f23ee4cf2f87",
+              "generation_status": "stale",
+              "decision": null,
+              "review_status": "not_recorded",
+              "compile_status": "not_recorded",
+              "dsl_bytes": 0,
+              "loaded": false,
+              "version": null,
+              "delta": null,
+              "statement_count": 0
+            },
+            {
+              "id": "runtime:21d660680b014c2c9cf06acf51d5386c",
+              "generation_status": "completed",
+              "decision": "expand",
+              "review_status": "approved",
+              "compile_status": "compiled",
+              "dsl_bytes": 4442,
+              "loaded": true,
+              "version": 4,
+              "delta": {
+                "added_protection": [],
+                "removed_protection": [],
+                "write_scope_before": [
+                  "."
+                ],
+                "write_scope_after": [
+                  "."
+                ],
+                "output_before": false,
+                "output_after": true
+              },
+              "statement_count": 3
+            },
+            {
+              "id": "runtime:ca0de5a8050244e6a95ccc5001e8e772",
+              "generation_status": "stale",
+              "decision": null,
+              "review_status": "not_recorded",
+              "compile_status": "not_recorded",
+              "dsl_bytes": 0,
+              "loaded": false,
+              "version": null,
+              "delta": null,
+              "statement_count": 0
+            },
+            {
+              "id": "runtime:0ff64292b80d4d779e1207b850adad22",
+              "generation_status": "completed",
+              "decision": "restrict",
+              "review_status": "approved",
+              "compile_status": "compiled",
+              "dsl_bytes": 4659,
+              "loaded": true,
+              "version": 3,
+              "delta": {
+                "added_protection": [
+                  "frontend/report.py"
+                ],
+                "removed_protection": [],
+                "write_scope_before": [
+                  "."
+                ],
+                "write_scope_after": [
+                  "."
+                ],
+                "output_before": false,
+                "output_after": false
+              },
+              "statement_count": 2
+            },
+            {
+              "id": "runtime:8dd79e9ff454452186911c8b9580ed1c",
+              "generation_status": "rejected",
+              "decision": "restrict",
+              "review_status": "rejected",
+              "compile_status": "compiled",
+              "dsl_bytes": 4659,
+              "loaded": false,
+              "version": null,
+              "delta": {
+                "added_protection": [
+                  "frontend/report.py"
+                ],
+                "removed_protection": [],
+                "write_scope_before": [
+                  "."
+                ],
+                "write_scope_after": [
+                  "."
+                ],
+                "output_before": false,
+                "output_after": false
+              },
+              "statement_count": 3
+            },
+            {
+              "id": "runtime:8d506bd00cb543b0b531c06a29ab6835",
+              "generation_status": "completed",
+              "decision": "no_change",
+              "review_status": "not_recorded",
+              "compile_status": "compiled",
+              "dsl_bytes": 4282,
+              "loaded": false,
+              "version": null,
+              "delta": {
+                "added_protection": [],
+                "removed_protection": [],
+                "write_scope_before": [
+                  "."
+                ],
+                "write_scope_after": [
+                  "."
+                ],
+                "output_before": false,
+                "output_after": false
+              },
+              "statement_count": 2
+            },
+            {
+              "id": "runtime:a2940d3fd52145c9a0e421b72e1fde25",
+              "generation_status": "completed",
+              "decision": "no_change",
+              "review_status": "not_recorded",
+              "compile_status": "compiled",
+              "dsl_bytes": 4282,
+              "loaded": false,
+              "version": null,
+              "delta": {
+                "added_protection": [],
+                "removed_protection": [],
+                "write_scope_before": [
+                  "."
+                ],
+                "write_scope_after": [
+                  "."
+                ],
+                "output_before": false,
+                "output_after": false
+              },
+              "statement_count": 3
+            },
+            {
+              "id": "runtime:0c1262a1a51a47659e7b5a5ace9906f9",
+              "generation_status": "stale",
+              "decision": null,
+              "review_status": "not_recorded",
+              "compile_status": "not_recorded",
+              "dsl_bytes": 0,
+              "loaded": false,
+              "version": null,
+              "delta": null,
+              "statement_count": 0
+            },
+            {
+              "id": "runtime:1387eac5e52c4beaaec8c513c14e20cc",
+              "generation_status": "stale",
+              "decision": null,
+              "review_status": "not_recorded",
+              "compile_status": "not_recorded",
+              "dsl_bytes": 0,
+              "loaded": false,
+              "version": null,
+              "delta": null,
+              "statement_count": 0
+            },
+            {
+              "id": "runtime:db4b66d160724eebb44ae9b4f842d953",
+              "generation_status": "stale",
+              "decision": null,
+              "review_status": "not_recorded",
+              "compile_status": "not_recorded",
+              "dsl_bytes": 0,
+              "loaded": false,
+              "version": null,
+              "delta": null,
+              "statement_count": 0
+            },
+            {
+              "id": "runtime:aa4c635a766940a2b98143828abf453e",
+              "generation_status": "stale",
+              "decision": null,
+              "review_status": "not_recorded",
+              "compile_status": "not_recorded",
+              "dsl_bytes": 0,
+              "loaded": false,
+              "version": null,
+              "delta": null,
+              "statement_count": 0
+            }
+          ]
+        }
+      },
+      "audit": {
+        "os": {
+          "records": 40,
+          "kinds": {
+            "kernel": 22,
+            "operation_verified": 18
+          },
+          "sources": [
+            "independent_probe"
+          ],
+          "example": {
+            "id": 19461,
+            "operation": "write",
+            "target": "/s/bef449047cd24af6/r/config/settings.json",
+            "result": "denied",
+            "pid": 959626,
+            "process_domain_id": 421785620,
+            "rule_domain_id": 1139067470,
+            "version": 4,
+            "rule": {
+              "name": "bootstrap-1",
+              "reason": "Block write and unlink of the registered configuration asset config/settings.json in the current task workspace.",
+              "clause_hash": "fnv1a64:fef8f5b580c37307",
+              "clause_op": "write",
+              "target_pattern": "/s/bef449047cd24af6/r/config/settings.json"
+            },
+            "source": "independent_probe"
+          }
+        },
+        "tools": {
+          "records": 48,
+          "kinds": {
+            "tool_result": 24,
+            "tool_start": 24
+          },
+          "sources": [
+            "native_tool"
+          ],
+          "example": null
+        },
+        "control": {
+          "records": 19,
+          "kinds": {
+            "closed": 1,
+            "control_pause": 12,
+            "failure": 2,
+            "policy_active": 4
+          },
+          "sources": [
+            "controller"
+          ],
+          "example": null
+        }
+      }
+    },
+    {
+      "task_id": "4821ac737a1a4f65",
+      "policies": {
+        "startup": {
+          "jobs": 2,
+          "details": [
+            {
+              "id": "startup_job:ab748eb689094b45bb5ffecc87e83451",
+              "generation_status": "completed",
+              "decision": null,
+              "review_status": "approved",
+              "compile_status": "compiled",
+              "dsl_bytes": 1635,
+              "loaded": true,
+              "version": 1,
+              "delta": null,
+              "statement_count": 7
+            },
+            {
+              "id": "startup_job:1199adc8541540098772851ef63f1edb",
+              "generation_status": "failed",
+              "decision": null,
+              "review_status": "not_recorded",
+              "compile_status": "not_recorded",
+              "dsl_bytes": 0,
+              "loaded": false,
+              "version": null,
+              "delta": null,
+              "statement_count": 0
+            }
+          ]
+        },
+        "runtime": {
+          "jobs": 4,
+          "details": [
+            {
+              "id": "runtime:7a14d9af3ccf4330806279aaedb524c7",
+              "generation_status": "completed",
+              "decision": "no_change",
+              "review_status": "not_recorded",
+              "compile_status": "compiled",
+              "dsl_bytes": 5571,
+              "loaded": false,
+              "version": null,
+              "delta": {
+                "added_protection": [],
+                "removed_protection": [],
+                "write_scope_before": [
+                  "."
+                ],
+                "write_scope_after": [
+                  "."
+                ],
+                "output_before": false,
+                "output_after": false
+              },
+              "statement_count": 3
+            },
+            {
+              "id": "runtime:cd5dffb331064988b83fca0c648dd7a1",
+              "generation_status": "stale",
+              "decision": null,
+              "review_status": "not_recorded",
+              "compile_status": "not_recorded",
+              "dsl_bytes": 0,
+              "loaded": false,
+              "version": null,
+              "delta": null,
+              "statement_count": 0
+            },
+            {
+              "id": "runtime:c50e8916a3bd42b6882b2b35d1001014",
+              "generation_status": "stale",
+              "decision": null,
+              "review_status": "not_recorded",
+              "compile_status": "not_recorded",
+              "dsl_bytes": 0,
+              "loaded": false,
+              "version": null,
+              "delta": null,
+              "statement_count": 0
+            },
+            {
+              "id": "runtime:a9c369d15ec249c9a406f872b1e60079",
+              "generation_status": "stale",
+              "decision": null,
+              "review_status": "not_recorded",
+              "compile_status": "not_recorded",
+              "dsl_bytes": 0,
+              "loaded": false,
+              "version": null,
+              "delta": null,
+              "statement_count": 0
+            }
+          ]
+        }
+      },
+      "audit": {
+        "os": {
+          "records": 28,
+          "kinds": {
+            "kernel": 16,
+            "operation_verified": 12
+          },
+          "sources": [
+            "independent_probe"
+          ],
+          "example": {
+            "id": 19285,
+            "operation": "write",
+            "target": "/s/4821ac737a1a4f65/r/backend/text_stats.py",
+            "result": "denied",
+            "pid": 894340,
+            "process_domain_id": 895465058,
+            "rule_domain_id": 1610279096,
+            "version": 1,
+            "rule": {
+              "name": "bootstrap-3",
+              "reason": "Block modification and deletion of the registered active project source files backend/text_stats.py, backend/__init__.py, frontend/report.py, frontend/__init__.py, and README.md.",
+              "clause_hash": "fnv1a64:475303601b3e0095",
+              "clause_op": "write",
+              "target_pattern": "/s/4821ac737a1a4f65/r/backend/text_stats.py"
+            },
+            "source": "independent_probe"
+          }
+        },
+        "tools": {
+          "records": 14,
+          "kinds": {
+            "tool_result": 7,
+            "tool_start": 7
+          },
+          "sources": [
+            "native_tool"
+          ],
+          "example": null
+        },
+        "control": {
+          "records": 7,
+          "kinds": {
+            "closed": 1,
+            "control_pause": 4,
+            "failure": 1,
+            "policy_active": 1
+          },
+          "sources": [
+            "controller"
+          ],
+          "example": null
+        }
+      }
+    }
+  ],
+  "after": {
+    "tasks": 300,
+    "managed_tasks": 121,
+    "policy_versions": 120,
+    "task_credentials": 299,
+    "managed_events": 19387,
+    "managed_jobs": 669,
+    "history_jobs": 70
+  },
+  "no_authority_or_execution_writes": true,
+  "native_pid": 870966,
+  "historical_loads_are_not_current_effective": true,
+  "final_asset": "index-Y_5x-wWv.js",
+  "target_linkage_examples": [
+    {
+      "id": 19445,
+      "call_id": "call_00_5fpUNwNx9L0GajZX4yac6082",
+      "operation": "read",
+      "target": "/s/bef449047cd24af6/output/summary.txt",
+      "source": "native_tool",
+      "target_evidence_event_id": 19444
+    },
+    {
+      "id": 19442,
+      "call_id": "call_00_8pVTxfE7uCjn4RPtnBmR4161",
+      "operation": "write",
+      "target": "/s/bef449047cd24af6/output/summary.txt",
+      "source": "native_tool",
+      "target_evidence_event_id": 19441
+    },
+    {
+      "id": 19437,
+      "call_id": "call_00_XRz2m4yJo9ATaLfw0f5C5691",
+      "operation": "read",
+      "target": "/s/bef449047cd24af6/r/allowed-restriction-acceptance.txt",
+      "source": "native_tool",
+      "target_evidence_event_id": 19436
+    },
+    {
+      "id": 19390,
+      "call_id": "call_00_wJAYnSzFk0kXnlLIxTdP6660",
+      "operation": "write",
+      "target": "/s/bef449047cd24af6/output/summary.txt",
+      "source": "native_tool",
+      "target_evidence_event_id": 19389
+    },
+    {
+      "id": 19248,
+      "call_id": "call_01_LVD3Td8CUEpQBFRMj0D01533",
+      "operation": "edit",
+      "target": "/s/bef449047cd24af6/r/frontend/report.py",
+      "source": "native_tool",
+      "target_evidence_event_id": 19247
+    },
+    {
+      "id": 19246,
+      "call_id": "call_00_lHrdnyrIHtEnLdY1M9Kr5415",
+      "operation": "edit",
+      "target": "/s/bef449047cd24af6/r/backend/text_stats.py",
+      "source": "native_tool",
+      "target_evidence_event_id": 19245
+    },
+    {
+      "id": 19210,
+      "call_id": "call_01_Z4Kn3zdFUvYXnqdVfB4I0284",
+      "operation": "read",
+      "target": "/s/bef449047cd24af6/r/frontend/__init__.py",
+      "source": "native_tool",
+      "target_evidence_event_id": 19209
+    },
+    {
+      "id": 19208,
+      "call_id": "call_00_MDIOAwndAXYHPcweD9nP0392",
+      "operation": "read",
+      "target": "/s/bef449047cd24af6/r/backend/__init__.py",
+      "source": "native_tool",
+      "target_evidence_event_id": 19207
+    },
+    {
+      "id": 19206,
+      "call_id": "call_04_BPqsS23ltXwECAZSuouT9039",
+      "operation": "read",
+      "target": "/s/bef449047cd24af6/r/config/settings.json",
+      "source": "native_tool",
+      "target_evidence_event_id": 19205
+    },
+    {
+      "id": 19204,
+      "call_id": "call_03_8cgySeUyhfOeR52UhUmm7644",
+      "operation": "read",
+      "target": "/s/bef449047cd24af6/r/tests/test_text_stats.py",
+      "source": "native_tool",
+      "target_evidence_event_id": 19203
+    },
+    {
+      "id": 19202,
+      "call_id": "call_02_MTTEi6uLv0X1kKw9LenE6319",
+      "operation": "read",
+      "target": "/s/bef449047cd24af6/r/frontend/report.py",
+      "source": "native_tool",
+      "target_evidence_event_id": 19201
+    },
+    {
+      "id": 19200,
+      "call_id": "call_01_NEmC8koV1OHDBRn5sCnj2361",
+      "operation": "read",
+      "target": "/s/bef449047cd24af6/r/backend/text_stats.py",
+      "source": "native_tool",
+      "target_evidence_event_id": 19199
+    },
+    {
+      "id": 19198,
+      "call_id": "call_00_jlbiI0Y6eGitHptV8huj6383",
+      "operation": "read",
+      "target": "/s/bef449047cd24af6/r/README.md",
+      "source": "native_tool",
+      "target_evidence_event_id": 19197
+    }
+  ],
+  "final_read_probe_before": {
+    "tasks": 300,
+    "managed_tasks": 121,
+    "policy_versions": 120,
+    "managed_jobs": 669,
+    "history_jobs": 70,
+    "managed_events": 19387
+  },
+  "final_read_probe_after": {
+    "tasks": 300,
+    "managed_tasks": 121,
+    "policy_versions": 120,
+    "managed_jobs": 669,
+    "history_jobs": 70,
+    "managed_events": 19387
+  },
+  "final_record_ids_match": true
+}
