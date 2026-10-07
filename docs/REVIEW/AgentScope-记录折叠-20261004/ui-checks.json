@@ -1,0 +1,108 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "check": "task-groups",
+      "closedHistories": true,
+      "groups": 4,
+      "options": 5,
+      "visibleRows": 4
+    },
+    {
+      "check": "historical-selection-and-chat",
+      "previousOpen": false,
+      "selected": "6885b428c5a44337",
+      "turns": 4,
+      "visibleTurns": 1
+    },
+    {
+      "check": "audit-default",
+      "groups": 4,
+      "historiesClosed": true,
+      "storedRows": 20,
+      "visibleRows": 4
+    },
+    {
+      "check": "narrow-historical-detail",
+      "dialogWidth": 376,
+      "pageOverflow": false,
+      "title": "场景加载详情\n关闭\n\noctocat/Hello-World @ 7fd1a60b · 第 1 次尝试\n\n已拒绝\n\n开始：2026/10/4 15:17:05\n结束：2026/10/4 15:17:0",
+      "width": 423
+    },
+    {
+      "activeText": "详情",
+      "check": "historical-detail-focus",
+      "dialogCount": 0,
+      "historyStillOpen": true,
+      "selected": "6885b428c5a44337"
+    },
+    {
+      "check": "audit-next-page",
+      "groups": 1,
+      "pageOverflow": false,
+      "rows": 2,
+      "text": "22 条记录 · 本页 1 组上一页下一页"
+    },
+    {
+      "check": "result-filter",
+      "results": [
+        "已拒绝",
+        "已拒绝",
+        "已拒绝",
+        "已拒绝",
+        "已拒绝"
+      ],
+      "total": "5 条记录 · 本页 2 组上一页下一页"
+    },
+    {
+      "check": "exact-task-filter",
+      "groups": 1,
+      "rows": 2,
+      "total": "2 条记录 · 本页 1 组上一页下一页"
+    },
+    {
+      "check": "refresh-preserves-historical-task",
+      "previousClosed": true,
+      "selected": "6885b428c5a44337",
+      "visibleTurns": 1
+    },
+    {
+      "check": "conversation-keyboard-expand",
+      "open": true,
+      "visibleTurns": 4
+    },
+    {
+      "check": "task-record-dialog",
+      "currentEntry": true,
+      "overflow": false,
+      "visibleRows": 4
+    },
+    {
+      "active": "任务记录",
+      "check": "task-record-dialog-focus",
+      "dialogCount": 0
+    },
+    {
+      "check": "current-page-deployed",
+      "foldsClosed": true,
+      "groups": 1,
+      "options": 3,
+      "selected": "db94eb30bd704a72",
+      "totalRecords": 2,
+      "url": "http://127.0.0.1:18000/",
+      "visibleRecords": 1
+    },
+    {
+      "check": "older-chat-polling-scroll",
+      "before": {
+        "open": true,
+        "top": 0
+      },
+      "after": {
+        "open": true,
+        "top": 0
+      },
+      "passed": true
+    }
+  ]
+}

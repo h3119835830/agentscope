@@ -1,5 +1,8 @@
 # RFC — AgentScope WINDOWS 分支发布范围
 
+> 历史发布阶段：本文保留仅发布 WINDOWS 的当时范围；后续 main 发布见 [新版发布评审](../REVIEW/REVIEW-20261007-AgentScope本机新版合入main.md)。其中的推送授权仅属于该次发布，不授权本次技术文档分支推送。
+
+
 日期：2026-10-07。状态：发布候选已通过本次源码回归；只向 WINDOWS 发布，main 合并等待用户明确批准。
 
 本次以 `codex/scope-demo-v1` 的 `83743c3` 为实现基线，包含历史策略审核与任务通信、文件 Scope 生命周期、DSH 连接证据、原生受管 DSH/Pi、隔离执行和逐句策略记录。职责继续为 Pi 提出候选、可信控制面审核和加载、DSH 执行、ActPlane 强制限制。

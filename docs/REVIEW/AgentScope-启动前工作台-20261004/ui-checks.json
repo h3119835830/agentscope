@@ -1,0 +1,62 @@
+[
+  {
+    "check": "desktop",
+    "documentWidth": 1265,
+    "followingLatest": true,
+    "headerRemoved": true,
+    "rounds": 3,
+    "tabs": [
+      "任务准备与 Pi Agent",
+      "策略审核与启动加载",
+      "记录与审计"
+    ],
+    "task": "48a3f60648774041",
+    "width": 1280
+  },
+  {
+    "check": "formAcrossTabs",
+    "value": "界面验收草稿，仅检查表单恢复。"
+  },
+  {
+    "check": "formAfterRefresh",
+    "value": "界面验收草稿，仅检查表单恢复。"
+  },
+  {
+    "check": "chatDraftAcrossTabs",
+    "value": "待发送的界面验收草稿"
+  },
+  {
+    "check": "narrowDialog",
+    "dialogWidth": 391,
+    "documentWidth": 423,
+    "width": 423
+  },
+  {
+    "check": "escapeRestoresFocus",
+    "dialogPresent": false,
+    "focus": "详情"
+  },
+  {
+    "check": "keyboardTabs",
+    "documentWidth": 423,
+    "focus": "记录与审计",
+    "selected": "记录与审计",
+    "width": 423
+  },
+  {
+    "check": "thirdLayerHeaderRemoved",
+    "headerRemoved": true,
+    "taskToolbar": true
+  },
+  {
+    "check": "deployed18000",
+    "defaultTab": "任务准备与 Pi Agent",
+    "headerRemoved": true,
+    "tabs": [
+      "任务准备与 Pi Agent",
+      "策略审核与启动加载",
+      "记录与审计"
+    ],
+    "taskRows": 11
+  }
+]

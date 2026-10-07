@@ -1,0 +1,37 @@
+{
+  "original_url": "http://127.0.0.1:18000",
+  "original_database": "/var/lib/agentscope/agentscope.sqlite3",
+  "pending_review_nonarchived": 721,
+  "original_rq5_tasks": 0,
+  "original_bootstrap_contexts": 0,
+  "original_active_tasks": 0,
+  "original_service_available": true,
+  "isolated_database": "/var/lib/agentscope-rq5-v1/acceptance.sqlite3",
+  "checks": {
+    "721_pending_preserved": true,
+    "no_test_task_injection": true,
+    "original_no_active_domain": true,
+    "distinct_database": true,
+    "distinct_ui_roots": true,
+    "deployed_ui_matches_snapshots": true,
+    "acceptance_bootstrap_controls": true
+  },
+  "ui": {
+    "original": {
+      "root": "/opt/agentscope/frontend/dist",
+      "index_matches_snapshot": true,
+      "bundle_matches_snapshot": true,
+      "index_sha256": "9642f3c24ef1f82867aaa8cbec7cc8f62fc516bf07c7890789657d800ab7f87a",
+      "javascript_asset": "/assets/index-BUOlV48M.js",
+      "bootstrap_controls_present": true
+    },
+    "acceptance": {
+      "root": "/var/lib/agentscope-rq5-v1/ui-dist",
+      "index_matches_snapshot": true,
+      "bundle_matches_snapshot": true,
+      "index_sha256": "9642f3c24ef1f82867aaa8cbec7cc8f62fc516bf07c7890789657d800ab7f87a",
+      "javascript_asset": "/assets/index-BUOlV48M.js",
+      "bootstrap_controls_present": true
+    }
+  }
+}

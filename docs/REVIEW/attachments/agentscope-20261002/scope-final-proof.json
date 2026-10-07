@@ -1,0 +1,37 @@
+{
+  "task_id": "2205861d5b8c4867",
+  "task_status": "completed",
+  "exit_status": {
+    "code": 0,
+    "signal": null,
+    "state": "exited"
+  },
+  "execution_exit": {
+    "code": 0,
+    "signal": null,
+    "succeeded": true
+  },
+  "blocked_events": [
+    {
+      "operation": "write",
+      "target": "/var/lib/agentscope/tasks/2205861d5b8c4867/repo/frontend/as-denied.txt",
+      "decision": "block",
+      "reason": "Approved runtime restriction: 仅允许 backend 写入；既有文件描述符也必须受约束"
+    },
+    {
+      "operation": "write",
+      "target": "/var/lib/agentscope/tasks/2205861d5b8c4867/repo/frontend/as-held-fd.txt",
+      "decision": "block",
+      "reason": "Approved runtime restriction: 仅允许 backend 写入；既有文件描述符也必须受约束"
+    }
+  ],
+  "approved_version": 2,
+  "domain_id": 1776740297,
+  "allowed_backend_content": "allowed",
+  "forbidden_file_content": "",
+  "approved_output_content": "expanded",
+  "handoff_size": 0,
+  "sandbox_envelope": "/var/lib/agentscope/tasks/2205861d5b8c4867",
+  "workspace": "/var/lib/agentscope/tasks/2205861d5b8c4867/repo",
+  "scope_expansion_version": 2
+}

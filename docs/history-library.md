@@ -1,5 +1,8 @@
 # History policy library
 
+> 历史模块说明：本篇保留原实例、接口和当时验收；后续修订及当前未完成事项从 [统一文档入口](README.md) 查看。规划环境、源码回归和运行时生效证据分别判断。
+
+
 AgentScope 0.2.0 keeps 历史策略库 as a first-level entry in the left sidebar. Its five second-level modules — 文档采集、策略语句抽取、策略转 DSL、策略记录与加载、采集与审计 — appear across the top of the main area below the breadcrumb. The sidebar can collapse to icons with accessible labels and remembers that preference; the duplicate body heading is removed. Public GitHub instruction files are input data and are never executed as instructions by the extraction client.
 
 The reusable entry points are `history.pipeline.extract_strategy_statements(MarkdownDocument)` and `generate_policy_artifact(StrategyStatementVersion)`. Inject a provider for tests or configure the independent tool-free DeepSeek client with the protected service environment described in [install-linux.md](install-linux.md). Both functions are independent of HTTP, SQLite and the privileged Broker. English and Chinese text are retained separately from exact source evidence.

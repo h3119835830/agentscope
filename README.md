@@ -30,6 +30,8 @@ promotion remain outside this implementation.
 
 ## Documentation and acceptance
 
+- [AgentScope 技术文档总索引：RFC / ADR / REVIEW / BUG](docs/README.md)
+
 - [GitHub submission scope and checks](docs/releases/20261004-history-and-task-agent.md)
 - [Prepared pull request description](docs/releases/20261004-pr.md)
 - [History generation contract](docs/history-generation-v1/RFC.md) and

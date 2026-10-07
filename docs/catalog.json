@@ -1,0 +1,1144 @@
+{
+  "schema": "agentscope.documentation-catalog.v1",
+  "date": "2026-10-07",
+  "branch": "技术文档",
+  "base_commit": "c0457842e74389918083e05254cf7733892064c4",
+  "source_document_count": 85,
+  "excluded_unrelated_documents": [
+    "BUG/BUG-20260915-Dsh实验适配入口未发现.md"
+  ],
+  "documents": [
+    {
+      "path": "ADR/ADR-20260923-ActPlane采用WSL2与BPF-LSM启动配置.md",
+      "source_group": "central-technical-records",
+      "source_path": "ADR/ADR-20260923-ActPlane采用WSL2与BPF-LSM启动配置.md",
+      "source_sha256": "bb159921d50de0de3ac586687c5424e19809eeded771b24608627cf3ff689423",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "109937cc8d841f146a042a1e0b92f0662bd91ae45e48a832f4835cd57f854fab"
+    },
+    {
+      "path": "ADR/ADR-20261002-AgentScope隔离安装决策.md",
+      "source_group": "central-technical-records",
+      "source_path": "ADR/ADR-20261002-AgentScope隔离安装决策.md",
+      "source_sha256": "b7253dd3c9589672b30e0db3adb15fb20dd452427da95510e792cd14898c3a49",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "b7253dd3c9589672b30e0db3adb15fb20dd452427da95510e792cd14898c3a49"
+    },
+    {
+      "path": "ADR/ADR-20261003-AgentScope-Pi结构化候选与隔离RQ5验收.md",
+      "source_group": "central-technical-records",
+      "source_path": "ADR/ADR-20261003-AgentScope-Pi结构化候选与隔离RQ5验收.md",
+      "source_sha256": "8730b297730d12f85505f3c6b27a93960f6e59bc040e0d38c65d4aca2fa70334",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "8730b297730d12f85505f3c6b27a93960f6e59bc040e0d38c65d4aca2fa70334"
+    },
+    {
+      "path": "ADR/ADR-20261004-AgentScope历史策略库第一版.md",
+      "source_group": "central-technical-records",
+      "source_path": "ADR/ADR-20261004-AgentScope历史策略库第一版.md",
+      "source_sha256": "4a1e51e971571ea399fbcd2e51bbb39935b7593784425ee55ba24a324c0eed0f",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "4a1e51e971571ea399fbcd2e51bbb39935b7593784425ee55ba24a324c0eed0f"
+    },
+    {
+      "path": "ADR/ADR-20261004-AgentScope原生Pi会话与追加加载记录.md",
+      "source_group": "central-technical-records",
+      "source_path": "ADR/ADR-20261004-AgentScope原生Pi会话与追加加载记录.md",
+      "source_sha256": "54f6683c109dc71270bbc36a16c0cf3131a78f0c375ab6a8e81289d2571a5452",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "54f6683c109dc71270bbc36a16c0cf3131a78f0c375ab6a8e81289d2571a5452"
+    },
+    {
+      "path": "ADR/ADR-20261004-AgentScope外部Agent接入第一版.md",
+      "source_group": "central-technical-records",
+      "source_path": "ADR/ADR-20261004-AgentScope外部Agent接入第一版.md",
+      "source_sha256": "c5756c313188d7ce60d5d815e8bb8e826a1e5597dc817057e43c8d23fa747e3e",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "c5756c313188d7ce60d5d815e8bb8e826a1e5597dc817057e43c8d23fa747e3e"
+    },
+    {
+      "path": "ADR/ADR-20261004-AgentScope开发控制台免口令.md",
+      "source_group": "central-technical-records",
+      "source_path": "ADR/ADR-20261004-AgentScope开发控制台免口令.md",
+      "source_sha256": "db35fce4ff7fce526ff11fc62aaa3fdf9fbbb95e6c812005ea6e2b575c4dcfbf",
+      "transformations": [
+        "portable-relative-links-and-lf",
+        "instance-and-time-boundary-banner"
+      ],
+      "archived_sha256": "86e66ac8bcc1089d01729f9a86347a9b31f0faade869097d6464d1db6c964083"
+    },
+    {
+      "path": "ADR/ADR-20261004-AgentScope策略输入与伪代码职责.md",
+      "source_group": "central-technical-records",
+      "source_path": "ADR/ADR-20261004-AgentScope策略输入与伪代码职责.md",
+      "source_sha256": "b554a95abbe053a20c6b7783338bb559d5a72a7310ab4dc3fb359fcd00ef1e8a",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "b554a95abbe053a20c6b7783338bb559d5a72a7310ab4dc3fb359fcd00ef1e8a"
+    },
+    {
+      "path": "ADR/ADR-20261005-AgentScope-DSH三阶段ScopeDemo.md",
+      "source_group": "agentscope-working-documents",
+      "source_path": "scope-demo-v1/ADR.md",
+      "source_sha256": "ccdc5549ff4d6386e2eef2b287d128e368813ca720be84eb59d3de7207f147d6",
+      "transformations": [
+        "portable-relative-links-and-lf",
+        "supersession-banner-and-obsolete-ticket-reference"
+      ],
+      "archived_sha256": "0919a8a379a63c0ae4f8eb6eb39f9be1d5c137f0b3b4b518164d2339a2a2ccf2"
+    },
+    {
+      "path": "ADR/ADR-20261006-DSH工作区绑定与策略记录.md",
+      "source_group": "central-technical-records",
+      "source_path": "ADR/ADR-20261006-DSH工作区绑定与策略记录.md",
+      "source_sha256": "00237473663c747164bf024b227aa4ee3e6f5f55601c679f535b4592cb5c260f",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "00237473663c747164bf024b227aa4ee3e6f5f55601c679f535b4592cb5c260f"
+    },
+    {
+      "path": "ADR/ADR-20261006-Pi-受管DSH与审计闭环.md",
+      "source_group": "central-technical-records",
+      "source_path": "ADR/ADR-20261006-Pi-受管DSH与审计闭环.md",
+      "source_sha256": "67c8dbf90be33262f204cb8c8515e99508b4065a8b2ef2e3e071976721feeeed",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "67c8dbf90be33262f204cb8c8515e99508b4065a8b2ef2e3e071976721feeeed"
+    },
+    {
+      "path": "ADR/ADR-20261006-逐句DSL与控制台锁定.md",
+      "source_group": "central-technical-records",
+      "source_path": "ADR/ADR-20261006-逐句DSL与控制台锁定.md",
+      "source_sha256": "2698c4ee6ec681738d1d06a534cf62011950ff66eb1eaedaf3acbb23fa06f50c",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "2698c4ee6ec681738d1d06a534cf62011950ff66eb1eaedaf3acbb23fa06f50c"
+    },
+    {
+      "path": "ADR/ADR-20261007-AgentScope-WINDOWS发布范围.md",
+      "source_group": "central-technical-records",
+      "source_path": "ADR/ADR-20261007-AgentScope-WINDOWS发布范围.md",
+      "source_sha256": "a21d36ab4708b6f223e5fab7923ae5d96fcb201c1940ca02e2a5fc7fc8171290",
+      "transformations": [
+        "portable-relative-links-and-lf",
+        "historical-release-banner"
+      ],
+      "archived_sha256": "25e3e6a0da4fb70252aff9e9a2fe975b1b814e71238e7886cd66fa1ea28fada9"
+    },
+    {
+      "path": "ADR/ADR-20261007-AgentScopeDemo删除登录.md",
+      "source_group": "central-technical-records",
+      "source_path": "ADR/ADR-20261007-AgentScopeDemo删除登录.md",
+      "source_sha256": "b5308d876318b202cc8279fd76134c530e6ed4b2514bef2bfc19d1e656abe82a",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "527f1f5229751fba0372889afe7c287a02bd8c63b9f39f3bc49dde61159420ee"
+    },
+    {
+      "path": "ADR/ADR-20261007-AgentScope本机新版合入main.md",
+      "source_group": "central-technical-records",
+      "source_path": "ADR/ADR-20261007-AgentScope本机新版合入main.md",
+      "source_sha256": "17cf49736a4b483047085005f6b355417925785e4db9fa5a42677eb59a778549",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "17cf49736a4b483047085005f6b355417925785e4db9fa5a42677eb59a778549"
+    },
+    {
+      "path": "ADR/ADR-20261007-AgentScope本机自用自动会话.md",
+      "source_group": "central-technical-records",
+      "source_path": "ADR/ADR-20261007-AgentScope本机自用自动会话.md",
+      "source_sha256": "e9d46b501945c2365c62bee84cba4e8660c84eb686a6074e836f311064c37707",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "e9d46b501945c2365c62bee84cba4e8660c84eb686a6074e836f311064c37707"
+    },
+    {
+      "path": "ADR/ADR-20261007-DSL规则归一化与重叠校验.md",
+      "source_group": "central-technical-records",
+      "source_path": "ADR/ADR-20261007-DSL规则归一化与重叠校验.md",
+      "source_sha256": "f4b8b17f8e2444033adadf037890cc9f5efe15209300a83d42341feeb00d1083",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "f4b8b17f8e2444033adadf037890cc9f5efe15209300a83d42341feeb00d1083"
+    },
+    {
+      "path": "ADR/ADR-20261007-ScopeDemo服务托管与恢复.md",
+      "source_group": "central-technical-records",
+      "source_path": "ADR/ADR-20261007-ScopeDemo服务托管与恢复.md",
+      "source_sha256": "d7c192caf752a3bcb94f0c465843e95f4e314411b20f6ff691acadf6c54bf372",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "d7c192caf752a3bcb94f0c465843e95f4e314411b20f6ff691acadf6c54bf372"
+    },
+    {
+      "path": "ADR/ADR-20261002-AgentScope历史策略库.md",
+      "source_group": "central-technical-records",
+      "source_path": "ADR-AgentScope-历史策略库-20261002.md",
+      "source_sha256": "627c2ee6756ef8f9048cd3ac0151f575af7ef62393513e13a4bcbff46c4abe90",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "627c2ee6756ef8f9048cd3ac0151f575af7ef62393513e13a4bcbff46c4abe90"
+    },
+    {
+      "path": "BUG/BUG-20261002-AgentScope本机运行兼容性.md",
+      "source_group": "central-technical-records",
+      "source_path": "BUG/BUG-20261002-AgentScope本机运行兼容性.md",
+      "source_sha256": "4b4c68119b9b03df54638c0a3209ba6b59642c1711c81e404c51b541f384f3dc",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "4b4c68119b9b03df54638c0a3209ba6b59642c1711c81e404c51b541f384f3dc"
+    },
+    {
+      "path": "BUG/BUG-20261003-AgentScope-Pi候选提交与RQ5探针环境.md",
+      "source_group": "central-technical-records",
+      "source_path": "BUG/BUG-20261003-AgentScope-Pi候选提交与RQ5探针环境.md",
+      "source_sha256": "a761b483a427d5dde7959ed15a28592c1a299b0fd218cf1809425999212eecf9",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "a761b483a427d5dde7959ed15a28592c1a299b0fd218cf1809425999212eecf9"
+    },
+    {
+      "path": "BUG/BUG-20261004-AgentScope历史策略库第一版.md",
+      "source_group": "central-technical-records",
+      "source_path": "BUG/BUG-20261004-AgentScope历史策略库第一版.md",
+      "source_sha256": "08e42190a13a07b5c96453ca971674b57944fbc8063648068883a99c2e439c9d",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "08e42190a13a07b5c96453ca971674b57944fbc8063648068883a99c2e439c9d"
+    },
+    {
+      "path": "BUG/BUG-20261004-AgentScope外部Agent接入第一版.md",
+      "source_group": "central-technical-records",
+      "source_path": "BUG/BUG-20261004-AgentScope外部Agent接入第一版.md",
+      "source_sha256": "4bf91bcf76dc2cdf52a3eb719d99e7d1d3f5c4681b5134a62cfdeb24720f9473",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "4bf91bcf76dc2cdf52a3eb719d99e7d1d3f5c4681b5134a62cfdeb24720f9473"
+    },
+    {
+      "path": "BUG/BUG-20261004-AgentScope工作台会话接入与恢复闭环.md",
+      "source_group": "central-technical-records",
+      "source_path": "BUG/BUG-20261004-AgentScope工作台会话接入与恢复闭环.md",
+      "source_sha256": "5ed063fa0f2bac0705c324e6f95231d36fef20a0ed5bef1280195ef030227db9",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "5ed063fa0f2bac0705c324e6f95231d36fef20a0ed5bef1280195ef030227db9"
+    },
+    {
+      "path": "BUG/BUG-20261004-AgentScope开发入口与实验服务恢复.md",
+      "source_group": "central-technical-records",
+      "source_path": "BUG/BUG-20261004-AgentScope开发入口与实验服务恢复.md",
+      "source_sha256": "8885ec72127995d2e038cca6ea105829914d4f566d154afd4aea1278d3849891",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "8885ec72127995d2e038cca6ea105829914d4f566d154afd4aea1278d3849891"
+    },
+    {
+      "path": "BUG/BUG-20261004-AgentScope转换输入与能力上下文缺口.md",
+      "source_group": "central-technical-records",
+      "source_path": "BUG/BUG-20261004-AgentScope转换输入与能力上下文缺口.md",
+      "source_sha256": "e5fcb3e59d2763ea8460eb7f4ab045a433d648346ee275ef585f2142a0979702",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "e5fcb3e59d2763ea8460eb7f4ab045a433d648346ee275ef585f2142a0979702"
+    },
+    {
+      "path": "BUG/BUG-20261005-AgentScope-DSH三阶段ScopeDemo.md",
+      "source_group": "agentscope-working-documents",
+      "source_path": "scope-demo-v1/BUG.md",
+      "source_sha256": "8e6e7fd27ba6a0c2299c38f39bbffc570e74303fad1c87e61ebde37c883d165e",
+      "transformations": [
+        "portable-relative-links-and-lf",
+        "supersession-banner-and-obsolete-ticket-reference"
+      ],
+      "archived_sha256": "979f754cbccf8218615dc1eb3d9f43278be127dd6852d622fdd13909e257cdb1"
+    },
+    {
+      "path": "BUG/BUG-20261006-DSH工作区绑定与策略记录.md",
+      "source_group": "central-technical-records",
+      "source_path": "BUG/BUG-20261006-DSH工作区绑定与策略记录.md",
+      "source_sha256": "cf87a77346f7af18e894a51f1e23b5c154e4fb10239df362ff496095bffa022f",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "cf87a77346f7af18e894a51f1e23b5c154e4fb10239df362ff496095bffa022f"
+    },
+    {
+      "path": "BUG/BUG-20261006-Pi-受管DSH与审计闭环.md",
+      "source_group": "central-technical-records",
+      "source_path": "BUG/BUG-20261006-Pi-受管DSH与审计闭环.md",
+      "source_sha256": "7368189d001eaae8fd150f14b2c754339b5400d773774c90e1fde36afb1f5451",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "7368189d001eaae8fd150f14b2c754339b5400d773774c90e1fde36afb1f5451"
+    },
+    {
+      "path": "BUG/BUG-20261006-逐句DSL与控制台锁定.md",
+      "source_group": "central-technical-records",
+      "source_path": "BUG/BUG-20261006-逐句DSL与控制台锁定.md",
+      "source_sha256": "f1ed3d0e7525c078d83a178f0d436e06b3e963089a0b15ff085a1103f8109791",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "f1ed3d0e7525c078d83a178f0d436e06b3e963089a0b15ff085a1103f8109791"
+    },
+    {
+      "path": "BUG/BUG-20261007-AgentScope-WINDOWS发布范围.md",
+      "source_group": "central-technical-records",
+      "source_path": "BUG/BUG-20261007-AgentScope-WINDOWS发布范围.md",
+      "source_sha256": "01978e2d1af5faede76f418a0b5957f20cff6283192c3c5f5eeb21add8f5da9e",
+      "transformations": [
+        "portable-relative-links-and-lf",
+        "historical-release-banner"
+      ],
+      "archived_sha256": "5fdc644253db4ff83eeda000776cbbc0fdbbbe43def6cb76d946f07a06c97d8f"
+    },
+    {
+      "path": "BUG/BUG-20261007-AgentScopeDemo删除登录.md",
+      "source_group": "central-technical-records",
+      "source_path": "BUG/BUG-20261007-AgentScopeDemo删除登录.md",
+      "source_sha256": "88a8e2d28e132ff7a181b0479139cdaae33d45fd31f6570be67485cf5ad42e10",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "88a8e2d28e132ff7a181b0479139cdaae33d45fd31f6570be67485cf5ad42e10"
+    },
+    {
+      "path": "BUG/BUG-20261007-AgentScope普通地址反复要求口令.md",
+      "source_group": "central-technical-records",
+      "source_path": "BUG/BUG-20261007-AgentScope普通地址反复要求口令.md",
+      "source_sha256": "3e26ff378d5e8f050bb26aa330db96fc3538e7efc9c213315d1974e6b1dc6020",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "3e26ff378d5e8f050bb26aa330db96fc3538e7efc9c213315d1974e6b1dc6020"
+    },
+    {
+      "path": "BUG/BUG-20261007-AgentScope本机新版合入main.md",
+      "source_group": "central-technical-records",
+      "source_path": "BUG/BUG-20261007-AgentScope本机新版合入main.md",
+      "source_sha256": "3c4048b9dd6bd9ac5b1cee48a5cc53ef09267f05dacc8ebb26fbcf6a600350be",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "3c4048b9dd6bd9ac5b1cee48a5cc53ef09267f05dacc8ebb26fbcf6a600350be"
+    },
+    {
+      "path": "BUG/BUG-20261007-DSL规则归一化与重叠校验.md",
+      "source_group": "central-technical-records",
+      "source_path": "BUG/BUG-20261007-DSL规则归一化与重叠校验.md",
+      "source_sha256": "3ff7b40237d2b7c13d09e680c1a101671ea02031e647160237bfcdcc6f00e8a3",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "3ff7b40237d2b7c13d09e680c1a101671ea02031e647160237bfcdcc6f00e8a3"
+    },
+    {
+      "path": "BUG/BUG-20261007-ScopeDemo服务托管与恢复.md",
+      "source_group": "central-technical-records",
+      "source_path": "BUG/BUG-20261007-ScopeDemo服务托管与恢复.md",
+      "source_sha256": "4839151c43da1020691db77e16e39457fb11e6b84ba4cb67deecb554cba0db3c",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "4839151c43da1020691db77e16e39457fb11e6b84ba4cb67deecb554cba0db3c"
+    },
+    {
+      "path": "BUG/BUG-20261002-AgentScope历史策略库.md",
+      "source_group": "central-technical-records",
+      "source_path": "BUG-AgentScope-历史策略库-20261002.md",
+      "source_sha256": "a1a5b6b2be208b31790ca8f0bf262a462e6e1bcfa108b0f0c188084ac775070d",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "a1a5b6b2be208b31790ca8f0bf262a462e6e1bcfa108b0f0c188084ac775070d"
+    },
+    {
+      "path": "REVIEW/BENCHMARKS-20261005-AgentScope数据集选择与真实验收.md",
+      "source_group": "central-technical-records",
+      "source_path": "REVIEW/BENCHMARKS-20261005-AgentScope数据集选择与真实验收.md",
+      "source_sha256": "459fd92327b6e45a5789d7b48ba6feaf7c5e236b1101cc905488bf6cd293c395",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "459fd92327b6e45a5789d7b48ba6feaf7c5e236b1101cc905488bf6cd293c395"
+    },
+    {
+      "path": "REVIEW/DESIGN-20261005-AgentScope任务工作台.md",
+      "source_group": "central-technical-records",
+      "source_path": "REVIEW/DESIGN-20261005-AgentScope任务工作台.md",
+      "source_sha256": "50114c6b5b9008914f8f288feccb7ad776a4fb5bdbfd94d36d6e262429ead3c9",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "50114c6b5b9008914f8f288feccb7ad776a4fb5bdbfd94d36d6e262429ead3c9"
+    },
+    {
+      "path": "REVIEW/REVIEW-20260923-ActPlane本机研究环境验收.md",
+      "source_group": "central-technical-records",
+      "source_path": "REVIEW/REVIEW-20260923-ActPlane本机研究环境验收.md",
+      "source_sha256": "6d9b5045b7426d71cd321847a278848687ee0b8ab739489f81dff1e877929488",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "a2d88287590c683fa9bf77137cac96a4d531f2c2abdbf236dfa3a4f16de38bbd"
+    },
+    {
+      "path": "REVIEW/REVIEW-20261002-AgentScope安装验收.md",
+      "source_group": "central-technical-records",
+      "source_path": "REVIEW/REVIEW-20261002-AgentScope安装验收.md",
+      "source_sha256": "7333c07317cf9cedc6e2ca17b943f467019f9617edbb04ff2cdfd5b92ebaacfc",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "7333c07317cf9cedc6e2ca17b943f467019f9617edbb04ff2cdfd5b92ebaacfc"
+    },
+    {
+      "path": "REVIEW/REVIEW-20261003-AgentScope-Pi第二层RQ5闭环验收.md",
+      "source_group": "central-technical-records",
+      "source_path": "REVIEW/REVIEW-20261003-AgentScope-Pi第二层RQ5闭环验收.md",
+      "source_sha256": "9323328d079f80febfebbe9dd2afb9ff779f8641681b6f2fb71ca0f3d94be772",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "9323328d079f80febfebbe9dd2afb9ff779f8641681b6f2fb71ca0f3d94be772"
+    },
+    {
+      "path": "REVIEW/REVIEW-20261004-AgentScope-GitHub发布.md",
+      "source_group": "central-technical-records",
+      "source_path": "REVIEW/REVIEW-20261004-AgentScope-GitHub发布.md",
+      "source_sha256": "a7aa86c0c5c726f7cdd7c59999c9232bb2ddf119887e015943284b3b94ddea23",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "a7aa86c0c5c726f7cdd7c59999c9232bb2ddf119887e015943284b3b94ddea23"
+    },
+    {
+      "path": "REVIEW/REVIEW-20261004-AgentScopeGitHub提交准备.md",
+      "source_group": "central-technical-records",
+      "source_path": "REVIEW/REVIEW-20261004-AgentScopeGitHub提交准备.md",
+      "source_sha256": "a978ce9c258806a0a186a5c3eed9bb4f0c641a7fa19823c0a3507238aa3cae7f",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "03e8fcd20c179a068b0700f2762794931a85f4e086566307e4e025802f56e14f"
+    },
+    {
+      "path": "REVIEW/REVIEW-20261004-AgentScope分支推送验收.md",
+      "source_group": "central-technical-records",
+      "source_path": "REVIEW/REVIEW-20261004-AgentScope分支推送验收.md",
+      "source_sha256": "61b1fd9dfbd53243f826de06c4f20a619bdf815956f6c741a2dda6268d206b22",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "2aae96546cce952f6fad1c05a8c3d62f06dff63c6cac930a7859b693655019a8"
+    },
+    {
+      "path": "REVIEW/REVIEW-20261004-AgentScope历史策略库第一版.md",
+      "source_group": "central-technical-records",
+      "source_path": "REVIEW/REVIEW-20261004-AgentScope历史策略库第一版.md",
+      "source_sha256": "49277df8f5b30204416ca562581925a895321ffd3f97a3213d039c34aea725df",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "49277df8f5b30204416ca562581925a895321ffd3f97a3213d039c34aea725df"
+    },
+    {
+      "path": "REVIEW/REVIEW-20261004-AgentScope启动前工作台验收.md",
+      "source_group": "central-technical-records",
+      "source_path": "REVIEW/REVIEW-20261004-AgentScope启动前工作台验收.md",
+      "source_sha256": "a035e7c4c2d1827af47467500e35e3bdfe3c137c942cf777ddaba96f88a2a778",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "a035e7c4c2d1827af47467500e35e3bdfe3c137c942cf777ddaba96f88a2a778"
+    },
+    {
+      "path": "REVIEW/REVIEW-20261004-AgentScope外部Agent接入第一版.md",
+      "source_group": "central-technical-records",
+      "source_path": "REVIEW/REVIEW-20261004-AgentScope外部Agent接入第一版.md",
+      "source_sha256": "8003fe28128924f80ecf23f085908e119b865945a8410a57c7beee1bca673c4d",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "8003fe28128924f80ecf23f085908e119b865945a8410a57c7beee1bca673c4d"
+    },
+    {
+      "path": "REVIEW/REVIEW-20261004-AgentScope开发页面展示验收.md",
+      "source_group": "central-technical-records",
+      "source_path": "REVIEW/REVIEW-20261004-AgentScope开发页面展示验收.md",
+      "source_sha256": "3a58371694e2f23b70d5823966020a6e98eacf64a31e30f4f1adf0512adb7fd0",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "cb70359abe60f55374619e603ed9d98d8437b7e827c49720e893eab8c739889f"
+    },
+    {
+      "path": "REVIEW/REVIEW-20261004-AgentScope策略输入与审计验收.md",
+      "source_group": "central-technical-records",
+      "source_path": "REVIEW/REVIEW-20261004-AgentScope策略输入与审计验收.md",
+      "source_sha256": "13ce9c4709462b1e874ee2aa4857e76dc231c686f9290456f92549d9631397bd",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "13ce9c4709462b1e874ee2aa4857e76dc231c686f9290456f92549d9631397bd"
+    },
+    {
+      "path": "REVIEW/REVIEW-20261005-AgentScope-DSH三阶段ScopeDemo.md",
+      "source_group": "agentscope-working-documents",
+      "source_path": "scope-demo-v1/REVIEW.md",
+      "source_sha256": "f20e015e86d2ce56d985aa6f2fae21ce00babd63a1954d67fbd136976d5e1b85",
+      "transformations": [
+        "portable-relative-links-and-lf",
+        "supersession-banner-and-obsolete-ticket-reference"
+      ],
+      "archived_sha256": "d0d29713420a6e7d32609df1b74e38f28627946fd2277a337caeb60f2e92f96c"
+    },
+    {
+      "path": "REVIEW/REVIEW-20261006-ActPlane论文与Pi运行时职责.md",
+      "source_group": "central-technical-records",
+      "source_path": "REVIEW/REVIEW-20261006-ActPlane论文与Pi运行时职责.md",
+      "source_sha256": "ff6b4bb4760d1a0fe5d669eb6613017f46cd0f50e85fc63becab9176f2180fc9",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "ff6b4bb4760d1a0fe5d669eb6613017f46cd0f50e85fc63becab9176f2180fc9"
+    },
+    {
+      "path": "REVIEW/REVIEW-20261006-DSH工作区绑定与策略记录.md",
+      "source_group": "central-technical-records",
+      "source_path": "REVIEW/REVIEW-20261006-DSH工作区绑定与策略记录.md",
+      "source_sha256": "f70c8bac22a9ae784808209455243e507c12c16aba1935574f6948818f036b1e",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "f70c8bac22a9ae784808209455243e507c12c16aba1935574f6948818f036b1e"
+    },
+    {
+      "path": "REVIEW/REVIEW-20261006-Pi-受管DSH与审计闭环.md",
+      "source_group": "central-technical-records",
+      "source_path": "REVIEW/REVIEW-20261006-Pi-受管DSH与审计闭环.md",
+      "source_sha256": "a6af00adb15715eb60cbe9223fd3eef057109ec85f8f8455ac4597881cfc6b72",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "a6af00adb15715eb60cbe9223fd3eef057109ec85f8f8455ac4597881cfc6b72"
+    },
+    {
+      "path": "REVIEW/REVIEW-20261006-逐句DSL与控制台锁定.md",
+      "source_group": "central-technical-records",
+      "source_path": "REVIEW/REVIEW-20261006-逐句DSL与控制台锁定.md",
+      "source_sha256": "3514686c4bda6edf5d0d4ebdf622d42c41ec17532c5d01c5ae32c2d1f5525cdd",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "3514686c4bda6edf5d0d4ebdf622d42c41ec17532c5d01c5ae32c2d1f5525cdd"
+    },
+    {
+      "path": "REVIEW/REVIEW-20261007-AgentScope-WINDOWS发布范围.md",
+      "source_group": "central-technical-records",
+      "source_path": "REVIEW/REVIEW-20261007-AgentScope-WINDOWS发布范围.md",
+      "source_sha256": "1c04006464897f621c4ef97219048d72f320ef07cdd5bb0a7675baa45c4823bc",
+      "transformations": [
+        "portable-relative-links-and-lf",
+        "historical-release-banner"
+      ],
+      "archived_sha256": "cee48b9ae04ec87a08779248cd4b67010070bc7e04a32240041e54785d4a6398"
+    },
+    {
+      "path": "REVIEW/REVIEW-20261007-AgentScopeDemo删除登录.md",
+      "source_group": "central-technical-records",
+      "source_path": "REVIEW/REVIEW-20261007-AgentScopeDemo删除登录.md",
+      "source_sha256": "26b38a1a609af9e172e735db47bd0d43212624283f8f3d393a5990e013322b3e",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "26b38a1a609af9e172e735db47bd0d43212624283f8f3d393a5990e013322b3e"
+    },
+    {
+      "path": "REVIEW/REVIEW-20261007-AgentScope本机免口令验收.md",
+      "source_group": "central-technical-records",
+      "source_path": "REVIEW/REVIEW-20261007-AgentScope本机免口令验收.md",
+      "source_sha256": "b86457e799822675301cef5141ebf0316af16699dc1f16b484b0fcef9fc67154",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "b86457e799822675301cef5141ebf0316af16699dc1f16b484b0fcef9fc67154"
+    },
+    {
+      "path": "REVIEW/REVIEW-20261007-AgentScope本机新版合入main.md",
+      "source_group": "central-technical-records",
+      "source_path": "REVIEW/REVIEW-20261007-AgentScope本机新版合入main.md",
+      "source_sha256": "4d3865d4056de35ba90be5d182ca73720281389fac250a43b944aa19ae0d3299",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "4d3865d4056de35ba90be5d182ca73720281389fac250a43b944aa19ae0d3299"
+    },
+    {
+      "path": "REVIEW/REVIEW-20261007-DSL规则归一化与重叠校验.md",
+      "source_group": "central-technical-records",
+      "source_path": "REVIEW/REVIEW-20261007-DSL规则归一化与重叠校验.md",
+      "source_sha256": "2c3bef667ebcd067124959ff28238cb7f79454dc98c0342df9978e63a134fa16",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "2c3bef667ebcd067124959ff28238cb7f79454dc98c0342df9978e63a134fa16"
+    },
+    {
+      "path": "REVIEW/REVIEW-20261007-ScopeDemo服务托管与恢复.md",
+      "source_group": "central-technical-records",
+      "source_path": "REVIEW/REVIEW-20261007-ScopeDemo服务托管与恢复.md",
+      "source_sha256": "670127720a154d33d93d9d9fd4d0e5e7f3f9d06086a828f18c85957098a0eca3",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "670127720a154d33d93d9d9fd4d0e5e7f3f9d06086a828f18c85957098a0eca3"
+    },
+    {
+      "path": "REVIEW/REVIEW-20261002-AgentScope历史策略库.md",
+      "source_group": "agentscope-working-documents",
+      "source_path": "history-library/REVIEW.md",
+      "source_sha256": "c483320b68cfbfb36b9c44d4a44c55c9a016def340f50ade8d4a67a9f82ce337",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "c483320b68cfbfb36b9c44d4a44c55c9a016def340f50ade8d4a67a9f82ce337"
+    },
+    {
+      "path": "RFC/RFC-20260923-ActPlane本机eBPF研究环境.md",
+      "source_group": "central-technical-records",
+      "source_path": "RFC/RFC-20260923-ActPlane本机eBPF研究环境.md",
+      "source_sha256": "09cdbe61e82cd1a69021768e3d8e9fa0c4b6c32aded7e1af1b25aa036e127c79",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "3dcc690acd15efa9dadebcab8734ed11c88267ab22ad3745303bee281b54594c"
+    },
+    {
+      "path": "RFC/RFC-20261002-AgentScope本机Linux部署.md",
+      "source_group": "central-technical-records",
+      "source_path": "RFC/RFC-20261002-AgentScope本机Linux部署.md",
+      "source_sha256": "6dca7141d359d6a24ac24c63a225f27aa3addd6b5d436e46c2366837da465bd5",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "6dca7141d359d6a24ac24c63a225f27aa3addd6b5d436e46c2366837da465bd5"
+    },
+    {
+      "path": "RFC/RFC-20261003-AgentScope-Pi启动前策略与RQ5扩展验收.md",
+      "source_group": "central-technical-records",
+      "source_path": "RFC/RFC-20261003-AgentScope-Pi启动前策略与RQ5扩展验收.md",
+      "source_sha256": "0b7ed0cda080739eded0cebc43dad3950a8ae847745c5ead21b890908d9d4fb6",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "0b7ed0cda080739eded0cebc43dad3950a8ae847745c5ead21b890908d9d4fb6"
+    },
+    {
+      "path": "RFC/RFC-20261004-AgentScope历史策略库第一版.md",
+      "source_group": "central-technical-records",
+      "source_path": "RFC/RFC-20261004-AgentScope历史策略库第一版.md",
+      "source_sha256": "dccfd1c39c301ae53878b3d5e6f9aa2bcf4980bb3b95bd04d934df2e68d0df5e",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "dccfd1c39c301ae53878b3d5e6f9aa2bcf4980bb3b95bd04d934df2e68d0df5e"
+    },
+    {
+      "path": "RFC/RFC-20261004-AgentScope启动前工作台与Pi会话.md",
+      "source_group": "central-technical-records",
+      "source_path": "RFC/RFC-20261004-AgentScope启动前工作台与Pi会话.md",
+      "source_sha256": "d2b125bb6a20828d680a95479d44a66861ab508f9e9a7c3b20dac97e5e772cc8",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "d2b125bb6a20828d680a95479d44a66861ab508f9e9a7c3b20dac97e5e772cc8"
+    },
+    {
+      "path": "RFC/RFC-20261004-AgentScope外部Agent接入第一版.md",
+      "source_group": "central-technical-records",
+      "source_path": "RFC/RFC-20261004-AgentScope外部Agent接入第一版.md",
+      "source_sha256": "990768a137049eb4b7d6df82ec294f0de4f2e3e7bec3eee1ecdafad9a720d548",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "990768a137049eb4b7d6df82ec294f0de4f2e3e7bec3eee1ecdafad9a720d548"
+    },
+    {
+      "path": "RFC/RFC-20261004-AgentScope本地开发免口令.md",
+      "source_group": "central-technical-records",
+      "source_path": "RFC/RFC-20261004-AgentScope本地开发免口令.md",
+      "source_sha256": "f809a6913c2fc2ccd6e34bb4bf805d598e1e582016b77b7f3034e284cb360faf",
+      "transformations": [
+        "portable-relative-links-and-lf",
+        "instance-and-time-boundary-banner"
+      ],
+      "archived_sha256": "17c6e06f6a42d5278a0014d1d55eda92ff76f898030bd59f8164915d1309caf3"
+    },
+    {
+      "path": "RFC/RFC-20261004-AgentScope策略输入与采集审计.md",
+      "source_group": "central-technical-records",
+      "source_path": "RFC/RFC-20261004-AgentScope策略输入与采集审计.md",
+      "source_sha256": "c135bc335d79c8ff4a096aeda43b5ee036d16bfd1fe04e3e5c045eb081f8d7fe",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "c135bc335d79c8ff4a096aeda43b5ee036d16bfd1fe04e3e5c045eb081f8d7fe"
+    },
+    {
+      "path": "RFC/RFC-20261005-AgentScope-DSH三阶段ScopeDemo.md",
+      "source_group": "agentscope-working-documents",
+      "source_path": "scope-demo-v1/RFC.md",
+      "source_sha256": "d64e0090f37ede4c5972110fcb46170a1027d887fb8307954d444f59821bfd11",
+      "transformations": [
+        "portable-relative-links-and-lf",
+        "supersession-banner-and-obsolete-ticket-reference"
+      ],
+      "archived_sha256": "9ea18d125ffa4c83f93974a657b6d90f01d78adfedf735c8dd1b2a304d965db6"
+    },
+    {
+      "path": "RFC/RFC-20261006-DSH工作区绑定与策略记录.md",
+      "source_group": "central-technical-records",
+      "source_path": "RFC/RFC-20261006-DSH工作区绑定与策略记录.md",
+      "source_sha256": "a42bd27029a2fa172213eac9498cdd7b858d6150d43dd1657a91057cb35fada5",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "85223d47a8360f1cd026308d04dbd890a49de01e0a948d712eb80f6d4c57fbc3"
+    },
+    {
+      "path": "RFC/RFC-20261006-Pi-受管DSH与审计闭环.md",
+      "source_group": "central-technical-records",
+      "source_path": "RFC/RFC-20261006-Pi-受管DSH与审计闭环.md",
+      "source_sha256": "5120d1c59c300474fdef9d62e214e4f610bb22e4617a4517ecff01deb8d3612d",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "3c9877c418db760e6e303c3b2c26c9518ea82d76f44eca4d6bfe79b776719d1c"
+    },
+    {
+      "path": "RFC/RFC-20261006-逐句DSL与控制台锁定.md",
+      "source_group": "central-technical-records",
+      "source_path": "RFC/RFC-20261006-逐句DSL与控制台锁定.md",
+      "source_sha256": "152c68983f41657f218211b386398504bacce76e59540a7989ad1a1ff8e731f8",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "152c68983f41657f218211b386398504bacce76e59540a7989ad1a1ff8e731f8"
+    },
+    {
+      "path": "RFC/RFC-20261007-AgentScope-WINDOWS发布范围.md",
+      "source_group": "central-technical-records",
+      "source_path": "RFC/RFC-20261007-AgentScope-WINDOWS发布范围.md",
+      "source_sha256": "7acc8f3013ab3b6cb228274c67ce35156872415669520586a9dbcb0a42b24e0a",
+      "transformations": [
+        "portable-relative-links-and-lf",
+        "historical-release-banner"
+      ],
+      "archived_sha256": "983a829c3d0556a4f5742cda2da8ccc9715b1cb49d7cd47e3875e1a245132ab3"
+    },
+    {
+      "path": "RFC/RFC-20261007-AgentScopeDemo删除登录.md",
+      "source_group": "central-technical-records",
+      "source_path": "RFC/RFC-20261007-AgentScopeDemo删除登录.md",
+      "source_sha256": "a1208551ec29d473d43499f72b7359f56574e747f0a0827bbadb73d521b027ba",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "54addca044ee897799ac2f331e19ecfc08dcd363a991fb21e5b8a992ee122569"
+    },
+    {
+      "path": "RFC/RFC-20261007-AgentScope本机新版合入main.md",
+      "source_group": "central-technical-records",
+      "source_path": "RFC/RFC-20261007-AgentScope本机新版合入main.md",
+      "source_sha256": "1b705d0c74f42b5a298863c82effe8cb3f3b4f2db98505fb479bebccb5a421ee",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "1b705d0c74f42b5a298863c82effe8cb3f3b4f2db98505fb479bebccb5a421ee"
+    },
+    {
+      "path": "RFC/RFC-20261007-AgentScope本机浏览器自动连接.md",
+      "source_group": "central-technical-records",
+      "source_path": "RFC/RFC-20261007-AgentScope本机浏览器自动连接.md",
+      "source_sha256": "116e217de7ec54f0e7de1e9457e702be4f6877e5dc839c43a60daba150042bad",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "116e217de7ec54f0e7de1e9457e702be4f6877e5dc839c43a60daba150042bad"
+    },
+    {
+      "path": "RFC/RFC-20261007-DSL规则归一化与重叠校验.md",
+      "source_group": "central-technical-records",
+      "source_path": "RFC/RFC-20261007-DSL规则归一化与重叠校验.md",
+      "source_sha256": "c93956b8c86831a577cb19d17db29805e2173774b8e271798439e4970aee7938",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "c93956b8c86831a577cb19d17db29805e2173774b8e271798439e4970aee7938"
+    },
+    {
+      "path": "RFC/RFC-20261007-ScopeDemo服务托管与恢复.md",
+      "source_group": "central-technical-records",
+      "source_path": "RFC/RFC-20261007-ScopeDemo服务托管与恢复.md",
+      "source_sha256": "b8236572c7fcf1cf9c3cc635d26561666afaa4e617cb7a91df0e498f6a2e10b5",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "b8236572c7fcf1cf9c3cc635d26561666afaa4e617cb7a91df0e498f6a2e10b5"
+    },
+    {
+      "path": "RFC/RFC-20261002-AgentScope历史策略库.md",
+      "source_group": "central-technical-records",
+      "source_path": "RFC-AgentScope-历史策略库-20261002.md",
+      "source_sha256": "864916a13395a0582d3056bbb114efd39d46536b196ec70ecf7766634a2b1bdc",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "864916a13395a0582d3056bbb114efd39d46536b196ec70ecf7766634a2b1bdc"
+    },
+    {
+      "path": "plans/AgentScope_历史策略库模块技术规划.md",
+      "source_group": "desktop-original-plans",
+      "source_path": "AgentScope_历史策略库模块技术规划.md",
+      "source_sha256": "af4e83cbeb550283a5b9910428a7eef599728cc45ef6ab27ba32fe33304ca616",
+      "transformations": [
+        "portable-relative-links-and-lf",
+        "historical-plan-banner"
+      ],
+      "archived_sha256": "6f4cd7779459bada0053068dd748e1b5c2bfa44ce86ea986625df82ca5bcf760"
+    },
+    {
+      "path": "plans/AgentScope_Pi任务启动前策略生成与DSH实验验收技术方案.md",
+      "source_group": "desktop-original-plans",
+      "source_path": "AgentScope_Pi任务启动前策略生成与DSH实验验收技术方案.md",
+      "source_sha256": "84eb35a13a28a42dd3980112cda2676b528c7f972400f67d473dceeebc530d62",
+      "transformations": [
+        "portable-relative-links-and-lf",
+        "historical-plan-banner",
+        "markdown-hard-break-spaces-to-explicit-br"
+      ],
+      "archived_sha256": "6e26625cf84775f6c8743681eeeb1dfdd5b870ccb26c9ee9973cb78514e8ae95"
+    },
+    {
+      "path": "plans/AgentScope_运行时Scope增量与策略生成技术方案.md",
+      "source_group": "desktop-original-plans",
+      "source_path": "AgentScope_运行时Scope增量与策略生成技术方案.md",
+      "source_sha256": "cddcd20482562995a8623f3904983edd5ce0d915f0a4a9a44cb512ed74f0b91a",
+      "transformations": [
+        "portable-relative-links-and-lf",
+        "historical-plan-banner",
+        "markdown-hard-break-spaces-to-explicit-br"
+      ],
+      "archived_sha256": "2c6332ae033c476f6a27644e122c32f69c0793a055f0ba7958bf795b284ffd17"
+    },
+    {
+      "path": "plans/AgentScope_Linux_VM实施与运行说明.md",
+      "source_group": "desktop-original-plans",
+      "source_path": "AgentScope_Linux_VM实施与运行说明.md",
+      "source_sha256": "3f2c437a1626dfccaa120288ca7deb3739e1d742346368d3312639925a0f7275",
+      "transformations": [
+        "portable-relative-links-and-lf",
+        "historical-plan-banner",
+        "markdown-hard-break-spaces-to-explicit-br"
+      ],
+      "archived_sha256": "5d8b6cae722d1ec50acf25496a1e59fde724187d31b15cd8f99bca0ce5983ee9"
+    }
+  ],
+  "legacy_redirects": [
+    {
+      "path": "history-library/RFC.md",
+      "canonical": "RFC/RFC-20261002-AgentScope历史策略库.md"
+    },
+    {
+      "path": "history-library/ADR.md",
+      "canonical": "ADR/ADR-20261002-AgentScope历史策略库.md"
+    },
+    {
+      "path": "history-library/REVIEW.md",
+      "canonical": "REVIEW/REVIEW-20261002-AgentScope历史策略库.md"
+    },
+    {
+      "path": "history-library/BUG.md",
+      "canonical": "BUG/BUG-20261002-AgentScope历史策略库.md"
+    },
+    {
+      "path": "history-generation-v1/RFC.md",
+      "canonical": "RFC/RFC-20261004-AgentScope历史策略库第一版.md"
+    },
+    {
+      "path": "history-generation-v1/ADR.md",
+      "canonical": "ADR/ADR-20261004-AgentScope历史策略库第一版.md"
+    },
+    {
+      "path": "history-generation-v1/REVIEW.md",
+      "canonical": "REVIEW/REVIEW-20261004-AgentScope历史策略库第一版.md"
+    },
+    {
+      "path": "history-generation-v1/BUG.md",
+      "canonical": "BUG/BUG-20261004-AgentScope历史策略库第一版.md"
+    },
+    {
+      "path": "history-input-audit/RFC.md",
+      "canonical": "RFC/RFC-20261004-AgentScope策略输入与采集审计.md"
+    },
+    {
+      "path": "history-input-audit/ADR.md",
+      "canonical": "ADR/ADR-20261004-AgentScope策略输入与伪代码职责.md"
+    },
+    {
+      "path": "history-input-audit/REVIEW.md",
+      "canonical": "REVIEW/REVIEW-20261004-AgentScope策略输入与审计验收.md"
+    },
+    {
+      "path": "history-input-audit/BUG.md",
+      "canonical": "BUG/BUG-20261004-AgentScope转换输入与能力上下文缺口.md"
+    },
+    {
+      "path": "agent-bridge-v1/RFC.md",
+      "canonical": "RFC/RFC-20261004-AgentScope外部Agent接入第一版.md"
+    },
+    {
+      "path": "agent-bridge-v1/ADR.md",
+      "canonical": "ADR/ADR-20261004-AgentScope外部Agent接入第一版.md"
+    },
+    {
+      "path": "agent-bridge-v1/REVIEW.md",
+      "canonical": "REVIEW/REVIEW-20261004-AgentScope外部Agent接入第一版.md"
+    },
+    {
+      "path": "agent-bridge-v1/BUG.md",
+      "canonical": "BUG/BUG-20261004-AgentScope外部Agent接入第一版.md"
+    },
+    {
+      "path": "pi-bootstrap/RFC.md",
+      "canonical": "RFC/RFC-20261003-AgentScope-Pi启动前策略与RQ5扩展验收.md"
+    },
+    {
+      "path": "pi-bootstrap/ADR.md",
+      "canonical": "ADR/ADR-20261003-AgentScope-Pi结构化候选与隔离RQ5验收.md"
+    },
+    {
+      "path": "pi-bootstrap/REVIEW.md",
+      "canonical": "REVIEW/REVIEW-20261003-AgentScope-Pi第二层RQ5闭环验收.md"
+    },
+    {
+      "path": "pi-bootstrap/BUG.md",
+      "canonical": "BUG/BUG-20261003-AgentScope-Pi候选提交与RQ5探针环境.md"
+    },
+    {
+      "path": "pi-bootstrap/development/RFC.md",
+      "canonical": "RFC/RFC-20261004-AgentScope本地开发免口令.md"
+    },
+    {
+      "path": "pi-bootstrap/development/ADR.md",
+      "canonical": "ADR/ADR-20261004-AgentScope开发控制台免口令.md"
+    },
+    {
+      "path": "pi-bootstrap/development/REVIEW.md",
+      "canonical": "REVIEW/REVIEW-20261004-AgentScope开发页面展示验收.md"
+    },
+    {
+      "path": "pi-bootstrap/development/BUG.md",
+      "canonical": "BUG/BUG-20261004-AgentScope开发入口与实验服务恢复.md"
+    },
+    {
+      "path": "scope-demo-v1/RFC.md",
+      "canonical": "RFC/RFC-20261005-AgentScope-DSH三阶段ScopeDemo.md"
+    },
+    {
+      "path": "scope-demo-v1/ADR.md",
+      "canonical": "ADR/ADR-20261005-AgentScope-DSH三阶段ScopeDemo.md"
+    },
+    {
+      "path": "scope-demo-v1/REVIEW.md",
+      "canonical": "REVIEW/REVIEW-20261005-AgentScope-DSH三阶段ScopeDemo.md"
+    },
+    {
+      "path": "scope-demo-v1/BUG.md",
+      "canonical": "BUG/BUG-20261005-AgentScope-DSH三阶段ScopeDemo.md"
+    },
+    {
+      "path": "scope-demo-v1/DESIGN.md",
+      "canonical": "REVIEW/DESIGN-20261005-AgentScope任务工作台.md"
+    },
+    {
+      "path": "scope-demo-v1/BENCHMARKS.md",
+      "canonical": "REVIEW/BENCHMARKS-20261005-AgentScope数据集选择与真实验收.md"
+    },
+    {
+      "path": "scope-demo-v1/ACTPLANE-REVIEW-20261006.md",
+      "canonical": "REVIEW/REVIEW-20261006-ActPlane论文与Pi运行时职责.md"
+    },
+    {
+      "path": "releases/20261004-history-and-task-agent.md",
+      "canonical": "REVIEW/REVIEW-20261004-AgentScopeGitHub提交准备.md"
+    }
+  ],
+  "link_repairs": [
+    {
+      "document": "ADR/ADR-20261005-AgentScope-DSH三阶段ScopeDemo.md",
+      "old_target": "../ADR/ADR-20261007-ScopeDemo服务托管与恢复.md",
+      "new_target": "ADR-20261007-ScopeDemo服务托管与恢复.md",
+      "action": "rewrite-link"
+    },
+    {
+      "document": "BUG/BUG-20261005-AgentScope-DSH三阶段ScopeDemo.md",
+      "old_target": "../BUG/BUG-20261007-ScopeDemo服务托管与恢复.md",
+      "new_target": "BUG-20261007-ScopeDemo服务托管与恢复.md",
+      "action": "rewrite-link"
+    },
+    {
+      "document": "REVIEW/REVIEW-20261004-AgentScopeGitHub提交准备.md",
+      "old_target": "20261004-pr.md",
+      "new_target": "../releases/20261004-pr.md",
+      "action": "rewrite-link"
+    },
+    {
+      "document": "REVIEW/REVIEW-20261004-AgentScope开发页面展示验收.md",
+      "old_target": "AgentScope-RQ5-v1/report.html",
+      "action": "explicit-local-only-reference"
+    },
+    {
+      "document": "REVIEW/REVIEW-20261005-AgentScope-DSH三阶段ScopeDemo.md",
+      "old_target": "../REVIEW/REVIEW-20261007-ScopeDemo服务托管与恢复.md",
+      "new_target": "REVIEW-20261007-ScopeDemo服务托管与恢复.md",
+      "action": "rewrite-link"
+    },
+    {
+      "document": "RFC/RFC-20261005-AgentScope-DSH三阶段ScopeDemo.md",
+      "old_target": "../RFC/RFC-20261007-ScopeDemo服务托管与恢复.md",
+      "new_target": "RFC-20261007-ScopeDemo服务托管与恢复.md",
+      "action": "rewrite-link"
+    },
+    {
+      "document": "RFC/RFC-20261006-DSH工作区绑定与策略记录.md",
+      "old_target": "../RFC/RFC-20261006-逐句DSL与控制台锁定.md",
+      "new_target": "RFC-20261006-逐句DSL与控制台锁定.md",
+      "action": "rewrite-link"
+    },
+    {
+      "document": "RFC/RFC-20261006-Pi-受管DSH与审计闭环.md",
+      "old_target": "../RFC/RFC-20261006-DSH工作区绑定与策略记录.md",
+      "new_target": "RFC-20261006-DSH工作区绑定与策略记录.md",
+      "action": "rewrite-link"
+    },
+    {
+      "document": "plans/AgentScope_运行时Scope增量与策略生成技术方案.md",
+      "old_target": "./AgentScope_历史策略库模块技术规划.md",
+      "new_target": "AgentScope_历史策略库模块技术规划.md",
+      "action": "rewrite-link"
+    },
+    {
+      "document": "plans/AgentScope_运行时Scope增量与策略生成技术方案.md",
+      "old_target": "./AgentScope_Pi任务启动前策略生成与DSH实验验收技术方案.md",
+      "new_target": "AgentScope_Pi任务启动前策略生成与DSH实验验收技术方案.md",
+      "action": "rewrite-link"
+    }
+  ],
+  "added_public_evidence": [
+    {
+      "path": "REVIEW/attachments/agentscope-20261002/scope-final-proof.json",
+      "sha256": "efd3720de7d27c80e279a46f20e920ac840b993f4236504c202fe552589af8bf",
+      "bytes": 1155
+    },
+    {
+      "path": "REVIEW/attachments/agentscope-20261002/path-e2e.json",
+      "sha256": "737fbd5845083adc2e3b7f144aceb1d0dc83a592bc3447c0d33bb4f089563ad6",
+      "bytes": 2214
+    },
+    {
+      "path": "REVIEW/AgentScope-启动前工作台-20261004/desktop-chat.jpg",
+      "sha256": "1e43a1c745cd18658141110db400a5d31ac8f977454a8e7c77770c3c8ced97d0",
+      "bytes": 94476
+    },
+    {
+      "path": "REVIEW/AgentScope-启动前工作台-20261004/narrow-chat.jpg",
+      "sha256": "6409ad969b54d8d5d7dca44b94da3bbf6f6dede80f9128ddd390122e1a1e0579",
+      "bytes": 50083
+    },
+    {
+      "path": "REVIEW/AgentScope-启动前工作台-20261004/narrow-detail.jpg",
+      "sha256": "ff33637281671e5e2e3dfcff509ed2198a236600a0beef301da0179b28cb0770",
+      "bytes": 33379
+    },
+    {
+      "path": "REVIEW/AgentScope-启动前工作台-20261004/ui-checks.json",
+      "sha256": "e4ef655a65716117f7864f368eab78324e4bb9973c2478d3fd1c94c5b7bfeff7",
+      "bytes": 1291
+    },
+    {
+      "path": "REVIEW/AgentScope-记录折叠-20261004/current-audit.jpg",
+      "sha256": "182c42b9c47a16e790487b04599031aeb6e8a7047ff356fbade296d5895c8de8",
+      "bytes": 48386
+    },
+    {
+      "path": "REVIEW/AgentScope-记录折叠-20261004/narrow-audit.jpg",
+      "sha256": "9764efb393a475baf48726ffe1d8e5b0a63e7ca023f1a7c9447e86b127aab238",
+      "bytes": 34322
+    },
+    {
+      "path": "REVIEW/AgentScope-记录折叠-20261004/ui-checks.json",
+      "sha256": "96cd1046744622dd5044a752140314824d23e63323fdbc5a5216b282b7b2618c",
+      "bytes": 2482
+    },
+    {
+      "path": "REVIEW/AgentScope-记录折叠-20261004/deployment.json",
+      "sha256": "5f0a75b199daf464029c6b51e0779c468eaa5df5ff6774f028ea7eee7a695c63",
+      "bytes": 785
+    },
+    {
+      "path": "REVIEW/AgentScope-RQ5-v1/development-ui-20261004.jpg",
+      "sha256": "f3f134bfdd91700a7db06d95aa4f7c227553ed8d5e65b3b1eedd23d22d57682d",
+      "bytes": 122143
+    },
+    {
+      "path": "REVIEW/AgentScope-RQ5-v1/development-acceptance-20261004.json",
+      "sha256": "ef6841da86072fec682bd19b8914225943fb6b00a397c1c05136df4239e819fb",
+      "bytes": 1592
+    },
+    {
+      "path": "REVIEW/AgentScope-RQ5-v1/development-isolation-20261004.json",
+      "sha256": "bddffa5d06f2ce2762a67cae9c0fea84680410b884e4c28b8a6db1f116fe82ac",
+      "bytes": 1318
+    }
+  ],
+  "local_only_evidence": [
+    {
+      "source": "report.html",
+      "reason": "local-only-format"
+    }
+  ],
+  "source_precedence": "Central records, except updated working Scope Demo quartet and portable original history-library review. Originals are unchanged."
+}

@@ -1,5 +1,8 @@
 # Pi 启动前策略生成：第二层 v1
 
+> 历史模块说明：本篇保留原实例、接口和当时验收；后续修订及当前未完成事项从 [统一文档入口](../README.md) 查看。规划环境、源码回归和运行时生效证据分别判断。
+
+
 固定 RQ5 场景迁移到 AgentScope/DSH 的扩展验收。源码模块 `backend/agentscope_app/bootstrap`，七工具扩展 `integrations/pi-policy-tools`，冻结公开任务与原 evaluator 在模块 fixtures 中。论文与制品差异、权限合同和实际验收见本目录 RFC、ADR、REVIEW、BUG。
 
 ## 本机使用

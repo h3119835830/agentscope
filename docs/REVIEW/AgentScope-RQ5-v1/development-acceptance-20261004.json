@@ -1,0 +1,52 @@
+{
+  "verified_at": "2026-10-04T05:18:15.492606+00:00",
+  "instances": {
+    "original": {
+      "url": "http://127.0.0.1:18000",
+      "auth_mode": {
+        "development_no_password": true,
+        "authentication_required": false
+      },
+      "task_count": 11,
+      "active_tasks": 0,
+      "strategy_count": 721,
+      "strategy_state_sha256": "725a914b78888b2ba725f57a28d125a993606e396debd769bc4ba1ad9b49f952",
+      "test_history_count": 0,
+      "broker_available": true,
+      "invalid_bearer_status": 401
+    },
+    "rq5": {
+      "url": "http://127.0.0.1:18001",
+      "auth_mode": {
+        "development_no_password": true,
+        "authentication_required": false
+      },
+      "task_count": 14,
+      "active_tasks": 0,
+      "strategy_count": 0,
+      "strategy_state_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "test_history_count": 3,
+      "broker_available": true,
+      "invalid_bearer_status": 401
+    }
+  },
+  "checks": {
+    "original_passwordless": true,
+    "original_state_preserved": true,
+    "original_no_active_tasks": true,
+    "original_broker_connected": true,
+    "original_invalid_bearer_rejected": true,
+    "rq5_passwordless": true,
+    "rq5_state_preserved": true,
+    "rq5_no_active_tasks": true,
+    "rq5_broker_connected": true,
+    "rq5_invalid_bearer_rejected": true,
+    "test_history_isolated": true
+  },
+  "tests": {
+    "backend_passed": 84,
+    "frontend_build": "passed",
+    "browser": "direct entry and approved config candidate detail verified",
+    "screenshot": "development-ui-20261004.jpg"
+  }
+}
