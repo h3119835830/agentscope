@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "tasks": 299,
+  "events": 27145,
+  "categories": {"timeline": 17958, "tools": 7226, "kernel": 1690, "audit": 271},
+  "verified_json_files": 302,
+  "domain_details": 145,
+  "available_domain_details": 142,
+  "unavailable_domain_details": 3,
+  "largest_record_bytes": 4935775,
+  "source_task_set_equal": true
+}

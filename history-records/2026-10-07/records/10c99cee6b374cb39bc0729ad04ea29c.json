@@ -1,0 +1,254 @@
+{
+  "schema": "AgentScopeTaskHistory/1",
+  "task_id": "10c99cee6b374cb39bc0729ad04ea29c",
+  "snapshot_at": "2026-10-07T14:32:36.728670+00:00",
+  "history_only": true,
+  "header": {
+    "name": "10c99cee6b374cb39bc0729ad04ea29c",
+    "status": "failed",
+    "goal": "test task",
+    "constraints": {},
+    "workspace": "/tmp/pytest-of-root/pytest-5/test_failed_load_retry_require1",
+    "output_dir": "/tmp/output",
+    "repository": {
+      "repo": "example/repo",
+      "repo_url": "https://github.com/example/repo",
+      "commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "ref_requested": "main"
+    },
+    "source": {
+      "status": "not_recorded"
+    },
+    "execution": {
+      "status": "not_recorded",
+      "instance_id": null,
+      "session_id": null,
+      "phase": null,
+      "gate": null,
+      "last_binding": {},
+      "binding_history": [],
+      "observation": "historical_receipts; live_state_not_checked"
+    },
+    "created_at": "2026-10-06T09:02:15.391833+00:00",
+    "updated_at": "2026-10-06T09:02:15.508103+00:00",
+    "ended_at": null,
+    "history_only": true
+  },
+  "stages": [
+    {
+      "id": "preparation",
+      "status": "recorded",
+      "event_count": 3,
+      "timeline_count": 3,
+      "category_counts": {
+        "timeline": 3,
+        "tools": 0,
+        "kernel": 0,
+        "audit": 0
+      }
+    },
+    {
+      "id": "execution",
+      "status": "recorded",
+      "event_count": 1,
+      "timeline_count": 1,
+      "category_counts": {
+        "timeline": 1,
+        "tools": 0,
+        "kernel": 0,
+        "audit": 0
+      }
+    },
+    {
+      "id": "closure",
+      "status": "recorded",
+      "event_count": 1,
+      "timeline_count": 1,
+      "category_counts": {
+        "timeline": 1,
+        "tools": 0,
+        "kernel": 0,
+        "audit": 0
+      }
+    }
+  ],
+  "counts": {
+    "timeline": 5,
+    "tools": 0,
+    "kernel": 0,
+    "audit": 0
+  },
+  "missing": [
+    "startup_generation",
+    "startup_candidates",
+    "runtime_jobs",
+    "startup_review",
+    "runtime_review",
+    "closure_receipt"
+  ],
+  "coverage": "persisted receipts only; missing data is not_recorded; tool outcomes, kernel denials and control gates have distinct meanings",
+  "events": [
+    {
+      "source": "tasks",
+      "source_id": "10c99cee6b374cb39bc0729ad04ea29c",
+      "milestone": "record",
+      "id": "tasks:10c99cee6b374cb39bc0729ad04ea29c:record",
+      "time": "2026-10-06T09:02:15.391833+00:00",
+      "stage": "preparation",
+      "category": "timeline",
+      "kind": "task_created",
+      "task_id": "10c99cee6b374cb39bc0729ad04ea29c",
+      "job_id": null,
+      "version": null,
+      "status": "created",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "task_created",
+      "detail_available": true,
+      "storage_source": "tasks",
+      "action_source": "not_recorded",
+      "detail": {
+        "prompt": "test task",
+        "workspace": "/tmp/pytest-of-root/pytest-5/test_failed_load_retry_require1",
+        "created_at": "2026-10-06T09:02:15.391833+00:00",
+        "status": "created"
+      }
+    },
+    {
+      "source": "policy_versions",
+      "source_id": "81e45644415f4b62a622cc44737b1e23",
+      "milestone": "record",
+      "id": "policy_versions:81e45644415f4b62a622cc44737b1e23:record",
+      "time": "2026-10-06T09:02:15.425872+00:00",
+      "stage": "preparation",
+      "category": "timeline",
+      "kind": "policy_version",
+      "task_id": "10c99cee6b374cb39bc0729ad04ea29c",
+      "job_id": null,
+      "version": 1,
+      "status": "approved",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "policy_version",
+      "detail_available": true,
+      "storage_source": "policy_versions",
+      "action_source": "not_recorded",
+      "detail": {
+        "version": 1,
+        "layer": "static",
+        "status": "approved",
+        "dsl_text": "source AGENT = exec \"**\"\n\nrule task-workspace-write-boundary:\n  block write file \"/**\" if AGENT unless target \"/tmp/pytest-of-root/pytest-5/**\"\n  block unlink file \"/**\" if AGENT unless target \"/tmp/pytest-of-root/pytest-5/**\"\n  because \"Writes are limited to this task’s isolated workspace, runtime state, and temporary area.\"\n\nrule deny-remote-publish:\n  kill exec \"git\" \"push\" if AGENT\n  because \"Remote publishing requires a separate user-controlled workflow.\"\n\nrule deny-task-output:\n  block write file \"/tmp/output/**\" if AGENT\n  block unlink file \"/tmp/output/**\" if AGENT\n  because \"The separate task output directory needs explicit approval.\"\n",
+        "compile_state": "compiled",
+        "change_summary": "fixture",
+        "approved_by": null,
+        "approved_at": null,
+        "evidence_ids": [],
+        "source_strategy_ids": [],
+        "compile": {}
+      }
+    },
+    {
+      "source": "history_compilations",
+      "source_id": "6a795bd8512c458591f449773addc20a",
+      "milestone": "record",
+      "id": "history_compilations:6a795bd8512c458591f449773addc20a:record",
+      "time": "2026-10-06T09:02:15.438705+00:00",
+      "stage": "preparation",
+      "category": "timeline",
+      "kind": "compilation",
+      "task_id": "10c99cee6b374cb39bc0729ad04ea29c",
+      "job_id": null,
+      "version": 1,
+      "status": "compiled",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "compilation",
+      "detail_available": true,
+      "storage_source": "history_compilations",
+      "action_source": "not_recorded",
+      "detail": {
+        "policy_version_id": "81e45644415f4b62a622cc44737b1e23",
+        "artifact_id": null,
+        "input_hash": "4f1f52cd42d98edcd2f97cc4631f3141b0a445a2d3199037905741409f00aac1",
+        "state": "compiled",
+        "compiler_version": "ActPlane CLI",
+        "compile": {}
+      }
+    },
+    {
+      "source": "history_deployments",
+      "source_id": "6d4fa1d32f594d6f96abc361a0373b65",
+      "milestone": "record",
+      "id": "history_deployments:6d4fa1d32f594d6f96abc361a0373b65:record",
+      "time": "2026-10-06T09:02:15.484665+00:00",
+      "stage": "execution",
+      "category": "timeline",
+      "kind": "deployment",
+      "task_id": "10c99cee6b374cb39bc0729ad04ea29c",
+      "job_id": null,
+      "version": 1,
+      "status": "load_failed",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "deployment",
+      "detail_available": true,
+      "storage_source": "history_deployments",
+      "action_source": "not_recorded",
+      "detail": {
+        "policy_version_id": "81e45644415f4b62a622cc44737b1e23",
+        "bundle_hash": "4f1f52cd42d98edcd2f97cc4631f3141b0a445a2d3199037905741409f00aac1",
+        "status": "load_failed",
+        "domain_id": 44,
+        "runner_pid": 101,
+        "created_at": "2026-10-06T09:02:15.484665+00:00",
+        "ended_at": "2026-10-06T09:02:15.508426+00:00",
+        "receipt": {
+          "cleanup_status": "stopped",
+          "cleanup_confirmed": true,
+          "error": "ActPlane 子进程域回查未确认",
+          "attempted_domain_id": 44,
+          "attempted_runner_pid": 101
+        }
+      }
+    },
+    {
+      "source": "history_deployments",
+      "source_id": "6d4fa1d32f594d6f96abc361a0373b65",
+      "milestone": "ended",
+      "id": "history_deployments:6d4fa1d32f594d6f96abc361a0373b65:ended",
+      "time": "2026-10-06T09:02:15.508426+00:00",
+      "stage": "closure",
+      "category": "timeline",
+      "kind": "deployment_ended",
+      "task_id": "10c99cee6b374cb39bc0729ad04ea29c",
+      "job_id": null,
+      "version": 1,
+      "status": "load_failed",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "deployment_ended",
+      "detail_available": true,
+      "storage_source": "history_deployments",
+      "action_source": "not_recorded",
+      "detail": {
+        "policy_version_id": "81e45644415f4b62a622cc44737b1e23",
+        "bundle_hash": "4f1f52cd42d98edcd2f97cc4631f3141b0a445a2d3199037905741409f00aac1",
+        "status": "load_failed",
+        "domain_id": 44,
+        "runner_pid": 101,
+        "created_at": "2026-10-06T09:02:15.484665+00:00",
+        "ended_at": "2026-10-06T09:02:15.508426+00:00",
+        "receipt": {
+          "cleanup_status": "stopped",
+          "cleanup_confirmed": true,
+          "error": "ActPlane 子进程域回查未确认",
+          "attempted_domain_id": 44,
+          "attempted_runner_pid": 101
+        }
+      }
+    }
+  ],
+  "domains": [],
+  "domain_status": "not_recorded",
+  "export_scope": "All persisted public archive events; no raw source bodies or native session replay; no current liveness assertion"
+}

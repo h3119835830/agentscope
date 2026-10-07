@@ -1,0 +1,312 @@
+{
+  "schema": "AgentScopeTaskHistory/1",
+  "task_id": "13bcd56b94c04106",
+  "snapshot_at": "2026-10-07T14:32:36.728670+00:00",
+  "history_only": true,
+  "header": {
+    "name": "13bcd56b94c04106",
+    "status": "failed",
+    "goal": "test task",
+    "constraints": {},
+    "workspace": "/tmp/work",
+    "output_dir": "/tmp/output",
+    "repository": {
+      "repo": "example/repo",
+      "repo_url": "https://github.com/example/repo",
+      "commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "ref_requested": "main"
+    },
+    "source": {
+      "status": "not_recorded"
+    },
+    "execution": {
+      "status": "recorded",
+      "instance_id": "managed:13bcd56b94c04106",
+      "session_id": "durable-native-session",
+      "phase": "failed",
+      "gate": "failed",
+      "last_binding": {
+        "domain_id": 51,
+        "runner_pid": 99,
+        "watch_pid": 98
+      },
+      "binding_history": [
+        {
+          "domain_id": 51,
+          "runner_pid": 99,
+          "watch_pid": 98,
+          "created_at": "2026-10-06T09:02:17.640225+00:00",
+          "session_id": "durable-native-session",
+          "version": 1,
+          "source": "managed_events.policy_active"
+        }
+      ],
+      "observation": "historical_receipts; live_state_not_checked"
+    },
+    "created_at": "2026-10-06T09:02:17.594916+00:00",
+    "updated_at": "2026-10-06T09:29:39.571638+00:00",
+    "ended_at": null,
+    "history_only": true
+  },
+  "stages": [
+    {
+      "id": "preparation",
+      "status": "recorded",
+      "event_count": 1,
+      "timeline_count": 1,
+      "category_counts": {
+        "timeline": 1,
+        "tools": 0,
+        "kernel": 0,
+        "audit": 0
+      }
+    },
+    {
+      "id": "execution",
+      "status": "recorded",
+      "event_count": 2,
+      "timeline_count": 2,
+      "category_counts": {
+        "timeline": 2,
+        "tools": 0,
+        "kernel": 0,
+        "audit": 0
+      }
+    },
+    {
+      "id": "closure",
+      "status": "not_recorded",
+      "event_count": 0,
+      "timeline_count": 0,
+      "category_counts": {
+        "timeline": 0,
+        "tools": 0,
+        "kernel": 0,
+        "audit": 0
+      }
+    }
+  ],
+  "counts": {
+    "timeline": 3,
+    "tools": 0,
+    "kernel": 0,
+    "audit": 0
+  },
+  "missing": [
+    "startup_generation",
+    "startup_candidates",
+    "runtime_jobs",
+    "policy_versions",
+    "startup_review",
+    "runtime_review",
+    "closure_receipt"
+  ],
+  "coverage": "persisted receipts only; missing data is not_recorded; tool outcomes, kernel denials and control gates have distinct meanings",
+  "events": [
+    {
+      "source": "tasks",
+      "source_id": "13bcd56b94c04106",
+      "milestone": "record",
+      "id": "tasks:13bcd56b94c04106:record",
+      "time": "2026-10-06T09:02:17.594916+00:00",
+      "stage": "preparation",
+      "category": "timeline",
+      "kind": "task_created",
+      "task_id": "13bcd56b94c04106",
+      "job_id": null,
+      "version": null,
+      "status": "created",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "task_created",
+      "detail_available": true,
+      "storage_source": "tasks",
+      "action_source": "not_recorded",
+      "detail": {
+        "prompt": "test task",
+        "workspace": "/tmp/work",
+        "created_at": "2026-10-06T09:02:17.594916+00:00",
+        "status": "created"
+      }
+    },
+    {
+      "source": "managed_events",
+      "source_id": "462",
+      "milestone": "record",
+      "id": "managed_events:462:record",
+      "time": "2026-10-06T09:02:17.640225+00:00",
+      "stage": "execution",
+      "category": "timeline",
+      "kind": "policy_active",
+      "task_id": "13bcd56b94c04106",
+      "job_id": null,
+      "version": 1,
+      "status": "recorded",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "policy_active",
+      "detail_available": true,
+      "storage_source": "managed_events",
+      "action_source": "controller",
+      "detail": {
+        "version": 1,
+        "session_id": "durable-native-session",
+        "policy_hash": "2d7c501158a0d532ef28aa7cf1f6374923216f66af5eff63bc60c837d3833248",
+        "baseline_hash": "safety",
+        "action_source": "controller",
+        "binding": {
+          "domain_id": 51,
+          "runner_pid": 99,
+          "watch_pid": 98
+        },
+        "verification": {
+          "passed": true
+        }
+      }
+    },
+    {
+      "source": "managed_events",
+      "source_id": "1902",
+      "milestone": "record",
+      "id": "managed_events:1902:record",
+      "time": "2026-10-06T09:29:39.571691+00:00",
+      "stage": "execution",
+      "category": "timeline",
+      "kind": "failure",
+      "task_id": "13bcd56b94c04106",
+      "job_id": null,
+      "version": null,
+      "status": "recorded",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "failure",
+      "detail_available": true,
+      "storage_source": "managed_events",
+      "action_source": "controller",
+      "detail": {
+        "error": "Native DSH process/domain binding lost",
+        "action_source": "controller"
+      }
+    }
+  ],
+  "domains": [
+    {
+      "graph": {
+        "task_id": "13bcd56b94c04106",
+        "version": 1,
+        "versions": [
+          {
+            "version": 1,
+            "domain_id": 51,
+            "recorded_at": "2026-10-06T09:02:17.640225+00:00",
+            "evidence_ref": "managed_events:462:record"
+          }
+        ],
+        "nodes": [
+          {
+            "key": "v1:task",
+            "kind": "domain",
+            "role": "task",
+            "domain_id": 51,
+            "version": 1,
+            "title": "任务域 D51",
+            "available": false,
+            "source": "missing_or_unverified_artifact",
+            "labels": [],
+            "missing_reason": "missing_or_unverified_artifact",
+            "live": false,
+            "historical": true,
+            "history_only": true
+          },
+          {
+            "key": "v1:runner:99",
+            "kind": "process",
+            "role": "runner",
+            "pid": 99,
+            "version": 1,
+            "title": "历史 runner PID 99",
+            "recorded_at": "2026-10-06T09:02:17.640225+00:00",
+            "source": "managed_events.policy_active.binding.runner_pid",
+            "evidence_ref": "managed_events:462:record",
+            "live": false,
+            "historical": true,
+            "history_only": true
+          },
+          {
+            "key": "v1:watch:98",
+            "kind": "process",
+            "role": "watch",
+            "pid": 98,
+            "version": 1,
+            "title": "历史 watch PID 98",
+            "recorded_at": "2026-10-06T09:02:17.640225+00:00",
+            "source": "managed_events.policy_active.binding.watch_pid",
+            "evidence_ref": "managed_events:462:record",
+            "live": false,
+            "historical": true,
+            "history_only": true
+          }
+        ],
+        "edges": [
+          {
+            "from": "v1:task",
+            "to": "v1:runner:99",
+            "kind": "recorded_binding",
+            "label": "历史收据关联；不推断当前域成员"
+          },
+          {
+            "from": "v1:task",
+            "to": "v1:watch:98",
+            "kind": "load_observation",
+            "label": "历史加载监控关联；非任务域成员"
+          }
+        ],
+        "available": false,
+        "status": "recorded",
+        "missing_sources": [
+          {
+            "key": "v1:task",
+            "role": "task",
+            "reason": "missing_or_unverified_artifact"
+          },
+          {
+            "key": "v1:baseline",
+            "role": "baseline",
+            "reason": "trusted_baseline_material_not_recorded"
+          }
+        ],
+        "live": false,
+        "historical": true,
+        "history_only": true,
+        "checked_at": null,
+        "recorded_at": "2026-10-06T09:02:17.640225+00:00",
+        "coverage": "historical_load_receipts_and_verified_policy_artifacts",
+        "notice": "未取得完整可信历史材料；不补画全局D0，不核验历史PID当前存活。"
+      },
+      "details": [
+        {
+          "key": "v1:task",
+          "kind": "domain",
+          "role": "task",
+          "domain_id": 51,
+          "version": 1,
+          "title": "任务域 D51",
+          "available": false,
+          "source": "missing_or_unverified_artifact",
+          "labels": [],
+          "historical": true,
+          "loading_verification_passed": true,
+          "label_semantics": "DSL source declarations; not a live kernel taint inventory",
+          "missing_reason": "missing_or_unverified_artifact",
+          "live": false,
+          "history_only": true,
+          "task_id": "13bcd56b94c04106",
+          "recorded_at": "2026-10-06T09:02:17.640225+00:00",
+          "evidence_ref": "managed_events:462:record"
+        }
+      ]
+    }
+  ],
+  "domain_status": "recorded",
+  "export_scope": "All persisted public archive events; no raw source bodies or native session replay; no current liveness assertion"
+}

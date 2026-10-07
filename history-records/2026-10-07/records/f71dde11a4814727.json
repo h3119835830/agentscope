@@ -1,0 +1,125 @@
+{
+  "schema": "AgentScopeTaskHistory/1",
+  "task_id": "f71dde11a4814727",
+  "snapshot_at": "2026-10-07T14:32:36.728670+00:00",
+  "history_only": true,
+  "header": {
+    "name": "f71dde11a4814727",
+    "status": "running",
+    "goal": "test task",
+    "constraints": {},
+    "workspace": "/tmp/work",
+    "output_dir": "/tmp/output",
+    "repository": {
+      "repo": "example/repo",
+      "repo_url": "https://github.com/example/repo",
+      "commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "ref_requested": "main"
+    },
+    "source": {
+      "status": "not_recorded"
+    },
+    "execution": {
+      "status": "recorded",
+      "instance_id": "managed:f71dde11a4814727",
+      "session_id": "session-native",
+      "phase": "ended",
+      "gate": "open",
+      "last_binding": {
+        "domain_id": 7
+      },
+      "binding_history": [],
+      "observation": "historical_receipts; live_state_not_checked"
+    },
+    "created_at": "2026-10-06T09:02:18.872428+00:00",
+    "updated_at": "2026-10-06T09:02:18.872428+00:00",
+    "ended_at": null,
+    "history_only": true
+  },
+  "stages": [
+    {
+      "id": "preparation",
+      "status": "recorded",
+      "event_count": 1,
+      "timeline_count": 1,
+      "category_counts": {
+        "timeline": 1,
+        "tools": 0,
+        "kernel": 0,
+        "audit": 0
+      }
+    },
+    {
+      "id": "execution",
+      "status": "not_recorded",
+      "event_count": 0,
+      "timeline_count": 0,
+      "category_counts": {
+        "timeline": 0,
+        "tools": 0,
+        "kernel": 0,
+        "audit": 0
+      }
+    },
+    {
+      "id": "closure",
+      "status": "not_recorded",
+      "event_count": 0,
+      "timeline_count": 0,
+      "category_counts": {
+        "timeline": 0,
+        "tools": 0,
+        "kernel": 0,
+        "audit": 0
+      }
+    }
+  ],
+  "counts": {
+    "timeline": 1,
+    "tools": 0,
+    "kernel": 0,
+    "audit": 0
+  },
+  "missing": [
+    "startup_generation",
+    "startup_candidates",
+    "runtime_jobs",
+    "policy_versions",
+    "load_receipts",
+    "startup_review",
+    "runtime_review",
+    "closure_receipt"
+  ],
+  "coverage": "persisted receipts only; missing data is not_recorded; tool outcomes, kernel denials and control gates have distinct meanings",
+  "events": [
+    {
+      "source": "tasks",
+      "source_id": "f71dde11a4814727",
+      "milestone": "record",
+      "id": "tasks:f71dde11a4814727:record",
+      "time": "2026-10-06T09:02:18.872428+00:00",
+      "stage": "preparation",
+      "category": "timeline",
+      "kind": "task_created",
+      "task_id": "f71dde11a4814727",
+      "job_id": null,
+      "version": null,
+      "status": "created",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "task_created",
+      "detail_available": true,
+      "storage_source": "tasks",
+      "action_source": "not_recorded",
+      "detail": {
+        "prompt": "test task",
+        "workspace": "/tmp/work",
+        "created_at": "2026-10-06T09:02:18.872428+00:00",
+        "status": "created"
+      }
+    }
+  ],
+  "domains": [],
+  "domain_status": "not_recorded",
+  "export_scope": "All persisted public archive events; no raw source bodies or native session replay; no current liveness assertion"
+}

@@ -1,0 +1,213 @@
+{
+  "schema": "AgentScopeTaskHistory/1",
+  "task_id": "d6961bf1be0d4a2a",
+  "snapshot_at": "2026-10-07T14:32:36.728670+00:00",
+  "history_only": true,
+  "header": {
+    "name": "d6961bf1be0d4a2a",
+    "status": "failed",
+    "goal": "test task",
+    "constraints": {},
+    "workspace": "/tmp/work",
+    "output_dir": "/tmp/output",
+    "repository": {
+      "repo": "example/repo",
+      "repo_url": "https://github.com/example/repo",
+      "commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "ref_requested": "main"
+    },
+    "source": {
+      "status": "not_recorded"
+    },
+    "execution": {
+      "status": "recorded",
+      "instance_id": "managed:d6961bf1be0d4a2a",
+      "session_id": "session-native",
+      "phase": "failed",
+      "gate": "failed",
+      "last_binding": {
+        "domain_id": 7
+      },
+      "binding_history": [],
+      "observation": "historical_receipts; live_state_not_checked"
+    },
+    "created_at": "2026-10-06T09:01:26.194251+00:00",
+    "updated_at": "2026-10-06T09:29:39.015965+00:00",
+    "ended_at": null,
+    "history_only": true
+  },
+  "stages": [
+    {
+      "id": "preparation",
+      "status": "recorded",
+      "event_count": 1,
+      "timeline_count": 1,
+      "category_counts": {
+        "timeline": 1,
+        "tools": 0,
+        "kernel": 0,
+        "audit": 0
+      }
+    },
+    {
+      "id": "execution",
+      "status": "recorded",
+      "event_count": 3,
+      "timeline_count": 1,
+      "category_counts": {
+        "timeline": 1,
+        "tools": 1,
+        "kernel": 1,
+        "audit": 0
+      }
+    },
+    {
+      "id": "closure",
+      "status": "not_recorded",
+      "event_count": 0,
+      "timeline_count": 0,
+      "category_counts": {
+        "timeline": 0,
+        "tools": 0,
+        "kernel": 0,
+        "audit": 0
+      }
+    }
+  ],
+  "counts": {
+    "timeline": 2,
+    "tools": 1,
+    "kernel": 1,
+    "audit": 0
+  },
+  "missing": [
+    "startup_generation",
+    "startup_candidates",
+    "runtime_jobs",
+    "policy_versions",
+    "load_receipts",
+    "startup_review",
+    "runtime_review",
+    "closure_receipt"
+  ],
+  "coverage": "persisted receipts only; missing data is not_recorded; tool outcomes, kernel denials and control gates have distinct meanings",
+  "events": [
+    {
+      "source": "tasks",
+      "source_id": "d6961bf1be0d4a2a",
+      "milestone": "record",
+      "id": "tasks:d6961bf1be0d4a2a:record",
+      "time": "2026-10-06T09:01:26.194251+00:00",
+      "stage": "preparation",
+      "category": "timeline",
+      "kind": "task_created",
+      "task_id": "d6961bf1be0d4a2a",
+      "job_id": null,
+      "version": null,
+      "status": "created",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "task_created",
+      "detail_available": true,
+      "storage_source": "tasks",
+      "action_source": "not_recorded",
+      "detail": {
+        "prompt": "test task",
+        "workspace": "/tmp/work",
+        "created_at": "2026-10-06T09:01:26.194251+00:00",
+        "status": "created"
+      }
+    },
+    {
+      "source": "managed_events",
+      "source_id": "452",
+      "milestone": "record",
+      "id": "managed_events:452:record",
+      "time": "2026-10-06T09:01:26.206015+00:00",
+      "stage": "execution",
+      "category": "tools",
+      "kind": "tool_start",
+      "task_id": "d6961bf1be0d4a2a",
+      "job_id": null,
+      "version": null,
+      "status": "started",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "tool_start",
+      "detail_available": true,
+      "storage_source": "managed_events",
+      "action_source": "native_tool",
+      "detail": {
+        "domain_id": 7,
+        "call_id": "call",
+        "action_source": "native_tool",
+        "meaning": "tool_outcome; success is not proof of kernel permission",
+        "result": "started"
+      }
+    },
+    {
+      "source": "managed_events",
+      "source_id": "453",
+      "milestone": "record",
+      "id": "managed_events:453:record",
+      "time": "2026-10-06T09:01:26.206361+00:00",
+      "stage": "execution",
+      "category": "kernel",
+      "kind": "kernel",
+      "task_id": "d6961bf1be0d4a2a",
+      "job_id": null,
+      "version": null,
+      "status": "recorded",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "kernel",
+      "detail_available": true,
+      "storage_source": "managed_events",
+      "action_source": "independent_probe",
+      "detail": {
+        "action_source": "independent_probe",
+        "verification_probe": true,
+        "kernel": {
+          "op": "write",
+          "target": "tests/test.py",
+          "pid": 99,
+          "ppid": 55,
+          "domain_id": 8,
+          "process_domain_id": 7
+        },
+        "target": "tests/test.py",
+        "pid": 99,
+        "operation": "write",
+        "domain_id": 7,
+        "meaning": "kernel_denial"
+      }
+    },
+    {
+      "source": "managed_events",
+      "source_id": "1888",
+      "milestone": "record",
+      "id": "managed_events:1888:record",
+      "time": "2026-10-06T09:29:39.016018+00:00",
+      "stage": "execution",
+      "category": "timeline",
+      "kind": "failure",
+      "task_id": "d6961bf1be0d4a2a",
+      "job_id": null,
+      "version": null,
+      "status": "recorded",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "failure",
+      "detail_available": true,
+      "storage_source": "managed_events",
+      "action_source": "controller",
+      "detail": {
+        "error": "Native DSH process/domain binding lost",
+        "action_source": "controller"
+      }
+    }
+  ],
+  "domains": [],
+  "domain_status": "not_recorded",
+  "export_scope": "All persisted public archive events; no raw source bodies or native session replay; no current liveness assertion"
+}

@@ -1,0 +1,268 @@
+{
+  "schema": "AgentScopeTaskHistory/1",
+  "task_id": "task-one",
+  "snapshot_at": "2026-10-07T14:32:36.728670+00:00",
+  "history_only": true,
+  "header": {
+    "name": "task-one",
+    "status": "running",
+    "goal": "test task",
+    "constraints": {},
+    "workspace": "/tmp/work",
+    "output_dir": "/tmp/output",
+    "repository": {
+      "repo": "example/repo",
+      "repo_url": "https://github.com/example/repo",
+      "commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "ref_requested": "main"
+    },
+    "source": {
+      "status": "not_recorded"
+    },
+    "execution": {
+      "status": "not_recorded",
+      "instance_id": null,
+      "session_id": null,
+      "phase": null,
+      "gate": null,
+      "last_binding": {},
+      "binding_history": [],
+      "observation": "historical_receipts; live_state_not_checked"
+    },
+    "created_at": "2026-10-06T09:01:20.206625+00:00",
+    "updated_at": "2026-10-06T09:01:20.206625+00:00",
+    "ended_at": null,
+    "history_only": true
+  },
+  "stages": [
+    {
+      "id": "preparation",
+      "status": "recorded",
+      "event_count": 1,
+      "timeline_count": 1,
+      "category_counts": {
+        "timeline": 1,
+        "tools": 0,
+        "kernel": 0,
+        "audit": 0
+      }
+    },
+    {
+      "id": "execution",
+      "status": "recorded",
+      "event_count": 5,
+      "timeline_count": 3,
+      "category_counts": {
+        "timeline": 3,
+        "tools": 0,
+        "kernel": 0,
+        "audit": 2
+      }
+    },
+    {
+      "id": "closure",
+      "status": "not_recorded",
+      "event_count": 0,
+      "timeline_count": 0,
+      "category_counts": {
+        "timeline": 0,
+        "tools": 0,
+        "kernel": 0,
+        "audit": 0
+      }
+    }
+  ],
+  "counts": {
+    "timeline": 4,
+    "tools": 0,
+    "kernel": 0,
+    "audit": 2
+  },
+  "missing": [
+    "startup_generation",
+    "startup_candidates",
+    "runtime_jobs",
+    "policy_versions",
+    "load_receipts",
+    "startup_review",
+    "runtime_review",
+    "closure_receipt"
+  ],
+  "coverage": "persisted receipts only; missing data is not_recorded; tool outcomes, kernel denials and control gates have distinct meanings",
+  "events": [
+    {
+      "source": "tasks",
+      "source_id": "task-one",
+      "milestone": "record",
+      "id": "tasks:task-one:record",
+      "time": "2026-10-06T09:01:20.206625+00:00",
+      "stage": "preparation",
+      "category": "timeline",
+      "kind": "task_created",
+      "task_id": "task-one",
+      "job_id": null,
+      "version": null,
+      "status": "created",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "task_created",
+      "detail_available": true,
+      "storage_source": "tasks",
+      "action_source": "not_recorded",
+      "detail": {
+        "prompt": "test task",
+        "workspace": "/tmp/work",
+        "created_at": "2026-10-06T09:01:20.206625+00:00",
+        "status": "created"
+      }
+    },
+    {
+      "source": "scope_requests",
+      "source_id": "a408873bdf3a4529a0aa72d88bb785e9",
+      "milestone": "record",
+      "id": "scope_requests:a408873bdf3a4529a0aa72d88bb785e9:record",
+      "time": "2026-10-06T09:01:20.255433+00:00",
+      "stage": "execution",
+      "category": "timeline",
+      "kind": "scope_request",
+      "task_id": "task-one",
+      "job_id": null,
+      "version": null,
+      "status": "rejected",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "scope_request",
+      "detail_available": true,
+      "storage_source": "scope_requests",
+      "action_source": "not_recorded",
+      "detail": {
+        "kind": "expand",
+        "requested_change": "增加受控任务输出目录的写入权限",
+        "path": null,
+        "justification": "Need a generated report",
+        "status": "rejected",
+        "requested_by": "DSH AgentScope 插件",
+        "reviewed_by": "test",
+        "reviewed_at": "2026-10-06T09:01:20.273067+00:00",
+        "resulting_version": null,
+        "result": {}
+      }
+    },
+    {
+      "source": "audit_log",
+      "source_id": "d494ec233fd047ba8694b78950152629",
+      "milestone": "record",
+      "id": "audit_log:d494ec233fd047ba8694b78950152629:record",
+      "time": "2026-10-06T09:01:20.255551+00:00",
+      "stage": "execution",
+      "category": "audit",
+      "kind": "scope_requested",
+      "task_id": "task-one",
+      "job_id": null,
+      "version": null,
+      "status": "recorded",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "scope_requested",
+      "detail_available": true,
+      "storage_source": "audit_log",
+      "action_source": "not_recorded",
+      "detail": {
+        "action": "scope_requested",
+        "actor": "DSH AgentScope 插件",
+        "receipt": {
+          "request_id": "a408873bdf3a4529a0aa72d88bb785e9"
+        }
+      }
+    },
+    {
+      "source": "scope_requests",
+      "source_id": "a408873bdf3a4529a0aa72d88bb785e9",
+      "milestone": "review",
+      "id": "scope_requests:a408873bdf3a4529a0aa72d88bb785e9:review",
+      "time": "2026-10-06T09:01:20.273067+00:00",
+      "stage": "execution",
+      "category": "timeline",
+      "kind": "scope_review",
+      "task_id": "task-one",
+      "job_id": null,
+      "version": null,
+      "status": "rejected",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "scope_review",
+      "detail_available": true,
+      "storage_source": "scope_requests",
+      "action_source": "not_recorded",
+      "detail": {
+        "kind": "expand",
+        "requested_change": "增加受控任务输出目录的写入权限",
+        "path": null,
+        "justification": "Need a generated report",
+        "status": "rejected",
+        "requested_by": "DSH AgentScope 插件",
+        "reviewed_by": "test",
+        "reviewed_at": "2026-10-06T09:01:20.273067+00:00",
+        "resulting_version": null,
+        "result": {}
+      }
+    },
+    {
+      "source": "audit_log",
+      "source_id": "00638143d1f948fabd1333e2fabbd966",
+      "milestone": "receipt",
+      "id": "audit_log:00638143d1f948fabd1333e2fabbd966:receipt",
+      "time": "2026-10-06T09:01:20.273152+00:00",
+      "stage": "execution",
+      "category": "timeline",
+      "kind": "scope_rejected",
+      "task_id": "task-one",
+      "job_id": null,
+      "version": null,
+      "status": "recorded",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "scope_rejected",
+      "detail_available": true,
+      "storage_source": "audit_log",
+      "action_source": "not_recorded",
+      "detail": {
+        "action": "scope_rejected",
+        "actor": "test",
+        "receipt": {
+          "request_id": "a408873bdf3a4529a0aa72d88bb785e9"
+        }
+      }
+    },
+    {
+      "source": "audit_log",
+      "source_id": "00638143d1f948fabd1333e2fabbd966",
+      "milestone": "record",
+      "id": "audit_log:00638143d1f948fabd1333e2fabbd966:record",
+      "time": "2026-10-06T09:01:20.273152+00:00",
+      "stage": "execution",
+      "category": "audit",
+      "kind": "scope_rejected",
+      "task_id": "task-one",
+      "job_id": null,
+      "version": null,
+      "status": "recorded",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "scope_rejected",
+      "detail_available": true,
+      "storage_source": "audit_log",
+      "action_source": "not_recorded",
+      "detail": {
+        "action": "scope_rejected",
+        "actor": "test",
+        "receipt": {
+          "request_id": "a408873bdf3a4529a0aa72d88bb785e9"
+        }
+      }
+    }
+  ],
+  "domains": [],
+  "domain_status": "not_recorded",
+  "export_scope": "All persisted public archive events; no raw source bodies or native session replay; no current liveness assertion"
+}

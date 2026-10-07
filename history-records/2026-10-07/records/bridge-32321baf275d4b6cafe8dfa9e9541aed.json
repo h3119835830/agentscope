@@ -1,0 +1,325 @@
+{
+  "schema": "AgentScopeTaskHistory/1",
+  "task_id": "bridge-32321baf275d4b6cafe8dfa9e9541aed",
+  "snapshot_at": "2026-10-07T14:32:36.728670+00:00",
+  "history_only": true,
+  "header": {
+    "name": "bridge-32321baf275d4b6cafe8dfa9e9541aed",
+    "status": "running",
+    "goal": "test task",
+    "constraints": {},
+    "workspace": "/tmp/work",
+    "output_dir": "/tmp/output",
+    "repository": {
+      "repo": "example/repo",
+      "repo_url": "https://github.com/example/repo",
+      "commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "ref_requested": "main"
+    },
+    "source": {
+      "status": "not_recorded"
+    },
+    "execution": {
+      "status": "not_recorded",
+      "instance_id": null,
+      "session_id": null,
+      "phase": null,
+      "gate": null,
+      "last_binding": {},
+      "binding_history": [],
+      "observation": "historical_receipts; live_state_not_checked"
+    },
+    "created_at": "2026-10-06T09:01:58.652705+00:00",
+    "updated_at": "2026-10-06T09:01:58.652705+00:00",
+    "ended_at": null,
+    "history_only": true
+  },
+  "stages": [
+    {
+      "id": "preparation",
+      "status": "recorded",
+      "event_count": 2,
+      "timeline_count": 2,
+      "category_counts": {
+        "timeline": 2,
+        "tools": 0,
+        "kernel": 0,
+        "audit": 0
+      }
+    },
+    {
+      "id": "execution",
+      "status": "recorded",
+      "event_count": 6,
+      "timeline_count": 3,
+      "category_counts": {
+        "timeline": 3,
+        "tools": 0,
+        "kernel": 0,
+        "audit": 3
+      }
+    },
+    {
+      "id": "closure",
+      "status": "not_recorded",
+      "event_count": 0,
+      "timeline_count": 0,
+      "category_counts": {
+        "timeline": 0,
+        "tools": 0,
+        "kernel": 0,
+        "audit": 0
+      }
+    }
+  ],
+  "counts": {
+    "timeline": 5,
+    "tools": 0,
+    "kernel": 0,
+    "audit": 3
+  },
+  "missing": [
+    "startup_generation",
+    "startup_candidates",
+    "runtime_jobs",
+    "load_receipts",
+    "startup_review",
+    "runtime_review",
+    "closure_receipt"
+  ],
+  "coverage": "persisted receipts only; missing data is not_recorded; tool outcomes, kernel denials and control gates have distinct meanings",
+  "events": [
+    {
+      "source": "tasks",
+      "source_id": "bridge-32321baf275d4b6cafe8dfa9e9541aed",
+      "milestone": "record",
+      "id": "tasks:bridge-32321baf275d4b6cafe8dfa9e9541aed:record",
+      "time": "2026-10-06T09:01:58.652705+00:00",
+      "stage": "preparation",
+      "category": "timeline",
+      "kind": "task_created",
+      "task_id": "bridge-32321baf275d4b6cafe8dfa9e9541aed",
+      "job_id": null,
+      "version": null,
+      "status": "created",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "task_created",
+      "detail_available": true,
+      "storage_source": "tasks",
+      "action_source": "not_recorded",
+      "detail": {
+        "prompt": "test task",
+        "workspace": "/tmp/work",
+        "created_at": "2026-10-06T09:01:58.652705+00:00",
+        "status": "created"
+      }
+    },
+    {
+      "source": "policy_versions",
+      "source_id": "a2566d9633c144f89eaeab15acd759f8",
+      "milestone": "record",
+      "id": "policy_versions:a2566d9633c144f89eaeab15acd759f8:record",
+      "time": "2026-10-06T09:01:58.705409+00:00",
+      "stage": "preparation",
+      "category": "timeline",
+      "kind": "policy_version",
+      "task_id": "bridge-32321baf275d4b6cafe8dfa9e9541aed",
+      "job_id": null,
+      "version": 1,
+      "status": "approved",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "policy_version",
+      "detail_available": true,
+      "storage_source": "policy_versions",
+      "action_source": "not_recorded",
+      "detail": {
+        "version": 1,
+        "layer": "task_start",
+        "status": "approved",
+        "dsl_text": "# base",
+        "compile_state": "compiled",
+        "change_summary": "test",
+        "approved_by": null,
+        "approved_at": null,
+        "evidence_ids": [],
+        "source_strategy_ids": [],
+        "compile": {}
+      }
+    },
+    {
+      "source": "audit_log",
+      "source_id": "411cadfa19714d1498574a9d0add9c45",
+      "milestone": "record",
+      "id": "audit_log:411cadfa19714d1498574a9d0add9c45:record",
+      "time": "2026-10-06T09:01:58.749532+00:00",
+      "stage": "execution",
+      "category": "audit",
+      "kind": "agent_connection_created",
+      "task_id": "bridge-32321baf275d4b6cafe8dfa9e9541aed",
+      "job_id": null,
+      "version": null,
+      "status": "recorded",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "agent_connection_created",
+      "detail_available": true,
+      "storage_source": "audit_log",
+      "action_source": "not_recorded",
+      "detail": {
+        "action": "agent_connection_created",
+        "actor": "用户",
+        "receipt": {}
+      }
+    },
+    {
+      "source": "scope_requests",
+      "source_id": "3d1b1c5a42274271a9a49ac50f0c3c9a",
+      "milestone": "record",
+      "id": "scope_requests:3d1b1c5a42274271a9a49ac50f0c3c9a:record",
+      "time": "2026-10-06T09:01:58.844152+00:00",
+      "stage": "execution",
+      "category": "timeline",
+      "kind": "scope_request",
+      "task_id": "bridge-32321baf275d4b6cafe8dfa9e9541aed",
+      "job_id": null,
+      "version": null,
+      "status": "rejected",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "scope_request",
+      "detail_available": true,
+      "storage_source": "scope_requests",
+      "action_source": "not_recorded",
+      "detail": {
+        "kind": "expand",
+        "requested_change": "增加受控任务输出目录的写入权限",
+        "path": null,
+        "justification": "need isolated report output",
+        "status": "rejected",
+        "requested_by": "External test adapter",
+        "reviewed_by": "研究者",
+        "reviewed_at": "2026-10-06T09:01:58.927737+00:00",
+        "resulting_version": null,
+        "result": {}
+      }
+    },
+    {
+      "source": "audit_log",
+      "source_id": "92be0a20f2ab47e59382181e40b1573c",
+      "milestone": "record",
+      "id": "audit_log:92be0a20f2ab47e59382181e40b1573c:record",
+      "time": "2026-10-06T09:01:58.844197+00:00",
+      "stage": "execution",
+      "category": "audit",
+      "kind": "scope_requested",
+      "task_id": "bridge-32321baf275d4b6cafe8dfa9e9541aed",
+      "job_id": null,
+      "version": null,
+      "status": "recorded",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "scope_requested",
+      "detail_available": true,
+      "storage_source": "audit_log",
+      "action_source": "not_recorded",
+      "detail": {
+        "action": "scope_requested",
+        "actor": "External test adapter",
+        "receipt": {
+          "request_id": "3d1b1c5a42274271a9a49ac50f0c3c9a"
+        }
+      }
+    },
+    {
+      "source": "scope_requests",
+      "source_id": "3d1b1c5a42274271a9a49ac50f0c3c9a",
+      "milestone": "review",
+      "id": "scope_requests:3d1b1c5a42274271a9a49ac50f0c3c9a:review",
+      "time": "2026-10-06T09:01:58.927737+00:00",
+      "stage": "execution",
+      "category": "timeline",
+      "kind": "scope_review",
+      "task_id": "bridge-32321baf275d4b6cafe8dfa9e9541aed",
+      "job_id": null,
+      "version": null,
+      "status": "rejected",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "scope_review",
+      "detail_available": true,
+      "storage_source": "scope_requests",
+      "action_source": "not_recorded",
+      "detail": {
+        "kind": "expand",
+        "requested_change": "增加受控任务输出目录的写入权限",
+        "path": null,
+        "justification": "need isolated report output",
+        "status": "rejected",
+        "requested_by": "External test adapter",
+        "reviewed_by": "研究者",
+        "reviewed_at": "2026-10-06T09:01:58.927737+00:00",
+        "resulting_version": null,
+        "result": {}
+      }
+    },
+    {
+      "source": "audit_log",
+      "source_id": "c29d8cb802244306a3fa8c470579ce4e",
+      "milestone": "receipt",
+      "id": "audit_log:c29d8cb802244306a3fa8c470579ce4e:receipt",
+      "time": "2026-10-06T09:01:58.927799+00:00",
+      "stage": "execution",
+      "category": "timeline",
+      "kind": "scope_rejected",
+      "task_id": "bridge-32321baf275d4b6cafe8dfa9e9541aed",
+      "job_id": null,
+      "version": null,
+      "status": "recorded",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "scope_rejected",
+      "detail_available": true,
+      "storage_source": "audit_log",
+      "action_source": "not_recorded",
+      "detail": {
+        "action": "scope_rejected",
+        "actor": "研究者",
+        "receipt": {
+          "request_id": "3d1b1c5a42274271a9a49ac50f0c3c9a"
+        }
+      }
+    },
+    {
+      "source": "audit_log",
+      "source_id": "c29d8cb802244306a3fa8c470579ce4e",
+      "milestone": "record",
+      "id": "audit_log:c29d8cb802244306a3fa8c470579ce4e:record",
+      "time": "2026-10-06T09:01:58.927799+00:00",
+      "stage": "execution",
+      "category": "audit",
+      "kind": "scope_rejected",
+      "task_id": "bridge-32321baf275d4b6cafe8dfa9e9541aed",
+      "job_id": null,
+      "version": null,
+      "status": "recorded",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "scope_rejected",
+      "detail_available": true,
+      "storage_source": "audit_log",
+      "action_source": "not_recorded",
+      "detail": {
+        "action": "scope_rejected",
+        "actor": "研究者",
+        "receipt": {
+          "request_id": "3d1b1c5a42274271a9a49ac50f0c3c9a"
+        }
+      }
+    }
+  ],
+  "domains": [],
+  "domain_status": "not_recorded",
+  "export_scope": "All persisted public archive events; no raw source bodies or native session replay; no current liveness assertion"
+}

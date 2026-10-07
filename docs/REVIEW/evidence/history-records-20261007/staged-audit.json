@@ -1,0 +1,11 @@
+{
+  "schema": "AgentScopeHistoryStagedAudit/1",
+  "passed": true,
+  "staged_files": 315,
+  "staged_json_files": 305,
+  "application_or_business_code_changed": false,
+  "raw_database_or_log_files": false,
+  "complete_staged_content_scan": "passed",
+  "local_markdown_links": "passed",
+  "source_root": "history-records branch based on public main"
+}

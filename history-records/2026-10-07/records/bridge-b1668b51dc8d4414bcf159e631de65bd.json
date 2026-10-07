@@ -1,0 +1,257 @@
+{
+  "schema": "AgentScopeTaskHistory/1",
+  "task_id": "bridge-b1668b51dc8d4414bcf159e631de65bd",
+  "snapshot_at": "2026-10-07T14:32:36.728670+00:00",
+  "history_only": true,
+  "header": {
+    "name": "bridge-b1668b51dc8d4414bcf159e631de65bd",
+    "status": "running",
+    "goal": "test task",
+    "constraints": {},
+    "workspace": "/tmp/work",
+    "output_dir": "/tmp/output",
+    "repository": {
+      "repo": "example/repo",
+      "repo_url": "https://github.com/example/repo",
+      "commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "ref_requested": "main"
+    },
+    "source": {
+      "status": "not_recorded"
+    },
+    "execution": {
+      "status": "not_recorded",
+      "instance_id": null,
+      "session_id": null,
+      "phase": null,
+      "gate": null,
+      "last_binding": {},
+      "binding_history": [],
+      "observation": "historical_receipts; live_state_not_checked"
+    },
+    "created_at": "2026-10-06T09:01:58.030182+00:00",
+    "updated_at": "2026-10-06T09:01:58.030182+00:00",
+    "ended_at": null,
+    "history_only": true
+  },
+  "stages": [
+    {
+      "id": "preparation",
+      "status": "recorded",
+      "event_count": 2,
+      "timeline_count": 2,
+      "category_counts": {
+        "timeline": 2,
+        "tools": 0,
+        "kernel": 0,
+        "audit": 0
+      }
+    },
+    {
+      "id": "execution",
+      "status": "recorded",
+      "event_count": 4,
+      "timeline_count": 0,
+      "category_counts": {
+        "timeline": 0,
+        "tools": 0,
+        "kernel": 0,
+        "audit": 4
+      }
+    },
+    {
+      "id": "closure",
+      "status": "not_recorded",
+      "event_count": 0,
+      "timeline_count": 0,
+      "category_counts": {
+        "timeline": 0,
+        "tools": 0,
+        "kernel": 0,
+        "audit": 0
+      }
+    }
+  ],
+  "counts": {
+    "timeline": 2,
+    "tools": 0,
+    "kernel": 0,
+    "audit": 4
+  },
+  "missing": [
+    "startup_generation",
+    "startup_candidates",
+    "runtime_jobs",
+    "load_receipts",
+    "startup_review",
+    "runtime_review",
+    "closure_receipt"
+  ],
+  "coverage": "persisted receipts only; missing data is not_recorded; tool outcomes, kernel denials and control gates have distinct meanings",
+  "events": [
+    {
+      "source": "tasks",
+      "source_id": "bridge-b1668b51dc8d4414bcf159e631de65bd",
+      "milestone": "record",
+      "id": "tasks:bridge-b1668b51dc8d4414bcf159e631de65bd:record",
+      "time": "2026-10-06T09:01:58.030182+00:00",
+      "stage": "preparation",
+      "category": "timeline",
+      "kind": "task_created",
+      "task_id": "bridge-b1668b51dc8d4414bcf159e631de65bd",
+      "job_id": null,
+      "version": null,
+      "status": "created",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "task_created",
+      "detail_available": true,
+      "storage_source": "tasks",
+      "action_source": "not_recorded",
+      "detail": {
+        "prompt": "test task",
+        "workspace": "/tmp/work",
+        "created_at": "2026-10-06T09:01:58.030182+00:00",
+        "status": "created"
+      }
+    },
+    {
+      "source": "policy_versions",
+      "source_id": "ac0d2a4abb7e49ec818c3254096e8913",
+      "milestone": "record",
+      "id": "policy_versions:ac0d2a4abb7e49ec818c3254096e8913:record",
+      "time": "2026-10-06T09:01:58.066879+00:00",
+      "stage": "preparation",
+      "category": "timeline",
+      "kind": "policy_version",
+      "task_id": "bridge-b1668b51dc8d4414bcf159e631de65bd",
+      "job_id": null,
+      "version": 1,
+      "status": "approved",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "policy_version",
+      "detail_available": true,
+      "storage_source": "policy_versions",
+      "action_source": "not_recorded",
+      "detail": {
+        "version": 1,
+        "layer": "task_start",
+        "status": "approved",
+        "dsl_text": "# base",
+        "compile_state": "compiled",
+        "change_summary": "test",
+        "approved_by": null,
+        "approved_at": null,
+        "evidence_ids": [],
+        "source_strategy_ids": [],
+        "compile": {}
+      }
+    },
+    {
+      "source": "audit_log",
+      "source_id": "0225b7d939584faabe88ea27c01136a3",
+      "milestone": "record",
+      "id": "audit_log:0225b7d939584faabe88ea27c01136a3:record",
+      "time": "2026-10-06T09:01:58.104028+00:00",
+      "stage": "execution",
+      "category": "audit",
+      "kind": "agent_connection_created",
+      "task_id": "bridge-b1668b51dc8d4414bcf159e631de65bd",
+      "job_id": null,
+      "version": null,
+      "status": "recorded",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "agent_connection_created",
+      "detail_available": true,
+      "storage_source": "audit_log",
+      "action_source": "not_recorded",
+      "detail": {
+        "action": "agent_connection_created",
+        "actor": "用户",
+        "receipt": {}
+      }
+    },
+    {
+      "source": "audit_log",
+      "source_id": "dbf87a9ed2ec46d8886ff28c5e55cd67",
+      "milestone": "record",
+      "id": "audit_log:dbf87a9ed2ec46d8886ff28c5e55cd67:record",
+      "time": "2026-10-06T09:01:58.141035+00:00",
+      "stage": "execution",
+      "category": "audit",
+      "kind": "agent_message_sent",
+      "task_id": "bridge-b1668b51dc8d4414bcf159e631de65bd",
+      "job_id": null,
+      "version": null,
+      "status": "recorded",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "agent_message_sent",
+      "detail_available": true,
+      "storage_source": "audit_log",
+      "action_source": "not_recorded",
+      "detail": {
+        "action": "agent_message_sent",
+        "actor": "用户",
+        "receipt": {}
+      }
+    },
+    {
+      "source": "audit_log",
+      "source_id": "c8543c5e34f440b891773e7ba2045eb9",
+      "milestone": "record",
+      "id": "audit_log:c8543c5e34f440b891773e7ba2045eb9:record",
+      "time": "2026-10-06T09:01:58.335882+00:00",
+      "stage": "execution",
+      "category": "audit",
+      "kind": "agent_message_acknowledged",
+      "task_id": "bridge-b1668b51dc8d4414bcf159e631de65bd",
+      "job_id": null,
+      "version": null,
+      "status": "recorded",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "agent_message_acknowledged",
+      "detail_available": true,
+      "storage_source": "audit_log",
+      "action_source": "not_recorded",
+      "detail": {
+        "action": "agent_message_acknowledged",
+        "actor": "External test adapter",
+        "receipt": {
+          "status": "handled"
+        }
+      }
+    },
+    {
+      "source": "audit_log",
+      "source_id": "cada5fac75384bf2b15fb712474767db",
+      "milestone": "record",
+      "id": "audit_log:cada5fac75384bf2b15fb712474767db:record",
+      "time": "2026-10-06T09:01:58.475757+00:00",
+      "stage": "execution",
+      "category": "audit",
+      "kind": "agent_connection_created",
+      "task_id": "bridge-b1668b51dc8d4414bcf159e631de65bd",
+      "job_id": null,
+      "version": null,
+      "status": "recorded",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "agent_connection_created",
+      "detail_available": true,
+      "storage_source": "audit_log",
+      "action_source": "not_recorded",
+      "detail": {
+        "action": "agent_connection_created",
+        "actor": "用户",
+        "receipt": {}
+      }
+    }
+  ],
+  "domains": [],
+  "domain_status": "not_recorded",
+  "export_scope": "All persisted public archive events; no raw source bodies or native session replay; no current liveness assertion"
+}

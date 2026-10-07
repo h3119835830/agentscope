@@ -1,0 +1,210 @@
+{
+  "schema": "AgentScopeTaskHistory/1",
+  "task_id": "e9e572057c2d48a3b35c87a0bc038868",
+  "snapshot_at": "2026-10-07T14:32:36.728670+00:00",
+  "history_only": true,
+  "header": {
+    "name": "e9e572057c2d48a3b35c87a0bc038868",
+    "status": "policy_review",
+    "goal": "test task",
+    "constraints": {},
+    "workspace": "/tmp/pytest-of-root/pytest-5/test_task_policy_generation_cl0",
+    "output_dir": "/tmp/output",
+    "repository": {
+      "repo": "example/repo",
+      "repo_url": "https://github.com/example/repo",
+      "commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "ref_requested": "main"
+    },
+    "source": {
+      "status": "not_recorded"
+    },
+    "execution": {
+      "status": "not_recorded",
+      "instance_id": null,
+      "session_id": null,
+      "phase": null,
+      "gate": null,
+      "last_binding": {},
+      "binding_history": [],
+      "observation": "historical_receipts; live_state_not_checked"
+    },
+    "created_at": "2026-10-06T09:02:14.436927+00:00",
+    "updated_at": "2026-10-06T09:02:14.824772+00:00",
+    "ended_at": null,
+    "history_only": true
+  },
+  "stages": [
+    {
+      "id": "preparation",
+      "status": "recorded",
+      "event_count": 4,
+      "timeline_count": 3,
+      "category_counts": {
+        "timeline": 3,
+        "tools": 0,
+        "kernel": 0,
+        "audit": 1
+      }
+    },
+    {
+      "id": "execution",
+      "status": "not_recorded",
+      "event_count": 0,
+      "timeline_count": 0,
+      "category_counts": {
+        "timeline": 0,
+        "tools": 0,
+        "kernel": 0,
+        "audit": 0
+      }
+    },
+    {
+      "id": "closure",
+      "status": "not_recorded",
+      "event_count": 0,
+      "timeline_count": 0,
+      "category_counts": {
+        "timeline": 0,
+        "tools": 0,
+        "kernel": 0,
+        "audit": 0
+      }
+    }
+  ],
+  "counts": {
+    "timeline": 3,
+    "tools": 0,
+    "kernel": 0,
+    "audit": 1
+  },
+  "missing": [
+    "startup_generation",
+    "startup_candidates",
+    "runtime_jobs",
+    "load_receipts",
+    "startup_review",
+    "runtime_review",
+    "closure_receipt"
+  ],
+  "coverage": "persisted receipts only; missing data is not_recorded; tool outcomes, kernel denials and control gates have distinct meanings",
+  "events": [
+    {
+      "source": "tasks",
+      "source_id": "e9e572057c2d48a3b35c87a0bc038868",
+      "milestone": "record",
+      "id": "tasks:e9e572057c2d48a3b35c87a0bc038868:record",
+      "time": "2026-10-06T09:02:14.436927+00:00",
+      "stage": "preparation",
+      "category": "timeline",
+      "kind": "task_created",
+      "task_id": "e9e572057c2d48a3b35c87a0bc038868",
+      "job_id": null,
+      "version": null,
+      "status": "created",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "task_created",
+      "detail_available": true,
+      "storage_source": "tasks",
+      "action_source": "not_recorded",
+      "detail": {
+        "prompt": "test task",
+        "workspace": "/tmp/pytest-of-root/pytest-5/test_task_policy_generation_cl0",
+        "created_at": "2026-10-06T09:02:14.436927+00:00",
+        "status": "created"
+      }
+    },
+    {
+      "source": "audit_log",
+      "source_id": "2322b9addc294617a9ad1a84d42a777c",
+      "milestone": "record",
+      "id": "audit_log:2322b9addc294617a9ad1a84d42a777c:record",
+      "time": "2026-10-06T09:02:14.678850+00:00",
+      "stage": "preparation",
+      "category": "audit",
+      "kind": "policy_generated",
+      "task_id": "e9e572057c2d48a3b35c87a0bc038868",
+      "job_id": null,
+      "version": null,
+      "status": "recorded",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "policy_generated",
+      "detail_available": true,
+      "storage_source": "audit_log",
+      "action_source": "not_recorded",
+      "detail": {
+        "action": "policy_generated",
+        "actor": "AgentScope",
+        "receipt": {
+          "version": 1
+        }
+      }
+    },
+    {
+      "source": "policy_versions",
+      "source_id": "945945bf14d54592a1f2d764ed17331c",
+      "milestone": "record",
+      "id": "policy_versions:945945bf14d54592a1f2d764ed17331c:record",
+      "time": "2026-10-06T09:02:14.716034+00:00",
+      "stage": "preparation",
+      "category": "timeline",
+      "kind": "policy_version",
+      "task_id": "e9e572057c2d48a3b35c87a0bc038868",
+      "job_id": null,
+      "version": 1,
+      "status": "compiled",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "policy_version",
+      "detail_available": true,
+      "storage_source": "policy_versions",
+      "action_source": "not_recorded",
+      "detail": {
+        "version": 1,
+        "layer": "task_start",
+        "status": "compiled",
+        "dsl_text": "source AGENT = exec \"**\"\n\nrule task-workspace-write-boundary:\n  block write file \"/**\" if AGENT unless target \"/tmp/pytest-of-root/pytest-5/**\"\n  block unlink file \"/**\" if AGENT unless target \"/tmp/pytest-of-root/pytest-5/**\"\n  because \"Writes are limited to this task’s isolated workspace, runtime state, and temporary area.\"\n\nrule deny-remote-publish:\n  kill exec \"git\" \"push\" if AGENT\n  because \"Remote publishing requires a separate user-controlled workflow.\"\n\nrule deny-task-output:\n  block write file \"/tmp/output/**\" if AGENT\n  block unlink file \"/tmp/output/**\" if AGENT\n  because \"The separate task output directory needs explicit approval.\"\n",
+        "compile_state": "compiled",
+        "change_summary": "任务启动前策略：基础配置、已选历史 DSL 与仓库证据",
+        "approved_by": null,
+        "approved_at": null,
+        "evidence_ids": [],
+        "source_strategy_ids": [],
+        "compile": {}
+      }
+    },
+    {
+      "source": "history_compilations",
+      "source_id": "5bd15fc2446941a6b2d53d598d642d02",
+      "milestone": "record",
+      "id": "history_compilations:5bd15fc2446941a6b2d53d598d642d02:record",
+      "time": "2026-10-06T09:02:14.786264+00:00",
+      "stage": "preparation",
+      "category": "timeline",
+      "kind": "compilation",
+      "task_id": "e9e572057c2d48a3b35c87a0bc038868",
+      "job_id": null,
+      "version": 1,
+      "status": "compiled",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "compilation",
+      "detail_available": true,
+      "storage_source": "history_compilations",
+      "action_source": "not_recorded",
+      "detail": {
+        "policy_version_id": "945945bf14d54592a1f2d764ed17331c",
+        "artifact_id": null,
+        "input_hash": "bfffa481afcd83c5f9f854c2b48f267e4790fb1598aa35caf6c6465f9ce4ea59",
+        "state": "compiled",
+        "compiler_version": "ActPlane CLI",
+        "compile": {}
+      }
+    }
+  ],
+  "domains": [],
+  "domain_status": "not_recorded",
+  "export_scope": "All persisted public archive events; no raw source bodies or native session replay; no current liveness assertion"
+}

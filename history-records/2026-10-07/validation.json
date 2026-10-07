@@ -1,0 +1,31 @@
+{
+  "schema": "AgentScopeTaskHistoryValidation/1",
+  "passed": true,
+  "task_count": 299,
+  "event_count": 27145,
+  "category_counts": {
+    "timeline": 17958,
+    "tools": 7226,
+    "kernel": 1690,
+    "audit": 271
+  },
+  "database_integrity": "ok",
+  "snapshot_unchanged": true,
+  "all_pages_exported": true,
+  "unique_task_ids": true,
+  "cross_task_events": 0,
+  "duplicate_event_ids_within_task": 0,
+  "public_content_scan": "passed",
+  "redactions": {
+    "private_blocks": 0,
+    "secret_values": 0,
+    "credential_assignments": 17,
+    "bearer_values": 2,
+    "url_credentials": 0,
+    "private_keys": 0,
+    "omitted_fields": 61160
+  },
+  "raw_sources_included": false,
+  "runtime_replay_supported": false,
+  "live_process_checks_performed": false
+}

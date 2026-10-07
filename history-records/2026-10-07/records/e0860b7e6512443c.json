@@ -1,0 +1,148 @@
+{
+  "schema": "AgentScopeTaskHistory/1",
+  "task_id": "e0860b7e6512443c",
+  "snapshot_at": "2026-10-07T14:32:36.728670+00:00",
+  "history_only": true,
+  "header": {
+    "name": "三阶段文本统计 Demo",
+    "status": "completed",
+    "goal": "修复 backend/stats.py 的文本统计错误（连续空格、制表符、换行和空文本），完善 frontend/report.py 的摘要展示，运行现有 unittest 并生成报告。tests/config 必须保持不变。这是 AgentScope 自定义合成场景；外部消息可能调整任务，请依据当前 Scope 和用户消息继续。报告交付目标固定为 /s/e0860b7e6512443c/output/report.md。",
+    "constraints": {},
+    "workspace": "/s/e0860b7e6512443c/repo",
+    "output_dir": "/s/e0860b7e6512443c/output",
+    "repository": {
+      "repo": "AgentScope/custom-scope-demo",
+      "repo_url": "local:agentscope-scope-demo",
+      "commit_sha": "d25145d3dcd319d878bb1c181b33fe9130408246",
+      "ref_requested": "frozen-synthetic-v1"
+    },
+    "source": {
+      "status": "not_recorded"
+    },
+    "execution": {
+      "status": "not_recorded",
+      "instance_id": null,
+      "session_id": null,
+      "phase": null,
+      "gate": null,
+      "last_binding": {},
+      "binding_history": [],
+      "observation": "historical_receipts; live_state_not_checked"
+    },
+    "created_at": "2026-10-05T10:43:03.626667+00:00",
+    "updated_at": "2026-10-05T10:43:35.135652+00:00",
+    "ended_at": "2026-10-05T10:43:35.135631+00:00",
+    "history_only": true
+  },
+  "stages": [
+    {
+      "id": "preparation",
+      "status": "recorded",
+      "event_count": 1,
+      "timeline_count": 1,
+      "category_counts": {
+        "timeline": 1,
+        "tools": 0,
+        "kernel": 0,
+        "audit": 0
+      }
+    },
+    {
+      "id": "execution",
+      "status": "not_recorded",
+      "event_count": 0,
+      "timeline_count": 0,
+      "category_counts": {
+        "timeline": 0,
+        "tools": 0,
+        "kernel": 0,
+        "audit": 0
+      }
+    },
+    {
+      "id": "closure",
+      "status": "recorded",
+      "event_count": 1,
+      "timeline_count": 1,
+      "category_counts": {
+        "timeline": 1,
+        "tools": 0,
+        "kernel": 0,
+        "audit": 0
+      }
+    }
+  ],
+  "counts": {
+    "timeline": 2,
+    "tools": 0,
+    "kernel": 0,
+    "audit": 0
+  },
+  "missing": [
+    "startup_generation",
+    "startup_candidates",
+    "runtime_jobs",
+    "policy_versions",
+    "load_receipts",
+    "startup_review",
+    "runtime_review",
+    "closure_receipt"
+  ],
+  "coverage": "persisted receipts only; missing data is not_recorded; tool outcomes, kernel denials and control gates have distinct meanings",
+  "events": [
+    {
+      "source": "tasks",
+      "source_id": "e0860b7e6512443c",
+      "milestone": "record",
+      "id": "tasks:e0860b7e6512443c:record",
+      "time": "2026-10-05T10:43:03.626667+00:00",
+      "stage": "preparation",
+      "category": "timeline",
+      "kind": "task_created",
+      "task_id": "e0860b7e6512443c",
+      "job_id": null,
+      "version": null,
+      "status": "created",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "task_created",
+      "detail_available": true,
+      "storage_source": "tasks",
+      "action_source": "not_recorded",
+      "detail": {
+        "prompt": "修复 backend/stats.py 的文本统计错误（连续空格、制表符、换行和空文本），完善 frontend/report.py 的摘要展示，运行现有 unittest 并生成报告。tests/config 必须保持不变。这是 AgentScope 自定义合成场景；外部消息可能调整任务，请依据当前 Scope 和用户消息继续。报告交付目标固定为 /s/e0860b7e6512443c/output/report.md。",
+        "workspace": "/s/e0860b7e6512443c/repo",
+        "created_at": "2026-10-05T10:43:03.626667+00:00",
+        "status": "created"
+      }
+    },
+    {
+      "source": "tasks",
+      "source_id": "e0860b7e6512443c",
+      "milestone": "ended",
+      "id": "tasks:e0860b7e6512443c:ended",
+      "time": "2026-10-05T10:43:35.135631+00:00",
+      "stage": "closure",
+      "category": "timeline",
+      "kind": "task_ended",
+      "task_id": "e0860b7e6512443c",
+      "job_id": null,
+      "version": null,
+      "status": "ended",
+      "evidence_refs": [],
+      "history_only": true,
+      "summary": "task_ended",
+      "detail_available": true,
+      "storage_source": "tasks",
+      "action_source": "not_recorded",
+      "detail": {
+        "workspace": "/s/e0860b7e6512443c/repo",
+        "ended_at": "2026-10-05T10:43:35.135631+00:00",
+        "status": "ended"
+      }
+    }
+  ],
+  "domains": [],
+  "domain_status": "not_recorded",
+  "export_scope": "All persisted public archive events; no raw source bodies or native session replay; no current liveness assertion"
+}

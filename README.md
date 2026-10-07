@@ -1,5 +1,9 @@
 # AgentScope
 
+[Public task history archives on this branch](history-records/README.md) include
+299 task dossiers and 27,145 persisted public events from the 2026-10-07 snapshot.
+They contain historical evidence, not live sessions or runtime credentials.
+
 AgentScope is a Linux-hosted policy control plane. External task agents such as
 DSH execute the user's task. AgentScope manages reviewed policies, task Scope,
 and execution evidence; Pi assesses and generates policy candidates internally.
