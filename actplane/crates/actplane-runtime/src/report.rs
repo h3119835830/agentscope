@@ -24,6 +24,10 @@ pub struct Violation {
     #[serde(default)]
     domain_id: Option<u32>,
     #[serde(default)]
+    process_domain_id: Option<u32>,
+    #[serde(default)]
+    tool_call_tag: Option<u64>,
+    #[serde(default)]
     session_root: Option<i32>,
     #[allow(dead_code)]
     effect: Option<String>,
@@ -67,6 +71,8 @@ pub fn to_violation(v: &ebpf_ifc_engine::Violation) -> Violation {
         rule_id: v.rule_id as usize,
         op: Some(v.op),
         domain_id: Some(v.domain_id),
+        process_domain_id: Some(v.process_domain_id),
+        tool_call_tag: Some(v.tool_call_tag),
         session_root: Some(v.session_root),
         effect: Some(
             match v.effect {
@@ -242,6 +248,12 @@ pub fn append_violation_event_context(
     }
     if let Some(domain_id) = v.domain_id {
         record["domain_id"] = json!(domain_id);
+    }
+    if let Some(process_domain_id) = v.process_domain_id {
+        record["process_domain_id"] = json!(process_domain_id);
+    }
+    if let Some(tool_call_tag) = v.tool_call_tag {
+        record["tool_call_tag"] = json!(tool_call_tag.to_string());
     }
     if let Some(session_root) = v.session_root {
         record["session_root"] = json!(session_root);
@@ -448,6 +460,7 @@ mod tests {
                 target_kind: dsl::ast::Kind::Exec,
                 target_pattern: "git".to_string(),
                 target_arg: None,
+                semantics: Default::default(),
                 source: None,
             },
             labels,
@@ -460,6 +473,8 @@ mod tests {
             rule_id: 0,
             op: Some(0),
             domain_id: Some(23),
+            process_domain_id: Some(24),
+            tool_call_tag: Some(123),
             session_root: Some(10),
             effect: Some("notify".to_string()),
             blocked: Some(false),
@@ -505,6 +520,7 @@ mod tests {
                 target_kind: dsl::ast::Kind::Exec,
                 target_pattern: "git".to_string(),
                 target_arg: Some("commit".to_string()),
+                semantics: Default::default(),
                 source: Some(dsl::RuleSourceMeta {
                     source_ref: "rules.local.ifc".to_string(),
                     binding_mode: Some("locked".to_string()),
@@ -527,6 +543,8 @@ mod tests {
             rule_id: 7,
             op: Some(0),
             domain_id: Some(23),
+            process_domain_id: Some(24),
+            tool_call_tag: Some(123),
             session_root: Some(10),
             effect: Some("kill".to_string()),
             blocked: Some(false),
@@ -561,6 +579,8 @@ mod tests {
         assert_eq!(value["op"], "exec");
         assert_eq!(value["op_code"], 0);
         assert_eq!(value["domain_id"], 23);
+        assert_eq!(value["process_domain_id"], 24);
+        assert_eq!(value["tool_call_tag"], "123");
         assert_eq!(value["session_root"], 10);
         assert_eq!(value["matched_labels"], "0x3");
         assert_eq!(value["matched_label_name"], "LOCAL_SECRET");

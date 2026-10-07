@@ -1,0 +1,17 @@
+{
+  "observed_at": "2026-10-07T20:00:36.7184210+08:00",
+  "task_id": "3706103b84f64746",
+  "phase": "policy_review",
+  "gate": "waiting_confirmation",
+  "version": 0,
+  "session_id": null,
+  "rule_count": 2,
+  "proposal_state": "validated",
+  "context_hash": "6927e50fbd59ecbf9a206221183e49f9db2719d4dae65d9e55b3779cc92fb2da",
+  "proposal_hash": "c279ce79363c29ddbd2d4160dc8783331ccf8579efa922810c5d30a1e4eec1ee",
+  "file_count": 4,
+  "source_path": "/s/workspaces/30d2ebf698f34c32",
+  "task_workspace": "/s/3706103b84f64746/r",
+  "generation_status": "completed",
+  "tool_records": 45
+}

@@ -29,6 +29,9 @@ app.include_router(scope_router)
 from .managed.api import router as managed_router
 from .managed.worker import worker as managed_worker
 app.include_router(managed_router)
+from .workspaces.api import router as workspace_router
+from .workspaces.registry import init as init_workspaces
+app.include_router(workspace_router)
 
 @app.middleware("http")
 async def protect_control_api(request: Request, call_next):
@@ -203,6 +206,7 @@ def create_policy_version(task,version,layer,settings,strategy_ids,summary,extra
 @app.on_event("startup")
 async def startup():
     db.init_db()
+    init_workspaces()
     if os.getenv("AGENTSCOPE_HISTORY_WORKER","1")!="0" and os.getenv("AGENTSCOPE_RQ1_AUTO_IMPORT","1")!="0": corpus.ensure_seed_job()
     history_jobs.worker.start()
     scope_worker.start()

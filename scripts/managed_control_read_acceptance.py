@@ -5,7 +5,7 @@ No arbitrary command, private file bytes, or model reasoning are exported.
 import grp,json,os,sys,time,uuid
 from pathlib import Path
 from managed_control import api
-STATE=Path('/var/lib/agentscope-scope-demo')
+from scope_service import STATE,TASKS,environment
 ROOT=Path(__file__).resolve().parents[1]
 
 def run(task,output=None):
@@ -22,10 +22,10 @@ def run(task,output=None):
  assert 'block read file '+json.dumps(str(ROOT)+'/**') in state['baseline_extra']
  canary=STATE/'report/controller-read-canary.txt';canary.write_text('public control read canary\n');canary.chmod(0o644)
  fixture=ROOT/'backend/agentscope_app/bootstrap/fixtures/rq5/manifest.json'
- targets=[(fixture,False),(STATE/'demo.sqlite3',False),(canary,False),(Path('/var/lib/agentscope-rq5-v1/task-python/pyvenv.cfg'),True)]
- commands=Path('/run/agentscope-scope-demo/commands')/task
+ targets=[(ROOT/'backend/broker/managed_operation_probe.py',False),(ROOT/'backend/agentscope_app/services/policy_normalization.py',False),(fixture,False),(STATE/'demo.sqlite3',False),(canary,False),(Path('/var/lib/agentscope-rq5-v1/task-python/pyvenv.cfg'),True)]
+ commands=Path(environment()['AGENTSCOPE_RUNTIME_DIR'])/'commands'/task
  assert commands.resolve()==commands and commands.is_dir()
- workspace=Path('/s')/task/'r';events=workspace/'.actplane/events.jsonl';results=[]
+ workspace=TASKS/task/'r';events=workspace/'.actplane/events.jsonl';results=[]
  for target,expected_allow in targets:
   assert target.is_file()
   ident=uuid.uuid4().hex;scratch=workspace.parent/'tmp'/('control-read-'+ident)

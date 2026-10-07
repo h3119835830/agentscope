@@ -7,6 +7,7 @@ from .. import db
 from ..broker_client import call as broker
 from ..bootstrap.scene import context, create_scene, digest
 from ..services.policy import make_dsl, quote_dsl
+from ..services import policy_normalization as normalization
 from ..scope.manager import lock
 
 class IdentifiedStatement(BaseModel):
@@ -45,6 +46,10 @@ def event(con, task_id, kind, key, payload):
 
 def create(case):
     result=create_scene(case, workspace_leaf="r", compact_paths=True)
+    return initialize(result)
+
+def initialize(result):
+    """Attach the managed execution contract to a registered task context."""
     task_id=result["id"]
     with db.connect() as con:
         ctx=context(task_id,con)
@@ -59,7 +64,7 @@ def create(case):
         cfg=json.dumps(ctx["dsh"],sort_keys=True)
         con.execute("UPDATE bootstrap_sources SET text=?,content_hash=? WHERE task_id=? AND role='dsh_config'",(cfg,digest(cfg),task_id))
         con.execute("UPDATE tasks SET dsh_profile='web' WHERE id=?",(task_id,))
-        save(con,task_id,{"phase":"prepared","gate":"closed","revision":0,"version":0,"session_id":None,"turn":0,"allow_output":False,"allowed_write_dirs":["."],"policy_hash":"","startup_job":None,"binding":{},"protected":[],"pending_expansion":None})
+        save(con,task_id,{"phase":"prepared","gate":"closed","revision":0,"version":0,"session_id":None,"turn":0,"allow_output":False,"allowed_write_dirs":["."],"policy_hash":"","normalization_mode":normalization.configured_mode(),"startup_job":None,"binding":{},"protected":[],"pending_expansion":None})
         event(con,task_id,"created",task_id,{"workspace":ctx["workspace"],"context_hash":digest(ctx)})
     return {**result,"context_hash":digest(ctx),"managed":True}
 
@@ -77,6 +82,7 @@ def policy_details(task_id):
     with db.connect() as con:
         state=load(con,task_id);task=task_row(con,task_id)
     dsl,yaml=render(task,state,state['allowed_write_dirs'],state['allow_output'])
+    if state.get('active_bundle'):dsl,yaml=state['active_bundle']['dsl'],state['active_bundle']['yaml']
     if digest(yaml)!=state['policy_hash']:raise ValueError('Policy source does not match the confirmed loaded hash')
     return {'version':state['version'],'policy_hash':state['policy_hash'],'baseline_hash':state['baseline_hash'],'dsl':dsl,'policy_yaml':yaml,'binding':state['binding'],'verification':state['verification'],'session_id':state['session_id'],'historical':state['phase']=='ended','authority':'serialized_policy_matches_confirmed_loaded_hash'}
 
@@ -150,7 +156,7 @@ def protected_files(ctx, atoms):
 def control_rules(task):
     ws=task['workspace'];home=str(Path(ws).parent/'.dsh')
     paths=[ws,ws+'/.actplane',ws+'/.actplane/**',home+'/profiles',home+'/profiles/web',home+'/profiles/web/node_modules',home+'/settings.yaml',home+'/.credentials.yaml',home+'/cordis.patch.yml',home+'/profiles/web/package.json',home+'/profiles/web/cordis.patch.yml',home+'/profiles/web/node_modules/**']
-    source_root=str(Path(__file__).resolve().parents[3]);probe_code=source_root+'/backend/broker/managed_*'
+    source_root=str(Path(__file__).resolve().parents[3])
     # Kernel matchers lower absolute internal globs to a prefix. Resolve service
     # roots/files first, so a DB suffix cannot silently block public runtimes.
     state_roots={Path('/var/lib/agentscope-scope-demo'),Path('/var/lib/agentscope-rq5-v1'),Path(db.DB_PATH).parent}
@@ -162,7 +168,7 @@ def control_rules(task):
         runtime=base/'task-python' if base==Path('/var/lib/agentscope-rq5-v1') else None
         exception=' unless target '+quote_dsl(str(runtime)+'/**') if runtime else ''
         private_reads.append('  block read file '+quote_dsl(str(base)+'/**')+' if AGENT'+exception)
-    return '\n'.join(['rule managed-control-assets:',f'  block read file {quote_dsl(source_root+"/**")} if AGENT unless target {quote_dsl(probe_code)}',*private_reads,'  block read file '+quote_dsl(ws+'/.actplane/**')+' if AGENT',*[f'  block {op} file {quote_dsl(p)} if AGENT' for p in paths for op in ('write','unlink')],'  block read file '+quote_dsl(str(Path(ws).parent.parent)+'/**')+' if AGENT unless target '+quote_dsl(str(Path(ws).parent)+'/**'),'  because "Execution gates, credentials and kernel evidence are immutable; other tasks are isolated."'])
+    return '\n'.join(['rule managed-control-assets:',f'  block read file {quote_dsl(source_root+"/**")} if AGENT',*private_reads,'  block read file '+quote_dsl(ws+'/.actplane/**')+' if AGENT',*[f'  block {op} file {quote_dsl(p)} if AGENT' for p in paths for op in ('write','unlink')],'  block read file '+quote_dsl(str(Path(ws).parent.parent)+'/**')+' if AGENT unless target '+quote_dsl(str(Path(ws).parent)+'/**'),'  because "Execution gates, credentials and kernel evidence are immutable; other tasks are isolated."'])
 
 def identity_guards(workspace,targets):
     root=Path(workspace);parents=set()
@@ -205,6 +211,12 @@ def _install(task_id,state,dirs,output,initial=False,protected_paths=None):
     with db.connect() as con:task=task_row(con,task_id)
     runtime_protected=state.get('runtime_protected',[]) if protected_paths is None else protected_paths
     dsl,yaml=render(task,state,dirs,output,runtime_protected)
+    report=None
+    if state.get('normalization_mode','legacy')!='legacy':
+        from ..main import compile_policy
+        dsl,yaml,_,report=normalization.build(dsl,yaml,task_id,13000+state['revision'],state['normalization_mode'],compile_policy)
+        report['load_version']=state['version']+1
+        report['id']=normalization.digest({key:value for key,value in report.items() if key!='id'})
     resume_text=None
     if not initial:
         native_state=broker({'action':'native-session','task_id':task_id,'operation':'inspect','session_id':state['session_id']},timeout=15)
@@ -219,12 +231,16 @@ def _install(task_id,state,dirs,output,initial=False,protected_paths=None):
         revoke_task_tokens(task_id)
     token,_=issue_task_token(task_id)
     version=state['version']+1
+    install_stage='broker-launch'
     try:
-        receipt=broker({'action':'launch','task_id':task_id,'version':10000+version,'workspace':task['workspace'],'output_dir':task['output_dir'],'prompt':task['prompt'],'dsl_text':dsl,'policy_yaml':yaml,'dsh_profile':'web','task_token':token,'agentscope_url':__import__('agentscope_app.config',fromlist=['PUBLIC_BASE_URL']).PUBLIC_BASE_URL,'scope_mode':'managed-web','protected_files':state['protected'],'baseline_dsl':make_dsl(task['workspace'],task['output_dir'],{'allow_task_output':True},state['baseline_extra']+identity_guards(task['workspace'],state.get('protected',[])))[0]},timeout=60)
+        receipt=broker({'action':'launch','task_id':task_id,'version':10000+version,'workspace':task['workspace'],'output_dir':task['output_dir'],'prompt':task['prompt'],'dsl_text':dsl,'policy_yaml':yaml,'dsh_profile':'web','task_token':token,'agentscope_url':__import__('agentscope_app.config',fromlist=['PUBLIC_BASE_URL']).PUBLIC_BASE_URL,'scope_mode':'managed-web','protected_files':state['protected'],'normalization':report,'baseline_dsl':make_dsl(task['workspace'],task['output_dir'],{'allow_task_output':True},state['baseline_extra']+identity_guards(task['workspace'],state.get('protected',[])))[0]},timeout=60)
+        install_stage='native-session'
+        with db.connect() as con:event(con,task_id,'launch_receipt',str(version),{'domain_id':receipt['domain_id'],'runner_pid':receipt.get('runner_pid'),'version':version})
         native=broker({'action':'native-session','task_id':task_id,'operation':'create','session_id':state['session_id']},timeout=35)
+        install_stage='operation-verification'
         verify=broker({'action':'managed-verify','task_id':task_id,'protected_files':sorted(set(state['protected']+[str(p) for target in runtime_protected for p in Path(task['workspace']).glob(target) if p.is_file()])),'allow_path':task['workspace']+'/'+(dirs[0]+'/' if dirs and dirs!=['.'] else '')+'.managed-allow-probe'},timeout=45)
         binding=broker({'action':'status','task_id':task_id})
-        if not verify['passed'] or binding['status']!='running' or binding['domain_id']!=receipt['domain_id']:
+        if not verify['passed'] or binding['status']!='running' or binding['domain_id']!=receipt['domain_id'] or receipt.get('process_cgroup') and binding.get('cgroup_verified') is not True:
             with db.connect() as con:event(con,task_id,'verification_failed',uuid.uuid4().hex,{'verification':verify,'binding':binding})
             raise ValueError('进程域或实际文件权限核验失败')
     except Exception as error:
@@ -234,7 +250,7 @@ def _install(task_id,state,dirs,output,initial=False,protected_paths=None):
             with lock(task_id),db.connect() as con:
                 current=load(con,task_id)
                 if current['phase']!='ended':
-                    current.update(phase='failed',gate='failed',error=str(error)[:1500]);save(con,task_id,current)
+                    current.update(phase='failed',gate='failed',error=(install_stage+': '+type(error).__name__+': '+str(error))[:1500]);save(con,task_id,current)
                     con.execute("UPDATE tasks SET status='failed',active_pid=NULL,active_domain_id=NULL,watch_pid=NULL,updated_at=? WHERE id=?",(db.now(),task_id))
                     event(con,task_id,'failure',uuid.uuid4().hex,{'error':current['error'],'replacement_stopped':True,'before_native_admission':True})
         raise
@@ -246,6 +262,19 @@ def _install(task_id,state,dirs,output,initial=False,protected_paths=None):
         prior=state['pending_expansion'];proposal=prior['proposal']
         state['pending_expansion_intent']={'prior_hash':prior['hash'],'proposed_snapshot':{k:proposal.get(k) for k in ('allowed_write_dirs','allow_output','protected_paths')},'authority':'unapproved_candidate; never_a_grant','reason':'Native recovery invalidates a candidate hash but does not withdraw the authenticated pending request; revalidate before confirmation.'}
     state.update(execution_role_version=2,phase='running',gate='waiting_policy' if recovery else 'open',version=version,policy_hash=digest(yaml),allowed_write_dirs=dirs,allow_output=output,runtime_protected=runtime_protected,binding=receipt,verification=verify,session_id=native['sessionId'],web_url=receipt['web_url'],pending_expansion=None)
+    if report:
+        parent=receipt.get('baseline_binding')
+        if parent:
+            report['baseline_binding']=parent
+            report['inherited_references']=[]
+            for entry in report['clauses']:
+                if normalization.partition(entry['name'])!='startup' or not entry['eligible']:continue
+                original=next(rule for rule in report['raw_compiler']['rules'] if rule['rule_id']==entry['raw_clause_ids'][0])
+                for rule in parent['compile'].get('rules',[]):
+                    if rule['name'] in entry['compiled_names'] and rule['clause_op']==entry['operation'] and rule['target_pattern']==entry['target'] and rule['clause_text']==original['clause_text'].replace('if AGENT','if COMMAND'):
+                        report['inherited_references'].append({'logical_rule_id':entry['logical_rule_id'],'operation':entry['operation'],'target':entry['target'],'bundle_hash':parent['bundle_hash'],'clause_id':rule['rule_id']})
+        report['id']=normalization.digest({key:value for key,value in report.items() if key!='id'})
+        state.update(active_bundle={'dsl':dsl,'yaml':yaml},active_normalization=report)
     with lock(task_id),db.connect() as con:
         current=load(con,task_id)
         if current['revision']!=state['revision'] or current['phase']=='ended':
@@ -256,9 +285,15 @@ def _install(task_id,state,dirs,output,initial=False,protected_paths=None):
                 event(con,task_id,'failure',uuid.uuid4().hex,{'error':current['error'],'revision':current['revision'],'replacement_stopped':True})
             con.commit()  # retain fail-closed state when propagating the stale error
             raise ValueError('stale: context changed while replacing the process domain')
+        normalization.persist(con,task_id,'loaded',str(version),report)
         save(con,task_id,state)
         con.execute("UPDATE tasks SET status='running',active_pid=?,active_domain_id=?,watch_pid=?,active_version=?,updated_at=? WHERE id=?",(receipt['runner_pid'],receipt['domain_id'],receipt['watch_pid'],version,db.now(),task_id))
         event(con,task_id,'policy_active',str(version),{'version':version,'policy_hash':state['policy_hash'],'binding':receipt,'verification':verify,'session_id':state['session_id'],'baseline_hash':state['baseline_hash']})
+        if report:
+            from .records import startup_records,runtime_statement_records
+            startup_records(con,task,state,persist_links=True)
+            for source_job in con.execute("SELECT * FROM managed_jobs WHERE task_id=? AND proposal_json IS NOT NULL",(task_id,)).fetchall():
+                runtime_statement_records(con,task,state,source_job,persist_links=True)
     if resume_text:
         broker({'action':'native-session','task_id':task_id,'operation':'resume','session_id':state['session_id'],'text':'[Execution resumed] Continue the interrupted task request. Original request: '+resume_text},timeout=20)
         with db.connect() as con:event(con,task_id,'session_resumed',str(version),{'session_id':state['session_id'],'version':version,'source':'context','original_request_preserved':True})
@@ -280,6 +315,26 @@ def recover(task_id):
     ctext='[Execution resumed] The task execution environment recovered. Continue the latest task request after execution resumes. Latest request: '+latest
     broker({'action':'native-session','task_id':task_id,'operation':'resume','session_id':installed['session_id'],'text':ctext},timeout=20)
 
+def native_admission(task,ctx):
+    """Publish task material only; Pi's compiler/policy context stays private."""
+    from ..bootstrap.scene import EXECUTION_CONSTRAINTS
+    paths={'workspace':task['workspace'],'output':task['output_dir'],
+        'temporary':str(Path(task['workspace']).parent/'tmp'),
+        'source_path_mapping':ctx.get('mapping',{}),
+        'project_file_mapping':ctx.get('asset_layout_mapping',{})}
+    clarifications=[item['text'] for item in ctx.get('startup_clarifications',[])]
+    return ('[Workspace paths]\n'+json.dumps(paths,ensure_ascii=False)+
+        '\nUse the longest matching source path mapping and the registered project file mapping.\n'+
+        '[Platform task constraints]\n'+ctx.get('execution_constraints',EXECUTION_CONSTRAINTS)+
+        '\n[Registered project files]\n'+json.dumps([a['mapped_path'] for a in ctx['assets']])+
+        '\n[Execution environment]\nUse the task workspace, temporary and output paths. '+
+        'The published Python interpreter is /opt/task-python/bin/python; python and python3 on PATH use it. '+
+        'Host files and network access are unavailable. Respond to operation feedback while completing the task.'+
+        '\n[Original task description]\n'+task['prompt']+
+        '\n[Task clarifications]\n'+json.dumps(clarifications,ensure_ascii=False)+
+        '\n[Admission request]\nRead the task and relevant registered project materials first. '+
+        'Summarize the constraints and proposed work; wait for the next real user message before modifying files.')
+
 def complete_start(task_id):
     from ..bootstrap.api import version as make_version
     from ..bootstrap.models import VersionRequest
@@ -292,14 +347,49 @@ def complete_start(task_id):
         proposal=con.execute("SELECT * FROM bootstrap_proposals WHERE job_id=? AND state='validated'",(state['startup_job'],)).fetchone()
         if not proposal:raise ValueError('启动策略未通过校验或仍需澄清')
         proposal=dict(proposal);ctx=context(task_id,con);task=task_row(con,task_id)
+        if state.get('startup_review_required'):
+            expected={'context_hash':ctx['context_hash'],'proposal_hash':proposal['content_hash']}
+            if state.get('startup_confirmation') != expected:
+                state.update(phase='policy_review',gate='waiting_confirmation',startup_proposal=proposal['id'])
+                save(con,task_id,state)
+                con.execute("UPDATE tasks SET status='policy_review',updated_at=? WHERE id=?",(db.now(),task_id))
+                event(con,task_id,'startup_review_required',proposal['id'],expected)
+                return
+            verify_startup_snapshot(task,ctx)
     built=make_version(task_id,proposal['id'],VersionRequest(condition='B'))
-    approve_version(task_id,built['version'],ReviewRequest(decision='approve',reviewed_by='预授权控制面',expected_context_hash=ctx['context_hash'],expected_proposal_hash=proposal['content_hash']))
+    approve_version(task_id,built['version'],ReviewRequest(decision='approve',reviewed_by='工作区任务确认' if state.get('startup_review_required') else '预授权控制面',expected_context_hash=ctx['context_hash'],expected_proposal_hash=proposal['content_hash']))
     data=json.loads(proposal['proposal_json'])
     state.update(baseline_extra=data['actplane_dsl']+'\n'+control_rules(task),protected=protected_files(ctx,data['draft']['atoms']),baseline_hash=digest({'extra':data['actplane_dsl'],'context':ctx['context_hash'],'controls':control_rules(task)}),startup_proposal=proposal['id'],startup_summary=data['draft']['summary'])
     with db.connect() as con:save(con,task_id,state)
     installed=install(task_id,state,['.'],False,initial=True)
     # Admission uses the native SessionController; no headless substitute session.
-    broker({'action':'native-session','task_id':task_id,'operation':'prompt','session_id':installed['session_id'],'text':ctx['environment']+'\n[Workspace paths]\n'+json.dumps({'workspace':task['workspace'],'output':task['output_dir'],'temporary':str(Path(task['workspace']).parent/'tmp')})+'\n[Platform constraints]\n'+ctx['platform_constraints']+'\n[Registered project files]\n'+json.dumps([a['mapped_path'] for a in ctx['assets']])+'\n[Execution environment]\nUse the task workspace, temporary and output paths, and the published Python runtime. Host files and network access are unavailable. Respond to operation feedback while completing the task.\n[Original task description]\n'+task['prompt']+'\n[Authenticated startup clarifications]\n'+json.dumps(ctx.get('startup_clarifications',[]),ensure_ascii=False)+'\n[Admission request]\nRead the task and relevant registered project materials first. Summarize the constraints and proposed work; wait for the next real user message before modifying files.'},timeout=20)
+    broker({'action':'native-session','task_id':task_id,'operation':'prompt','session_id':installed['session_id'],'text':native_admission(task,ctx)},timeout=20)
+
+def verify_startup_snapshot(task,ctx):
+    from ..bootstrap.scene import effective_dsh
+    if digest(effective_dsh())!=ctx['workspace_source']['runtime_profile_hash']:
+        raise ValueError('DSH 执行端配置已变化，请重新生成策略')
+    for asset in ctx['assets']:
+        if read_project_content(task,asset['mapped_path'])['hash']!=asset['sha256']:
+            raise ValueError('任务工作区文件已变化：'+asset['relative_path'])
+
+def confirm_startup(task_id,expected_context_hash,expected_proposal_hash):
+    with lifecycle(task_id),lock(task_id),db.connect() as con:
+        state=load(con,task_id)
+        if state['phase']!='policy_review' or not state.get('startup_review_required'):
+            raise ValueError('任务不在启动策略待确认状态')
+        ctx=context(task_id,con)
+        proposal=con.execute("SELECT * FROM bootstrap_proposals WHERE id=? AND task_id=? AND job_id=? AND state='validated'",(state.get('startup_proposal'),task_id,state['startup_job'])).fetchone()
+        if not proposal or ctx['context_hash']!=expected_context_hash or proposal['context_hash']!=expected_context_hash or proposal['content_hash']!=expected_proposal_hash or digest(json.loads(proposal['proposal_json']))!=expected_proposal_hash:
+            raise ValueError('策略或工作区上下文已变化，请重新读取并确认')
+        task=task_row(con,task_id)
+        verify_startup_snapshot(task,ctx)
+        state.update(phase='generating',gate='waiting_policy',startup_confirmation={'context_hash':expected_context_hash,'proposal_hash':expected_proposal_hash})
+        save(con,task_id,state)
+        con.execute('UPDATE tasks SET updated_at=? WHERE id=?',(db.now(),task_id))
+        event(con,task_id,'startup_confirmed',proposal['id'],state['startup_confirmation'])
+        db.audit(con,task_id,'startup_policy_confirmed','administrator',state['startup_confirmation'])
+    return {'status':'confirmed','task_id':task_id}
 
 def gate(task_id):
     with db.connect() as con:s=load(con,task_id)
@@ -535,13 +625,22 @@ def validate_candidate(job,args):
             actual=read_project_content(source_task,source['path'])['hash'] if Path(source['path']).is_file() else None
             if actual!=source['hash']:raise ValueError('stale: 项目证据在分析期间变化')
     if ctx.get('pending_expansion_review') and p.decision in ('no_change','guidance_only'):raise ValueError('Operational feedback does not withdraw a pending review-only permission proposal. Revalidate an expand candidate against the current snapshot/evidence for later human confirmation; submission does not approve, grant, or apply it. A new authoritative user message may change or withdraw this intent.')
+    original_candidate=p.model_dump()
     old=ctx['base_snapshot']['payload'];dirs=p.allowed_write_dirs
     previous=old.get('protected_paths',[])
+    with db.connect() as con:normalization_mode=load(con,job['task_id']).get('normalization_mode','legacy')
+    if normalization_mode!='legacy':
+        previous=sorted(set(previous));p.allowed_write_dirs=dirs=sorted(set(dirs))
     immutable_targets={str(Path(x).relative_to(ctx['path_mapping']['workspace'])) for x in ctx.get('baseline',{}).get('protected_files',[]) if Path(x).is_relative_to(ctx.get('path_mapping',{}).get('workspace','/nonexistent'))}
     if p.protected_paths is None:p.protected_paths=previous
+    if normalization_mode!='legacy':p.protected_paths=sorted(set(p.protected_paths))
     for target in set(p.protected_paths)-set(previous):
         if target.endswith('/**') and any(x.startswith(target[:-2]) for x in immutable_targets):raise ValueError('overbroad registered object collection: startup registered files must not be broadened to future derived artifacts. Use exact new registered targets; immutable baseline targets are already protected.')
     redundant=(set(p.protected_paths)-set(previous)) & immutable_targets
+    baseline_references=sorted(redundant)
+    if normalization_mode!='legacy' and redundant:
+        p.protected_paths=[target for target in p.protected_paths if target not in redundant]
+        redundant=set()
     if redundant:raise ValueError('Objects already protected by the immutable startup baseline must not be added as new runtime restrictions: '+json.dumps(sorted(redundant))+'; keep the current runtime snapshot, or propose only an effective new restriction')
     registered=set(ctx['capabilities'].get('registered_files',[]))|{d+'/**' for d in ctx['capabilities']['registered_directories'] if d!='.'}
     if not set(p.protected_paths)<=registered|set(previous):raise ValueError('未登记的保护对象')
@@ -556,8 +655,10 @@ def validate_candidate(job,args):
     if p.decision in ('no_change','guidance_only'):
         if dirs!=old['allowed_write_dirs'] or p.allow_output!=old['allow_output'] or p.protected_paths!=previous:raise ValueError('无需变更或指导不能修改权限')
     elif p.decision=='restrict':
+        if normalization_mode!='legacy' and dirs==old['allowed_write_dirs'] and p.allow_output==old['allow_output'] and p.protected_paths==previous:
+            p.decision='no_change'
         if dirs!=old['allowed_write_dirs'] and 'authorized_write_scopes' in ctx['capabilities'] and (not dirs or not set(dirs)<=set(ctx['capabilities']['authorized_write_scopes'])):raise ValueError('No explicit authenticated write-scope restriction authorizes these directories; a procedural read/test instruction does not authorize changing the persistent scope')
-        if dirs==old['allowed_write_dirs'] and p.allow_output==old['allow_output'] and p.protected_paths==previous:raise ValueError('No OS restriction changed; choose no_change or guidance_only with the current snapshot')
+        if p.decision=='restrict' and dirs==old['allowed_write_dirs'] and p.allow_output==old['allow_output'] and p.protected_paths==previous:raise ValueError('No OS restriction changed; choose no_change or guidance_only with the current snapshot')
         if p.allow_output and not old['allow_output']:raise ValueError('收紧不能授予输出权限')
         if any(not any(o=='.' or d==o or d.startswith(o+'/') for o in old['allowed_write_dirs']) for d in dirs):raise ValueError('收紧不能扩展路径')
     elif p.decision=='expand':
@@ -570,16 +671,24 @@ def validate_candidate(job,args):
         if s['revision']!=job['revision'] or s['policy_hash']!=job['policy_hash']:raise ValueError('stale: 上下文或策略已变化')
     dsl,yaml=render(task,s,dirs,p.allow_output,p.protected_paths)
     from ..main import compile_policy
-    status,diagnostic,error=compile_policy(yaml,task['id'],12000+s['revision'])
-    if status!='compiled':raise ValueError('候选编译失败: '+str(error))
-    return {**p.model_dump(),'hash':digest({'proposal':p.model_dump(),'context':ctx}),'compile':diagnostic,'compiled_dsl':dsl,'compiled_dsl_hash':hashlib.sha256(dsl.encode()).hexdigest()}
+    report=None
+    if normalization_mode!='legacy':
+        dsl,yaml,diagnostic,report=normalization.build(dsl,yaml,task['id'],12000+s['revision'],normalization_mode,compile_policy)
+    else:
+        status,diagnostic,error=compile_policy(yaml,task['id'],12000+s['revision'])
+        if status!='compiled':raise ValueError('候选编译失败: '+str(error))
+    return {**p.model_dump(),'original_candidate':original_candidate,'baseline_references':baseline_references,'normalization':report,'hash':digest({'proposal':p.model_dump(),'context':ctx}),'compile':diagnostic,'compiled_dsl':dsl,'compiled_dsl_hash':hashlib.sha256(dsl.encode()).hexdigest()}
 
 def finish_job(job):
     with lock(job['task_id']),db.connect() as con:
         s=load(con,job['task_id']);row=con.execute('SELECT proposal_json FROM managed_jobs WHERE id=?',(job['id'],)).fetchone()
         if not row or not row[0]:raise ValueError('Pi 未提交经校验候选')
         if s['phase']!='running' or s['revision']!=job['revision'] or s['policy_hash']!=job['policy_hash']:raise ValueError('stale: 候选已过期或任务已结束')
-        p=json.loads(row[0]);event(con,job['task_id'],'candidate',job['id'],{'proposal':p,'revision':s['revision']})
+        p=json.loads(row[0]);normalization.persist(con,job['task_id'],'runtime',job['id'],p.get('normalization'));event(con,job['task_id'],'candidate',job['id'],{'proposal':p,'revision':s['revision']})
+        if p.get('normalization'):
+            from .records import runtime_statement_records
+            projection=dict(con.execute('SELECT * FROM managed_jobs WHERE id=?',(job['id'],)).fetchone())
+            runtime_statement_records(con,task_row(con,job['task_id']),s,projection,persist_links=True)
         if p.get('unresolved_requests'):
             s['gate']='waiting_clarification';s['pending_unresolved_requests']=p['unresolved_requests'];save(con,job['task_id'],s)
             event(con,job['task_id'],'control_pause','unresolved:'+job['id'],{'reason':'必要 OS 约束尚未解决，等待澄清','request_ids':p['unresolved_requests'],'version':s['version']})
@@ -588,6 +697,11 @@ def finish_job(job):
         if p['decision']=='expand':
             s['pending_expansion']={'job_id':job['id'],'hash':p['hash'],'proposal':p};s.pop('pending_expansion_intent',None)
         if p['decision']!='restrict':
+            if s.get('normalization_mode','legacy')!='legacy':
+                live=broker({'action':'status','task_id':job['task_id']})
+                expected=s.get('binding',{})
+                if live.get('status')!='running' or live.get('domain_verified') is not True or live.get('domain_id')!=expected.get('domain_id') or live.get('runner_pid')!=expected.get('runner_pid') or expected.get('process_cgroup') and live.get('cgroup_verified') is not True:
+                    raise ValueError('Current process/domain binding cannot be verified; keep execution paused')
             s['gate']='open';save(con,job['task_id'],s)
             if p['decision'] in ('no_change','guidance_only'):event(con,job['task_id'],'request_resolved',job['id'],{'evidence_ids':p['evidence_ids'],'decision':p['decision'],'version':s['version']})
             return
@@ -605,6 +719,7 @@ def confirm_expansion(task_id,expected_hash):
         s=load(con,task_id);p=s.get('pending_expansion')
         if s['phase']!='running' or s['gate']!='open':raise ValueError('控制面正在暂停或应用策略，不能重复确认')
         if not p or p['hash']!=expected_hash:raise ValueError('扩权候选已变化')
+        if p['proposal'].get('normalization') and p['proposal']['normalization']['engine_hash']!=normalization.engine_digest():raise ValueError('扩权输入已过期: 编译器已变化')
         j=con.execute('SELECT revision,policy_hash,context_json FROM managed_jobs WHERE id=?',(p['job_id'],)).fetchone()
         if j['revision']!=s['revision'] or j['policy_hash']!=s['policy_hash']:raise ValueError('扩权输入已过期')
         for source in json.loads(j['context_json']).get('project_sources',[]):

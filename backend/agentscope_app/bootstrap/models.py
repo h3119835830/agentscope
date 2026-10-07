@@ -20,7 +20,7 @@ class Draft(BaseModel):
     summary: str = Field(min_length=3, max_length=2000)
     atoms: list[Atom] = Field(default_factory=list, max_length=20)
     guidance: list[str] = Field(default_factory=list, max_length=20)
-    unresolved: list[str] = Field(default_factory=list, max_length=20, description="Unresolved necessary execution constraints only. Semantic requirements go in guidance. Do not invent gaps for assets or task requirements absent from evidence.")
+    unresolved: list[str] = Field(default_factory=list, max_length=20, description="Unresolved necessary OS safety constraints only: missing or ambiguous execution targets or unsupported enforcement capabilities. Task feasibility, failing business tests and implementation risks belong in guidance and do not block policy admission. Do not invent gaps absent from evidence.")
     no_op: bool = False
 
 

@@ -1982,6 +1982,7 @@ mod tests {
             target_kind: dsl::ast::Kind::Exec,
             target_pattern: "git".to_string(),
             target_arg: None,
+            semantics: Default::default(),
             source: Some(dsl::RuleSourceMeta {
                 source_ref: "rules.secret.ifc".to_string(),
                 binding_mode: Some("locked".to_string()),

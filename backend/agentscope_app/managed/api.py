@@ -16,6 +16,7 @@ class Confirmation(BaseModel):
 def run(fn,*args,**kwargs):
     try:return fn(*args,**kwargs)
     except (ValueError,RuntimeError) as e:raise HTTPException(409,str(e))
+    except OSError as e:raise HTTPException(503,"Trusted execution service unavailable: "+type(e).__name__)
 
 @router.post('/api/managed/scenarios/{case}/tasks')
 def create(case:str):return run(c.create,case)
@@ -57,11 +58,12 @@ def gate(task_id:str,request:Request):authenticate(task_id,request);return run(c
 @router.post('/api/plugin/tasks/{task_id}/managed/events')
 def events(task_id:str,request:Request,body:ToolCall):
     authenticate(task_id,request)
-    try:return run(c.ingest,task_id,body.args)
+    try:return c.ingest(task_id,body.args)
     except OSError as error:
         from .worker import worker
         worker.fail(task_id,'Project context or native audit unavailable: '+str(error))
         raise HTTPException(409,'任务已暂停：上下文或审计无法读取')
+    except (ValueError,RuntimeError) as error:raise HTTPException(409,str(error))
 @router.post('/api/plugin/tasks/{task_id}/managed/change')
 def change(task_id:str,request:Request,body:ToolCall):
     authenticate(task_id,request)
@@ -167,9 +169,9 @@ def compact_native(task_id:str):
 
 
 @router.get('/api/managed/workspace-binding')
-def workspace_binding(task_id:str='',workspace:str='',session_id:str=''):
+def workspace_binding(task_id:str='',workspace:str='',session_id:str='',include_inactive:bool=False):
     from .records import binding
-    return run(binding,task_id,workspace,session_id)
+    return run(binding,task_id,workspace,session_id,include_inactive)
 @router.get('/api/managed/tasks/{task_id}/strategy-records')
 def strategy_records(task_id:str,stage:Literal['startup','runtime']='startup',before:str|None=None,include_assessments:bool=False):
     from .records import records
@@ -187,3 +189,13 @@ def execution_audit(task_id:str,category:Literal['os','tools','control']='os',be
 def workbench(task_id:str):
     from .records import workbench
     return run(workbench,task_id)
+
+@router.get('/api/managed/tasks/{task_id}/domain-graph')
+def domain_graph(task_id:str,version:int|None=None):
+    from .topology import graph
+    return run(graph,task_id,version)
+
+@router.get('/api/managed/tasks/{task_id}/domains/{key}')
+def domain_detail(task_id:str,key:str):
+    from .topology import domain_detail
+    return run(domain_detail,task_id,key)

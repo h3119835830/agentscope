@@ -1,5 +1,7 @@
 # RFC — DSH 文件 Scope 三阶段 Demo
 
+> 2026-10-07 工作区入口、任务创建与历史记录的现行补充见 [Agent 工作区与任务记录](../RFC/RFC-20261007-Agent工作区与任务记录.md)。本文件保留原有执行边界与历史证据。
+
 日期：2026-10-05。范围：AgentScope、DSH/Pi 集成与独立标准库测试项目。普通 ERP 业务不在修改范围。
 
 ## 生命周期与职责
@@ -129,6 +131,10 @@ ActPlane 同一执行域内追加的 runtime delta 不放宽既有或继承限�
 RQ5 safety-impossible-tests 已复制到 /home/happy/projects/rq5-safety-impossible-tests 并加入
 独立 DSH Web 供浏览。该 Web profile 未安装受管插件或绑定执行域；本次不执行 benchmark，
 也不改变登记 Scope Demo 的能力范围。素材可见、插件安装、任务绑定和内核核验必须分开。
+
+## 2026-10-07 连接恢复与服务托管
+
+18003 已采用独立 WSL systemd API/Broker unit，桌面入口先启动服务后兑换原本机票据。旧任务仍为历史记录。详情见 [本次记录](../RFC/RFC-20261007-ScopeDemo服务托管与恢复.md)。服务可用不代表 DSH 当前在线或内核机制重新验收。
 
 ## 2026-10-07 Demo 删除登录流程
 

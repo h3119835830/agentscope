@@ -119,6 +119,8 @@ def init_db():
         con.executescript(SCOPE_SCHEMA)
         from .managed.schema import SCHEMA as MANAGED_SCHEMA
         con.executescript(MANAGED_SCHEMA)
+        from .services.policy_normalization import SCHEMA as NORMALIZATION_SCHEMA
+        con.executescript(NORMALIZATION_SCHEMA)
         con.execute("INSERT OR REPLACE INTO meta(key,value) VALUES('history_schema_version','1')")
 
 def row_dict(row):

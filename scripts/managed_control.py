@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import sys,json,urllib.request,urllib.error
-from scope_service import environment
-URL='http://127.0.0.1:18003'
+from scope_service import environment,URL
 def api(path,data=None):
     headers={'Content-Type':'application/json'}
     env=environment()
@@ -10,7 +9,10 @@ def api(path,data=None):
     request=urllib.request.Request(URL+path,data=json.dumps(data).encode() if data is not None else None,headers=headers)
     try:
         with urllib.request.urlopen(request,timeout=80) as response:return json.load(response)
-    except urllib.error.HTTPError as e:raise RuntimeError(json.load(e).get('detail',str(e)))
+    except urllib.error.HTTPError as e:
+        try:detail=json.load(e).get('detail',str(e))
+        except (ValueError,TypeError):detail='HTTP '+str(e.code)+' from managed control service'
+        raise RuntimeError(detail) from e
 if __name__=='__main__':
     from pathlib import Path
     mode=sys.argv[1]

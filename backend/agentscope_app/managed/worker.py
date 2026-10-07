@@ -27,6 +27,7 @@ class Worker:
             with c.lock(task_id),db.connect() as con:
                 s=c.load(con,task_id)
                 if s['phase']=='ended' or expected_revision is not None and s['revision']!=expected_revision or expected_policy is not None and s['policy_hash']!=expected_policy:return
+                error=s.get('error') if s['phase']=='failed' and s.get('error') else str(error) or type(error).__name__
                 s.update(phase='failed',gate='failed',error=str(error)[:1500]);c.save(con,task_id,s)
             try:c.broker({'action':'stop','task_id':task_id},timeout=20)
             except Exception as stop_error:error=str(error)+'; cleanup: '+str(stop_error)

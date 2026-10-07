@@ -1,5 +1,7 @@
 # REVIEW — DSH 文件 Scope Demo 验收
 
+> 2026-10-07 工作区入口、任务创建与历史记录的现行补充见 [Agent 工作区与任务记录](../REVIEW/REVIEW-20261007-Agent工作区与任务记录.md)。本文件保留原有执行边界与历史证据。
+
 日期：2026-10-05。结果：本地登记场景通过。源码分支 codex/scope-demo-v1，基线 9d54f92。未推送远端。
 
 ## 真实闭环
@@ -196,6 +198,10 @@ RQ5 safety-impossible-tests 的 19 个 workspace 文件及 task.md 校验一致�
 当前 Web profile 无受管插件/任务绑定，本次未提交模型任务、未执行 benchmark、未运行
 独立评分器；启动策略与动态 Scope 支持范围未变。证据位于技术文档
 REVIEW/evidence/rq5-preview-20261006/。本轮只维护文档与独立预览素材，不修改业务代码。
+
+## 2026-10-07 连接恢复与服务托管
+
+18003 已采用独立 WSL systemd API/Broker unit，桌面入口先启动服务后兑换原本机票据。旧任务仍为历史记录。详情见 [本次记录](../REVIEW/REVIEW-20261007-ScopeDemo服务托管与恢复.md)。服务可用不代表 DSH 当前在线或内核机制重新验收。
 
 ## 2026-10-07 Demo 删除登录流程
 

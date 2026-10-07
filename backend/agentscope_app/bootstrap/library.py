@@ -39,11 +39,15 @@ def search(query):
     tokens = re.findall(r"[\w\u4e00-\u9fff]+", query)[:32]
     with db.connect() as con:
         refresh(con)
-        if not tokens: return {"matches": [], "eligible_count": 0}
+        count = con.execute("SELECT count(*) FROM bootstrap_history_fts").fetchone()[0]
+        if not count:
+            return {"matches": [], "eligible_count": 0, "status": "empty_eligible_library", "retrieval_complete": True,
+                    "next_action": "draft_new_candidate", "diagnostic": "No approved history exists. Changing the query cannot return a reusable policy; use current task and project evidence."}
+        if not tokens: return {"matches": [], "eligible_count": count, "status": "invalid_query", "retrieval_complete": False}
         expression = " OR ".join('"' + t.replace('"', '') + '"' for t in tokens)
         rows = con.execute("SELECT h.*,bm25(bootstrap_history_fts) rank FROM bootstrap_history_fts JOIN bootstrap_history h ON h.id=bootstrap_history_fts.id WHERE bootstrap_history_fts MATCH ? ORDER BY rank LIMIT 20", (expression,)).fetchall()
         count = con.execute("SELECT count(*) FROM bootstrap_history_fts").fetchone()[0]
-    return {"eligible_count": count, "retrieval": "whole-library FTS5; applicability must be judged against current evidence",
+    return {"eligible_count": count, "status": "matches" if rows else "no_query_matches", "retrieval_complete": True, "retrieval": "whole-library FTS5; applicability must be judged against current evidence",
             "matches": [{"id": row["id"], "hash": row["content_hash"], "text": row["text"], "record": json.loads(row["record_json"]), "source_kind": row["source_kind"]} for row in rows]}
 
 def approved_record(ident, expected_hash, con):

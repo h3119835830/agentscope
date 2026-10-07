@@ -36,31 +36,81 @@ def consume_agent_env(path, task_id):
     finally:
         os.close(fd)
 
+def lookup_process_domain(pin_root,pid):
+    """Read cap_task without requiring permission to retrieve its BTF object."""
+    import ctypes
+    class Options(ctypes.Structure):
+        _fields_=[('sz',ctypes.c_size_t),('file_flags',ctypes.c_uint)]
+    library=ctypes.CDLL('libbpf.so.1',use_errno=True)
+    library.bpf_obj_get_opts.argtypes=[ctypes.c_char_p,ctypes.POINTER(Options)]
+    library.bpf_obj_get_opts.restype=ctypes.c_int
+    library.bpf_map_lookup_elem.argtypes=[ctypes.c_int,ctypes.c_void_p,ctypes.c_void_p]
+    library.bpf_map_lookup_elem.restype=ctypes.c_int
+    options=Options(ctypes.sizeof(Options),1<<3)  # BPF_F_RDONLY
+    fd=library.bpf_obj_get_opts(os.fsencode(Path(pin_root)/'maps/cap_task'),ctypes.byref(options))
+    if fd<0:raise RuntimeError('Cannot open the fixed task domain map read-only: '+str(ctypes.get_errno()))
+    try:
+        key,value=ctypes.c_uint(pid),ctypes.c_uint()
+        if library.bpf_map_lookup_elem(fd,ctypes.byref(key),ctypes.byref(value))!=0:
+            raise RuntimeError('Fixed probe has no verified kernel domain: '+str(ctypes.get_errno()))
+        return value.value
+    finally:os.close(fd)
+
+def verify_probe_binding(args,pid):
+    key=[f"{v:02x}" for v in pid.to_bytes(4,'little')]
+    result=subprocess.run(['/usr/sbin/bpftool','-j','map','lookup','pinned',str(Path(args.pin_root)/'maps/cap_task'),'key','hex',*key],capture_output=True,text=True,timeout=5)
+    if result.returncode:raise RuntimeError('Fixed probe has no verified kernel domain')
+    lookup=json.loads(result.stdout)
+    if 'value' not in lookup:
+        if lookup.get('error')!='failed to get btf':raise RuntimeError('Fixed probe has no verified kernel domain: '+str(lookup.get('error','missing map value')))
+        domain=lookup_process_domain(args.pin_root,pid)
+    else:
+        value=lookup['value']
+        domain=value if isinstance(value,int) else int.from_bytes(bytes(int(x,16) if isinstance(x,str) else x for x in value),'little')
+    if domain!=args.domain_id:raise RuntimeError('Fixed probe kernel domain mismatch')
+    own=Path('/proc/self/cgroup').read_text()
+    actual=(Path('/proc')/str(pid)/'cgroup').read_text()
+    group=Path(args.process_cgroup)
+    if actual!=own or group.name not in actual:raise RuntimeError('Fixed probe process scope mismatch')
+    stat=(Path('/proc')/str(pid)/'stat').read_text()
+    return {'domain_verified':True,'process_cgroup':str(group),'starttime':stat.rsplit(')',1)[1].split()[19]}
+
 def handle_request(req, args):
     if req.get("kind") in ("managed-operation","managed-hold","managed-verify"):
         import selectors
         read_fd,write_fd=os.pipe()
         request={**req,"ready_fd":read_fd}
         helper="managed_probe.py" if req["kind"]=="managed-verify" else "managed_operation_probe.py"
-        child=subprocess.Popen(["/usr/bin/python3",str(Path(__file__).with_name(helper)),json.dumps(request)],cwd=args.workspace,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,start_new_session=True,pass_fds=(read_fd,),preexec_fn=demote_agent if os.getuid()==0 else None)
+        # Trusted relay reads fixed probe code before dropping the child's UID.
+        # The child inherits the task domain, but needs no read exception for
+        # control source files. Send code through stdin, never public argv.
+        code=Path(__file__).with_name(helper).read_text()
+        child=subprocess.Popen(["/usr/bin/python3","-",json.dumps(request)],cwd=args.workspace,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,start_new_session=True,pass_fds=(read_fd,),preexec_fn=demote_agent if os.getuid()==0 else None)
         os.close(read_fd)
-        registry=Path(args.workspace)/".actplane/probes.jsonl"
-        fd=os.open(registry,os.O_WRONLY|os.O_APPEND|os.O_CREAT|os.O_NOFOLLOW,0o640)
         try:
-            os.fchown(fd,0,grp.getgrnam("agentscope-task").gr_gid)
-            os.write(fd,(json.dumps({"pid":child.pid,"domain_id":args.domain_id,"request_id":req["request_id"]})+"\n").encode());os.fsync(fd)
-        finally:os.close(fd)
-        os.write(write_fd,b"1");os.close(write_fd)
-        try:
+            child.stdin.write(code);child.stdin.close();child.stdin=None
+            binding=verify_probe_binding(args,child.pid)
+            registry=Path(args.workspace)/".actplane/probes.jsonl"
+            fd=os.open(registry,os.O_WRONLY|os.O_APPEND|os.O_CREAT|os.O_NOFOLLOW,0o640)
+            try:
+                os.fchown(fd,0,grp.getgrnam("agentscope-task").gr_gid)
+                os.write(fd,(json.dumps({"pid":child.pid,"domain_id":args.domain_id,"request_id":req["request_id"],**binding})+"\n").encode());os.fsync(fd)
+            finally:os.close(fd)
+            os.write(write_fd,b"1")
             if req["kind"]=="managed-hold":
                 with selectors.DefaultSelector() as selector:
                     selector.register(child.stdout,selectors.EVENT_READ)
                     if not selector.select(10):raise TimeoutError("held capability probe timed out")
-                return {"request_id":req["request_id"],"ok":True,"probe":json.loads(child.stdout.readline())}
+                return {"request_id":req["request_id"],"ok":True,"probe":json.loads(child.stdout.readline()),"binding":binding}
             stdout,stderr=child.communicate(timeout=20)
-            return {"request_id":req["request_id"],"ok":child.returncode==0,"probe":json.loads(stdout)}
-        except Exception:
+            return {"request_id":req["request_id"],"ok":child.returncode==0,"probe":json.loads(stdout),"binding":binding}
+        except Exception as error:
+            exited=child.poll()
+            if exited is not None:
+                diagnostic=child.stderr.read(1500)
+                raise RuntimeError(f'Fixed probe exited {exited} before admission: '+diagnostic) from error
             child.kill();child.wait();raise
+        finally:os.close(write_fd)
     if req.get("kind") == "scope-verify":
         command = ["/usr/bin/python3", str(Path(__file__).with_name("scope_probe.py")),
                    "--workspace", args.workspace, "--dirs", ",".join(req["directories"])]
@@ -118,6 +168,8 @@ def main():
        "AGENTSCOPE_TASK_ID":args.task_id,"AGENTSCOPE_TASK_TOKEN":task_env["task_token"],
        "AGENTSCOPE_URL":task_env["agentscope_url"],"NO_PROXY":"*","no_proxy":"*"})
     scope_mode = task_env.get("scope_mode", "")
+    args.pin_root=task_env.get("pin_root")
+    args.process_cgroup=task_env.get("process_cgroup")
     if scope_mode:
         agent = pwd.getpwnam(os.getenv("AGENTSCOPE_AGENT_USER", "agentscope-agent"))
         env.update(USER=agent.pw_name, LOGNAME=agent.pw_name)
@@ -154,6 +206,8 @@ def main():
         except subprocess.TimeoutExpired as e:
             write_result(args.result_file,{"request_id":req.get("request_id"),"ok":False,"error":"ActPlane Delta timed out"})
         except Exception as e:
+            last_request=str(req.get("request_id",""))
+            write_result(args.result_file,{"request_id":last_request,"ok":False,"error":type(e).__name__+": "+str(e)[:1500]})
             print(f"AgentScope: runtime relay error: {e}",file=sys.stderr,flush=True)
         time.sleep(0.25)
     return dsh.wait() if dsh else 0
