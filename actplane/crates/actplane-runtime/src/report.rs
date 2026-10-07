@@ -460,6 +460,7 @@ mod tests {
                 target_kind: dsl::ast::Kind::Exec,
                 target_pattern: "git".to_string(),
                 target_arg: None,
+                semantics: Default::default(),
                 source: None,
             },
             labels,
@@ -519,6 +520,7 @@ mod tests {
                 target_kind: dsl::ast::Kind::Exec,
                 target_pattern: "git".to_string(),
                 target_arg: Some("commit".to_string()),
+                semantics: Default::default(),
                 source: Some(dsl::RuleSourceMeta {
                     source_ref: "rules.local.ifc".to_string(),
                     binding_mode: Some("locked".to_string()),

@@ -12,9 +12,11 @@ from pathlib import Path
 from rq5_service import environment as base_environment
 
 ROOT = Path(__file__).resolve().parents[1]
-STATE = Path("/var/lib/agentscope-scope-demo")
-TASKS = Path("/s")
-URL = "http://127.0.0.1:18003"
+NORMALIZATION_PROFILE = os.getenv("AGENTSCOPE_SERVICE_PROFILE") == "normalization"
+STATE = Path("/var/lib/agentscope-normalization-v1" if NORMALIZATION_PROFILE else "/var/lib/agentscope-scope-demo")
+TASKS = Path("/n" if NORMALIZATION_PROFILE else "/s")
+PORT = 18004 if NORMALIZATION_PROFILE else 18003
+URL = f"http://127.0.0.1:{PORT}"
 
 
 def environment():
@@ -27,9 +29,12 @@ def environment():
                 "AGENTSCOPE_DSH_HOME": str(STATE / "dsh-home"), "DSH_HOME": str(STATE / "dsh-home"),
                 "ACTPLANE_BPF_PIN_ROOT": "/sys/fs/bpf/agentscope-managed-v3",
                 "AGENTSCOPE_SCOPE_WORKER": "1", "AGENTSCOPE_BOOTSTRAP_TEST_LIBRARY": "1",
-                "AGENTSCOPE_DEV_NO_AUTH": "0", "AGENTSCOPE_RQ1_AUTO_IMPORT": "0",
-                "AGENTSCOPE_LOCAL_BROWSER_LOGIN": "1",
+                "AGENTSCOPE_DEV_NO_AUTH": "0" if NORMALIZATION_PROFILE else "1", "AGENTSCOPE_RQ1_AUTO_IMPORT": "0",
                 "PYTHONPATH": str(ROOT / "backend"), "AGENTSCOPE_RUNNER": str(ROOT / "backend/broker/task_runner.py")})
+    if NORMALIZATION_PROFILE:
+        env.update({"AGENTSCOPE_RUNTIME_DIR":"/run/agentscope-normalization-v1", "AGENTSCOPE_BROKER_SOCKET":"/run/agentscope-normalization-v1/broker.sock", "ACTPLANE_BPF_PIN_ROOT":"/sys/fs/bpf/agentscope-normalization-v1", "AGENTSCOPE_POLICY_NORMALIZATION":os.getenv("AGENTSCOPE_POLICY_NORMALIZATION","observe")})
+    else:
+        env.pop("AGENTSCOPE_ADMIN_TOKEN", None)
     if (STATE / "bin/actplane").exists(): env["ACTPLANE_BIN"] = str(STATE / "bin/actplane")
     env["DSH_BIN"] = str(STATE / "dsh-home/profiles/headless/node_modules/@deepseek-ai/dsh/lib/bin.js")
     return env
@@ -54,7 +59,7 @@ def start(api_only=False):
     if not (STATE / "ui").exists(): shutil.copytree(ROOT / "frontend/dist", STATE / "ui")
     home = STATE / "dsh-home"
     if not home.exists():
-        source = Path("/var/lib/agentscope-history-v1/dsh-home")
+        source = Path("/var/lib/agentscope-scope-demo/dsh-home" if NORMALIZATION_PROFILE else "/var/lib/agentscope-history-v1/dsh-home")
         shutil.copytree(source, home, symlinks=True, ignore=shutil.ignore_patterns("sessions", "storages"))
         agent = pwd.getpwnam("agentscope-agent")
         for base, dirs, files in os.walk(home):
@@ -63,6 +68,10 @@ def start(api_only=False):
             for name in files:
                 p = Path(base) / name
                 if not p.is_symlink(): os.chown(p, agent.pw_uid, group.gr_gid); os.chmod(p, 0o640)
+    # An acceptance profile owns its plugin and runtime package tree.
+    modules=home/"profiles/headless/node_modules"
+    if NORMALIZATION_PROFILE and modules.is_symlink():
+        source=modules.resolve();modules.unlink();shutil.copytree(source,modules,symlinks=False)
     # Resolve the private profile package before copying; never edit the shared profile.
     plugin = home / "profiles/headless/node_modules/@agentscope/dsh-policy"
     if plugin.is_symlink():
@@ -94,7 +103,7 @@ def start(api_only=False):
         os.setuid(user.pw_uid)
     broker = None if api_only else subprocess.Popen(["/opt/agentscope/.venv/bin/python", str(ROOT / "backend/broker/main.py")],
         env=env, cwd=ROOT, stdout=open(STATE / "broker.log", "a"), stderr=subprocess.STDOUT, start_new_session=True)
-    api = subprocess.Popen(["/opt/agentscope/.venv/bin/python", "-m", "uvicorn", "agentscope_app.main:app", "--host", "127.0.0.1", "--port", "18003"],
+    api = subprocess.Popen(["/opt/agentscope/.venv/bin/python", "-m", "uvicorn", "agentscope_app.main:app", "--host", "127.0.0.1", "--port", str(PORT)],
         env=env, cwd=ROOT, preexec_fn=demote, stdout=open(STATE / "api.log", "a"), stderr=subprocess.STDOUT, start_new_session=True)
     pids = {"broker": old["broker"] if api_only else broker.pid, "api": api.pid}
     pidfile.write_text(json.dumps(pids))

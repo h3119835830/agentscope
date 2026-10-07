@@ -107,4 +107,6 @@ def execute(task_id, job_id, tool, args):
     with db.connect() as con:
         if con.execute("SELECT 1 FROM bootstrap_proposals WHERE job_id=?", (job_id,)).fetchone(): raise ValueError("job already submitted one proposal")
         con.execute("INSERT INTO bootstrap_proposals VALUES(?,?,?,?,?,?,?,?,?)", (ident, task_id, job_id, result["proposal"]["context_hash"], result["proposal_hash"], json.dumps(result["proposal"]), json.dumps({k:v for k,v in result.items() if k != "proposal"}), result['state'], db.now()))
+        from ..services.policy_normalization import persist
+        persist(con,task_id,'startup',ident,result.get('normalization'))
     return {"id": ident, "proposal_hash": result["proposal_hash"], "state": result['state']}

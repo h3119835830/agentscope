@@ -16,6 +16,7 @@ class Confirmation(BaseModel):
 def run(fn,*args,**kwargs):
     try:return fn(*args,**kwargs)
     except (ValueError,RuntimeError) as e:raise HTTPException(409,str(e))
+    except OSError as e:raise HTTPException(503,"Trusted execution service unavailable: "+type(e).__name__)
 
 @router.post('/api/managed/scenarios/{case}/tasks')
 def create(case:str):return run(c.create,case)
@@ -57,11 +58,12 @@ def gate(task_id:str,request:Request):authenticate(task_id,request);return run(c
 @router.post('/api/plugin/tasks/{task_id}/managed/events')
 def events(task_id:str,request:Request,body:ToolCall):
     authenticate(task_id,request)
-    try:return run(c.ingest,task_id,body.args)
+    try:return c.ingest(task_id,body.args)
     except OSError as error:
         from .worker import worker
         worker.fail(task_id,'Project context or native audit unavailable: '+str(error))
         raise HTTPException(409,'任务已暂停：上下文或审计无法读取')
+    except (ValueError,RuntimeError) as error:raise HTTPException(409,str(error))
 @router.post('/api/plugin/tasks/{task_id}/managed/change')
 def change(task_id:str,request:Request,body:ToolCall):
     authenticate(task_id,request)

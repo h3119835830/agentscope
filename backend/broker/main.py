@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Root-only, allowlisted ActPlane broker. FastAPI never receives a shell."""
+from contextlib import contextmanager
 import grp, hashlib, json, os, pwd, re, secrets, shutil, signal, socket, socketserver, stat, subprocess, sys, tempfile, threading, time
 from pathlib import Path
 
@@ -23,6 +24,8 @@ AGENT=pwd.getpwnam(os.getenv("AGENTSCOPE_AGENT_USER","agentscope-agent"))
 TASK_GID=grp.getgrnam(os.getenv("AGENTSCOPE_TASK_GROUP","agentscope-task")).gr_gid
 
 TASKS={}; LOCK=threading.RLock()
+LAUNCH_LOCK=threading.RLock()
+WEB_PORTS=set()
 TASK_ID_RE=re.compile(r"^[a-f0-9]{16}$")
 
 def child_env(agent=False,task_id=None):
@@ -71,7 +74,7 @@ def validate_restrictive_delta(dsl):
         if not (s.startswith("block ") or s.startswith("kill ")): raise ValueError("运行期只允许追加 block/kill 限制")
     return dsl
 
-def compile_policy(task_id,version,yaml_text,dsl_text,workspace):
+def compile_policy(task_id,version,yaml_text,dsl_text,workspace,normalization=None):
     checked_task(task_id)
     if len(yaml_text)>250000 or len(dsl_text)>60000: raise ValueError("策略内容超过上限")
     version=int(version)
@@ -100,6 +103,16 @@ def compile_policy(task_id,version,yaml_text,dsl_text,workspace):
     out=run_actplane(["--policy",policy_path,"compile","--json"],workspace,child_env(),45)
     try: details=json.loads(out)
     except Exception: details={"output":out[-4000:]}
+    if normalization:
+        sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
+        from agentscope_app.services.policy_normalization import verify_proof
+        def independent_compile(text,_task,index):
+            proof_path=dest/("normalization-check-"+str(index)+".yaml")
+            write_file(proof_path,text,0o440)
+            value=json.loads(run_actplane(["--policy",proof_path,"compile","--json"],workspace,child_env(),45))
+            support=value.get('backend_support',{}).get('clauses',[])
+            return ('compiled' if value.get('ok') is True and all(c.get('supported') for c in support) else 'partial',value,'Unsupported original policy')
+        verify_proof(dsl_text,yaml_text,task_id,str(workspace),normalization,independent_compile)
     clauses=details.get("backend_support",{}).get("clauses",[])
     unsupported=[c for c in clauses if not c.get("supported",False)]
     if unsupported: raise RuntimeError("策略中含 ActPlane 当前不支持的子句："+json.dumps(unsupported[:8],ensure_ascii=False))
@@ -191,11 +204,14 @@ def prepare_web_home(home):
     # The native CLI resets this empty include root before any Agent exists.
     root_config=profile/'cordis.yml'
     if root_config.exists():os.chown(root_config,0,TASK_GID);os.chmod(root_config,0o660)
-    for port in range(18020,18040):
-        try:
-            with socket.socket() as a,socket.socket() as b:a.bind(('127.0.0.1',port));b.bind(('127.0.0.1',port+100))
-            return port
-        except OSError:continue
+    with LOCK:
+        for port in range(18020,18040):
+            if port in WEB_PORTS:continue
+            try:
+                with socket.socket() as a,socket.socket() as b:a.bind(('127.0.0.1',port));b.bind(('127.0.0.1',port+100))
+                WEB_PORTS.add(port)
+                return port
+            except OSError:continue
     raise RuntimeError('No managed DSH web port available')
 
 def native_session(message):
@@ -293,6 +309,8 @@ def managed_operation(message):
             except (FileNotFoundError,ValueError):pass
             time.sleep(.1)
         else:raise RuntimeError('Fixed OS operation timed out')
+        if result.get('ok') is not True:raise RuntimeError(result.get('error') or 'Fixed operation failed before execution')
+        if result.get('binding',{}).get('domain_verified') is not True:raise RuntimeError('Fixed probe was not independently bound before execution')
         probe=result['probe'];raw=[]
         for attempt in range(20):
             raw=[]
@@ -304,7 +322,7 @@ def managed_operation(message):
         after=target.read_bytes() if target.is_file() else None
         alias=scratch/'hard-alias'
         effect=after!=original or operation=='read' and probe['success'] or operation=='hardlink' and alias.exists() and alias.stat().st_ino==target.stat().st_ino or operation=='hold' and probe['success']
-        return {'probe':probe,'domain_id':record['domain_id'],'kernel_events':raw,'effect_verified':bool(effect),'before_hash':hashlib.sha256(original).hexdigest() if original is not None else None,'after_hash':hashlib.sha256(after).hexdigest() if after is not None else None}
+        return {'probe':probe,'probe_binding':result['binding'],'domain_id':record['domain_id'],'kernel_events':raw,'effect_verified':bool(effect),'before_hash':hashlib.sha256(original).hexdigest() if original is not None else None,'after_hash':hashlib.sha256(after).hexdigest() if after is not None else None}
     finally:
         if operation!='hold':
             if moved_parent and (scratch/'directory-alias').is_dir():os.rename(scratch/'directory-alias',moved_parent)
@@ -401,7 +419,39 @@ def grant_api_event_access(workspace, trusted_relay=False):
         events=path_under(events,workspace)
         os.chown(events,0 if trusted_relay else -1,TASK_GID); os.chmod(events,0o640)
 
-def launch(task_id,version,workspace,output_dir,prompt,dsl_text,policy_yaml,dsh_profile="headless",task_token="",agentscope_url="http://127.0.0.1:8000",scope_mode="",protected_files=None,baseline_dsl=None):
+RELAY_BOOTSTRAP = """import os,sys,time,stat
+path,nonce=sys.argv[1:3]
+if os.geteuid()!=0:raise SystemExit(78)
+deadline=time.monotonic()+15
+while True:
+    try:fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW)
+    except FileNotFoundError:
+        if time.monotonic()>=deadline:raise SystemExit(78)
+        time.sleep(.02);continue
+    try:
+        info=os.fstat(fd)
+        if info.st_uid!=0 or stat.S_IMODE(info.st_mode)!=0o600 or not stat.S_ISREG(info.st_mode):raise SystemExit(78)
+        if os.read(fd,256).decode()!=nonce:raise SystemExit(78)
+    finally:os.close(fd)
+    break
+os.unlink(path)
+os.execv('/usr/bin/python3',['/usr/bin/python3',*sys.argv[3:]])
+"""
+
+
+@contextmanager
+def launch_slot(task_id,scope_mode):
+    # Serialize launch preparation/port leases, never unrelated task reads.
+    with LAUNCH_LOCK:
+        with LOCK:
+            for other in TASKS.values():
+                if other.get("watch") and other["watch"].poll() is None and (scope_mode!="managed-web" or other.get("scope_mode")!="managed-web" or other["task_id"]==task_id):
+                    raise RuntimeError("ActPlane 当前使用单例运行时；请先停止现有 Agent 任务")
+        try:yield
+        finally:
+            with LOCK:WEB_PORTS.intersection_update(record.get('web_port') for record in TASKS.values() if record.get('web_port'))
+
+def launch(task_id,version,workspace,output_dir,prompt,dsl_text,policy_yaml,dsh_profile="headless",task_token="",agentscope_url="http://127.0.0.1:8000",scope_mode="",protected_files=None,baseline_dsl=None,normalization=None):
     checked_task(task_id)
     if scope_mode not in ("", "cold", "managed", "managed-web"): raise ValueError("Scope runner mode invalid")
     if dsh_profile not in ("headless","web") or (dsh_profile=="web" and scope_mode!="managed-web"): raise ValueError("DSH profile must match the managed launch mode")
@@ -411,16 +461,19 @@ def launch(task_id,version,workspace,output_dir,prompt,dsl_text,policy_yaml,dsh_
     workspace=path_under(workspace,WORKSPACES)
     output=path_under(output_dir,OUTPUTS)
     if len(prompt)>8000: raise ValueError("任务提示词过长")
-    with LOCK:
-        for other in TASKS.values():
-            if other.get("watch") and other["watch"].poll() is None and (scope_mode!="managed-web" or other.get("scope_mode")!="managed-web" or other["task_id"]==task_id):
-                raise RuntimeError("ActPlane 当前使用单例运行时；请先停止现有 Agent 任务")
-        files=compile_policy(task_id,version,policy_yaml,dsl_text,workspace)
+    with launch_slot(task_id,scope_mode):
+        files=compile_policy(task_id,version,policy_yaml,dsl_text,workspace,normalization)
         if scope_mode=="managed-web":
             if not baseline_dsl or len(baseline_dsl)>60000:raise ValueError("Missing immutable startup baseline")
             parent_dsl=re.sub(r"\bAGENT\b","COMMAND",baseline_dsl)
             parent_yaml="version: 1\nfeedback:\n  path: "+json.dumps(str(workspace/".actplane/last-violation.txt"))+"\npolicy: |\n"+"\n".join("  "+line for line in parent_dsl.splitlines())+"\n"
             write_file(files["watch_path"],parent_yaml,0o440)
+            if normalization:
+                parent_check=run_actplane(["--policy",files["watch_path"],"compile","--json"],workspace,child_env(task_id=task_id),20)
+                parent_compiled=json.loads(parent_check)
+                if parent_compiled.get('ok') is not True:raise ValueError('Immutable parent policy did not compile')
+                files['baseline_binding']={'bundle_hash':hashlib.sha256(parent_yaml.encode()).hexdigest(),'compile':parent_compiled}
+
         if scope_mode and scope_mode!="managed-web":
             protected_manifest = POLICY_ROOT / task_id / "scope-manifest.json"
             if not protected_manifest.exists():
@@ -450,61 +503,86 @@ def launch(task_id,version,workspace,output_dir,prompt,dsl_text,policy_yaml,dsh_
                                      "SUDO_UID":str(0 if scope_mode else AGENT.pw_uid),"SUDO_GID":str(0 if scope_mode else TASK_GID)})
         anchor=subprocess.Popen(["/usr/bin/sleep","infinity"],cwd=workspace,env=child_env(True),preexec_fn=user_preexec,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,start_new_session=True)
         env["ACTPLANE_ATTACH_PID"]=str(anchor.pid)
-        watch=subprocess.Popen([str(ACTPLANE),"--policy",watch_path,"watch"],cwd=workspace,env=env,stdout=watch_log,stderr=subprocess.STDOUT,start_new_session=True)
-        deadline=time.time()+25
-        while time.time()<deadline:
-            if watch.poll() is not None:
-                anchor.terminate()
-                watch_log.flush(); watch_log.close()
-                raise RuntimeError((log_dir/f"{task_id}-v{version}-watch.log").read_text(errors="replace")[-5000:])
-            if control_state(watch_path).exists():
-                grant_agent_control_access(watch_path, bool(scope_mode))
-                grant_api_event_access(workspace, bool(scope_mode))
-                break
-            time.sleep(.2)
-        else:
-            watch.terminate(); anchor.terminate()
-            raise RuntimeError("ActPlane watch 启动超时；请检查 /var/log/agentscope/*-watch.log")
-        domain=secrets.randbelow(1_800_000_000)+100_000_000
-        result_path=workspace.parent/(".runtime-control/scope-result.json" if scope_mode else "tmp/scope-result.json")
-        task_env_path=workspace.parent/"tmp"/"agent-env.json"
-        command=["--policy",watch_path,"control","launch-child","--child-id",str(domain),"--delta",files["dsl_path"],"--","/usr/bin/python3",str(RUNNER),
-          "--task-id",task_id,"--domain-id",str(domain),"--env-file",str(task_env_path),"--request-file",str(RUNTIME/"commands"/task_id/"request.json"),
-          "--result-file",str(result_path),"--watch-policy",watch_path,"--actplane",str(ACTPLANE),
-          "--workspace",str(workspace),"--dsh",str(DSH_WEB if scope_mode=="managed-web" else DSH),"--dsh-home",str(dsh_home),"--profile",dsh_profile,"--prompt",prompt]
-        cmd_root=RUNTIME/"commands"; cmd_root.mkdir(parents=True,exist_ok=True); os.chown(cmd_root,0,0); os.chmod(cmd_root,0o711)
-        cmd_dir=cmd_root/task_id; cmd_dir.mkdir(parents=True,exist_ok=True); os.chown(cmd_dir,0,TASK_GID); os.chmod(cmd_dir,0o750)
-        request_path=cmd_dir/"request.json"; request_path.unlink(missing_ok=True)
-        task_env_path.parent.mkdir(parents=True,exist_ok=True); os.chown(task_env_path.parent,0,TASK_GID); os.chmod(task_env_path.parent,0o2770)
-        write_file(task_env_path,json.dumps({"task_id":task_id,"task_token":task_token,"agentscope_url":agentscope_url,"scope_mode":scope_mode,"web_port":web_port,"native_token":native_token,"pin_root":env.get("ACTPLANE_BPF_PIN_ROOT")}),0o660)
-        os.chown(task_env_path.parent,0,TASK_GID); os.chmod(task_env_path.parent,0o2770)
-        result_path.unlink(missing_ok=True)
-        # ActPlane's watch daemon launches the child with its own environment,
-        # not the launch-child CLI caller's environment. Pass task credentials
-        # through a one-time task file; task_runner scrubs it before starting DSH.
-        launch_env=child_env(task_id=task_id); launch_env.update({"SUDO_UID":str(0 if scope_mode else AGENT.pw_uid),"SUDO_GID":str(0 if scope_mode else TASK_GID),"TMPDIR":str(workspace.parent/"tmp")})
+        watch=None
         try:
-            out=run_actplane(command,workspace,launch_env,35)
+            watch=subprocess.Popen([str(ACTPLANE),"--policy",watch_path,"watch"],cwd=workspace,env=env,stdout=watch_log,stderr=subprocess.STDOUT,start_new_session=True)
+            deadline=time.time()+25
+            while time.time()<deadline:
+                if watch.poll() is not None:
+                    anchor.terminate()
+                    watch_log.flush(); watch_log.close()
+                    raise RuntimeError("ActPlane watch exited "+str(watch.returncode)+": "+(log_dir/f"{task_id}-v{version}-watch.log").read_text(errors="replace")[-4500:])
+                if control_state(watch_path).exists():
+                    grant_agent_control_access(watch_path, bool(scope_mode))
+                    grant_api_event_access(workspace, bool(scope_mode))
+                    break
+                time.sleep(.2)
+            else:
+                watch.terminate(); anchor.terminate()
+                raise RuntimeError("ActPlane watch 启动超时；请检查 /var/log/agentscope/*-watch.log")
+            domain=secrets.randbelow(1_800_000_000)+100_000_000
+            process_scope=create_task_cgroup(task_id,domain) if scope_mode=="managed-web" else {}
+            result_path=workspace.parent/(".runtime-control/scope-result.json" if scope_mode else "tmp/scope-result.json")
+            task_env_path=workspace.parent/"tmp"/"agent-env.json"
+            relay_ready=RUNTIME/"commands"/task_id/("relay-"+str(domain)+".ready")
+            relay_nonce=secrets.token_hex(24)
+            runner_command=["/usr/bin/python3","-c",RELAY_BOOTSTRAP,str(relay_ready),relay_nonce,str(RUNNER)] if scope_mode=="managed-web" else ["/usr/bin/python3",str(RUNNER)]
+            command=["--policy",watch_path,"control","launch-child","--child-id",str(domain),"--delta",files["dsl_path"],"--",*runner_command,
+              "--task-id",task_id,"--domain-id",str(domain),"--env-file",str(task_env_path),"--request-file",str(RUNTIME/"commands"/task_id/"request.json"),
+              "--result-file",str(result_path),"--watch-policy",watch_path,"--actplane",str(ACTPLANE),
+              "--workspace",str(workspace),"--dsh",str(DSH_WEB if scope_mode=="managed-web" else DSH),"--dsh-home",str(dsh_home),"--profile",dsh_profile,"--prompt",prompt]
+            cmd_root=RUNTIME/"commands"; cmd_root.mkdir(parents=True,exist_ok=True); os.chown(cmd_root,0,0); os.chmod(cmd_root,0o711)
+            cmd_dir=cmd_root/task_id; cmd_dir.mkdir(parents=True,exist_ok=True); os.chown(cmd_dir,0,TASK_GID); os.chmod(cmd_dir,0o750)
+            request_path=cmd_dir/"request.json"; request_path.unlink(missing_ok=True)
+            relay_ready.unlink(missing_ok=True)
+            task_env_path.parent.mkdir(parents=True,exist_ok=True); os.chown(task_env_path.parent,0,TASK_GID); os.chmod(task_env_path.parent,0o2770)
+            write_file(task_env_path,json.dumps({"task_id":task_id,"task_token":task_token,"agentscope_url":agentscope_url,"scope_mode":scope_mode,"web_port":web_port,"native_token":native_token,"pin_root":env.get("ACTPLANE_BPF_PIN_ROOT"),**process_scope}),0o660)
+            os.chown(task_env_path.parent,0,TASK_GID); os.chmod(task_env_path.parent,0o2770)
+            result_path.unlink(missing_ok=True)
+            # ActPlane's watch daemon launches the child with its own environment,
+            # not the launch-child CLI caller's environment. Pass task credentials
+            # through a one-time task file; task_runner scrubs it before starting DSH.
+            launch_env=child_env(task_id=task_id); launch_env.update({"SUDO_UID":str(0 if scope_mode else AGENT.pw_uid),"SUDO_GID":str(0 if scope_mode else TASK_GID),"TMPDIR":str(workspace.parent/"tmp")})
+            try:
+                out=run_actplane(command,workspace,launch_env,35)
+            except Exception:
+                task_env_path.unlink(missing_ok=True)
+                watch.send_signal(signal.SIGINT); anchor.terminate(); raise
+            m=re.search(r"Launched pid (\d+) in child domain (\d+)",out)
+            runner_pid=int(m.group(1)) if m else None
+            domain_id=int(m.group(2)) if m else domain
+            record={"task_id":task_id,"version":version,"workspace":str(workspace),"output_dir":str(output),"policy_path":policy_path,"watch_policy":watch_path,
+              "watch":watch,"anchor":anchor,"watch_log":str(log_dir/f"{task_id}-v{version}-watch.log"),"watch_pid":watch.pid,"runner_pid":runner_pid,"domain_id":domain_id,
+              "request_path":str(request_path),"result_path":str(result_path),"dsl_path":files["dsl_path"],"scope_mode":scope_mode,"web_port":web_port,"native_token":native_token,"pin_root":env.get("ACTPLANE_BPF_PIN_ROOT"),**process_scope}
+            if scope_mode=="managed-web":
+                # The root relay is a designated control process. The exception is
+                # keyed by its exact PID and never inherited by low-UID children.
+                status=(Path("/proc")/str(runner_pid)/"status").read_text()
+                if int(next(l.split()[1] for l in status.splitlines() if l.startswith("Uid:")))!=0:raise RuntimeError("Trusted relay UID mismatch")
+                key=[f"{v:02x}" for v in runner_pid.to_bytes(4,"little")]
+                updated=subprocess.run(["/usr/sbin/bpftool","map","update","pinned",str(Path(record["pin_root"])/"maps/te_protected_pids"),"key","hex",*key,"value","hex","01","00","00","00"],capture_output=True,text=True,timeout=5)
+                if updated.returncode:raise RuntimeError("Trusted relay registration failed: "+updated.stderr[:500])
+                # The root bootstrap waits without reading protected repo code.
+                # Release only after its exact PID has been registered; no child inherits this exception.
+                (task_cgroup(record)/"cgroup.procs").write_text(str(runner_pid))
+                write_file(relay_ready,relay_nonce,0o600)
+            with LOCK:TASKS[task_id]=record
+            return {"task_id":task_id,"status":"running","runner_pid":runner_pid,"domain_id":domain_id,"watch_pid":watch.pid,
+                    "web_url":f"http://127.0.0.1:{web_port}/" if web_port else None,"version":version,"compile_state":"loaded","compile":files["compile"],"baseline_binding":files.get("baseline_binding"),**process_scope,"message":"ActPlane 控制平面已加载；DSH 已由 child domain 接管"}
         except Exception:
-            task_env_path.unlink(missing_ok=True)
-            watch.send_signal(signal.SIGINT); anchor.terminate(); raise
-        m=re.search(r"Launched pid (\d+) in child domain (\d+)",out)
-        runner_pid=int(m.group(1)) if m else None
-        domain_id=int(m.group(2)) if m else domain
-        record={"task_id":task_id,"version":version,"workspace":str(workspace),"output_dir":str(output),"policy_path":policy_path,"watch_policy":watch_path,
-          "watch":watch,"anchor":anchor,"watch_log":str(log_dir/f"{task_id}-v{version}-watch.log"),"watch_pid":watch.pid,"runner_pid":runner_pid,"domain_id":domain_id,
-          "request_path":str(request_path),"result_path":str(result_path),"dsl_path":files["dsl_path"],"scope_mode":scope_mode,"web_port":web_port,"native_token":native_token,"pin_root":env.get("ACTPLANE_BPF_PIN_ROOT")}
-        if scope_mode=="managed-web":
-            # The root relay is a designated control process. The exception is
-            # keyed by its exact PID and never inherited by low-UID children.
-            status=(Path("/proc")/str(runner_pid)/"status").read_text()
-            if int(next(l.split()[1] for l in status.splitlines() if l.startswith("Uid:")))!=0:raise RuntimeError("Trusted relay UID mismatch")
-            key=[f"{v:02x}" for v in runner_pid.to_bytes(4,"little")]
-            updated=subprocess.run(["/usr/sbin/bpftool","map","update","pinned",str(Path(record["pin_root"])/"maps/te_protected_pids"),"key","hex",*key,"value","hex","01","00","00","00"],capture_output=True,text=True,timeout=5)
-            if updated.returncode:raise RuntimeError("Trusted relay registration failed: "+updated.stderr[:500])
-        TASKS[task_id]=record
-        return {"task_id":task_id,"status":"running","runner_pid":runner_pid,"domain_id":domain_id,"watch_pid":watch.pid,
-                "web_url":f"http://127.0.0.1:{web_port}/" if web_port else None,"version":version,"compile_state":"loaded","compile":files["compile"],"message":"ActPlane 控制平面已加载；DSH 已由 child domain 接管"}
+            record=TASKS.get(task_id) or {"task_id":task_id,"domain_id":locals().get('domain',0),"pin_root":env.get('ACTPLANE_BPF_PIN_ROOT'),**locals().get("process_scope",{})}
+            if record.get('domain_id') and record.get('pin_root') and Path(record['pin_root']).exists():
+                quiesce_domain(record)
+            if watch and watch.poll() is None:
+                watch.send_signal(signal.SIGINT)
+                try:watch.wait(timeout=5)
+                except subprocess.TimeoutExpired:watch.kill();watch.wait(timeout=5)
+            if anchor.poll() is None:anchor.terminate();anchor.wait(timeout=5)
+            if record.get('pin_root'):remove_task_engine(record)
+            with LOCK:TASKS.pop(task_id,None)
+            if 'relay_ready' in locals():relay_ready.unlink(missing_ok=True)
+            watch_log.close()
+            raise
 
 def status(task_id):
     checked_task(task_id)
@@ -530,8 +608,11 @@ def status(task_id):
                     break
         except OSError: pass
     domain_verified=executor in domain_members(record) if record.get("scope_mode")=="managed-web" else None
-    if record.get("scope_mode")=="managed-web" and not domain_verified:state="unbound"
-    return {"domain_verified":domain_verified,"available":True,"status":state,"agent_status":status.get("state","unknown"),"domain_id":record["domain_id"],"runner_pid":record["runner_pid"],"watch_pid":record["watch_pid"],"child":child,
+    group=task_cgroup(record)
+    scoped_members={int(pid) for pid in (group/'cgroup.procs').read_text().split()} if group else set()
+    cgroup_verified=record['runner_pid'] in scoped_members and executor in scoped_members if group else None
+    if record.get("scope_mode")=="managed-web" and (not domain_verified or group and not cgroup_verified):state="unbound"
+    return {"process_cgroup":record.get('process_cgroup'),"cgroup_inode":record.get('cgroup_inode'),"cgroup_verified":cgroup_verified,"domain_verified":domain_verified,"available":True,"status":state,"agent_status":status.get("state","unknown"),"domain_id":record["domain_id"],"runner_pid":record["runner_pid"],"watch_pid":record["watch_pid"],"child":child,
             "executor":{"mode":record.get("scope_mode"),"pid":executor,"state":"running" if executor else "absent"}}
 
 def domain_members(record):
@@ -553,9 +634,49 @@ def domain_members(record):
         except (FileNotFoundError,ProcessLookupError):pass
     return sorted(set(members))
 
+def task_cgroup(record):
+    value=record.get('process_cgroup')
+    if not value:return None
+    base=Path('/sys/fs/cgroup')/RUNTIME.name
+    path=Path(value)
+    expected=base/(record['task_id']+'-'+str(record['domain_id']))
+    if path!=expected or path.is_symlink() or path.resolve()!=expected:raise RuntimeError('Task cgroup identity mismatch')
+    if path.stat().st_uid!=0 or record.get('cgroup_inode') and path.stat().st_ino!=record['cgroup_inode']:raise RuntimeError('Task cgroup owner/inode mismatch')
+    return path
+
+def create_task_cgroup(task_id,domain_id):
+    base=Path('/sys/fs/cgroup')/RUNTIME.name
+    if not re.fullmatch(r'[a-zA-Z0-9-]+',RUNTIME.name):raise ValueError('Invalid cgroup profile')
+    base.mkdir(mode=0o700,exist_ok=True)
+    if base.is_symlink() or base.stat().st_uid!=0 or base.stat().st_mode&0o022:raise RuntimeError('Unsafe cgroup profile')
+    path=base/(task_id+'-'+str(domain_id));path.mkdir(mode=0o700)
+    return {'process_cgroup':str(path),'cgroup_inode':path.stat().st_ino}
+
+def cgroup_state(path):
+    return dict(line.split() for line in (path/'cgroup.events').read_text().splitlines())
+
+def kill_task_cgroup(record):
+    path=task_cgroup(record)
+    if not path:return []
+    # A root-owned process scope is independent of policy membership maps. It
+    # also owns detached children and old writable FDs/shared mappings.
+    (path/'cgroup.freeze').write_text('1')
+    deadline=time.monotonic()+5
+    while cgroup_state(path).get('frozen')!='1':
+        if time.monotonic()>=deadline:raise RuntimeError('Task cgroup did not freeze')
+        time.sleep(.02)
+    members=[int(pid) for pid in (path/'cgroup.procs').read_text().split()]
+    (path/'cgroup.kill').write_text('1')
+    deadline=time.monotonic()+5
+    while cgroup_state(path).get('populated')!='0':
+        if time.monotonic()>=deadline:raise RuntimeError('Task cgroup did not quiesce')
+        time.sleep(.02)
+    return members
+
 def quiesce_domain(record):
     # Stop every member from the authoritative kernel map, including detached
     # descendants; pidfds prevent signalling an unrelated reused PID.
+    scoped_killed=kill_task_cgroup(record)
     handles={}
     for attempt in range(20):
         members=domain_members(record)
@@ -569,7 +690,7 @@ def quiesce_domain(record):
         again=domain_members(record)
         if set(again)<=set(members):break
         time.sleep(.05)
-    killed=[]
+    killed=list(scoped_killed)
     for pid,fd in handles.items():
         try:signal.pidfd_send_signal(fd,signal.SIGKILL);killed.append(pid)
         except ProcessLookupError:pass
@@ -580,6 +701,10 @@ def quiesce_domain(record):
     raise RuntimeError("Task domain did not quiesce; replacement policy is blocked")
 
 def remove_task_engine(record):
+    group=task_cgroup(record)
+    if group:
+        if cgroup_state(group).get("populated")!="0":raise RuntimeError("Refusing to remove a populated task cgroup")
+        group.rmdir()
     if not record.get("pin_root"):return
     base=Path(os.environ["ACTPLANE_BPF_PIN_ROOT"]).resolve()
     target=Path(record["pin_root"]).resolve()
@@ -606,7 +731,8 @@ def stop(task_id):
         with open(record["watch_log"],"a") as log: log.write("\\nAgentScope: task stopped\\n")
     except Exception: pass
     remove_task_engine(record)
-    with LOCK:TASKS.pop(task_id,None)
+    with LOCK:
+        TASKS.pop(task_id,None);WEB_PORTS.discard(record.get("web_port"))
     return {"task_id":task_id,"status":"stopped","domain_id":record["domain_id"],"quiesced_pids":killed,"writable_fds_and_mappings":"revoked_by_process_termination"}
 
 def restrict(message):
@@ -673,7 +799,7 @@ def _dispatch(m):
           "btf":Path("/sys/kernel/btf/vmlinux").exists(),"lsm":Path("/sys/kernel/security/lsm").read_text().strip(),"actplane":str(ACTPLANE),"dsh":str(DSH),"compatibility_build":"Installed local ActPlane; identify by binary hash/version and verify enforcement with runtime probes"}
     if action=="active":
         with LOCK:return {"tasks":[{"task_id":k,"version":v["version"],"domain_id":v["domain_id"],"runner_pid":v["runner_pid"],"status":"running" if v["watch"].poll() is None else "stopped"} for k,v in TASKS.items() if v["watch"].poll() is None]}
-    if action=="launch": return launch(m["task_id"],m["version"],m["workspace"],m["output_dir"],m["prompt"],m["dsl_text"],m["policy_yaml"],m.get("dsh_profile","headless"),m.get("task_token",""),m.get("agentscope_url","http://127.0.0.1:8000"),m.get("scope_mode",""),m.get("protected_files"),m.get("baseline_dsl"))
+    if action=="launch": return launch(m["task_id"],m["version"],m["workspace"],m["output_dir"],m["prompt"],m["dsl_text"],m["policy_yaml"],m.get("dsh_profile","headless"),m.get("task_token",""),m.get("agentscope_url","http://127.0.0.1:8000"),m.get("scope_mode",""),m.get("protected_files"),m.get("baseline_dsl"),m.get("normalization"))
     if action=="restart":
         stop(m["task_id"])
         time.sleep(.5)
@@ -747,7 +873,7 @@ class Handler(socketserver.StreamRequestHandler):
             if uid!=APP_USER.pw_uid: raise PermissionError("caller is not the AgentScope service user")
             result=dispatch(json.loads(raw.decode()))
             payload={"ok":True,"result":result}
-        except Exception as e: payload={"ok":False,"error":str(e)}
+        except Exception as e: payload={"ok":False,"error":str(e) or type(e).__name__}
         self.wfile.write(json.dumps(payload,ensure_ascii=False).encode()+b"\n")
 
 class Server(socketserver.ThreadingUnixStreamServer):

@@ -154,6 +154,8 @@ def instantiate(task_id: str, proposal_id: str):
         validation["derivation"] = {"parent_task": task_id, "parent_proposal": proposal_id, "parent_hash": row["content_hash"], "method": "deterministic path/evidence rebinding; no additional model generation"}
         with db.connect() as con:
             con.execute("INSERT INTO bootstrap_proposals VALUES(?,?,?,?,?,?,?,?,?)", (ident, created["id"], "derived:" + row["job_id"], new_ctx["context_hash"], result["proposal_hash"], json.dumps(result["proposal"]), json.dumps(validation), "validated", db.now()))
+            from ..services import policy_normalization
+            policy_normalization.persist(con,created["id"],"startup",ident,result.get("normalization"))
             db.audit(con, created["id"], "bootstrap_proposal_instantiated", "administrator", validation["derivation"])
         return {**created, "proposal_id": ident, "proposal_hash": result["proposal_hash"]}
     except ValueError as error: raise bad_request(error)

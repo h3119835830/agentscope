@@ -42,8 +42,15 @@ promotion remain outside this implementation.
   [acceptance](docs/scope-demo-v1/REVIEW.md), and [reproduced defects](docs/scope-demo-v1/BUG.md)
 
 On the prepared Windows/WSL Demo host, run [Open-ScopeDemo.cmd](scripts/Open-ScopeDemo.cmd)
-to enter without typing an administrator password. A one-time local launch ticket
-creates a separate browser session; DSH/Pi credentials remain candidate-only.
+to start the supervised local service and open the workbench directly. The local
+Demo has no login page, launch ticket or browser session. Passwordless control
+access is explicitly enabled only for the loopback Demo; default backend
+authentication and DSH/Pi task credentials remain enforced.
+
+The current local revision also includes conservative DSL normalization and
+source lineage, task process-group cleanup, and service recovery. See the
+[main release review](docs/REVIEW/REVIEW-20261007-AgentScope本机新版合入main.md)
+for the tested snapshot and open acceptance items.
 
 ## Deployment and reproducibility
 

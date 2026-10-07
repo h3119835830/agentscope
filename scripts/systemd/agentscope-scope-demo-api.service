@@ -1,0 +1,26 @@
+[Unit]
+Description=AgentScope isolated Scope Demo API (18003)
+Requires=agentscope-scope-demo-broker.service
+BindsTo=agentscope-scope-demo-broker.service
+After=agentscope-scope-demo-broker.service
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=exec
+User=root
+Group=root
+WorkingDirectory=/opt/agentscope-history-v1
+Environment=AGENTSCOPE_SERVICE_PROFILE=scope-demo
+ExecStart=/opt/agentscope/.venv/bin/python /opt/agentscope-history-v1/scripts/scope_systemd_exec.py api
+ExecStartPost=/opt/agentscope/.venv/bin/python /opt/agentscope-history-v1/scripts/scope_systemd_exec.py api-ready
+Restart=on-failure
+RestartSec=3
+TimeoutStartSec=25
+TimeoutStopSec=20
+UMask=0077
+StandardOutput=append:/var/lib/agentscope-scope-demo/api.log
+StandardError=inherit
+
+[Install]
+WantedBy=multi-user.target

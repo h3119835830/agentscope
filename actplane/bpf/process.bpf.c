@@ -2922,6 +2922,10 @@ int handle_fork(struct bpf_raw_tracepoint_args *ctx)
 
 	if (parent_tgid <= 0 || child_pid <= 0)
 		return 0;
+	/* Policy membership is keyed by TGID. Threads already share their
+	 * leader's state; recording TIDs leaks entries until PID reuse. */
+	if (child_pid != te_task_tgid(child))
+		return 0;
 	__u64 *tag = bpf_map_lookup_elem(&audit_call, &parent_tgid);
 	if (tag) { __u64 inherited = *tag; bpf_map_update_elem(&audit_call, &child_pid, &inherited, BPF_ANY); }
 	te_fork(parent_tgid, child_pid);
@@ -3063,8 +3067,14 @@ int handle_exit(struct trace_event_raw_sched_process_template *ctx)
 	int exit_code = BPF_CORE_READ(task, exit_code);
 
 	(void)ctx;
-	if (pid != (u32)id)
+	if (pid != (u32)id) {
+		/* Remove any legacy thread-only membership without clearing the
+		 * live thread group's policy state. */
+		pid_t tid = (u32)id;
+		cap_exit(tid);
+		bpf_map_delete_elem(&audit_call, &tid);
 		return 0;
+	}
 	te_exit(pid, exit_code);
 	te_delete_mmaps(pid);
 	bpf_map_delete_elem(&te_protected_pids, &pid);

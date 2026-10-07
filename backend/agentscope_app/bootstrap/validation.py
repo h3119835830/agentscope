@@ -3,11 +3,12 @@ import json
 from pathlib import Path
 from .. import db
 from ..services.policy import make_dsl, quote_dsl
+from ..services import policy_normalization as normalization
 from .models import Draft
 from .scene import context, digest
 from .library import approved_record
 
-CAPABILITIES = {"version": "bootstrap-ir/1", "operations": ["write", "unlink"],
+CAPABILITIES = {"version": "bootstrap-ir/1", "admission_boundary": {"assessed_by_pi": "Whether necessary OS safety constraints can be enforced with evidence-resolved targets", "assessed_by_executor": "Task completion, implementation feasibility and business test outcomes", "nonblocking_task_risks": "Record in guidance; preserving safety does not require predicting that the task will succeed", "unresolved": "Only necessary OS safety constraints with unknown targets or unsupported enforcement"}, "operations": ["write", "unlink"],
                 "semantics": "block mutations to evidence-resolved files/subtrees; descendants inherit domain",
                 "object_scope":"Honor declared registered_existing_files sets using exact registered targets. Derived artifacts and adjacent legitimate files remain available. directory_subtree means an explicitly declared entire tree. Ancestor identity is guarded separately by the managed loader.",
                 "history_parameterization":"The reviewed configuration selector covers registered shell/Git configuration and JSON/TOML/YAML/INI/CONF/CFG assets; it excludes Python source and tests. A different object kind needs a current-task new candidate.",
@@ -21,7 +22,7 @@ def configuration_asset(path):
 def validate(task_id, draft, compile_bundle=True):
     draft = Draft.model_validate(draft)
     ctx = context(task_id)
-    if draft.context_hash != ctx["context_hash"]: raise ValueError("expected current context hash")
+    if draft.context_hash != ctx["context_hash"]: raise ValueError("expected current context hash: "+json.dumps({"code":"stale_or_malformed_context_reference","expected":ctx["context_hash"],"received":draft.context_hash,"read_tool":"get_task_context"}))
     if draft.no_op != (len(draft.atoms) == 0): raise ValueError("no_op must describe an empty enforcement proposal")
     with db.connect() as con:
         sources = {r["id"]: dict(r) for r in con.execute("SELECT * FROM bootstrap_sources WHERE task_id=?", (task_id,))}
@@ -43,7 +44,7 @@ def validate(task_id, draft, compile_bundle=True):
                 if subtree:
                     if not path.is_dir() or not any(p.startswith(base + "/") for p in asset_paths): raise ValueError("subtree requires registered descendant evidence")
                 elif base not in asset_paths and not (path.is_dir() and any(p.startswith(base + "/") for p in asset_paths)):
-                    raise ValueError("target is not among cited registered assets or evidenced directories")
+                    raise ValueError("target is not among cited registered assets or evidenced directories: "+json.dumps({"target":target,"cited_asset_paths":asset_paths,"read_tool":"list_policy_sources and read_policy_source"}))
                 resolved.append({"path": target, "parameter_sources": [s["id"] for s in evidence if s["role"] == "asset" and (s["path"] == base or s["path"].startswith(base + "/"))]})
             if atom.decision in ("reuse", "parameterize"):
                 if not atom.history_id or not atom.history_hash: raise ValueError("reuse requires immutable history id/hash")
@@ -88,22 +89,33 @@ def validate(task_id, draft, compile_bundle=True):
             clauses=[Clause(operation=operation,pattern=target) for operation in dict.fromkeys(atom.operations) for target in dict.fromkeys(atom.paths)]))
     ir = PolicyIR(rules=ir_rules,guidance=draft.guidance)
     dsl = render(ir, "") or ""
-    _, bundle = make_dsl(task["workspace"], task["output_dir"], ctx["base_settings"], dsl)
+    raw_dsl=dsl
+    full_dsl, bundle = make_dsl(task["workspace"], task["output_dir"], ctx["base_settings"], dsl)
+    report=None
     state, info, diagnostic = "not_run", {}, ""
     if compile_bundle:
         from ..main import compile_policy
-        state, info, diagnostic = compile_policy(bundle, task_id, 0)
+        mode=normalization.mode_for(task_id)
+        if mode!='legacy':
+            try:
+                full_dsl,bundle,info,report=normalization.build(full_dsl,bundle,task_id,0,mode,compile_policy)
+                base=make_dsl(task["workspace"],task["output_dir"],ctx["base_settings"])[0]
+                if not full_dsl.startswith(base):raise ValueError("Normalization changed startup platform boundary")
+                dsl=full_dsl[len(base):].strip()
+                state='compiled'
+            except ValueError as error:state,diagnostic='compile_failed',str(error)
+        else:state, info, diagnostic = compile_policy(bundle, task_id, 0)
     valid = not draft.unresolved and state in ("compiled", "not_run")
     if not valid and not diagnostic: diagnostic = "Blocking execution gaps: " + "; ".join(draft.unresolved) if draft.unresolved else "Backend clauses are not fully supported"
     proposal = {"schema": "TaskPolicyProposal/1", "draft": draft.model_dump(), "scenario_hash": ctx["scenario_hash"],
                 "history_bindings": bindings, "policy_ir": ir.model_dump(),
-                "actplane_dsl": dsl, "guidance": draft.guidance, "gaps": draft.unresolved,
+                "actplane_dsl": dsl, "raw_actplane_dsl":raw_dsl, "normalization":report,"guidance": draft.guidance, "gaps": draft.unresolved,
                 "metadata_pseudocode": [f"IF AGENT {','.join(a.operations)} {','.join(a.paths)} THEN deny BECAUSE {a.statement}" for a in draft.atoms],
                 "scope_diff": {"base": ctx["base_settings"], "additional_blocks": [a.model_dump() for a in draft.atoms]},
                 "context_hash": ctx["context_hash"]}
     proposal_state = "validated" if valid else "needs_clarification" if draft.unresolved and state == "compiled" else "invalid"
     return {"valid": valid, "state": proposal_state, "compile_state": state, "compiler": info, "diagnostic": diagnostic,
-            "blocking_gaps": draft.unresolved, "proposal": proposal, "proposal_hash": digest(proposal)}
+            "normalization":report,"blocking_gaps": draft.unresolved, "proposal": proposal, "proposal_hash": digest(proposal)}
 
 def verify_version(con, task_id, version_id, expected_context=None, expected_proposal=None, approval=False):
     row = con.execute("SELECT * FROM bootstrap_versions WHERE policy_version_id=?", (version_id,)).fetchone()
