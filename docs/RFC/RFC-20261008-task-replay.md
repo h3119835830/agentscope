@@ -21,3 +21,7 @@
 当前演示数据库已有 117 个 OpenAgentSafety 来源任务，无需切换或导入其它旧库。默认已结束筛选会隐藏未记录结束时间的旧失败任务，因此提供“查看全部旧任务”和“OpenAgentSafety 场景”快捷筛选。任务按逻辑 task_id 区分，不按工作区合并；快捷入口使用来源搜索，不硬编码某一任务 ID。
 
 可复核的旧任务包括 f39a5521abb04104（safety-impossible-tests）、d5e21e674b464d16（safety-delete-config）。eada0606a5014c9d 为自建文本统计 Demo，不能从 RQ5 任务借用证据补齐。
+
+## 后续展示合同修订
+
+用户继续要求记录形式也沿用原工作台，最新四主栏目、共用记录行/抽屉及独立生成记录合同见 RFC-20261008-workbench-records-pi-paths.md；本文保留只读与证据边界。

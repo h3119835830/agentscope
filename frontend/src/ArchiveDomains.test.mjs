@@ -68,7 +68,7 @@ test('OpenAgentSafety replay shortcut selects all old scenarios without hardcode
 const {ArchiveReplay,PolicyDetailContent,ArchiveBody}=await loadComponent('TaskArchiveDetails.jsx');
 test('replay is a full width task page with scoped page selector and no dialog or live workbench',()=>{
  const html=renderToStaticMarkup(React.createElement(ArchiveReplay,{task:'outside',tasks:[{id:'one',name:'本页一'}],api:()=>{},pane:'domains'}));
- assert.match(html,/任务回放页面/);assert.match(html,/本页历史任务/);assert.match(html,/outside · 创建时间未记录 · outside（当前任务不在本页）/);assert.match(html,/本页一/);assert.match(html,/执行监控/);assert.match(html,/运行前策略/);assert.doesNotMatch(html,/<dialog|恢复任务|当前工作台任务/);
+ assert.match(html,/任务回放页面/);assert.match(html,/本页历史任务/);assert.match(html,/outside · 创建时间未记录 · outside（当前任务不在本页）/);assert.match(html,/本页一/);assert.match(html,/执行监控/);assert.match(html,/>运行前<\/button>/);assert.equal((html.match(/role="tab"/g)||[]).length,4);assert.match(html,/任务概况/);assert.match(html,/结束结果/);assert.doesNotMatch(html,/<dialog|恢复任务|当前工作台任务/);
 });
 test('replay initial client read uses the explicit selected archive identity only',async()=>{
  const effects=[],calls=[],hooks={...React,useLayoutEffect:()=>{},useState:initial=>[typeof initial==='function'?initial():initial,()=>{}],useRef:initial=>({current:initial}),useEffect:effect=>effects.push(effect)};
@@ -113,4 +113,23 @@ test('source directories and historical missing materials default to closed disc
  assert.ok(source.indexOf('OpenAgentSafety')<source.indexOf('<details'));assert.ok(source.indexOf('identity')<source.indexOf('<details'));assert.match(source,/<details><summary>来源与目录详情/);assert.doesNotMatch(source,/<details[^>]*open/);
  const notice=renderToStaticMarkup(React.createElement(HistoricalGraphNotice,{graph:{notice:'历史材料不完整',missing_sources:[{key:'v1:baseline',role:'baseline',reason:'missing_hash'}]}}));
  assert.match(notice,/<details[^>]*><summary>历史材料说明（1 项缺失或未核验）/);assert.match(notice,/missing_hash/);assert.match(notice,/历史材料不完整/);assert.doesNotMatch(notice,/<details[^>]*open/);
+});
+
+test('archive policy and audit use the exact shared workbench record presentation',async()=>{
+ const {ArchivePolicyRows,ArchiveAuditRows}=await loadComponent('TaskArchiveDetails.jsx');
+ const policy=renderToStaticMarkup(React.createElement(ArchivePolicyRows,{records:[{id:'runtime:j:statement:0',record_kind:'statement',statement:'保留测试文件保护',policy_type:'per_event',statement_effect:'retained',review_status:'approved',loading:{loaded:true},targets:['/tests']}],onOpen:()=>{}}));
+ assert.match(policy,/class="policy-record"/);assert.match(policy,/class="record-line"/);assert.match(policy,/<b>保留测试文件保护<\/b>/);assert.match(policy,/archive-policy-runtime:j:statement:0/);assert.doesNotMatch(policy,/<table|本次未记录策略语句/);
+ const audit=renderToStaticMarkup(React.createElement(ArchiveAuditRows,{records:[{id:'a',operation:'unlink',target:'/tests/a.py',source:'independent_probe',result:'denied',pid:12,domain_id:33}],onOpen:()=>{}}));
+ assert.match(audit,/class="audit-record compact-audit"/);assert.match(audit,/删除 · \/tests\/a.py/);assert.match(audit,/独立验收探针/);assert.match(audit,/历史 PID 12/);assert.doesNotMatch(audit,/<table/);
+});
+test('runtime default reads independently paginated actual statements; jobs only read in the separate generation collection',async()=>{
+ const run=async(component,props)=>{const effects=[],calls=[],hooks={...React,useState:initial=>[typeof initial==='function'?initial():initial,()=>{}],useRef:initial=>({current:initial}),useEffect:effect=>effects.push(effect)};const exports=await loadComponent('TaskArchiveDetails.jsx',hooks);renderToStaticMarkup(React.createElement(exports[component],{...props,api:async path=>{calls.push(path);return {records:[]};}}));for(const effect of effects)effect();await Promise.resolve();return calls;};
+ assert.deepEqual(await run('ArchiveBody',{pane:'runtime',data:{stages:[]},task:'old/rq5'}),['/api/tasks/old%2Frq5/archive/policies?stage=runtime&view=statements_only&limit=50']);
+ assert.deepEqual(await run('GenerationCollection',{stage:'runtime',task:'old/rq5'}),['/api/tasks/old%2Frq5/archive/policies?stage=runtime&view=jobs&limit=50']);
+});
+test('live and archived workbench share pure record drawer and monitor components without importing live workbench into replay',()=>{
+ const require=createRequire(import.meta.url),fs=require('node:fs');
+ const live=fs.readFileSync(join(base,'ManagedWorkbench.jsx'),'utf8'),monitor=fs.readFileSync(join(base,'RuntimeOverview.jsx'),'utf8'),archive=fs.readFileSync(join(base,'TaskArchiveDetails.jsx'),'utf8'),views=fs.readFileSync(join(base,'WorkbenchRecordViews.jsx'),'utf8');
+ for(const component of ['PolicyRecordRow','AuditRecordRow','RecordDrawerFrame']){assert.ok(live.includes('<'+component));assert.ok(archive.includes('<'+component));}
+ assert.ok(monitor.includes('<RuntimeModeTabs'));assert.ok(archive.includes('<RuntimeModeTabs'));assert.doesNotMatch(archive,/import .*ManagedWorkbench|import .*RuntimeOverview/);assert.doesNotMatch(views,/fetch\(|api\(|post\(|setInterval\(/);
 });

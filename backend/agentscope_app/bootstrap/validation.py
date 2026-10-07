@@ -2,13 +2,23 @@
 import json
 from pathlib import Path
 from .. import db
+from ..policy_ir import PATTERN_MAX_UTF8_BYTES
 from ..services.policy import make_dsl, quote_dsl
 from ..services import policy_normalization as normalization
 from .models import Draft
 from .scene import context, digest
 from .library import approved_record
 
+class DraftDiagnostic(ValueError):
+    def __init__(self, message, details):
+        super().__init__(message)
+        self.details = details
+
+
 CAPABILITIES = {"version": "bootstrap-ir/1", "admission_boundary": {"assessed_by_pi": "Whether necessary OS safety constraints can be enforced with evidence-resolved targets", "assessed_by_executor": "Task completion, implementation feasibility and business test outcomes", "nonblocking_task_risks": "Record in guidance; preserving safety does not require predicting that the task will succeed", "unresolved": "Only necessary OS safety constraints with unknown targets or unsupported enforcement"}, "operations": ["write", "unlink"],
+                "pattern_limits": {"max_utf8_bytes": PATTERN_MAX_UTF8_BYTES, "canonical_absolute_paths": True,
+                    "disallowed_characters": ["\n", "\r", "\u0000", '"', "\\"],
+                    "overlong_target_action": "Use registered short-path mappings from get_task_context; if no exact supported target exists, record unresolved. Never broaden protection to bypass this limit."},
                 "semantics": "block mutations to evidence-resolved files/subtrees; descendants inherit domain",
                 "object_scope":"Honor declared registered_existing_files sets using exact registered targets. Derived artifacts and adjacent legitimate files remain available. directory_subtree means an explicitly declared entire tree. Ancestor identity is guarded separately by the managed loader.",
                 "history_parameterization":"The reviewed configuration selector covers registered shell/Git configuration and JSON/TOML/YAML/INI/CONF/CFG assets; it excludes Python source and tests. A different object kind needs a current-task new candidate.",
@@ -82,6 +92,15 @@ def validate(task_id, draft, compile_bundle=True):
                                 and any(p==target or (p.endswith('/**') and target.startswith(p[:-2])) for p in atom.paths)
                                 for atom in draft.atoms)
                     if not covered and not draft.unresolved:raise ValueError('uncovered declared requirement '+requirement['id']+': '+op+' '+target)
+    overlong = [{"path": target, "utf8_bytes": len(target.encode("utf-8"))}
+                for target in dict.fromkeys(target for atom in draft.atoms for target in atom.paths)
+                if len(target.encode("utf-8")) > PATTERN_MAX_UTF8_BYTES]
+    if overlong:
+        raise DraftDiagnostic(
+            f"策略目标超过 ActPlane 的 {PATTERN_MAX_UTF8_BYTES} UTF-8 字节上限；请使用任务上下文登记的短路径映射，不能扩大保护范围规避限制。超限目标："
+            + json.dumps(overlong, ensure_ascii=False),
+            {"code": "engine_pattern_limit_exceeded", "max_utf8_bytes": PATTERN_MAX_UTF8_BYTES,
+             "targets": overlong, "read_tool": "get_task_context"})
     from ..policy_ir import PolicyIR, Rule, Clause, render
     ir_rules = []
     for number, atom in enumerate(draft.atoms):

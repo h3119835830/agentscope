@@ -7,11 +7,46 @@ import tempfile
 import time
 from pathlib import Path
 from .. import db
+from ..policy_ir import PATTERN_MAX_UTF8_BYTES
 from ..config import PUBLIC_BASE_URL, STATE_DIR
 from .tools import TOOLS, issue, revoke
 from .scene import digest
 
 INTEGRATION = Path(__file__).resolve().parents[3] / "integrations/pi-policy-tools"
+
+def workflow_status(job_id):
+    """Read only server workflow receipts; lifecycle rows are not tool results."""
+    with db.connect() as con:
+        row = con.execute("SELECT status FROM history_jobs WHERE id=?", (job_id,)).fetchone()
+        submitted = con.execute("SELECT 1 FROM bootstrap_proposals WHERE job_id=?", (job_id,)).fetchone()
+        credential = con.execute("SELECT calls FROM bootstrap_credentials WHERE job_id=?", (job_id,)).fetchone()
+        budget = con.execute("SELECT calls FROM bootstrap_validation_budget WHERE job_id=?", (job_id,)).fetchone()
+        saved = con.execute("SELECT 1 FROM bootstrap_validations WHERE job_id=?", (job_id,)).fetchone()
+        latest = con.execute("SELECT tool,output_json FROM bootstrap_tool_events WHERE job_id=? AND tool<>'rpc_lifecycle' ORDER BY occurred_at DESC,rowid DESC LIMIT 1", (job_id,)).fetchone()
+        validation = con.execute("SELECT output_json FROM bootstrap_tool_events WHERE job_id=? AND tool='validate_policy_draft' ORDER BY occurred_at DESC,rowid DESC LIMIT 1", (job_id,)).fetchone()
+        failure = con.execute("SELECT output_json FROM bootstrap_tool_events WHERE job_id=? AND tool<>'rpc_lifecycle' AND json_type(output_json,'$.diagnostic')='text' ORDER BY occurred_at DESC,rowid DESC LIMIT 1", (job_id,)).fetchone()
+    output = json.loads(failure['output_json']) if failure else {}
+    last_validation = json.loads(validation['output_json']) if validation else {}
+    remaining = max(0, 3 - (budget['calls'] if budget else 0))
+    state = {'cancelled': not row or row['status'] != 'running', 'submitted': bool(submitted),
+             'submission': 'present' if submitted else 'absent',
+             'remaining_tool_calls': max(0, 40 - (credential['calls'] if credential else 40)),
+             'remaining_validation_attempts': remaining, 'validated_candidate_available': bool(saved),
+             'last_tool': latest['tool'] if latest else None,
+             'last_diagnostic': output.get('diagnostic')}
+    if not submitted and not saved and not remaining:
+        diagnostic = last_validation.get('diagnostic') or 'No server-validated candidate is available'
+        state['workflow_error'] = 'Pi validation repair budget exhausted: ' + diagnostic[:2000]
+        details = last_validation.get('diagnostic_details')
+        if isinstance(details, dict) and details.get('code') == 'engine_pattern_limit_exceeded':
+            state['diagnostic_details'] = {
+                'code': details['code'], 'max_utf8_bytes': PATTERN_MAX_UTF8_BYTES, 'read_tool': 'get_task_context',
+                'targets': [{'path': target['path'], 'utf8_bytes': target['utf8_bytes']}
+                            for target in details.get('targets', [])
+                            if isinstance(target, dict) and isinstance(target.get('path'), str)
+                            and isinstance(target.get('utf8_bytes'), int)]}
+    return state
+
 
 def run(task_id,job_id):
     try:return _run(task_id,job_id)
@@ -65,12 +100,7 @@ def _run(task_id, job_id):
                        "--proc", "/proc", "--dev", "/dev", "--tmpfs", "/tmp", "--chdir", "/home/pi", "--", *cli]
             from ..pi_rpc import drive
             def status():
-                with db.connect() as con:
-                    row=con.execute("SELECT status FROM history_jobs WHERE id=?",(job_id,)).fetchone()
-                    submitted=con.execute("SELECT 1 FROM bootstrap_proposals WHERE job_id=?",(job_id,)).fetchone()
-                    credential=con.execute("SELECT calls FROM bootstrap_credentials WHERE job_id=?",(job_id,)).fetchone()
-                    latest=con.execute("SELECT tool,output_json FROM bootstrap_tool_events WHERE job_id=? ORDER BY occurred_at DESC LIMIT 1",(job_id,)).fetchone()
-                return {'cancelled':not row or row[0]!='running','submitted':bool(submitted),'submission':'present' if submitted else 'absent','remaining_tool_calls':40-(credential[0] if credential else 40),'last_tool':latest[0] if latest else None}
+                return workflow_status(job_id)
             def trace(value):
                 with db.connect() as con:
                     con.execute("INSERT INTO bootstrap_tool_events(id,job_id,tool,input_json,output_json,occurred_at) VALUES(?,?,?,?,?,?)",(__import__('uuid').uuid4().hex,job_id,'rpc_lifecycle','{}',json.dumps(value),db.now()))

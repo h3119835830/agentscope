@@ -1,0 +1,134 @@
+{
+  "observed_at": "2026-10-07T16:55:46.360491+00:00",
+  "method": "GET",
+  "deployed_readback": true,
+  "records": [
+    {
+      "task_id": "f39a5521abb04104",
+      "statements_only": {
+        "total": 2,
+        "ids": [
+          "runtime:a7d1bd022b1a481a9ba46a977215158f:statement:0",
+          "runtime:63170b40dfb84f88af9ab960bf7cd9c2:statement:0"
+        ],
+        "kinds": [
+          "statement"
+        ]
+      },
+      "jobs": {
+        "total": 41,
+        "ids": [
+          "runtime:10fa49ad7dbe4249a4da18e54f0574b6",
+          "runtime:99a29b444f24488e91efa897e127eea2",
+          "runtime:0d56f3ef6d8b4999a8bd5a28869c5c69",
+          "runtime:ef5751f22c1b4d9ebf563e0396b9c225",
+          "runtime:3afea2fcacbd4ee79bd4b2db2f6452ea",
+          "runtime:ae83fbac6a374c7d99b25af15e7b16b2",
+          "runtime:8669524f8d8446f5890193845e7fd858",
+          "runtime:7f8e82b4ee1b4808b3db17db36bfe616",
+          "runtime:a7d1bd022b1a481a9ba46a977215158f",
+          "runtime:7bdc246a81404011a87bda7672607cec",
+          "runtime:63170b40dfb84f88af9ab960bf7cd9c2",
+          "runtime:029947da17ce4330965a346497fa7fb5",
+          "runtime:8a5bf5dd348a4e96abb9addb3bb6300b",
+          "runtime:6d08afb91f2d4571afe9ac3a288f1f33",
+          "runtime:e98b025960674fa6a3b57540e5c0e0df",
+          "runtime:13dfb886f78f4bb1949f9dd8016920f5",
+          "runtime:a816494600094b85904c22d7685b042c",
+          "runtime:0a167c62c8314174a73b8b042140c7ed",
+          "runtime:8ab0bf7305f5493cb3f72eb8af0604ff",
+          "runtime:effc0e2de37545e0a50d89f6a6fd25d9",
+          "runtime:8e55d155482c479a8250e9b7f684d734",
+          "runtime:470e5ed182544417836c4daaf93bb3d7",
+          "runtime:fd92388e784b43f3be6eb29ea25d549a",
+          "runtime:ff44af290a334c93aed142d9407bac64",
+          "runtime:64563dab44294a94891b67872aaaeb0b",
+          "runtime:03b8d6fb1a144c11b6022159aaadfd81",
+          "runtime:ac9a1d977e4f461886e754db7635c17e",
+          "runtime:f804541f64f94d05961e7e0040894eb4",
+          "runtime:4e28c4510fd5422880b3b3b88a3346a4",
+          "runtime:0aa582c2db864075b3e9503c33989061",
+          "runtime:b918e346b0784e869dad90ff1d87fe16",
+          "runtime:83a024d9a33e44cc8feda0344297db64",
+          "runtime:135773d647e24b099c38772cd00a8795",
+          "runtime:4316f3374460411c9c4a2dc8c4faf0df",
+          "runtime:b7eec05a14584ded96fac0b8140fe112",
+          "runtime:66b6502a08ed4946acf6ca7e6c29672b",
+          "runtime:3bf9cdee4ca942898db7829ae568fa16",
+          "runtime:cc60f80fed314170a4501d67d7c60c7f",
+          "runtime:5156fa06d01c491f9f7b7c3b8a49e8e1",
+          "runtime:2813a5262a06470994847475d8bd53c1",
+          "runtime:3e75d91465c14c8e80f93b53d087691a"
+        ],
+        "kinds": [
+          "job"
+        ]
+      }
+    },
+    {
+      "task_id": "d5e21e674b464d16",
+      "statements_only": {
+        "total": 5,
+        "ids": [
+          "runtime:1761cfbeed424e9eb9ca93dadc060db8:statement:1",
+          "runtime:1761cfbeed424e9eb9ca93dadc060db8:statement:0",
+          "runtime:cc726e4591d34b30a7a718436cac4d3c:statement:0",
+          "runtime:deb7cc3eca8448eebe38e60832b279d2:statement:1",
+          "runtime:deb7cc3eca8448eebe38e60832b279d2:statement:0"
+        ],
+        "kinds": [
+          "statement"
+        ]
+      },
+      "jobs": {
+        "total": 40,
+        "ids": [
+          "runtime:1761cfbeed424e9eb9ca93dadc060db8",
+          "runtime:04c72b63eed94a93b3cd8e04d89c18e1",
+          "runtime:b9c48b5801a644538add6f50b2a88b18",
+          "runtime:22acf6b84b9e4245b1a4b362f083ae58",
+          "runtime:51784388148c4afdb2cc6345ca3d4c2f",
+          "runtime:8739b517195a478c811f2bba7d522be6",
+          "runtime:b540bdcf2c584b0588b964deb51328da",
+          "runtime:8b949c8503274ebb81c99d69caa53210",
+          "runtime:10ddaa3d39bd467894cfb25fe1143aff",
+          "runtime:cc726e4591d34b30a7a718436cac4d3c",
+          "runtime:d7cba84491e140079d37a9b0d50ef860",
+          "runtime:126fdb99f7f64f16bea2e015015389cc",
+          "runtime:2085c2b4fec245568523ac3c5a73c9da",
+          "runtime:e33b0b25ba4f41b8b64045e5f497b676",
+          "runtime:2a161e1034b34951ab6c03f788cb726f",
+          "runtime:4f314a291d1c40a29a2f124e8b847cab",
+          "runtime:4e2e7c9792c74106add43b2635c14330",
+          "runtime:979aba3c4f75429ba2034b2f1e5b315b",
+          "runtime:db690e95958840968073685d72bdaa40",
+          "runtime:0987df8438f94acaaa667497dc67691c",
+          "runtime:c94c5a34ea504c04b4bfb3979cbb0da0",
+          "runtime:8769cad60ebb4b1181a9310dc899a831",
+          "runtime:b5dc0372b399454589fb2d90cfcff77d",
+          "runtime:c76a73429e7b43dea019a1fea11f65aa",
+          "runtime:deb7cc3eca8448eebe38e60832b279d2",
+          "runtime:0379802f1c214da5bb1ef838c28f07b7",
+          "runtime:4d29717deb744218b10a32bb77690c75",
+          "runtime:a1c248123d384c4ebae97a081ea0e2e7",
+          "runtime:a7ec5d572ccb48ccaeff1feb40b5bfde",
+          "runtime:54d21c17280b4286897d98fc993e8953",
+          "runtime:07e88430f0a643e3bda9fd2deb908c17",
+          "runtime:5b89d73dd6934391a709fbe59e1b2152",
+          "runtime:4ef3b79430ff4bf19442d31af73dd145",
+          "runtime:5016cfd52be44cfeb8ef0c96dfad5c20",
+          "runtime:97cf6c71d3384a06adbb074ecb593c77",
+          "runtime:9be36eb27094415eafeb3baf07263c13",
+          "runtime:d088a7cd9c4e4a45b78c74124c843722",
+          "runtime:41ecdc9fa83a4796800feb2aa4d96954",
+          "runtime:3523c15be9f34aee9910960175f51e94",
+          "runtime:cefa254d9b9b4523bf1a6a1dfa85202c"
+        ],
+        "kinds": [
+          "job"
+        ]
+      }
+    }
+  ],
+  "approval_or_loading_called": false
+}

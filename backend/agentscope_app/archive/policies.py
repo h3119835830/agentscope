@@ -303,7 +303,7 @@ def detail_from_ref(con,task,s,ref):
 
 
 def policy_records(task_id,stage='startup',before=None,limit=50,view='jobs'):
-    if stage not in ('startup','runtime') or view not in ('jobs','statements') or not 1<=limit<=200:raise HTTPException(422,'Invalid policy query')
+    if stage not in ('startup','runtime') or view not in ('jobs','statements','statements_only') or not 1<=limit<=200:raise HTTPException(422,'Invalid policy query')
     with db.connect() as con:
         con.execute('PRAGMA query_only=ON')
         task=a.require_task(con,task_id);s=state(con,task_id);all_refs=refs(con,task_id,stage)
@@ -324,6 +324,10 @@ def policy_records(task_id,stage='startup',before=None,limit=50,view='jobs'):
                     failed=row and row[0] in ('failed','cancelled','interrupted','rejected','stale')
                 if not owner_has_children or failed:placeholders.append(r)
             items=sorted(children+placeholders,key=lambda r:(r['time'],r['id']),reverse=True)
+        if view=='statements_only':
+            # Existing child identities only; generation history has its own jobs view.
+            # Never turn a source request or model explanation into a new statement.
+            items=[r for r in all_refs if r['kind']=='statement']
         total=len(items)
         if before:
             time,ident=a.cursor_decode(before,task_id,'policies:'+stage+(':'+view if view!='jobs' else ''))

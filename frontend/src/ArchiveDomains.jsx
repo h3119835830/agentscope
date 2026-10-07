@@ -17,7 +17,7 @@ function DomainEvidence({domain}) {
 
 export function HistoricalGraphNotice({graph}){const missing=graph?.missing_sources||[];return <>{(graph?.notice||missing.length>0)&&<details className="archive-technical"><summary>历史材料说明{missing.length?`（${missing.length} 项缺失或未核验）`:''}</summary>{graph.notice&&<p className="muted">{graph.notice}</p>}{missing.length>0&&<ul>{missing.map((item,i)=><li key={item.key||i}>{item.role==='baseline'?'底线域':item.role==='task'?'任务域':'历史加载'}：材料未记录或未核验{item.reason?` · ${item.reason}`:''}</li>)}</ul>}</details>}</>;}
 
-export default function ArchiveDomains({task,api,defaultOpen=false,showProcesses=false,view='graph',files={records:[]},onAudit}) {
+export default function ArchiveDomains({task,api,defaultOpen=false,showProcesses=false,view='graph',embedded=false,files={records:[]},onAudit}) {
  const [open,setOpen]=useState(defaultOpen),[version,setVersion]=useState(null),[graph,setGraph]=useState(null),[busy,setBusy]=useState(false),[error,setError]=useState(''),[retry,setRetry]=useState(0);
  const [selected,setSelected]=useState(null),[detail,setDetail]=useState(null),[detailError,setDetailError]=useState(''),[detailBusy,setDetailBusy]=useState(false);
  const graphSeq=useRef(0),detailSeq=useRef(0),heading=useRef(null),trigger=useRef(null);
@@ -37,12 +37,13 @@ export default function ArchiveDomains({task,api,defaultOpen=false,showProcesses
   finally{if(seq===detailSeq.current)setDetailBusy(false);}
  }
  function selectProcess(node){trigger.current=document.activeElement;detailSeq.current++;setSelected(node);setDetail(null);setDetailError('');setDetailBusy(false);}
- return <details className="record-note" open={open} onToggle={e=>{if(e.target===e.currentTarget)setOpen(e.currentTarget.open);}}>
-  <summary>历史域、进程与 DSL</summary>
-  {open&&<><p className="muted">历史加载记录；PID 不代表当前在线。</p>
+ const Container=embedded?'section':'details';
+ return <Container className={embedded?'archive-domain-embedded':'record-note'} open={embedded?undefined:open} onToggle={e=>{if(e.target===e.currentTarget)setOpen(e.currentTarget.open);}}>
+  {!embedded&&<summary>历史域、进程与 DSL</summary>}
+  {open&&<>{!embedded&&<p className="muted">历史加载记录；PID 不代表当前在线。</p>}
    {busy&&<p role="status">正在读取历史域…</p>}
    {error&&<p role="alert">{error} <button className="button ghost tiny" onClick={()=>setRetry(n=>n+1)}>重试</button></p>}
-   {graph&&<><HistoricalGraphNotice graph={graph}/>{view==='graph'&&<DomainGraph graph={graph} files={files} onAudit={onAudit||(()=>{})} historical fresh={false} onVersion={setVersion} onDomain={selectDomain} onProcess={selectProcess}/>}<div hidden={view!=='processes'&&!showProcesses}>{(view==='processes'||showProcesses)&&<section className="archive-process-table"><div className="graph-toolbar"><h3>已记录进程</h3><select aria-label="关联进程的历史版本" value={graph.version} onChange={e=>setVersion(Number(e.target.value))}>{graph.versions.map(v=><option key={v.version} value={v.version}>v{v.version} · 加载记录</option>)}</select></div><div className="archive-table-scroll"><table className="archive-records-table"><thead><tr><th>历史角色</th><th>历史 PID</th><th>版本</th><th>记录时间</th></tr></thead><tbody>{graph.nodes.filter(n=>n.kind==='process'&&n.pid!=null).map(n=><tr key={n.key}><td>{n.title}</td><td>{n.pid}</td><td>v{n.version}</td><td>{n.recorded_at||'未记录'}</td></tr>)}{!graph.nodes.some(n=>n.kind==='process'&&n.pid!=null)&&<tr><td colSpan={4}>该版本未记录进程 PID。</td></tr>}</tbody></table></div></section>}</div></>}
+   {graph&&<>{view==='graph'&&<DomainGraph graph={graph} files={files} onAudit={onAudit||(()=>{})} historical fresh={false} onVersion={setVersion} onDomain={selectDomain} onProcess={selectProcess}/>}<div hidden={view!=='processes'&&!showProcesses}>{(view==='processes'||showProcesses)&&<section className="archive-process-table"><div className="graph-toolbar"><h3>已记录进程</h3><select aria-label="关联进程的历史版本" value={graph.version} onChange={e=>setVersion(Number(e.target.value))}>{graph.versions.map(v=><option key={v.version} value={v.version}>v{v.version} · 加载记录</option>)}</select></div><div className={embedded?"runtime-table-wrap":"archive-table-scroll"}><table className={embedded?"runtime-table":"archive-records-table"}><thead><tr><th>历史角色</th><th>历史 PID</th><th>版本</th><th>记录时间</th></tr></thead><tbody>{graph.nodes.filter(n=>n.kind==='process'&&n.pid!=null).map(n=><tr key={n.key}><td>{n.title}</td><td>{n.pid}</td><td>v{n.version}</td><td>{n.recorded_at||'未记录'}</td></tr>)}{!graph.nodes.some(n=>n.kind==='process'&&n.pid!=null)&&<tr><td colSpan={4}>该版本未记录进程 PID。</td></tr>}</tbody></table></div></section>}</div><HistoricalGraphNotice graph={graph}/></>}
    {selected&&view==='graph'&&<section className="record-note" aria-label="历史节点详情"><div className="graph-toolbar"><h3 ref={heading} tabIndex="-1">{selected.title}</h3><button className="button ghost tiny" onClick={()=>{detailSeq.current++;setSelected(null);setDetail(null);trigger.current?.isConnected&&trigger.current.focus();}}>收起详情</button></div>
     {detailBusy&&<p role="status">正在读取加载证据…</p>}
     {detailError&&<p role="alert">{detailError} <button className="button ghost tiny" onClick={()=>selectDomain(selected)}>重试</button></p>}
@@ -50,5 +51,5 @@ export default function ArchiveDomains({task,api,defaultOpen=false,showProcesses
     {selected.kind==='process'&&<><Fields items={[['历史 PID',selected.pid],['历史角色',({runner:'任务 runner',watch:'策略 watch',executor:'DSH 执行进程',agent:'DSH 执行进程'})[selected.role]||selected.role],['历史版本',`v${selected.version}`],['记录时间',selected.recorded_at]]}/><p className="muted">PID 来自该次加载收据，不是当前进程采样。</p></>}
    </section>}
   </>}
- </details>;
+ </Container>;
 }

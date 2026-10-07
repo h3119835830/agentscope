@@ -1,0 +1,17 @@
+
+> agentscope-ui@0.1.0 build
+> vite build --outDir /tmp/a/task-replay-ui
+
+vite v6.4.3 building for production...
+
+(!) outDir /tmp/a/task-replay-ui is not inside project root and will not be emptied.
+Use --emptyOutDir to override.
+
+transforming...
+✓ 59 modules transformed.
+rendering chunks...
+computing gzip size...
+../../../tmp/a/task-replay-ui/index.html                   0.46 kB │ gzip:   0.32 kB
+../../../tmp/a/task-replay-ui/assets/index-BIy6ige1.css   75.87 kB │ gzip:  14.84 kB
+../../../tmp/a/task-replay-ui/assets/index-CjHDw2j5.js   477.74 kB │ gzip: 140.16 kB
+✓ built in 1.19s

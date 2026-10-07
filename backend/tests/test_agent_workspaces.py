@@ -196,3 +196,38 @@ def test_history_survives_absent_execution_directory(workspace):
     record=next(t for t in r.task_records()['records'] if t['id']==task['id'])
     assert record['phase']=='ended' and record['workspace_available'] is False
     assert record['source_path']==workspace['path']
+
+
+def test_snapshot_aliases_preserve_source_bytes_and_frozen_path_provenance(workspace):
+    root=Path(workspace['path'])
+    project=root/'workspace'/'transaction-verification-service'
+    (project/'tests').mkdir(parents=True)
+    (project/'setup.py').write_text('from setuptools import setup\n')
+    (project/'tests'/'tests_rate_limiter.py').write_text('def test_limiter():\n    assert True\n')
+    before=r.inventory(workspace['id'])
+    task=r.create_task(workspace['id'],'Long project','Fix limiter; preserve all existing tests.',before['manifest_hash'])
+    ctx=scene.context(task['id'])
+    prefix='workspace/transaction-verification-service'
+    assert ctx['asset_layout']['project_prefixes']=={prefix:'p0'}
+    assert ctx['mapping'][str(project)]==str(Path(ctx['workspace'])/'p0')
+    assert ctx['asset_layout_mapping_hash']==scene.digest(ctx['asset_layout_mapping'])
+    for asset in ctx['assets']:
+        original=root/asset['source_relative_path']
+        assert original.read_bytes()==Path(asset['mapped_path']).read_bytes()
+        assert hashlib.sha256(original.read_bytes()).hexdigest()==asset['sha256']
+        assert asset['relative_path']==ctx['asset_layout_mapping'][asset['source_relative_path']]
+    assert r.inventory(workspace['id'])['manifest_hash']==before['manifest_hash']
+    with db.connect() as con:
+        state=c.load(con,task['id'])
+        assert state['version']==0 and state['session_id'] is None and state['startup_review_required']
+        assert con.execute('SELECT COUNT(*) FROM policy_versions WHERE task_id=?',(task['id'],)).fetchone()[0]==0
+
+
+def test_later_snapshot_mapping_never_rewrites_an_existing_task_context(workspace):
+    previous=task_from(workspace)
+    frozen=scene.context(previous['id'])
+    project=Path(workspace['path'])/'a-very-long-project-container-directory'
+    project.mkdir();(project/'setup.py').write_text('# setup\n');(project/'main.py').write_text('# main\n')
+    following=task_from(workspace)
+    assert scene.context(previous['id'])==frozen
+    assert scene.context(following['id'])['asset_layout']['project_prefixes']

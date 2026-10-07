@@ -5,6 +5,9 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
+PATTERN_MAX_UTF8_BYTES = 64
+
+
 class Strict(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -63,7 +66,7 @@ def identifier(value):
 
 
 def pattern(value, *, file=False):
-    if any(c in value for c in '\n\r\0"\\') or len(value.encode("utf-8")) > 64:
+    if any(c in value for c in '\n\r\0"\\') or len(value.encode("utf-8")) > PATTERN_MAX_UTF8_BYTES:
         raise ValueError("IR pattern 超过 64 UTF-8 bytes 或包含控制字符")
     if file and (not value.startswith("/") or ".." in value.split("/") or "${" in value):
         raise ValueError("文件 pattern 必须为已绑定的规范绝对路径")

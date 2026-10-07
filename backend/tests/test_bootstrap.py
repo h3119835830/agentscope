@@ -255,28 +255,32 @@ def test_completion_retains_binding_until_cleanup_is_confirmed(client,seed_task,
 def test_existing_test_object_collection_does_not_ban_derived_artifacts(created,monkeypatch):
     import tempfile
     from pathlib import Path
-    monkeypatch.setattr(scene,'WORKSPACE_ROOT',Path(tempfile.mkdtemp(prefix='')))
-    task=scene.create_scene('safety-impossible-tests',workspace_leaf='r',compact_paths=True);ctx=scene.context(task['id'])
-    requirement=ctx['declared_constraints'][0]
-    assert requirement['object_scope']=='registered_existing_files'
-    assert len(requirement['targets'])==5 and all(not p.endswith('/**') for p in requirement['targets'])
-    with db.connect() as con:
-        sources=[dict(r) for r in con.execute('select * from bootstrap_sources where task_id=?',(task['id'],))]
-    authority=next(s for s in sources if s['role']=='task')
-    assets=[s for s in sources if s['path'] in requirement['targets']]
-    atom={'decision':'new_candidate','statement':'Preserve the original test assets',
-          'reason':'Original senior-developed tests remain immutable',
-          'evidence_ids':[authority['id'],*[s['id'] for s in assets]],
-          'operations':['write','unlink'],'paths':requirement['targets']}
-    draft={'context_hash':ctx['context_hash'],'summary':'Original tests only','atoms':[atom]}
-    result=validate(task['id'],draft,compile_bundle=False)
-    assert result['valid']
-    assert '__pycache__' not in result['proposal']['actplane_dsl'] and '/tests/**' not in result['proposal']['actplane_dsl']
-    from pathlib import Path
-    directory=str(Path(next(p for p in requirement['targets'] if '/tests/' in p)).parent)
-    atom['paths']=[directory,directory+'/**']
-    with pytest.raises(ValueError,match='overbroad registered object collection'):validate(task['id'],draft,compile_bundle=False)
-
+    # This success case tests exact object scope, so its fixture must fit the
+    # real ABI even when the process default temp directory is /var/tmp.
+    with tempfile.TemporaryDirectory(prefix='', dir='/tmp/a') as directory:
+        monkeypatch.setattr(scene,'WORKSPACE_ROOT',Path(directory))
+        task=scene.create_scene('safety-impossible-tests',workspace_leaf='r',compact_paths=True);ctx=scene.context(task['id'])
+        requirement=ctx['declared_constraints'][0]
+        from agentscope_app.policy_ir import PATTERN_MAX_UTF8_BYTES
+        assert max(len(p.encode('utf-8')) for p in requirement['targets']) <= PATTERN_MAX_UTF8_BYTES
+        assert requirement['object_scope']=='registered_existing_files'
+        assert len(requirement['targets'])==5 and all(not p.endswith('/**') for p in requirement['targets'])
+        with db.connect() as con:
+            sources=[dict(r) for r in con.execute('select * from bootstrap_sources where task_id=?',(task['id'],))]
+        authority=next(s for s in sources if s['role']=='task')
+        assets=[s for s in sources if s['path'] in requirement['targets']]
+        atom={'decision':'new_candidate','statement':'Preserve the original test assets',
+              'reason':'Original senior-developed tests remain immutable',
+              'evidence_ids':[authority['id'],*[s['id'] for s in assets]],
+              'operations':['write','unlink'],'paths':requirement['targets']}
+        draft={'context_hash':ctx['context_hash'],'summary':'Original tests only','atoms':[atom]}
+        result=validate(task['id'],draft,compile_bundle=False)
+        assert result['valid']
+        assert '__pycache__' not in result['proposal']['actplane_dsl'] and '/tests/**' not in result['proposal']['actplane_dsl']
+        from pathlib import Path
+        directory=str(Path(next(p for p in requirement['targets'] if '/tests/' in p)).parent)
+        atom['paths']=[directory,directory+'/**']
+        with pytest.raises(ValueError,match='overbroad registered object collection'):validate(task['id'],draft,compile_bundle=False)
 
 def test_unread_citations_fail_before_compile_and_do_not_consume_draft_repairs(created,client,monkeypatch):
     from agentscope_app import main

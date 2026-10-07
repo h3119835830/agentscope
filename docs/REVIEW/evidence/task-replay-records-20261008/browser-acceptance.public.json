@@ -1,0 +1,173 @@
+{
+  "verified_at": "2026-10-07T16:55:14.002Z",
+  "provider": "Chrome extension",
+  "release": {
+    "js": "index-CjHDw2j5.js",
+    "css": "index-BIy6ige1.css",
+    "actual_index_sha256": "15fdc2c6ac8fbe0ada3d2edba8e6af849c5afe135591a8d6982780e8919dfd0e"
+  },
+  "checks": [
+    {
+      "check": "f39_runtime_two_statements_original_workbench_labels",
+      "passed": true
+    },
+    {
+      "check": "four_main_two_secondary_default_collapses",
+      "passed": true
+    },
+    {
+      "check": "drawer_defaults_to_statement",
+      "passed": true
+    },
+    {
+      "check": "keyboard_detail_exact_two_clauses_no_bundle",
+      "passed": true
+    },
+    {
+      "check": "generation_independent_paging_12_to_24_preserves_two_statements",
+      "passed": true
+    },
+    {
+      "check": "monitor_segmented_modes_keyboard_and_historical_v1_v3",
+      "passed": true
+    },
+    {
+      "check": "audit_compact_os_tools_control_separate_sources",
+      "passed": true
+    },
+    {
+      "check": "same_page_task_selection_d5_five_statements",
+      "passed": true
+    },
+    {
+      "check": "actual_423_no_document_overflow",
+      "passed": true
+    },
+    {
+      "check": "423_keyboard_main_tabs_and_internal_graph_scroll",
+      "passed": true
+    },
+    {
+      "check": "refresh_back_preserves_selected_task_and_runtime_route",
+      "passed": true
+    },
+    {
+      "check": "return_list_preserves_search_and_all_filter",
+      "passed": true
+    },
+    {
+      "check": "return_list_restores_second_page_and_filter",
+      "passed": true
+    },
+    {
+      "check": "final_loaded_assets_and_actual_index_hash",
+      "passed": true
+    }
+  ],
+  "observations": {
+    "desktop_inner_width": 1287,
+    "f39_runtime_statements": 2,
+    "d5_runtime_statements": 5,
+    "details_default_tab": "语句与类型",
+    "exact_dsl_statement": "runtime:63170b40dfb84f88af9ab960bf7cd9c2:statement:0",
+    "exact_dsl_clause_count": 2,
+    "generation_paging": {
+      "before": 12,
+      "after": 24,
+      "statement_rows_unchanged": 2
+    },
+    "monitor_v3": {
+      "domain_id": 1201577438,
+      "runner_pid": 565195,
+      "watch_pid": 565145
+    },
+    "monitor_v1": {
+      "domain_id": 412587138,
+      "runner_pid": 526547,
+      "watch_pid": 526504
+    },
+    "mobile": {
+      "bodyWidth": 408,
+      "clientWidth": 408,
+      "innerHeight": 900,
+      "innerWidth": 423,
+      "rows": 5,
+      "scrollWidth": 408,
+      "secondary": []
+    },
+    "mobile_graph": {
+      "body": 408,
+      "client": 408,
+      "focus": "replay-tab-domains",
+      "graph": [
+        {
+          "overflow": "auto",
+          "total": 1296,
+          "width": 312
+        }
+      ]
+    },
+    "return_list": {
+      "query": "OpenAgentSafety",
+      "filter": "all",
+      "page_display": "2 / 10",
+      "listPage": 1
+    },
+    "exact_dsl_visible_validation": {
+      "method": "Latest accessibility tree and saved desktop-drawer screenshot show one primary DSL block; raw-history disclosure remains collapsed.",
+      "focus": "policy-detail-dsl",
+      "selected": "true",
+      "primary_dsl": "rule runtime-file-protection:\n  block write file \"/s/f39a5521abb04104/r/acceptance-temp.txt\" if AGENT\n  block unlink file \"/s/f39a5521abb04104/r/acceptance-temp.txt\" if AGENT\n  because \"Runtime task evidence requires preserving these registered objects.\"",
+      "clause_count": 2,
+      "raw_history_disclosure_open": false
+    },
+    "validation_note": "An initial unfiltered DOM assertion counted pre elements inside the collapsed raw-history disclosure. The visible accessibility tree and screenshot were used to verify the primary exact DSL block; no product source change was needed."
+  },
+  "network_evidence": "Browser evidence covers observed DOM, navigation, keyboard and screenshots. Index hash independently verified by read-only HTTP GET. No browser network trace claimed.",
+  "operator_actions": {
+    "read_only": true,
+    "post_or_manual_check": false,
+    "approval_or_policy_apply": false,
+    "model_or_task_execution": false,
+    "service_or_source_changes": false
+  },
+  "backend_regression": {
+    "passed": 563,
+    "skipped": 52,
+    "failed": 0,
+    "seconds": 39.09,
+    "log": "/tmp/a/pi-workflow-full-backend-20261008.log"
+  },
+  "screenshots": [
+    {
+      "file": "desktop-runtime.jpg",
+      "bytes": 60135,
+      "sha256": "5f4547990ba3e23b8383c36f805a9645d63faa3d328f87d0ee494eb88007485a",
+      "capture_js": "index-CjHDw2j5.js"
+    },
+    {
+      "file": "desktop-drawer.jpg",
+      "bytes": 55816,
+      "sha256": "58951b352d18f5fccbe806d9c7205a55e7de1fc6429032fce19922571fcae0ae",
+      "capture_js": "index-CjHDw2j5.js"
+    },
+    {
+      "file": "desktop-monitor.jpg",
+      "bytes": 66651,
+      "sha256": "a86bcf508243854dedd8ea1afa593e208e90baa19c7a53f95d5b2e7bda7d333d",
+      "capture_js": "index-CjHDw2j5.js"
+    },
+    {
+      "file": "mobile423-runtime.jpg",
+      "bytes": 41336,
+      "sha256": "ef61c9b63c740430b3e5d59c1ec3dd59074ce506b4ce517922f154be9c8de779",
+      "capture_js": "index-CjHDw2j5.js"
+    }
+  ],
+  "cleanup": {
+    "temporary_viewport_reset": true,
+    "agent_created_tab_closed": true,
+    "user_tabs_untouched": true,
+    "parent_iab_tab8_untouched": true
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "observed_at": "2026-10-07T16:51:22.420214+00:00",
+  "index_sha256": "15fdc2c6ac8fbe0ada3d2edba8e6af849c5afe135591a8d6982780e8919dfd0e",
+  "assets": {
+    "index-CjHDw2j5.js": "9e7d6ff5636bb66eb7f44701abfed37f21301401e4fdb7f0a4d32060dc11ab7a",
+    "index-BIy6ige1.css": "cd4632e0b441ba8d30e9f0c07f68b52d4933409466940ff8b1dbc67146efb4f6"
+  },
+  "before_pids": {
+    "agentscope-scope-demo-api.service": "1044743",
+    "agentscope-scope-demo-broker.service": "966501",
+    "agentscope-local-dsh-web-20261007.service": "870966"
+  },
+  "after_pids": {
+    "agentscope-scope-demo-api.service": "1071142",
+    "agentscope-scope-demo-broker.service": "966501",
+    "agentscope-local-dsh-web-20261007.service": "870966"
+  },
+  "restarted_services": [
+    "agentscope-scope-demo-api.service"
+  ],
+  "broker_and_dsh_unchanged": true,
+  "permissions_applied": false,
+  "private_consistent_backup_created": true
+}

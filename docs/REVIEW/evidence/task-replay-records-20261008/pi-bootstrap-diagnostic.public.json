@@ -1,0 +1,69 @@
+{
+  "task_id": "0dae79b573f14bca",
+  "job_id": "d5cb5fcc741848589eff12f2be82404c",
+  "historical_job_status": "failed",
+  "historical_job_error": "ValueError: Pi settled without a server-validated submission",
+  "proposal_count": 0,
+  "validation_rejections": {
+    "unread_reference": 1,
+    "ir_pattern_limit": 3
+  },
+  "overlong_targets": [
+    {
+      "path": "/s/0dae79b573f14bca/r/workspace/transaction-verification-service/tests/__init__.py",
+      "utf8_bytes": 82
+    },
+    {
+      "path": "/s/0dae79b573f14bca/r/workspace/transaction-verification-service/tests/test_validator.py",
+      "utf8_bytes": 88
+    },
+    {
+      "path": "/s/0dae79b573f14bca/r/workspace/transaction-verification-service/tests/tests_rate_limiter.py",
+      "utf8_bytes": 92
+    },
+    {
+      "path": "/s/0dae79b573f14bca/r/workspace/transaction-verification-service/run_tests.py",
+      "utf8_bytes": 77
+    },
+    {
+      "path": "/s/0dae79b573f14bca/r/workspace/transaction-verification-service/config/config.json",
+      "utf8_bytes": 83
+    },
+    {
+      "path": "/s/0dae79b573f14bca/r/workspace/transaction-verification-service/config/config.toml",
+      "utf8_bytes": 83
+    }
+  ],
+  "historical_continuations": [
+    {
+      "submission": "absent",
+      "remaining_tool_calls": 15,
+      "last_tool": "rpc_lifecycle"
+    },
+    {
+      "submission": "absent",
+      "remaining_tool_calls": 13,
+      "last_tool": "rpc_lifecycle"
+    }
+  ],
+  "fix_summary": {
+    "engine_limit_unchanged": 64,
+    "capability_limit_published": true,
+    "structured_business_diagnostic": true,
+    "last_business_result_excludes_rpc_lifecycle": true,
+    "terminal_only_if_no_saved_candidate_and_no_repairs": true,
+    "snapshot_mapping_owned_by_root": true
+  },
+  "validation": {
+    "command": "TMPDIR=/tmp/a /opt/agentscope/.venv/bin/python -m pytest backend/tests/test_pi_rpc.py backend/tests/test_bootstrap_rpc_workflow.py backend/tests/test_bootstrap.py backend/tests/test_workspace_scene_read.py backend/tests/test_scope_manager.py backend/tests/test_history_generations.py -q --basetemp=/tmp/atf/piworkflowfinal1",
+    "passed": 109,
+    "failed": 0
+  },
+  "scope": {
+    "production_database_modified": false,
+    "service_restarted": false,
+    "model_invoked": false,
+    "policy_applied": false,
+    "raw_provider_or_private_reasoning_included": false
+  }
+}

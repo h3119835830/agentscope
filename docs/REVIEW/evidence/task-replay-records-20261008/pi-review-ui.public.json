@@ -1,0 +1,39 @@
+{
+  "verified_at": "2026-10-07T16:58:08.151Z",
+  "task_id": "ad7c53a17c334c7b",
+  "job_id_from_release_owner": "948e76e023fe480aa959a62a8d556eb1",
+  "task_url": "http://127.0.0.1:18003/?view=workbench&task=ad7c53a17c334c7b&stage=startup",
+  "release_js": [
+    "/assets/index-CjHDw2j5.js"
+  ],
+  "viewport": {
+    "width": 1280,
+    "height": 900
+  },
+  "ui_checks": {
+    "selected_task_matches": true,
+    "pending_confirmation_visible": true,
+    "validated_not_loaded_visible": true,
+    "execution_session_not_established_visible": true,
+    "two_execution_rules_seven_guidance_visible": true,
+    "test_targets_visible": true,
+    "configuration_targets_visible": true
+  },
+  "operator_actions": {
+    "read_only": true,
+    "approve": false,
+    "start": false,
+    "manual_check": false,
+    "retry": false
+  },
+  "screenshot": {
+    "file": "desktop-pi-review.jpg",
+    "bytes": 78662,
+    "sha256": "ea31ce5e015d9a1adb0e028f1f81435f610fd2134261683ce1a6f41da0d314b5"
+  },
+  "cleanup": {
+    "temporary_viewport_reset": true,
+    "agent_created_tab_closed": true,
+    "user_tabs_untouched": true
+  }
+}

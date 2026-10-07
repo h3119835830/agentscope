@@ -34,6 +34,7 @@ def invoke(task_id, job_id, tool, args, token):
         result = execute(task_id, job_id, tool, args)
     except (ValueError, KeyError) as error:
         result = {"valid": False, "diagnostic": str(error)[:2000]}
+        if hasattr(error, "details"): result["diagnostic_details"] = error.details
     with db.connect() as con:
         con.execute("INSERT INTO bootstrap_tool_events VALUES(?,?,?,?,?,?)", (uuid.uuid4().hex, job_id, tool, json.dumps(args), json.dumps(result), db.now()))
     return result

@@ -34,7 +34,10 @@ def drive(command,environment,prompt,status,trace,seconds=180,repairs=2):
             if typ=='agent_settled':
                 current=status()
                 if current.get('submitted'):return {'continuations':used,'protocol':'Pi RPC agent_settled; server submission verified'}
-                if used>=repairs:raise ValueError('Pi settled without a server-validated submission')
+                if current.get('workflow_error'):raise ValueError(current['workflow_error'])
+                if used>=repairs:
+                    diagnostic=current.get('last_diagnostic')
+                    raise ValueError('Pi settled without a server-validated submission'+(': '+str(diagnostic)[:2000] if diagnostic else ''))
                 used+=1;diagnostic={k:v for k,v in current.items() if k not in ('cancelled','submitted')}
                 trace({'kind':'workflow_continuation','number':used,'diagnostic':diagnostic})
                 send('Control-plane workflow state: '+json.dumps(diagnostic)+'. The evidence and candidate workflow is incomplete. Continue the same conversation using the registered tools; correct diagnostics and submit. No task execution or approval is authorized.')

@@ -1,0 +1,334 @@
+{
+  "result": "passed",
+  "checked_at": "2026-10-07T16:47:49.670756+00:00",
+  "check_type": "undeployed_source_projection_over_read_only_real_database",
+  "database": "/var/lib/agentscope-scope-demo/demo.sqlite3",
+  "contract": "view=statements_only only existing child IDs; jobs and mixed views unchanged",
+  "tasks": [
+    {
+      "task_id": "f39a5521abb04104",
+      "pure_total": 2,
+      "jobs_total": 41,
+      "mixed_total": 41,
+      "matches_original_managed_child_ids": true,
+      "pure_first_page_has_no_job_placeholders": true,
+      "all_cursors_exhausted": true,
+      "details": [
+        {
+          "id": "runtime:a7d1bd022b1a481a9ba46a977215158f:statement:0",
+          "classification_origin": "authenticated_delta_request",
+          "statement_bytes": 149,
+          "statement_sha256": "5cbb4f771c4fc70f3ef308390235bf614bdf8461cc11e822836a4edc84e5f348",
+          "policy_type": "per_event",
+          "compilation_scope": "statement",
+          "dsl_bytes": 0,
+          "dsl_sha256": null,
+          "statement_effect": "expand",
+          "loaded_receipt": false,
+          "live": false
+        },
+        {
+          "id": "runtime:63170b40dfb84f88af9ab960bf7cd9c2:statement:0",
+          "classification_origin": "authenticated_target_clause",
+          "statement_bytes": 62,
+          "statement_sha256": "34fd126f02c9b46cd56a1b5842eb39b502fc448dc7a25421f0255d08a9f836d6",
+          "policy_type": "per_event",
+          "compilation_scope": "statement",
+          "dsl_bytes": 254,
+          "dsl_sha256": "d89b19873e514afc5436186d9c79120b6d906aa3d74e42bb89a6b005ae5fa7d2",
+          "statement_effect": "restrict",
+          "loaded_receipt": true,
+          "live": false
+        }
+      ]
+    },
+    {
+      "task_id": "d5e21e674b464d16",
+      "pure_total": 5,
+      "jobs_total": 40,
+      "mixed_total": 42,
+      "matches_original_managed_child_ids": true,
+      "pure_first_page_has_no_job_placeholders": true,
+      "all_cursors_exhausted": true,
+      "details": [
+        {
+          "id": "runtime:1761cfbeed424e9eb9ca93dadc060db8:statement:1",
+          "classification_origin": "pi_statement",
+          "statement_bytes": 51,
+          "statement_sha256": "4c1f2fac0e556a0f1224abdbaecbadedf54c6e8a5e479aa6e3530e3b3ca97913",
+          "policy_type": "semantic_only",
+          "compilation_scope": "statement",
+          "dsl_bytes": 0,
+          "dsl_sha256": null,
+          "statement_effect": "guidance",
+          "loaded_receipt": false,
+          "live": false
+        },
+        {
+          "id": "runtime:1761cfbeed424e9eb9ca93dadc060db8:statement:0",
+          "classification_origin": "pi_statement",
+          "statement_bytes": 54,
+          "statement_sha256": "ce1000abcbda365227aa30b1a4bdba856c1391fd5e5138ac0e9107ad47703a9b",
+          "policy_type": "per_event",
+          "compilation_scope": "statement",
+          "dsl_bytes": 244,
+          "dsl_sha256": "1b8ae450762c2121425844436c701a961f132311de4132b198ef912deb0017c8",
+          "statement_effect": "retained",
+          "loaded_receipt": false,
+          "live": false
+        },
+        {
+          "id": "runtime:cc726e4591d34b30a7a718436cac4d3c:statement:0",
+          "classification_origin": "authenticated_delta_request",
+          "statement_bytes": 145,
+          "statement_sha256": "7fa6959ec139ca27184ba199390da197ceecb9e1d1d26c9c6b069c959c753fd3",
+          "policy_type": "per_event",
+          "compilation_scope": "statement",
+          "dsl_bytes": 0,
+          "dsl_sha256": null,
+          "statement_effect": "unmapped",
+          "loaded_receipt": false,
+          "live": false
+        },
+        {
+          "id": "runtime:deb7cc3eca8448eebe38e60832b279d2:statement:1",
+          "classification_origin": "authenticated_target_clause",
+          "statement_bytes": 36,
+          "statement_sha256": "1eeb635e458789fd8d0b0730feed31fedeb1eb5439fee96051f4fddb5e786e3d",
+          "policy_type": "per_event",
+          "compilation_scope": "statement",
+          "dsl_bytes": 244,
+          "dsl_sha256": "1b8ae450762c2121425844436c701a961f132311de4132b198ef912deb0017c8",
+          "statement_effect": "restrict",
+          "loaded_receipt": true,
+          "live": false
+        },
+        {
+          "id": "runtime:deb7cc3eca8448eebe38e60832b279d2:statement:0",
+          "classification_origin": "authenticated_target_clause",
+          "statement_bytes": 36,
+          "statement_sha256": "0b716511de069c991d1c71a88b5eb711aebb3561e3732c476f19c696eaac8df2",
+          "policy_type": "per_event",
+          "compilation_scope": "statement",
+          "dsl_bytes": 244,
+          "dsl_sha256": "1b8ae450762c2121425844436c701a961f132311de4132b198ef912deb0017c8",
+          "statement_effect": "restrict",
+          "loaded_receipt": true,
+          "live": false
+        }
+      ]
+    }
+  ],
+  "authority": {
+    "before": {
+      "tasks": {
+        "rows": 301,
+        "sha256": "ecb08d44b2a74e1f1d57baecf3b031ee2ec000591c9351e1258002c0d8370718"
+      },
+      "managed_tasks": {
+        "rows": 122,
+        "sha256": "90fcfe53ab4b5b09069dc7c75d32a52c8e6edceb917dfbe8481d6e87b6620247"
+      },
+      "policy_versions": {
+        "rows": 120,
+        "sha256": "546bdad0ac30d96c4989fa5e88f0b08685670502270dfa63fe94960c09842dcb"
+      },
+      "task_credentials": {
+        "rows": 299,
+        "sha256": "fe2014ce4c1e506c0ede35adfb82d0a93f084c563652b18b999b0b98d0b891e0"
+      },
+      "managed_events": {
+        "rows": 19390,
+        "sha256": "9fe7937b9c4fe0b477dfe79ac1443257a4da614fa715104ca8bf800377ae58d3"
+      },
+      "managed_jobs": {
+        "rows": 669,
+        "sha256": "102e73680bf2988b9afc82523dd5779451a93ff471dfc276705a9d22424195fe"
+      },
+      "history_jobs": {
+        "rows": 72,
+        "sha256": "866702caeabd17b7b5f3e6e5848dfde483762c2aa203ea26b9a8f76279ba63dd"
+      },
+      "bootstrap_contexts": {
+        "rows": 124,
+        "sha256": "8bb2ebebd80c7dcee7ec7b3922bde4a0ca4aa6ff1a6d7519a949d9915b3b8581"
+      },
+      "bootstrap_sources": {
+        "rows": 1604,
+        "sha256": "b886c2537958200709bd6211b03735ab2865f1217940576f2ef69a0705bbe708"
+      },
+      "bootstrap_proposals": {
+        "rows": 83,
+        "sha256": "7ab5b7d7afb55130fcba2baa5de0627c0e6d213feae9f63dec40fb82f20bb773"
+      },
+      "bootstrap_versions": {
+        "rows": 76,
+        "sha256": "75c69c268109098572e5ba174038154589cb64d07f07977d2c49ed99a3cc022e"
+      },
+      "bootstrap_results": {
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "bootstrap_tool_events": {
+        "rows": 3868,
+        "sha256": "40b9149629f8f1ccec268f1d8dbf9ebf5fac5de8a24c75b1ef203723947385aa"
+      },
+      "bootstrap_credentials": {
+        "rows": 98,
+        "sha256": "8981db2c78540c6cfbc8aa75d279cd464bf28747162eb0ba63e0e2ab01bfbfbc"
+      },
+      "history_compilations": {
+        "rows": 92,
+        "sha256": "a45c0d4582e2e62fbba5f7d1fc35fd883fadb19a06710001c6bacd319574285f"
+      },
+      "history_deployments": {
+        "rows": 18,
+        "sha256": "d218d6888046b143745aa3a6b63fe9d37da2cafada4a38346e2a809dd4c7dd80"
+      },
+      "scope_requests": {
+        "rows": 7,
+        "sha256": "838465aaa42cf396d9f3cfcf69e06065d392daefef3d514f80baf352907ad03f"
+      },
+      "scope_snapshots": {
+        "rows": 118,
+        "sha256": "b7ecb3bd6429a7d8c4f17a422d77c215896287aba7ec98aca4c427717780217b"
+      },
+      "workspace_task_sources": {
+        "rows": 5,
+        "sha256": "fbec6ef5dc0325cb52df8af3bd90f4db8618e59333f788d6f7852c4fec76aec0"
+      },
+      "workspace_scene_reads": {
+        "rows": 6,
+        "sha256": "595e3134cd962f0b0fd0587937f180131f05c8f09e0c3e66d95a8582bb4794da"
+      },
+      "scene_read_credentials": {
+        "rows": 6,
+        "sha256": "09a3b00e20c7d01cce972d1aff5301578480f3881c98d8ace50a5b25146e375e"
+      },
+      "scene_read_events": {
+        "rows": 105,
+        "sha256": "5278abf55832564949082ab68addc79202550c58bedf111c5171dc5f5b33a7a0"
+      }
+    },
+    "after": {
+      "tasks": {
+        "rows": 301,
+        "sha256": "ecb08d44b2a74e1f1d57baecf3b031ee2ec000591c9351e1258002c0d8370718"
+      },
+      "managed_tasks": {
+        "rows": 122,
+        "sha256": "90fcfe53ab4b5b09069dc7c75d32a52c8e6edceb917dfbe8481d6e87b6620247"
+      },
+      "policy_versions": {
+        "rows": 120,
+        "sha256": "546bdad0ac30d96c4989fa5e88f0b08685670502270dfa63fe94960c09842dcb"
+      },
+      "task_credentials": {
+        "rows": 299,
+        "sha256": "fe2014ce4c1e506c0ede35adfb82d0a93f084c563652b18b999b0b98d0b891e0"
+      },
+      "managed_events": {
+        "rows": 19390,
+        "sha256": "9fe7937b9c4fe0b477dfe79ac1443257a4da614fa715104ca8bf800377ae58d3"
+      },
+      "managed_jobs": {
+        "rows": 669,
+        "sha256": "102e73680bf2988b9afc82523dd5779451a93ff471dfc276705a9d22424195fe"
+      },
+      "history_jobs": {
+        "rows": 72,
+        "sha256": "866702caeabd17b7b5f3e6e5848dfde483762c2aa203ea26b9a8f76279ba63dd"
+      },
+      "bootstrap_contexts": {
+        "rows": 124,
+        "sha256": "8bb2ebebd80c7dcee7ec7b3922bde4a0ca4aa6ff1a6d7519a949d9915b3b8581"
+      },
+      "bootstrap_sources": {
+        "rows": 1604,
+        "sha256": "b886c2537958200709bd6211b03735ab2865f1217940576f2ef69a0705bbe708"
+      },
+      "bootstrap_proposals": {
+        "rows": 83,
+        "sha256": "7ab5b7d7afb55130fcba2baa5de0627c0e6d213feae9f63dec40fb82f20bb773"
+      },
+      "bootstrap_versions": {
+        "rows": 76,
+        "sha256": "75c69c268109098572e5ba174038154589cb64d07f07977d2c49ed99a3cc022e"
+      },
+      "bootstrap_results": {
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "bootstrap_tool_events": {
+        "rows": 3868,
+        "sha256": "40b9149629f8f1ccec268f1d8dbf9ebf5fac5de8a24c75b1ef203723947385aa"
+      },
+      "bootstrap_credentials": {
+        "rows": 98,
+        "sha256": "8981db2c78540c6cfbc8aa75d279cd464bf28747162eb0ba63e0e2ab01bfbfbc"
+      },
+      "history_compilations": {
+        "rows": 92,
+        "sha256": "a45c0d4582e2e62fbba5f7d1fc35fd883fadb19a06710001c6bacd319574285f"
+      },
+      "history_deployments": {
+        "rows": 18,
+        "sha256": "d218d6888046b143745aa3a6b63fe9d37da2cafada4a38346e2a809dd4c7dd80"
+      },
+      "scope_requests": {
+        "rows": 7,
+        "sha256": "838465aaa42cf396d9f3cfcf69e06065d392daefef3d514f80baf352907ad03f"
+      },
+      "scope_snapshots": {
+        "rows": 118,
+        "sha256": "b7ecb3bd6429a7d8c4f17a422d77c215896287aba7ec98aca4c427717780217b"
+      },
+      "workspace_task_sources": {
+        "rows": 5,
+        "sha256": "fbec6ef5dc0325cb52df8af3bd90f4db8618e59333f788d6f7852c4fec76aec0"
+      },
+      "workspace_scene_reads": {
+        "rows": 6,
+        "sha256": "595e3134cd962f0b0fd0587937f180131f05c8f09e0c3e66d95a8582bb4794da"
+      },
+      "scene_read_credentials": {
+        "rows": 6,
+        "sha256": "09a3b00e20c7d01cce972d1aff5301578480f3881c98d8ace50a5b25146e375e"
+      },
+      "scene_read_events": {
+        "rows": 105,
+        "sha256": "5278abf55832564949082ab68addc79202550c58bedf111c5171dc5f5b33a7a0"
+      }
+    },
+    "unchanged": true
+  },
+  "process_identity": {
+    "before": {
+      "agentscope-local-dsh-web-20261007.service": {
+        "pid": 870966,
+        "start_ticks": 2300804
+      },
+      "agentscope-scope-demo-broker.service": {
+        "pid": 966501,
+        "start_ticks": 2467978
+      }
+    },
+    "after": {
+      "agentscope-local-dsh-web-20261007.service": {
+        "pid": 870966,
+        "start_ticks": 2300804
+      },
+      "agentscope-scope-demo-broker.service": {
+        "pid": 966501,
+        "start_ticks": 2467978
+      }
+    },
+    "unchanged": true
+  },
+  "forbidden_live_interfaces_called": 0,
+  "no_model_or_tool_or_policy_apply": true,
+  "limits": [
+    "Old guidance_only jobs with no independently saved clauses remain generation history. Explanations are not synthesized statements.",
+    "This verifies undeployed source; API deployment and browser acceptance remain with root."
+  ]
+}

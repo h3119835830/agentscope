@@ -294,3 +294,118 @@ def test_unavailable_statements_preserve_identity_total_and_pagination(task,stag
     for row in rows:
         with pytest.raises(HTTPException) as error:policies.policy_detail(task,row['id'])
         assert error.value.status_code==404
+
+
+def legacy_runtime_fixture(task,shape):
+    """Public-data shapes observed in f39 (2 clauses) and d5 (5 clauses).
+
+    Old proposals have no identified_statements except d5's final two-clause
+    candidate. Preserve authenticated source mappings; do not migrate data.
+    """
+    children=[]
+    # The late assessment/stale rows used to bury these saved clauses.
+    def legacy(decision,quotes=(),identified=False):
+        job,p=runtime_job(task,decision=decision,statements=identified)
+        with db.connect() as con:
+            row=con.execute('SELECT context_json FROM managed_jobs WHERE id=?',(job,)).fetchone()
+            ctx=json.loads(row[0])
+            if not identified:p.pop('identified_statements',None)
+            if quotes:
+                ctx['capabilities']={'authorized_protection_targets':{'config.json':[{'request_id':'request:1','quote':q} for q in quotes]}}
+            con.execute('UPDATE managed_jobs SET context_json=?,proposal_json=?,created_at=? WHERE id=?',(json.dumps(ctx),json.dumps(p),'2026-10-06T01:00:00+00:00',job))
+        children.extend('runtime:'+job+':statement:'+str(i) for i in range(len(quotes) or (1 if not identified else len(p['identified_statements']))))
+        return job
+    if shape=='f39':
+        legacy('restrict',['Preserve config.json'])
+        legacy('expand')
+        assessments=25;guidance=7;unmapped_expansions=1;stale=13
+    else:
+        legacy('restrict',['Preserve config.json','Do not unlink config.json'])
+        legacy('expand')
+        job=legacy('no_change',identified=True)
+        with db.connect() as con:
+            row=con.execute('SELECT proposal_json FROM managed_jobs WHERE id=?',(job,)).fetchone();p=json.loads(row[0])
+            p['identified_statements'].append({'statement':'Keep the response concise','policy_type':'semantic_only','context_required':True,'context_reason':'Recorded task guidance','evidence_ids':['request:1']})
+            con.execute('UPDATE managed_jobs SET proposal_json=? WHERE id=?',(json.dumps(p),job))
+        children.append('runtime:'+job+':statement:1')
+        assessments=24;guidance=4;unmapped_expansions=2;stale=11
+    for index in range(assessments):
+        job,p=runtime_job(task,decision='guidance_only' if index<guidance else 'no_change',statements=False)
+        p.pop('identified_statements',None);p['explanation']='A saved evaluation explanation is not an identified policy statement'
+        with db.connect() as con:con.execute('UPDATE managed_jobs SET proposal_json=? WHERE id=?',(json.dumps(p),job))
+    # The old execution/recovery requests have no independently saved clause;
+    # they remain generation history rather than invented child statements.
+    for _ in range(unmapped_expansions):
+        job,_=runtime_job(task,decision='expand',statements=False)
+        with db.connect() as con:
+            ctx=json.loads(con.execute('SELECT context_json FROM managed_jobs WHERE id=?',(job,)).fetchone()[0])
+            ctx['sources'][0]['content']['actor']='DSH' if shape=='f39' else 'recovery'
+            con.execute('UPDATE managed_jobs SET context_json=? WHERE id=?',(json.dumps(ctx),job))
+    for _ in range(stale):runtime_job(task,'stale',None)
+    return set(children)
+
+
+@pytest.mark.parametrize('shape,child_count,job_count,mixed_count',[('f39',2,41,41),('d5',5,40,42)])
+def test_legacy_readonly_replay_shows_saved_clauses_before_generation_history(task,shape,child_count,job_count,mixed_count):
+    expected=legacy_runtime_fixture(task,shape)
+    with db.connect() as con:before='\n'.join(con.iterdump())
+    pure=policies.policy_records(task,'runtime',limit=12,view='statements_only')
+    assert pure['total']==child_count and pure['next_cursor'] is None
+    assert {r['id'] for r in pure['records']}==expected
+    assert all(r['record_kind']=='statement' and r['statement'] for r in pure['records'])
+    assert all(r['compilation']['scope']=='statement' for r in pure['records'])
+    assert 'evaluation explanation' not in json.dumps(pure)
+    generated=policies.policy_records(task,'runtime',limit=200,view='jobs')
+    assert generated['total']==job_count and all(r['record_kind']=='job' for r in generated['records'])
+    assert any(r['generation_status']=='stale' for r in generated['records'])
+    mixed=policies.policy_records(task,'runtime',limit=200,view='statements')
+    assert mixed['total']==mixed_count
+    for row in pure['records']:
+        detail=policies.policy_detail(task,row['id'])
+        assert detail['id']==row['id'] and detail['record_kind']=='statement'
+        assert detail['historical'] and detail['history_only'] and detail['live'] is False
+        assert detail['compilation']['scope']=='statement'
+        if detail['policy_type']=='semantic_only':assert detail['compilation']['dsl']=='' and not detail['loading']['loaded']
+    with db.connect() as con:assert '\n'.join(con.iterdump())==before
+
+
+def test_statements_only_cursor_excludes_jobs_and_isolated_from_task_stage_and_mixed_view(task,seed_task):
+    for _ in range(4):runtime_job(task)
+    for status in ['queued','running','failed','interrupted','rejected','stale']:runtime_job(task,status,None)
+    first=policies.policy_records(task,'runtime',limit=1,view='statements_only')
+    seen=first['records'];cursor=first['next_cursor']
+    assert first['total']==4 and cursor
+    other=ident();seed_task(other)
+    for tid,stage,view in [(other,'runtime','statements_only'),(task,'startup','statements_only'),(task,'runtime','statements'),(task,'runtime','jobs')]:
+        with pytest.raises(HTTPException):policies.policy_records(tid,stage,cursor,1,view)
+    while cursor:
+        page=policies.policy_records(task,'runtime',cursor,1,'statements_only');seen+=page['records'];cursor=page['next_cursor']
+    assert len(seen)==len({r['id'] for r in seen})==4 and all(r['record_kind']=='statement' for r in seen)
+    jobs=policies.policy_records(task,'runtime',limit=200,view='jobs')
+    assert jobs['total']==10 and {r['generation_status'] for r in jobs['records']} >= {'failed','interrupted','rejected','stale','queued','running'}
+    with pytest.raises(HTTPException) as error:policies.policy_detail(other,seen[0]['id'])
+    assert error.value.status_code==404
+
+
+def test_pure_statements_do_not_fabricate_missing_guidance_or_drop_broken_exact_ids(task):
+    runtime_job(task,decision='guidance_only',statements=False)
+    runtime_job(task,'failed',None)
+    assert policies.policy_records(task,'runtime',view='statements_only')['records']==[]
+    job,p=runtime_job(task);p['compiled_dsl_hash']='wrong'
+    with db.connect() as con:con.execute('UPDATE managed_jobs SET proposal_json=? WHERE id=?',(json.dumps(p),job))
+    page=policies.policy_records(task,'runtime',view='statements_only')
+    assert page['total']==1 and page['records'][0]['id']=='runtime:'+job+':statement:0'
+    assert not page['records'][0]['detail_available'] and not page['records'][0]['loaded']
+    with pytest.raises(HTTPException) as error:policies.policy_detail(task,page['records'][0]['id'])
+    assert error.value.status_code==404
+
+
+def test_statements_only_http_route_and_startup_generation_separation(task):
+    job=startup_job(task,'failed');candidate(task,job)
+    app=FastAPI();app.include_router(router);client=TestClient(app)
+    result=client.get(f'/api/tasks/{task}/archive/policies?stage=startup&view=statements_only&limit=1')
+    assert result.status_code==200
+    page=result.json();assert page['total']==2 and all(r['record_kind']=='statement' for r in page['records'])
+    assert page['historical'] and page['history_only'] and page['live'] is False
+    generation=client.get(f'/api/tasks/{task}/archive/policies?stage=startup&view=jobs').json()
+    assert generation['total']==1 and generation['records'][0]['generation_status']=='failed'

@@ -36,7 +36,7 @@ def archive_domain_detail(task_id: str, key: str):
 
 
 @router.get("/api/tasks/{task_id}/archive/policies")
-def archive_policy_records(task_id: str, stage: Literal["startup","runtime"]="startup", before: str|None=None, limit: int=Query(50,ge=1,le=200), view: Literal["jobs","statements"]="jobs"):
+def archive_policy_records(task_id: str, stage: Literal["startup","runtime"]="startup", before: str|None=None, limit: int=Query(50,ge=1,le=200), view: Literal["jobs","statements","statements_only"]="jobs"):
     from .policies import policy_records
     return policy_records(task_id,stage,before,limit,view)
 

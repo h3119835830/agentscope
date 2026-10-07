@@ -1,0 +1,65 @@
+{
+  "observed_at": "2026-10-07T16:54:56.931294+00:00",
+  "original_task_id": "0dae79b573f14bca",
+  "task_id": "ad7c53a17c334c7b",
+  "job_id": "948e76e023fe480aa959a62a8d556eb1",
+  "workspace_id": "4b85c64874115f49",
+  "source_manifest_hash": "014d1db9e3ccaffdabb5861c0a610963150dd19f0b9eef4e1da1f37b0a438323",
+  "original_context_unchanged": true,
+  "original_context_sha256": "70f07f460747bf8f9f7ab82075708d5ec124f7f0f2811a5657a01164e1e26d81",
+  "source_bytes_unchanged": true,
+  "asset_count": 20,
+  "asset_layout_mapping_hash": "b8e539d1d14159c1e3c88b54693d2c20aecd9225c4d340a3edc9f3c2a5075731",
+  "project_aliases": {
+    "workspace/transaction-verification-service": "p0"
+  },
+  "test_target_bytes": [
+    {
+      "path": "/s/ad7c53a17c334c7b/r/p0/tests/__init__.py",
+      "bytes": 42
+    },
+    {
+      "path": "/s/ad7c53a17c334c7b/r/p0/tests/test_validator.py",
+      "bytes": 48
+    },
+    {
+      "path": "/s/ad7c53a17c334c7b/r/p0/tests/tests_rate_limiter.py",
+      "bytes": 52
+    }
+  ],
+  "status": "completed",
+  "approval_or_loading_called": false,
+  "expected_stop": "policy_review before human approval",
+  "job_times": {
+    "created_at": "2026-10-07T16:52:18.510661+00:00",
+    "started_at": "2026-10-07T16:52:18.522305+00:00",
+    "finished_at": "2026-10-07T16:53:00.134033+00:00"
+  },
+  "proposal_id": "8ed88d1cd02a4163805b0848ea794afe",
+  "proposal_state": "validated",
+  "proposal_hash": "2110979ff1c1b7a72e993a302d616a085d7c0f4a2056030ce16ad2baeff66062",
+  "draft_atom_count": 2,
+  "guidance_count": 7,
+  "validations": [
+    {
+      "valid": false,
+      "diagnostic": "Unread referenced source IDs: [\"7f4bcaa9820c4a598ce013ebacdc5ebf\", \"f7758b9a03064d0985814857f7d5f45d\"]; obtain read_policy_source receipts before validating this draft"
+    },
+    {
+      "valid": true,
+      "compile_state": "compiled",
+      "diagnostic": ""
+    }
+  ],
+  "phase": "policy_review",
+  "gate": "waiting_confirmation",
+  "effective_version": 0,
+  "execution_session_created": false,
+  "policy_version_count": 0,
+  "task_execution_credentials": 0,
+  "pi_credential_revoked": true,
+  "broker_and_native_pids": {
+    "agentscope-scope-demo-broker.service": "966501",
+    "agentscope-local-dsh-web-20261007.service": "870966"
+  }
+}

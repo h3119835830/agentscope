@@ -1,0 +1,44 @@
+{
+  "recorded_at": "2026-10-07T16:59:08.256016+00:00",
+  "frontend_tests": 104,
+  "backend_tests": {
+    "passed": 563,
+    "skipped": 52,
+    "warnings": 5
+  },
+  "history_browser_checks": 14,
+  "pi_candidate_browser_checks": 7,
+  "real_pi": {
+    "task_id": "ad7c53a17c334c7b",
+    "job_id": "948e76e023fe480aa959a62a8d556eb1",
+    "status": "completed",
+    "candidate": "validated_and_compiled",
+    "gate": "waiting_confirmation",
+    "applied": false
+  },
+  "new_dsh_kernel_execution_claimed": false,
+  "remote_push": false,
+  "evidence": {
+    "backend-regression.txt": "e28f5c722a31feac470b815e29f8fbd2b2168bc3e92cc22b0da7f0c5596b87c9",
+    "browser-acceptance.public.json": "f1005349b4f08fdcb83c5e41c52c5fba48ccb2e1d0b9eb3c250be95288364312",
+    "deployed-api.public.json": "99a4183948c4c3e3f8b844787923942eb520724122fb07a92fd08ae96667e992",
+    "deployment.public.json": "47132ef94e9b6bdbd6a0c4bba224b72b4305f745077963a8d12259e57d90e900",
+    "desktop-drawer.jpg": "58951b352d18f5fccbe806d9c7205a55e7de1fc6429032fce19922571fcae0ae",
+    "desktop-monitor.jpg": "a86bcf508243854dedd8ea1afa593e208e90baa19c7a53f95d5b2e7bda7d333d",
+    "desktop-pi-review.jpg": "ea31ce5e015d9a1adb0e028f1f81435f610fd2134261683ce1a6f41da0d314b5",
+    "desktop-runtime.jpg": "5f4547990ba3e23b8383c36f805a9645d63faa3d328f87d0ee494eb88007485a",
+    "frontend-build.txt": "736bb8290ae245179318d35223cae095dea6a250ffa4f5eb14325a683bf9cd18",
+    "frontend-regression.tap": "1c078beb8bbd146208908782218803fa26e28b66a08dfd4d5442b900c472255f",
+    "mobile423-runtime.jpg": "ef61c9b63c740430b3e5d59c1ec3dd59074ce506b4ce517922f154be9c8de779",
+    "pi-bootstrap-diagnostic.public.json": "203d728f6a2d2ec77207e5986f68506b4dc449d0f28202dafa8ff8b05f9ed983",
+    "pi-retry.public.json": "b77592f5f0f7c30ae34969d6b542325a94ffbf56b645df54a4753087ded0b22e",
+    "pi-review-ui.public.json": "7da1faf8e3515eb1a3eee31846459113948560ce29a1784dd6b056ba1dae10fb",
+    "runtime-statements-only.public.json": "74a07c70ce3360734e5503a1d330fe3d86e72daad4ef50fed858d674c2516509"
+  },
+  "log_normalization": {
+    "file": "backend-regression.txt",
+    "raw_source": "/tmp/a/pi-workflow-full-backend-20261008.log",
+    "raw_sha256": "d59d1e432f2d62a61e897e8852ecc964e34ae22ff0bbd5f0cfe3eeb8724b0f39",
+    "formatting": "trailing whitespace removed; original log retained"
+  }
+}
