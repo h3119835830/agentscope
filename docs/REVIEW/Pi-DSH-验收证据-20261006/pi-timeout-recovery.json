@@ -1,0 +1,21 @@
+{
+  "schema": "ManagedPiTimeoutAcceptance/1",
+  "task_id": "acbd724d1e9f44ad",
+  "fault": "SIGSTOP isolated Pi process group; no credential or model stream captured",
+  "deadline_verified": true,
+  "elapsed_seconds": 183.86,
+  "failed_closed": true,
+  "error": "Pi exceeded its bounded analysis deadline",
+  "policy_version_unchanged": 1,
+  "baseline_hash": "275c6f25576e6e83dc844a8e336193d7cdbe442d219e04f350a517a6d2f4eeaf",
+  "session_id": "session-47876543-6a2e-4d8e-af08-124d5be78155",
+  "old_native_pid": 349877,
+  "pi_pid": 351138,
+  "process_groups_stopped": true,
+  "recovered_same_session": true,
+  "recovered_same_baseline": true,
+  "new_native_pid": 357181,
+  "new_domain": 1104080254,
+  "recovery_kernel_probe": "correct_block",
+  "keep_open": true
+}

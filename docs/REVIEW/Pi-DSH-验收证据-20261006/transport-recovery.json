@@ -1,0 +1,24 @@
+{
+  "schema": "ManagedTransportRecovery/1",
+  "passed": true,
+  "task": "3add2369187c419d",
+  "session_id": "session-1d47d25f-dc62-4c79-b7b0-f9b5d6cdb557",
+  "api_pid": 580370,
+  "native_pid": 592943,
+  "outage_seconds": 15.00042696699893,
+  "request_key": "transport-4f8d632705d14129a8e867f5b1d52307",
+  "public_request_sha256": "a73163b945c2e5107f89539fde5ad5abc817693ff25a5501d9fd4c83b9fa44a6",
+  "tool_start_event_id": 17938,
+  "transport": {
+    "retry_count": 1,
+    "recovered_calls": 1,
+    "state": "connected"
+  },
+  "file_sha256": "40499e21c2027a836f15213aae060ecbdd5884bc1dff2fb59bee4f0c68b41694",
+  "actual_native_user_message_delivered": true,
+  "same_session_domain_policy_and_process": true,
+  "policy_version": 1,
+  "process_domain_id": 1528157426,
+  "post_recovery_protected_write": "correct_block",
+  "state_after": "open_idle"
+}

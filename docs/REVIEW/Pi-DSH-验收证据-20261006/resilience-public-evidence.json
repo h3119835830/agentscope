@@ -1,0 +1,118 @@
+{
+  "schema": "ManagedResilienceEvidence/1",
+  "main_task": "485faccb823043a9",
+  "checks": [
+    {
+      "kind": "concurrency_verified",
+      "at": 1791283432.6503537,
+      "task": "485faccb823043a9",
+      "session_id": "session-c1531b12-8c3e-4b37-afbc-6c85f52bd2a7",
+      "both_real_messages": true,
+      "protected": true,
+      "job_states": {
+        "completed": 5,
+        "stale": 1
+      }
+    },
+    {
+      "kind": "stale_candidate_verified",
+      "at": 1791283524.4153445,
+      "task": "485faccb823043a9",
+      "old_hash": "d1b37e545dc468e733020b401206004655f5782ff2c9352672f49208bf1c70fb",
+      "version_unchanged": true
+    },
+    {
+      "kind": "late_native_feedback_verified",
+      "at": 1791283577.0350897,
+      "task": "485faccb823043a9",
+      "delivery_event_id": 9612,
+      "kernel_event_ids": [
+        9600
+      ],
+      "session_id": "session-c1531b12-8c3e-4b37-afbc-6c85f52bd2a7",
+      "actual_background_result": "blocked",
+      "source": "native_sdk_fixed_probe",
+      "attempted_by_agent": false
+    },
+    {
+      "kind": "native_crash_recovery_verified",
+      "at": 1791283703.3846648,
+      "task": "485faccb823043a9",
+      "old_pid": 305344,
+      "new_pid": 321506,
+      "session_id": "session-c1531b12-8c3e-4b37-afbc-6c85f52bd2a7",
+      "baseline_unchanged": true
+    },
+    {
+      "kind": "api_restart_persistence_verified",
+      "at": 1791284103.8426778,
+      "task": "485faccb823043a9",
+      "session_id": "session-c1531b12-8c3e-4b37-afbc-6c85f52bd2a7",
+      "native_pid": 321506,
+      "prior_events": 333,
+      "baseline_unchanged": true
+    },
+    {
+      "kind": "resilience_passed",
+      "at": 1791284104.2472975,
+      "task": "485faccb823043a9",
+      "closure": {
+        "task_id": "485faccb823043a9",
+        "status": "stopped",
+        "domain_id": 592344899,
+        "quiesced_pids": [
+          321407,
+          321506
+        ],
+        "writable_fds_and_mappings": "revoked_by_process_termination"
+      }
+    }
+  ],
+  "native_question_UI_evidence": [
+    {
+      "task": "d2017199bf53414e",
+      "actual_answer_request_id": 6305,
+      "session_id": "session-a2f48713-7451-4805-bdd2-641c83e8e117",
+      "turn": 3,
+      "source": "real_native_question_UI_answer",
+      "not_credited_as_kernel_block": true
+    },
+    {
+      "task": "e694406f54524dec",
+      "actual_answer_request_id": 7672,
+      "session_id": "session-9fa8afb2-72a2-47f1-8eac-fed1de989754",
+      "turn": 5,
+      "source": "real_native_question_UI_answer",
+      "not_credited_as_kernel_block": true
+    },
+    {
+      "task": "8bca0cbb98374a76",
+      "actual_answer_request_id": 8475,
+      "session_id": "session-3143c2cc-16b7-4e42-942d-e7644443a001",
+      "turn": 3,
+      "source": "real_native_question_UI_answer",
+      "not_credited_as_kernel_block": true
+    }
+  ],
+  "real_pi_timeout": {
+    "schema": "ManagedPiTimeoutAcceptance/1",
+    "task_id": "acbd724d1e9f44ad",
+    "fault": "SIGSTOP isolated Pi process group; no credential or model stream captured",
+    "deadline_verified": true,
+    "elapsed_seconds": 183.86,
+    "failed_closed": true,
+    "error": "Pi exceeded its bounded analysis deadline",
+    "policy_version_unchanged": 1,
+    "baseline_hash": "275c6f25576e6e83dc844a8e336193d7cdbe442d219e04f350a517a6d2f4eeaf",
+    "session_id": "session-47876543-6a2e-4d8e-af08-124d5be78155",
+    "old_native_pid": 349877,
+    "pi_pid": 351138,
+    "process_groups_stopped": true,
+    "recovered_same_session": true,
+    "recovered_same_baseline": true,
+    "new_native_pid": 357181,
+    "new_domain": 1104080254,
+    "recovery_kernel_probe": "correct_block",
+    "keep_open": true
+  }
+}

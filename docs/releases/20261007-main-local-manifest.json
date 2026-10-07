@@ -1,0 +1,465 @@
+{
+  "captured_at": "2026-10-07T10:16:07.447105+00:00",
+  "target": "main",
+  "user_authorized_main_push": true,
+  "local_source_base_commit": "83743c3054a7364286e36fa4b2e71ba9370f2915",
+  "prior_windows_commit": "7cd8a59590a1342fa70f0c1f336072928ca077d7",
+  "local_changed_files": 78,
+  "local_source_files": [
+    {
+      "path": "actplane/bpf/prebuilt/process-legacy.bpf.o",
+      "sha256": "ba4552a3730071e0874adb839d8600f730a4d65938c5f7a7d7193d59915395a7",
+      "status": "present"
+    },
+    {
+      "path": "actplane/bpf/prebuilt/process.bpf.o",
+      "sha256": "9c725b6c5b5db29744bfb3d8a15a3a1dd3217b9090743d4f4165ff77531e4e1b",
+      "status": "present"
+    },
+    {
+      "path": "actplane/bpf/process.bpf.c",
+      "sha256": "7d36de3588c9d10de59e67f415bc95cf1c747778ac4808d6a99a77885eaefb42",
+      "status": "present"
+    },
+    {
+      "path": "actplane/bpf/process.h",
+      "sha256": "66801cb9b1d55db66e2ecf9b16d82232815e6a374f92a2029f34fe6b1ffdf952",
+      "status": "present"
+    },
+    {
+      "path": "actplane/bpf/src/lib.rs",
+      "sha256": "208c97c391b1960e2c920ac28c06a773726227c558f5e1c8ebfa37033f9f04d5",
+      "status": "present"
+    },
+    {
+      "path": "actplane/crates/actplane-cli/src/doctor.rs",
+      "sha256": "fedb4903ad34c652248809c51dd3248e54095bb82fb6cd8920121d92c9e6de14",
+      "status": "present"
+    },
+    {
+      "path": "actplane/crates/actplane-ifc-compiler/src/dsl/lower.rs",
+      "sha256": "dff3bd5a8d5dc9e09845eea8cd92ad93ab4a8251abbfe7bc7eecf70b0442df3f",
+      "status": "present"
+    },
+    {
+      "path": "actplane/crates/actplane-ifc-compiler/src/dsl/mod.rs",
+      "sha256": "c5d94d0ef63bea1d23f02706d8c19799b33936a9f0dc480b7ae1bc358deb358c",
+      "status": "present"
+    },
+    {
+      "path": "actplane/crates/actplane-runtime/src/report.rs",
+      "sha256": "2e12ac5f44568656beda29a0c2aa9e7ee528b2312dc5717e18ae8f8a7b9e08ec",
+      "status": "present"
+    },
+    {
+      "path": "actplane/crates/actplane-runtime/src/runtime.rs",
+      "sha256": "b1651e01508990aa772404e219e4f1622054d0ad44809e120fa61cc8fe330162",
+      "status": "present"
+    },
+    {
+      "path": "backend/agentscope_app/bootstrap/api.py",
+      "sha256": "0652d779eb929b48d2b7395863bda3c272cd666c6cf8e84b6f5825d3645a5320",
+      "status": "present"
+    },
+    {
+      "path": "backend/agentscope_app/bootstrap/library.py",
+      "sha256": "8bfc4609395f1ec02d507094f3cac1d01e66a60470a66f23e081ff879f494f6a",
+      "status": "present"
+    },
+    {
+      "path": "backend/agentscope_app/bootstrap/models.py",
+      "sha256": "85d298e2ed556b00530d95662ced5766eaaeef4563c19714774c400209dbf827",
+      "status": "present"
+    },
+    {
+      "path": "backend/agentscope_app/bootstrap/scene.py",
+      "sha256": "415734048c4b9581a43208af1d578a0cfac4024e0a694869a2b83dfb3e5cd522",
+      "status": "present"
+    },
+    {
+      "path": "backend/agentscope_app/bootstrap/tools.py",
+      "sha256": "09c02e80510e75743f99f79add12f5fc47ef96735244c7136cd079f250110648",
+      "status": "present"
+    },
+    {
+      "path": "backend/agentscope_app/bootstrap/validation.py",
+      "sha256": "3a9f13ae1133cf813798e198d64dae28f13b4e4287da561c00757405e47c9bef",
+      "status": "present"
+    },
+    {
+      "path": "backend/agentscope_app/config.py",
+      "sha256": "f0f65678c90a71480cf4847c1bdbf411b27702382bcd4d74ab59959e96af97ae",
+      "status": "present"
+    },
+    {
+      "path": "backend/agentscope_app/db.py",
+      "sha256": "d1bff659d97e7254edf8c5321e92249cab35cc8b760c05dcc06560ee0e73332a",
+      "status": "present"
+    },
+    {
+      "path": "backend/agentscope_app/development.py",
+      "sha256": "1ced05e4e37c5c272c159143947a55d3bb790251e55fd0082582801a367e82e9",
+      "status": "present"
+    },
+    {
+      "path": "backend/agentscope_app/local_browser.py",
+      "sha256": null,
+      "status": "deleted"
+    },
+    {
+      "path": "backend/agentscope_app/main.py",
+      "sha256": "05f74f77438546dd9b55fc0f68ee5ff00b6aa9f591bca030b6735b8cc5e9612d",
+      "status": "present"
+    },
+    {
+      "path": "backend/agentscope_app/managed/api.py",
+      "sha256": "2d8df2108af773a1ce9c218a16ae48d3e34af916dbb187dc04dad9835bb18fcc",
+      "status": "present"
+    },
+    {
+      "path": "backend/agentscope_app/managed/controller.py",
+      "sha256": "72a9ed4d8d52d9db9cd5dd518768692ce535d86f567495d178700f45da1a0d3d",
+      "status": "present"
+    },
+    {
+      "path": "backend/agentscope_app/managed/records.py",
+      "sha256": "9ee304575853349cfdbd187eab5889a2874c39222ab919f220aa10aa80aec270",
+      "status": "present"
+    },
+    {
+      "path": "backend/agentscope_app/managed/worker.py",
+      "sha256": "65f4be3e0f1c6ac6e084e33961ae2a02490647858354d58213d43095efa7e446",
+      "status": "present"
+    },
+    {
+      "path": "backend/agentscope_app/services/policy_normalization.py",
+      "sha256": "95a446c6603142d5c3b6d3283d3d6fed77fd9847777c93562a0cf6f34f023950",
+      "status": "present"
+    },
+    {
+      "path": "backend/broker/main.py",
+      "sha256": "3bc113b13dd537f1b6fa95b42eab1af03266022debedb3c5c4683f495f2eed7a",
+      "status": "present"
+    },
+    {
+      "path": "backend/broker/managed_operation_probe.py",
+      "sha256": "e723bb4c5bbfc6b6a9ec0e45770964455bfc1c0cdf964a512f7663a89ccd97e8",
+      "status": "present"
+    },
+    {
+      "path": "backend/broker/task_runner.py",
+      "sha256": "b295e4f003dfa7a33e71a9097e5d74abcb9c942af59c97ee20e9c15ac4fe370b",
+      "status": "present"
+    },
+    {
+      "path": "backend/tests/conftest.py",
+      "sha256": "6df96d74dd1830f9ff5ba602de028024dd32119d108bf57d9b8d234726eeb51c",
+      "status": "present"
+    },
+    {
+      "path": "backend/tests/test_bootstrap.py",
+      "sha256": "7c3e6650ce39859f69069d3e47df4fb016107bdcf9d53b00f5dabe5800602e3d",
+      "status": "present"
+    },
+    {
+      "path": "backend/tests/test_broker_proc_race.py",
+      "sha256": "178b1379d74562d193fa4a4c62bcba6db60df564a584f1a74ee17b09df4c0f06",
+      "status": "present"
+    },
+    {
+      "path": "backend/tests/test_development_access.py",
+      "sha256": "f8dc61a997b43e16abb98775323456c9f3f4db1f7194ff311b6cd5e6f0ea5019",
+      "status": "present"
+    },
+    {
+      "path": "backend/tests/test_local_browser_access.py",
+      "sha256": null,
+      "status": "deleted"
+    },
+    {
+      "path": "backend/tests/test_normalization_acceptance_report.py",
+      "sha256": "7ad3b8a867f69999e4e5b5ad3a13ccbdae5a6b3690d4777546b6f9305b1ab3b7",
+      "status": "present"
+    },
+    {
+      "path": "backend/tests/test_policy_normalization.py",
+      "sha256": "46d6cd64ebbc19fecded1040c7ec539625c35496ae27700c1815ab15b147c33a",
+      "status": "present"
+    },
+    {
+      "path": "backend/tests/test_scope_manager.py",
+      "sha256": "7cec5dace0e784ab733f4e01de7a0c65b993847836ed1bfa8123d5311cb919d2",
+      "status": "present"
+    },
+    {
+      "path": "docs/ADR/ADR-20261007-AgentScopeDemo删除登录.md",
+      "sha256": "b5308d876318b202cc8279fd76134c530e6ed4b2514bef2bfc19d1e656abe82a",
+      "status": "present"
+    },
+    {
+      "path": "docs/ADR/ADR-20261007-AgentScope本机自用自动会话.md",
+      "sha256": "e9d46b501945c2365c62bee84cba4e8660c84eb686a6074e836f311064c37707",
+      "status": "present"
+    },
+    {
+      "path": "docs/ADR/ADR-20261007-DSL规则归一化与重叠校验.md",
+      "sha256": "f4b8b17f8e2444033adadf037890cc9f5efe15209300a83d42341feeb00d1083",
+      "status": "present"
+    },
+    {
+      "path": "docs/ADR/ADR-20261007-ScopeDemo服务托管与恢复.md",
+      "sha256": "d7c192caf752a3bcb94f0c465843e95f4e314411b20f6ff691acadf6c54bf372",
+      "status": "present"
+    },
+    {
+      "path": "docs/BUG/BUG-20261007-AgentScopeDemo删除登录.md",
+      "sha256": "94d6321251ea32de31f9b446f154e6afc4a7914a682d12b3476b2b2871d9deee",
+      "status": "present"
+    },
+    {
+      "path": "docs/BUG/BUG-20261007-AgentScope普通地址反复要求口令.md",
+      "sha256": "3e26ff378d5e8f050bb26aa330db96fc3538e7efc9c213315d1974e6b1dc6020",
+      "status": "present"
+    },
+    {
+      "path": "docs/BUG/BUG-20261007-DSL规则归一化与重叠校验.md",
+      "sha256": "3ff7b40237d2b7c13d09e680c1a101671ea02031e647160237bfcdcc6f00e8a3",
+      "status": "present"
+    },
+    {
+      "path": "docs/BUG/BUG-20261007-ScopeDemo服务托管与恢复.md",
+      "sha256": "4839151c43da1020691db77e16e39457fb11e6b84ba4cb67deecb554cba0db3c",
+      "status": "present"
+    },
+    {
+      "path": "docs/REVIEW/REVIEW-20261007-AgentScopeDemo删除登录.md",
+      "sha256": "07f1a0d8a5096790f8b390774a45f45576fdf8aa6cf972c56824af6dcfce2a87",
+      "status": "present"
+    },
+    {
+      "path": "docs/REVIEW/REVIEW-20261007-AgentScope本机免口令验收.md",
+      "sha256": "b86457e799822675301cef5141ebf0316af16699dc1f16b484b0fcef9fc67154",
+      "status": "present"
+    },
+    {
+      "path": "docs/REVIEW/REVIEW-20261007-DSL规则归一化与重叠校验.md",
+      "sha256": "2c3bef667ebcd067124959ff28238cb7f79454dc98c0342df9978e63a134fa16",
+      "status": "present"
+    },
+    {
+      "path": "docs/REVIEW/REVIEW-20261007-ScopeDemo服务托管与恢复.md",
+      "sha256": "670127720a154d33d93d9d9fd4d0e5e7f3f9d06086a828f18c85957098a0eca3",
+      "status": "present"
+    },
+    {
+      "path": "docs/REVIEW/evidence/scope-service-20261007/recovery.json",
+      "sha256": "17f5484d6171e3a822e57c3b40687f3da97821830f683cfb799fe59e87f7163f",
+      "status": "present"
+    },
+    {
+      "path": "docs/RFC/RFC-20261007-AgentScopeDemo删除登录.md",
+      "sha256": "a1208551ec29d473d43499f72b7359f56574e747f0a0827bbadb73d521b027ba",
+      "status": "present"
+    },
+    {
+      "path": "docs/RFC/RFC-20261007-AgentScope本机浏览器自动连接.md",
+      "sha256": "116e217de7ec54f0e7de1e9457e702be4f6877e5dc839c43a60daba150042bad",
+      "status": "present"
+    },
+    {
+      "path": "docs/RFC/RFC-20261007-DSL规则归一化与重叠校验.md",
+      "sha256": "c93956b8c86831a577cb19d17db29805e2173774b8e271798439e4970aee7938",
+      "status": "present"
+    },
+    {
+      "path": "docs/RFC/RFC-20261007-ScopeDemo服务托管与恢复.md",
+      "sha256": "b8236572c7fcf1cf9c3cc635d26561666afaa4e617cb7a91df0e498f6a2e10b5",
+      "status": "present"
+    },
+    {
+      "path": "docs/scope-demo-v1/ADR.md",
+      "sha256": "ccdc5549ff4d6386e2eef2b287d128e368813ca720be84eb59d3de7207f147d6",
+      "status": "present"
+    },
+    {
+      "path": "docs/scope-demo-v1/BUG.md",
+      "sha256": "8e6e7fd27ba6a0c2299c38f39bbffc570e74303fad1c87e61ebde37c883d165e",
+      "status": "present"
+    },
+    {
+      "path": "docs/scope-demo-v1/REVIEW.md",
+      "sha256": "f20e015e86d2ce56d985aa6f2fae21ce00babd63a1954d67fbd136976d5e1b85",
+      "status": "present"
+    },
+    {
+      "path": "docs/scope-demo-v1/RFC.md",
+      "sha256": "d64e0090f37ede4c5972110fcb46170a1027d887fb8307954d444f59821bfd11",
+      "status": "present"
+    },
+    {
+      "path": "frontend/src/ManagedWorkbench.jsx",
+      "sha256": "cbf092ba312b95226305f021479c8f05e2dd8e76ddcf5886c5e374b30ba1d158",
+      "status": "present"
+    },
+    {
+      "path": "frontend/src/local-browser.mjs",
+      "sha256": null,
+      "status": "deleted"
+    },
+    {
+      "path": "frontend/src/local-browser.test.mjs",
+      "sha256": null,
+      "status": "deleted"
+    },
+    {
+      "path": "frontend/src/main.jsx",
+      "sha256": "e86a649cff79e70f709a31e80035ea06a49986c5ce44f61f89e6ed3fa152db20",
+      "status": "present"
+    },
+    {
+      "path": "frontend/src/styles.css",
+      "sha256": "eb70b641f276bc4e772e0dbecf0a6003df73d4e567d9a494ab3553807970ab17",
+      "status": "present"
+    },
+    {
+      "path": "integrations/dsh-managed-web/test/task-sandbox-live.test.js",
+      "sha256": "79e5429d6cb981aaffdf96b310c7ac9d226d7ea1d4cc440b83af2041038337cc",
+      "status": "present"
+    },
+    {
+      "path": "integrations/pi-policy-tools/bootstrap-system.md",
+      "sha256": "9d6b1bde0357ee8c2b0844ebd9a1075d8ae104350b143c5791fe7753a109f862",
+      "status": "present"
+    },
+    {
+      "path": "scripts/Open-ScopeDemo.cmd",
+      "sha256": "35b18c14499c53bca4d68c73720b1a31623b453812c63e5f7c3e1a9fb3f1dd57",
+      "status": "present"
+    },
+    {
+      "path": "scripts/managed_acceptance.py",
+      "sha256": "f320119c4eea51981584162ba38c37c6937a97107b7a4d7f5cd654354cac5ba0",
+      "status": "present"
+    },
+    {
+      "path": "scripts/managed_control.py",
+      "sha256": "cabaa5af5c0cd19dd0bb916d7ebb7652098a0bf75a027a7877f1f50ea4cfdc8b",
+      "status": "present"
+    },
+    {
+      "path": "scripts/managed_control_read_acceptance.py",
+      "sha256": "4532d2ea3d88fd2bcc991822866def35149a2ee692963b8af76cc1dc1f22c8b9",
+      "status": "present"
+    },
+    {
+      "path": "scripts/navigation_ui_acceptance.cjs",
+      "sha256": "d7d955bcfe9da2d0221d1fc19db6783606cd4acbcf5b9cb47c24097fe3bfd716",
+      "status": "present"
+    },
+    {
+      "path": "scripts/normalization_acceptance_report.py",
+      "sha256": "53edd3c15f5e728e43d7d7c8d8194a386485a123a55bfa7da45a433bd1295171",
+      "status": "present"
+    },
+    {
+      "path": "scripts/normalization_kernel_lifecycle.py",
+      "sha256": "afe31b474771abe8c942c76c6177e9e324046ec0d50ee071b649a97983726a91",
+      "status": "present"
+    },
+    {
+      "path": "scripts/scope_acceptance.py",
+      "sha256": "264eebbb32b7141e8eb14305954f79a07cd0a5f429894935d20c2c50a957b84b",
+      "status": "present"
+    },
+    {
+      "path": "scripts/scope_browser_ticket.py",
+      "sha256": null,
+      "status": "deleted"
+    },
+    {
+      "path": "scripts/scope_live_ui_acceptance.cjs",
+      "sha256": "ebc39637a17dfb0c2e3bba5823143e56f4b480817949a3d703155969cb3eb7f7",
+      "status": "present"
+    },
+    {
+      "path": "scripts/scope_service.py",
+      "sha256": "78d4c45fdee35ee65097489fde3782a39881b4eca81782a372d2be63368fc574",
+      "status": "present"
+    },
+    {
+      "path": "scripts/scope_systemd_exec.py",
+      "sha256": "abaa4377e10c78268c9fd30b5980d40e66ba7b0410ad4d0e87bd7937c862e945",
+      "status": "present"
+    },
+    {
+      "path": "scripts/scope_ui_acceptance.cjs",
+      "sha256": "61af662ed3ad6b763dd1904f5dd0bc34c3e4896d95f4d05d6adaa12b36a852b1",
+      "status": "present"
+    },
+    {
+      "path": "scripts/systemd/agentscope-scope-demo-api.service",
+      "sha256": "9d3c2cd92340a4588feb5a50c929493bdd317fc88171c941484fa7f337727801",
+      "status": "present"
+    },
+    {
+      "path": "scripts/systemd/agentscope-scope-demo-broker.service",
+      "sha256": "66fcdf163a71cf3987c282b0bcb01335d76379f91887b7146d22bd426c51bb4b",
+      "status": "present"
+    }
+  ],
+  "retained_release_fixes": [
+    ".github/workflows/ci.yml",
+    "backend/tests/test_managed_policy.py",
+    "actplane/bpf/process.c"
+  ],
+  "runtime_data_credentials_and_raw_sessions_excluded": true,
+  "normalization_full_live_acceptance": "in progress; open defects preserved in BUG and REVIEW",
+  "local_source_head": "83743c3054a7364286e36fa4b2e71ba9370f2915",
+  "local_entry": "Current direct local Demo; login, browser tickets and Cookie sessions removed",
+  "verification": {
+    "backend": {
+      "passed": 312,
+      "skipped": 0,
+      "warnings": 5,
+      "real_compiler_built_from_snapshot": true
+    },
+    "node_behavior": {
+      "passed": 36
+    },
+    "rust_workspace": {
+      "passed": 144,
+      "ignored": 49
+    },
+    "c_taint": {
+      "passed": 38
+    },
+    "native_namespace_sdk": {
+      "passed": 4,
+      "model_run": false
+    },
+    "frontend": {
+      "modules": 37
+    },
+    "bpf_source_rebuild": {
+      "variants": 2,
+      "instructions_and_relocations_match_prebuilt": true
+    },
+    "systemd_static_verify": "passed as root",
+    "fresh_full_model_and_kernel_lifecycle_run": false
+  },
+  "ci_builds_real_compiler_before_python": true,
+  "release_compiler_sha256": "ed27d4409cb0a64a3226e8d5b1e2fd7b0930ee71e8378aa3a74805aaae57a39d",
+  "documentation_refreshed_at": "2026-10-07T10:19:34.419674+00:00",
+  "selected_public_evidence": [
+    {
+      "path": "docs/REVIEW/evidence/demo-no-login-20261007/api-acceptance.json",
+      "sha256": "68360b9bf24c38a51d8af1a33b670dc2d69629080a37a7b845e862d801b98138",
+      "source_sha256": "68360b9bf24c38a51d8af1a33b670dc2d69629080a37a7b845e862d801b98138"
+    },
+    {
+      "path": "docs/REVIEW/evidence/demo-no-login-20261007/browser-direct-entry.jpg",
+      "sha256": "f33140f2bd83a24fd61fd9633f84bbd10217e276e8ac173ae5c3be0294695788",
+      "source_sha256": "f33140f2bd83a24fd61fd9633f84bbd10217e276e8ac173ae5c3be0294695788"
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "date": "2026-10-07",
+  "repository": "https://github.com/h3119835830/agentscope",
+  "authorized_target": "WINDOWS",
+  "main_merge_requires_separate_user_approval": true,
+  "remote_windows_before": "0456086db8263c98fa4fd3c760cf3136c797afde",
+  "remote_main_before": "3519f8c06e5768b968a3fa29bcbbddb3b0f802f5",
+  "implementation_baseline": "83743c3054a7364286e36fa4b2e71ba9370f2915",
+  "kernel_dependency_source": "23d4eb917543bd6e14d2190b3647a093769fa298",
+  "kernel_dependency_cherry_pick": "51dd3e1436f77e41ffde657507cbfdfff2951679",
+  "previous_local_windows": "94001852620c58531dd9aeb5575f42b2dca0a6b7",
+  "previous_local_windows_archive": "archive/windows-before-scope-20261007",
+  "excluded": [
+    "uncommitted DSL normalization and deployment-compatibility development",
+    "ten legacy Pi workbench commits from the other development line",
+    "unrelated technical-document repository history",
+    "databases, credentials, raw model sessions and build/runtime data"
+  ],
+  "verification": {
+    "backend": {
+      "passed": 261,
+      "warnings": 5,
+      "skipped": 0,
+      "isolated_database": true
+    },
+    "node_behavior": {
+      "passed": 36
+    },
+    "native_namespace_sdk": {
+      "passed": 4,
+      "model_run": false,
+      "actplane_file_enforcement_run": false
+    },
+    "rust_workspace": {
+      "passed": 142,
+      "ignored": 49,
+      "live_ebpf_ignored_not_claimed": true
+    },
+    "c_taint": {
+      "passed": 38
+    },
+    "frontend": {
+      "built_modules": 37
+    },
+    "historical_live_evidence": "docs/REVIEW/REVIEW-20261006-Pi-受管DSH与审计闭环.md",
+    "fresh_full_model_and_kernel_lifecycle_run": false
+  },
+  "selected_public_evidence": [
+    {
+      "path": "docs/REVIEW/Pi-DSH-验收证据-20261006/逐项验收.json",
+      "sha256": "f15be72ab5e2f9a411bfdbaaf1aadc639876ea6c61ac2ae2d48573e6d36d9815"
+    },
+    {
+      "path": "docs/REVIEW/Pi-DSH-验收证据-20261006/OS探针结果.csv",
+      "sha256": "92a4ad65274262f9e06229302390e9902b5eb86429bfe525577fcbd0e8d4dc33",
+      "source_sha256": "0df3e35620aa8f8768c52fa795d661b41873f23e25b38fcc9c83360d5cc2e55c",
+      "format_note": "CRLF normalized to LF; parsed CSV cells unchanged"
+    },
+    {
+      "path": "docs/REVIEW/Pi-DSH-验收证据-20261006/任务完成度.json",
+      "sha256": "983e58a2c86e85c8a3755b5b0fa8e72e2e0939529b04a031d1db621c9f05aed5"
+    },
+    {
+      "path": "docs/REVIEW/Pi-DSH-验收证据-20261006/resilience-public-evidence.json",
+      "sha256": "1ae76652cd6fb95afbf8e4af4eaeb833e91447fb6029b4eaa45843292c7fb015"
+    },
+    {
+      "path": "docs/REVIEW/Pi-DSH-验收证据-20261006/pi-timeout-recovery.json",
+      "sha256": "e263b27d92f4cdd1f0168a9711c4b35b9c9ece7172395de6ae0a1df67f712928"
+    },
+    {
+      "path": "docs/REVIEW/Pi-DSH-验收证据-20261006/transport-recovery.json",
+      "sha256": "435bd2941768de0a593a1c8c3efce967bfb78ddbd424146e8b20f2c3c2ba9e23"
+    },
+    {
+      "path": "docs/REVIEW/Pi-DSH-验收证据-20261006/control-read-isolation.json",
+      "sha256": "3221c7c27a81ce07e2b89dcc1c7d577fc4bb42e4523f562d6f132cbc5e38b512"
+    },
+    {
+      "path": "docs/REVIEW/Pi-DSH-验收证据-20261006/startup-clarification.json",
+      "sha256": "30124d6e512c6dd407bf4a673f98bd92b13c374f1f10d622069fd99786b28eca"
+    }
+  ]
+}
