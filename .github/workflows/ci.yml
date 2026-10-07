@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, WINDOWS]
   pull_request:
 
 jobs:
@@ -32,6 +32,7 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - run: npm --prefix frontend ci
       - run: npm --prefix frontend run build
+      - run: node --test scripts/scope_view.test.mjs scripts/managed_records.test.mjs integrations/dsh-managed-web/test/execution-lane.test.js integrations/dsh-managed-web/test/public-session.test.js integrations/dsh-managed-web/test/runtime-observation.test.js integrations/dsh-managed-web/test/transport.test.js
       - run: node --check integrations/dsh-agentscope/lib/index.js
       - run: node --check actplane/integrations/dsh-feedback/lib/index.js
       - run: node -e "for (const p of ['./integrations/dsh-agentscope/package.json','./actplane/integrations/dsh-feedback/package.json']) JSON.parse(require('fs').readFileSync(p, 'utf8'))"

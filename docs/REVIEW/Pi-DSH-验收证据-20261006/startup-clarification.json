@@ -1,0 +1,14 @@
+{
+  "schema": "StartupClarification/1",
+  "task": "5e6660748bbc47d1",
+  "original_task_replaced": false,
+  "previous_proposal_state": "needs_clarification",
+  "clarification_source_id": "d4d1d9e093ad4cdd8ef6c537ee5f9645",
+  "clarification_source_hash": "f56cd114b33e3f10e8b1d8d9baf65ffc1f12fcd70215c22e074ac4b3cf5232b5",
+  "actual_read_receipt_verified": true,
+  "new_startup_job": "095a6314c2f0482c8ad0f2530d3bb8f5",
+  "loaded_version": 1,
+  "confirmed_domain": 1707767551,
+  "passed": true,
+  "private_content_exported": false
+}
