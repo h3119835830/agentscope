@@ -1,6 +1,6 @@
 /* Real service + Pi + DSH + kernel acceptance. No API interception or state injection. */
 const {chromium}=require(process.env.PLAYWRIGHT_MODULE || 'playwright');
-const {spawn,spawnSync}=require('node:child_process');
+const {spawn}=require('node:child_process');
 const readline=require('node:readline');
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
 const output=process.argv[2];
@@ -8,10 +8,7 @@ assert.ok(output,'Provide an evidence output directory');
 const sequence=['S0','S1_pending','S1','S2_pending','S2','S3_pending','S3_rejected','S3_retry_pending','S3','S4'];
 const revision={S0:0,S1_pending:0,S1:1,S2_pending:1,S2:2,S3_pending:2,S3_rejected:2,S3_retry_pending:2,S3:3,S4:3};
 const titles={task_grant:'开放任务目录',restrict:'收紧修改范围',expand:'开放报告目录'};
-const ticket=spawnSync('wsl.exe',['-d','Ubuntu','-u','root','--','/opt/agentscope/.venv/bin/python',
-  '/opt/agentscope-history-v1/scripts/scope_browser_ticket.py'],{encoding:'utf8',windowsHide:true});
-assert.equal(ticket.status,0,'Could not create trusted local browser session');
-const entrance=JSON.parse(ticket.stdout.trim()).url; // One-use ticket stays in memory.
+const entrance='http://127.0.0.1:18003/?view=scope-demo';
 
 (async()=>{
   fs.mkdirSync(output,{recursive:true});
@@ -60,7 +57,7 @@ const entrance=JSON.parse(ticket.stdout.trim()).url; // One-use ticket stays in 
       assert.equal(await page.getByLabel('选择 Demo 任务').inputValue(),task);
       assert.equal(await page.getByLabel('管理员口令',{exact:true}).count(),0);
       assert.equal(await page.evaluate(()=>sessionStorage.getItem('agentscopeAdminToken')),null);
-      assert.ok((await context.cookies()).find(c=>c.name==='agentscopeLocalSession')?.httpOnly);
+      assert.equal((await context.cookies()).some(c=>c.name==='agentscopeLocalSession'),false);
       assert.equal(new URL(page.url()).hash,'');
       assert.equal(await page.locator('.sidebar').isVisible(),true);
       await permissions(state.current.payload);

@@ -1,2 +1,2 @@
 @echo off
-powershell.exe -NoProfile -WindowStyle Hidden -Command "$scopeEntryRaw = & wsl.exe -d Ubuntu -u root -- /opt/agentscope/.venv/bin/python /opt/agentscope-history-v1/scripts/scope_browser_ticket.py; if ($LASTEXITCODE -ne 0) { exit 1 }; $scopeEntry = $scopeEntryRaw | ConvertFrom-Json; Start-Process -FilePath $scopeEntry.url"
+powershell.exe -NoProfile -WindowStyle Hidden -Command "& wsl.exe -d Ubuntu -u root -- systemctl start agentscope-scope-demo-api.service; if ($LASTEXITCODE -ne 0) { exit 1 }; Start-Process -FilePath 'http://127.0.0.1:18003/?view=scope-demo'"

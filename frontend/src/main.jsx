@@ -8,8 +8,7 @@ import ManagedWorkbench from './ManagedWorkbench.jsx';
 import {navigationTarget, readNavigation} from './navigation.mjs';
 
 const api = async (url, options = {}) => {
-  const token = typeof sessionStorage === 'undefined' ? '' : sessionStorage.getItem('agentscopeAdminToken') || '';
-  const response = await fetch(url, { ...options, headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}), ...(options.headers || {}) } });
+  const response = await fetch(url, {...options, credentials:'omit', headers:{'Content-Type':'application/json', ...options.headers}});
   const data = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(data.detail || `请求失败 (${response.status})`);
   return data;
@@ -24,12 +23,6 @@ const HISTORY_MODULES = [
 const when = value => value ? new Date(value).toLocaleString('zh-CN', { hour12: false }) : '—';
 
 function App() {
-  const [loginToken,setLoginToken]=useState('');
-  const [authenticated,setAuthenticated]=useState(false);
-  const [loginError,setLoginError]=useState('');
-  const [authReady,setAuthReady]=useState(false);
-  const [developmentMode,setDevelopmentMode]=useState(false);
-  const [localBrowserMode,setLocalBrowserMode]=useState(false);
   const [navigation, setNavigation] = useState(()=>{
     const initial=readNavigation(window.location.href);
     return initial;
@@ -77,22 +70,7 @@ function App() {
   const [busy, setBusy] = useState(false);
 
   const notify = useCallback(message => { setToast(message); setTimeout(() => setToast(''), 4200); }, []);
-  const connect = async event => {
-    event.preventDefault();
-    sessionStorage.setItem('agentscopeAdminToken',loginToken.trim());
-    try {
-      await api('/api/auth/check');
-      setAuthenticated(true); setLoginError('');
-    } catch (e) {
-      sessionStorage.removeItem('agentscopeAdminToken'); setLoginError(e.message || '管理员口令无效');
-    }
-  };
-  const lock = async () => {
-    if(localBrowserMode)await post('/api/auth/local-browser-close');
-    sessionStorage.removeItem('agentscopeAdminToken');setLocalBrowserMode(false);setAuthenticated(false);
-  };
   const refresh = useCallback(async () => {
-    if (!authenticated) return;
     try {
       const [s, d, t, g] = await Promise.all([
         api('/api/status'), api('/api/dashboard'), api('/api/tasks'), api('/api/governance'),
@@ -105,46 +83,12 @@ function App() {
         setContext(c); setVersions(v);
       }
     } catch (e) { notify(e.message); }
-  }, [selected, page, notify, authenticated]);
-
+  }, [selected, page, notify]);
+  useEffect(() => { refresh(); const timer = setInterval(refresh, 7000); return () => clearInterval(timer); }, [refresh]);
   useEffect(() => {
-    let active=true;
-    (async()=>{
-      try {
-        const ticket=new URLSearchParams(window.location.hash.slice(1)).get('local-launch');
-        if(ticket){
-          window.history.replaceState(null,'',window.location.pathname+window.location.search);
-          sessionStorage.removeItem('agentscopeAdminToken');
-          await post('/api/auth/local-browser-redeem',{ticket});
-        }
-        const response=await fetch('/api/auth/mode');
-        if (!response.ok) throw new Error(`连接失败 (${response.status})`);
-        const mode=await response.json();
-        if (!active) return;
-        if (mode.development_no_password) {
-          sessionStorage.removeItem('agentscopeAdminToken');
-          setLoginToken('');setDevelopmentMode(true);setAuthenticated(true);
-        } else if(mode.local_browser_session){
-          sessionStorage.removeItem('agentscopeAdminToken');
-          setLoginToken('');setLocalBrowserMode(true);setAuthenticated(true);
-        } else {
-          const saved=sessionStorage.getItem('agentscopeAdminToken') || '';
-          if (saved) {
-            try {await api('/api/auth/check');if(active)setAuthenticated(true);}
-            catch {sessionStorage.removeItem('agentscopeAdminToken');}
-          }
-        }
-        if(active)setAuthReady(true);
-      } catch(error) {if(active)setLoginError(`本地服务未连接：${error.message}`);}
-    })();
-    return ()=>{active=false;};
-  }, []);
-  useEffect(() => { if (!authenticated) return; refresh(); const timer = setInterval(refresh, 7000); return () => clearInterval(timer); }, [authenticated, refresh]);
-  useEffect(() => {
-    if (!authenticated) return;
     api(`/api/strategies?q=${encodeURIComponent(strategyQuery)}&limit=200${strategyStatus ? `&status=${strategyStatus}` : ''}`)
       .then(setStrategies).catch(() => {});
-  }, [strategyQuery, strategyStatus, authenticated]);
+  }, [strategyQuery, strategyStatus]);
 
   const withBusy = async fn => {
     setBusy(true);
@@ -154,10 +98,6 @@ function App() {
   };
   const selectTask = id => setSelected(id);
   const openTask = id => navigate({page:'task',task:id});
-
-  if (!authReady) return <div className="auth-gate"><div className="auth-card"><div className="brand-mark">A</div><h1>正在连接 AgentScope</h1>{loginError ? <><p>{loginError}</p><button className="button primary full" onClick={()=>window.location.reload()}>重新连接</button></> : <p>正在加载本地工作区…</p>}</div></div>;
-
-  if (!authenticated) return <div className="auth-gate"><form className="auth-card" onSubmit={connect}><div className="brand-mark">A</div><p className="eyebrow">本地策略管控</p><h1>连接 AgentScope</h1><p>输入虚拟机本地配置的管理员口令。任务级 DSH 凭据不能执行审批操作。</p><label>管理员口令<input autoFocus type="password" value={loginToken} onChange={event=>setLoginToken(event.target.value)} placeholder="AGENTSCOPE_ADMIN_TOKEN" /></label>{loginError&&<div className="inline-notice warning">{loginError}</div>}<button className="button primary full" disabled={!loginToken.trim()}>解锁管控台</button></form></div>;
 
   return <div className={`shell ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
     <aside className="sidebar">
@@ -174,7 +114,7 @@ function App() {
       <div className="side-foot" title={`Linux VM · ${status?.architecture || '连接中'} · ActPlane 执行后端`}><span className={`pulse ${status?.bpf_lsm ? 'ok' : 'bad'}`} /><span className="side-foot-copy">Linux VM · {status?.architecture || '连接中'}<br/><span className="muted">ActPlane 执行后端</span></span></div>
     </aside>
     <main className="main">
-      <header className="topbar"><div><span className="crumb">AgentScope</span><span className="slash">/</span><b>{pageTitle(page)}</b></div><div className="top-right"><span className={`status-pill ${status?.broker?.available && status?.bpf_lsm ? 'good' : 'warn'}`}><i />{status?.broker?.available && status?.bpf_lsm ? '执行后端可用' : '执行后端待检查'}</span>{developmentMode ? <span className="status-pill good">本地开发 · 免口令</span> : <button className="button ghost tiny" aria-label="锁定管控台" title="锁定后需通过本机启动入口重新打开；DSH 继续运行" onClick={lock}>锁定管控台</button>}</div></header>
+      <header className="topbar"><div><span className="crumb">AgentScope</span><span className="slash">/</span><b>{pageTitle(page)}</b></div><div className="top-right"><span className={`status-pill ${status?.broker?.available && status?.bpf_lsm ? 'good' : 'warn'}`}><i />{status?.broker?.available && status?.bpf_lsm ? '执行后端可用' : '执行后端待检查'}</span></div></header>
       {page === 'overview' && <Overview dash={dash} status={status} tasks={tasks} onSelect={openTask} onNav={setPage} />}
       {page === 'scope-demo' && <ManagedWorkbench api={api} post={post} notify={notify} task={selected} onSelectTask={selectTask} />}
       {page === 'strategies' && <HistoryLibrary moduleIndex={historyModuleIndex} modules={HISTORY_MODULES} onModuleChange={setHistoryModuleIndex} api={api} post={post} tasks={tasks} busy={busy} action={withBusy} notify={notify} selectTask={openTask} />}

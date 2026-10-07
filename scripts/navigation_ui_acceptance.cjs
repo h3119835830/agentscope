@@ -1,12 +1,8 @@
 /* Real read-only UI acceptance: shared navigation, URL restoration and browser history. */
 const {chromium}=require(process.env.PLAYWRIGHT_MODULE || 'playwright');
-const {spawnSync}=require('node:child_process');
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
 const [task,output]=process.argv.slice(2);
 assert.ok(task && output,'Provide an existing completed task and evidence directory');
-const launch=spawnSync('wsl.exe',['-d','Ubuntu','-u','root','--','/opt/agentscope/.venv/bin/python',
-  '/opt/agentscope-history-v1/scripts/scope_browser_ticket.py'],{encoding:'utf8',windowsHide:true});
-assert.equal(launch.status,0,'Could not create local browser session');
 const modules=[['overview','总览'],['scope-demo','任务工作台'],['strategies','历史策略库'],
   ['task','任务与启动审核'],['agent-bridge','运行时 Agent 接入'],['governance','持久治理']];
 
@@ -20,7 +16,7 @@ const modules=[['overview','总览'],['scope-demo','任务工作台'],['strategi
     page.on('pageerror',e=>report.pageErrors.push(e.message));
     page.on('response',r=>{if(r.request().method()==='GET'&&r.status()>=400&&new URL(r.url()).pathname.startsWith('/api/'))
       report.failedReads.push({path:new URL(r.url()).pathname,status:r.status()});});
-    const url=new URL(JSON.parse(launch.stdout.trim()).url);url.searchParams.set('task',task);
+    const url=new URL('http://127.0.0.1:18003/?view=scope-demo');url.searchParams.set('task',task);
     await page.goto(url.toString());
     const sidebar=page.getByRole('navigation',{name:'工作区导航'});
     const assertPage=async(view,label)=>{
@@ -38,7 +34,7 @@ const modules=[['overview','总览'],['scope-demo','任务工作台'],['strategi
     await page.getByRole('heading',{name:'任务工作台',exact:true}).waitFor();
     assert.equal(await page.getByLabel('管理员口令',{exact:true}).count(),0);
     assert.equal(await page.evaluate(()=>sessionStorage.getItem('agentscopeAdminToken')),null);
-    assert.ok((await context.cookies()).find(c=>c.name==='agentscopeLocalSession')?.httpOnly);
+    assert.equal((await context.cookies()).some(c=>c.name==='agentscopeLocalSession'),false);
     const originalBounds=await page.locator('.sidebar').boundingBox();
     for(const [view,label] of modules){
       await visit(view,label);

@@ -218,12 +218,16 @@ def test_legacy_apply_endpoint_cannot_bypass_scope_manager(managed,client):
     for action in ("launch","policy","stop","scope-requests"):
         assert client.post(f"/api/tasks/{task}/{action}",headers=ADMIN,json={}).status_code==409
 
-def test_scope_control_requires_admin_even_in_passwordless_development(managed,client,monkeypatch):
+def test_scope_control_is_passwordless_in_local_demo(managed,client,monkeypatch):
     task,_=managed
     monkeypatch.setattr(main.development,"passwordless",lambda _:True)
     assert client.get("/api/tasks").status_code==200
-    assert client.get(f"/api/tasks/{task}/scope-manager").status_code==401
-    assert client.post("/api/scope-demo/tasks",json={}).status_code==401
+    assert client.get(f"/api/tasks/{task}/scope-manager").status_code==200
+    ident,body=candidate(task,"task_grant")
+    response=client.post(f"/api/tasks/{task}/scope-manager/changes/{ident}/review",json=body.model_dump())
+    assert response.status_code==200
+    assert response.json()["current"]["payload"]["allowed_write_dirs"]==["backend","frontend"]
+    assert client.get(f"/api/tasks/{task}/scope-manager",headers={"Authorization":"Bearer task-token"}).status_code==401
 
 def test_collector_does_not_turn_control_probes_into_agent_requests(managed, monkeypatch):
     import os

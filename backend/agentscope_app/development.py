@@ -15,4 +15,9 @@ def passwordless(request):
     if not local_peer or request.url.hostname not in local_hosts:
         return False
     origin = request.headers.get('origin')
-    return not origin or urlsplit(origin).hostname in local_hosts
+    if not origin: return True
+    try:
+        parsed = urlsplit(origin)
+        return (parsed.scheme, parsed.netloc) == (request.url.scheme, request.url.netloc)
+    except ValueError:
+        return False

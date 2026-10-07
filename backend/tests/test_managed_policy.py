@@ -587,7 +587,8 @@ def test_loaded_output_execution_target_survives_pending_target_removal(bound,mo
 def test_control_source_oracles_and_service_evidence_are_not_agent_material(bound):
     with db.connect() as con:task=c.task_row(con,bound[0])
     rules=c.control_rules(task)
-    assert 'block read file "/opt/agentscope-history-v1/**"' in rules
+    source_root=str(Path(c.__file__).resolve().parents[3])
+    assert 'block read file '+c.quote_dsl(source_root+'/**') in rules
     assert 'block read file "/opt/agentscope/actplane/**"' in rules
     assert 'block read file "/var/lib/agentscope-scope-demo/**" if AGENT' in rules
     assert 'block read file "/var/lib/agentscope-rq5-v1/**" if AGENT unless target "/var/lib/agentscope-rq5-v1/task-python/**"' in rules

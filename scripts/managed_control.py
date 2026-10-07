@@ -3,7 +3,10 @@ import sys,json,urllib.request,urllib.error
 from scope_service import environment
 URL='http://127.0.0.1:18003'
 def api(path,data=None):
-    headers={'Content-Type':'application/json','Authorization':'Bearer '+environment()['AGENTSCOPE_ADMIN_TOKEN']}
+    headers={'Content-Type':'application/json'}
+    env=environment()
+    if env.get('AGENTSCOPE_DEV_NO_AUTH') != '1':
+        headers['Authorization']='Bearer '+env['AGENTSCOPE_ADMIN_TOKEN']
     request=urllib.request.Request(URL+path,data=json.dumps(data).encode() if data is not None else None,headers=headers)
     try:
         with urllib.request.urlopen(request,timeout=80) as response:return json.load(response)
