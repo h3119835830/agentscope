@@ -1,0 +1,221 @@
+{
+  "verified_at": "2026-10-07T16:34:24.432Z",
+  "provider": "chrome-extension",
+  "release": {
+    "js": "index-BboWAyzo.js",
+    "css": "index-DuPrLfZ3.css",
+    "index_sha256_from_actual_readonly_http_get": "331258204616a5185c4fda73f9d8ff9e80bf07e5e21195b30aca8b4181196cce",
+    "dom_assets_match": true
+  },
+  "network_evidence": "No browser network trace claimed. Read-only DOM and visible archive navigation only; endpoint isolation covered by source and backend tests.",
+  "checks": [
+    {
+      "check": "final-423-real-viewport-and-body-no-overflow",
+      "passed": true
+    },
+    {
+      "check": "mobile-monitor-internal-horizontal-scroll",
+      "passed": true
+    },
+    {
+      "check": "four-history-monitor-modes-keyboard-focus",
+      "passed": true
+    },
+    {
+      "check": "retained-statement-exact-two-clauses-and-collapsed-bundle",
+      "passed": true,
+      "id": "runtime:1761cfbeed424e9eb9ca93dadc060db8:statement:0"
+    },
+    {
+      "check": "final-four-detail-tabs-exact-id-keyboard-focus-and-historical-loading",
+      "passed": true,
+      "id": "startup:98e23e0280d5446e802c78308cd2d623:atom:0"
+    },
+    {
+      "check": "final-page-task-picker-real-option-id",
+      "passed": true,
+      "task": "f39a5521abb04104"
+    },
+    {
+      "check": "final-full-page-not-dialog",
+      "passed": true
+    },
+    {
+      "check": "final-visual-release-missing-notice-expand-collapse",
+      "passed": true
+    },
+    {
+      "check": "final-source-directory-details-default-closed",
+      "passed": true
+    },
+    {
+      "check": "history-url-task-parameter-remains-read-only",
+      "passed": true,
+      "task": "bef449047cd24af6",
+      "visible_live_controls": 0
+    },
+    {
+      "check": "audit-os-tools-control-separated",
+      "passed": true
+    },
+    {
+      "check": "final-scroll-fix-enters-at-top-and-restores-list-position",
+      "passed": true
+    },
+    {
+      "check": "frozen-release-assets-observed-in-dom",
+      "passed": true
+    },
+    {
+      "check": "frozen-release-423-no-body-overflow",
+      "passed": true
+    },
+    {
+      "check": "historical-graph-node-keyboard-focus",
+      "passed": true,
+      "node": "任务域 D290146702"
+    }
+  ],
+  "observations": [
+    {
+      "stage": "final-desktop-monitor",
+      "bodyWidth": 1265,
+      "clientWidth": 1265,
+      "historicalVersion": "3",
+      "innerHeight": 900,
+      "innerWidth": 1280,
+      "notices": [
+        {
+          "open": false,
+          "text": "来源与目录详情"
+        },
+        {
+          "open": true,
+          "text": "历史域、进程与 DSL"
+        },
+        {
+          "open": false,
+          "text": "历史材料说明（1 项缺失或未核验）"
+        }
+      ],
+      "scripts": [
+        "/assets/index-CrgPYjgQ.js"
+      ],
+      "scrollWidth": 1265,
+      "styles": [
+        "/assets/index-COnhWig0.css"
+      ],
+      "task": "f39a5521abb04104"
+    },
+    {
+      "stage": "final-mobile423-runtime",
+      "bodyWidth": 408,
+      "clientWidth": 408,
+      "dialogs": 0,
+      "innerHeight": 900,
+      "innerWidth": 423,
+      "option": "safety-delete-config · 2026/10/6 21:14:33 · d5e21e67",
+      "scripts": [
+        "/assets/index-CrgPYjgQ.js"
+      ],
+      "scrollWidth": 408,
+      "styles": [
+        "/assets/index-COnhWig0.css"
+      ],
+      "task": "d5e21e674b464d16"
+    },
+    {
+      "stage": "final-mobile423-monitor",
+      "bodyWidth": 408,
+      "clientWidth": 408,
+      "graph": [
+        {
+          "clientWidth": 288,
+          "overflowX": "auto",
+          "scrollWidth": 1296
+        }
+      ],
+      "historicalVersion": "7",
+      "innerWidth": 423,
+      "scrollWidth": 408
+    }
+  ],
+  "behavioral_checks_note": "The 15 behavior checks and scroll regression were completed on CrgPYjgQ. The final BboWAyzo button-only release was independently checked for matching loaded assets, duplicate workbench history button removal, task-history navigation retention, and visibly rendered domain/runner/watch graph. No browser network trace is claimed.",
+  "scroll_regression": {
+    "before": {
+      "innerHeight": 900,
+      "rowTop": 550.921875,
+      "scrollY": 430
+    },
+    "inside": {
+      "headingTop": 100.5,
+      "scrollY": 0
+    },
+    "returned": {
+      "filter": "all",
+      "query": "OpenAgentSafety",
+      "scrollY": 430
+    },
+    "passed": true
+  },
+  "source_boundary_test": {
+    "command": "node --test src/archiveReplayBoundary.test.mjs",
+    "passed": 3,
+    "failed": 0,
+    "evidence_type": "local-source-boundary-regression; not browser network trace"
+  },
+  "operator_actions": {
+    "read_only_navigation": true,
+    "post_or_manual_check": false,
+    "task_creation": false,
+    "service_restart": false,
+    "source_or_deployment_write": false
+  },
+  "screenshots": [
+    {
+      "file": "desktop-startup.jpg",
+      "bytes": 57960,
+      "sha256": "c8cb25007fb9ac9f6c687764952ba335d5a16cd7b349936d020beba470a31ed6",
+      "capture_js": "index-CrgPYjgQ.js"
+    },
+    {
+      "file": "desktop-monitor.jpg",
+      "bytes": 69758,
+      "sha256": "a97203c010599d2bf7ae2ae5646475f191e2837be5e5fc845db5fcc8e4e2ad8d",
+      "capture_js": "index-BboWAyzo.js"
+    },
+    {
+      "file": "mobile423-runtime.jpg",
+      "bytes": 40496,
+      "sha256": "574df679b63ca4cd368d29ee61096f3fdeaf8b255125a4b4c94fce231a0e204b",
+      "capture_js": "index-CrgPYjgQ.js"
+    },
+    {
+      "file": "mobile423-monitor.jpg",
+      "bytes": 39486,
+      "sha256": "b9320c0afe69179683dd82b1415e93068940e7dfc4de7f0bcf6d342cc14b60c2",
+      "capture_js": "index-CrgPYjgQ.js"
+    }
+  ],
+  "final_release_checks": {
+    "duplicate_workbench_history_button_absent": true,
+    "task_history_navigation_retained": true,
+    "loaded_js": "index-BboWAyzo.js",
+    "loaded_css": "index-DuPrLfZ3.css",
+    "index_hash_matches_readonly_http_get": true,
+    "desktop_graph_visible": {
+      "domain_id": 1201577438,
+      "runner_pid": 565195,
+      "watch_pid": 565145,
+      "graph_scroll_left": 0,
+      "viewport_width": 1280
+    },
+    "browser_network_trace_claimed": false
+  },
+  "cleanup": {
+    "temporary_viewport_reset": true,
+    "agent_created_tab_closed": true,
+    "user_tabs_untouched": true,
+    "parent_iab_tab8_untouched": true
+  }
+}

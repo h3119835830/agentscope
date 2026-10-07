@@ -1,4 +1,17 @@
+.connection-history-table{min-width:620px}
+.connection-timeline{list-style:none;padding:0;margin:20px 0;border-left:2px solid var(--task-line)}
+.connection-timeline>li{position:relative;padding:0 0 24px 20px;margin:0 0 20px;border-bottom:1px solid var(--task-line)}
+.connection-timeline>li:before{content:'';position:absolute;left:-5px;top:5px;width:8px;height:8px;border-radius:50%;background:var(--task-blue)}
+.connection-event-title{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;font-size:14px}
+.connection-event-title time,.connection-task-links small{font-size:12px;color:#6c8099}
+.connection-timeline p{font-size:13px;line-height:1.7;margin:10px 0 16px}
+.connection-event-detail{margin-top:14px;font-size:13px}
+.connection-event-detail summary{cursor:pointer;color:var(--task-blue);margin-bottom:14px}
+.connection-task-links{list-style:none;padding:0;margin:12px 0}
+.connection-task-links li{padding:10px 0;border-bottom:1px solid var(--task-line)}
+.connection-task-links small{display:block;margin-top:6px;overflow-wrap:anywhere}
 @media(max-width:600px){
+ .connection-timeline .task-fields{grid-template-columns:76px minmax(0,1fr);gap:8px}
  .agent-connections .connection-instances,.agent-connections .connection-workspaces{table-layout:fixed;width:100%}
  .agent-connections .connection-instances th:nth-child(3),.agent-connections .connection-instances td:nth-child(3),.agent-connections .connection-instances th:nth-child(4),.agent-connections .connection-instances td:nth-child(4){display:none}
  .agent-connections .connection-instances th:first-child{width:32%}

@@ -310,3 +310,330 @@ def test_tool_result_target_uses_only_same_call_and_same_task_start_receipt(arch
     result=next(r for r in data['records'] if r['kind']=='tool_result')
     assert result['target']=='/recorded/real.txt' and result['target_evidence_event_id']
     assert '/foreign/secret.txt' not in json.dumps(data)
+
+
+def mapped_runtime_job(task, decision='restrict', statements=None, before=(), after=('one.txt','two.txt')):
+    """Persist a complete compiler report with a same-rule unrelated sibling."""
+    job = runtime_job(task)
+    with db.connect() as con:
+        workspace = con.execute('SELECT workspace FROM tasks WHERE id=?',(task,)).fetchone()[0]
+        row = con.execute('SELECT context_json,proposal_json FROM managed_jobs WHERE id=?',(job,)).fetchone()
+        context, proposal = json.loads(row[0]), json.loads(row[1])
+        context['base_snapshot']['payload']['protected_paths'] = list(before)
+        context['project_sources'] = [
+            {'id':name,'path':workspace+'/'+name,'hash':'frozen-'+name} for name in ('one.txt','two.txt')]
+        rules = [
+            {'name':'shared','rule_id':index,'source_start_line':1,'clause_start_line':index+2,
+             'clause_op':'write','target_pattern':workspace+'/'+name,
+             'clause_text':'  block write file "'+workspace+'/'+name+'" if AGENT',
+             'source_text':'SHARED_WHOLE_RULE_MUST_NOT_LEAK',
+             'reason':'preserve registered objects'}
+            for index,name in enumerate(('one.txt','two.txt'))]
+        rules.append({'name':'unrelated','rule_id':9,'source_start_line':10,'clause_start_line':11,
+            'clause_op':'write','target_pattern':'/private/unrelated.txt',
+            'clause_text':'  block write file "/private/unrelated.txt" if AGENT',
+            'source_text':'UNRELATED_FULL_BASELINE'})
+        full = 'rule shared:\n'+'\n'.join(r['clause_text'] for r in rules)+'\n# WHOLE_CANDIDATE_BUNDLE'
+        proposal.update(decision=decision,protected_paths=list(after),
+            compiled_dsl=full,compiled_dsl_hash=records.digest(full),compile={'ok':True,'rules':rules})
+        proposal['identified_statements'] = statements if statements is not None else [
+            {'statement':'Preserve '+name,'policy_type':'per_event','context_required':True,
+             'context_reason':'Bind the registered object','evidence_ids':['project:'+name]}
+            for name in ('one.txt','two.txt')]
+        con.execute('UPDATE managed_jobs SET context_json=?,proposal_json=? WHERE id=?',
+            (json.dumps(context),json.dumps(proposal),job))
+    return job,workspace
+
+
+def test_runtime_exact_statement_id_exposes_only_its_compiler_clauses(archived):
+    task, _ = archived
+    job, workspace = mapped_runtime_job(task)
+    parent = policies.policy_detail(task,'runtime:'+job)
+    assert len(parent['statements'])==2
+    for index,name in enumerate(('one.txt','two.txt')):
+        requested = 'runtime:'+job+':statement:'+str(index)
+        detail = policies.policy_detail(task,requested)
+        assert detail['id']==requested and detail['record_kind']=='statement'
+        assert detail['compilation']['scope']=='statement'
+        assert detail['bundle_compilation']['scope']=='candidate_bundle'
+        assert workspace+'/'+name in detail['compilation']['dsl']
+        assert workspace+'/'+('two.txt' if name=='one.txt' else 'one.txt') not in detail['compilation']['dsl']
+        output = json.dumps({k:v for k,v in detail.items() if k!='bundle_compilation'})
+        assert '/private/unrelated.txt' not in output
+        assert 'WHOLE_CANDIDATE_BUNDLE' not in output
+        assert 'SHARED_WHOLE_RULE_MUST_NOT_LEAK' not in output
+        assert 'proposal' not in detail
+    assert parent['bundle_compilation']['scope']=='candidate_bundle'
+    assert 'WHOLE_CANDIDATE_BUNDLE' in parent['bundle_compilation']['dsl']
+
+
+@pytest.mark.parametrize('policy_type',['semantic_only','content'])
+def test_non_os_statement_never_exports_os_dsl_even_with_exact_target_and_evidence(archived,policy_type):
+    task, _ = archived
+    job, _ = mapped_runtime_job(task,statements=[
+        {'statement':'Preserve one.txt','policy_type':policy_type,'context_required':True,
+         'context_reason':'Task content constraint','evidence_ids':['project:one.txt']}])
+    detail = policies.policy_detail(task,'runtime:'+job+':statement:0')
+    assert detail['id']=='runtime:'+job+':statement:0'
+    assert detail['compilation']['dsl']==''
+    assert detail['compilation'].get('has_new_os_rule',False) is False
+    assert detail['loading']['loaded'] is False
+    assert detail['operations']==[]
+    assert 'WHOLE_CANDIDATE_BUNDLE' not in json.dumps({k:v for k,v in detail.items() if k!='bundle_compilation'})
+
+
+def test_unmapped_runtime_statement_does_not_export_other_candidate_rules(archived):
+    task, _ = archived
+    job, _ = mapped_runtime_job(task,statements=[
+        {'statement':'Protect an unspecified resource','policy_type':'per_event','context_required':True,
+         'context_reason':'No exact registered object','evidence_ids':[]}])
+    detail = policies.policy_detail(task,'runtime:'+job+':statement:0')
+    assert detail['compilation']['dsl']==''
+    assert detail['loading']['loaded'] is False
+    assert detail['targets']==[] and detail['operations']==[]
+    assert 'WHOLE_CANDIDATE_BUNDLE' not in json.dumps({k:v for k,v in detail.items() if k!='bundle_compilation'})
+    assert 'UNRELATED_FULL_BASELINE' not in json.dumps({k:v for k,v in detail.items() if k!='bundle_compilation'})
+
+
+@pytest.mark.parametrize('stage',['startup','runtime'])
+def test_corrupt_statement_material_never_silently_returns_parent_candidate(archived,stage):
+    task, _ = archived
+    if stage=='startup':
+        _,candidate = startup_candidate(task)
+        requested = 'startup:'+candidate+':guide:0'
+        with db.connect() as con:
+            con.execute('UPDATE bootstrap_proposals SET content_hash=? WHERE id=?',('corrupted',candidate))
+    else:
+        job,_ = mapped_runtime_job(task)
+        requested = 'runtime:'+job+':statement:0'
+        with db.connect() as con:
+            row = con.execute('SELECT proposal_json FROM managed_jobs WHERE id=?',(job,)).fetchone()
+            proposal = json.loads(row[0]);proposal['compiled_dsl_hash']='corrupted'
+            con.execute('UPDATE managed_jobs SET proposal_json=? WHERE id=?',(json.dumps(proposal),job))
+    with pytest.raises(HTTPException) as error:
+        policies.policy_detail(task,requested)
+    assert error.value.status_code==404
+
+
+def test_expand_removing_protection_does_not_display_an_added_deny_rule(archived):
+    task, _ = archived
+    # Include a same-target stale deny in the report. A release receipt cannot
+    # reinterpret that old restriction as an added block for this statement.
+    job,_ = mapped_runtime_job(task,decision='expand',before=('one.txt','two.txt'),after=('two.txt',),
+        statements=[{'statement':'Allow edits to one.txt','policy_type':'per_event','context_required':True,
+                     'context_reason':'Authenticated removed protection','evidence_ids':['project:one.txt']}])
+    detail = policies.policy_detail(task,'runtime:'+job+':statement:0')
+    assert detail['delta']['removed_protection']==['one.txt']
+    assert not detail['delta'].get('added_protection')
+    assert detail['compilation'].get('has_new_os_rule',False) is False
+    assert detail['compilation']['dsl']==''
+    assert 'block write' not in json.dumps({k:v for k,v in detail.items() if k!='bundle_compilation'})
+
+
+def test_multistatement_generation_listing_and_all_views_leave_authority_unchanged(archived):
+    task, _ = archived
+    job,_ = mapped_runtime_job(task)
+    tables = ('managed_tasks','managed_jobs','managed_events','policy_versions')
+    def snapshot():
+        with db.connect() as con:
+            return {name:[tuple(row) for row in con.execute('SELECT * FROM '+name+' ORDER BY rowid')]
+                    for name in tables}
+    before = snapshot()
+    listing = policies.policy_records(task,'runtime',limit=1)
+    assert listing['total']==1 and listing['records'][0]['id']=='runtime:'+job
+    parent = policies.policy_detail(task,listing['records'][0]['id'])
+    assert {r['id'] for r in parent['statements']}=={
+        'runtime:'+job+':statement:0','runtime:'+job+':statement:1'}
+    for statement in parent['statements']:
+        policies.policy_detail(task,statement['id'])
+    for category in ('os','tools','control'):
+        policies.execution_audit(task,category)
+    assert snapshot()==before
+
+
+@pytest.mark.parametrize('decision',['guidance_only'])
+def test_guidance_assessment_does_not_lend_old_baseline_os_dsl(archived,decision):
+    task, _ = archived
+    job,_ = mapped_runtime_job(task,decision=decision,before=('one.txt','two.txt'),
+        after=('one.txt','two.txt'),statements=[
+            {'statement':'Preserve one.txt','policy_type':'semantic_only','context_required':True,
+             'context_reason':'Existing baseline instruction','evidence_ids':['project:one.txt']}])
+    detail = policies.policy_detail(task,'runtime:'+job+':statement:0')
+    assert detail['compilation']['dsl']==''
+    assert detail['compilation'].get('has_new_os_rule',False) is False
+    assert 'WHOLE_CANDIDATE_BUNDLE' not in json.dumps({k:v for k,v in detail.items() if k!='bundle_compilation'})
+
+
+def test_statement_list_paginates_all_exact_ids_and_keeps_job_view_separate(archived):
+    task, foreign = archived
+    first_job,_ = mapped_runtime_job(task)
+    second_job,_ = mapped_runtime_job(task)
+    seen=[];cursor=None
+    while True:
+        page=policies.policy_records(task,'runtime',before=cursor,limit=1,view='statements')
+        assert page['total']==4
+        seen.extend(row['id'] for row in page['records'])
+        cursor=page['next_cursor']
+        if not cursor:break
+        with pytest.raises(HTTPException) as error:
+            policies.policy_records(foreign,'runtime',before=cursor,limit=1,view='statements')
+        assert error.value.status_code==422
+        with pytest.raises(HTTPException) as error:
+            policies.policy_records(task,'runtime',before=cursor,limit=1,view='jobs')
+        assert error.value.status_code==422
+    assert set(seen)=={'runtime:'+job+':statement:'+str(index)
+        for job in (first_job,second_job) for index in (0,1)}
+    assert len(seen)==4
+    for exact in seen:
+        detail=policies.policy_detail(task,exact)
+        assert detail['id']==exact and detail['compilation']['scope']=='statement'
+    jobs=policies.policy_records(task,'runtime',view='jobs')
+    assert jobs['total']==2
+    for job in (first_job,second_job):
+        parent=policies.policy_detail(task,'runtime:'+job)
+        assert parent['bundle_compilation']['scope']=='candidate_bundle'
+
+
+@pytest.mark.parametrize('reliable_clauses',[False,True])
+def test_startup_statement_only_exports_exact_clauses_not_same_rule_bundle(archived,reliable_clauses):
+    task,_=archived
+    job,candidate=startup_candidate(task)
+    full='rule bootstrap-1:\n  block write file "/tmp/work/one.txt" if AGENT\n  block write file "/tmp/work/unrelated.txt" if AGENT'
+    atom={'statement':'Preserve one.txt','evidence_ids':[],'operations':['write'],
+          'paths':['/tmp/work/one.txt'],'decision':'block','reason':'Protect original'}
+    draft={'draft':{'summary':'Candidate contains two OS targets','atoms':[atom],'guidance':[]},
+           'actplane_dsl':full}
+    compiler={'ok':True,'rules':[{'name':'bootstrap-1','source_start_line':1,'source_text':full}]}
+    if reliable_clauses:
+        compiler['rules']=[
+            {'name':'bootstrap-1','source_start_line':1,'source_text':full,'clause_start_line':2,
+             'clause_text':'  block write file "/tmp/work/one.txt" if AGENT',
+             'clause_op':'write','target_pattern':'/tmp/work/one.txt'},
+            {'name':'bootstrap-1','source_start_line':1,'source_text':full,'clause_start_line':3,
+             'clause_text':'  block write file "/tmp/work/unrelated.txt" if AGENT',
+             'clause_op':'write','target_pattern':'/tmp/work/unrelated.txt'}]
+    with db.connect() as con:
+        con.execute('UPDATE bootstrap_proposals SET proposal_json=?,content_hash=?,validation_json=? WHERE id=?',
+            (json.dumps(draft),digest(draft),json.dumps({'compiler':compiler}),candidate))
+    exact='startup:'+candidate+':atom:0'
+    detail=policies.policy_detail(task,exact)
+    assert detail['id']==exact and detail['compilation']['scope']=='statement'
+    assert '/tmp/work/unrelated.txt' not in json.dumps({k:v for k,v in detail.items() if k!='bundle_compilation'})
+    if reliable_clauses:
+        assert '/tmp/work/one.txt' in detail['compilation']['dsl']
+    else:
+        assert detail['compilation']['dsl']==''
+        assert detail['compilation']['status']=='not_recorded'
+    bundle=policies.policy_detail(task,'startup:'+candidate)['bundle_compilation']
+    assert bundle['scope']=='candidate_bundle' and '/tmp/work/unrelated.txt' in bundle['dsl']
+
+
+@pytest.mark.parametrize('evidence',['verified','wrong_hash','foreign_task','uncompiled'])
+def test_removed_deny_diff_requires_hash_verified_same_task_before_compilation(archived,evidence):
+    task,foreign=archived
+    job,workspace=mapped_runtime_job(task,decision='expand',before=('one.txt','two.txt'),after=('two.txt',),
+        statements=[{'statement':'Allow edits to one.txt','policy_type':'per_event','context_required':True,
+                     'context_reason':'Remove the exact prior restriction','evidence_ids':['project:one.txt']}])
+    with db.connect() as con:
+        row=con.execute('SELECT context_json,proposal_json FROM managed_jobs WHERE id=?',(job,)).fetchone()
+        context,proposal=json.loads(row[0]),json.loads(row[1])
+        before_compile=proposal['compile']
+        yaml='recorded policy before permission expansion'
+        context['policy_hash']=records.digest(yaml) if evidence!='wrong_hash' else 'unmatched-yaml-hash'
+        proposal['compile']={'ok':True,'rules':[r for r in before_compile['rules']
+            if r.get('target_pattern')!=workspace+'/one.txt']}
+        proposal['compiled_dsl']='rule shared:\n'+proposal['compile']['rules'][0]['clause_text']
+        proposal['compiled_dsl_hash']=records.digest(proposal['compiled_dsl'])
+        con.execute('UPDATE managed_jobs SET context_json=?,proposal_json=?,policy_hash=? WHERE id=?',
+            (json.dumps(context),json.dumps(proposal),context['policy_hash'],job))
+        con.execute('INSERT INTO policy_versions(id,task_id,version,layer,dsl_text,policy_yaml,compile_state,compile_json,status,change_summary,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)',
+            (ident(),foreign if evidence=='foreign_task' else task,1,'startup','prior-bundle',yaml,
+             'compiled' if evidence!='uncompiled' else 'failed',json.dumps(before_compile),'approved','recorded',db.now()))
+    detail=policies.policy_detail(task,'runtime:'+job+':statement:0')
+    diff=detail['dsl_diff']
+    assert diff['mapping_scope']=='target'
+    assert detail['compilation']['dsl']==''
+    assert detail['compilation'].get('has_new_os_rule',False) is False
+    if evidence=='verified':
+        assert diff['status']=='recorded'
+        assert workspace+'/one.txt' in diff['before'] and diff['after']==''
+        assert diff['removed_clauses'] and diff['added_clauses']==[]
+        assert '/private/unrelated.txt' not in json.dumps(diff)
+        assert workspace+'/two.txt' not in json.dumps(diff)
+    else:
+        assert diff['status']=='not_recorded'
+        assert diff['before']=='' and diff['removed_clauses']==[]
+
+
+@pytest.mark.parametrize('decision',['no_change','guidance_only'])
+def test_unchanged_per_event_statement_retains_only_its_mapped_baseline_rule(archived,decision):
+    task,_=archived
+    job,workspace=mapped_runtime_job(task,decision=decision,before=('one.txt','two.txt'),
+        after=('one.txt','two.txt'),statements=[
+            {'statement':'Preserve one.txt','policy_type':'per_event','context_required':True,
+             'context_reason':'Existing baseline remains applicable','evidence_ids':['project:one.txt']}])
+    detail=policies.policy_detail(task,'runtime:'+job+':statement:0')
+    compilation=detail['compilation']
+    assert compilation['scope']=='statement'
+    assert compilation['has_new_os_rule'] is False and compilation['reused'] is True
+    assert workspace+'/one.txt' in compilation['dsl']
+    assert workspace+'/two.txt' not in compilation['dsl']
+    assert '/private/unrelated.txt' not in compilation['dsl']
+    assert 'WHOLE_CANDIDATE_BUNDLE' not in json.dumps({k:v for k,v in detail.items() if k!='bundle_compilation'})
+
+
+def test_statement_view_http_auth_validation_and_exact_detail(archived,client):
+    task,_=archived
+    job,_=mapped_runtime_job(task)
+    url='/api/tasks/'+task+'/archive/policies'
+    params={'stage':'runtime','view':'statements','limit':1}
+    assert client.get(url,params=params).status_code==401
+    headers={'Authorization':'Bearer test-admin-token-not-for-production'}
+    response=client.get(url,params=params,headers=headers)
+    assert response.status_code==200
+    page=response.json()
+    assert page['total']==2 and len(page['records'])==1
+    exact=page['records'][0]['id']
+    detail=client.get(url+'/'+exact,headers=headers)
+    assert detail.status_code==200 and detail.json()['id']==exact
+    assert detail.json()['compilation']['scope']=='statement'
+    assert client.get(url,params={'view':'arbitrary'},headers=headers).status_code==422
+
+
+@pytest.mark.parametrize('source_case',['verified','project_actor','missing_source','wrong_capability_hash','wrong_capability_version','arbitrary_directory'])
+def test_output_permission_delta_requires_exact_authenticated_source_and_frozen_controller_target(archived,source_case):
+    task,_=archived
+    job,_=mapped_runtime_job(task,decision='expand',after=(),statements=[])
+    with db.connect() as con:
+        output=con.execute('SELECT output_dir FROM tasks WHERE id=?',(task,)).fetchone()[0]
+        row=con.execute('SELECT context_json,proposal_json FROM managed_jobs WHERE id=?',(job,)).fetchone()
+        context,proposal=json.loads(row[0]),json.loads(row[1])
+        text='Write the report into '+output+'/acceptance.txt'
+        if source_case=='arbitrary_directory':text='Write the report into /outside/acceptance.txt'
+        statement={'statement':text,'policy_type':'per_event','context_required':True,
+                   'context_reason':'Authenticated task output request','evidence_ids':['auth-output-request']}
+        context['sources']=[{'evidence_id':'auth-output-request',
+            'content':{'actor':'project' if source_case=='project_actor' else 'native_user','text':text}}]
+        if source_case=='missing_source':context['sources']=[]
+        context['policy_hash']='frozen-hash'
+        context['capabilities']={'execution_targets':[{'kind':'task_output','path':output,'granted':False,
+            'authority':'controller_verified_loaded_snapshot',
+            'policy_version':7 if source_case=='wrong_capability_version' else 1,
+            'policy_hash':'wrong-hash' if source_case=='wrong_capability_hash' else 'frozen-hash'}]}
+        proposal['allow_output']=True
+        proposal['identified_statements']=[statement]
+        con.execute('UPDATE managed_jobs SET context_json=?,proposal_json=? WHERE id=?',
+            (json.dumps(context),json.dumps(proposal),job))
+    detail=policies.policy_detail(task,'runtime:'+job+':statement:0')
+    assert detail['compilation']['dsl']==''
+    assert detail['compilation'].get('has_new_os_rule',False) is False
+    assert detail['dsl_diff']['status']=='not_recorded'
+    assert detail['dsl_diff']['removed_clauses']==[]
+    if source_case=='verified':
+        permission=detail['permission_delta']
+        assert permission=={'allow_output_before':False,'allow_output_after':True,'target':output+'/**',
+            'source_evidence_ids':['auth-output-request'],'authority':'controller_verified_loaded_snapshot'}
+        assert detail['statement_effect']=='expand' and detail['change_status']=='permission_changed'
+    else:
+        assert 'permission_delta' not in detail
+        assert detail['statement_effect']=='unmapped'

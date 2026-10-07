@@ -14,7 +14,7 @@ export default function DomainGraph({graph,files={records:[]},workspace,fresh,on
   if(!graph)return <div className="runtime-empty">正在读取执行域…</div>;
   const nodes=graph.nodes.filter(n=>n.kind!=='process'||(historical?n.pid!=null:fresh&&graph.live)),edges=graph.edges;
   const domain=nodes.find(n=>n.kind==='domain'&&n.role==='task');
-  const seen=new Set(),resources=domain?files.records.filter(a=>a.domain_id===domain.domain_id&&a.target&&!seen.has(a.target)&&seen.add(a.target)).slice(0,3):[];
+  const seen=new Set(),resources=domain?files.records.filter(a=>a.domain_id===domain.domain_id&&(!historical||(a.version===graph.version&&a.task_id===graph.task_id))&&a.target&&!seen.has(a.target)&&seen.add(a.target)).slice(0,3):[];
   for(const audit of resources){nodes.push({key:'file:'+audit.id,kind:'file',title:relativeTarget(audit.target,workspace),audit});}
   const layout=layoutGraph(nodes,[...edges,...resources.map(a=>({from:domain.key,to:'file:'+a.id,kind:'access',label:'操作证据'}))]);
   const byKey=new Map(layout.nodes.map(n=>[n.key,n]));

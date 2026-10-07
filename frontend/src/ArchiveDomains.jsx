@@ -15,8 +15,10 @@ function DomainEvidence({domain}) {
  {domain.available&&typeof domain.dsl==='string'?<details className="record-note"><summary>查看该次加载的 DSL</summary><pre className="record-code">{domain.dsl}</pre></details>:<p className="muted">没有与该次加载证据一致的 DSL。</p>}</>;
 }
 
-export default function ArchiveDomains({task,api}) {
- const [open,setOpen]=useState(false),[version,setVersion]=useState(null),[graph,setGraph]=useState(null),[busy,setBusy]=useState(false),[error,setError]=useState(''),[retry,setRetry]=useState(0);
+export function HistoricalGraphNotice({graph}){const missing=graph?.missing_sources||[];return <>{(graph?.notice||missing.length>0)&&<details className="archive-technical"><summary>历史材料说明{missing.length?`（${missing.length} 项缺失或未核验）`:''}</summary>{graph.notice&&<p className="muted">{graph.notice}</p>}{missing.length>0&&<ul>{missing.map((item,i)=><li key={item.key||i}>{item.role==='baseline'?'底线域':item.role==='task'?'任务域':'历史加载'}：材料未记录或未核验{item.reason?` · ${item.reason}`:''}</li>)}</ul>}</details>}</>;}
+
+export default function ArchiveDomains({task,api,defaultOpen=false,showProcesses=false,view='graph',files={records:[]},onAudit}) {
+ const [open,setOpen]=useState(defaultOpen),[version,setVersion]=useState(null),[graph,setGraph]=useState(null),[busy,setBusy]=useState(false),[error,setError]=useState(''),[retry,setRetry]=useState(0);
  const [selected,setSelected]=useState(null),[detail,setDetail]=useState(null),[detailError,setDetailError]=useState(''),[detailBusy,setDetailBusy]=useState(false);
  const graphSeq=useRef(0),detailSeq=useRef(0),heading=useRef(null),trigger=useRef(null);
  useEffect(()=>{setVersion(null);setGraph(null);setSelected(null);setDetail(null);setError('');},[task]);
@@ -35,13 +37,13 @@ export default function ArchiveDomains({task,api}) {
   finally{if(seq===detailSeq.current)setDetailBusy(false);}
  }
  function selectProcess(node){trigger.current=document.activeElement;detailSeq.current++;setSelected(node);setDetail(null);setDetailError('');setDetailBusy(false);}
- return <details className="record-note" onToggle={e=>{if(e.target===e.currentTarget)setOpen(e.currentTarget.open);}}>
+ return <details className="record-note" open={open} onToggle={e=>{if(e.target===e.currentTarget)setOpen(e.currentTarget.open);}}>
   <summary>历史域、进程与 DSL</summary>
-  {open&&<><p className="muted">仅展示加载收据中的历史绑定与策略源；未记录的进程不补推。</p>
+  {open&&<><p className="muted">历史加载记录；PID 不代表当前在线。</p>
    {busy&&<p role="status">正在读取历史域…</p>}
    {error&&<p role="alert">{error} <button className="button ghost tiny" onClick={()=>setRetry(n=>n+1)}>重试</button></p>}
-   {graph&&<>{graph.notice&&<p className="muted">{graph.notice}</p>}{Array.isArray(graph.missing_sources)&&graph.missing_sources.length>0&&<p className="inline-notice warning">{[...new Set(graph.missing_sources.map(item=>item.role==='baseline'?'底线域加载材料未记录':item.role==='task'?'任务域加载材料未记录':'部分历史加载材料未记录'))].join('；')}。图中仅显示有可信证据的历史域。</p>}<DomainGraph graph={graph} files={{records:[]}} historical fresh={false} onVersion={setVersion} onDomain={selectDomain} onProcess={selectProcess}/></>}
-   {selected&&<section className="record-note" aria-label="历史节点详情"><div className="graph-toolbar"><h3 ref={heading} tabIndex="-1">{selected.title}</h3><button className="button ghost tiny" onClick={()=>{detailSeq.current++;setSelected(null);setDetail(null);trigger.current?.isConnected&&trigger.current.focus();}}>收起详情</button></div>
+   {graph&&<><HistoricalGraphNotice graph={graph}/>{view==='graph'&&<DomainGraph graph={graph} files={files} onAudit={onAudit||(()=>{})} historical fresh={false} onVersion={setVersion} onDomain={selectDomain} onProcess={selectProcess}/>}<div hidden={view!=='processes'&&!showProcesses}>{(view==='processes'||showProcesses)&&<section className="archive-process-table"><div className="graph-toolbar"><h3>已记录进程</h3><select aria-label="关联进程的历史版本" value={graph.version} onChange={e=>setVersion(Number(e.target.value))}>{graph.versions.map(v=><option key={v.version} value={v.version}>v{v.version} · 加载记录</option>)}</select></div><div className="archive-table-scroll"><table className="archive-records-table"><thead><tr><th>历史角色</th><th>历史 PID</th><th>版本</th><th>记录时间</th></tr></thead><tbody>{graph.nodes.filter(n=>n.kind==='process'&&n.pid!=null).map(n=><tr key={n.key}><td>{n.title}</td><td>{n.pid}</td><td>v{n.version}</td><td>{n.recorded_at||'未记录'}</td></tr>)}{!graph.nodes.some(n=>n.kind==='process'&&n.pid!=null)&&<tr><td colSpan={4}>该版本未记录进程 PID。</td></tr>}</tbody></table></div></section>}</div></>}
+   {selected&&view==='graph'&&<section className="record-note" aria-label="历史节点详情"><div className="graph-toolbar"><h3 ref={heading} tabIndex="-1">{selected.title}</h3><button className="button ghost tiny" onClick={()=>{detailSeq.current++;setSelected(null);setDetail(null);trigger.current?.isConnected&&trigger.current.focus();}}>收起详情</button></div>
     {detailBusy&&<p role="status">正在读取加载证据…</p>}
     {detailError&&<p role="alert">{detailError} <button className="button ghost tiny" onClick={()=>selectDomain(selected)}>重试</button></p>}
     {detail&&<DomainEvidence domain={detail}/>}

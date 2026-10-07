@@ -1,0 +1,22 @@
+{
+  "index_sha256": "7bd011366ecc2495e860c2dfe75a6176cc24c34eb1e03940168b9e2ca08edc2c",
+  "js": "index-Cgg95WzE.js",
+  "css": "index-CUPFpjOF.css",
+  "api_restarted": true,
+  "api_override": "/etc/systemd/system/agentscope-scope-demo-api.service.d/50-unified-policy-connection-20261007.conf",
+  "source": "/opt/agentscope-task-archive-20261007",
+  "native_and_broker_pids_unchanged": {
+    "agentscope-local-dsh-web-20261007.service": "870966",
+    "agentscope-scope-demo-broker.service": "966501"
+  },
+  "pending_jobs_before_restart": 0,
+  "backend_tests": {
+    "passed": 538,
+    "skipped": 52,
+    "warnings": 5
+  },
+  "frontend_tests": {
+    "passed": 85
+  },
+  "preserved_connection_history": true
+}

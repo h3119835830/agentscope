@@ -1,9 +1,21 @@
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Query
 from pydantic import BaseModel, Field, ConfigDict, model_validator
 from . import registry as r
 from . import scene_read
+from . import connections
 
 router = APIRouter()
+
+
+@router.get('/api/workspace-connection-history')
+def connection_history(page: int = Query(0, ge=0), limit: int = Query(12, ge=1, le=50)):
+    return connections.history(page, limit)
+
+
+@router.get('/api/workspace-connection-history/{instance_id}')
+def connection_history_detail(instance_id: str, before: int | None = Query(None, ge=1),
+                              limit: int = Query(30, ge=1, le=100)):
+    return connections.detail(instance_id, before, limit)
 
 
 def call(fn, *args):

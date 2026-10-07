@@ -1,0 +1,33 @@
+{
+  "recorded_at": "2026-10-07T16:35:13.734164+00:00",
+  "mode": "historical_read_only_replay",
+  "frontend_tests": 101,
+  "backend_tests": {
+    "passed": 538,
+    "skipped": 52,
+    "warnings": 5
+  },
+  "browser_primary_checks": 15,
+  "real_api_gets": 170,
+  "authority_tables_unchanged": 22,
+  "final_index_sha256": "331258204616a5185c4fda73f9d8ff9e80bf07e5e21195b30aca8b4181196cce",
+  "static_only_deployment": true,
+  "new_kernel_or_dsh_acceptance_run": false,
+  "remote_push_performed": false,
+  "evidence": {
+    "api-acceptance.public.json": "557b3c16977382b0745696e92163a4ece24da81ab11619799f1ed7dcf438b2f4",
+    "backend-regression.txt": "377d0aceb33ea063e9b9c56e136c1c702e87d037ed42bdbdc6b089098b51423e",
+    "browser-acceptance.public.json": "c74004e7c079c318bb48a7fba22a0879b89e4e8a8b792f4c1b6660b93c308990",
+    "deployment-compact-ui.public.json": "6bf33a5413977b622c8e7c162a46c6da70af5507420ce1391a4ad39fdbe8dac6",
+    "deployment-first-fullpage.public.json": "b0542175e300b51254526335e089c63b2b7954870773454857f674fd928b187e",
+    "deployment-monitor-modes.public.json": "b3fcb80d5f7acd7b77c09fc58ae3193f8829785442ddecd12ae5489dc85a296b",
+    "deployment-scroll-fix.public.json": "e4241da4713e9e3432872e3ec96f7ca97a5146ed360ae6d9453a9e2ea24b7979",
+    "deployment.public.json": "79fdc8a8acf848f17666f168689ea45c7dff95455bf8c9977b3d0b079496200e",
+    "desktop-monitor.jpg": "a97203c010599d2bf7ae2ae5646475f191e2837be5e5fc845db5fcc8e4e2ad8d",
+    "desktop-startup.jpg": "c8cb25007fb9ac9f6c687764952ba335d5a16cd7b349936d020beba470a31ed6",
+    "frontend-build.txt": "3757df4a0f376609496145bc1b4f502bdcd73d13f889e9b07eb903a5e93411d0",
+    "frontend-regression.tap": "2c15e9af91f15d7cc3cbb121e7205a59539bd2d15baee8f5fa2fc53487d70504",
+    "mobile423-monitor.jpg": "b9320c0afe69179683dd82b1415e93068940e7dfc4de7f0bcf6d342cc14b60c2",
+    "mobile423-runtime.jpg": "574df679b63ca4cd368d29ee61096f3fdeaf8b255125a4b4c94fce231a0e204b"
+  }
+}

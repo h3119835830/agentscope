@@ -1,0 +1,71 @@
+{
+  "schema": "PolicyStatementApiPredeploymentMismatch/1",
+  "observed_at_utc": "2026-10-07T15:56:16.7127109Z",
+  "method": "GET",
+  "task_id": "bef449047cd24af6",
+  "requested_path": "/api/tasks/bef449047cd24af6/archive/policies?stage=runtime&view=statements&limit=200",
+  "result": "blocked_by_deployment_mismatch",
+  "observed_page": {
+    "total": 12,
+    "view": null,
+    "next_cursor": null,
+    "historical": true,
+    "history_only": true,
+    "live": false
+  },
+  "expected_contract": {
+    "view": "statements",
+    "exact_child_identity": true,
+    "statement_compilation_scope": "statement",
+    "bundle_compilation_scope": "candidate_bundle"
+  },
+  "target_jobs": [
+    {
+      "job_id": "ea902043e9174a528b9a370788853f11",
+      "list_row_count": 1,
+      "record_id": "runtime:ea902043e9174a528b9a370788853f11",
+      "record_kind": "job",
+      "compilation_scope": null,
+      "compilation_origin": "candidate_bundle",
+      "dsl_characters": 4440,
+      "bundle_scope": null,
+      "statement_effect": null,
+      "permission_delta_present": false,
+      "expected_statement_count": 6
+    },
+    {
+      "job_id": "0ff64292b80d4d779e1207b850adad22",
+      "list_row_count": 1,
+      "record_id": "runtime:0ff64292b80d4d779e1207b850adad22",
+      "record_kind": "job",
+      "compilation_scope": null,
+      "compilation_origin": "candidate_bundle",
+      "dsl_characters": 4657,
+      "bundle_scope": null,
+      "statement_effect": null,
+      "permission_delta_present": false,
+      "expected_statement_count": 2
+    },
+    {
+      "job_id": "21d660680b014c2c9cf06acf51d5386c",
+      "list_row_count": 1,
+      "record_id": "runtime:21d660680b014c2c9cf06acf51d5386c",
+      "record_kind": "job",
+      "compilation_scope": null,
+      "compilation_origin": "candidate_bundle",
+      "dsl_characters": 4440,
+      "bundle_scope": null,
+      "statement_effect": null,
+      "permission_delta_present": false,
+      "expected_statement_count": 3
+    }
+  ],
+  "unavailable_statement_metadata": {
+    "unavailable_rows_observed": 0,
+    "final_contract_verification": "not_run_due_deployment_mismatch"
+  },
+  "raw_proposal_saved": false,
+  "private_model_output_saved": false,
+  "mutations_performed": false,
+  "note": "Only deployed GET responses were inspected. Stop requested by parent after a parallel service overwrite was identified. Final acceptance must be rerun after coordinated deployment."
+}

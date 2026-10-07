@@ -1,0 +1,24 @@
+{
+  "observed_at": "2026-10-07T16:31:16.444809+00:00",
+  "mode": "static_ui_only",
+  "api_working_directory": "/opt/agentscope-task-archive-20261007",
+  "index_sha256": "331258204616a5185c4fda73f9d8ff9e80bf07e5e21195b30aca8b4181196cce",
+  "assets": {
+    "/assets/index-BboWAyzo.js": "c0cb1c5681b0f3a2068af96049611cbd2e61b29a241da3ea3c5272df00ad8efa",
+    "/assets/index-DuPrLfZ3.css": "21a53a3cbca350b75086c8653fba7a0f2c85839d7ff7a432dd208767ac309d7d"
+  },
+  "service_pids_unchanged": {
+    "agentscope-scope-demo-api.service": "1044743",
+    "agentscope-scope-demo-broker.service": "966501",
+    "agentscope-local-dsh-web-20261007.service": "870966"
+  },
+  "services_restarted": false,
+  "permission_changes": false,
+  "frontend_tests": 101,
+  "backend_tests": {
+    "passed": 538,
+    "skipped": 52,
+    "warnings": 5
+  },
+  "last_change": "remove duplicate workbench history button; task-history entry retained"
+}

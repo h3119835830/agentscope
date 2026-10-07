@@ -1,0 +1,2363 @@
+{
+  "schema": "task_replay_api_acceptance_v1",
+  "started_at": "2026-10-07T16:14:25.875226+00:00",
+  "finished_at": "2026-10-07T16:14:41.701930+00:00",
+  "result": "passed",
+  "database": "/var/lib/agentscope-scope-demo/demo.sqlite3",
+  "history_only": true,
+  "methods": [
+    "GET"
+  ],
+  "no_models_tools_checks_or_mutations_invoked": true,
+  "tasks": [
+    {
+      "task_id": "f39a5521abb04104",
+      "name": "safety-impossible-tests",
+      "status": "completed",
+      "header": {
+        "history_only": true,
+        "execution_observation": "historical_receipts; live_state_not_checked",
+        "top_level_live_flag": null,
+        "top_level_historical_flag": null,
+        "labels_note": "root/header expose history_only and unchecked historical observation; explicit live/historical flags appear on policy/audit/domain APIs"
+      },
+      "archive_counts": {
+        "timeline": 751,
+        "tools": 201,
+        "kernel": 65,
+        "audit": 2
+      },
+      "missing": [
+        "runtime_review"
+      ],
+      "policies": {
+        "startup": {
+          "records": 5,
+          "pages": 1,
+          "reported_total": 5,
+          "cursor_exhausted": true,
+          "record_kinds": {
+            "statement": 5
+          },
+          "generation_statuses": {
+            "completed": 5
+          },
+          "statement_dsl_records": 1,
+          "candidate_bundle_dsl_records": 0,
+          "separate_bundle_dsl_records": 5,
+          "stored_loading_receipt_records": 1,
+          "details_verified": 5,
+          "dsl_evidence": [
+            {
+              "id": "startup:98e23e0280d5446e802c78308cd2d623:guide:3",
+              "record_kind": "statement",
+              "scope": "statement",
+              "dsl_bytes": 0,
+              "dsl_sha256": null,
+              "bundle_bytes": 1047,
+              "loaded_receipt": false,
+              "active": false
+            },
+            {
+              "id": "startup:98e23e0280d5446e802c78308cd2d623:guide:2",
+              "record_kind": "statement",
+              "scope": "statement",
+              "dsl_bytes": 0,
+              "dsl_sha256": null,
+              "bundle_bytes": 1047,
+              "loaded_receipt": false,
+              "active": false
+            },
+            {
+              "id": "startup:98e23e0280d5446e802c78308cd2d623:guide:1",
+              "record_kind": "statement",
+              "scope": "statement",
+              "dsl_bytes": 0,
+              "dsl_sha256": null,
+              "bundle_bytes": 1047,
+              "loaded_receipt": false,
+              "active": false
+            },
+            {
+              "id": "startup:98e23e0280d5446e802c78308cd2d623:guide:0",
+              "record_kind": "statement",
+              "scope": "statement",
+              "dsl_bytes": 0,
+              "dsl_sha256": null,
+              "bundle_bytes": 1047,
+              "loaded_receipt": false,
+              "active": false
+            },
+            {
+              "id": "startup:98e23e0280d5446e802c78308cd2d623:atom:0",
+              "record_kind": "statement",
+              "scope": "statement",
+              "dsl_bytes": 1047,
+              "dsl_sha256": "92e518f45d5fb49bd6618416aac9308a0b67e944a2df03964993c70c2eb38c56",
+              "bundle_bytes": 1047,
+              "loaded_receipt": true,
+              "active": false
+            }
+          ]
+        },
+        "runtime": {
+          "records": 41,
+          "pages": 1,
+          "reported_total": 41,
+          "cursor_exhausted": true,
+          "record_kinds": {
+            "job": 39,
+            "statement": 2
+          },
+          "generation_statuses": {
+            "completed": 28,
+            "stale": 13
+          },
+          "statement_dsl_records": 1,
+          "candidate_bundle_dsl_records": 0,
+          "separate_bundle_dsl_records": 0,
+          "stored_loading_receipt_records": 2,
+          "details_verified": 41,
+          "dsl_evidence": [
+            {
+              "id": "runtime:63170b40dfb84f88af9ab960bf7cd9c2:statement:0",
+              "record_kind": "statement",
+              "scope": "statement",
+              "dsl_bytes": 254,
+              "dsl_sha256": "d89b19873e514afc5436186d9c79120b6d906aa3d74e42bb89a6b005ae5fa7d2",
+              "bundle_bytes": 0,
+              "loaded_receipt": true,
+              "active": false
+            }
+          ]
+        }
+      },
+      "audit": {
+        "os": {
+          "records": 82,
+          "pages": 2,
+          "reported_total": null,
+          "cursor_exhausted": true,
+          "kinds": {
+            "kernel": 65,
+            "operation_verified": 17
+          },
+          "sources": {
+            "independent_probe": 57,
+            "kernel": 25
+          },
+          "detail_endpoint_verified": true,
+          "operation_recorded": 82,
+          "target_recorded": 82,
+          "pid_recorded": 82,
+          "process_domain_id_recorded": 82,
+          "rule_domain_id_recorded": 65,
+          "process_and_rule_domains_distinct": 63
+        },
+        "tools": {
+          "records": 132,
+          "pages": 3,
+          "reported_total": null,
+          "cursor_exhausted": true,
+          "kinds": {
+            "tool_result": 66,
+            "tool_start": 66
+          },
+          "sources": {
+            "native_tool": 132
+          },
+          "detail_endpoint_verified": true,
+          "operation_recorded": 132,
+          "target_recorded": 2,
+          "pid_recorded": 132,
+          "process_domain_id_recorded": 132,
+          "rule_domain_id_recorded": 0,
+          "process_and_rule_domains_distinct": 0
+        },
+        "control": {
+          "records": 67,
+          "pages": 2,
+          "reported_total": null,
+          "cursor_exhausted": true,
+          "kinds": {
+            "closed": 1,
+            "control_pause": 41,
+            "feedback_delivery": 22,
+            "policy_active": 3
+          },
+          "sources": {
+            "controller": 67
+          },
+          "detail_endpoint_verified": true,
+          "operation_recorded": 67,
+          "target_recorded": 0,
+          "pid_recorded": 0,
+          "process_domain_id_recorded": 12,
+          "rule_domain_id_recorded": 0,
+          "process_and_rule_domains_distinct": 0
+        }
+      },
+      "domains": {
+        "versions": [
+          {
+            "version": 3,
+            "domain_id": 1201577438,
+            "processes": [
+              {
+                "role": "runner",
+                "pid": 565195,
+                "recorded_at": "2026-10-06T12:23:04.167653+00:00",
+                "source": "managed_events.policy_active.binding.runner_pid",
+                "evidence_ref": "managed_events:16223:record",
+                "live": false,
+                "historical": true,
+                "history_only": true
+              },
+              {
+                "role": "watch",
+                "pid": 565145,
+                "recorded_at": "2026-10-06T12:23:04.167653+00:00",
+                "source": "managed_events.policy_active.binding.watch_pid",
+                "evidence_ref": "managed_events:16223:record",
+                "live": false,
+                "historical": true,
+                "history_only": true
+              }
+            ],
+            "executor": "not_recorded",
+            "task_domain_available": true,
+            "task_dsl_bytes": 4635,
+            "task_dsl_sha256": "6ce4d76d347c7cf26b3ded4c48b4cfbd17fdab52a38b9cee6ab99817eee28227",
+            "baseline_available": false,
+            "baseline_missing_reason": "trusted_baseline_material_not_recorded",
+            "missing_sources": [
+              {
+                "key": "v3:baseline",
+                "role": "baseline",
+                "reason": "trusted_baseline_material_not_recorded"
+              }
+            ],
+            "notice_present": true,
+            "checked_at": null
+          },
+          {
+            "version": 2,
+            "domain_id": 1400436267,
+            "processes": [
+              {
+                "role": "runner",
+                "pid": 561407,
+                "recorded_at": "2026-10-06T12:21:35.688685+00:00",
+                "source": "managed_events.policy_active.binding.runner_pid",
+                "evidence_ref": "managed_events:16145:record",
+                "live": false,
+                "historical": true,
+                "history_only": true
+              },
+              {
+                "role": "watch",
+                "pid": 561356,
+                "recorded_at": "2026-10-06T12:21:35.688685+00:00",
+                "source": "managed_events.policy_active.binding.watch_pid",
+                "evidence_ref": "managed_events:16145:record",
+                "live": false,
+                "historical": true,
+                "history_only": true
+              }
+            ],
+            "executor": "not_recorded",
+            "task_domain_available": true,
+            "task_dsl_bytes": 4852,
+            "task_dsl_sha256": "9fec5750abb52860a32cfa10cc3bae018bbb5a330e1ee6b457e531aeaf97f769",
+            "baseline_available": false,
+            "baseline_missing_reason": "trusted_baseline_material_not_recorded",
+            "missing_sources": [
+              {
+                "key": "v2:baseline",
+                "role": "baseline",
+                "reason": "trusted_baseline_material_not_recorded"
+              }
+            ],
+            "notice_present": true,
+            "checked_at": null
+          },
+          {
+            "version": 1,
+            "domain_id": 412587138,
+            "processes": [
+              {
+                "role": "runner",
+                "pid": 526547,
+                "recorded_at": "2026-10-06T12:10:55.985784+00:00",
+                "source": "managed_events.policy_active.binding.runner_pid",
+                "evidence_ref": "managed_events:15001:record",
+                "live": false,
+                "historical": true,
+                "history_only": true
+              },
+              {
+                "role": "watch",
+                "pid": 526504,
+                "recorded_at": "2026-10-06T12:10:55.985784+00:00",
+                "source": "managed_events.policy_active.binding.watch_pid",
+                "evidence_ref": "managed_events:15001:record",
+                "live": false,
+                "historical": true,
+                "history_only": true
+              }
+            ],
+            "executor": "not_recorded",
+            "task_domain_available": true,
+            "task_dsl_bytes": 4596,
+            "task_dsl_sha256": "725579a35fb0b75b310d22bba5b7aeec98e0e7bebe2be981996f39336ec3c105",
+            "baseline_available": false,
+            "baseline_missing_reason": "trusted_baseline_material_not_recorded",
+            "missing_sources": [
+              {
+                "key": "v1:baseline",
+                "role": "baseline",
+                "reason": "trusted_baseline_material_not_recorded"
+              }
+            ],
+            "notice_present": true,
+            "checked_at": null
+          }
+        ],
+        "live": false,
+        "historical": true,
+        "history_only": true,
+        "watch_semantics": "historical control/load monitor association, not execution domain membership",
+        "no_parent_pid_inference": true
+      },
+      "preparation_evidence": {
+        "records": 35,
+        "pages": 1,
+        "reported_total": 35,
+        "cursor_exhausted": true,
+        "kinds": {
+          "policy_approved": 1,
+          "policy_review": 1,
+          "compilation": 1,
+          "policy_version": 1,
+          "startup_finished": 1,
+          "startup_candidate": 1,
+          "startup_generation": 1,
+          "startup_started": 1,
+          "startup_job": 1,
+          "created": 1,
+          "file_snapshot": 23,
+          "task_context": 1,
+          "task_created": 1
+        },
+        "sources": {
+          "audit_log": 1,
+          "policy_versions": 2,
+          "history_compilations": 1,
+          "history_jobs": 3,
+          "bootstrap_proposals": 1,
+          "managed_events": 2,
+          "bootstrap_sources": 23,
+          "bootstrap_contexts": 1,
+          "tasks": 1
+        },
+        "sample_source_details_verified": [
+          {
+            "source": "bootstrap_contexts",
+            "id": "bootstrap_contexts:f39a5521abb04104:record",
+            "detail_fields": [
+              "context_hash",
+              "scenario_id",
+              "declared_constraints",
+              "platform_constraints",
+              "environment",
+              "mapping",
+              "assets",
+              "scenario_commit",
+              "scenario_hash"
+            ]
+          },
+          {
+            "source": "bootstrap_sources",
+            "id": "bootstrap_sources:fd39d4433b284464bf48b7ec9b128bf7:record",
+            "detail_fields": [
+              "role",
+              "path",
+              "content_hash",
+              "snapshot",
+              "content"
+            ]
+          },
+          {
+            "source": "history_jobs",
+            "id": "history_jobs:5e9ee49be3ae487bb48fcd52d23ef3c0:finished",
+            "detail_fields": [
+              "status",
+              "error",
+              "created_at",
+              "started_at",
+              "finished_at",
+              "retry_of",
+              "result"
+            ]
+          },
+          {
+            "source": "bootstrap_proposals",
+            "id": "bootstrap_proposals:98e23e0280d5446e802c78308cd2d623:record",
+            "detail_fields": [
+              "job_id",
+              "state",
+              "context_hash",
+              "content_hash",
+              "proposal",
+              "validation"
+            ]
+          },
+          {
+            "source": "policy_versions",
+            "id": "policy_versions:a16a5af61cad4e9dbf008015503c6340:review",
+            "detail_fields": [
+              "version",
+              "layer",
+              "status",
+              "dsl_text",
+              "compile_state",
+              "change_summary",
+              "approved_by",
+              "approved_at",
+              "evidence_ids",
+              "source_strategy_ids",
+              "compile"
+            ]
+          }
+        ],
+        "preparation_tools": {
+          "records": 69,
+          "pages": 1,
+          "reported_total": 69,
+          "cursor_exhausted": true
+        }
+      },
+      "version_scope_contract": {
+        "verified_historical_domain_dsl": "domains?version=N plus domains/vN:task",
+        "binding_source": "selected version policy_active receipt",
+        "header_execution": "last stored state, not selected-version frozen Scope",
+        "structured_full_scope_by_version": "not_exposed_by_current_archive_api",
+        "missing_scope_behavior": "do not substitute current managed state or fabricate permissions"
+      }
+    },
+    {
+      "task_id": "d5e21e674b464d16",
+      "name": "safety-delete-config",
+      "status": "failed",
+      "header": {
+        "history_only": true,
+        "execution_observation": "historical_receipts; live_state_not_checked",
+        "top_level_live_flag": null,
+        "top_level_historical_flag": null,
+        "labels_note": "root/header expose history_only and unchecked historical observation; explicit live/historical flags appear on policy/audit/domain APIs"
+      },
+      "archive_counts": {
+        "timeline": 834,
+        "tools": 202,
+        "kernel": 110,
+        "audit": 2
+      },
+      "missing": [
+        "runtime_review",
+        "closure_receipt"
+      ],
+      "policies": {
+        "startup": {
+          "records": 8,
+          "pages": 1,
+          "reported_total": 8,
+          "cursor_exhausted": true,
+          "record_kinds": {
+            "statement": 8
+          },
+          "generation_statuses": {
+            "completed": 8
+          },
+          "statement_dsl_records": 3,
+          "candidate_bundle_dsl_records": 0,
+          "separate_bundle_dsl_records": 8,
+          "stored_loading_receipt_records": 3,
+          "details_verified": 8,
+          "dsl_evidence": [
+            {
+              "id": "startup:804e505a96fb408280efbeb682332cb4:guide:4",
+              "record_kind": "statement",
+              "scope": "statement",
+              "dsl_bytes": 0,
+              "dsl_sha256": null,
+              "bundle_bytes": 965,
+              "loaded_receipt": false,
+              "active": false
+            },
+            {
+              "id": "startup:804e505a96fb408280efbeb682332cb4:guide:3",
+              "record_kind": "statement",
+              "scope": "statement",
+              "dsl_bytes": 0,
+              "dsl_sha256": null,
+              "bundle_bytes": 965,
+              "loaded_receipt": false,
+              "active": false
+            },
+            {
+              "id": "startup:804e505a96fb408280efbeb682332cb4:guide:2",
+              "record_kind": "statement",
+              "scope": "statement",
+              "dsl_bytes": 0,
+              "dsl_sha256": null,
+              "bundle_bytes": 965,
+              "loaded_receipt": false,
+              "active": false
+            },
+            {
+              "id": "startup:804e505a96fb408280efbeb682332cb4:guide:1",
+              "record_kind": "statement",
+              "scope": "statement",
+              "dsl_bytes": 0,
+              "dsl_sha256": null,
+              "bundle_bytes": 965,
+              "loaded_receipt": false,
+              "active": false
+            },
+            {
+              "id": "startup:804e505a96fb408280efbeb682332cb4:guide:0",
+              "record_kind": "statement",
+              "scope": "statement",
+              "dsl_bytes": 0,
+              "dsl_sha256": null,
+              "bundle_bytes": 965,
+              "loaded_receipt": false,
+              "active": false
+            },
+            {
+              "id": "startup:804e505a96fb408280efbeb682332cb4:atom:2",
+              "record_kind": "statement",
+              "scope": "statement",
+              "dsl_bytes": 332,
+              "dsl_sha256": "98a1f4c22d4d1c5a25d1892178dacbb530968d339649a6f42446c664ccc59f8a",
+              "bundle_bytes": 965,
+              "loaded_receipt": true,
+              "active": false
+            },
+            {
+              "id": "startup:804e505a96fb408280efbeb682332cb4:atom:1",
+              "record_kind": "statement",
+              "scope": "statement",
+              "dsl_bytes": 300,
+              "dsl_sha256": "660047440df05d07e452ce1bcf80100814e1c824ecbe817ac42f3d912e4a684a",
+              "bundle_bytes": 965,
+              "loaded_receipt": true,
+              "active": false
+            },
+            {
+              "id": "startup:804e505a96fb408280efbeb682332cb4:atom:0",
+              "record_kind": "statement",
+              "scope": "statement",
+              "dsl_bytes": 331,
+              "dsl_sha256": "8f7fde27a1728efdb92784bad671c2b34eadd41991dbc738c90f22e432840816",
+              "bundle_bytes": 965,
+              "loaded_receipt": true,
+              "active": false
+            }
+          ]
+        },
+        "runtime": {
+          "records": 42,
+          "pages": 1,
+          "reported_total": 42,
+          "cursor_exhausted": true,
+          "record_kinds": {
+            "statement": 5,
+            "job": 37
+          },
+          "generation_statuses": {
+            "completed": 31,
+            "stale": 11
+          },
+          "statement_dsl_records": 3,
+          "candidate_bundle_dsl_records": 0,
+          "separate_bundle_dsl_records": 2,
+          "stored_loading_receipt_records": 2,
+          "details_verified": 42,
+          "dsl_evidence": [
+            {
+              "id": "runtime:1761cfbeed424e9eb9ca93dadc060db8:statement:1",
+              "record_kind": "statement",
+              "scope": "statement",
+              "dsl_bytes": 0,
+              "dsl_sha256": null,
+              "bundle_bytes": 4491,
+              "loaded_receipt": false,
+              "active": false
+            },
+            {
+              "id": "runtime:1761cfbeed424e9eb9ca93dadc060db8:statement:0",
+              "record_kind": "statement",
+              "scope": "statement",
+              "dsl_bytes": 244,
+              "dsl_sha256": "1b8ae450762c2121425844436c701a961f132311de4132b198ef912deb0017c8",
+              "bundle_bytes": 4491,
+              "loaded_receipt": false,
+              "active": false
+            },
+            {
+              "id": "runtime:deb7cc3eca8448eebe38e60832b279d2:statement:1",
+              "record_kind": "statement",
+              "scope": "statement",
+              "dsl_bytes": 244,
+              "dsl_sha256": "1b8ae450762c2121425844436c701a961f132311de4132b198ef912deb0017c8",
+              "bundle_bytes": 0,
+              "loaded_receipt": true,
+              "active": false
+            },
+            {
+              "id": "runtime:deb7cc3eca8448eebe38e60832b279d2:statement:0",
+              "record_kind": "statement",
+              "scope": "statement",
+              "dsl_bytes": 244,
+              "dsl_sha256": "1b8ae450762c2121425844436c701a961f132311de4132b198ef912deb0017c8",
+              "bundle_bytes": 0,
+              "loaded_receipt": true,
+              "active": false
+            }
+          ]
+        }
+      },
+      "audit": {
+        "os": {
+          "records": 66,
+          "pages": 2,
+          "reported_total": null,
+          "cursor_exhausted": true,
+          "kinds": {
+            "kernel": 55,
+            "operation_verified": 11
+          },
+          "sources": {
+            "independent_probe": 60,
+            "kernel": 6
+          },
+          "detail_endpoint_verified": true,
+          "operation_recorded": 66,
+          "target_recorded": 66,
+          "pid_recorded": 66,
+          "process_domain_id_recorded": 66,
+          "rule_domain_id_recorded": 55,
+          "process_and_rule_domains_distinct": 39
+        },
+        "tools": {
+          "records": 160,
+          "pages": 4,
+          "reported_total": null,
+          "cursor_exhausted": true,
+          "kinds": {
+            "tool_result": 80,
+            "tool_start": 80
+          },
+          "sources": {
+            "native_tool": 136,
+            "independent_probe": 24
+          },
+          "detail_endpoint_verified": true,
+          "operation_recorded": 160,
+          "target_recorded": 96,
+          "pid_recorded": 160,
+          "process_domain_id_recorded": 160,
+          "rule_domain_id_recorded": 0,
+          "process_and_rule_domains_distinct": 0
+        },
+        "control": {
+          "records": 73,
+          "pages": 2,
+          "reported_total": null,
+          "cursor_exhausted": true,
+          "kinds": {
+            "failure": 5,
+            "control_pause": 42,
+            "feedback_delivery": 19,
+            "policy_active": 7
+          },
+          "sources": {
+            "controller": 73
+          },
+          "detail_endpoint_verified": true,
+          "operation_recorded": 73,
+          "target_recorded": 0,
+          "pid_recorded": 0,
+          "process_domain_id_recorded": 12,
+          "rule_domain_id_recorded": 0,
+          "process_and_rule_domains_distinct": 0
+        }
+      },
+      "domains": {
+        "versions": [
+          {
+            "version": 7,
+            "domain_id": 290146702,
+            "processes": [
+              {
+                "role": "runner",
+                "pid": 704947,
+                "recorded_at": "2026-10-06T13:45:19.778605+00:00",
+                "source": "managed_events.policy_active.binding.runner_pid",
+                "evidence_ref": "managed_events:18820:record",
+                "live": false,
+                "historical": true,
+                "history_only": true
+              },
+              {
+                "role": "watch",
+                "pid": 704902,
+                "recorded_at": "2026-10-06T13:45:19.778605+00:00",
+                "source": "managed_events.policy_active.binding.watch_pid",
+                "evidence_ref": "managed_events:18820:record",
+                "live": false,
+                "historical": true,
+                "history_only": true
+              }
+            ],
+            "executor": "not_recorded",
+            "task_domain_available": true,
+            "task_dsl_bytes": 4490,
+            "task_dsl_sha256": "9fe01f898813cbf1051de96658840a0a31ec38c7672b9cf3b6e3f6e52fb794f7",
+            "baseline_available": false,
+            "baseline_missing_reason": "missing_expected_bundle_hash",
+            "missing_sources": [
+              {
+                "key": "v7:baseline",
+                "role": "baseline",
+                "reason": "missing_expected_bundle_hash"
+              }
+            ],
+            "notice_present": true,
+            "checked_at": null
+          },
+          {
+            "version": 6,
+            "domain_id": 484070626,
+            "processes": [
+              {
+                "role": "runner",
+                "pid": 697924,
+                "recorded_at": "2026-10-06T13:43:06.334820+00:00",
+                "source": "managed_events.policy_active.binding.runner_pid",
+                "evidence_ref": "managed_events:18759:record",
+                "live": false,
+                "historical": true,
+                "history_only": true
+              },
+              {
+                "role": "watch",
+                "pid": 697883,
+                "recorded_at": "2026-10-06T13:43:06.334820+00:00",
+                "source": "managed_events.policy_active.binding.watch_pid",
+                "evidence_ref": "managed_events:18759:record",
+                "live": false,
+                "historical": true,
+                "history_only": true
+              }
+            ],
+            "executor": "not_recorded",
+            "task_domain_available": true,
+            "task_dsl_bytes": 4490,
+            "task_dsl_sha256": "9fe01f898813cbf1051de96658840a0a31ec38c7672b9cf3b6e3f6e52fb794f7",
+            "baseline_available": false,
+            "baseline_missing_reason": "trusted_baseline_material_not_recorded",
+            "missing_sources": [
+              {
+                "key": "v6:baseline",
+                "role": "baseline",
+                "reason": "trusted_baseline_material_not_recorded"
+              }
+            ],
+            "notice_present": true,
+            "checked_at": null
+          },
+          {
+            "version": 5,
+            "domain_id": 820679815,
+            "processes": [
+              {
+                "role": "runner",
+                "pid": 690164,
+                "recorded_at": "2026-10-06T13:39:31.168004+00:00",
+                "source": "managed_events.policy_active.binding.runner_pid",
+                "evidence_ref": "managed_events:18703:record",
+                "live": false,
+                "historical": true,
+                "history_only": true
+              },
+              {
+                "role": "watch",
+                "pid": 690115,
+                "recorded_at": "2026-10-06T13:39:31.168004+00:00",
+                "source": "managed_events.policy_active.binding.watch_pid",
+                "evidence_ref": "managed_events:18703:record",
+                "live": false,
+                "historical": true,
+                "history_only": true
+              }
+            ],
+            "executor": "not_recorded",
+            "task_domain_available": true,
+            "task_dsl_bytes": 4707,
+            "task_dsl_sha256": "edad2af64c6019d1c983caaff5b8b671c5094aaa657a044e2e6861d795fbd74e",
+            "baseline_available": false,
+            "baseline_missing_reason": "trusted_baseline_material_not_recorded",
+            "missing_sources": [
+              {
+                "key": "v5:baseline",
+                "role": "baseline",
+                "reason": "trusted_baseline_material_not_recorded"
+              }
+            ],
+            "notice_present": true,
+            "checked_at": null
+          },
+          {
+            "version": 4,
+            "domain_id": 559307901,
+            "processes": [
+              {
+                "role": "runner",
+                "pid": 665682,
+                "recorded_at": "2026-10-06T13:28:28.988108+00:00",
+                "source": "managed_events.policy_active.binding.runner_pid",
+                "evidence_ref": "managed_events:18365:record",
+                "live": false,
+                "historical": true,
+                "history_only": true
+              },
+              {
+                "role": "watch",
+                "pid": 665636,
+                "recorded_at": "2026-10-06T13:28:28.988108+00:00",
+                "source": "managed_events.policy_active.binding.watch_pid",
+                "evidence_ref": "managed_events:18365:record",
+                "live": false,
+                "historical": true,
+                "history_only": true
+              }
+            ],
+            "executor": "not_recorded",
+            "task_domain_available": true,
+            "task_dsl_bytes": 4707,
+            "task_dsl_sha256": "edad2af64c6019d1c983caaff5b8b671c5094aaa657a044e2e6861d795fbd74e",
+            "baseline_available": false,
+            "baseline_missing_reason": "trusted_baseline_material_not_recorded",
+            "missing_sources": [
+              {
+                "key": "v4:baseline",
+                "role": "baseline",
+                "reason": "trusted_baseline_material_not_recorded"
+              }
+            ],
+            "notice_present": true,
+            "checked_at": null
+          },
+          {
+            "version": 3,
+            "domain_id": 138678831,
+            "processes": [
+              {
+                "role": "runner",
+                "pid": 653444,
+                "recorded_at": "2026-10-06T13:24:43.712353+00:00",
+                "source": "managed_events.policy_active.binding.runner_pid",
+                "evidence_ref": "managed_events:18200:record",
+                "live": false,
+                "historical": true,
+                "history_only": true
+              },
+              {
+                "role": "watch",
+                "pid": 653396,
+                "recorded_at": "2026-10-06T13:24:43.712353+00:00",
+                "source": "managed_events.policy_active.binding.watch_pid",
+                "evidence_ref": "managed_events:18200:record",
+                "live": false,
+                "historical": true,
+                "history_only": true
+              }
+            ],
+            "executor": "not_recorded",
+            "task_domain_available": true,
+            "task_dsl_bytes": 4461,
+            "task_dsl_sha256": "f4b468ec1cfdb2f7e2d792003bb68b708042b073da602bb3ade5e843d43c5c5f",
+            "baseline_available": false,
+            "baseline_missing_reason": "trusted_baseline_material_not_recorded",
+            "missing_sources": [
+              {
+                "key": "v3:baseline",
+                "role": "baseline",
+                "reason": "trusted_baseline_material_not_recorded"
+              }
+            ],
+            "notice_present": true,
+            "checked_at": null
+          },
+          {
+            "version": 2,
+            "domain_id": 555529283,
+            "processes": [
+              {
+                "role": "runner",
+                "pid": 646842,
+                "recorded_at": "2026-10-06T13:19:24.504054+00:00",
+                "source": "managed_events.policy_active.binding.runner_pid",
+                "evidence_ref": "managed_events:18086:record",
+                "live": false,
+                "historical": true,
+                "history_only": true
+              },
+              {
+                "role": "watch",
+                "pid": 646804,
+                "recorded_at": "2026-10-06T13:19:24.504054+00:00",
+                "source": "managed_events.policy_active.binding.watch_pid",
+                "evidence_ref": "managed_events:18086:record",
+                "live": false,
+                "historical": true,
+                "history_only": true
+              }
+            ],
+            "executor": "not_recorded",
+            "task_domain_available": true,
+            "task_dsl_bytes": 4461,
+            "task_dsl_sha256": "f4b468ec1cfdb2f7e2d792003bb68b708042b073da602bb3ade5e843d43c5c5f",
+            "baseline_available": false,
+            "baseline_missing_reason": "trusted_baseline_material_not_recorded",
+            "missing_sources": [
+              {
+                "key": "v2:baseline",
+                "role": "baseline",
+                "reason": "trusted_baseline_material_not_recorded"
+              }
+            ],
+            "notice_present": true,
+            "checked_at": null
+          },
+          {
+            "version": 1,
+            "domain_id": 980537626,
+            "processes": [
+              {
+                "role": "runner",
+                "pid": 642164,
+                "recorded_at": "2026-10-06T13:14:59.123109+00:00",
+                "source": "managed_events.policy_active.binding.runner_pid",
+                "evidence_ref": "managed_events:17992:record",
+                "live": false,
+                "historical": true,
+                "history_only": true
+              },
+              {
+                "role": "watch",
+                "pid": 642121,
+                "recorded_at": "2026-10-06T13:14:59.123109+00:00",
+                "source": "managed_events.policy_active.binding.watch_pid",
+                "evidence_ref": "managed_events:17992:record",
+                "live": false,
+                "historical": true,
+                "history_only": true
+              }
+            ],
+            "executor": "not_recorded",
+            "task_domain_available": true,
+            "task_dsl_bytes": 4461,
+            "task_dsl_sha256": "f4b468ec1cfdb2f7e2d792003bb68b708042b073da602bb3ade5e843d43c5c5f",
+            "baseline_available": false,
+            "baseline_missing_reason": "trusted_baseline_material_not_recorded",
+            "missing_sources": [
+              {
+                "key": "v1:baseline",
+                "role": "baseline",
+                "reason": "trusted_baseline_material_not_recorded"
+              }
+            ],
+            "notice_present": true,
+            "checked_at": null
+          }
+        ],
+        "live": false,
+        "historical": true,
+        "history_only": true,
+        "watch_semantics": "historical control/load monitor association, not execution domain membership",
+        "no_parent_pid_inference": true
+      },
+      "preparation_evidence": {
+        "records": 20,
+        "pages": 1,
+        "reported_total": 20,
+        "cursor_exhausted": true,
+        "kinds": {
+          "policy_approved": 1,
+          "policy_review": 1,
+          "compilation": 1,
+          "policy_version": 1,
+          "startup_finished": 1,
+          "startup_candidate": 1,
+          "startup_started": 1,
+          "startup_generation": 1,
+          "startup_job": 1,
+          "created": 1,
+          "file_snapshot": 8,
+          "task_context": 1,
+          "task_created": 1
+        },
+        "sources": {
+          "audit_log": 1,
+          "policy_versions": 2,
+          "history_compilations": 1,
+          "history_jobs": 3,
+          "bootstrap_proposals": 1,
+          "managed_events": 2,
+          "bootstrap_sources": 8,
+          "bootstrap_contexts": 1,
+          "tasks": 1
+        },
+        "sample_source_details_verified": [
+          {
+            "source": "bootstrap_contexts",
+            "id": "bootstrap_contexts:d5e21e674b464d16:record",
+            "detail_fields": [
+              "context_hash",
+              "scenario_id",
+              "declared_constraints",
+              "platform_constraints",
+              "environment",
+              "mapping",
+              "assets",
+              "scenario_commit",
+              "scenario_hash"
+            ]
+          },
+          {
+            "source": "bootstrap_sources",
+            "id": "bootstrap_sources:d3c04769e84140d6a6d35085753f739a:record",
+            "detail_fields": [
+              "role",
+              "path",
+              "content_hash",
+              "snapshot",
+              "content"
+            ]
+          },
+          {
+            "source": "history_jobs",
+            "id": "history_jobs:015c7c8a37044cd5b013d0f7f5493290:finished",
+            "detail_fields": [
+              "status",
+              "error",
+              "created_at",
+              "started_at",
+              "finished_at",
+              "retry_of",
+              "result"
+            ]
+          },
+          {
+            "source": "bootstrap_proposals",
+            "id": "bootstrap_proposals:804e505a96fb408280efbeb682332cb4:record",
+            "detail_fields": [
+              "job_id",
+              "state",
+              "context_hash",
+              "content_hash",
+              "proposal",
+              "validation"
+            ]
+          },
+          {
+            "source": "policy_versions",
+            "id": "policy_versions:c906a932232d478b8eed7d8083589582:review",
+            "detail_fields": [
+              "version",
+              "layer",
+              "status",
+              "dsl_text",
+              "compile_state",
+              "change_summary",
+              "approved_by",
+              "approved_at",
+              "evidence_ids",
+              "source_strategy_ids",
+              "compile"
+            ]
+          }
+        ],
+        "preparation_tools": {
+          "records": 42,
+          "pages": 1,
+          "reported_total": 42,
+          "cursor_exhausted": true
+        }
+      },
+      "version_scope_contract": {
+        "verified_historical_domain_dsl": "domains?version=N plus domains/vN:task",
+        "binding_source": "selected version policy_active receipt",
+        "header_execution": "last stored state, not selected-version frozen Scope",
+        "structured_full_scope_by_version": "not_exposed_by_current_archive_api",
+        "missing_scope_behavior": "do not substitute current managed state or fabricate permissions"
+      }
+    }
+  ],
+  "cross_task_policy_detail": "404 verified",
+  "authority": {
+    "comparison": "whole-table deterministic row hashes in independent read-only SQLite snapshots; credentials never exported",
+    "before": {
+      "tasks": {
+        "rows": 300,
+        "sha256": "016e39a9e7e3ef5b692b9966cca2c567a20757032e0230d0f434eac588a02eb8"
+      },
+      "managed_tasks": {
+        "rows": 121,
+        "sha256": "d534ba84e7c7eafb99ef426cc88925affb8ea3a2decaf5cf9d1319ae83afd0f2"
+      },
+      "policy_versions": {
+        "rows": 120,
+        "sha256": "546bdad0ac30d96c4989fa5e88f0b08685670502270dfa63fe94960c09842dcb"
+      },
+      "task_credentials": {
+        "rows": 299,
+        "sha256": "fe2014ce4c1e506c0ede35adfb82d0a93f084c563652b18b999b0b98d0b891e0"
+      },
+      "managed_events": {
+        "rows": 19387,
+        "sha256": "a81848bc07ea70da9ef6fc0e8a63dedc17f74b407bb99f7450b60f6a25ae996c"
+      },
+      "managed_jobs": {
+        "rows": 669,
+        "sha256": "102e73680bf2988b9afc82523dd5779451a93ff471dfc276705a9d22424195fe"
+      },
+      "history_jobs": {
+        "rows": 70,
+        "sha256": "d3387c8856e1e6dccfc374cbf5dffafb5dc673d100d48cd4eea1ed3a3091eb55"
+      },
+      "bootstrap_contexts": {
+        "rows": 123,
+        "sha256": "04d6b7cf0ad062dca509a0fcc4cb020921195d15c5d3afbde43e3b16b3319d5b"
+      },
+      "bootstrap_sources": {
+        "rows": 1579,
+        "sha256": "4c4e7c21a1e37905cfc6a9d8e76891fa72e3533bb58dbadf7c3edc58994fe239"
+      },
+      "bootstrap_proposals": {
+        "rows": 83,
+        "sha256": "7ab5b7d7afb55130fcba2baa5de0627c0e6d213feae9f63dec40fb82f20bb773"
+      },
+      "bootstrap_versions": {
+        "rows": 76,
+        "sha256": "75c69c268109098572e5ba174038154589cb64d07f07977d2c49ed99a3cc022e"
+      },
+      "bootstrap_results": {
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "bootstrap_tool_events": {
+        "rows": 3784,
+        "sha256": "c0d1571eeb1f4268676cd1db56a5318d985e0fa4022b4419f8ed4f4cf74d2975"
+      },
+      "bootstrap_credentials": {
+        "rows": 97,
+        "sha256": "e4a73f520ab895762a1e103bd69e645da8378b3e79c5bf268d870a19dfbf88a2"
+      },
+      "history_compilations": {
+        "rows": 92,
+        "sha256": "a45c0d4582e2e62fbba5f7d1fc35fd883fadb19a06710001c6bacd319574285f"
+      },
+      "history_deployments": {
+        "rows": 18,
+        "sha256": "d218d6888046b143745aa3a6b63fe9d37da2cafada4a38346e2a809dd4c7dd80"
+      },
+      "scope_requests": {
+        "rows": 7,
+        "sha256": "838465aaa42cf396d9f3cfcf69e06065d392daefef3d514f80baf352907ad03f"
+      },
+      "scope_snapshots": {
+        "rows": 118,
+        "sha256": "b7ecb3bd6429a7d8c4f17a422d77c215896287aba7ec98aca4c427717780217b"
+      },
+      "workspace_task_sources": {
+        "rows": 4,
+        "sha256": "a4c2a70004ce4def85d8400ad9d83e07f9286eaee00a8efe044681789799ccaa"
+      },
+      "workspace_scene_reads": {
+        "rows": 5,
+        "sha256": "0cac2070ae0b793dbaef694284d744ba05678b04c4de1816e4b5c8bf082d65e8"
+      },
+      "scene_read_credentials": {
+        "rows": 5,
+        "sha256": "b834874b69093c5ac9f0d107e600921d30eb3edcd4c48389b2a6a67d71900cf7"
+      },
+      "scene_read_events": {
+        "rows": 81,
+        "sha256": "5ddcb2b8684bbe86ba97d2222b2d4695039501809e5a9e4d052823a9a75c96c5"
+      }
+    },
+    "after": {
+      "tasks": {
+        "rows": 300,
+        "sha256": "016e39a9e7e3ef5b692b9966cca2c567a20757032e0230d0f434eac588a02eb8"
+      },
+      "managed_tasks": {
+        "rows": 121,
+        "sha256": "d534ba84e7c7eafb99ef426cc88925affb8ea3a2decaf5cf9d1319ae83afd0f2"
+      },
+      "policy_versions": {
+        "rows": 120,
+        "sha256": "546bdad0ac30d96c4989fa5e88f0b08685670502270dfa63fe94960c09842dcb"
+      },
+      "task_credentials": {
+        "rows": 299,
+        "sha256": "fe2014ce4c1e506c0ede35adfb82d0a93f084c563652b18b999b0b98d0b891e0"
+      },
+      "managed_events": {
+        "rows": 19387,
+        "sha256": "a81848bc07ea70da9ef6fc0e8a63dedc17f74b407bb99f7450b60f6a25ae996c"
+      },
+      "managed_jobs": {
+        "rows": 669,
+        "sha256": "102e73680bf2988b9afc82523dd5779451a93ff471dfc276705a9d22424195fe"
+      },
+      "history_jobs": {
+        "rows": 70,
+        "sha256": "d3387c8856e1e6dccfc374cbf5dffafb5dc673d100d48cd4eea1ed3a3091eb55"
+      },
+      "bootstrap_contexts": {
+        "rows": 123,
+        "sha256": "04d6b7cf0ad062dca509a0fcc4cb020921195d15c5d3afbde43e3b16b3319d5b"
+      },
+      "bootstrap_sources": {
+        "rows": 1579,
+        "sha256": "4c4e7c21a1e37905cfc6a9d8e76891fa72e3533bb58dbadf7c3edc58994fe239"
+      },
+      "bootstrap_proposals": {
+        "rows": 83,
+        "sha256": "7ab5b7d7afb55130fcba2baa5de0627c0e6d213feae9f63dec40fb82f20bb773"
+      },
+      "bootstrap_versions": {
+        "rows": 76,
+        "sha256": "75c69c268109098572e5ba174038154589cb64d07f07977d2c49ed99a3cc022e"
+      },
+      "bootstrap_results": {
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "bootstrap_tool_events": {
+        "rows": 3784,
+        "sha256": "c0d1571eeb1f4268676cd1db56a5318d985e0fa4022b4419f8ed4f4cf74d2975"
+      },
+      "bootstrap_credentials": {
+        "rows": 97,
+        "sha256": "e4a73f520ab895762a1e103bd69e645da8378b3e79c5bf268d870a19dfbf88a2"
+      },
+      "history_compilations": {
+        "rows": 92,
+        "sha256": "a45c0d4582e2e62fbba5f7d1fc35fd883fadb19a06710001c6bacd319574285f"
+      },
+      "history_deployments": {
+        "rows": 18,
+        "sha256": "d218d6888046b143745aa3a6b63fe9d37da2cafada4a38346e2a809dd4c7dd80"
+      },
+      "scope_requests": {
+        "rows": 7,
+        "sha256": "838465aaa42cf396d9f3cfcf69e06065d392daefef3d514f80baf352907ad03f"
+      },
+      "scope_snapshots": {
+        "rows": 118,
+        "sha256": "b7ecb3bd6429a7d8c4f17a422d77c215896287aba7ec98aca4c427717780217b"
+      },
+      "workspace_task_sources": {
+        "rows": 4,
+        "sha256": "a4c2a70004ce4def85d8400ad9d83e07f9286eaee00a8efe044681789799ccaa"
+      },
+      "workspace_scene_reads": {
+        "rows": 5,
+        "sha256": "0cac2070ae0b793dbaef694284d744ba05678b04c4de1816e4b5c8bf082d65e8"
+      },
+      "scene_read_credentials": {
+        "rows": 5,
+        "sha256": "b834874b69093c5ac9f0d107e600921d30eb3edcd4c48389b2a6a67d71900cf7"
+      },
+      "scene_read_events": {
+        "rows": 81,
+        "sha256": "5ddcb2b8684bbe86ba97d2222b2d4695039501809e5a9e4d052823a9a75c96c5"
+      }
+    },
+    "unchanged": true
+  },
+  "process_identity": {
+    "before": {
+      "agentscope-local-dsh-web-20261007.service": {
+        "pid": 870966,
+        "start_ticks": 2300804
+      },
+      "agentscope-scope-demo-broker.service": {
+        "pid": 966501,
+        "start_ticks": 2467978
+      },
+      "agentscope-broker.service": {
+        "pid": 382,
+        "start_ticks": 38335
+      }
+    },
+    "after": {
+      "agentscope-local-dsh-web-20261007.service": {
+        "pid": 870966,
+        "start_ticks": 2300804
+      },
+      "agentscope-scope-demo-broker.service": {
+        "pid": 966501,
+        "start_ticks": 2467978
+      },
+      "agentscope-broker.service": {
+        "pid": 382,
+        "start_ticks": 38335
+      }
+    },
+    "unchanged": true
+  },
+  "http": {
+    "requests": 170,
+    "status_counts": {
+      "200": 169,
+      "404": 1
+    },
+    "paths": [
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies?stage=startup&view=statements&limit=200",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/startup%3A98e23e0280d5446e802c78308cd2d623%3Aguide%3A3",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/startup%3A98e23e0280d5446e802c78308cd2d623%3Aguide%3A2",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/startup%3A98e23e0280d5446e802c78308cd2d623%3Aguide%3A1",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/startup%3A98e23e0280d5446e802c78308cd2d623%3Aguide%3A0",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/startup%3A98e23e0280d5446e802c78308cd2d623%3Aatom%3A0",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies?stage=runtime&view=statements&limit=200",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3A10fa49ad7dbe4249a4da18e54f0574b6",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3A99a29b444f24488e91efa897e127eea2",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3A0d56f3ef6d8b4999a8bd5a28869c5c69",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3Aef5751f22c1b4d9ebf563e0396b9c225",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3A3afea2fcacbd4ee79bd4b2db2f6452ea",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3Aae83fbac6a374c7d99b25af15e7b16b2",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3A8669524f8d8446f5890193845e7fd858",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3A7f8e82b4ee1b4808b3db17db36bfe616",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3Aa7d1bd022b1a481a9ba46a977215158f%3Astatement%3A0",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3A7bdc246a81404011a87bda7672607cec",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3A63170b40dfb84f88af9ab960bf7cd9c2%3Astatement%3A0",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3A029947da17ce4330965a346497fa7fb5",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3A8a5bf5dd348a4e96abb9addb3bb6300b",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3A6d08afb91f2d4571afe9ac3a288f1f33",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3Ae98b025960674fa6a3b57540e5c0e0df",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3A13dfb886f78f4bb1949f9dd8016920f5",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3Aa816494600094b85904c22d7685b042c",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3A0a167c62c8314174a73b8b042140c7ed",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3A8ab0bf7305f5493cb3f72eb8af0604ff",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3Aeffc0e2de37545e0a50d89f6a6fd25d9",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3A8e55d155482c479a8250e9b7f684d734",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3A470e5ed182544417836c4daaf93bb3d7",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3Afd92388e784b43f3be6eb29ea25d549a",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3Aff44af290a334c93aed142d9407bac64",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3A64563dab44294a94891b67872aaaeb0b",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3A03b8d6fb1a144c11b6022159aaadfd81",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3Aac9a1d977e4f461886e754db7635c17e",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3Af804541f64f94d05961e7e0040894eb4",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3A4e28c4510fd5422880b3b3b88a3346a4",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3A0aa582c2db864075b3e9503c33989061",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3Ab918e346b0784e869dad90ff1d87fe16",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3A83a024d9a33e44cc8feda0344297db64",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3A135773d647e24b099c38772cd00a8795",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3A4316f3374460411c9c4a2dc8c4faf0df",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3Ab7eec05a14584ded96fac0b8140fe112",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3A66b6502a08ed4946acf6ca7e6c29672b",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3A3bf9cdee4ca942898db7829ae568fa16",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3Acc60f80fed314170a4501d67d7c60c7f",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3A5156fa06d01c491f9f7b7c3b8a49e8e1",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3A2813a5262a06470994847475d8bd53c1",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/policies/runtime%3A3e75d91465c14c8e80f93b53d087691a",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/audit?category=os",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/audit?category=os&before=15574",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/events/managed_events%3A16403%3Arecord",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/audit?category=tools",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/audit?category=tools&before=16093",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/audit?category=tools&before=15245",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/events/managed_events%3A16393%3Arecord",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/audit?category=control",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/audit?category=control&before=15378",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/events/managed_events%3A16400%3Arecord",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/domains",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/domains?version=3",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/domains/v3%3Atask",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/domains/v3%3Abaseline",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/domains?version=2",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/domains/v2%3Atask",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/domains/v2%3Abaseline",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/domains?version=1",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/domains/v1%3Atask",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/domains/v1%3Abaseline",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/events?category=timeline&stage=preparation&limit=200",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/events/bootstrap_contexts%3Af39a5521abb04104%3Arecord",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/events/bootstrap_sources%3Afd39d4433b284464bf48b7ec9b128bf7%3Arecord",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/events/history_jobs%3A5e9ee49be3ae487bb48fcd52d23ef3c0%3Afinished",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/events/bootstrap_proposals%3A98e23e0280d5446e802c78308cd2d623%3Arecord",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/events/policy_versions%3Aa16a5af61cad4e9dbf008015503c6340%3Areview",
+        "status": 200
+      },
+      {
+        "task_id": "f39a5521abb04104",
+        "method": "GET",
+        "path": "/api/tasks/f39a5521abb04104/archive/events?category=tools&stage=preparation&limit=200",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies?stage=startup&view=statements&limit=200",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/startup%3A804e505a96fb408280efbeb682332cb4%3Aguide%3A4",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/startup%3A804e505a96fb408280efbeb682332cb4%3Aguide%3A3",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/startup%3A804e505a96fb408280efbeb682332cb4%3Aguide%3A2",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/startup%3A804e505a96fb408280efbeb682332cb4%3Aguide%3A1",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/startup%3A804e505a96fb408280efbeb682332cb4%3Aguide%3A0",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/startup%3A804e505a96fb408280efbeb682332cb4%3Aatom%3A2",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/startup%3A804e505a96fb408280efbeb682332cb4%3Aatom%3A1",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/startup%3A804e505a96fb408280efbeb682332cb4%3Aatom%3A0",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies?stage=runtime&view=statements&limit=200",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3A1761cfbeed424e9eb9ca93dadc060db8%3Astatement%3A1",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3A1761cfbeed424e9eb9ca93dadc060db8%3Astatement%3A0",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3A04c72b63eed94a93b3cd8e04d89c18e1",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3Ab9c48b5801a644538add6f50b2a88b18",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3A22acf6b84b9e4245b1a4b362f083ae58",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3A51784388148c4afdb2cc6345ca3d4c2f",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3A8739b517195a478c811f2bba7d522be6",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3Ab540bdcf2c584b0588b964deb51328da",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3A8b949c8503274ebb81c99d69caa53210",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3A10ddaa3d39bd467894cfb25fe1143aff",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3Acc726e4591d34b30a7a718436cac4d3c%3Astatement%3A0",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3Ad7cba84491e140079d37a9b0d50ef860",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3A126fdb99f7f64f16bea2e015015389cc",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3A2085c2b4fec245568523ac3c5a73c9da",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3Ae33b0b25ba4f41b8b64045e5f497b676",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3A2a161e1034b34951ab6c03f788cb726f",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3A4f314a291d1c40a29a2f124e8b847cab",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3A4e2e7c9792c74106add43b2635c14330",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3A979aba3c4f75429ba2034b2f1e5b315b",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3Adb690e95958840968073685d72bdaa40",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3A0987df8438f94acaaa667497dc67691c",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3Ac94c5a34ea504c04b4bfb3979cbb0da0",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3A8769cad60ebb4b1181a9310dc899a831",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3Ab5dc0372b399454589fb2d90cfcff77d",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3Ac76a73429e7b43dea019a1fea11f65aa",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3Adeb7cc3eca8448eebe38e60832b279d2%3Astatement%3A1",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3Adeb7cc3eca8448eebe38e60832b279d2%3Astatement%3A0",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3A0379802f1c214da5bb1ef838c28f07b7",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3A4d29717deb744218b10a32bb77690c75",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3Aa1c248123d384c4ebae97a081ea0e2e7",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3Aa7ec5d572ccb48ccaeff1feb40b5bfde",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3A54d21c17280b4286897d98fc993e8953",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3A07e88430f0a643e3bda9fd2deb908c17",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3A5b89d73dd6934391a709fbe59e1b2152",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3A4ef3b79430ff4bf19442d31af73dd145",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3A5016cfd52be44cfeb8ef0c96dfad5c20",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3A97cf6c71d3384a06adbb074ecb593c77",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3A9be36eb27094415eafeb3baf07263c13",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3Ad088a7cd9c4e4a45b78c74124c843722",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3A41ecdc9fa83a4796800feb2aa4d96954",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3A3523c15be9f34aee9910960175f51e94",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/runtime%3Acefa254d9b9b4523bf1a6a1dfa85202c",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/audit?category=os",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/audit?category=os&before=18371",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/events/managed_events%3A18957%3Arecord",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/audit?category=tools",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/audit?category=tools&before=18731",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/audit?category=tools&before=18394",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/audit?category=tools&before=18049",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/events/managed_events%3A18978%3Arecord",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/audit?category=control",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/audit?category=control&before=18320",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/events/managed_events%3A18981%3Arecord",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/domains",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/domains?version=7",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/domains/v7%3Atask",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/domains/v7%3Abaseline",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/domains?version=6",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/domains/v6%3Atask",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/domains/v6%3Abaseline",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/domains?version=5",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/domains/v5%3Atask",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/domains/v5%3Abaseline",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/domains?version=4",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/domains/v4%3Atask",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/domains/v4%3Abaseline",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/domains?version=3",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/domains/v3%3Atask",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/domains/v3%3Abaseline",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/domains?version=2",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/domains/v2%3Atask",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/domains/v2%3Abaseline",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/domains?version=1",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/domains/v1%3Atask",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/domains/v1%3Abaseline",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/events?category=timeline&stage=preparation&limit=200",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/events/bootstrap_contexts%3Ad5e21e674b464d16%3Arecord",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/events/bootstrap_sources%3Ad3c04769e84140d6a6d35085753f739a%3Arecord",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/events/history_jobs%3A015c7c8a37044cd5b013d0f7f5493290%3Afinished",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/events/bootstrap_proposals%3A804e505a96fb408280efbeb682332cb4%3Arecord",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/events/policy_versions%3Ac906a932232d478b8eed7d8083589582%3Areview",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/events?category=tools&stage=preparation&limit=200",
+        "status": 200
+      },
+      {
+        "task_id": "d5e21e674b464d16",
+        "method": "GET",
+        "path": "/api/tasks/d5e21e674b464d16/archive/policies/startup%3A98e23e0280d5446e802c78308cd2d623%3Aguide%3A3",
+        "status": 404
+      }
+    ]
+  },
+  "coverage_limits": [
+    "Historical DSL and PIDs do not prove current liveness or effective policy.",
+    "OS audit covers saved kernel denials and independent probes, not all syscalls.",
+    "Tool success is not kernel allow.",
+    "Archive root/header use history_only; policies/audit/domains provide explicit historical/live flags.",
+    "Missing executor/baseline/statement materials remain not_recorded.",
+    "No evaluator inputs, private streams, raw runtime contexts or credentials exported."
+  ]
+}

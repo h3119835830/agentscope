@@ -27,6 +27,8 @@ MAX_FILES, MAX_FILE_BYTES, MAX_TOTAL_BYTES = 1500, 16 * 1024 * 1024, 64 * 1024 *
 def init():
     with db.connect() as con:
         con.executescript(SCHEMA)
+        from .connections import SCHEMA as CONNECTION_SCHEMA
+        con.executescript(CONNECTION_SCHEMA)
         columns = {row[1] for row in con.execute('PRAGMA table_info(agent_workspaces)')}
         for name, declaration in [('native_workspace_id', 'TEXT'), ('instance_generation', 'TEXT'),
                                   ('session_ids_json', "TEXT NOT NULL DEFAULT '[]'"),

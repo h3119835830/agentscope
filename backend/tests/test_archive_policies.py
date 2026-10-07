@@ -34,7 +34,7 @@ def startup_job(task,status='completed'):
 def candidate(task,job,state='validated'):
     pid=ident();source='source-'+pid;dsl='rule bootstrap-1:\n  block file.write "/tmp/work/config.json"'
     p={'draft':{'summary':'Protect config','atoms':[{'statement':'Do not overwrite config.json','evidence_ids':[source],'operations':['write'],'paths':['/tmp/work/config.json'],'decision':'block','reason':'Keep original'}],'guidance':['Run the tests after changes.']},'actplane_dsl':dsl}
-    v={'compiler':{'ok':True,'rules':[{'name':'bootstrap-1','source_start_line':1,'source_text':dsl}]}}
+    v={'compiler':{'ok':True,'rules':[{'name':'bootstrap-1','source_start_line':1,'source_text':dsl,'target_pattern':'/tmp/work/config.json','clause_text':'  block file.write \"/tmp/work/config.json\"','clause_op':'write','clause_start_line':2}]}}
     with db.connect() as con:
         con.execute('INSERT INTO bootstrap_sources VALUES(?,?,?,?,?,?,?)',(source,task,'asset','config.json','PRIVATE_SOURCE_BYTES',digest('PRIVATE_SOURCE_BYTES'),'{}'))
         con.execute('INSERT INTO bootstrap_proposals VALUES(?,?,?,?,?,?,?,?,?)',(pid,task,job,'context-hash',digest(p),json.dumps(p),json.dumps(v),state,db.now()))
@@ -214,3 +214,83 @@ def test_unmapped_statement_does_not_borrow_bundle_loaded(task):
     assert detail['loading']['loaded'] is True
     assert detail['statements'][0]['loading']['loaded'] is False
     assert detail['statements'][0]['loading']['status']=='mapping_not_recorded'
+
+
+
+def test_real_three_statement_shape_retained_output_expansion_and_content(task):
+    job,p=runtime_job(task,'completed','expand')
+    original='Do not overwrite frontend/report.py. Do not write output yet.'
+    output='现在需要把真实功能测试结果与修复摘要写到任务专属 output/summary.txt。'
+    statements=[
+        {'statement':'Do not overwrite frontend/report.py','policy_type':'per_event','context_required':True,'context_reason':'Retain original protection','evidence_ids':['19093']},
+        {'statement':output,'policy_type':'per_event','context_required':True,'context_reason':'Explicit output request','evidence_ids':['19346','19093']},
+        {'statement':'Avoid web_search for this task','policy_type':'content','context_required':True,'context_reason':'Task content guidance','evidence_ids':['19346']},
+    ]
+    p.update(identified_statements=statements,protected_paths=[],allow_output=True)
+    dsl='rule startup:\n  block file.write "/tmp/work/frontend/report.py"\nrule unrelated:\n  block file.write "/tmp/work/other.txt"'
+    p.update(compiled_dsl=dsl,compiled_dsl_hash=records.digest(dsl),compile={'ok':True,'rules':[
+        {'name':'startup','target_pattern':'/tmp/work/frontend/report.py','clause_op':'write','clause_text':'  block file.write "/tmp/work/frontend/report.py"','source_start_line':1,'clause_start_line':2},
+        {'name':'unrelated','target_pattern':'/tmp/work/other.txt','clause_op':'write','clause_text':'  block file.write "/tmp/work/other.txt"','source_start_line':3,'clause_start_line':4},
+    ]})
+    ctx={'request_evidence_id':'19346','policy_hash':'old-policy-hash','current_binding':{'version':3,'domain_id':41},'base_snapshot':{'payload':{'allow_output':False,'protected_paths':[],'allowed_write_dirs':['.']}},'baseline':{'protected_files':['/tmp/work/frontend/report.py']},'sources':[
+        {'evidence_id':'19093','content':{'actor':'native_user','text':original}},
+        {'evidence_id':'19346','content':{'actor':'native_user','text':output+'请先申请 output 目录写入权限，等人工审核并加载核验后再写报告；其他权限保持不变。'}},
+    ],'capabilities':{'execution_targets':[{'kind':'task_output','path':'/tmp/output','granted':False,'operations':['write','unlink'],'authority':'controller_verified_loaded_snapshot','policy_version':3,'policy_hash':'old-policy-hash'}]}}
+    with db.connect() as con:con.execute('UPDATE managed_jobs SET context_json=?,proposal_json=? WHERE id=?',(json.dumps(ctx),json.dumps(p),job))
+    first=policies.policy_detail(task,'runtime:'+job+':statement:0')
+    assert first['statement_effect']=='retained' and first['compilation']['reused'] is True
+    assert 'frontend/report.py' in first['compilation']['dsl'] and 'other.txt' not in first['compilation']['dsl']
+    assert first['compilation']['has_new_os_rule'] is False and first['compilation']['mapping_scope']=='target'
+    second=policies.policy_detail(task,'runtime:'+job+':statement:1')
+    assert second['statement_effect']=='expand' and second['change_status']=='permission_changed'
+    assert second['permission_delta']['source_evidence_ids']==['19346']
+    assert second['permission_delta']['allow_output_before'] is False and second['permission_delta']['allow_output_after'] is True
+    assert second['compilation']['dsl']=='' and second['dsl_diff']['status']=='not_recorded' and second['dsl_diff']['removed_clauses']==[]
+    third=policies.policy_detail(task,'runtime:'+job+':statement:2')
+    assert third['statement_effect']=='guidance' and third['compilation']['dsl']=='' and third['operations']==[]
+    page=policies.policy_records(task,'runtime',view='statements')
+    assert page['total']==3 and {r['statement'] for r in page['records']}=={s['statement'] for s in statements}
+    assert all(r['compilation']['scope']=='statement' for r in page['records'])
+    assert len(policies.policy_records(task,'runtime')['records'])==1
+
+
+def test_corrupt_statement_remains_listed_as_unavailable_without_parent_substitution(task):
+    job,p=runtime_job(task)
+    p['compiled_dsl_hash']='incorrect'
+    with db.connect() as con:con.execute('UPDATE managed_jobs SET proposal_json=? WHERE id=?',(json.dumps(p),job))
+    page=policies.policy_records(task,'runtime',view='statements')
+    assert page['total']==1 and page['records'][0]['id']=='runtime:'+job+':statement:0'
+    assert page['records'][0]['material_status']=='unavailable' and not page['records'][0]['detail_available']
+    assert page['records'][0]['record_kind']=='statement' and page['records'][0]['parent_id']=='runtime:'+job
+    with pytest.raises(HTTPException) as error:policies.policy_detail(task,'runtime:'+job+':statement:0')
+    assert error.value.status_code==404
+
+
+
+@pytest.mark.parametrize('stage',['startup','runtime'])
+def test_unavailable_statements_preserve_identity_total_and_pagination(task,stage):
+    if stage=='runtime':
+        job,p=runtime_job(task)
+        p['identified_statements']=p['identified_statements']*5
+        p['compiled_dsl_hash']='incorrect'
+        with db.connect() as con:con.execute('UPDATE managed_jobs SET proposal_json=? WHERE id=?',(json.dumps(p),job))
+        expected={'runtime:'+job+':statement:'+str(i) for i in range(5)}
+        parent='runtime:'+job
+    else:
+        job=startup_job(task);pid,_=candidate(task,job)
+        with db.connect() as con:con.execute("UPDATE bootstrap_proposals SET content_hash='incorrect' WHERE id=?",(pid,))
+        expected={'startup:'+pid+':atom:0','startup:'+pid+':guide:0'}
+        parent='startup_job:'+job
+    rows=[];before=None
+    while True:
+        page=policies.policy_records(task,stage,before,1,view='statements')
+        assert page['total']==len(expected)
+        rows.extend(page['records']);before=page['next_cursor']
+        if before is None:break
+    assert {r['id'] for r in rows}==expected and len(rows)==len(expected)
+    assert all(r['record_kind']=='statement' and r['parent_id']==parent and not r['detail_available'] for r in rows)
+    assert all(r['statement']=='策略语句材料不可用' and r['material_status']=='unavailable' for r in rows)
+    assert len({r['id']:r for r in rows})==page['total']
+    for row in rows:
+        with pytest.raises(HTTPException) as error:policies.policy_detail(task,row['id'])
+        assert error.value.status_code==404

@@ -8,6 +8,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from ..broker_client import call as broker
 from .. import db
+from .connections import record_safely, retire_missing
 
 INTERVAL = 3
 TIMEOUT = 2
@@ -84,10 +85,11 @@ class Observer:
                 self.invalidate()
             self.stop_event.wait(max(.05, INTERVAL-(time.monotonic()-began)))
 
-    def invalidate(self):
+    def invalidate(self, manual=None):
         with self.lock:
             for row in self.rows.values():
                 row.update(status='unknown', connected=False, available=False, error='控制接口不可达，实例当前状态未知')
+                record_safely(row, 'control_unavailable', manual=manual==row['id'])
 
     def collect(self, selected=None):
         # A manual check always performs a new broker roundtrip, never returns an
@@ -95,12 +97,15 @@ class Observer:
         with self.collect_lock:
             active, failed_candidates = managed_catalog()
             with self.lock:
+                for key, row in self.rows.items():
+                    if not retain_managed_row(row, key, active, failed_candidates):
+                        record_safely({**row, 'status':'ended', 'connected':False, 'available':False}, 'binding_ended')
                 self.rows = {key: row for key, row in self.rows.items()
                              if retain_managed_row(row, key, active, failed_candidates)}
             try:
                 inventory = broker({'action': 'dsh-instance-inventory'}, timeout=TIMEOUT)['instances']
             except Exception:
-                self.invalidate()
+                self.invalidate(selected)
                 with self.lock:
                     for task_id, item in active.items():
                         state = item['state']
@@ -115,11 +120,17 @@ class Observer:
                                 'error': '控制接口不可达，实例当前状态未知',
                                 'observed_at': iso(observed), 'expires_at': iso(observed+TTL),
                                 '_observed': observed, '_monotonic': time.monotonic()}
+                            record_safely(self.rows[instance_id], 'control_unavailable', manual=selected==instance_id)
                 if selected:
                     raise ValueError('实例清单不可用，请重试')
                 return
             inventory = [row for row in inventory if row.get('kind') != 'managed' or row.get('task_id') in active or row.get('task_id') in failed_candidates]
             present = {row['id'] for row in inventory}
+            with self.lock:
+                for key, old in self.rows.items():
+                    if old.get('kind') == 'native' and key not in present:
+                        record_safely({**old, 'status':'removed', 'connected':False, 'available':False},
+                                      'registration_removed', manual=selected==key)
             # Keep recheck entries only for active web bindings. Failed or
             # headless archives must never synthesize a managed web instance.
             for task_id, item in active.items():
@@ -165,6 +176,11 @@ class Observer:
                                 'observed_at': iso(observed), 'expires_at': iso(observed+TTL),
                                 '_observed': observed, '_monotonic': time.monotonic(), '_live_confirmed_failed': live_failed})
             pool.shutdown(wait=False, cancel_futures=True)
+            if not selected:
+                # Persist removals even if a read already pruned memory, or the API restarted.
+                retire_missing({row['id'] for row in inventory if row.get('kind')=='native'},
+                               {'managed:'+task for task in active} |
+                               {row['id'] for row in results if row.get('kind')=='managed'})
             with self.lock:
                 if not selected:
                     self.rows = {row['id']: row for row in results}
@@ -173,6 +189,7 @@ class Observer:
                     self.rows.update({row['id']: row for row in results})
             from .registry import sync_observation
             for row in results:
+                record_safely(row, manual=selected==row['id'])
                 if row.get('connected'):
                     sync_observation(row)
 

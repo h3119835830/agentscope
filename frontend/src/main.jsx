@@ -72,6 +72,7 @@ function App() {
 
   const notify = useCallback(message => { setToast(message); setTimeout(() => setToast(''), 4200); }, []);
   const refresh = useCallback(async () => {
+    if(page==='history')return;
     try {
       const [s, d, t, g, wt] = await Promise.all([
         api('/api/status'), api('/api/dashboard'), api('/api/tasks'), api('/api/governance'),api('/api/workspace-tasks'),
@@ -79,11 +80,12 @@ function App() {
       setStatus(s); setDash(d); setTasks(uniqueTasks([...t,...(wt.records||[])])); setGovernance(g);
     } catch (e) { notify(e.message); }
   }, [selected, page, notify]);
-  useEffect(() => { refresh(); const timer = setInterval(refresh, 7000); return () => clearInterval(timer); }, [refresh]);
+  useEffect(() => { if(page==='history')return; refresh(); const timer = setInterval(refresh, 7000); return () => clearInterval(timer); }, [refresh,page]);
   useEffect(() => {
+    if(page==='history')return;
     api(`/api/strategies?q=${encodeURIComponent(strategyQuery)}&limit=200${strategyStatus ? `&status=${strategyStatus}` : ''}`)
       .then(setStrategies).catch(() => {});
-  }, [strategyQuery, strategyStatus]);
+  }, [strategyQuery, strategyStatus,page]);
 
   const withBusy = async fn => {
     setBusy(true);
@@ -110,12 +112,12 @@ function App() {
       <div className="side-foot" title={`Linux VM · ${status?.architecture || '连接中'} · ActPlane 执行后端`}><span className={`pulse ${status?.bpf_lsm ? 'ok' : 'bad'}`} /><span className="side-foot-copy">Linux VM · {status?.architecture || '连接中'}<br/><span className="muted">ActPlane 执行后端</span></span></div>
     </aside>
     <main className="main">
-      <header className="topbar"><div><span className="crumb">AgentScope</span><span className="slash">/</span><b>{pageTitle(page)}</b></div><div className="top-right"><span className={`status-pill ${status?.broker?.available && status?.bpf_lsm ? 'good' : 'warn'}`}><i />{status?.broker?.available && status?.bpf_lsm ? '执行后端可用' : '执行后端待检查'}</span></div></header>
+      <header className="topbar"><div><span className="crumb">AgentScope</span><span className="slash">/</span><b>{pageTitle(page)}</b></div><div className="top-right">{page==='history'?<span className="status-pill neutral">历史回放</span>:<span className={`status-pill ${status?.broker?.available && status?.bpf_lsm ? 'good' : 'warn'}`}><i />{status?.broker?.available && status?.bpf_lsm ? '执行后端可用' : '执行后端待检查'}</span>}</div></header>
       {page === 'overview' && <Overview dash={dash} status={status} tasks={tasks} onSelect={openTask} onCreate={createTask} onNav={setPage} />}
-      <div hidden={page!=='workbench'}><div className="content workbench-selector"><label>当前任务<select aria-label="当前工作台任务" value={selected} onChange={e=>navigate({task:e.target.value})}><option value="">新建任务</option>{selected&&!selectableTasks(tasks).some(t=>t.id===selected)&&<option value={selected}>{isTaskEnded(tasks.find(t=>t.id===selected))?'历史任务（只读）':'选定任务（查看与恢复）'}</option>}{selectableTasks(tasks).map(t=><option key={t.id} value={t.id}>{t.name||t.id}</option>)}</select></label><button className="button ghost" onClick={()=>navigate({page:'history',...(selected&&isTaskEnded(tasks.find(t=>t.id===selected))?{archiveTask:selected,archivePane:'startup'}:{})})}>历史策略与审计</button></div>{!selected?<TaskHub api={api} post={post} notify={notify} tasks={tasks} task="" onSelectTask={id=>navigate({task:id,workbenchSection:'startup'})} onFollowTask={id=>navigate({task:id})} onAgents={()=>setPage('connections')} workspaceSeed={navigation.workspace} agentSeed={navigation.agent} onContext={context=>navigate(context)} createOnly/>:<ManagedWorkbench api={api} post={post} notify={notify} task={selected} onSelectTask={selectTask} onCreateTask={createTask} onTaskRecord={()=>navigate({workbenchSection:'startup'})} readOnly={isTaskEnded(tasks.find(t=>t.id===selected))} sourceTask={tasks.find(t=>t.id===selected)} section={navigation.workbenchSection} onSection={workbenchSection=>navigate({workbenchSection})}/>}</div>
+      <div hidden={page!=='workbench'}><div className="content workbench-selector"><label>当前任务<select aria-label="当前工作台任务" value={selected} onChange={e=>navigate({task:e.target.value})}><option value="">新建任务</option>{selected&&!selectableTasks(tasks).some(t=>t.id===selected)&&<option value={selected}>{isTaskEnded(tasks.find(t=>t.id===selected))?'历史任务（只读）':'选定任务（查看与恢复）'}</option>}{selectableTasks(tasks).map(t=><option key={t.id} value={t.id}>{t.name||t.id}</option>)}</select></label></div>{page==='workbench'&&(!selected?<TaskHub api={api} post={post} notify={notify} tasks={tasks} task="" onSelectTask={id=>navigate({task:id,workbenchSection:'startup'})} onFollowTask={id=>navigate({task:id})} onAgents={()=>setPage('connections')} workspaceSeed={navigation.workspace} agentSeed={navigation.agent} onContext={context=>navigate(context)} createOnly/>:<ManagedWorkbench api={api} post={post} notify={notify} task={selected} onSelectTask={selectTask} onCreateTask={createTask} onTaskRecord={()=>navigate({workbenchSection:'startup'})} readOnly={isTaskEnded(tasks.find(t=>t.id===selected))} sourceTask={tasks.find(t=>t.id===selected)} section={navigation.workbenchSection} onSection={workbenchSection=>navigate({workbenchSection})}/>)}</div>
       <div hidden={page!=='history'}><TaskArchive api={api} navigation={navigation} navigate={navigate}/></div>
       {page === 'strategies' && <HistoryLibrary moduleIndex={historyModuleIndex} modules={HISTORY_MODULES} onModuleChange={setHistoryModuleIndex} api={api} post={post} tasks={tasks} busy={busy} action={withBusy} notify={notify} selectTask={openTask} />}
-      <div hidden={page!=='connections'}><AgentWorkspaces api={api} post={post} notify={notify} onCreateTask={createTask} tasks={tasks} active={page==='connections'} agentSeed={navigation.connectionAgent} workspaceSeed={navigation.connectionWorkspace} onContext={context=>navigate(context)} /></div>
+      {page!=='history'&&<div hidden={page!=='connections'}><AgentWorkspaces api={api} post={post} notify={notify} onCreateTask={createTask} onOpenTask={openTask} tasks={tasks} active={page==='connections'} agentSeed={navigation.connectionAgent} workspaceSeed={navigation.connectionWorkspace} pane={navigation.connectionsPane} historySeed={navigation.connectionHistory} onContext={context=>navigate(context)} /></div>}
       {page === 'governance' && <Governance rows={governance} busy={busy} action={withBusy} notify={notify} />}
     </main>
     {toast && <div className="toast">{toast}</div>}

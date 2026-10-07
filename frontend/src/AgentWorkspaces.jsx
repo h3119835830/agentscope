@@ -2,7 +2,8 @@ import React,{useEffect,useRef,useState} from 'react';
 import {displayName,timeLabel} from './taskPresentation.mjs';
 import './taskConsole.css';
 import './connections.css';
-import {instanceState,visibleInstances,canReadWorkspace} from './consoleState.mjs';
+import {instanceState,visibleInstances,canReadWorkspace,tabKeys} from './consoleState.mjs';
+import ConnectionHistory from './ConnectionHistory.jsx';
 
 export function FieldRecords({items}) {
   return <dl className="task-fields">{items.map(([label,value])=><React.Fragment key={label}><dt>{label}</dt><dd>{value===undefined||value===null||value===''?'—':value}</dd></React.Fragment>)}</dl>;
@@ -38,13 +39,14 @@ function ConnectionEvidence({agent,failed,error,now,onClose}){
  return <dialog ref={dialog} className="record-drawer" aria-label="Agent连接证据" onCancel={onClose}><div className="record-drawer-head"><h2>连接证据</h2><button className="button ghost tiny" onClick={onClose}>关闭</button></div><div className="record-drawer-body"><FieldRecords items={values.map(([label,value])=>[label,value===undefined||value===null||value===''?'未记录':value])}/></div></dialog>;
 }
 
-export default function AgentWorkspaces({api,post,notify,onCreateTask,tasks=[],active=true,agentSeed='',workspaceSeed='',onContext}) {
+export default function AgentWorkspaces({api,post,notify,onCreateTask,tasks=[],active=true,agentSeed='',workspaceSeed='',onContext,pane='current',historySeed='',onOpenTask}) {
  const [agents,setAgents]=useState([]),[instance,setInstance]=useState(agentSeed),[workspaces,setWorkspaces]=useState([]),[selected,setSelected]=useState(workspaceSeed);
  const [inventory,setInventory]=useState(null),[loading,setLoading]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState(''),[failed,setFailed]=useState(false),[now,setNow]=useState(Date.now());
  const [adding,setAdding]=useState(false),[name,setName]=useState(''),[path,setPath]=useState(''),[revision,setRevision]=useState(0),[connectionDetail,setConnectionDetail]=useState(null);
  const fileTrigger=useRef(null);
+ const [historyRevision,setHistoryRevision]=useState(0);
  const seq=useRef(0),workspaceSeq=useRef(0),current=agents.find(a=>a.id===instance),status=instanceState(current,now,failed);
- async function refresh(check){const n=++seq.current;setFailed(true);try{const r=check?await post(`/api/workspace-agents/${encodeURIComponent(check)}/check`):await api('/api/workspace-agents');if(n!==seq.current)return;setAgents(r.agents||[]);setFailed(false);setError('');}catch(e){if(n===seq.current){setFailed(true);setError(e.message);}}}
+ async function refresh(check){const n=++seq.current;setFailed(true);try{const r=check?await post(`/api/workspace-agents/${encodeURIComponent(check)}/check`):await api('/api/workspace-agents');if(n!==seq.current)return;setAgents(r.agents||[]);setFailed(false);setError('');}catch(e){if(n===seq.current){setFailed(true);setError(e.message);}}finally{if(check)setHistoryRevision(v=>v+1);}}
  useEffect(()=>{refresh();const t=setInterval(()=>refresh(),7000),clock=setInterval(()=>setNow(Date.now()),1000);return()=>{seq.current++;clearInterval(t);clearInterval(clock);};},[api]);
  useEffect(()=>{const n=++workspaceSeq.current;setWorkspaces([]);setAdding(false);if(!instance)return;api(`/api/workspace-agents/${encodeURIComponent(instance)}/workspaces`).then(r=>{if(n===workspaceSeq.current)setWorkspaces(r.workspaces||[]);}).catch(e=>{if(n===workspaceSeq.current)setError(e.message);});return()=>{workspaceSeq.current++;};},[instance,revision]);
  useEffect(()=>setInstance(agentSeed),[agentSeed]);
@@ -54,7 +56,9 @@ export default function AgentWorkspaces({api,post,notify,onCreateTask,tasks=[],a
  useEffect(()=>{onContext?.({connectionAgent:instance,connectionWorkspace:selected});},[instance,selected]);
  useEffect(()=>{let active=true;setInventory(null);if(!selected||!canReadWorkspace(workspaces,selected)){setLoading(false);return;}setLoading(true);api(`/api/agent-workspaces/${selected}/files`).then(r=>{if(active)setInventory(r);}).catch(e=>{if(active)setError(e.message);}).finally(()=>{if(active)setLoading(false);});return()=>{active=false;};},[selected,revision,workspaces]);
  async function run(fn){setBusy(true);try{await fn();}catch(e){notify(e.message);}finally{setBusy(false);}}
- return <div className="content task-console agent-connections"><div className="task-console-heading"><div><h1>Agent连接</h1><p>选择真实实例，查看它的工作区。</p></div><button className="button ghost" disabled={busy} onClick={()=>refresh()}>重新检查</button></div>
+ return <div className="content task-console agent-connections"><div className="task-console-heading"><div><h1>Agent连接</h1><p>查看当前实例，或回查连接过程与关联任务。</p></div><button className="button ghost" disabled={busy} onClick={()=>pane==='history'?setHistoryRevision(v=>v+1):refresh()}>{pane==='history'?'刷新历史':'刷新状态'}</button></div>
+ <div className="task-hub-tabs" role="tablist" aria-label="连接视图">{[['current','当前连接'],['history','连接历史']].map(([key,label])=><button type="button" key={key} id={`connection-tab-${key}`} role="tab" aria-controls={`connection-pane-${key}`} aria-selected={pane===key} tabIndex={pane===key?0:-1} className={pane===key?'active':''} onClick={()=>onContext?.({connectionsPane:key})} onKeyDown={event=>tabKeys(event,['current','history'],pane,key=>onContext?.({connectionsPane:key}))}>{label}</button>)}</div>
+ {pane==='history'?<div id="connection-pane-history" role="tabpanel" aria-labelledby="connection-tab-history"><ConnectionHistory api={api} active={active} revision={historyRevision} selected={historySeed} onSelect={id=>onContext?.({connectionHistory:id})} onOpenTask={onOpenTask}/></div>:<div id="connection-pane-current" role="tabpanel" aria-labelledby="connection-tab-current">
  {error&&<p role="alert" className="inline-notice warning">检查失败：{error}。连接状态未知。</p>}
  {['native','managed'].map(kind=><section key={kind} className="panel task-section"><div className="task-section-heading"><div><h2>{kind==='native'?'原生 DSH':'受管 DSH'}</h2><p className="field-note">{kind==='native'?'用户自行打开的 DSH；观测接入不表示策略受管。':'由任务启动的受控进程；策略是否核验在工作台显示。'}</p></div></div><div className="table-scroll"><table className="task-record-table connection-instances"><thead><tr><th>实例</th><th>连接状态</th><th>执行绑定</th><th>工作区</th><th>操作</th></tr></thead><tbody>{visibleInstances(agents,tasks).filter(a=>a.kind===kind).map(a=>{const state=instanceState(a,now,failed);return <tr key={a.id} className={a.id===instance?'task-selected-row':''}><td><b title={a.name}>{a.name}</b></td><td><span className={'tag '+state.tone}>{state.label}</span></td><td>{a.pid?(state.live?`进程 ${a.pid}`:`上次进程 ${a.pid}`):'无进程证据'}<small>{kind==='managed'?'策略加载与生效在工作台单独核验':'原生实例'}</small></td><td>{a.workspace_count??'—'}</td><td><div className="actions"><button className="button tiny ghost" disabled={busy} onClick={()=>refresh(a.id)}>检查</button><button className="button tiny primary" onClick={()=>setInstance(a.id)}>工作区</button><button className="button tiny ghost" onClick={()=>setConnectionDetail(a)}>连接证据</button></div></td></tr>})}{!visibleInstances(agents,tasks).some(a=>a.kind===kind)&&<tr><td colSpan={5} className="task-empty">{failed?'状态未知，请重新检查':'尚未发现实例'}</td></tr>}</tbody></table></div></section>)}
  {instance&&<section className="panel task-section"><div className="task-section-heading"><h2>{current?.name||instance} 的工作区</h2><button className="button tiny ghost" disabled={!status.live} onClick={()=>setAdding(!adding)}>添加工作区</button></div>
@@ -63,5 +67,6 @@ export default function AgentWorkspaces({api,post,notify,onCreateTask,tasks=[],a
  </section>}
  {selected&&active&&<WorkspaceFileDrawer key={selected} trigger={fileTrigger.current} workspace={workspaces.find(w=>w.id===selected)} inventory={inventory} loading={loading} onRefresh={()=>setRevision(v=>v+1)} onClose={()=>setSelected('')}/>}
  {connectionDetail&&active&&<ConnectionEvidence agent={agents.find(a=>a.id===connectionDetail.id)||connectionDetail} failed={failed} error={error} now={now} onClose={()=>setConnectionDetail(null)}/>}
+ </div>}
  </div>;
 }

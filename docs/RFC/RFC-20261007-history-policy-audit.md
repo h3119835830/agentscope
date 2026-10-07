@@ -9,3 +9,7 @@
 执行审计分OS拦截与核验、DSH工具调用、控制面记录。OS行显示操作、对象、实际结果、PID、domain、命中规则和动作来源；独立验收探针不能标作DSH工具行为，工具成功不能作为内核允许证明。历史查询不调用Pi、DSH或Broker探测，不恢复任务，不更改权限。
 
 新增GET /api/tasks/{task_id}/archive/policies?stage=startup|runtime、/policies/{record_id}以及/audit?category=os|tools|control。关联只在task_id内；分页按真实记录游标。history_only/historical=true、live=false。archivePane在URL中保存内部页签，历史查询不改变工作台当前任务。
+
+## 2026-10-08 入口修订
+
+本文所述工作台旁的“历史策略与审计”按钮已按用户要求移除；改为统一从任务历史选择并进入完整全页回放。页面合同以 RFC-20261008-task-replay.md 为准，历史数据和原运行工作台能力保留。

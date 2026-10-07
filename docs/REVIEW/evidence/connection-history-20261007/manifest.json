@@ -1,0 +1,23 @@
+{
+  "scope": "independent connection-history regression and initial deployment only",
+  "integration_status": "unified local candidate navigation independently verified; remaining final checks and commit owned by integration thread",
+  "baseline": "dc6c544dd5e3bfd50c509f2fd1435f16d5000989",
+  "backend": {
+    "passed": 509,
+    "skipped": 52,
+    "warnings": 5
+  },
+  "frontend": {
+    "passed": 79,
+    "failed": 0
+  },
+  "final_independent_build_deployed": false,
+  "files": {
+    "backend-tests.txt": "b0f29bd3dc08ddb96f8ac3e42d1854578411467bcf7a137ff38e5c0148a699c0",
+    "connection-history-unified.png": "2a7a7d6b2a5f6ae52bf649919a1fc0a0c31b8938aaa8b5307c4d123cfff8e109",
+    "deployment.public.json": "5c8de8542ce07764daa8d6568da5ff877c5fd37072b9338efb9d1c89d37ed4e8",
+    "frontend-build.txt": "0f1ab6d5181e9bd0d966c21e4931c296f208aac54a95b9851588905a2856e23a",
+    "frontend-tests.txt": "06ecce228dde9e54fa489653e82da54b209c379c5dd26f422abb72fa7389123a",
+    "unified-browser.public.json": "db56197d199a984f5d21f4b370f873bdbdbf063d30fc60afaf65fb13a1ed259c"
+  }
+}

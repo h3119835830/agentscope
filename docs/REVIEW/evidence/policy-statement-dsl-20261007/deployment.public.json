@@ -1,0 +1,19 @@
+{
+  "index_sha256": "67b36233ef6b926a665157240ef6638433f2bbd3b6733942f1181e96e2744f2d",
+  "js": "index-D3Y7Bns_.js",
+  "css": "index-CxNcO6My.css",
+  "api_restarted": true,
+  "native_and_broker_pids_unchanged": {
+    "agentscope-local-dsh-web-20261007.service": "870966",
+    "agentscope-scope-demo-broker.service": "966501"
+  },
+  "pending_jobs_before_restart": 0,
+  "backend_tests": {
+    "passed": 528,
+    "skipped": 52,
+    "warnings": 5
+  },
+  "frontend_tests": {
+    "passed": 82
+  }
+}

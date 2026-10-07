@@ -1,0 +1,17 @@
+{
+  "observed_at": "2026-10-07T16:22:42.427910+00:00",
+  "mode": "static_ui_only",
+  "api_working_directory": "/opt/agentscope-task-archive-20261007",
+  "index_sha256": "f7ba9230f96bf24a17e934cd57de094bd0b0e6c22ba8bd6df1c38050e3671e64",
+  "assets": {
+    "/assets/index-BQC0jmyd.js": "28f727f381af6da6e4312830de5ff3d175f9532ad6e0a4b147236a90b9ca9ab9",
+    "/assets/index-DYORZ1Xk.css": "3be3a7ab8e4b73d6ec0205d8f775590390c8c095f83b5d34917edcf58333b649"
+  },
+  "service_pids_unchanged": {
+    "agentscope-scope-demo-api.service": "1044743",
+    "agentscope-scope-demo-broker.service": "966501",
+    "agentscope-local-dsh-web-20261007.service": "870966"
+  },
+  "services_restarted": false,
+  "permission_changes": false
+}

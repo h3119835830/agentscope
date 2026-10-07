@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-10-07T16:03:52.327Z",
+  "base_url": "http://127.0.0.1:18003",
+  "assets": {
+    "js": "index-Cgg95WzE.js",
+    "css": "index-CUPFpjOF.css"
+  },
+  "mode": "read_only",
+  "source_changes": false,
+  "permission_changes": false,
+  "agent_started": false,
+  "service_operations": false,
+  "viewport": {
+    "actual_width": 1280,
+    "actual_height": 720,
+    "body_width": 1280,
+    "mobile_423": "unverified: documented viewport.set returned but actual viewport remained 1280x720",
+    "temporary_override_reset": true
+  },
+  "task_id": "bef449047cd24af6",
+  "checks": {
+    "each_statement_is_separate": true,
+    "clicked_text_matches_child_detail": true,
+    "file_protection_dsl": {
+      "job": "0ff64292b80d4d779e1207b850adad22",
+      "index": 0,
+      "operations": [
+        "write",
+        "unlink"
+      ],
+      "only_target": "frontend/report.py",
+      "bundle_default_closed": true
+    },
+    "semantic_guidance": {
+      "job": "ea902043e9174a528b9a370788853f11",
+      "index": 0,
+      "no_os_dsl": true
+    },
+    "retained_protection": {
+      "job": "21d660680b014c2c9cf06acf51d5386c",
+      "index": 0,
+      "label": "保留规则"
+    },
+    "output_grant": {
+      "job": "21d660680b014c2c9cf06acf51d5386c",
+      "index": 1,
+      "label": "授权放行",
+      "candidate_permission_delta": "禁止 → 允许",
+      "no_invented_dsl": true,
+      "missing_trusted_prior_compilation_is_explicit": true
+    },
+    "complete_candidate_bundle": {
+      "default_closed": true,
+      "independently_expands": true,
+      "includes_inherited_rules": true
+    },
+    "missing_child": {
+      "live_missing_fixture_present": false,
+      "source_and_regression_review_passed": true,
+      "not_fabricated": true
+    },
+    "connection_history": {
+      "task_to_source_history": true,
+      "source_instance": "native-dsh",
+      "related_task_count": 3,
+      "event_count": 3,
+      "refresh_preserves_selected_detail": true,
+      "related_task_returns_original_task_id": true,
+      "history_is_not_current_liveness": true
+    },
+    "history_route": {
+      "provided_url_opens": "任务历史",
+      "sidebar_history_entry_exists": true,
+      "default_status": "已结束",
+      "default_visible_count": 105,
+      "all_status_count": 300,
+      "default_filter_can_hide_unfinished_tasks": true
+    }
+  },
+  "screenshots": [
+    "statement-list-desktop.jpg",
+    "statement-protection-dsl-desktop.jpg",
+    "statement-semantic-no-dsl.jpg",
+    "statement-output-permission-delta.jpg",
+    "history-route-reproduction.jpg",
+    "connection-history-linked-detail.jpg",
+    "connection-history-returned-task.jpg"
+  ],
+  "result": "desktop_and_live_api_pass_mobile_423_unverified"
+}

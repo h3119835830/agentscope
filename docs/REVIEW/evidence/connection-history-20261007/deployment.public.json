@@ -1,0 +1,31 @@
+{
+  "verified_at": "2026-10-07T23:54:51.568414+08:00",
+  "source": "/opt/agentscope-connection-history-20261007",
+  "database_integrity": "ok",
+  "before_counts": {
+    "tasks": 300,
+    "policy_versions": 120,
+    "task_credentials": 299,
+    "managed_events": 19387
+  },
+  "after_counts": {
+    "tasks": 300,
+    "policy_versions": 120,
+    "task_credentials": 299,
+    "managed_events": 19387
+  },
+  "native_identity_before": {
+    "pid": 870966,
+    "start_ticks": "2300804",
+    "generation": "cae27d3cd08e4d65dc80593d"
+  },
+  "native_identity_after": {
+    "pid": 870966,
+    "start_ticks": "2300804",
+    "generation": "cae27d3cd08e4d65dc80593d"
+  },
+  "broker_restarted": false,
+  "dsh_restarted": false,
+  "api_restarted": true,
+  "readiness_note": "API health precedes first independent instance observation; verified identity after observer completed."
+}

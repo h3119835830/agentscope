@@ -1,0 +1,4 @@
+export const connectionStatus = value => ({connected:'已核验接入',running_unattached:'进程运行，未接入',offline:'观测离线',unresponsive:'检查未通过',unknown:'状态未知',stale:'证据已过期',ended:'任务连接结束',removed:'实例登记已移除'})[value]||'状态未知';
+export const connectionEvent = value => ({first_observation:'首次记录',manual_check:'手动核验',generation_changed:'实例重启',status_changed:'连接状态变化',workspace_changed:'工作区或会话变化',binding_ended:'任务绑定结束',registration_removed:'移除实例登记',control_unavailable:'控制接口不可用'})[value]||'连接观测';
+export function mergeConnectionEvents(before,after){return [...new Map([...before,...after].map(e=>[e.id,e])).values()].sort((a,b)=>b.id-a.id);}
+export function connectionHistoryTarget(href,id){const u=new URL(href);u.searchParams.set('view','connections');u.searchParams.set('connectionsPane','history');u.searchParams.set('connectionHistory',id);return u.pathname+u.search+u.hash;}
