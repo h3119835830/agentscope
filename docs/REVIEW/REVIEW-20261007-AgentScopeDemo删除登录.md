@@ -17,3 +17,11 @@ Broker 未重启。原任务 phase/gate/revision/version/session_id/policy_hash/
 本机免口令模式信任本机进程，不将 Origin 检查表述为本机进程身份鉴别。未修改普通 ERP 业务。工作区有其他并行未提交变更，本次不打包为混合提交、不推送。
 
 证据：evidence/demo-no-login-20261007/api-acceptance.json 与 browser-direct-entry.jpg。
+
+## 独立提交验收
+
+2026-10-07：从功能分支暂存区导出独立代码快照，未混入 ActPlane、normalization、managed 的其他工作区改动。后端 252 passed、1 skipped、5 项现有弃用警告；Vite 37 模块构建与三个 UI 验收脚本语法检查通过。这里的数量对应功能分支原有基线；上方 309 项对应完整本机工作区，不能混为同一版本。
+
+独立检出发现旧测试固定断言 /opt/agentscope-history-v1，因检出路径不同失败；复用 main 中已存在的测试修正，从被测模块位置计算实际源目录。控制面行为及断言约束不变，修正后完整独立回归通过。
+
+main 合入验收：在独立 Git 检出中，使用既有已编译 ActPlane 产物完成 309 passed、3 skipped、5 项现有弃用警告；Vite 37 模块构建通过。合并保留 main 已有运行时代码，只增加功能分支合并记录和验收文档补充；未纳入并行的运行时可观察性 UI 改动，未推送远端。
