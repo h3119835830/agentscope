@@ -1,0 +1,31 @@
+{
+  "schema": "AgentScopeRelease/1",
+  "feature_commit": "3b01f1e49d70762fcc5a597e3eb4b146e7816a94",
+  "integrated_main_commit": "ee0f8f6313ed4a8ba2f8cb1d190977ab13046be4",
+  "previous_main": "b05483960d7d8a19fe4d28f0c400905f0ea3bf39",
+  "runtime_source": "/opt/agentscope-task-archive-20261007",
+  "url": "http://127.0.0.1:18003",
+  "assets": {
+    "js": "index-KgXGan-t.js",
+    "css": "index-D67YD5dc.css",
+    "index_sha256": "476106af9ce1b444ddec3fb41717cff1988c7e8ce8ed0bf163908dfecc668a12"
+  },
+  "validation": {
+    "backend_passed": 499,
+    "backend_skipped": 52,
+    "frontend_passed": 76,
+    "native_bridge_passed": 7,
+    "live_archive_read_only": true,
+    "historical_effective": false,
+    "native_pid": 870966,
+    "actual_dsh_kernel_receipts": "docs/REVIEW/evidence/task-archive-20261007"
+  },
+  "intended_remote_branches": [
+    "WINDOWS",
+    "main"
+  ],
+  "push_authorized_by_user": true,
+  "ordinary_business_files_changed": false,
+  "actplane_delta_vs_previous_main": false,
+  "last_change": "Permission field labels translated; DSL and audit layout unchanged; frontend 76 passed again"
+}

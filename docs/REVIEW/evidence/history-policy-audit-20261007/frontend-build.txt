@@ -1,0 +1,17 @@
+
+> agentscope-ui@0.1.0 build
+> vite build --outDir /tmp/a/history-audit-ui
+
+vite v6.4.3 building for production...
+
+(!) outDir /tmp/a/history-audit-ui is not inside project root and will not be emptied.
+Use --emptyOutDir to override.
+
+transforming...
+✓ 56 modules transformed.
+rendering chunks...
+computing gzip size...
+../../../tmp/a/history-audit-ui/index.html                   0.46 kB │ gzip:   0.32 kB
+../../../tmp/a/history-audit-ui/assets/index-D67YD5dc.css   69.89 kB │ gzip:  13.90 kB
+../../../tmp/a/history-audit-ui/assets/index-KgXGan-t.js   449.26 kB │ gzip: 132.87 kB
+✓ built in 858ms

@@ -15,3 +15,5 @@
 概览内联接入 ArchiveDomains，只在展开后读取 /archive/domains?version= 与 /archive/domains/{key}。历史图和 DSL 使用历史只读证据接口，不查询或操作 Broker。来源 Agent 与受管执行实例分列。无完整 graph nodes/edges/versions 的响应转为局部提示，避免档案整体空白。
 
 历史域缺失材料如实展示 API notice 与 missing_sources；本次实际提示“底线域加载材料未记录”，仅画3个已记录域/进程节点，不补 D0 或缺失 DSL。组件4项测试在最后提示调整后通过。
+
+后续修订（2026-10-07）：四个含糊阶段页签的可发现性未满足用户验收，已改为任务概况、运行前策略、运行时策略、执行审计、结束结果。原阶段事件在内部折叠保留；以RFC-20261007-history-policy-audit.md的当前实现和验收为准，旧截图仅保留历史时点。
