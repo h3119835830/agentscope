@@ -1,0 +1,125 @@
+{
+  "scope": "table UI refinement; no runtime API or enforcement changes",
+  "checks": [
+    {
+      "check": "single module name in navigation; no repeated headings or summary cards",
+      "pass": true
+    },
+    {
+      "check": "all six session records fit in the desktop first screen",
+      "pass": true
+    },
+    {
+      "check": "reasons and DSL are absent from the record list",
+      "pass": true
+    },
+    {
+      "check": "inherited rule has readable details and no editable controls",
+      "pass": true
+    },
+    {
+      "check": "technical details collapsed by default",
+      "pass": true
+    },
+    {
+      "check": "Escape closes and restores record action focus",
+      "pass": true
+    },
+    {
+      "check": "inherited records filter",
+      "pass": true
+    },
+    {
+      "check": "local records filter",
+      "pass": true
+    },
+    {
+      "check": "session target search",
+      "pass": true
+    },
+    {
+      "check": "child sources distinguish platform, parent task and local addition",
+      "pass": true
+    },
+    {
+      "check": "source view uses three origin records",
+      "pass": true
+    },
+    {
+      "check": "research domain has its own records",
+      "pass": true
+    },
+    {
+      "check": "default feedback restoration retained",
+      "pass": true
+    },
+    {
+      "check": "custom feedback saved as text",
+      "pass": true
+    },
+    {
+      "check": "keyboard tab navigation retained",
+      "pass": true
+    },
+    {
+      "check": "change list stays a concise record",
+      "pass": true
+    },
+    {
+      "check": "proposal reason and scope are in details",
+      "pass": true
+    },
+    {
+      "check": "proposal remains draft without activation",
+      "pass": true
+    },
+    {
+      "check": "platform keeps fifteen structured records and no duplicate title",
+      "pass": true
+    },
+    {
+      "check": "platform category filter retained",
+      "pass": true
+    },
+    {
+      "check": "baseline draft defaults to structured records and hides JSON",
+      "pass": true
+    },
+    {
+      "check": "unsupported argv block remains unavailable",
+      "pass": true
+    },
+    {
+      "check": "branch policies remain clearly non-executable requests",
+      "pass": true
+    },
+    {
+      "check": "baseline draft does not change existing session snapshot",
+      "pass": true
+    },
+    {
+      "check": "inspection keeps unverified state visible in detail",
+      "pass": true
+    },
+    {
+      "check": "423px session record list has no horizontal overflow",
+      "pass": true
+    },
+    {
+      "check": "mobile record configuration fits viewport",
+      "pass": true
+    },
+    {
+      "check": "423px platform records have no horizontal overflow",
+      "pass": true
+    },
+    {
+      "check": "no browser script errors",
+      "pass": true
+    },
+    {
+      "check": "mobile row actions align to the full row width with no horizontal overflow after refinement",
+      "pass": true
+    }
+  ]
+}
