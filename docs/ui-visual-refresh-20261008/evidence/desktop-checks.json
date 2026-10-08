@@ -1,0 +1,57 @@
+[
+  {
+    "headings": [
+      "策略运行总览",
+      "执行环境",
+      "最近任务"
+    ],
+    "page": "总览",
+    "scrollWidth": 1265,
+    "width": 1280
+  },
+  {
+    "headings": [
+      "Agent连接",
+      "原生 DSH",
+      "受管 DSH"
+    ],
+    "page": "Agent连接",
+    "scrollWidth": 1280,
+    "width": 1280
+  },
+  {
+    "headings": [
+      "策略工作台"
+    ],
+    "page": "策略工作台",
+    "scrollWidth": 1280,
+    "width": 1280
+  },
+  {
+    "headings": [
+      "任务历史",
+      "任务回放"
+    ],
+    "page": "任务历史",
+    "scrollWidth": 1280,
+    "width": 1280
+  },
+  {
+    "headings": [
+      "本次生成与审核"
+    ],
+    "page": "历史策略库",
+    "scrollWidth": 1280,
+    "width": 1280
+  },
+  {
+    "headings": [
+      "持久治理候选",
+      "登记候选更新",
+      "候选审核队列"
+    ],
+    "page": "持久治理",
+    "scrollWidth": 1265,
+    "width": 1280
+  }
+]
