@@ -1,5 +1,5 @@
 import React,{useEffect,useReducer,useRef,useState} from 'react';
-import {runtimeHooksPath,readRuntimeHooksPage,runtimeHooksState,runtimeHooksReducer,runtimeHookLabel,runtimeHookMissingLabel,runtimeHookStatus,runtimeHookPosition,runtimeHookTime} from './runtimeHooks.mjs';
+import {runtimeHooksPath,readRuntimeHooksPage,runtimeHooksState,runtimeHooksReducer,runtimeHookLabel,runtimeHookMissingLabel,runtimeHookStatus,runtimeHookPosition,runtimeHookTime,runtimeHookFocusState,registerRuntimeHookButton,restoreRuntimeHookFocus} from './runtimeHooks.mjs';
 import './runtimeHooks.css';
 
 function HookFields({items}) {
@@ -20,9 +20,11 @@ export function RuntimeHookOverview({mechanism}) {
 }
 
 export function RuntimeHookDetail({record,onBack}) {
+  const heading = useRef(null);
+  useEffect(() => {heading.current?.focus();},[record.id]);
   const trigger = record.trigger || {}, observations = trigger.observations || [];
   return <section className="runtime-hook-record" aria-label="Hook 触发记录详情">
-    <div className="runtime-hooks-head"><h4>触发记录详情</h4><button type="button" className="button ghost tiny" onClick={onBack}>返回触发记录</button></div>
+    <div className="runtime-hooks-head"><h4 ref={heading} tabIndex={-1}>触发记录详情</h4><button type="button" className="button ghost tiny" onClick={onBack}>返回触发记录</button></div>
     <HookFields items={[
       ["发生时间",runtimeHookTime(record.time)],["触发来源",runtimeHookLabel(trigger.name)],
       ["触发方",runtimeHookLabel(trigger.actor)],["执行轮次",trigger.turn],["接收轮次",trigger.accepted_turn],
@@ -42,14 +44,14 @@ export function RuntimeHookDetail({record,onBack}) {
   </section>;
 }
 
-export function RuntimeHookList({records,total,shown=5,busy=false,loaded=true,error='',nextCursor=null,onOpen,onShowMore,onLoadMore}) {
+export function RuntimeHookList({records,total,shown=5,busy=false,loaded=true,error='',nextCursor=null,onOpen,onButtonRef,onShowMore,onLoadMore}) {
   return <>
     <div className="runtime-hook-table-wrap"><table className="runtime-hook-table"><thead><tr><th scope="col">时间</th><th scope="col">触发来源</th><th scope="col">轮次 / 修订</th><th scope="col">生成作业</th><th scope="col">记录状态</th><th scope="col">详情</th></tr></thead><tbody>
       {records.slice(0,shown).map(record => <tr key={record.id}>
         <td>{runtimeHookTime(record.time)}</td><td>{runtimeHookLabel(record.trigger?.name)}<small>{runtimeHookLabel(record.trigger?.actor)}</small></td>
         <td>{runtimeHookPosition(record)}</td><td title={record.job_id || undefined}>{record.job_id || '未记录'}</td>
         <td><span className="runtime-hook-label">{runtimeHookStatus(record)}</span><small>生成：{runtimeHookLabel(record.generation_status)}</small></td>
-        <td><button type="button" className="button ghost tiny" onClick={event => onOpen?.(record,event.currentTarget)}>查看详情</button></td>
+        <td><button ref={button => onButtonRef?.(record.id,button)} type="button" className="button ghost tiny" onClick={() => onOpen?.(record)}>查看详情</button></td>
       </tr>)}
       {!records.length && <tr><td colSpan={6}>{!loaded && !error ? '正在读取触发记录…' : error ? '触发记录读取失败，请重试。' : '未保存实际 Hook 触发记录。'}</td></tr>}
     </tbody></table></div>
@@ -62,7 +64,8 @@ export function RuntimeHookList({records,total,shown=5,busy=false,loaded=true,er
 export default function RuntimeHooks({task,api}) {
   const [state,dispatch] = useReducer(runtimeHooksReducer,task,runtimeHooksState);
   const [retry,setRetry] = useState(0),[shown,setShown] = useState(5),[selected,setSelected] = useState(null);
-  const sequence = useRef(0), origin = useRef(null);
+  const sequence = useRef(0), focus = useRef(null);
+  if (focus.current?.task !== task) focus.current = runtimeHookFocusState(task);
   const current = state.task === task ? state : runtimeHooksState(task);
   async function readPage(before=null,append=false) {
     const request = ++sequence.current;
@@ -84,7 +87,7 @@ export default function RuntimeHooks({task,api}) {
     <div className="runtime-hooks-head"><div><h3>Hook 触发点</h3><p>已保存触发记录；手动刷新读取最新保存结果，不是实时事件流。</p></div><button type="button" className="button ghost tiny" disabled={current.busy} onClick={() => setRetry(value => value + 1)}>刷新触发记录</button></div>
     <RuntimeHookOverview mechanism={current.mechanism}/>
     {current.error && <p className="runtime-hook-error" role="alert">读取失败：{current.error} <button type="button" className="button ghost tiny" onClick={() => setRetry(value => value + 1)}>重试触发记录</button></p>}
-    {detail ? <RuntimeHookDetail record={detail} onBack={() => {setSelected(null);requestAnimationFrame(() => {if (origin.current?.isConnected) origin.current.focus({preventScroll:true});});}}/> : <RuntimeHookList records={current.records} total={current.total} shown={shown} busy={current.busy} loaded={current.loaded} error={current.error} nextCursor={current.next_cursor} onOpen={(record,button) => {origin.current=button;setSelected(record.id);}} onShowMore={() => setShown(value => value + 12)} onLoadMore={() => {setShown(value => value + 12);readPage(current.next_cursor,true);}}/>}
+    {detail ? <RuntimeHookDetail record={detail} onBack={() => {const previous=focus.current;setSelected(null);requestAnimationFrame(() => {if (focus.current===previous) restoreRuntimeHookFocus(focus.current,task,detail.id);});}}/> : <RuntimeHookList records={current.records} total={current.total} shown={shown} busy={current.busy} loaded={current.loaded} error={current.error} nextCursor={current.next_cursor} onButtonRef={(id,button) => registerRuntimeHookButton(focus.current,task,id,button)} onOpen={record => {focus.current.record=record.id;setSelected(record.id);}} onShowMore={() => setShown(value => value + 12)} onLoadMore={() => {setShown(value => value + 12);readPage(current.next_cursor,true);}}/>}
     <p className="runtime-hooks-note">这些历史触发材料不能证明策略已批准、加载或生效。</p>
   </section>;
 }

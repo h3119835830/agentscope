@@ -111,3 +111,19 @@ export function runtimeHookPosition(record) {
 export function runtimeHookTime(value) {
   return value && Number.isFinite(Date.parse(value)) ? new Date(value).toLocaleString('zh-CN', {hour12:false}) : '时间未记录';
 }
+
+export function runtimeHookFocusState(task) {
+  return {task, record:null, buttons:new Map()};
+}
+export function registerRuntimeHookButton(state, task, id, button) {
+  if (state.task !== task) return;
+  if (button) state.buttons.set(id, button);
+  else state.buttons.delete(id);
+}
+export function restoreRuntimeHookFocus(state, task, id) {
+  if (state.task !== task || state.record !== id) return false;
+  const button = state.buttons.get(id);
+  if (!button?.isConnected) return false;
+  button.focus({preventScroll:true});
+  return true;
+}

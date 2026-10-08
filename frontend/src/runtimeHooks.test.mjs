@@ -6,7 +6,7 @@ import {dirname,join} from 'node:path';
 import {build} from 'esbuild';
 import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
-import {runtimeHooksPath,readRuntimeHooksPage,runtimeHooksState,runtimeHooksReducer,mergeRuntimeHookRecords,runtimeHookPosition,runtimeHookStatus} from './runtimeHooks.mjs';
+import {runtimeHooksPath,readRuntimeHooksPage,runtimeHooksState,runtimeHooksReducer,mergeRuntimeHookRecords,runtimeHookPosition,runtimeHookStatus,runtimeHookFocusState,registerRuntimeHookButton,restoreRuntimeHookFocus} from './runtimeHooks.mjs';
 
 const require=createRequire(import.meta.url),Module=require('node:module'),base=dirname(fileURLToPath(import.meta.url));
 const built=await build({entryPoints:[join(base,'RuntimeHooks.jsx')],bundle:true,platform:'node',format:'cjs',external:['react'],loader:{'.css':'empty'},write:false});
@@ -96,6 +96,7 @@ test('record detail escapes public source text and leaves hashes and evidence in
  assert.ok(html.indexOf('&lt;hash&gt;')>html.indexOf('<details'));
  assert.ok(html.indexOf('&lt;evidence&gt;')>html.indexOf('<details'));
  assert.match(html,/<dt>执行轮次<\/dt><dd>0<\/dd>/);
+ assert.match(html,/<h4 tabindex="-1">触发记录详情<\/h4>/);
 });
 
 test('list initially displays five saved records with explicit expansion rather than an endless stack',()=>{
@@ -137,4 +138,34 @@ test('archive runtime list exposes the Hook module without adding it to startup 
  assert.match(runtime,/Hook 触发点/);assert.match(runtime,/刷新触发记录/);assert.match(runtime,/不是实时事件流/);
  assert.doesNotMatch(render(ArchiveBody,{...props,pane:'startup'}),/Hook 触发点/);
  assert.equal(calls,0);
+});
+
+test('return focus uses the newly registered button after the list unmounts and remounts',()=>{
+ const state=runtimeHookFocusState('task-a'),calls=[];
+ const oldButton={isConnected:true,focus:()=>calls.push('old')};
+ const newButton={isConnected:true,focus:options=>calls.push(options)};
+ registerRuntimeHookButton(state,'task-a','record',oldButton);state.record='record';
+ registerRuntimeHookButton(state,'task-a','record',null);oldButton.isConnected=false;
+ assert.equal(restoreRuntimeHookFocus(state,'task-a','record'),false);
+ registerRuntimeHookButton(state,'task-a','record',newButton);
+ assert.equal(restoreRuntimeHookFocus(state,'task-a','record'),true);
+ assert.deepEqual(calls,[{preventScroll:true}]);
+});
+
+test('task changes clear return targets and reject stale ref callbacks and pending focus requests',()=>{
+ const first=runtimeHookFocusState('first'),calls=[];
+ const oldButton={isConnected:true,focus:()=>calls.push('old')};
+ registerRuntimeHookButton(first,'first','same-id',oldButton);first.record='same-id';
+ const current=runtimeHookFocusState('second');
+ assert.equal(current.record,null);assert.equal(current.buttons.size,0);
+ registerRuntimeHookButton(current,'first','same-id',oldButton);
+ assert.equal(current.buttons.size,0);
+ assert.equal(restoreRuntimeHookFocus(current,'first','same-id'),false);
+ const newButton={isConnected:true,focus:()=>calls.push('new')};
+ registerRuntimeHookButton(current,'second','same-id',newButton);current.record='same-id';
+ registerRuntimeHookButton(current,'first','same-id',null);
+ assert.equal(restoreRuntimeHookFocus(current,'first','same-id'),false);
+ assert.equal(restoreRuntimeHookFocus(current,'second','different-id'),false);
+ assert.equal(restoreRuntimeHookFocus(current,'second','same-id'),true);
+ assert.deepEqual(calls,['new']);
 });
