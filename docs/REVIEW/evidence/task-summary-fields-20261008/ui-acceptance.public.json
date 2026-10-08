@@ -1,0 +1,31 @@
+{
+  "checked_at": "2026-10-08",
+  "history_task": "bef449047cd24af6",
+  "live_task": "4ca8082805f74c6c",
+  "startup_records": 7,
+  "runtime_records_displayed": 12,
+  "columns": [
+    "时间 / 作业",
+    "策略语句",
+    "生成 / 审核",
+    "编译 / 加载",
+    "版本",
+    "详情"
+  ],
+  "auxiliary_hidden_by_default": true,
+  "one_technical_entry": true,
+  "auxiliary_available_after_expand": true,
+  "exact_dsl_checked": "startup:a50d7343bba74bdb82a317473f839ebd:atom:1",
+  "escape_restored_focus": true,
+  "narrow": {
+    "width": 423,
+    "document_width": 408,
+    "table_scroll_width": 730,
+    "table_container_width": 278,
+    "details_accessible": true
+  },
+  "live_confirm_available": true,
+  "hook_preserved": true,
+  "policy_approval_or_load_performed": false,
+  "backend_or_dsh_restarted": false
+}

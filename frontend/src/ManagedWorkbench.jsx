@@ -89,8 +89,8 @@ export default function ManagedWorkbench({api,post,notify,task,onSelectTask,onCr
  const filtered=matches.filter(m=>`${names[m.name]||m.name} ${m.task_id} ${m.workspace}`.toLowerCase().includes(query.toLowerCase()));
  const connection=data?connectionView(data,{failed:!!error,now}):null;
  return <div className="content managed-workbench">
-  <div className="page-heading"><div><div className="task-title-line">{task&&<button className="text-action back-to-tasks" aria-label="所有任务" onClick={()=>onSelectTask('')}>←</button>}<h1>{task?(names[binding?.name]||binding?.name||'策略工作台'):'策略工作台'}</h1></div><p>{task?`${sourceTask?.source_name||'源工作区名称未记录'} · ${sourceTask?.source_path||'源目录未记录'}`:'选择任务，核验 DSH 执行进程、文件操作与权限变化。'}</p></div><div className="actions"><button className="button primary" onClick={()=>onCreateTask()}>＋ 新建任务</button></div></div>
-  {task&&<details className="field-note"><summary>执行快照目录</summary><span className="task-path">{binding?.workspace||sourceTask?.workspace||'未记录'}</span></details>}
+  <div className="page-heading"><div><div className="task-title-line">{task&&<button className="text-action back-to-tasks" aria-label="所有任务" onClick={()=>onSelectTask('')}>←</button>}<h1>{task?(names[binding?.name]||binding?.name||'策略工作台'):'策略工作台'}</h1></div>{task?sourceTask?.source_name&&<p>工作区：{sourceTask.source_name}</p>:<p>选择任务，核验 DSH 执行进程、文件操作与权限变化。</p>}</div><div className="actions"><button className="button primary" onClick={()=>onCreateTask()}>＋ 新建任务</button></div></div>
+  {task&&(stage!=='startup'||!binding||historical)&&<details className="field-note task-technical-details"><summary>技术详情</summary><RecordFields items={[["任务编号",task],["来源目录",sourceTask?.source_path||'未记录'],["执行快照目录",binding?.workspace||sourceTask?.workspace||'未记录']]}/></details>}
   {historical&&<p className="inline-notice warning">历史任务只读，保存的进程与策略回执不代表当前在线。<button className="button ghost tiny" onClick={()=>setArchiveOpen(true)}>查看完整档案</button></p>}
   {error&&<p role="alert" className="inline-notice warning">读取失败：{error}。在线状态未确认，正在重试。</p>}
   {!task&&<section className="task-directory" aria-label="受管任务列表">

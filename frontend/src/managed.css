@@ -76,3 +76,5 @@
 @media(prefers-reduced-motion:reduce){.managed-workbench *{scroll-behavior:auto;transition:none;animation:none}}
 
 .policy-record .record-statement-summary{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.5}
+
+.task-technical-details{margin:0 0 14px;font-size:12px}.task-technical-details summary{cursor:pointer;color:#617486}.task-technical-details[open] summary{margin-bottom:12px}.task-technical-details .record-fields{grid-template-columns:96px minmax(0,1fr);gap:8px 14px;font-size:12px}

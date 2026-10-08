@@ -1,0 +1,20 @@
+{
+  "deployed_at": "2026-10-08T00:38:47.978607+00:00",
+  "kind": "static-ui-only",
+  "prior_index_sha256": "eba0b7b90edede1f9eeda5fcbff588fa4d7f6fac6fe5502aae5c5be8fc5e5c21",
+  "index_sha256": "0c365be5c5d532a98fcba7950cf5995b8acac7e4f238bcf8eefb96209187efd2",
+  "assets": [
+    "index-q6hoDBBg.js",
+    "index-Dw4CXVhd.css"
+  ],
+  "services_unchanged": {
+    "agentscope-scope-demo-api.service": "1276459",
+    "agentscope-scope-demo-broker.service": "966501"
+  },
+  "restart": false,
+  "frontend_tests": {
+    "passed": 125,
+    "failed": 0
+  },
+  "commit_base": "4b1931cb1c6f890b717ad3ce04957e86453138fd"
+}
