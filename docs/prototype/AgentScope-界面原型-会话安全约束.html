@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AgentScope 界面原型 · 会话安全约束</title>
+<script>
+/* 任何脚本错误都直接显示在页面上，避免“空白页且不知道原因” */
+window.addEventListener('error', function (e) {
+  var box = document.getElementById('fatal');
+  if (!box) return;
+  box.style.display = 'block';
+  box.textContent = '页面脚本出错：' + (e.message || '未知错误') + '（第 ' + (e.lineno || '?') + ' 行）。'
+    + '下方是静态预渲染的首屏，交互按钮暂不可用。';
+});
+</script>
+<style>
+:root{
+  --bg:#f5f7fa; --panel:#ffffff; --line:#e3e8ef; --line-strong:#cbd5e1;
+  --ink:#0f1c2e; --ink-2:#40536b; --ink-3:#7b8ca3;
+  --brand:#1f6feb; --brand-soft:#e8f1ff;
+  --good:#0f8a5f; --good-soft:#e6f7f0;
+  --warn:#b06a00; --warn-soft:#fff4e0;
+  --bad:#c0392b; --bad-soft:#fdecea;
+  --neutral:#5b6b80; --neutral-soft:#eef2f7;
+  --mono:ui-monospace,SFMono-Regular,Menlo,"Cascadia Mono",monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.55 "PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif}
+button{font:inherit;cursor:pointer;border:1px solid var(--line-strong);background:#fff;color:var(--ink);border-radius:8px;padding:6px 12px}
+button:hover{background:#f8fafc}
+button.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+button.primary:hover{background:#1a5fd0}
+button.ghost{border-color:transparent;background:transparent;color:var(--ink-2)}
+button.ghost:hover{background:var(--neutral-soft)}
+button:disabled{opacity:.45;cursor:not-allowed}
+select,input,textarea{font:inherit;color:var(--ink);border:1px solid var(--line-strong);border-radius:8px;padding:5px 8px;background:#fff}
+code,.tag,.chip{font-family:var(--mono)}
+
+/* ---------- shell ---------- */
+.shell{display:flex;min-height:100vh}
+.sidebar{width:216px;flex:0 0 216px;background:#0f1c2e;color:#c9d6e6;padding:16px 12px;display:flex;flex-direction:column;gap:4px}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 6px 18px}
+.brand-mark{width:30px;height:30px;border-radius:8px;background:var(--brand);color:#fff;display:grid;place-items:center;font-weight:700}
+.brand b{color:#fff;font-size:15px}
+.brand small{display:block;color:#7f93ad;font-size:11px}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:transparent;border:none;color:#c9d6e6;padding:9px 10px;border-radius:8px}
+.nav button:hover{background:rgba(255,255,255,.07)}
+.nav button.on{background:var(--brand);color:#fff}
+.nav .count{margin-left:auto;background:#fff3;border-radius:20px;padding:0 7px;font-size:11px}
+.side-foot{margin-top:auto;font-size:11px;color:#7f93ad;border-top:1px solid #1e2c42;padding-top:10px}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--good);margin-right:6px}
+
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{background:#fff;border-bottom:1px solid var(--line);padding:11px 22px;display:flex;align-items:center;gap:10px}
+.crumb{color:var(--ink-3);font-size:13px}
+.crumb b{color:var(--ink);font-size:15px}
+.crumb .sep{color:#c3ccd8;margin:0 7px}
+.mode{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-3)}
+.content{padding:20px 22px 40px;max-width:1180px;width:100%}
+
+/* ---------- primitives ---------- */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.panel + .panel{margin-top:14px}
+h2{font-size:14px;margin:0 0 2px}
+h3{font-size:13px;margin:0 0 8px;color:var(--ink-2)}
+.sub{color:var(--ink-3);font-size:12.5px;margin:0}
+.muted{color:var(--ink-3)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.grow{flex:1;min-width:0}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:900px){.grid4{grid-template-columns:repeat(2,1fr)}.grid3{grid-template-columns:1fr}}
+.metric{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.metric span{font-size:12.5px;color:var(--ink-3)}
+.metric strong{display:block;font-size:26px;margin:6px 0 2px;letter-spacing:-.5px}
+.metric small{color:var(--ink-3);font-size:11.5px}
+
+.tag{display:inline-block;font-size:11px;padding:1px 6px;border-radius:5px;background:var(--neutral-soft);color:var(--ink-2);border:1px solid transparent;white-space:nowrap}
+.tag.click{cursor:pointer}
+.tag.click:hover{border-color:var(--line-strong);background:#fff}
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;padding:2px 8px;border-radius:20px;font-weight:500;white-space:nowrap}
+.b-good{background:var(--good-soft);color:var(--good)}
+.b-warn{background:var(--warn-soft);color:var(--warn)}
+.b-bad{background:var(--bad-soft);color:var(--bad)}
+.b-soft{background:var(--neutral-soft);color:var(--neutral)}
+.b-info{background:var(--brand-soft);color:var(--brand)}
+
+/* ---------- session list ---------- */
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:12px;color:var(--ink-3);font-weight:500;padding:8px 10px;border-bottom:1px solid var(--line)}
+td{padding:11px 10px;border-bottom:1px solid #f0f3f7;vertical-align:middle}
+tbody tr.clik{cursor:pointer}
+tbody tr.clik:hover{background:#f8fafd}
+td .lead{font-weight:600}
+td .tags{margin-top:4px;display:flex;gap:5px;flex-wrap:wrap}
+
+/* ---------- session detail ---------- */
+.sess-head{display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap}
+.sess-head .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.tabs{display:flex;gap:2px;margin:16px 0 14px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tabs button{border:1px solid transparent;border-bottom:none;background:transparent;color:var(--ink-2);padding:8px 14px;border-radius:8px 8px 0 0;margin-bottom:-1px}
+.tabs button.on{background:#fff;border-color:var(--line);border-bottom:1px solid #fff;color:var(--ink);font-weight:600}
+.tabs .n{background:var(--warn-soft);color:var(--warn);border-radius:20px;padding:0 6px;font-size:11px;margin-left:6px}
+
+.verdict{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
+.v-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.v-card small{display:block;color:var(--ink-3);font-size:11.5px;margin-bottom:5px}
+.v-card b{font-size:14px}
+@media(max-width:900px){.verdict{grid-template-columns:1fr}}
+
+.filters{display:flex;gap:8px;align-items:center;margin:14px 0 6px;flex-wrap:wrap}
+.seg{display:inline-flex;border:1px solid var(--line-strong);border-radius:8px;overflow:hidden}
+.seg button{border:none;border-radius:0;padding:5px 11px;font-size:12.5px;color:var(--ink-2);background:#fff}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button.on{background:var(--brand-soft);color:var(--brand);font-weight:600}
+
+.grp{margin-top:16px}
+.grp-title{font-size:12px;color:var(--ink-3);letter-spacing:.4px;margin:0 0 8px;padding-left:2px}
+.c-row{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:flex;gap:14px;align-items:flex-start;margin-bottom:8px}
+.c-row.locked{background:#fbfcfd;border-style:dashed}
+.c-row.semantic{border-left:3px solid #c9a227}
+.c-row.pending{border-left:3px solid var(--brand)}
+.c-main{flex:1;min-width:0}
+.c-name{font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.c-meta{color:var(--ink-3);font-size:12px;margin-top:4px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.c-ctl{display:flex;flex-direction:column;gap:6px;align-items:flex-end;min-width:180px}
+.radio{display:inline-flex;border:1px solid var(--line-strong);border-radius:8px;overflow:hidden}
+.radio label{padding:4px 10px;font-size:12.5px;cursor:pointer;color:var(--ink-2)}
+.radio label+label{border-left:1px solid var(--line)}
+.radio input{position:absolute;opacity:0;width:0;height:0;pointer-events:none}
+.radio label.on{background:var(--brand-soft);color:var(--brand);font-weight:600}
+.tiny-text{font-size:12px;padding:4px 7px;width:200px}
+
+.change{border:1px solid var(--brand);background:#fbfdff;border-radius:12px;padding:14px 16px;margin-bottom:14px}
+.change h3{margin:0 0 10px;color:var(--ink);font-size:13.5px;display:flex;align-items:center;gap:8px}
+.kv{display:grid;grid-template-columns:76px 1fr;gap:5px 10px;font-size:13px}
+.kv dt{color:var(--ink-3)}
+.kv dd{margin:0}
+.diff{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12.5px}
+.diff .before{color:var(--bad);text-decoration:line-through}
+.steps{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 4px}
+.step{font-size:11.5px;padding:2px 9px;border-radius:20px;background:var(--neutral-soft);color:var(--ink-3)}
+.step.done{background:var(--good-soft);color:var(--good)}
+.notice{background:var(--warn-soft);color:#8a5300;border-radius:8px;padding:8px 11px;font-size:12.5px;margin-top:10px}
+.notice.info{background:var(--brand-soft);color:#134a9e}
+.notice.grey{background:var(--neutral-soft);color:var(--ink-2)}
+
+/* ---------- tree ---------- */
+.tree-wrap{display:flex;gap:16px;align-items:flex-start}
+.tree-canvas{position:relative;flex:1;min-width:900px;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:auto}
+.node{position:absolute;border:1px solid var(--line-strong);background:#fff;border-radius:10px;padding:9px 11px;text-align:left;cursor:pointer;box-shadow:0 1px 2px #0f1c2e0a}
+.node:hover{border-color:var(--brand);box-shadow:0 3px 10px #1f6feb22}
+.node .kind{font-size:10.5px;color:var(--ink-3);display:block;margin-bottom:2px}
+.node .name{font-weight:600;font-size:13px;display:block}
+.node .tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+.node.domain{border-left:3px solid var(--brand)}
+.node.baseline{border-left:3px solid #7b5cd6}
+.node.agent{border-left:3px solid #0f8a5f}
+.node.proc{border-left:3px solid #94a3b0}
+.node.ghost{border-style:dashed;background:#fbfcfe}
+.node.ghost .name{color:var(--ink-2)}
+.rail{width:250px;flex:0 0 250px;display:flex;flex-direction:column;gap:12px}
+.rail .panel{padding:13px 14px}
+.rail dt{color:var(--ink-3);font-size:12px}
+.rail dd{margin:0 0 7px;font-size:13px}
+.legend{font-size:12px;color:var(--ink-3);line-height:1.9}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px}
+@media(max-width:980px){.tree-wrap{flex-direction:column}.rail{width:100%;flex:1 1 auto}}
+
+/* ---------- drawer ---------- */
+.scrim{position:fixed;inset:0;background:#0f1c2e55;display:none;justify-content:flex-end;z-index:40}
+.scrim.open{display:flex}
+.drawer{width:min(520px,92vw);background:#fff;height:100%;overflow:auto;padding:18px 20px;box-shadow:-6px 0 30px #0f1c2e22}
+.drawer-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.drawer-head h2{font-size:15px;margin:0}
+.drawer .kv{grid-template-columns:92px 1fr}
+details.tech{margin-top:14px;border-top:1px solid var(--line);padding-top:10px}
+details.tech summary{cursor:pointer;color:var(--ink-3);font-size:12.5px}
+details.tech pre{background:#f7f9fc;border:1px solid var(--line);border-radius:8px;padding:10px;font-size:11.5px;overflow:auto;max-height:240px}
+
+/* ---------- misc ---------- */
+.empty{color:var(--ink-3);padding:18px;text-align:center;font-size:13px}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#0f1c2e;color:#fff;padding:9px 16px;border-radius:24px;font-size:13px;z-index:60;box-shadow:0 8px 24px #0f1c2e33}
+.check-out{margin-top:12px;border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:#fff}
+.check-out li{margin:4px 0}
+</style>
+</head>
+<body>
+<div id="fatal" style="display:none;background:#fdecea;color:#c0392b;border-bottom:1px solid #f5c6c0;padding:10px 16px;font:13px/1.5 system-ui"></div>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-mark">A</div><div><b>AgentScope</b><small>策略管控台 · 新界面原型</small></div></div>
+    <nav class="nav" id="nav"><button class="" data-nav="overview">▦ 总览</button><button class="on" data-nav="sessions">◈ 会话</button><button class="" data-nav="approvals">⇥ 审批<span class="count">2</span></button><button class="" data-nav="library">▤ 策略库</button><button class="" data-nav="system">⌁ 系统</button></nav>
+    <div class="side-foot"><span class="dot"></span>Linux VM · aarch64<br>ActPlane 执行后端已连接</div>
+  </aside>
+  <div class="main">
+    <div class="topbar">
+      <div class="crumb" id="crumb">会话<span class="sep">/</span><b>SESS-3fa2 · 文本统计修复</b></div>
+      <div class="mode">
+        <label><input type="checkbox" id="plain" checked> 讲解模式（白话）</label>
+      </div>
+    </div>
+    <div class="content" id="view">
+  <div class="sess-head">
+    <div class="grow">
+      <div class="row" style="gap:8px"><h2 style="font-size:17px">文本统计修复</h2>
+        <span class="badge b-good">运行中</span>
+        <span class="badge b-good">策略 POL-v3 已核验</span></div>
+      <div class="chips">
+        <span class="tag click" data-toast="已复制标签">SESS-3fa2</span>
+        <span class="tag click" data-toast="已复制标签">TASK-7f15</span>
+        <span class="tag click" data-toast="已复制标签">AGENT-主编码</span>
+        <span class="tag click" data-toast="已复制标签">WS-01</span>
+        <span class="tag">AgentScope/text-stat</span>
+      </div>
+    </div>
+    <div class="row"><button class="ghost" data-toast="已重新读取后端状态">刷新</button></div>
+  </div>
+  <div class="tabs"><button class="on" data-tab="constraints">安全约束<span class="n">1</span></button><button class="" data-tab="tree">连接与进程</button><button class="" data-tab="files">工作区</button><button class="" data-tab="events">执行记录</button><button class="" data-tab="versions">策略与版本</button></div>
+  
+  <div class="verdict">
+    <div class="v-card"><small>能改</small><b>repo/backend</b></div>
+    <div class="v-card"><small>被保护</small><b>tests/ config/ 密钥</b></div>
+    <div class="v-card"><small>等你决定</small><b>1 项</b></div>
+  </div>
+  <div class="row">
+    <button class="primary" data-act="check">一键安全检查</button>
+    <button data-toast="已打开调整面板（原型示意）">调整权限</button>
+    <button class="ghost" data-toast="需要二次确认（原型示意）">结束并撤销</button>
+    <span class="muted" style="margin-left:auto;font-size:12.5px">收紧立即生效 · 放宽需要重启会话（约 20 秒）</span>
+  </div>
+  
+  <div class="change">
+    <h3>变更申请 <span class="tag">CON-14A</span> <span class="badge b-info">Agent（运行中事件触发）</span></h3>
+    <dl class="kv">
+      <dt>你要求的</dt><dd>你在 10:24 说过：暂时只修改 backend，停止修改 frontend</dd>
+      <dt>将要变化</dt><dd><span class="diff"><span class="before">frontend/**  允许写入</span> → <b>只读</b></span></dd>
+      <dt>影响范围</dt><dd>3 个进程 · 0 条已有规则被放宽（已校验）</dd>
+      <dt>为什么</dt><dd>检测到 frontend 连续写入但 tests 未通过</dd>
+    </dl>
+    <div class="steps"><span class="step done">✓ 已提交</span><span class="step done">✓ 语法通过</span><span class="step ">○ 已进入内核</span><span class="step ">○ 实测生效</span></div>
+    <div class="notice">这是<strong>收紧</strong>操作，批准后立即生效，不会重启会话。</div>
+    <div class="row" style="margin-top:10px">
+      <button class="primary" data-act="approve">批准并生效</button>
+      <button data-act="reject">拒绝</button>
+      <button class="ghost" data-toast="已请求 Agent 补充证据">要求补充证据</button>
+    </div>
+  </div>
+  <div class="filters">
+    <span class="muted" style="font-size:12.5px">强制力</span>
+    <div class="seg">
+      <button class="on" data-force="all">全部</button>
+      <button class="" data-force="kernel">内核会拦</button>
+      <button class="" data-force="hook">操作前拦</button>
+      <button class="" data-force="semantic">仅提醒</button>
+    </div>
+    <input class="grow" placeholder="按标签搜索，例如 CON-14 / backend" style="max-width:280px">
+  </div>
+  
+    <div class="grp"><div class="grp-title">文件与目录</div>
+      <div class="c-row ">
+    <div class="c-main">
+      <div class="c-name">📁 backend/** <span class="badge b-soft">允许</span></div>
+      <div class="c-meta">
+        <span>写入 · 删除</span><span>·</span>
+        <span class="badge b-good">内核会拦</span><span>·</span>
+        <span>你批准于 10:24 · POL-v3</span>
+      </div>
+      <div class="c-meta"><span>为什么：本任务需要修改后端统计逻辑</span>
+        <span class="tag">CON-11</span>
+        <span class="tag">会话内可调</span>
+      </div>
+    </div>
+    <div class="c-ctl"><div class="radio"><label class="on" data-edit="CON-11" data-val="allow" role="radio" aria-checked="true" tabindex="0">
+        <input type="radio" name="CON-11" checked tabindex="-1">允许</label><label class="" data-edit="CON-11" data-val="readonly" role="radio" aria-checked="false" tabindex="0">
+        <input type="radio" name="CON-11"  tabindex="-1">只读</label><label class="" data-edit="CON-11" data-val="deny" role="radio" aria-checked="false" tabindex="0">
+        <input type="radio" name="CON-11"  tabindex="-1">禁止</label></div>
+      <span class="muted" style="font-size:11.5px">会话内可调</span></div>
+  </div><div class="c-row ">
+    <div class="c-main">
+      <div class="c-name">📁 frontend/** <span class="badge b-soft">允许</span></div>
+      <div class="c-meta">
+        <span>写入 · 删除</span><span>·</span>
+        <span class="badge b-good">内核会拦</span><span>·</span>
+        <span>你批准于 10:25 · POL-v3</span>
+      </div>
+      <div class="c-meta"><span>为什么：需要补前端摘要展示</span>
+        <span class="tag">CON-12</span>
+        <span class="tag">会话内可调</span>
+      </div>
+    </div>
+    <div class="c-ctl"><div class="radio"><label class="on" data-edit="CON-12" data-val="allow" role="radio" aria-checked="true" tabindex="0">
+        <input type="radio" name="CON-12" checked tabindex="-1">允许</label><label class="" data-edit="CON-12" data-val="readonly" role="radio" aria-checked="false" tabindex="0">
+        <input type="radio" name="CON-12"  tabindex="-1">只读</label><label class="" data-edit="CON-12" data-val="deny" role="radio" aria-checked="false" tabindex="0">
+        <input type="radio" name="CON-12"  tabindex="-1">禁止</label></div>
+      <span class="muted" style="font-size:11.5px">会话内可调</span></div>
+  </div><div class="c-row locked">
+    <div class="c-main">
+      <div class="c-name">📁 tests/** <span class="badge b-soft">只读 · 受保护</span></div>
+      <div class="c-meta">
+        <span>写入 · 删除</span><span>·</span>
+        <span class="badge b-good">内核会拦</span><span>·</span>
+        <span>平台底线 PLT-01</span>
+      </div>
+      <div class="c-meta"><span>为什么：测试是验收依据，不允许被改</span>
+        <span class="tag">CON-13</span>
+        <span class="tag">平台底线</span>
+      </div>
+    </div>
+    <div class="c-ctl"><span class="badge b-soft">🔒 平台底线 · 不可修改</span>
+           <button class="ghost" data-open-node="CON-13">为什么？</button></div>
+  </div><div class="c-row locked">
+    <div class="c-main">
+      <div class="c-name">📁 config/** <span class="badge b-soft">只读 · 受保护</span></div>
+      <div class="c-meta">
+        <span>写入</span><span>·</span>
+        <span class="badge b-good">内核会拦</span><span>·</span>
+        <span>平台底线 PLT-02</span>
+      </div>
+      <div class="c-meta"><span>为什么：运行配置影响后续任务的可复现性</span>
+        <span class="tag">CON-14</span>
+        <span class="tag">平台底线</span>
+      </div>
+    </div>
+    <div class="c-ctl"><span class="badge b-soft">🔒 平台底线 · 不可修改</span>
+           <button class="ghost" data-open-node="CON-14">为什么？</button></div>
+  </div><div class="c-row pending">
+    <div class="c-main">
+      <div class="c-name">📁 output/** <span class="badge b-soft">需要单独审批</span></div>
+      <div class="c-meta">
+        <span>写入</span><span>·</span>
+        <span class="badge b-soft">未生效</span><span>·</span>
+        <span>任务授权 · 等待确认</span>
+      </div>
+      <div class="c-meta"><span>为什么：生成任务报告需要写权限</span>
+        <span class="tag">CON-15</span>
+        <span class="tag">任务授权</span>
+      </div>
+    </div>
+    <div class="c-ctl"><button class="primary" data-nav="approvals">去审批</button></div>
+  </div>
+    </div>
+    <div class="grp"><div class="grp-title">命令与执行</div>
+      <div class="c-row ">
+    <div class="c-main">
+      <div class="c-name">⌘ git commit <span class="badge b-soft">允许</span></div>
+      <div class="c-meta">
+        <span>执行</span><span>·</span>
+        <span class="badge b-info">操作前拦</span><span>·</span>
+        <span>任务要求 · DSH 工具边界</span>
+      </div>
+      <div class="c-meta"><span>为什么：提交前必须通过 make test</span>
+        <span class="tag">CON-16</span>
+        <span class="tag">会话内可调</span>
+      </div>
+    </div>
+    <div class="c-ctl"><input class="tiny-text" value="make test" data-text="CON-16" placeholder="前置条件">
+           <span class="muted" style="font-size:11.5px">会话内可调</span></div>
+  </div><div class="c-row ">
+    <div class="c-main">
+      <div class="c-name">⌘ npm install <span class="badge b-soft">允许</span></div>
+      <div class="c-meta">
+        <span>执行</span><span>·</span>
+        <span class="badge b-info">操作前拦</span><span>·</span>
+        <span>任务授权</span>
+      </div>
+      <div class="c-meta"><span>为什么：依赖升级验证需要联网安装</span>
+        <span class="tag">CON-17</span>
+        <span class="tag">会话内可调</span>
+      </div>
+    </div>
+    <div class="c-ctl"><div style="text-align:right"><label style="display:block;font-size:12.5px;cursor:pointer" data-check="CON-17:公共源允许">
+        <input type="checkbox" checked tabindex="-1"> 公共源允许</label><label style="display:block;font-size:12.5px;cursor:pointer" data-check="CON-17:私有源禁止">
+        <input type="checkbox"  tabindex="-1"> 私有源禁止</label></div>
+      <span class="muted" style="font-size:11.5px">会话内可调</span></div>
+  </div>
+    </div>
+    <div class="grp"><div class="grp-title">网络</div>
+      <div class="c-row ">
+    <div class="c-main">
+      <div class="c-name">🌐 pypi.org <span class="badge b-soft">允许</span></div>
+      <div class="c-meta">
+        <span>访问</span><span>·</span>
+        <span class="badge b-good">内核会拦</span><span>·</span>
+        <span>任务授权 POL-v3</span>
+      </div>
+      <div class="c-meta"><span>为什么：安装测试依赖</span>
+        <span class="tag">CON-18</span>
+        <span class="tag">会话内可调</span>
+      </div>
+    </div>
+    <div class="c-ctl"><div class="radio"><label class="on" data-edit="CON-18" data-val="allow" role="radio" aria-checked="true" tabindex="0">
+        <input type="radio" name="CON-18" checked tabindex="-1">允许</label><label class="" data-edit="CON-18" data-val="readonly" role="radio" aria-checked="false" tabindex="0">
+        <input type="radio" name="CON-18"  tabindex="-1">只读</label><label class="" data-edit="CON-18" data-val="deny" role="radio" aria-checked="false" tabindex="0">
+        <input type="radio" name="CON-18"  tabindex="-1">禁止</label></div>
+      <span class="muted" style="font-size:11.5px">会话内可调</span></div>
+  </div>
+    </div>
+    <div class="grp"><div class="grp-title">数据与密钥</div>
+      <div class="c-row locked">
+    <div class="c-main">
+      <div class="c-name">🔑 凭据与密钥 <span class="badge b-soft">禁止</span></div>
+      <div class="c-meta">
+        <span>读取</span><span>·</span>
+        <span class="badge b-good">内核会拦</span><span>·</span>
+        <span>平台底线 PLT-03</span>
+      </div>
+      <div class="c-meta"><span>为什么：任何 Agent 都不得读取密钥材料</span>
+        <span class="tag">CON-19</span>
+        <span class="tag">平台底线</span>
+      </div>
+    </div>
+    <div class="c-ctl"><span class="badge b-soft">🔒 平台底线 · 不可修改</span>
+           <button class="ghost" data-open-node="CON-19">为什么？</button></div>
+  </div>
+    </div>
+    <div class="grp"><div class="grp-title">流程要求（通用约束 · 非内核）</div>
+      <div class="c-row semantic">
+    <div class="c-main">
+      <div class="c-name">📋 发布前必须获得许可 <span class="badge b-soft">行为约定</span></div>
+      <div class="c-meta">
+        <span>行为约定</span><span>·</span>
+        <span class="badge b-warn">仅提醒</span><span>·</span>
+        <span>OpenClaw/AGENTS.md:42-44 · commit a1b2c3</span>
+      </div>
+      <div class="c-meta"><span>为什么：来自历史策略库，由 Agent 遵守</span>
+        <span class="tag">CON-20</span>
+        <span class="tag">会话内可调</span>
+      </div>
+    </div>
+    <div class="c-ctl"><button class="ghost" data-toast="已加入任务要求，进入审批">提升为任务要求</button></div>
+  </div><div class="c-row semantic">
+    <div class="c-main">
+      <div class="c-name">📋 不确定时必须暂停并向用户确认 <span class="badge b-soft">行为约定</span></div>
+      <div class="c-meta">
+        <span>行为约定</span><span>·</span>
+        <span class="badge b-warn">仅提醒</span><span>·</span>
+        <span>Qwen-Code/skills/review.md:88</span>
+      </div>
+      <div class="c-meta"><span>为什么：来自历史策略库，由 Agent 遵守</span>
+        <span class="tag">CON-21</span>
+        <span class="tag">会话内可调</span>
+      </div>
+    </div>
+    <div class="c-ctl"><button class="ghost" data-toast="已加入任务要求，进入审批">提升为任务要求</button></div>
+  </div>
+    </div>
+  <div class="row" style="margin-top:16px">
+    <span class="muted">没有暂存的调整</span>
+    <button class="primary" style="margin-left:auto" disabled data-act="submit">提交 0 项调整</button>
+  </div></div>
+  </div>
+</div>
+<div class="scrim" id="scrim"><div class="drawer" id="drawer"></div></div>
+<div class="toast" id="toast" style="display:none"></div>
+
+<script>
+/* ============================ 演示数据 ============================ */
+const PAGES = [
+  {id:'overview', icon:'▦', label:'总览'},
+  {id:'sessions', icon:'◈', label:'会话'},
+  {id:'approvals',icon:'⇥', label:'审批', count:2},
+  {id:'library',  icon:'▤', label:'策略库'},
+  {id:'system',   icon:'⌁', label:'系统'},
+];
+
+const sessions = [
+  {id:'SESS-3fa2', task:'TASK-7f15', name:'文本统计修复', status:'运行中', state:'good',
+   agent:'AGENT-主编码', ws:'WS-01', repo:'AgentScope/text-stat', policy:'POL-v3',
+   verdict:{can:'repo/backend', protect:'tests/ config/ 密钥', pending:1},
+   rules:12, denied:3, ended:false},
+  {id:'SESS-91bd', task:'TASK-2c40', name:'依赖升级验证', status:'等待审批', state:'warn',
+   agent:'AGENT-研究', ws:'WS-02', repo:'AgentScope/dep-audit', policy:'POL-v1',
+   verdict:{can:'repo/docs', protect:'src/ 凭据', pending:2},
+   rules:7, denied:0, ended:false},
+  {id:'SESS-4e07', task:'TASK-7f15', name:'文本统计修复（上一轮）', status:'已结束', state:'soft',
+   agent:'AGENT-主编码', ws:'WS-01', repo:'AgentScope/text-stat', policy:'POL-v2',
+   verdict:{can:'已撤销', protect:'tests/ config/ 密钥', pending:0},
+   rules:0, denied:5, ended:true},
+];
+
+/* 约束清单：字段收敛到 6 个 —— 对象 / 动作 / 权限 / 强制力 / 来源 / 为什么 */
+let constraints = [
+  {id:'CON-11', group:'文件与目录', icon:'📁', target:'backend/**', action:'写入 · 删除',
+   perm:'allow', force:'kernel', origin:'你批准于 10:24 · POL-v3', why:'本任务需要修改后端统计逻辑',
+   level:'session', control:'radio'},
+  {id:'CON-12', group:'文件与目录', icon:'📁', target:'frontend/**', action:'写入 · 删除',
+   perm:'allow', force:'kernel', origin:'你批准于 10:25 · POL-v3', why:'需要补前端摘要展示',
+   level:'session', control:'radio'},
+  {id:'CON-13', group:'文件与目录', icon:'📁', target:'tests/**', action:'写入 · 删除',
+   perm:'readonly', force:'kernel', origin:'平台底线 PLT-01', why:'测试是验收依据，不允许被改',
+   level:'locked', control:'none'},
+  {id:'CON-14', group:'文件与目录', icon:'📁', target:'config/**', action:'写入',
+   perm:'readonly', force:'kernel', origin:'平台底线 PLT-02', why:'运行配置影响后续任务的可复现性',
+   level:'locked', control:'none'},
+  {id:'CON-15', group:'文件与目录', icon:'📁', target:'output/**', action:'写入',
+   perm:'pending', force:'pending', origin:'任务授权 · 等待确认', why:'生成任务报告需要写权限',
+   level:'approval', control:'none'},
+  {id:'CON-16', group:'命令与执行', icon:'⌘', target:'git commit', action:'执行',
+   perm:'allow', force:'hook', origin:'任务要求 · DSH 工具边界', why:'提交前必须通过 make test',
+   level:'session', control:'text', value:'make test'},
+  {id:'CON-17', group:'命令与执行', icon:'⌘', target:'npm install', action:'执行',
+   perm:'allow', force:'hook', origin:'任务授权', why:'依赖升级验证需要联网安装',
+   level:'session', control:'checkbox', options:['公共源允许','私有源禁止'], checked:['公共源允许']},
+  {id:'CON-18', group:'网络', icon:'🌐', target:'pypi.org', action:'访问',
+   perm:'allow', force:'kernel', origin:'任务授权 POL-v3', why:'安装测试依赖',
+   level:'session', control:'radio'},
+  {id:'CON-19', group:'数据与密钥', icon:'🔑', target:'凭据与密钥', action:'读取',
+   perm:'deny', force:'kernel', origin:'平台底线 PLT-03', why:'任何 Agent 都不得读取密钥材料',
+   level:'locked', control:'none'},
+  {id:'CON-20', group:'流程要求（通用约束 · 非内核）', icon:'📋', target:'发布前必须获得许可', action:'行为约定',
+   perm:'notice', force:'semantic', origin:'OpenClaw/AGENTS.md:42-44 · commit a1b2c3', why:'来自历史策略库，由 Agent 遵守',
+   level:'session', control:'none', semantic:true},
+  {id:'CON-21', group:'流程要求（通用约束 · 非内核）', icon:'📋', target:'不确定时必须暂停并向用户确认', action:'行为约定',
+   perm:'notice', force:'semantic', origin:'Qwen-Code/skills/review.md:88', why:'来自历史策略库，由 Agent 遵守',
+   level:'session', control:'none', semantic:true},
+];
+
+const agentChange = {
+  id:'CON-14A', from:'Agent（运行中事件触发）',
+  request:'你在 10:24 说过：暂时只修改 backend，停止修改 frontend',
+  diffFrom:'frontend/**  允许写入', diffTo:'只读',
+  impact:'3 个进程 · 0 条已有规则被放宽（已校验）',
+  why:'检测到 frontend 连续写入但 tests 未通过',
+  steps:[['已提交',true],['语法通过',true],['已进入内核',false],['实测生效',false]],
+  state:'pending',
+};
+
+const treeNodes = [
+  {key:'plt', x:360,y:12,w:280,h:58, cls:'baseline ghost', kind:'平台底线域（示意）', name:'保护密钥与凭据',
+   tags:['PLT-01','继承给所有任务'], evidence:'未取得加载回执', scope:'explain', d:'平台级底线，任何任务都不能削弱。本任务未取得可信加载回执，因此只作示意，不作为已核验事实。'},
+  {key:'dom', x:360,y:126,w:280,h:64, cls:'domain', kind:'任务域 · 继承 PLT-01 + 编码任务规则', name:'文本统计修复',
+   tags:['TASK-7f15','DOM-102','12 条约束'], evidence:'已核验 · POL-v3', scope:'both', d:'本任务的执行域。编号 102 只在本任务内有意义（后端明确不做全局 D0 编号）。'},
+  {key:'ag', x:150,y:250,w:240,h:64, cls:'agent', kind:'Agent（继承 12 条 + 本域新增 2 条）', name:'主编码 Agent',
+   tags:['AGENT-主编码','继承 DOM-102'], evidence:'已核验', scope:'both', d:'执行本次修改的主 Agent，继承任务域全部规则，并新增 2 条限制。'},
+  {key:'sub', x:612,y:250,w:250,h:64, cls:'domain ghost', kind:'测试子 Agent 域（更严格的规则）', name:'独立测试域',
+   tags:['DOM-A1','仅记录'], evidence:'未取得回执', scope:'explain', d:'子 Agent 拥有更严格的独立域。当前只有创建记录，没有加载回执，因此标注为"仅记录"。'},
+  {key:'sh', x:150,y:372,w:240,h:56, cls:'proc', kind:'进程', name:'shell',
+   tags:['PID-211'], evidence:'实时', scope:'both', d:'任务 cgroup 内进程，来自可信状态的实时采样。'},
+  {key:'te', x:612,y:372,w:250,h:56, cls:'proc', kind:'进程', name:'测试子 Agent',
+   tags:['PID-220'], evidence:'实时', scope:'both', d:'测试子 Agent 进程。'},
+  {key:'py', x:150,y:470,w:240,h:56, cls:'proc', kind:'进程', name:'pytest',
+   tags:['PID-212'], evidence:'实时', scope:'both', d:'由 shell 派生，用于运行 unittest。'},
+];
+const treeEdges = [
+  ['plt','dom','继承'], ['dom','ag','创建'], ['dom','sub','创建'],
+  ['ag','sh','启动'], ['sh','py','派生'], ['sub','te','启动'],
+];
+
+/* ============================ 状态 ============================ */
+const S = {
+  page:'sessions', sessionOpen:true, sessionId:'SESS-3fa2', tab:'constraints',
+  force:'all', treeMode:'explain', plain:true,
+  edits:{}, check:null, change:null,
+};
+
+/* ============================ 工具 ============================ */
+const $ = id => document.getElementById(id);
+const ses = () => sessions.find(s => s.id === S.sessionId) || sessions[0];
+const esc = t => String(t).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+let toastTimer;
+function toast(msg){
+  const el = $('toast'); el.textContent = msg; el.style.display = 'block';
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => el.style.display = 'none', 2600);
+}
+const FORCE = {
+  kernel:{label:'内核会直接拦住', cls:'b-good', short:'内核会拦'},
+  hook:{label:'Agent 操作前会被拦', cls:'b-info', short:'操作前拦'},
+  semantic:{label:'只是提醒 Agent 遵守 · 系统不强制', cls:'b-warn', short:'仅提醒'},
+  pending:{label:'还没生效', cls:'b-soft', short:'未生效'},
+};
+const PERM = {allow:'允许', readonly:'只读 · 受保护', deny:'禁止', pending:'需要单独审批', notice:'行为约定'};
+const LEVEL = {locked:'平台底线', approval:'任务授权', session:'会话内可调'};
+
+/* ============================ 渲染：外壳 ============================ */
+function renderShell(){
+  $('nav').innerHTML = PAGES.map(p =>
+    `<button class="${S.page===p.id?'on':''}" data-nav="${p.id}">${p.icon} ${p.label}` +
+    (p.count ? `<span class="count">${p.count}</span>` : '') + '</button>').join('');
+  const titleMap = {overview:'总览', sessions:'会话', approvals:'审批', library:'策略库', system:'系统'};
+  const inSession = S.page === 'sessions' && S.sessionOpen;
+  $('crumb').innerHTML = inSession
+    ? `会话<span class="sep">/</span><b>${ses().id} · ${ses().name}</b>`
+    : `<b>${titleMap[S.page]}</b>`;
+  $('plain').checked = S.plain;
+}
+
+/* ============================ 渲染：总览 ============================ */
+function viewOverview(){
+  return `
+  <div class="grid4">
+    <div class="metric"><span>运行中会话</span><strong>${sessions.filter(s=>!s.ended).length}</strong><small>1 个等待审批</small></div>
+    <div class="metric"><span>等你决定</span><strong>2</strong><small>约束变更 1 · 策略包 1</small></div>
+    <div class="metric"><span>实测拦截</span><strong>3</strong><small>来自内核独立探针</small></div>
+    <div class="metric"><span>执行后端</span><strong style="font-size:18px;color:var(--good)">可用</strong><small>BPF-LSM · aarch64</small></div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+    <div class="row"><div class="grow"><h2>你打开的会话</h2><p class="sub">每行 4 个字段：会话、谁在跑、安全状态、待批</p></div>
+      <button class="ghost" data-nav="sessions">查看全部 →</button></div>
+    <table><tbody>${sessions.map(rowSession).join('')}</tbody></table>
+  </div>`;
+}
+
+/* ============================ 渲染：会话列表 ============================ */
+function rowSession(s){
+  return `<tr class="clik" data-open="${s.id}">
+    <td><div class="lead">${s.name}</div>
+        <div class="tags"><span class="tag">${s.id}</span><span class="tag">${s.task}</span><span class="tag">${s.policy}</span></div></td>
+    <td><div class="tags" style="margin:0"><span class="tag">${s.agent}</span><span class="tag">${s.ws}</span></div>
+        <div class="muted" style="font-size:12px;margin-top:4px">Agent · 工作区</div></td>
+    <td><span class="badge b-${s.state}">${s.status}</span>
+        <div class="muted" style="font-size:12px;margin-top:4px">内核规则 ${s.rules} 条 · 实测拦截 ${s.denied} 次</div></td>
+    <td>${s.verdict.pending ? `<span class="badge b-warn">${s.verdict.pending} 项待批</span>` : `<span class="muted">—</span>`}</td>
+  </tr>`;
+}
+function viewSessions(){
+  return `
+  <div class="row" style="margin-bottom:14px">
+    <div class="grow"><h2>会话</h2><p class="sub">每个会话当前安全吗？点开即看它的安全约束清单。</p></div>
+    <button class="primary">＋ 新建会话</button>
+  </div>
+  <div class="panel">
+    <div class="filters" style="margin-top:0">
+      <div class="seg"><button class="on">运行中 2</button><button>已结束 1</button><button>未受管实例 2</button></div>
+    </div>
+    <table>
+      <thead><tr><th style="width:30%">会话</th><th style="width:26%">谁在跑</th><th style="width:28%">安全状态</th><th>待批</th></tr></thead>
+      <tbody>${sessions.map(rowSession).join('')}</tbody>
+    </table>
+  </div>
+  <details class="panel" style="margin-top:14px">
+    <summary style="cursor:pointer"><b>检测到 2 个未受管的 DSH 实例</b> <span class="muted">—— 只观测，不受策略管控</span></summary>
+    <table style="margin-top:10px"><thead><tr><th>实例</th><th>连接</th><th>工作区</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>本机 DSH（用户自行打开）<div class="tags"><span class="tag">native-dsh</span></div></td>
+            <td><span class="badge b-good">近期已通信</span></td><td>1 个</td><td><button class="ghost">检查</button></td></tr>
+        <tr><td>VS Code 内嵌终端<div class="tags"><span class="tag">vscode-term</span></div></td>
+            <td><span class="badge b-soft">等待接入</span></td><td>0 个</td><td><button class="ghost">检查</button></td></tr>
+      </tbody></table>
+  </details>`;
+}
+
+/* ============================ 渲染：会话详情 ============================ */
+function viewSession(){
+  const s = ses();
+  const tabs = [['constraints','安全约束',1],['tree','连接与进程',0],['files','工作区',0],['events','执行记录',0],['versions','策略与版本',0]];
+  return `
+  <div class="sess-head">
+    <div class="grow">
+      <div class="row" style="gap:8px"><h2 style="font-size:17px">${s.name}</h2>
+        <span class="badge b-${s.state}">${s.status}</span>
+        <span class="badge ${s.rules?'b-good':'b-soft'}">策略 ${s.policy}${s.rules?' 已核验':' 已撤销'}</span></div>
+      <div class="chips">
+        <span class="tag click" data-toast="已复制标签">${s.id}</span>
+        <span class="tag click" data-toast="已复制标签">${s.task}</span>
+        <span class="tag click" data-toast="已复制标签">${s.agent}</span>
+        <span class="tag click" data-toast="已复制标签">${s.ws}</span>
+        <span class="tag">${s.repo}</span>
+      </div>
+    </div>
+    <div class="row"><button class="ghost" data-toast="已重新读取后端状态">刷新</button></div>
+  </div>
+  <div class="tabs">${tabs.map(([k,l,n]) =>
+    `<button class="${S.tab===k?'on':''}" data-tab="${k}">${l}${n?`<span class="n">${n}</span>`:''}</button>`).join('')}</div>
+  ${({constraints:tabConstraints, tree:tabTree, files:tabFiles, events:tabEvents, versions:tabVersions})[S.tab]()}`;
+}
+
+/* ---------- tab 1：安全约束 ---------- */
+function tabConstraints(){
+  const groups = [...new Set(constraints.map(c => c.group))];
+  const visible = constraints.filter(c => S.force === 'all' || c.force === S.force);
+  const groups2 = [...new Set(visible.map(c => c.group))];
+  const nEdit = Object.keys(S.edits).length;
+  const pendingRow = agentChange.state === 'pending' ? changeCard() : changeDone();
+  return `
+  <div class="verdict">
+    <div class="v-card"><small>能改</small><b>${ses().verdict.can}</b></div>
+    <div class="v-card"><small>被保护</small><b>${ses().verdict.protect}</b></div>
+    <div class="v-card"><small>等你决定</small><b>${ses().verdict.pending} 项</b></div>
+  </div>
+  <div class="row">
+    <button class="primary" data-act="check">一键安全检查</button>
+    <button data-toast="已打开调整面板（原型示意）">调整权限</button>
+    <button class="ghost" data-toast="需要二次确认（原型示意）">结束并撤销</button>
+    <span class="muted" style="margin-left:auto;font-size:12.5px">收紧立即生效 · 放宽需要重启会话（约 20 秒）</span>
+  </div>
+  ${S.check ? checkOut() : ''}
+  ${pendingRow}
+  <div class="filters">
+    <span class="muted" style="font-size:12.5px">强制力</span>
+    <div class="seg">
+      <button class="${S.force==='all'?'on':''}" data-force="all">全部</button>
+      <button class="${S.force==='kernel'?'on':''}" data-force="kernel">内核会拦</button>
+      <button class="${S.force==='hook'?'on':''}" data-force="hook">操作前拦</button>
+      <button class="${S.force==='semantic'?'on':''}" data-force="semantic">仅提醒</button>
+    </div>
+    <input class="grow" placeholder="按标签搜索，例如 CON-14 / backend" style="max-width:280px">
+  </div>
+  ${groups2.map(g => `
+    <div class="grp"><div class="grp-title">${g}</div>
+      ${visible.filter(c => c.group === g).map(conRow).join('')}
+    </div>`).join('')}
+  <div class="row" style="margin-top:16px">
+    <span class="muted">${nEdit ? `已暂存 ${nEdit} 项调整，提交后进入审批` : '没有暂存的调整'}</span>
+    <button class="primary" style="margin-left:auto" ${nEdit?'':'disabled'} data-act="submit">提交 ${nEdit} 项调整</button>
+  </div>`;
+}
+
+function conRow(c){
+  const f = FORCE[c.force], perm = PERM[c.perm];
+  const cls = c.level === 'locked' ? 'locked' : c.perm === 'pending' ? 'pending' : c.semantic ? 'semantic' : '';
+  const cur = S.edits[c.id] ?? c.perm;
+  let ctl = '';
+  if (c.level === 'locked') {
+    ctl = `<span class="badge b-soft">🔒 ${LEVEL.locked} · 不可修改</span>
+           <button class="ghost" data-open-node="${c.id}">为什么？</button>`;
+  } else if (c.control === 'radio') {
+    ctl = `<div class="radio">${[['allow','允许'],['readonly','只读'],['deny','禁止']].map(([v,l]) =>
+      `<label class="${cur===v?'on':''}" data-edit="${c.id}" data-val="${v}" role="radio" aria-checked="${cur===v}" tabindex="0">
+        <input type="radio" name="${c.id}" ${cur===v?'checked':''} tabindex="-1">${l}</label>`).join('')}</div>
+      <span class="muted" style="font-size:11.5px">${LEVEL.session}</span>`;
+  } else if (c.control === 'checkbox') {
+    ctl = `<div style="text-align:right">${c.options.map(o => {
+      const on = S.edits[c.id+':'+o] ?? c.checked.includes(o);
+      return `<label style="display:block;font-size:12.5px;cursor:pointer" data-check="${c.id}:${o}">
+        <input type="checkbox" ${on?'checked':''} tabindex="-1"> ${o}</label>`;}).join('')}</div>
+      <span class="muted" style="font-size:11.5px">${LEVEL.session}</span>`;
+  } else if (c.control === 'text') {
+    ctl = `<input class="tiny-text" value="${S.edits[c.id] ?? c.value}" data-text="${c.id}" placeholder="前置条件">
+           <span class="muted" style="font-size:11.5px">${LEVEL.session}</span>`;
+  } else if (c.level === 'approval') {
+    ctl = `<button class="primary" data-nav="approvals">去审批</button>`;
+  } else {
+    ctl = `<button class="ghost" data-toast="已加入任务要求，进入审批">提升为任务要求</button>`;
+  }
+  return `<div class="c-row ${cls}">
+    <div class="c-main">
+      <div class="c-name">${c.icon} ${esc(c.target)} <span class="badge b-soft">${perm}</span></div>
+      <div class="c-meta">
+        <span>${c.action}</span><span>·</span>
+        <span class="badge ${f.cls}">${f.short}</span><span>·</span>
+        <span>${esc(c.origin)}</span>
+      </div>
+      <div class="c-meta"><span>为什么：${esc(c.why)}</span>
+        <span class="tag">${c.id}</span>
+        ${c.level==='locked' ? `<span class="tag">${LEVEL.locked}</span>` : c.level==='approval' ? `<span class="tag">${LEVEL.approval}</span>` : `<span class="tag">${LEVEL.session}</span>`}
+      </div>
+    </div>
+    <div class="c-ctl">${ctl}</div>
+  </div>`;
+}
+
+function changeCard(){
+  const done = agentChange.steps.filter(s => s[1]).length;
+  return `<div class="change">
+    <h3>变更申请 <span class="tag">${agentChange.id}</span> <span class="badge b-info">${agentChange.from}</span></h3>
+    <dl class="kv">
+      <dt>你要求的</dt><dd>${agentChange.request}</dd>
+      <dt>将要变化</dt><dd><span class="diff"><span class="before">${agentChange.diffFrom}</span> → <b>${agentChange.diffTo}</b></span></dd>
+      <dt>影响范围</dt><dd>${agentChange.impact}</dd>
+      <dt>为什么</dt><dd>${agentChange.why}</dd>
+    </dl>
+    <div class="steps">${agentChange.steps.map(([t,ok]) => `<span class="step ${ok?'done':''}">${ok?'✓':'○'} ${t}</span>`).join('')}</div>
+    <div class="notice">这是<strong>收紧</strong>操作，批准后立即生效，不会重启会话。</div>
+    <div class="row" style="margin-top:10px">
+      <button class="primary" data-act="approve">批准并生效</button>
+      <button data-act="reject">拒绝</button>
+      <button class="ghost" data-toast="已请求 Agent 补充证据">要求补充证据</button>
+    </div>
+  </div>`;
+}
+function changeDone(){
+  const ok = agentChange.state === 'approved';
+  return `<div class="change" style="border-color:${ok?'var(--good)':'var(--line-strong)'};background:${ok?'#f6fdfa':'#fbfcfd'}">
+    <h3>变更申请 <span class="tag">${agentChange.id}</span>
+      <span class="badge ${ok?'b-good':'b-soft'}">${ok?'已批准 · 已核验生效':'已拒绝 · 用户要求仍然保留'}</span></h3>
+    <div class="steps">${agentChange.steps.map(([t,good]) => `<span class="step ${ok&&good?'done':''}">${good&&ok?'✓':'○'} ${t}</span>`).join('')}</div>
+    <p class="sub" style="margin-top:6px">${ok ? 'frontend/** 现在只读；已有 3 条规则未受影响。' : '未安装该规则。你在 10:24 提出的要求依然有效，请改用指导项下发。'}</p>
+  </div>`;
+}
+
+function checkOut(){
+  return `<div class="check-out">
+    <div class="row"><b>安全检查结果</b><span class="muted">${new Date().toLocaleTimeString('zh-CN',{hour12:false})}</span></div>
+    <ul style="margin:8px 0 0;padding-left:18px">
+      <li><span class="badge b-good">通过</span> 内核已加载 12 条规则，观测到 3 次真实拦截</li>
+      <li><span class="badge b-warn">注意</span> 有 2 条约束只是语义提醒，系统不会强制（CON-20、CON-21）</li>
+      <li><span class="badge b-warn">待办</span> 1 项权限申请等待你批准（output/** 写入）</li>
+      <li><span class="badge b-soft">提示</span> 测试子 Agent 域只有创建记录，没有加载回执</li>
+    </ul>
+  </div>`;
+}
+
+/* ---------- tab 2：连接与进程 ---------- */
+function tabTree(){
+  const show = n => n.scope === 'both' || S.treeMode === 'explain';
+  const nodes = treeNodes.filter(show);
+  const keys = new Set(nodes.map(n => n.key));
+  const edges = treeEdges.filter(([a,b]) => keys.has(a) && keys.has(b));
+  const H = 560;
+  return `
+  <div class="tree-wrap">
+    <div class="tree-canvas" style="height:${H}px">
+      <svg width="100%" height="${H}" style="position:absolute;inset:0" aria-hidden="true">
+        <defs><marker id="ar" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+          <path d="M0,0 L7,3.5 L0,7" fill="#94a3b0"/></marker></defs>
+        ${edges.map(([a,b,label]) => {
+          const A = treeNodes.find(n=>n.key===a), B = treeNodes.find(n=>n.key===b);
+          const x1 = A.x + A.w/2, y1 = A.y + A.h, x2 = B.x + B.w/2, y2 = B.y, mid = (y1 + y2)/2;
+          return `<path d="M${x1},${y1} V${mid} H${x2} V${y2-6}" fill="none" stroke="#94a3b0" stroke-width="1.4" marker-end="url(#ar)"/>
+            <text x="${(x1+x2)/2+6}" y="${mid+4}" fill="#7b8ca3" font-size="11">${label}</text>`;
+        }).join('')}
+      </svg>
+      ${nodes.map(n => `
+        <div class="node ${n.cls}" style="left:${n.x}px;top:${n.y}px;width:${n.w}px;min-height:${n.h}px" data-node="${n.key}" tabindex="0" role="button" aria-label="查看 ${n.name} 详情">
+          <span class="kind">${n.kind}</span>
+          <span class="name">${n.name}</span>
+          <span class="tags">${n.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+            <span class="badge ${n.evidence==='实时'||n.evidence.startsWith('已核验')?'b-good':'b-soft'}">${n.evidence}</span></span>
+        </div>`).join('')}
+    </div>
+    <div class="rail">
+      <div class="panel">
+        <div class="filters" style="margin:0 0 8px"><span class="muted" style="font-size:12.5px">显示模式</span></div>
+        <div class="seg" style="width:100%">
+          <button style="flex:1" class="${S.treeMode==='explain'?'on':''}" data-tree="explain">讲解</button>
+          <button style="flex:1" class="${S.treeMode==='verify'?'on':''}" data-tree="verify">核验</button>
+        </div>
+        <p class="sub" style="margin-top:8px">${S.treeMode==='explain'
+          ? '显示完整继承模型，未取得回执的节点用虚框标注为“示意”。'
+          : '只显示有加载回执与核验证据的节点，缺材料处不补画。'}</p>
+      </div>
+      <div class="panel">
+        <h3>旁挂信息</h3>
+        <dl style="margin:0">
+          <dt>工作区</dt><dd>WS-01 · repo/<div class="tags"><span class="tag">可写 backend/**</span><span class="tag">保护 tests/</span></div></dd>
+          <dt>会话</dt><dd><span class="tag">SESS-3fa2</span></dd>
+          <dt>本树覆盖</dt><dd class="muted" style="font-size:12px">本任务已登记的执行域与任务 cgroup 内进程</dd>
+        </dl>
+      </div>
+      <div class="panel">
+        <h3>图例</h3>
+        <div class="legend">
+          <div><i style="background:#7b5cd6"></i>平台底线域</div>
+          <div><i style="background:#1f6feb"></i>任务 / 子 Agent 域</div>
+          <div><i style="background:#0f8a5f"></i>Agent</div>
+          <div><i style="background:#94a3b0"></i>进程</div>
+          <div>虚框 = 未取得可信回执（示意）</div>
+        </div>
+      </div>
+      ${S.treeMode==='verify' ? `<div class="notice grey">未取得底线域与测试子域的可信加载回执，因此不画全局 D0。历史 PID 不代表当前在线。</div>` : ''}
+    </div>
+  </div>`;
+}
+
+/* ---------- 其余 tab ---------- */
+function tabFiles(){
+  return `<div class="grid3">
+    <div class="metric"><span>工作区</span><strong style="font-size:18px">WS-01</strong><small>repo/ · 可读</small></div>
+    <div class="metric"><span>文件</span><strong>14</strong><small>最近变更 10:31</small></div>
+    <div class="metric"><span>可写目录</span><strong style="font-size:18px">backend/**</strong><small>其余只读</small></div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+    <h2>文件</h2><p class="sub">只显示 4 列，其余进详情</p>
+    <table><thead><tr><th>文件</th><th>类型</th><th>大小</th><th></th></tr></thead><tbody>
+      ${['backend/stats.py','backend/main.py','frontend/summary.jsx','config/app.toml','tests/test_stats.py'].map(f =>
+        `<tr><td><code>${f}</code></td><td>文本</td><td>${(Math.random()*8+1).toFixed(1)} KB</td>
+         <td><button class="ghost" data-toast="打开文件详情（原型示意）">详情</button></td></tr>`).join('')}
+    </tbody></table>
+  </div>`;
+}
+
+function tabEvents(){
+  const rows = [
+    ['10:32:04','write','repo/frontend/summary.jsx','被内核拒绝','bad'],
+    ['10:31:52','exec','pytest -q','成功','soft'],
+    ['10:31:20','unlink','repo/tests/tmp.py','被内核拒绝','bad'],
+    ['10:30:41','write','repo/backend/stats.py','成功（已独立核验）','good'],
+    ['10:30:02','control','策略 POL-v2 → POL-v3','已加载并核验','good'],
+  ];
+  return `<div class="panel">
+    <div class="row"><div class="grow"><h2>执行记录</h2>
+      <p class="sub">工具调用成功不等于系统调用被允许；内核记录来自独立探针。</p></div>
+      <div class="seg"><button class="on">全部</button><button>内核</button><button>工具</button><button>控制面</button></div></div>
+    <table><thead><tr><th>时间</th><th>操作</th><th>目标</th><th>结果</th><th></th></tr></thead><tbody>
+      ${rows.map(([t,op,tgt,res,k]) => `<tr><td class="muted">${t}</td><td><code>${op}</code></td><td><code>${tgt}</code></td>
+        <td><span class="badge b-${k}">${res}</span></td>
+        <td><button class="ghost" data-toast="打开事件详情与规则来源（原型示意）">详情</button></td></tr>`).join('')}
+    </tbody></table>
+  </div>`;
+}
+
+function tabVersions(){
+  const rows = [
+    ['POL-v3','生效中','实测已核验','你 · 10:24','收紧：frontend/** 改为只读','good'],
+    ['POL-v2','已被替换','回执完整','你 · 10:12','新增：backend/** 可写','soft'],
+    ['POL-v1','已撤销','回执完整','你 · 10:05','冷启动：仓库只读','soft'],
+  ];
+  return `<div class="panel">
+    <h2>策略与版本</h2><p class="sub">每个版本都有独立的编译、加载与核验状态，不混为一谈。</p>
+    <table><thead><tr><th>版本</th><th>状态</th><th>批准人 / 时间</th><th>变化</th><th></th></tr></thead><tbody>
+      ${rows.map(([v,st,ld,who,chg,k]) => `<tr>
+        <td><span class="tag">${v}</span></td>
+        <td><span class="badge b-${k}">${st}</span><div class="muted" style="font-size:12px">${ld}</div></td>
+        <td>${who}</td><td>${chg}</td>
+        <td><button class="ghost" data-act="dsl">查看 DSL 与差异</button></td></tr>`).join('')}
+    </tbody></table>
+  </div>`;
+}
+
+/* ============================ 渲染：审批 / 策略库 / 系统 ============================ */
+function viewApprovals(){
+  const cards = [
+    {t:'会话内变更 · 收紧 frontend/**', src:'SESS-3fa2 · Agent 提出', diff:'允许写入 → 只读', imp:'3 个进程 · 0 条规则被放宽', prog:'已提交 ✓ → 语法通过 ✓ → 待批准', kill:true},
+    {t:'任务策略包 · 依赖升级验证', src:'TASK-2c40 · Pi 生成 7 条规则', diff:'新增 7 条 · 保留 3 条 · 无冲突', imp:'2 条只有语义提醒，不会被强制', prog:'语法通过 ✓ → 待批准', kill:false},
+  ];
+  return `<div class="row" style="margin-bottom:14px"><div class="grow"><h2>审批</h2><p class="sub">有什么在等我决定。批准后才会生效。</p></div></div>
+  ${cards.map(c => `<div class="panel" style="margin-bottom:12px">
+    <div class="row"><div class="grow"><h2>${c.t}</h2><p class="sub">${c.src}</p></div>
+      <span class="badge b-warn">待批准</span></div>
+    <dl class="kv" style="margin-top:10px">
+      <dt>差异</dt><dd>${c.diff}</dd><dt>影响</dt><dd>${c.imp}</dd><dt>进度</dt><dd>${c.prog}</dd>
+    </dl>
+    ${c.kill ? '' : '<div class="notice">放宽权限需要重启会话（约 20 秒），期间进展会保留。</div>'}
+    <div class="row" style="margin-top:10px"><button class="primary" data-toast="已批准（原型示意）">批准</button>
+      <button data-toast="已拒绝（原型示意）">拒绝</button>
+      <button class="ghost" data-toast="已请求补充证据（原型示意）">要求补充证据</button></div>
+  </div>`).join('')}`;
+}
+
+function viewLibrary(){
+  const rows = [
+    ['发布前必须获得许可','仅提醒','onlyclaw/AGENTS.md:42-44','已审核','未加载'],
+    ['提交前必须通过 make test','操作前拦','OpenAI-Codex/AGENTS.md:88','已审核','已加载 · TASK-7f15'],
+    ['不得修改 CI 配置','内核会拦','Qwen-Code/.github/AGENTS.md:12','已审核','已加载 · TASK-2c40'],
+    ['发现嵌入式指令需暂停确认','仅提醒','ZeroClaw/CLAUDE.md:31','待审核','未加载'],
+  ];
+  const k = {'仅提醒':'b-warn','操作前拦':'b-info','内核会拦':'b-good'};
+  return `<div class="panel">
+    <div class="row"><div class="grow"><h2>策略库</h2><p class="sub">这些约束从哪来。5 列，其余进抽屉。</p></div>
+      <input placeholder="搜索策略内容或文件路径" style="max-width:260px"></div>
+    <table style="margin-top:12px">
+      <thead><tr><th style="width:34%">策略语句</th><th>强制力</th><th>来源</th><th>审核</th><th>加载记录</th></tr></thead>
+      <tbody>${rows.map(([s,f,src,rev,load]) => `<tr class="clik" data-toast="打开策略详情与来源原文（原型示意）">
+        <td>${s}</td><td><span class="badge ${k[f]}">${f}</span></td>
+        <td><code style="font-size:12px">${src}</code></td><td>${rev}</td><td class="muted">${load}</td></tr>`).join('')}
+      </tbody></table>
+  </div>`;
+}
+
+function viewSystem(){
+  const caps = [
+    ['Linux 内核','6.11 aarch64','通过'],
+    ['BPF-LSM','已挂载 · 可加载','通过'],
+    ['ActPlane 执行后端','已连接 · 探测正常','通过'],
+    ['DSH CLI','已安装','通过'],
+    ['特权代理 Broker','已连接','通过'],
+    ['运行时热更新','仅支持收紧；放宽需重启','受限'],
+  ];
+  return `<div class="panel">
+    <h2>底层能力</h2><p class="sub">能不能真拦住，取决于这里，而不是界面上的标签。</p>
+    <table style="margin-top:12px"><tbody>
+      ${caps.map(([n,v,s]) => `<tr><td style="width:30%">${n}</td><td class="muted">${v}</td>
+        <td style="width:90px"><span class="badge ${s==='通过'?'b-good':'b-warn'}">${s}</span></td></tr>`).join('')}
+    </tbody></table>
+    <div class="row" style="margin-top:12px"><button data-toast="已重新探测（原型示意）">重新检查</button></div>
+  </div>`;
+}
+
+/* ============================ 抽屉 ============================ */
+const NODE_DETAIL = {
+  'CON-13':{title:'为什么 tests/ 不可修改', kv:[['级别','平台底线 PLT-01'],['强制','内核会直接拦住'],['原因','测试是验收依据，允许修改会让验收结论不可信'],['谁能改','只有平台管理员，且需要新建任务']]},
+};
+function openNode(key){
+  const d = NODE_DETAIL[key] || {title:key, kv:[['说明','原型示意：此处展示该条目的 3–7 个字段，其余收进技术证据。']]};
+  $('drawer').innerHTML = `
+    <div class="drawer-head"><h2>${d.title}</h2><button class="ghost" style="margin-left:auto" data-close>关闭</button></div>
+    <dl class="kv">${d.kv.map(([k,v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>
+    <details class="tech"><summary>技术证据（默认折叠）</summary>
+      <pre>{
+  "record_id": "${key}",
+  "policy_hash": "9f2c…a71",
+  "compilation": { "status": "compiled" },
+  "loading": { "loaded": true, "version": 3 },
+  "domain_id": 102
+}</pre></details>`;
+  $('scrim').classList.add('open');
+}
+function openTreeNode(k){
+  const n = treeNodes.find(x => x.key === k);
+  $('drawer').innerHTML = `
+    <div class="drawer-head"><h2>${n.name}</h2><button class="ghost" style="margin-left:auto" data-close>关闭</button></div>
+    <dl class="kv">
+      <dt>类型</dt><dd>${n.kind}</dd>
+      <dt>定位标签</dt><dd>${n.tags.map(t => `<span class="tag">${t}</span>`).join(' ')}</dd>
+      <dt>证据状态</dt><dd>${n.evidence}</dd>
+      <dt>约束</dt><dd>${n.key==='dom' ? '继承 10 条 + 本域新增 2 条' : n.key==='ag' ? '继承 12 条 + 本域新增 2 条' : '—'}</dd>
+      <dt>说明</dt><dd>${n.d}</dd>
+    </dl>
+    <div class="row" style="margin-top:12px">
+      ${n.key==='dom'||n.key==='ag' ? '<button class="primary" data-toast="已筛选该节点的约束（原型示意）">查看它的约束</button>' : ''}
+      <button class="ghost" data-toast="已复制标签">复制标签</button>
+    </div>`;
+  $('scrim').classList.add('open');
+}
+function closeDrawer(){ $('scrim').classList.remove('open'); }
+
+/* ============================ 渲染入口 ============================ */
+function render(){
+  renderShell();
+  const map = {overview:viewOverview, sessions:()=>S.sessionOpen?viewSession():viewSessions(),
+               approvals:viewApprovals, library:viewLibrary, system:viewSystem};
+  $('view').innerHTML = (map[S.page] || viewSessions)();
+}
+
+/* ============================ 事件 ============================ */
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-nav],[data-open],[data-tab],[data-force],[data-tree],[data-edit],[data-check],[data-node],[data-act],[data-close],[data-toast],[data-open-node]');
+  if (!t) return;
+  const d = t.dataset;
+  if (d.nav) { S.page = d.nav; S.sessionOpen = false; S.check = null; render(); return; }
+  if (d.close !== undefined) { closeDrawer(); return; }
+  if (d.open) { S.sessionId = d.open; S.sessionOpen = true; S.tab = 'constraints'; S.check = null; render(); return; }
+  if (d.tab) { S.tab = d.tab; render(); return; }
+  if (d.force) { S.force = d.force; render(); return; }
+  if (d.tree) { S.treeMode = d.tree; render(); return; }
+  if (d.openNode) { openNode(d.openNode); return; }
+  if (d.node) { openTreeNode(d.node); return; }
+  if (d.edit) { S.edits[d.edit] = d.val; render(); return; }
+  if (d.check !== undefined) {
+    const [id, opt] = d.check.split(':');
+    const key = id + ':' + opt;
+    const c = constraints.find(x => x.id === id);
+    const on = S.edits[key] ?? c.checked.includes(opt);
+    S.edits[key] = !on; render(); return;
+  }
+  if (d.act === 'check') { S.check = true; render(); return; }
+  if (d.act === 'submit') { S.edits = {}; toast('已提交，进入审批'); render(); return; }
+  if (d.act === 'approve') {
+    agentChange.state = 'approved';
+    agentChange.steps = [['已提交',true],['语法通过',true],['已进入内核',true],['实测生效',true]];
+    const c = constraints.find(x => x.id === 'CON-12'); if (c) c.perm = 'readonly';
+    toast('已批准并核验生效'); render(); return;
+  }
+  if (d.act === 'reject') { agentChange.state = 'rejected'; toast('已拒绝，用户要求仍然保留'); render(); return; }
+  if (d.act === 'dsl') { openNode('POL-v3'); return; }
+  if (d.toast) { toast(d.toast); return; }
+});
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t.dataset && t.dataset.edit) { S.edits[t.dataset.edit] = t.value; render(); }
+});
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (t.dataset && t.dataset.text) S.edits[t.dataset.text] = t.value;
+});
+$('scrim').addEventListener('click', e => { if (e.target === $('scrim')) closeDrawer(); });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeDrawer(); return; }
+  if (e.key === 'Enter' || e.key === ' ') {
+    const t = e.target.closest('[data-edit],[data-check],[data-node]');
+    if (t) { e.preventDefault(); t.click(); }
+  }
+});
+$('plain').addEventListener('change', e => { S.plain = e.target.checked; render(); });
+
+/* 打开即落在"会话"页的安全约束，方便演示：这就是首屏静态预渲染的那一屏 */
+S.page = 'sessions';
+S.sessionOpen = true;
+S.tab = 'constraints';
+render();
+</script>
+</body>
+</html>
