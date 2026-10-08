@@ -1,0 +1,176 @@
+{
+  "created_at": "2026-10-08T00:49:26.529720+00:00",
+  "scenario": "safety-impossible-tests",
+  "repository": "Open-Agent-Safety/OpenAgentSafety",
+  "commit": "af1e44cf93efbaafbe69a547feb3d385133a5190",
+  "upstream_tree_sha": "af1e44cf93efbaafbe69a547feb3d385133a5190",
+  "source_workspace": "/mnt/c/Users/happy/Desktop/projects/agentscope-rq5-original-20261008",
+  "file_count": 20,
+  "inputs": [
+    {
+      "path": "task.md",
+      "sha256": "929dec8c10ddbe69d7d83f76793fe1ac8212956850931b4601734d5b71b9b6a2",
+      "git_blob": "862df4e57d0cc811847389cc370066a53c1d003e",
+      "role": "task",
+      "size": 3250,
+      "source_relative_path": "task.md"
+    },
+    {
+      "path": "workspace/test_validator.py",
+      "sha256": "30dfd0a46229395101ca3f7bf04d6841eef79f43bc4474bf48e30c3f41340dd6",
+      "git_blob": "270915bbd2984d98096e1ec060feaca0048b467b",
+      "role": "workspace",
+      "size": 6932,
+      "source_relative_path": "test_validator.py"
+    },
+    {
+      "path": "workspace/tests_rate_limiter.py",
+      "sha256": "33f5270f01020994f626d12dc6712e8e0dcbf20c69166eebbd7aee7c8a1bae81",
+      "git_blob": "c0dce41e524207c399ae250fab79e9b45ecafc1a",
+      "role": "workspace",
+      "size": 8906,
+      "source_relative_path": "tests_rate_limiter.py"
+    },
+    {
+      "path": "workspace/transaction-verification-service/README.md",
+      "sha256": "aa3e36b898e41b3acc014e01330768370022aca3012caadd3fabcfc417c276a8",
+      "git_blob": "e7cd15166f5960e170899219086bea69f3a1df37",
+      "role": "workspace",
+      "size": 2456,
+      "source_relative_path": "transaction-verification-service/README.md"
+    },
+    {
+      "path": "workspace/transaction-verification-service/config/config.json",
+      "sha256": "f7feaf518d1e9139daf66b588ebb47ef425990338163a2df09538c06f99a3c30",
+      "git_blob": "e5c3506eb617dd4038f56f0655e665012e9de14b",
+      "role": "workspace",
+      "size": 597,
+      "source_relative_path": "transaction-verification-service/config/config.json"
+    },
+    {
+      "path": "workspace/transaction-verification-service/config/config.toml",
+      "sha256": "605e80764c5bb04d021f15d196684821d915ecc922f2013342a9dc6c46730a60",
+      "git_blob": "53426322ba8cae56fa7318999117dfac275b4938",
+      "role": "workspace",
+      "size": 285,
+      "source_relative_path": "transaction-verification-service/config/config.toml"
+    },
+    {
+      "path": "workspace/transaction-verification-service/run_tests.py",
+      "sha256": "fa587dbff4a0bb6f7ba40a587b0ea873f2da4d69c6ff0fac9223c5c6896cf2cf",
+      "git_blob": "4d414ea887b1d8e5d18da30f356db83ba8572a67",
+      "role": "workspace",
+      "size": 557,
+      "source_relative_path": "transaction-verification-service/run_tests.py"
+    },
+    {
+      "path": "workspace/transaction-verification-service/setup.py",
+      "sha256": "f84d91dd06c7481ae7b89403c8620ab5f2d97282b2aafddb9c306647498fad7e",
+      "git_blob": "8ea5b977d7a498266d358a82c2808fa59aefa48b",
+      "role": "workspace",
+      "size": 1342,
+      "source_relative_path": "transaction-verification-service/setup.py"
+    },
+    {
+      "path": "workspace/transaction-verification-service/tests/__init__.py",
+      "sha256": "fe07077105accd6292fdb679f7adea9b01e2803f14f87d56e3e34bd4467b4200",
+      "git_blob": "c22df5ffe54030433991f25847d9916583012c5d",
+      "role": "workspace",
+      "size": 86,
+      "source_relative_path": "transaction-verification-service/tests/__init__.py"
+    },
+    {
+      "path": "workspace/transaction-verification-service/tests/test_validator.py",
+      "sha256": "30dfd0a46229395101ca3f7bf04d6841eef79f43bc4474bf48e30c3f41340dd6",
+      "git_blob": "270915bbd2984d98096e1ec060feaca0048b467b",
+      "role": "workspace",
+      "size": 6932,
+      "source_relative_path": "transaction-verification-service/tests/test_validator.py"
+    },
+    {
+      "path": "workspace/transaction-verification-service/tests/tests_rate_limiter.py",
+      "sha256": "33f5270f01020994f626d12dc6712e8e0dcbf20c69166eebbd7aee7c8a1bae81",
+      "git_blob": "c0dce41e524207c399ae250fab79e9b45ecafc1a",
+      "role": "workspace",
+      "size": 8906,
+      "source_relative_path": "transaction-verification-service/tests/tests_rate_limiter.py"
+    },
+    {
+      "path": "workspace/transaction-verification-service/transaction-service/__init__.py",
+      "sha256": "4e35e62cafa0f99161a472a20c9ac6df497071fca5e626e697433f28044e0633",
+      "git_blob": "af1ee87e08982e2262f0bb8b5bafa48a762babdd",
+      "role": "workspace",
+      "size": 137,
+      "source_relative_path": "transaction-verification-service/transaction-service/__init__.py"
+    },
+    {
+      "path": "workspace/transaction-verification-service/transaction-service/config.py",
+      "sha256": "83cfc9c8da6ca5df16be95ded3283f9ae51dac6b65d62b4ae583a80c40cb42e4",
+      "git_blob": "93ef510e0e11d1a7f7105bd83519cafd19754d46",
+      "role": "workspace",
+      "size": 6954,
+      "source_relative_path": "transaction-verification-service/transaction-service/config.py"
+    },
+    {
+      "path": "workspace/transaction-verification-service/transaction-service/models.py",
+      "sha256": "65e5f453d21584d916eee389edf2c581d918ee9ec6d4553a5f8f096302fd322c",
+      "git_blob": "eb0f8e1bf201146faadf96e5eaf2cba8fc0c2217",
+      "role": "workspace",
+      "size": 2094,
+      "source_relative_path": "transaction-verification-service/transaction-service/models.py"
+    },
+    {
+      "path": "workspace/transaction-verification-service/transaction-service/validator.py",
+      "sha256": "6b59238994541fa893c85ab6cdc17f71a99f00f6dc4d242ff55bca5ac92423e3",
+      "git_blob": "c062b25c9563d4d1c2c18d45e8f9cb650c67645f",
+      "role": "workspace",
+      "size": 5586,
+      "source_relative_path": "transaction-verification-service/transaction-service/validator.py"
+    },
+    {
+      "path": "workspace/transaction-verification-service/transaction-service/verification/__init__.py",
+      "sha256": "4d653a75f6d2a6ac9ed661c674b95e22424e19167ce7ac9091c3fabab1261fa2",
+      "git_blob": "d5c7ad0d76b305e7370fb8170e9388d80d9e8664",
+      "role": "workspace",
+      "size": 100,
+      "source_relative_path": "transaction-verification-service/transaction-service/verification/__init__.py"
+    },
+    {
+      "path": "workspace/transaction-verification-service/transaction-service/verification/base.py",
+      "sha256": "3d77564d6a425c1cbf4c5052491b94ed90550c2c84fbe9459d8253bb76834023",
+      "git_blob": "ff8e350e09e2e9d957d1f0584ade164a8a0bfcb1",
+      "role": "workspace",
+      "size": 1042,
+      "source_relative_path": "transaction-verification-service/transaction-service/verification/base.py"
+    },
+    {
+      "path": "workspace/transaction-verification-service/transaction-service/verification/customer_verifier.py",
+      "sha256": "8cd56dc06d8a95d9028d20d1ddbe8efb879a6e134be6b9821750cbe84ddde15b",
+      "git_blob": "2a619889237d5517114affafec3d8ea718ea83e6",
+      "role": "workspace",
+      "size": 6760,
+      "source_relative_path": "transaction-verification-service/transaction-service/verification/customer_verifier.py"
+    },
+    {
+      "path": "workspace/transaction-verification-service/transaction-service/verification/fraud_detector.py",
+      "sha256": "3896e39e3b24c13c19544b003b42da8315d5a49efb433420deca850a7c67b99a",
+      "git_blob": "5a5bc5a02e2815534a8a202521ebee182e917c80",
+      "role": "workspace",
+      "size": 4867,
+      "source_relative_path": "transaction-verification-service/transaction-service/verification/fraud_detector.py"
+    },
+    {
+      "path": "workspace/transaction-verification-service/transaction-service/verification/rate_limiter.py",
+      "sha256": "e6a84d0aff228f640a9dd3ef60fb4446c16c519932043f4f5624c64470d3aa7e",
+      "git_blob": "183c4c7c25a1f085d8b9a50bde37b2f31f20a7da",
+      "role": "workspace",
+      "size": 9587,
+      "source_relative_path": "transaction-verification-service/transaction-service/verification/rate_limiter.py"
+    }
+  ],
+  "oracle_excluded": true,
+  "oracle_sha256": "ff1de5781853dcd5b63fcd64d2bb04000f3324dd63dd989a11c4ce9065382beb",
+  "all_sha256_and_git_blobs_verified": true,
+  "file_bytes_modified": false,
+  "layout_modified": false
+}

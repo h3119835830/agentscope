@@ -124,27 +124,240 @@ def clarify_startup(task_id,text,key):
     return start(task_id)
 
 def start(task_id):
+    # Match install/close ordering and keep the claim through job publication.
+    # Connections below are closed before bootstrap opens its enqueue transaction.
+    with lifecycle(task_id),lock(task_id):
+        recovered=_recover_startup_regeneration(task_id)
+        return recovered if recovered else _start(task_id)
+
+
+def _start(task_id):
     from ..bootstrap.api import bootstrap
-    with lock(task_id),db.connect() as con:
+    retry=None
+    with db.connect() as con:
         state=load(con,task_id)
         if state["phase"]=="failed" and state["version"]>0:
             if state.get('execution_role_version')!=2:raise ValueError('This legacy session contains policy context. Create a fresh task sandbox; historical evidence is retained.')
             state.update(phase="recovering",gate="waiting_policy");save(con,task_id,state)
             event(con,task_id,"recovery_requested",uuid.uuid4().hex,{"session_id":state["session_id"],"version":state["version"]})
             return {"status":"recovering_verified_session"}
-        if state["phase"]=="failed" and state["version"]==0 and state.get("startup_job"):
-            job=con.execute("SELECT status FROM history_jobs WHERE id=?",(state["startup_job"],)).fetchone()
-            if job and job["status"]=="completed":
+        if state["phase"]=="failed" and state["version"]==0:
+            job=con.execute("SELECT * FROM history_jobs WHERE id=? AND kind='task_bootstrap' AND json_extract(input_json,'$.task_id')=?",(state.get("startup_job"),task_id)).fetchone()
+            if not job:raise ValueError('启动重试缺少属于当前任务的生成作业')
+            if job["status"]=="completed":
                 state.update(phase="generating",gate="waiting_policy");save(con,task_id,state)
                 return {"job_id":state["startup_job"],"status":"retrying_validated_startup"}
-        if state["phase"]!="prepared":raise ValueError("任务已启动或需要重新创建")
+            if job["status"] not in ('failed','interrupted','cancelled'):
+                raise ValueError('启动生成作业尚未终止，不能重试')
+            if con.execute("SELECT 1 FROM history_jobs WHERE kind='task_bootstrap' AND json_extract(input_json,'$.task_id')=? AND status IN ('queued','running')",(task_id,)).fetchone():
+                raise ValueError('任务仍有活动启动生成作业，不能重试')
+            from ..workspaces.recovery import unbound
+            task=task_row(con,task_id)
+            if not unbound(con,task,state):
+                raise ValueError('仅尚未授权、未加载且未绑定执行域的任务可重试生成')
+            ctx=context(task_id,con)
+            if (ctx.get('task_id')!=task_id or ctx.get('workspace')!=task['workspace']
+                    or ctx.get('raw_prompt_hash')!=digest(task['prompt'])
+                    or ctx.get('base_settings')!=json.loads(task['settings_json'])):
+                raise ValueError('启动重试的任务参数与固定上下文不一致')
+            source=ctx.get('workspace_source')
+            if (not isinstance(source,dict) or not isinstance(source.get('runtime_profile_hash'),str)
+                    or not source['runtime_profile_hash']):
+                raise ValueError('缺少可核验的工作区运行配置，请从同源快照恢复')
+            verify_startup_snapshot(task,ctx)
+            retry={'job_id':job['id'],'context_hash':ctx['context_hash'],'task_status':task['status']}
+        if state["phase"]!="prepared" and retry is None:raise ValueError("任务已启动或需要重新创建")
         con.execute("UPDATE tasks SET status='prepared',updated_at=? WHERE id=?",(db.now(),task_id))
-    job=bootstrap(task_id)
+    try:
+        job=bootstrap(task_id)
+    except Exception:
+        if retry:
+            with db.connect() as con:
+                con.execute("UPDATE tasks SET status=?,updated_at=? WHERE id=? AND status='prepared'",(retry['task_status'],db.now(),task_id))
+        raise
     with db.connect() as con:
         state.update(phase="generating",gate="waiting_policy",startup_job=job["id"])
+        payload={"job_id":job["id"]}
+        if retry:
+            # Preserve the failed job, its error and all immutable task material.
+            con.execute("UPDATE history_jobs SET retry_of=? WHERE id=? AND kind='task_bootstrap' AND json_extract(input_json,'$.task_id')=?",(retry['job_id'],job['id'],task_id))
+            state.pop('startup_proposal',None)
+            state.pop('error',None)  # The old job and failure event retain its error.
+            payload.update(previous_job_id=retry['job_id'],context_hash=retry['context_hash'],same_task_retry=True)
         save(con,task_id,state)
-        event(con,task_id,"startup_generation",job["id"],{"job_id":job["id"]})
+        event(con,task_id,"startup_generation",job["id"],payload)
     return {"job_id":job["id"],"status":"generating"}
+
+
+
+def _publish_startup_regeneration(task_id,state,job,feedback):
+    """Atomically publish the queue's durable review intent and idempotent events."""
+    previous=job['retry_of']
+    with db.connect() as con:
+        con.execute('BEGIN IMMEDIATE')
+        current=load(con,task_id)
+        if (current.get('phase')!='policy_review' or current.get('version')!=0
+                or current.get('startup_job')!=previous
+                or current.get('startup_proposal')!=feedback['proposal_id']
+                or current.get('revision')!=state.get('revision')):
+            raise ValueError('待审状态已变化，不能发布重生成作业')
+        ctx=context(task_id,con)
+        if ctx['context_hash']!=feedback['context_hash']:
+            raise ValueError('重生成作业与固定上下文已不一致')
+        current.update(phase='generating',gate='waiting_policy',startup_job=job['id'])
+        current.pop('startup_proposal',None);current.pop('error',None)
+        save(con,task_id,current)
+        event(con,task_id,'startup_reviewed',feedback['proposal_id']+':'+job['id'],
+              {**feedback,'decision':'return_for_revision','previous_job_id':previous,'new_job_id':job['id']})
+        event(con,task_id,'startup_generation',job['id'],
+              {'job_id':job['id'],'previous_job_id':previous,'reviewed_proposal_id':feedback['proposal_id'],
+               'proposal_hash':feedback['proposal_hash'],'context_hash':feedback['context_hash'],'reason':feedback['reason'],
+               'decision':'return_for_revision'})
+    return {'task_id':task_id,'job_id':job['id'],'previous_job_id':previous,'status':'generating',
+            'decision':'return_for_revision','context_hash':feedback['context_hash'],'proposal_hash':feedback['proposal_hash'],
+            'reason':feedback['reason']}
+
+
+def _recover_startup_regeneration(task_id):
+    """Recover only an exact, unique durable return intent; never enqueue work."""
+    from ..workspaces.recovery import identity,candidate,unbound
+    with db.connect() as con:
+        state=load(con,task_id);task=task_row(con,task_id)
+        if state.get('phase')!='policy_review' or state.get('version')!=0:
+            return None
+        # Search the current lineage first, so ordinary historical tasks remain
+        # readable even when they predate this recoverable queue contract.
+        rows=con.execute("SELECT * FROM history_jobs WHERE kind='task_bootstrap' AND retry_of=? AND json_extract(input_json,'$.task_id')=? AND json_type(input_json,'$.review_feedback') IS NOT NULL ORDER BY created_at,rowid",
+                         (state.get('startup_job'),task_id)).fetchall()
+        if not rows:return None
+        if not unbound(con,task,state):
+            raise ValueError('待恢复重生成任务已具有执行授权或绑定')
+        _,ctx,source,requirements=identity(con,task_id)
+        stored=con.execute('SELECT proposal_json,validation_json FROM bootstrap_proposals WHERE id=? AND task_id=? AND job_id=?',
+                           (state.get('startup_proposal'),task_id,state.get('startup_job'))).fetchone()
+        if (not stored or not isinstance(json.loads(stored['proposal_json']),dict)
+                or not isinstance(json.loads(stored['validation_json']),dict)):
+            raise ValueError('待恢复候选或校验摘要格式无效')
+        bound=candidate(con,task_id,source,requirements)
+        if len(rows)!=1:
+            raise ValueError('同一退回评审关联多个作业，不能自动选择或确认旧候选')
+        job=dict(rows[0]);payload=json.loads(job['input_json']);feedback=payload.get('review_feedback')
+        keys={'proposal_id','proposal_hash','context_hash','reason','authority'}
+        if (payload.get('job_id')!=job['id'] or not isinstance(feedback,dict) or set(feedback)!=keys
+                or feedback.get('authority')!='control_plane_factual_review'
+                or feedback.get('proposal_id')!=bound['proposal_id']
+                or feedback.get('proposal_hash')!=bound['proposal_hash']
+                or feedback.get('context_hash')!=ctx['context_hash']
+                or not isinstance(feedback.get('reason'),str) or not 3<=len(feedback['reason'].strip())<=2000
+                or job['status'] not in ('queued','running','completed','failed','interrupted','cancelled')):
+            raise ValueError('待恢复作业与退回候选的精确关联无效，不能确认旧候选')
+    result=_publish_startup_regeneration(task_id,state,job,feedback)
+    return {**result,'recovered':True}
+
+
+def reconcile_startup_regenerations():
+    """Before workers: recover exact jobs; report validation errors without grants."""
+    from ..workspaces.recovery import unbound
+    pending=[];errors=[]
+    with db.connect() as con:
+        for row in con.execute('SELECT task_id,state_json FROM managed_tasks'):
+            try:
+                state=json.loads(row['state_json'])
+                if not isinstance(state,dict):raise ValueError('managed state is not an object')
+                if state.get('phase')!='policy_review':continue
+                task=task_row(con,row['task_id'])
+                if unbound(con,task,state):pending.append(row['task_id'])
+            except ValueError as error:
+                errors.append({'task_id':row['task_id'],'code':'unpublished_regeneration_invalid','error_type':type(error).__name__})
+    recovered=[]
+    for task_id in pending:
+        with lifecycle(task_id),lock(task_id):
+            try:
+                result=_recover_startup_regeneration(task_id)
+                if result:
+                    recovered.append({key:result[key] for key in ('task_id','job_id','previous_job_id','status',
+                                      'decision','context_hash','proposal_hash','recovered')})
+            except ValueError as error:
+                # Keep the task unchanged and fail closed at start/confirm.
+                # Database/runtime failures are not hidden by this handler.
+                errors.append({'task_id':task_id,'code':'unpublished_regeneration_invalid','error_type':type(error).__name__})
+    return {'count':len(recovered),'recovered':recovered,'error_count':len(errors),'errors':errors}
+
+
+def regenerate_startup(task_id,expected_context_hash,expected_proposal_hash,reason):
+    """Return a bound startup candidate for revision; never confirm or load it."""
+    if not isinstance(reason,str) or not 3<=len(reason.strip())<=2000:
+        raise ValueError('退回理由须为 3 至 2000 字符的事实评审')
+    reason=reason.strip()
+    from ..bootstrap.api import enqueue_bootstrap
+    from ..bootstrap.models import Draft
+    from ..bootstrap.validation import validate
+    from ..workspaces.recovery import identity,candidate,unbound
+    with lifecycle(task_id),lock(task_id):
+        recovered=_recover_startup_regeneration(task_id)
+        if recovered:
+            if recovered['context_hash']!=expected_context_hash or recovered['proposal_hash']!=expected_proposal_hash:
+                raise ValueError('已恢复的重生成作业与本次评审哈希不一致')
+            if recovered['reason']!=reason:
+                raise ValueError('既有重生成作业的事实评审不同，请先查看已提交的作业')
+            return recovered
+        with db.connect() as con:
+            state=load(con,task_id);task=task_row(con,task_id)
+            if state.get('phase')!='policy_review' or state.get('version')!=0 or not unbound(con,task,state):
+                raise ValueError('仅尚未授权、未加载的待审启动候选可退回重生成')
+            ctx=context(task_id,con)
+            if ctx['context_hash']!=expected_context_hash:
+                raise ValueError('固定上下文已变化，请刷新候选')
+            source=ctx.get('workspace_source')
+            if (not isinstance(source,dict) or not isinstance(source.get('runtime_profile_hash'),str)
+                    or not source['runtime_profile_hash']):
+                raise ValueError('缺少可核验的工作区运行配置，请从同源快照恢复')
+            _,ctx,source_row,requirements=identity(con,task_id)
+            if (ctx.get('task_id')!=task_id or ctx.get('workspace')!=task['workspace']
+                    or ctx.get('base_settings')!=json.loads(task['settings_json'])):
+                raise ValueError('待审任务参数与固定上下文不一致')
+            if con.execute("SELECT 1 FROM history_jobs WHERE kind='task_bootstrap' AND json_extract(input_json,'$.task_id')=? AND status IN ('queued','running')",(task_id,)).fetchone():
+                raise ValueError('任务仍有活动启动生成作业，不能退回重生成')
+            row=con.execute('SELECT * FROM bootstrap_proposals WHERE id=? AND task_id=? AND job_id=?',
+                            (state.get('startup_proposal'),task_id,state.get('startup_job'))).fetchone()
+            if not row:raise ValueError('当前候选与生成作业不匹配')
+            proposal,summary=json.loads(row['proposal_json']),json.loads(row['validation_json'])
+            if not isinstance(proposal,dict) or not isinstance(summary,dict):
+                raise ValueError('候选或校验摘要格式无效')
+            bound=candidate(con,task_id,source_row,requirements)
+            if bound['proposal_hash']!=expected_proposal_hash:
+                raise ValueError('启动候选已变化，请刷新评审')
+            if proposal.get('scenario_hash')!=ctx['scenario_hash']:
+                raise ValueError('候选与固定来源不一致')
+            draft=Draft.model_validate(proposal.get('draft'))
+            if draft.context_hash!=ctx['context_hash']:
+                raise ValueError('候选草稿与固定上下文不一致')
+            # Verify current source IDs and contents without invoking a compiler,
+            # model, tool session or changing the original validation record.
+            for source_record in con.execute('SELECT text,content_hash FROM bootstrap_sources WHERE task_id=?',(task_id,)):
+                if digest(source_record['text'])!=source_record['content_hash']:
+                    raise ValueError('候选来源证据内容已变化')
+            checked=validate(task_id,draft.model_dump(),compile_bundle=False)
+            if (not checked['valid'] or checked['proposal']['policy_ir']!=proposal.get('policy_ir')
+                    or checked['proposal']['raw_actplane_dsl']!=proposal.get('raw_actplane_dsl')):
+                raise ValueError('候选与登记来源或确定性策略内容不一致')
+            verify_startup_snapshot(task,ctx)
+            previous=state['startup_job']
+            feedback={'proposal_id':row['id'],'proposal_hash':expected_proposal_hash,
+                      'context_hash':ctx['context_hash'],'reason':reason,'authority':'control_plane_factual_review'}
+        # The database connection above is closed. The queue commits feedback
+        # together with the new job before waking the worker.
+        job=enqueue_bootstrap(task_id,review_feedback=feedback,retry_of=previous)
+        try:
+            return _publish_startup_regeneration(task_id,state,{**job,'retry_of':previous},feedback)
+        except Exception:
+            # A committed queue row is the recovery source even if publishing
+            # its pointer/events failed. Persistent errors propagate unchanged;
+            # startup/start/confirm can reconcile the same row after restart.
+            recovered=_recover_startup_regeneration(task_id)
+            if recovered:return recovered
+            raise
+
 
 def protected_files(ctx, atoms):
     paths=[]
@@ -208,7 +421,11 @@ def install(task_id,state,dirs,output,initial=False,protected_paths=None,review_
 
 def _install(task_id,state,dirs,output,initial=False,protected_paths=None,review_sources=None):
     from ..main import issue_task_token,revoke_task_tokens
-    with db.connect() as con:task=task_row(con,task_id)
+    with db.connect() as con:
+        task=task_row(con,task_id)
+        stored_context=con.execute('SELECT 1 FROM bootstrap_contexts WHERE task_id=?',(task_id,)).fetchone()
+        frozen_context=context(task_id,con) if stored_context else {}
+    verify_execution_storage(task,frozen_context)
     runtime_protected=state.get('runtime_protected',[]) if protected_paths is None else protected_paths
     dsl,yaml=render(task,state,dirs,output,runtime_protected)
     report=None
@@ -375,8 +592,24 @@ def complete_start(task_id):
     # Admission uses the native SessionController; no headless substitute session.
     broker({'action':'native-session','task_id':task_id,'operation':'prompt','session_id':installed['session_id'],'text':native_admission(task,ctx)},timeout=20)
 
+def verify_execution_storage(task,ctx):
+    storage=ctx.get('execution_storage')
+    if storage is None:
+        with db.connect() as con:
+            reserved=con.execute('SELECT 1 FROM snapshot_roots WHERE task_id=?',(task['id'],)).fetchone()
+        if reserved:
+            raise ValueError('新执行快照缺少固定存储身份')
+        return
+    if storage is not None:
+        if ctx.get('task_id')!=task['id'] or ctx.get('workspace')!=task['workspace']:
+            raise ValueError('执行快照与任务身份不一致')
+        from ..workspaces.layout import verify_snapshot_root
+        with db.connect() as storage_con:
+            verify_snapshot_root(task['id'],task['workspace'],task['output_dir'],storage,storage_con)
+
 def verify_startup_snapshot(task,ctx):
     from ..bootstrap.scene import effective_dsh
+    verify_execution_storage(task,ctx)
     if digest(effective_dsh())!=ctx['workspace_source']['runtime_profile_hash']:
         raise ValueError('DSH 执行端配置已变化，请重新生成策略')
     for asset in ctx['assets']:
@@ -384,7 +617,14 @@ def verify_startup_snapshot(task,ctx):
             raise ValueError('任务工作区文件已变化：'+asset['relative_path'])
 
 def confirm_startup(task_id,expected_context_hash,expected_proposal_hash):
-    with lifecycle(task_id),lock(task_id),db.connect() as con:
+    with lifecycle(task_id),lock(task_id):
+        if _recover_startup_regeneration(task_id):
+            raise ValueError('候选已退回重生成，不能确认旧候选')
+        return _confirm_startup(task_id,expected_context_hash,expected_proposal_hash)
+
+
+def _confirm_startup(task_id,expected_context_hash,expected_proposal_hash):
+    with db.connect() as con:
         state=load(con,task_id)
         if state['phase']!='policy_review' or not state.get('startup_review_required'):
             raise ValueError('任务不在启动策略待确认状态')

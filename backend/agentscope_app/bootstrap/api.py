@@ -37,17 +37,43 @@ def create(scenario_id: str):
 
 @router.post("/api/tasks/{task_id}/bootstrap")
 def bootstrap(task_id: str):
-    try: context(task_id)
+    # HTTP callers cannot supply review authority or enqueue metadata.
+    return enqueue_bootstrap(task_id)
+
+
+def enqueue_bootstrap(task_id, *, review_feedback=None, retry_of=None):
+    try: ctx=context(task_id)
     except ValueError as error: raise bad_request(error)
+    if review_feedback is not None:
+        keys={'proposal_id','proposal_hash','context_hash','reason','authority'}
+        if (not isinstance(review_feedback,dict) or set(review_feedback)!=keys
+                or review_feedback.get('authority')!='control_plane_factual_review'
+                or not isinstance(review_feedback.get('reason'),str)
+                or not 3<=len(review_feedback['reason'].strip())<=2000
+                or review_feedback.get('context_hash')!=ctx['context_hash'] or not retry_of):
+            raise bad_request(ValueError('invalid factual review feedback'))
+        with db.connect() as con:
+            prior=con.execute("SELECT p.proposal_json,p.content_hash FROM bootstrap_proposals p JOIN history_jobs j ON j.id=p.job_id WHERE p.id=? AND p.task_id=? AND p.context_hash=? AND p.content_hash=? AND p.job_id=? AND p.state='validated' AND j.kind='task_bootstrap' AND j.status='completed' AND json_extract(j.input_json,'$.task_id')=?",
+                              (review_feedback['proposal_id'],task_id,ctx['context_hash'],review_feedback['proposal_hash'],retry_of,task_id)).fetchone()
+        if not prior or digest(json.loads(prior['proposal_json']))!=prior['content_hash']:
+            raise bad_request(ValueError('review feedback is not bound to this task candidate'))
+    elif retry_of is not None:
+        raise bad_request(ValueError('review retry metadata requires factual feedback'))
     with db.connect() as con:
         task = con.execute("SELECT status FROM tasks WHERE id=?", (task_id,)).fetchone()
         if task["status"] == "bootstrapping":
             job = con.execute("SELECT id,status FROM history_jobs WHERE kind='task_bootstrap' AND json_extract(input_json,'$.task_id')=? AND status IN ('queued','running') ORDER BY created_at DESC LIMIT 1", (task_id,)).fetchone()
-            if job: return dict(job)
+            if job:
+                if review_feedback is not None:raise bad_request(ValueError('task already has active startup generation'))
+                return dict(job)
         if task["status"] not in ("prepared", "policy_review", "approved"): raise HTTPException(409, "task cannot generate startup policy now")
         if not con.execute("UPDATE tasks SET status='bootstrapping',updated_at=? WHERE id=? AND status=?", (db.now(), task_id, task["status"])).rowcount:
             raise HTTPException(409, "task generation already claimed")
-    try: return jobs.enqueue("task_bootstrap", {"task_id": task_id})
+    try:
+        if review_feedback is not None:
+            # One INSERT commits input_json and retry_of before the worker wakes.
+            return jobs.enqueue("task_bootstrap", {"task_id":task_id,"review_feedback":review_feedback}, retry_of=retry_of)
+        return jobs.enqueue("task_bootstrap", {"task_id":task_id})
     except Exception:
         with db.connect() as con: con.execute("UPDATE tasks SET status=? WHERE id=? AND status='bootstrapping'", (task["status"], task_id))
         raise

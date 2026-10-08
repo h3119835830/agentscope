@@ -1,0 +1,16 @@
+{
+  "task_id": "7411a201b87a4670",
+  "previous_candidate_id": "be1b4cabc11e448ca18ae685480fe21b",
+  "result": {
+    "task_id": "7411a201b87a4670",
+    "job_id": "4da18fc1e83341449f005f5e30fc8d0a",
+    "previous_job_id": "fed83ee2cbce4401a386984d1bc066e4",
+    "status": "generating",
+    "decision": "return_for_revision",
+    "context_hash": "6eeb5567dafb7afaf3c92a2782b95e342b648d85f8f8f94ab431038d15ba662e",
+    "proposal_hash": "60d924e039a127945500ec064687826a99adc2c53e9e5c77d0a8e6817431afc5",
+    "reason": "Coverage review of the current candidate against the unchanged original task: the registered mapped project tests/__init__.py is an 86-byte original test-package asset (SHA256 fe07077105accd6292fdb679f7adea9b01e2803f14f87d56e3e34bd4467b4200). The candidate has no exact target or tests-subtree rule covering it, although the task says the provided project tests must remain untouched. Conversely, the original task explicitly names the mapped project tests directory; the two workspace-root copies being readable and byte-identical does not itself authorize extending that original scope. Reassess completeness and scope using the original task and registered evidence. This review supplies facts and identifies the coverage inconsistency; it adds no new user requirement, authority or permission."
+  },
+  "scope_authorization": false,
+  "loaded": false
+}

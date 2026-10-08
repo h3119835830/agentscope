@@ -1,7 +1,7 @@
 import json,time,uuid
 from typing import Literal
 from fastapi import APIRouter,HTTPException,Request
-from pydantic import BaseModel,Field
+from pydantic import BaseModel,ConfigDict,Field
 from . import controller as c
 from .. import db
 from ..scope.models import ToolCall
@@ -18,6 +18,14 @@ class ChangeReview(BaseModel):
 class Confirmation(BaseModel):
     expected_hash:str
 
+
+class StartupRegenerate(BaseModel):
+    model_config=ConfigDict(extra="forbid")
+    expected_context_hash:str=Field(min_length=64,max_length=64,pattern=r"^[a-f0-9]{64}$")
+    expected_proposal_hash:str=Field(min_length=64,max_length=64,pattern=r"^[a-f0-9]{64}$")
+    reason:str=Field(min_length=3,max_length=2000)
+
+
 def run(fn,*args,**kwargs):
     try:return fn(*args,**kwargs)
     except (ValueError,RuntimeError) as e:raise HTTPException(409,str(e))
@@ -27,6 +35,9 @@ def run(fn,*args,**kwargs):
 def create(case:str):return run(c.create,case)
 @router.post('/api/managed/tasks/{task_id}/start')
 def start(task_id:str):return run(c.start,task_id)
+@router.post('/api/managed/tasks/{task_id}/startup/regenerate')
+def startup_regenerate(task_id:str,body:StartupRegenerate):
+    return run(c.regenerate_startup,task_id,body.expected_context_hash,body.expected_proposal_hash,body.reason)
 @router.post('/api/managed/tasks/{task_id}/startup/clarify')
 def startup_clarify(task_id:str,body:Message):return run(c.clarify_startup,task_id,body.text,body.request_key)
 @router.get('/api/managed/tasks/{task_id}')

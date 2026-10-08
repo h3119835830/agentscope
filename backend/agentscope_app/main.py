@@ -1,4 +1,4 @@
-import asyncio, hashlib, hmac, json, os, re, secrets, subprocess, tempfile, uuid
+import asyncio, hashlib, hmac, json, logging, os, re, secrets, subprocess, tempfile, uuid
 from pathlib import Path
 from typing import Any
 from fastapi import FastAPI, HTTPException, Query, Request
@@ -28,6 +28,7 @@ from .scope.worker import worker as scope_worker
 app.include_router(scope_router)
 from .managed.api import router as managed_router
 from .managed.worker import worker as managed_worker
+from .managed.controller import reconcile_startup_regenerations
 app.include_router(managed_router)
 from .workspaces.api import router as workspace_router
 from .workspaces.registry import init as init_workspaces
@@ -212,6 +213,9 @@ async def startup():
     db.init_db()
     init_workspaces()
     init_scene_reads()
+    reconciliation=reconcile_startup_regenerations()
+    if reconciliation["count"] or reconciliation["error_count"]:
+        logging.getLogger(__name__).warning("Startup review reconciliation: %s",reconciliation)
     if os.getenv("AGENTSCOPE_HISTORY_WORKER","1")!="0" and os.getenv("AGENTSCOPE_RQ1_AUTO_IMPORT","1")!="0": corpus.ensure_seed_job()
     history_jobs.worker.start()
     scope_worker.start()

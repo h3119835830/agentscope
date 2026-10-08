@@ -19,6 +19,18 @@ CAPABILITIES = {"version": "bootstrap-ir/1", "admission_boundary": {"assessed_by
                 "pattern_limits": {"max_utf8_bytes": PATTERN_MAX_UTF8_BYTES, "canonical_absolute_paths": True,
                     "disallowed_characters": ["\n", "\r", "\u0000", '"', "\\"],
                     "overlong_target_action": "Use registered short-path mappings from get_task_context; if no exact supported target exists, record unresolved. Never broaden protection to bypass this limit."},
+                "path_matching": {
+                    "exact": {"syntax": "/absolute/path", "includes_base_node": True,
+                              "includes_descendants": False,
+                              "directory_behavior": "A bare directory path matches only that directory node; it does not recurse."},
+                    "descendants": {"syntax": "/absolute/directory/**", "includes_base_node": False,
+                                    "includes_descendants": True,
+                                    "prefix_boundary": "/absolute/directory/",
+                                    "directory_behavior": "Matches descendants below the directory, not the directory node or similarly named adjacent paths."},
+                    "directory_node_and_descendants": "Pi must explicitly propose both the exact directory path and its /** pattern when evidence authorizes both. The server never adds either pattern.",
+                    "max_utf8_bytes": PATTERN_MAX_UTF8_BYTES,
+                    "coverage_basis": "Literal operation/pattern matching against same-task hash-valid registered asset paths; not statement intent, runtime enforcement proof, or a complete filesystem inventory."
+                },
                 "semantics": "block mutations to evidence-resolved files/subtrees; descendants inherit domain",
                 "object_scope":"Honor declared registered_existing_files sets using exact registered targets. Derived artifacts and adjacent legitimate files remain available. directory_subtree means an explicitly declared entire tree. Ancestor identity is guarded separately by the managed loader.",
                 "history_parameterization":"The reviewed configuration selector covers registered shell/Git configuration and JSON/TOML/YAML/INI/CONF/CFG assets; it excludes Python source and tests. A different object kind needs a current-task new candidate.",
@@ -28,6 +40,33 @@ CAPABILITIES = {"version": "bootstrap-ir/1", "admission_boundary": {"assessed_by
 def configuration_asset(path):
     name=Path(path).name
     return name in ('.bashrc','.bash_profile','.profile','.gitconfig') or Path(path).suffix.lower() in ('.json','.toml','.yaml','.yml','.ini','.conf','.cfg')
+
+def registered_asset_coverage(draft, sources):
+    """Describe submitted atoms literally; do not add or interpret constraints."""
+    assets = sorted(
+        ({"source_id": source["id"], "path": source["path"]}
+         for source in sources.values()
+         if source["role"] == "asset" and isinstance(source.get("path"), str)
+         and digest(source["text"]) == source["content_hash"]),
+        key=lambda asset: (asset["path"], asset["source_id"]))
+    atoms = []
+    for atom_index, atom in enumerate(draft.atoms):
+        targets = []
+        for pattern in dict.fromkeys(atom.paths):
+            descendants = pattern.endswith("/**")
+            base = pattern[:-3] if descendants else pattern
+            matched = [asset for asset in assets
+                       if (asset["path"].startswith(base + "/") if descendants else asset["path"] == base)]
+            targets.append({"pattern": pattern,
+                            "matching": "descendants" if descendants else "exact",
+                            "includes_base_node": not descendants,
+                            "matched_asset_count": len(matched),
+                            "matched_assets": matched})
+        atoms.append({"atom_index": atom_index, "operations": list(dict.fromkeys(atom.operations)),
+                      "targets": targets})
+    return {"scope": "draft_atoms_only", "basis": "same_task_hash_valid_registered_asset_paths",
+            "runtime_enforcement_proof": False, "atoms": atoms}
+
 
 def validate(task_id, draft, compile_bundle=True):
     draft = Draft.model_validate(draft)
@@ -134,6 +173,7 @@ def validate(task_id, draft, compile_bundle=True):
                 "context_hash": ctx["context_hash"]}
     proposal_state = "validated" if valid else "needs_clarification" if draft.unresolved and state == "compiled" else "invalid"
     return {"valid": valid, "state": proposal_state, "compile_state": state, "compiler": info, "diagnostic": diagnostic,
+            "registered_asset_coverage": registered_asset_coverage(draft, sources),
             "normalization":report,"blocking_gaps": draft.unresolved, "proposal": proposal, "proposal_hash": digest(proposal)}
 
 def verify_version(con, task_id, version_id, expected_context=None, expected_proposal=None, approval=False):

@@ -1,0 +1,17 @@
+{
+  "task_id": "7411a201b87a4670",
+  "previous_proposal_hash": "ca0d5eefdf03f309a2e08f55513871cd166e9184bc882886cea9053b1ce0800f",
+  "context_hash": "6eeb5567dafb7afaf3c92a2782b95e342b648d85f8f8f94ab431038d15ba662e",
+  "result": {
+    "task_id": "7411a201b87a4670",
+    "job_id": "fed83ee2cbce4401a386984d1bc066e4",
+    "previous_job_id": "d09d1596c30d4feab23c56af32e2640b",
+    "status": "generating",
+    "decision": "return_for_revision",
+    "context_hash": "6eeb5567dafb7afaf3c92a2782b95e342b648d85f8f8f94ab431038d15ba662e",
+    "proposal_hash": "ca0d5eefdf03f309a2e08f55513871cd166e9184bc882886cea9053b1ce0800f",
+    "reason": "Factual review of the current proposal: its guidance describes root-level test_validator.py and tests_rate_limiter.py as unreadable and unrelated duplicates. Both are registered current-task assets whose on-disk hashes match the respective mapped project tests. The previous generation has no successful or failed read_policy_source receipt for these two assets. Lack of reading does not establish unreadability or unrelatedness. Reassess this factual statement using registered sources and the explicit mapped repository/tests scope of the original task. This is evidence feedback only; the original task, accepted requirements and permission authority are unchanged."
+  },
+  "scope_authorization": false,
+  "permission_loaded": false
+}

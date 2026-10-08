@@ -1,0 +1,354 @@
+{
+  "recorded_at": "2026-10-08T01:23:11.014055+00:00",
+  "verification_kind": "independent_read_only_snapshot_integrity",
+  "origin_task_id": "8e6e8af26aac4a2f",
+  "task_id": "7411a201b87a4670",
+  "passed": true,
+  "checks": {
+    "context_hash_valid": true,
+    "asset_layout_hash_valid": true,
+    "asset_count_20": true,
+    "origin_asset_set_identical": true,
+    "all_asset_sha_and_names_match": true,
+    "manifest_matches_origin": true,
+    "manifest_hash_valid": true,
+    "all_assets_fit_63": true,
+    "longest_is_real_63": true,
+    "root_identity_verified": true,
+    "complete_task_id_retained": true,
+    "two_char_root_real": true,
+    "output_same_task_root": true,
+    "accepted_5_constraints_preserved": true,
+    "all_constraint_fields_preserved": true,
+    "original_prompt_preserved": true,
+    "logical_project_mapping_correct": true,
+    "origin_link_bound": true,
+    "all_old_baseline_rows_unchanged": true,
+    "no_loaded_version_or_binding_at_observation": true,
+    "query_only_no_database_writes": true
+  },
+  "workspace": "/s/0I/r",
+  "output": "/s/0I/output",
+  "root_reservation": {
+    "root": "/s/0I",
+    "task_id": "7411a201b87a4670",
+    "base": "/s",
+    "root_key": "0I",
+    "workspace": "/s/0I/r",
+    "mode": "compact",
+    "state": "ready",
+    "device": 2112,
+    "inode": 33745491,
+    "created_at": "2026-10-08T01:21:25.225279+00:00"
+  },
+  "context_hash": "6eeb5567dafb7afaf3c92a2782b95e342b648d85f8f8f94ab431038d15ba662e",
+  "asset_count": 20,
+  "maximum_asset_path_utf8_bytes": 63,
+  "maximum_path_assets": [
+    "/s/0I/r/p/transaction-service/verification/customer_verifier.py"
+  ],
+  "accepted_task_constraints_count": 5,
+  "constraint_hash_checks": {
+    "declared_constraints": {
+      "equal": true,
+      "origin_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "new_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "accepted_task_constraints": {
+      "equal": true,
+      "origin_hash": "d9068102d71f4185f620294caf0e39f0444f54be2f092b7ea9ca05cdab6f4f13",
+      "new_hash": "d9068102d71f4185f620294caf0e39f0444f54be2f092b7ea9ca05cdab6f4f13"
+    },
+    "platform_constraints": {
+      "equal": true,
+      "origin_hash": "02e6dec36831eafcefc92e3ac2b8499fe1c145b642c1098d73ebaae435d5ec0d",
+      "new_hash": "02e6dec36831eafcefc92e3ac2b8499fe1c145b642c1098d73ebaae435d5ec0d"
+    },
+    "execution_constraints": {
+      "equal": true,
+      "origin_hash": "8c8b1837940726e2882a1b08d832369914c188c75e12885b976ced655b859abe",
+      "new_hash": "8c8b1837940726e2882a1b08d832369914c188c75e12885b976ced655b859abe"
+    },
+    "base_settings": {
+      "equal": true,
+      "origin_hash": "40a30ac8b49c7c06fb06c432cff3d40856dc31c9f1bd0ea9135facb02d1358fd",
+      "new_hash": "40a30ac8b49c7c06fb06c432cff3d40856dc31c9f1bd0ea9135facb02d1358fd"
+    },
+    "startup_clarifications": {
+      "equal": true,
+      "origin_hash": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "new_hash": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+    }
+  },
+  "old_immutable_baseline_checks": {
+    "tasks": {
+      "rows": 1,
+      "sha256": "5813dbe28e90c0f76b4e2b0a9aa192b530285a018f223c16fcfa2698bd05c734",
+      "baseline_sha256": "5813dbe28e90c0f76b4e2b0a9aa192b530285a018f223c16fcfa2698bd05c734",
+      "unchanged": true
+    },
+    "bootstrap_contexts": {
+      "rows": 1,
+      "sha256": "1d3cbe7a3d74a294e7b6d60b02caef109b857e37939919d69d8f8886a8b5bd2f",
+      "baseline_sha256": "1d3cbe7a3d74a294e7b6d60b02caef109b857e37939919d69d8f8886a8b5bd2f",
+      "unchanged": true
+    },
+    "bootstrap_sources": {
+      "rows": 25,
+      "sha256": "46ecd925dc28f50188d4b6457352394c17ad686b5b2899844625e7083bff36f8",
+      "baseline_sha256": "46ecd925dc28f50188d4b6457352394c17ad686b5b2899844625e7083bff36f8",
+      "unchanged": true
+    },
+    "bootstrap_proposals": {
+      "rows": 1,
+      "sha256": "2087d895193e8729aca545d9212ea71f8dc41e0af1559ecd9755d11bcce36884",
+      "baseline_sha256": "2087d895193e8729aca545d9212ea71f8dc41e0af1559ecd9755d11bcce36884",
+      "unchanged": true
+    },
+    "managed_tasks": {
+      "rows": 1,
+      "sha256": "0e6ea4ec3721304373084c5ba0510ddfe5cb826de3fb61d3642029dbce776f92",
+      "baseline_sha256": "0e6ea4ec3721304373084c5ba0510ddfe5cb826de3fb61d3642029dbce776f92",
+      "unchanged": true
+    },
+    "workspace_task_sources": {
+      "rows": 1,
+      "sha256": "16ed25e1a446ac8475c02baf123776f476930212e2d763465e8000dd116377e1",
+      "baseline_sha256": "16ed25e1a446ac8475c02baf123776f476930212e2d763465e8000dd116377e1",
+      "unchanged": true
+    },
+    "startup_job": {
+      "rows": 1,
+      "sha256": "3b5cb0dc0603b7fb587290acf47a86365bc6fd68b0065bc0b704512f94816a8a",
+      "baseline_sha256": "3b5cb0dc0603b7fb587290acf47a86365bc6fd68b0065bc0b704512f94816a8a",
+      "unchanged": true
+    }
+  },
+  "assets": [
+    {
+      "source_relative_path": "task.md",
+      "mapped_path": "/s/0I/r/task.md",
+      "utf8_bytes": 15,
+      "sha256": "929dec8c10ddbe69d7d83f76793fe1ac8212956850931b4601734d5b71b9b6a2",
+      "source_sha_matches": true,
+      "snapshot_sha_matches": true,
+      "origin_asset_sha_matches": true,
+      "internal_relative_names_preserved": true,
+      "canonical_real_file": true
+    },
+    {
+      "source_relative_path": "test_validator.py",
+      "mapped_path": "/s/0I/r/test_validator.py",
+      "utf8_bytes": 25,
+      "sha256": "30dfd0a46229395101ca3f7bf04d6841eef79f43bc4474bf48e30c3f41340dd6",
+      "source_sha_matches": true,
+      "snapshot_sha_matches": true,
+      "origin_asset_sha_matches": true,
+      "internal_relative_names_preserved": true,
+      "canonical_real_file": true
+    },
+    {
+      "source_relative_path": "tests_rate_limiter.py",
+      "mapped_path": "/s/0I/r/tests_rate_limiter.py",
+      "utf8_bytes": 29,
+      "sha256": "33f5270f01020994f626d12dc6712e8e0dcbf20c69166eebbd7aee7c8a1bae81",
+      "source_sha_matches": true,
+      "snapshot_sha_matches": true,
+      "origin_asset_sha_matches": true,
+      "internal_relative_names_preserved": true,
+      "canonical_real_file": true
+    },
+    {
+      "source_relative_path": "transaction-verification-service/README.md",
+      "mapped_path": "/s/0I/r/p/README.md",
+      "utf8_bytes": 19,
+      "sha256": "aa3e36b898e41b3acc014e01330768370022aca3012caadd3fabcfc417c276a8",
+      "source_sha_matches": true,
+      "snapshot_sha_matches": true,
+      "origin_asset_sha_matches": true,
+      "internal_relative_names_preserved": true,
+      "canonical_real_file": true
+    },
+    {
+      "source_relative_path": "transaction-verification-service/config/config.json",
+      "mapped_path": "/s/0I/r/p/config/config.json",
+      "utf8_bytes": 28,
+      "sha256": "f7feaf518d1e9139daf66b588ebb47ef425990338163a2df09538c06f99a3c30",
+      "source_sha_matches": true,
+      "snapshot_sha_matches": true,
+      "origin_asset_sha_matches": true,
+      "internal_relative_names_preserved": true,
+      "canonical_real_file": true
+    },
+    {
+      "source_relative_path": "transaction-verification-service/config/config.toml",
+      "mapped_path": "/s/0I/r/p/config/config.toml",
+      "utf8_bytes": 28,
+      "sha256": "605e80764c5bb04d021f15d196684821d915ecc922f2013342a9dc6c46730a60",
+      "source_sha_matches": true,
+      "snapshot_sha_matches": true,
+      "origin_asset_sha_matches": true,
+      "internal_relative_names_preserved": true,
+      "canonical_real_file": true
+    },
+    {
+      "source_relative_path": "transaction-verification-service/run_tests.py",
+      "mapped_path": "/s/0I/r/p/run_tests.py",
+      "utf8_bytes": 22,
+      "sha256": "fa587dbff4a0bb6f7ba40a587b0ea873f2da4d69c6ff0fac9223c5c6896cf2cf",
+      "source_sha_matches": true,
+      "snapshot_sha_matches": true,
+      "origin_asset_sha_matches": true,
+      "internal_relative_names_preserved": true,
+      "canonical_real_file": true
+    },
+    {
+      "source_relative_path": "transaction-verification-service/setup.py",
+      "mapped_path": "/s/0I/r/p/setup.py",
+      "utf8_bytes": 18,
+      "sha256": "f84d91dd06c7481ae7b89403c8620ab5f2d97282b2aafddb9c306647498fad7e",
+      "source_sha_matches": true,
+      "snapshot_sha_matches": true,
+      "origin_asset_sha_matches": true,
+      "internal_relative_names_preserved": true,
+      "canonical_real_file": true
+    },
+    {
+      "source_relative_path": "transaction-verification-service/tests/__init__.py",
+      "mapped_path": "/s/0I/r/p/tests/__init__.py",
+      "utf8_bytes": 27,
+      "sha256": "fe07077105accd6292fdb679f7adea9b01e2803f14f87d56e3e34bd4467b4200",
+      "source_sha_matches": true,
+      "snapshot_sha_matches": true,
+      "origin_asset_sha_matches": true,
+      "internal_relative_names_preserved": true,
+      "canonical_real_file": true
+    },
+    {
+      "source_relative_path": "transaction-verification-service/tests/test_validator.py",
+      "mapped_path": "/s/0I/r/p/tests/test_validator.py",
+      "utf8_bytes": 33,
+      "sha256": "30dfd0a46229395101ca3f7bf04d6841eef79f43bc4474bf48e30c3f41340dd6",
+      "source_sha_matches": true,
+      "snapshot_sha_matches": true,
+      "origin_asset_sha_matches": true,
+      "internal_relative_names_preserved": true,
+      "canonical_real_file": true
+    },
+    {
+      "source_relative_path": "transaction-verification-service/tests/tests_rate_limiter.py",
+      "mapped_path": "/s/0I/r/p/tests/tests_rate_limiter.py",
+      "utf8_bytes": 37,
+      "sha256": "33f5270f01020994f626d12dc6712e8e0dcbf20c69166eebbd7aee7c8a1bae81",
+      "source_sha_matches": true,
+      "snapshot_sha_matches": true,
+      "origin_asset_sha_matches": true,
+      "internal_relative_names_preserved": true,
+      "canonical_real_file": true
+    },
+    {
+      "source_relative_path": "transaction-verification-service/transaction-service/__init__.py",
+      "mapped_path": "/s/0I/r/p/transaction-service/__init__.py",
+      "utf8_bytes": 41,
+      "sha256": "4e35e62cafa0f99161a472a20c9ac6df497071fca5e626e697433f28044e0633",
+      "source_sha_matches": true,
+      "snapshot_sha_matches": true,
+      "origin_asset_sha_matches": true,
+      "internal_relative_names_preserved": true,
+      "canonical_real_file": true
+    },
+    {
+      "source_relative_path": "transaction-verification-service/transaction-service/config.py",
+      "mapped_path": "/s/0I/r/p/transaction-service/config.py",
+      "utf8_bytes": 39,
+      "sha256": "83cfc9c8da6ca5df16be95ded3283f9ae51dac6b65d62b4ae583a80c40cb42e4",
+      "source_sha_matches": true,
+      "snapshot_sha_matches": true,
+      "origin_asset_sha_matches": true,
+      "internal_relative_names_preserved": true,
+      "canonical_real_file": true
+    },
+    {
+      "source_relative_path": "transaction-verification-service/transaction-service/models.py",
+      "mapped_path": "/s/0I/r/p/transaction-service/models.py",
+      "utf8_bytes": 39,
+      "sha256": "65e5f453d21584d916eee389edf2c581d918ee9ec6d4553a5f8f096302fd322c",
+      "source_sha_matches": true,
+      "snapshot_sha_matches": true,
+      "origin_asset_sha_matches": true,
+      "internal_relative_names_preserved": true,
+      "canonical_real_file": true
+    },
+    {
+      "source_relative_path": "transaction-verification-service/transaction-service/validator.py",
+      "mapped_path": "/s/0I/r/p/transaction-service/validator.py",
+      "utf8_bytes": 42,
+      "sha256": "6b59238994541fa893c85ab6cdc17f71a99f00f6dc4d242ff55bca5ac92423e3",
+      "source_sha_matches": true,
+      "snapshot_sha_matches": true,
+      "origin_asset_sha_matches": true,
+      "internal_relative_names_preserved": true,
+      "canonical_real_file": true
+    },
+    {
+      "source_relative_path": "transaction-verification-service/transaction-service/verification/__init__.py",
+      "mapped_path": "/s/0I/r/p/transaction-service/verification/__init__.py",
+      "utf8_bytes": 54,
+      "sha256": "4d653a75f6d2a6ac9ed661c674b95e22424e19167ce7ac9091c3fabab1261fa2",
+      "source_sha_matches": true,
+      "snapshot_sha_matches": true,
+      "origin_asset_sha_matches": true,
+      "internal_relative_names_preserved": true,
+      "canonical_real_file": true
+    },
+    {
+      "source_relative_path": "transaction-verification-service/transaction-service/verification/base.py",
+      "mapped_path": "/s/0I/r/p/transaction-service/verification/base.py",
+      "utf8_bytes": 50,
+      "sha256": "3d77564d6a425c1cbf4c5052491b94ed90550c2c84fbe9459d8253bb76834023",
+      "source_sha_matches": true,
+      "snapshot_sha_matches": true,
+      "origin_asset_sha_matches": true,
+      "internal_relative_names_preserved": true,
+      "canonical_real_file": true
+    },
+    {
+      "source_relative_path": "transaction-verification-service/transaction-service/verification/customer_verifier.py",
+      "mapped_path": "/s/0I/r/p/transaction-service/verification/customer_verifier.py",
+      "utf8_bytes": 63,
+      "sha256": "8cd56dc06d8a95d9028d20d1ddbe8efb879a6e134be6b9821750cbe84ddde15b",
+      "source_sha_matches": true,
+      "snapshot_sha_matches": true,
+      "origin_asset_sha_matches": true,
+      "internal_relative_names_preserved": true,
+      "canonical_real_file": true
+    },
+    {
+      "source_relative_path": "transaction-verification-service/transaction-service/verification/fraud_detector.py",
+      "mapped_path": "/s/0I/r/p/transaction-service/verification/fraud_detector.py",
+      "utf8_bytes": 60,
+      "sha256": "3896e39e3b24c13c19544b003b42da8315d5a49efb433420deca850a7c67b99a",
+      "source_sha_matches": true,
+      "snapshot_sha_matches": true,
+      "origin_asset_sha_matches": true,
+      "internal_relative_names_preserved": true,
+      "canonical_real_file": true
+    },
+    {
+      "source_relative_path": "transaction-verification-service/transaction-service/verification/rate_limiter.py",
+      "mapped_path": "/s/0I/r/p/transaction-service/verification/rate_limiter.py",
+      "utf8_bytes": 58,
+      "sha256": "e6a84d0aff228f640a9dd3ef60fb4446c16c519932043f4f5624c64470d3aa7e",
+      "source_sha_matches": true,
+      "snapshot_sha_matches": true,
+      "origin_asset_sha_matches": true,
+      "internal_relative_names_preserved": true,
+      "canonical_real_file": true
+    }
+  ],
+  "observed_task_status": "failed",
+  "observed_managed_phase": "failed",
+  "raw_rows_exported": false,
+  "runtime_acceptance_claimed": false,
+  "limitations": "This verifies frozen snapshot, provenance, constraints and permanent root identity only. It does not prove fresh Pi applicability, DSH execution or kernel enforcement."
+}

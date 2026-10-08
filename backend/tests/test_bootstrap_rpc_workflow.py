@@ -44,7 +44,9 @@ def workflow(client, seed_task, monkeypatch):
         for tool in ('get_task_context', 'list_policy_sources', 'get_enforcement_capabilities', 'search_historical_policies'):
             event(job, tool, {})
         for ident in ('authority', 'long', 'short'):
-            event(job, 'read_policy_source', {'content_hash': digest('read')}, {'source_id': task + ident})
+            # Read receipts must authenticate the actual registered source text.
+            text = 'Preserve original tests' if ident == 'authority' else 'test asset'
+            event(job, 'read_policy_source', {'content_hash': digest(text)}, {'source_id': task + ident})
         token = tools.issue(task, job)
         def draft(ident):
             return {'context_hash': ctx['context_hash'], 'summary': 'Preserve exact registered test',
@@ -57,9 +59,10 @@ def workflow(client, seed_task, monkeypatch):
 
 def test_capabilities_publish_the_existing_ir_abi_without_weakening_it():
     limits = validation.CAPABILITIES['pattern_limits']
-    assert limits['max_utf8_bytes'] == 64 and limits['canonical_absolute_paths']
+    assert limits['max_utf8_bytes'] == 63 and limits['canonical_absolute_paths']
     assert set(limits['disallowed_characters']) == {'\n', '\r', '\0', '"', '\\'}
-    assert pattern('/' + 'a' * 63, file=True)
+    assert pattern('/' + 'a' * 62, file=True)
+    with pytest.raises(ValueError): pattern('/' + 'a' * 63, file=True)
     with pytest.raises(ValueError): pattern('/' + 'a' * 64, file=True)
     with pytest.raises(ValueError): pattern('/' + '深' * 22, file=True)
 
@@ -70,7 +73,7 @@ def test_overlong_target_has_structured_utf8_diagnostic_and_cannot_submit(workfl
     assert rejected['valid'] is False
     details = rejected['diagnostic_details']
     assert details['code'] == 'engine_pattern_limit_exceeded'
-    assert details['max_utf8_bytes'] == 64 and details['read_tool'] == 'get_task_context'
+    assert details['max_utf8_bytes'] == 63 and details['read_tool'] == 'get_task_context'
     assert details['targets'] == [{'path': draft('long')['atoms'][0]['paths'][0],
                                   'utf8_bytes': len(draft('long')['atoms'][0]['paths'][0].encode('utf-8'))}]
     assert '不能扩大保护范围' in rejected['diagnostic']
@@ -126,7 +129,7 @@ def test_workflow_state_scoped_to_its_job_and_public_diagnostic_fields(workflow)
         'targets': [{'path': '/registered/test.py', 'utf8_bytes': 90, 'raw_text': 'PRIVATE'}]}})
     state = workflow_status(job)
     assert 'PRIVATE' not in json.dumps(state)
-    assert state['diagnostic_details']['max_utf8_bytes'] == 64
+    assert state['diagnostic_details']['max_utf8_bytes'] == 63
     other = workflow_status('unrelated-job')
     assert other['cancelled'] and other['remaining_validation_attempts'] == 3
     assert other['last_tool'] is None and 'workflow_error' not in other

@@ -208,8 +208,10 @@ def test_snapshot_aliases_preserve_source_bytes_and_frozen_path_provenance(works
     task=r.create_task(workspace['id'],'Long project','Fix limiter; preserve all existing tests.',before['manifest_hash'])
     ctx=scene.context(task['id'])
     prefix='workspace/transaction-verification-service'
-    assert ctx['asset_layout']['project_prefixes']=={prefix:'p0'}
-    assert ctx['mapping'][str(project)]==str(Path(ctx['workspace'])/'p0')
+    alias=ctx['asset_layout']['project_prefixes'][prefix]
+    assert alias in ('p0','p')
+    assert ctx['mapping'][str(project)]==str(Path(ctx['workspace'])/alias)
+    assert ctx['mapping']['/workspace/'+prefix]==str(Path(ctx['workspace'])/alias)
     assert ctx['asset_layout_mapping_hash']==scene.digest(ctx['asset_layout_mapping'])
     for asset in ctx['assets']:
         original=root/asset['source_relative_path']
@@ -231,3 +233,41 @@ def test_later_snapshot_mapping_never_rewrites_an_existing_task_context(workspac
     following=task_from(workspace)
     assert scene.context(previous['id'])==frozen
     assert scene.context(following['id'])['asset_layout']['project_prefixes']
+
+
+def test_storage_identity_and_output_cannot_cross_tasks(workspace):
+    first, second = task_from(workspace), task_from(workspace)
+    left, right = scene.context(first['id']), scene.context(second['id'])
+    with db.connect() as con:
+        task = dict(con.execute('SELECT * FROM tasks WHERE id=?', (first['id'],)).fetchone())
+    c.verify_execution_storage(task, left)
+    with pytest.raises(ValueError):
+        c.verify_execution_storage(task, {k:v for k,v in left.items() if k!='execution_storage'})
+    with pytest.raises(ValueError):
+        c.verify_execution_storage(task, {**left, 'execution_storage': right['execution_storage']})
+    with pytest.raises(ValueError):
+        c.verify_execution_storage({**task, 'output_dir': str(Path(right['workspace']).parent/'output')}, left)
+    with pytest.raises(ValueError):
+        c.verify_execution_storage(task, {**left, 'workspace': right['workspace']})
+
+
+def test_replaced_execution_root_is_rejected_before_confirmation(workspace):
+    task = task_from(workspace)
+    ctx = scene.context(task['id'])
+    with db.connect() as con:
+        row = dict(con.execute('SELECT * FROM tasks WHERE id=?', (task['id'],)).fetchone())
+    root = Path(row['workspace']).parent
+    retained = root.with_name(root.name+'-retained')
+    root.rename(retained)
+    root.mkdir()
+    Path(row['workspace']).mkdir()
+    Path(row['output_dir']).mkdir()
+    with pytest.raises(ValueError):
+        c.verify_execution_storage(row, ctx)
+
+
+def test_asset_backed_logical_project_mapping_exists_without_path_compaction(workspace):
+    root=Path(workspace['path']);(root/'pyproject.toml').write_text('[project]\nname="example"\n')
+    task=task_from(workspace);ctx=scene.context(task['id'])
+    assert ctx['mapping']['/workspace']==ctx['workspace']
+    assert (root/'pyproject.toml').read_text()=='[project]\nname="example"\n'

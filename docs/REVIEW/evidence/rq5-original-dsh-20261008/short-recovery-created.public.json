@@ -1,0 +1,22 @@
+{
+  "action": "rebuild",
+  "target": {
+    "task_id": "7411a201b87a4670",
+    "phase": "generating",
+    "gate": "waiting_policy",
+    "status": "generating"
+  },
+  "link": {
+    "origin_task_id": "8e6e8af26aac4a2f",
+    "origin_context_hash": "ea040d95edaa38a329c6aa5220960ec24f6cb6f3e57f3d3b8a057354cca020dd",
+    "manifest_hash": "370e2d763895c272b285e8a15ab6faf872a4d69bbcbc1e85d759c7ddbada718e",
+    "requirements_hash": "e4fd7d83c235796aacbdacb68d05ac81e8302025237edb8e13a4ec5e1cb65e50",
+    "action": "rebuild",
+    "request_id": "ae9265766aed40daab8bb17b157dc992",
+    "target_task_id": "7411a201b87a4670",
+    "status": "generating",
+    "error_code": null,
+    "updated_at": "2026-10-08T01:21:25.337723+00:00",
+    "claimed_at": 1791422484.1212502
+  }
+}
