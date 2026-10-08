@@ -10,19 +10,66 @@
 .connection-task-links{list-style:none;padding:0;margin:12px 0}
 .connection-task-links li{padding:10px 0;border-bottom:1px solid var(--task-line)}
 .connection-task-links small{display:block;margin-top:6px;overflow-wrap:anywhere}
-@media(max-width:600px){
+.connection-screen-reader-heading{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.connection-toolbar{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:24px;border-bottom:1px solid var(--task-line)}
+.agent-connections .connection-toolbar .task-hub-tabs{border:0;margin:0;min-width:0}
+.agent-connections .connection-toolbar>.button{flex-shrink:0;margin-bottom:8px}
+.agent-connections .connection-record-section{border-radius:6px;padding:18px 20px;margin-bottom:22px}
+.connection-instances{min-width:620px}
+.connection-workspaces{table-layout:fixed}
+.connection-workspaces th:first-child{width:46%}
+.connection-workspaces th:nth-child(2){width:7%}
+.connection-workspaces th:nth-child(3){width:10%}
+.connection-workspaces th:nth-child(4){width:12%}
+.connection-workspaces th:last-child{width:25%}
+.connection-workspaces td:first-child b{display:block;overflow-wrap:anywhere}
+.connection-workspaces td:first-child .task-path{white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+.connection-workspaces .actions{flex-wrap:wrap;white-space:normal}
+.connection-workspace-tools{display:flex;align-items:center;gap:12px;min-width:0}
+.connection-workspace-tools input{border:1px solid var(--task-line);border-radius:5px;padding:7px 10px;max-width:100%;width:200px;background:#fff;color:var(--task-ink)}
+.connection-instance-field{display:flex;gap:14px;font-size:12px;margin:0 0 16px}
+.connection-instance-field dt{color:#6c8099}
+.connection-instance-field dd{margin:0;overflow-wrap:anywhere}
+.agent-connections .table-scroll:focus-visible{outline:2px solid var(--task-blue);outline-offset:3px}
+.record-drawer.workspace-record-drawer{width:min(960px,100vw)}
+.workspace-record-drawer .record-drawer-head h2{overflow-wrap:anywhere;min-width:0}
+.workspace-record-drawer .record-drawer-head>.button{flex-shrink:0}
+.workspace-record-facts{margin-bottom:24px}
+.workspace-association-table{table-layout:fixed;width:100%}
+.workspace-association-table th:first-child{width:13%}
+.workspace-association-table th:nth-child(2){width:52%}
+.workspace-association-table th:nth-child(3){width:20%}
+.workspace-association-table th:last-child{width:15%}
+.workspace-mapping-evidence{margin-top:24px;border-top:1px solid var(--task-line);padding-top:16px}
+.workspace-mapping-evidence>summary,.workspace-source-statement>summary{cursor:pointer;color:var(--task-blue)}
+.workspace-mapping-evidence .task-fields{margin-top:16px}
+.workspace-policy-filters{display:grid;grid-template-columns:minmax(0,1fr) 140px;gap:16px;margin-bottom:20px}
+.workspace-record-drawer .workspace-policy-filters label{font-size:13px;margin:0;min-width:0}
+.workspace-policy-filters select{display:block;width:100%;max-width:100%;margin-top:8px;padding:9px 10px;font:inherit;color:var(--task-ink);background:#fff;border:1px solid var(--task-line);border-radius:5px}
+.workspace-policy-table{table-layout:fixed;width:100%}
+.workspace-policy-table th:first-child{width:65%}
+.workspace-policy-table th:nth-child(2){width:12%}
+.workspace-policy-table th:last-child{width:23%}
+.workspace-policy-sentence,.workspace-source-statement p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.workspace-source-statement{margin-top:12px}
+.workspace-source-statement p{margin-top:10px;font-size:12px;color:#5b7088}
+.workspace-open-task{margin-top:24px}
+@media(max-width:650px){
+ .connection-workspaces{min-width:620px}
+ .agent-connections{padding-top:20px}
+ .connection-toolbar{gap:12px;margin-bottom:18px}
+ .connection-toolbar .task-hub-tabs{gap:20px}
+ .agent-connections .connection-record-section{padding:16px 12px}
+ .connection-workspace-tools{width:100%;justify-content:space-between}
+ .connection-workspace-tools input{width:190px;min-width:0}
+ .workspace-policy-filters{grid-template-columns:minmax(0,1fr)}
+ .workspace-record-drawer .task-fields{grid-template-columns:82px minmax(0,1fr);gap:10px}
+ .workspace-record-drawer .record-drawer-head,.workspace-record-drawer .record-drawer-body{padding:18px 14px}
+ .workspace-record-drawer .record-drawer-tabs{padding:0 14px;gap:22px}
+ .workspace-association-table{min-width:520px}
+ .workspace-policy-table th:first-child{width:55%}
+ .workspace-policy-table th:nth-child(2){width:17%}
+ .workspace-policy-table th:last-child{width:28%}
+ .workspace-policy-table td{font-size:12px;padding:12px 7px}
  .connection-timeline .task-fields{grid-template-columns:76px minmax(0,1fr);gap:8px}
- .agent-connections .connection-instances,.agent-connections .connection-workspaces{table-layout:fixed;width:100%}
- .agent-connections .connection-instances th:nth-child(3),.agent-connections .connection-instances td:nth-child(3),.agent-connections .connection-instances th:nth-child(4),.agent-connections .connection-instances td:nth-child(4){display:none}
- .agent-connections .connection-instances th:first-child{width:32%}
- .agent-connections .connection-instances th:nth-child(2){width:30%}
- .agent-connections .connection-instances th:last-child{width:38%}
- .agent-connections .connection-instances td,.agent-connections .connection-workspaces td{word-break:normal;overflow-wrap:normal;padding-left:7px;padding-right:7px}
- .agent-connections .connection-instances td:first-child b,.agent-connections .connection-workspaces td:first-child b,.agent-connections .connection-workspaces .task-path{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;word-break:normal;overflow-wrap:normal}
- .agent-connections .connection-instances .tag{white-space:nowrap;font-size:11px;padding-left:5px;padding-right:5px}
- .agent-connections .connection-instances td:last-child .actions,.agent-connections .connection-workspaces td:last-child .actions{flex-direction:column;align-items:flex-start;gap:7px}
- .agent-connections .connection-instances .button,.agent-connections .connection-workspaces .button{white-space:nowrap;max-width:100%;padding-left:8px;padding-right:8px}
- .agent-connections .connection-workspaces th:first-child{width:42%}
- .agent-connections .connection-workspaces th:nth-child(2){width:20%}
- .agent-connections .connection-workspaces th:last-child{width:38%}
 }

@@ -1,0 +1,93 @@
+{
+  "checks": [
+    {
+      "check": "restored_workspace_and_exact_associations",
+      "passed": true
+    },
+    {
+      "check": "workspace_search",
+      "passed": true
+    },
+    {
+      "check": "policy_statement_and_no_version_labels",
+      "passed": true
+    },
+    {
+      "check": "policy_cursor_pagination",
+      "passed": true
+    },
+    {
+      "check": "runtime_stage_empty_is_explicit",
+      "passed": true
+    },
+    {
+      "check": "task_switch_keeps_exact_execution_directory",
+      "passed": true
+    },
+    {
+      "check": "files_read_on_demand",
+      "passed": true
+    },
+    {
+      "check": "file_refresh_keeps_drawer_and_selected_tab",
+      "passed": true
+    },
+    {
+      "check": "existing_connection_history_still_reads",
+      "passed": true
+    },
+    {
+      "check": "explicit_open_close_restores_button_focus",
+      "passed": true
+    },
+    {
+      "check": "desktop_no_decorative_labels_or_page_overflow",
+      "passed": true
+    },
+    {
+      "check": "423px_list_no_page_overflow",
+      "clientWidth": 408,
+      "passed": true,
+      "scrollWidth": 408
+    },
+    {
+      "check": "423px_policy_drawer_no_page_overflow",
+      "clientWidth": 408,
+      "passed": true,
+      "scrollWidth": 408
+    },
+    {
+      "check": "320px_list_no_page_overflow",
+      "clientWidth": 305,
+      "passed": true,
+      "scrollWidth": 305
+    },
+    {
+      "check": "320px_policy_drawer_no_page_overflow",
+      "clientWidth": 305,
+      "passed": true,
+      "scrollWidth": 305
+    }
+  ],
+  "initial_layout_failures": [
+    {
+      "check": "320px_policy_drawer_no_page_overflow",
+      "clientWidth": 305,
+      "passed": false,
+      "scrollWidth": 320
+    },
+    {
+      "check": "320px_list_no_page_overflow",
+      "clientWidth": 305,
+      "passed": false,
+      "scrollWidth": 320
+    }
+  ],
+  "resolution": "Removed the fixed body minimum width; 320px list and drawer now both measure clientWidth=scrollWidth=305.",
+  "unit_tests": {
+    "passed": 130,
+    "failed": 0
+  },
+  "index_sha256": "b49b9beecd262e6eda8faf4ca066ec07cfb328dbbc11a61dd3be88329808a3cb",
+  "changes": "frontend presentation only; no policy approval or Agent execution"
+}
