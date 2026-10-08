@@ -1,6 +1,6 @@
 # REVIEW：RQ5 原始场景导入、DSH 会话与真实验收
 
-状态：进行中；短根快照及真实 Pi 候选生成通过。候选事实复评发现一项无证据支持的说明，正在通过事实反馈退回重生成。尚未人工确认或实际加载，受管 DSH 功能/内核最终验收未开始。2026-10-08。
+状态：短路径及生成流程代码验收通过。最新实际规则覆盖全部三份项目测试与两份配置，待人工审核；仍有一条缓存指导与实际规则不一致，已如实披露，不能声称无遗留问题。尚未人工确认/加载，受管DSH功能与内核最终验收未开始。2026-10-08。
 
 ## 范围和来源
 
@@ -112,3 +112,13 @@ API 单独重启至 PID 1338852，Broker PID 966501 保持。正式退回端点�
 再次真实生成 fe97cbfa3a59407cbf95b24c5e0ea4d8 声称整棵 tests 保护，但 DSL 只有裸目录 exact 两条，独立 ActPlane lower_path/BPF 源码证明未覆盖后代；仍未准入。根因包含原能力合同没有解释 exact 节点与 /** 后代的区别。补丁在 CAPABILITIES 增加明确 path_matching，并在 validate 返回顶层增加 registered_asset_coverage；同任务 hash有效资产、按 atom/operation/pattern 字面计数，裸目录0个登记文件命中如实显示，不入 proposal/context、不改 hash、不推断 statement、不自动补规则或放宽授权。
 
 新 matching 专项7项与证据预检13项联合通过，独立复评与引擎源码逐项对照通过；最新完整后端 **872 passed、5 现有 warnings**，27.56秒，见 [日志](evidence/rq5-original-dsh-20261008/backend-regression-872.log)。独立 API 已载入修复 PID1345616，Broker966501保持；同任务正式退回作业2c64fafb8b49458a9eee322ccb279b2e已开始生成。见 [部署与生成回执](evidence/rq5-original-dsh-20261008/path-matching-regenerate-started.public.json)、[裸目录候选证据](evidence/rq5-original-dsh-20261008/bare-directory-candidate.public.json)。仍未人工批准或加载权限，真实DSH/功能/内核验收未完成。
+
+## 可审查的实际启动规则与已知说明问题
+
+最新作业f518dac20f4040f68aae26c7cd7a6f05完成，候选e240ed86ff8544fbbc45846ec594c3ee/hash08e3c9cea96a9e375cf8c7a0391a68a7699ba1559ddd408a025f0102bac46cdf validated/compiled。独立复评：project tests3/3由init exact+tests/**覆盖、config2 exact正确，外层副本未擅加保护，源码修复仍可行；14项成功来源读取及10个唯一atom引用同job/hash正确；20原文件+20快照、ctx及旧候选hash保持。
+
+保留一项已知文案问题：guidance声称缓存在保护集合外，但tests/**实际也拒绝tests/__pycache__及其他新后代write/unlink。原任务明确项目tests范围，整树只读可审；root决定将实际目录含缓存只读作为人工审核内容，保留该说明错误及BUG，不宣称指导正确或候选无遗留。控制器native_admission只发送原task、映射、平台要求及已登记资产，不发送候选guidance；未手改候选/DSL或自动批准。人工批准对象必须是实际执行规则，不能据错误缓存说明推断权限。
+
+实际baseline允许本任务隔离工作区/s/0I/r内写入、临时及必要运行目录；task语义仍只在项目p修复；tests整树及两配置只读，独立output仍禁止，平台不可覆盖限制保留。当前v0/policy_review/no SID/no binding/effective=false，等待用户确认这一实际Scope，再启动受管DSH并继续原task、独立功能/允许拒绝/PID-domain/结束撤权验收。见 [可审候选及限定](evidence/rq5-original-dsh-20261008/short-path-reviewable-candidate.public.json)。
+
+代码本地提交e8418d3与证据提交acf9f7c；均尚未推送。公共日志Git副本仅规范行尾空白，原捕获日志保留在本机canonical证据目录，原始及导出hash见 [日志来源](evidence/rq5-original-dsh-20261008/log-export-provenance.public.json)。
