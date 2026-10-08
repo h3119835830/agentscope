@@ -1,0 +1,65 @@
+{
+  "eligible": true,
+  "blocked_reason": null,
+  "failure": {
+    "code": "engine_pattern_limit_exceeded",
+    "summary": "文件路径超过执行引擎的 64 UTF-8 字节限制。请重建同源快照后重新生成策略。",
+    "diagnostics": [
+      {
+        "code": "engine_pattern_limit_exceeded",
+        "max_utf8_bytes": 64,
+        "target_utf8_bytes": [
+          77,
+          82,
+          83,
+          88,
+          92
+        ]
+      }
+    ]
+  },
+  "origin": {
+    "context_hash": "81b5fb12afd129fa4834ee2149ad876342dfd87474427615fb7f627aff643009",
+    "manifest_hash": "014d1db9e3ccaffdabb5861c0a610963150dd19f0b9eef4e1da1f37b0a438323",
+    "requirements_hash": "7c6360125199266839ed52a309b3f2eed29f01307bebe909ed2708f3a69c14f3",
+    "failed_job_id": "d5cb5fcc741848589eff12f2be82404c",
+    "context_revision": 0
+  },
+  "candidate": {
+    "task_id": "4ca8082805f74c6c",
+    "job_id": "768441504f1b4f228b4da7c8d32cf4e3",
+    "proposal_id": "6022bcbb0e50464288208ac5f7f18caf",
+    "proposal_hash": "60636babc268ad85b7c52f755620d5a2024fba171a757e2c3494e6ab25c6b7fc",
+    "context_hash": "567c6e1d2a5de0aa8d6bf418023b9823d607e8bd12efe4ab8877bc3f1cf73edc",
+    "context_revision": 0,
+    "phase": "policy_review",
+    "gate": "waiting_confirmation",
+    "status": "awaiting_review"
+  },
+  "candidates": [
+    {
+      "task_id": "4ca8082805f74c6c",
+      "job_id": "768441504f1b4f228b4da7c8d32cf4e3",
+      "proposal_id": "6022bcbb0e50464288208ac5f7f18caf",
+      "proposal_hash": "60636babc268ad85b7c52f755620d5a2024fba171a757e2c3494e6ab25c6b7fc",
+      "context_hash": "567c6e1d2a5de0aa8d6bf418023b9823d607e8bd12efe4ab8877bc3f1cf73edc",
+      "context_revision": 0,
+      "phase": "policy_review",
+      "gate": "waiting_confirmation",
+      "status": "awaiting_review"
+    }
+  ],
+  "link": {
+    "task_id": "4ca8082805f74c6c",
+    "job_id": "768441504f1b4f228b4da7c8d32cf4e3",
+    "proposal_id": "6022bcbb0e50464288208ac5f7f18caf",
+    "proposal_hash": "60636babc268ad85b7c52f755620d5a2024fba171a757e2c3494e6ab25c6b7fc",
+    "context_hash": "567c6e1d2a5de0aa8d6bf418023b9823d607e8bd12efe4ab8877bc3f1cf73edc",
+    "context_revision": 0,
+    "phase": "policy_review",
+    "gate": "waiting_confirmation",
+    "status": "awaiting_review"
+  },
+  "link_status": "awaiting_review",
+  "link_error": null
+}

@@ -1,0 +1,33 @@
+{
+  "eligible": true,
+  "blocked_reason": null,
+  "failure": {
+    "code": "engine_pattern_limit_exceeded",
+    "summary": "文件路径超过执行引擎的 64 UTF-8 字节限制。请重建同源快照后重新生成策略。",
+    "diagnostics": [
+      {
+        "code": "engine_pattern_limit_exceeded",
+        "max_utf8_bytes": 64,
+        "target_utf8_bytes": [
+          77,
+          82,
+          83,
+          88,
+          92
+        ]
+      }
+    ]
+  },
+  "origin": {
+    "context_hash": "81b5fb12afd129fa4834ee2149ad876342dfd87474427615fb7f627aff643009",
+    "manifest_hash": "014d1db9e3ccaffdabb5861c0a610963150dd19f0b9eef4e1da1f37b0a438323",
+    "requirements_hash": "7c6360125199266839ed52a309b3f2eed29f01307bebe909ed2708f3a69c14f3",
+    "failed_job_id": "d5cb5fcc741848589eff12f2be82404c",
+    "context_revision": 0
+  },
+  "candidate": null,
+  "candidates": [],
+  "link": null,
+  "link_status": null,
+  "link_error": null
+}

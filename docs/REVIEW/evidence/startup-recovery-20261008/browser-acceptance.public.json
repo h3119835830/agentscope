@@ -1,0 +1,21 @@
+{
+  "observed_at_utc": "2026-10-08T00:21:09.608076+00:00",
+  "original_task_id": "0dae79b573f14bca",
+  "recovery_task_id": "4ca8082805f74c6c",
+  "old_page_ready": true,
+  "view_candidate_actual_click": true,
+  "back_and_refresh": true,
+  "exact_dsl_clause": true,
+  "guidance_distinct_real_previews": true,
+  "chrome_viewport": {
+    "innerWidth": 423,
+    "innerHeight": 900,
+    "page_scrollWidth": [
+      408,
+      423
+    ],
+    "drawer_scrollWidth": 408
+  },
+  "keyboard_enter_open_escape_close_focus_restored": true,
+  "approval_or_load_performed": false
+}

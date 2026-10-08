@@ -27,6 +27,8 @@ MAX_FILES, MAX_FILE_BYTES, MAX_TOTAL_BYTES = 1500, 16 * 1024 * 1024, 64 * 1024 *
 def init():
     with db.connect() as con:
         con.executescript(SCHEMA)
+        from .recovery import SCHEMA as RECOVERY_SCHEMA
+        con.executescript(RECOVERY_SCHEMA)
         from .connections import SCHEMA as CONNECTION_SCHEMA
         con.executescript(CONNECTION_SCHEMA)
         columns = {row[1] for row in con.execute('PRAGMA table_info(agent_workspaces)')}
@@ -290,11 +292,11 @@ def inventory(ident):
     return {'workspace': workspace, **manifest, 'observed_at': db.now()}
 
 
-def create_task(ident, name, prompt, expected_manifest_hash, *, scene_adoption=None):
+def create_task(ident, name, prompt, expected_manifest_hash, *, scene_adoption=None, recovery_origin=None):
     from ..managed import controller as c
     if not name.strip() or len(prompt.strip())<3:
         raise ValueError('请填写任务名称和目标')
-    if scene_adoption is not None:
+    if scene_adoption is not None or recovery_origin is not None:
         with db.connect() as con:
             registered = con.execute('SELECT agent_id FROM agent_workspaces WHERE id=?', (ident,)).fetchone()
         if registered and registered['agent_id'] != 'dsh':
@@ -314,7 +316,7 @@ def create_task(ident, name, prompt, expected_manifest_hash, *, scene_adoption=N
     runtime = effective_dsh()  # Fail before creating data when the provider is unavailable.
     manifest, payloads = scan(source['path'], with_bytes=True)
     if source['agent_id'] != 'dsh':
-        if scene_adoption is not None:
+        if scene_adoption is not None or recovery_origin is not None:
             observer.collect(source['agent_id'])
         fresh_source = get_workspace(ident)
         if fresh_source['instance_generation'] != source_identity['generation']:
@@ -330,11 +332,20 @@ def create_task(ident, name, prompt, expected_manifest_hash, *, scene_adoption=N
     asset_mapping, project_aliases = snapshot_layout(manifest['files'], workspace)
     with db.connect() as con:
         con.execute('BEGIN IMMEDIATE')
+        recovery_context = None
+        if recovery_origin is not None:
+            from .recovery import origin
+            _, recovery_context, old_source, _, _, _ = origin(con, recovery_origin['task_id'], recovery_origin['context_hash'], expected_manifest_hash)
+            claim = con.execute('SELECT * FROM startup_recoveries WHERE origin_task_id=? AND request_id=? AND status=? AND target_task_id IS NULL',
+                                (recovery_origin['task_id'], recovery_origin['request_id'], 'building')).fetchone()
+            if not claim or old_source['workspace_id'] != ident:
+                raise ValueError('恢复创建请求已失效')
         if scene_adoption is not None:
             from .scene_read import adoption_preview
             adoption_preview(ident, scene_adoption['id'], scene_adoption['draft_hash'], expected_manifest_hash)
         for folder in (workspace, output, root / 'tmp'):
             folder.mkdir(parents=True, mode=0o2770, exist_ok=True)
+        copied_sources = []
         assets, sources = [], [('task', '', prompt), ('platform', '', PLATFORM)]
         for entry in manifest['files']:
             relative, raw = entry['relative_path'], payloads[entry['relative_path']]
@@ -379,13 +390,50 @@ def create_task(ident, name, prompt, expected_manifest_hash, *, scene_adoption=N
             ctx['accepted_task_constraints'] = scene_adoption['draft']['constraints']
             ctx['workspace_scene_read'] = {key: scene_adoption[key] for key in ('id', 'draft_hash', 'manifest_hash', 'source_generation', 'draft', 'evidence')}
             sources.append(('accepted_scene_draft', '', json.dumps(ctx['workspace_scene_read'], ensure_ascii=False)))
+        if recovery_context is not None:
+            from .recovery import CONSTRAINT_FIELDS
+            for key in CONSTRAINT_FIELDS:
+                if key in recovery_context:
+                    ctx[key] = recovery_context[key]
+            from .recovery import rebind_constraints, same_instance
+            if not same_instance(recovery_context, ctx):
+                raise ValueError('来源实例代次已变化，请重新读取场景')
+            ctx['declared_constraints'] = rebind_constraints(recovery_context, ctx)
+            # Clarification citations belong to the new task's evidence namespace.
+            copied_clarifications = []
+            for item in recovery_context.get('startup_clarifications', []):
+                old = con.execute('SELECT * FROM bootstrap_sources WHERE id=? AND task_id=? AND role=?',
+                                  (item['source_id'], recovery_origin['task_id'], 'task')).fetchone()
+                if not old or digest(old['text']) != old['content_hash']:
+                    raise ValueError('旧任务补充约束证据缺失或损坏')
+                source_id = uuid.uuid4().hex
+                copied_clarifications.append({**item, 'source_id': source_id})
+                copied_sources.append((source_id, task_id, 'task', '', old['text'], old['content_hash'], old['source_json']))
+            if copied_clarifications:
+                ctx['startup_clarifications'] = copied_clarifications
+            ctx['startup_recovery_origin'] = {'task_id': recovery_origin['task_id'],
+                                            'context_hash': recovery_origin['context_hash']}
+            if 'workspace_scene_read' in recovery_context:
+                ctx['workspace_scene_read'] = recovery_context['workspace_scene_read']
+                ctx['startup_recovery_origin']['scene_adoption_is_derived'] = True
+            sources.append(('accepted_recovery_constraints', '', json.dumps(
+                {key: ctx[key] for key in CONSTRAINT_FIELDS if key in ctx}, ensure_ascii=False)))
         ctx['asset_layout_mapping_hash'] = digest(ctx['asset_layout_mapping'])
         con.execute('INSERT INTO tasks(id,name,repo_url,repo,commit_sha,ref_requested,workspace,output_dir,prompt,agent,dsh_profile,status,settings_json,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
                     (task_id, name, '', source['name'], manifest['manifest_hash'], 'workspace-snapshot', str(workspace), str(output), prompt, 'dsh', 'web', 'prepared', json.dumps(SETTINGS), db.now(), db.now()))
         con.execute('INSERT INTO bootstrap_contexts VALUES(?,?,?,?,?)', (task_id, 'agent-workspace', json.dumps(ctx), digest(ctx), db.now()))
+        for copied_source in copied_sources:
+            con.execute('INSERT INTO bootstrap_sources VALUES(?,?,?,?,?,?,?)', copied_source)
         for role, path, text in sources:
             con.execute('INSERT INTO bootstrap_sources VALUES(?,?,?,?,?,?,?)', (uuid.uuid4().hex, task_id, role, path, text, digest(text), json.dumps({'workspace_id': ident, 'manifest_hash': manifest['manifest_hash']})))
         con.execute('INSERT INTO workspace_task_sources VALUES(?,?,?,?,?)', (task_id, ident, manifest['manifest_hash'], json.dumps(manifest), db.now()))
+        if recovery_origin is not None:
+            if not con.execute("UPDATE startup_recoveries SET target_task_id=?,updated_at=? WHERE origin_task_id=? AND request_id=? AND target_task_id IS NULL AND status='building'",
+                               (task_id, db.now(), recovery_origin['task_id'], recovery_origin['request_id'])).rowcount:
+                raise ValueError('恢复任务已由另一请求创建')
+            db.audit(con, recovery_origin['task_id'], 'startup_recovery_created', 'administrator',
+                     {'target_task_id': task_id, 'origin_context_hash': recovery_origin['context_hash'],
+                      'manifest_hash': expected_manifest_hash})
         if scene_adoption is not None:
             from .scene_read import bind_adoption
             bind_adoption(con, scene_adoption['id'], ident, scene_adoption['draft_hash'], expected_manifest_hash, source.get('instance_generation'), task_id)

@@ -1,0 +1,50 @@
+{
+  "observed_at": "2026-10-08T00:09:56.475313+00:00",
+  "index_before_sha256": "15fdc2c6ac8fbe0ada3d2edba8e6af849c5afe135591a8d6982780e8919dfd0e",
+  "index_sha256": "a5bacbb4c4383115bb11ad2a1a1d0eff291093d84ac39b052be7c3280919dcd2",
+  "assets": {
+    "index-BGAzc0p_.js": "8972b56af4b5c16d157e87dbb32a2056a6499c5f430ede3652fc699e2f8ada89",
+    "index-BIy6ige1.css": "cd4632e0b441ba8d30e9f0c07f68b52d4933409466940ff8b1dbc67146efb4f6",
+    "index-BJS_L0Zm.js": "7f2fb2923403360dd1a0eed52e2ffa7285147e8423167dbbca3581bcf123dca3",
+    "index-BMxGt7t5.css": "edb2d5ab8a4d38fe18f0bfd866f6ef3915e191213f2ca0d8f79e04e18672926e",
+    "index-BQC0jmyd.js": "28f727f381af6da6e4312830de5ff3d175f9532ad6e0a4b147236a90b9ca9ab9",
+    "index-BboWAyzo.js": "c0cb1c5681b0f3a2068af96049611cbd2e61b29a241da3ea3c5272df00ad8efa",
+    "index-BdZQHOVf.js": "d5bfd7db1d30252c7045db12dfd51b9a35ddb6ff469d391144f5b171e6db5a1b",
+    "index-BeV8ISLW.js": "e1d179f2bc50990c00d15d3d6e88a1dfd2dfe345578699ed7e068cfd88005892",
+    "index-BwgAoYjD.js": "67d1f7a6134c6d6269a57127f0ac23d43535c4bfefb4f04c0f5df7d86e3e5fef",
+    "index-C24e7W1A.css": "aef5200bdbe255f61f85b13f139657137bb3204f8d793a02c37527e35c3b1980",
+    "index-CBG9n2NT.js": "b922a4d1fe36c1dff887062d61b468e850a003281f509476a3d647ebae60fd0a",
+    "index-CD3ByccV.js": "4b101197de2e62d2efccfdcd252585d7c1387e2dbb88994ee6114d914d88978b",
+    "index-COnhWig0.css": "2a78e499c2f67b11d8244da033fc10560a54ddf9a56052ef5b5243c6d868760d",
+    "index-CUPFpjOF.css": "db297d3b6480913f74f002612053e56f14c5b6cc6ce072d5bf184dc940a461db",
+    "index-CZBmbT-w.js": "97140d52a5db0f96d70b61233959c1cba5b4dc75828039d00da1e240834d36e6",
+    "index-CjHDw2j5.js": "9e7d6ff5636bb66eb7f44701abfed37f21301401e4fdb7f0a4d32060dc11ab7a",
+    "index-Cp8kWQt-.css": "c4a414f94b02a593b8953b2170637e496d9f613df696f1bd615485aa2d007400",
+    "index-CrgPYjgQ.js": "bd0b45937714620963c72cbba1d5415874b7bd2f08f5716521e45f42e4a3a1ca",
+    "index-D3C3op8s.js": "3c2e32e60cfbc0c61ccd0913c78db1c196d9f2223ede3e9a53885490b3ae9b50",
+    "index-DE88B82x.js": "729ec29358e6444c577370dd4e636e6f26189b214adc0e7815be35e3512be460",
+    "index-DVO8NDkZ.js": "9f1aa92898913ed5c8310319101448d465c43d02432e7249f07118c4d52d8982",
+    "index-DYORZ1Xk.css": "3be3a7ab8e4b73d6ec0205d8f775590390c8c095f83b5d34917edcf58333b649",
+    "index-DmRyDV7E.js": "404b00a7edc74179ec042718eb9c2f4a6de09644c5a70f5361c23822c67a53ac",
+    "index-Doy7a3gv.css": "9ff6f3ff31a6711f47697ea3c7d408b6c5d4f34be1e31f766bab01b38eea18b6",
+    "index-DuPrLfZ3.css": "21a53a3cbca350b75086c8653fba7a0f2c85839d7ff7a432dd208767ac309d7d",
+    "index-uxxIxQfN.js": "054a7474b486526507ff85c84e04ea8180b528b0eefd8859372f319a0466b792",
+    "index-wP0JyWy0.js": "2c92698c65f3f39145fb5bc4e478e5e60886f8fbf5cc7e5df7cbca44315ce019"
+  },
+  "before_pids": {
+    "agentscope-scope-demo-api.service": "1071142",
+    "agentscope-scope-demo-broker.service": "966501",
+    "agentscope-local-dsh-web-20261007.service": "870966"
+  },
+  "after_pids": {
+    "agentscope-scope-demo-api.service": "1264957",
+    "agentscope-scope-demo-broker.service": "966501",
+    "agentscope-local-dsh-web-20261007.service": "870966"
+  },
+  "restarted_services": [
+    "agentscope-scope-demo-api.service"
+  ],
+  "broker_and_dsh_unchanged": true,
+  "private_consistent_backup_created": true,
+  "permissions_applied": false
+}

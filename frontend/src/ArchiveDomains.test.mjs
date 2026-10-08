@@ -133,3 +133,54 @@ test('live and archived workbench share pure record drawer and monitor component
  for(const component of ['PolicyRecordRow','AuditRecordRow','RecordDrawerFrame']){assert.ok(live.includes('<'+component));assert.ok(archive.includes('<'+component));}
  assert.ok(monitor.includes('<RuntimeModeTabs'));assert.ok(archive.includes('<RuntimeModeTabs'));assert.doesNotMatch(archive,/import .*ManagedWorkbench|import .*RuntimeOverview/);assert.doesNotMatch(views,/fetch\(|api\(|post\(|setInterval\(/);
 });
+
+test('bootstrap failure is a pure compact notice with factual diagnosis and independently authorized recovery actions',async()=>{
+ const {default:Notice,bootstrapFailureSummary,bootstrapDiagnosticText}=await loadComponent('BootstrapFailureNotice.jsx');
+ assert.equal(bootstrapDiagnosticText({code:'engine_pattern_limit_exceeded',max_utf8_bytes:64}), '执行引擎单个路径模式最多 64 UTF-8 字节。');
+ assert.equal(bootstrapDiagnosticText({raw_provider_text:'must-not-export'}),'');
+ assert.match(bootstrapFailureSummary({code:'engine_pattern_limit_exceeded'}),/路径超过执行引擎长度上限/);
+ const noActions=renderToStaticMarkup(React.createElement(Notice,{failure:{error:'Pi settled without a server-validated submission'},candidateId:'unapproved',onViewCandidate:()=>{throw Error('never automatic');},onRegenerate:()=>{throw Error('never automatic');}}));
+ assert.match(noActions,/尚未通过服务端校验/);assert.match(noActions,/Pi settled/);assert.match(noActions,/<details><summary>失败详情/);assert.doesNotMatch(noActions,/查看恢复候选|重新生成<\/button>|<details[^>]*open/);
+ const calls=[];const element=Notice({failure:{code:'engine_pattern_limit_exceeded',targets:[{path:'/exact-target',utf8_bytes:85}],max_utf8_bytes:63},candidateId:'exact-candidate',canViewCandidate:true,canRegenerate:true,onViewCandidate:id=>calls.push(['view',id]),onRegenerate:()=>calls.push(['regenerate'])});
+ const visit=node=>!node||typeof node!=='object'?[]:[node,...(Array.isArray(node.props?.children)?node.props.children:[node.props?.children]).flatMap(visit)];
+ const buttons=visit(element).filter(n=>n.type==='button');assert.equal(calls.length,0);assert.equal(buttons.length,2);buttons[0].props.onClick();assert.deepEqual(calls,[['view','exact-candidate']]);
+ const html=renderToStaticMarkup(element);assert.match(html,/85 字节（上限 63）/);assert.match(html,/原失败记录保留/);
+});
+
+test('embedded preparation keeps confirmation and evidence folds without a second strategy table or task summary',async()=>{
+ const bootstrap={context:{context_hash:'context',assets:[]},proposals:[{state:'validated',content_hash:'proposal',proposal:{draft:{atoms:[],guidance:[]}}}],jobs:[],tool_events:[]};
+ let nulls=0;const hooks={...React,useState:initial=>[initial===null?(++nulls===1?bootstrap:{state:{phase:'policy_review',version:0}}):initial===true?false:initial,()=>{}],useEffect:()=>{}};
+ const {TaskRecord}=await loadComponent('TaskHub.jsx',hooks);
+ const html=renderToStaticMarkup(React.createElement(TaskRecord,{task:{id:'candidate'},embedded:true,api:()=>{},post:()=>{throw Error('no automatic confirmation');}}));
+ assert.match(html,/确认策略并启动 Agent/);for(const text of ['工作区文件证据','生成过程与工具结果','策略版本'])assert.ok(html.includes(text));assert.doesNotMatch(html,/task-record-summary|启动前策略记录|task-policy-table|返回任务记录/);
+});
+
+test('startup recovery only reads on mount and explicit candidate action navigates to returned target without confirming',async()=>{
+ const recovery={eligible:true,origin:{context_hash:'origin-context',manifest_hash:'origin-manifest'},failure:{summary:'目标路径过长'},candidate:{task_id:'new-task',proposal_hash:'proposal-hash',status:'awaiting_review'}};
+ const effects=[],calls=[],opened=[],hooks={...React,useState:initial=>[initial===null?recovery:initial,()=>{}],useRef:initial=>({current:initial}),useEffect:effect=>effects.push(effect)};
+ const {default:Recovery}=await loadComponent('StartupRecovery.jsx',hooks);
+ const node=Recovery({task:'old/task',api:async path=>{calls.push(['GET',path]);return recovery;},post:async(path,body)=>{calls.push(['POST',path,body]);return {target:{task_id:'new-task',phase:'policy_review',gate:'waiting_confirmation'}};},onOpenTask:id=>opened.push(id)});
+ assert.deepEqual(calls,[]);assert.deepEqual(opened,[]);const cleanups=effects.map(effect=>effect());await Promise.resolve();assert.deepEqual(calls,[['GET','/api/managed/tasks/old%2Ftask/startup/recovery']]);
+ const notice=node.props.children.find(child=>child?.props?.onViewCandidate);await notice.props.onViewCandidate();
+ assert.deepEqual(calls[1],['POST','/api/managed/tasks/old%2Ftask/startup/recovery',{action:'reuse',expected_context_hash:'origin-context',expected_manifest_hash:'origin-manifest',expected_candidate_task_id:'new-task',expected_candidate_proposal_hash:'proposal-hash'}]);assert.deepEqual(opened,['new-task']);assert.equal(calls.length,2);cleanups.forEach(cleanup=>cleanup?.());
+});
+
+test('verified recovery readiness is distinct from original failure, while generating link offers navigation only',async()=>{
+ const {default:Notice}=await loadComponent('BootstrapFailureNotice.jsx');
+ const ready=renderToStaticMarkup(React.createElement(Notice,{failure:{summary:'原路径超过上限'},candidateId:'recovered-task',recoveryReady:true,canViewCandidate:true,onViewCandidate:()=>{}}));
+ assert.match(ready,/原生成失败/);assert.match(ready,/恢复候选待确认/);assert.match(ready,/恢复任务：recovered-task/);assert.match(ready,/候选待人工确认/);
+ const generating=renderToStaticMarkup(React.createElement(Notice,{progressTaskId:'pending-task',progressStatus:'generating',onViewProgress:()=>{}}));assert.match(generating,/恢复候选生成中/);assert.match(generating,/查看恢复进度/);assert.doesNotMatch(generating,/record-tag[^>]*>恢复候选待确认|record-tag[^>]*>已加载|record-tag[^>]*>已生效/);
+ const recovery={eligible:true,origin:{context_hash:'ctx',manifest_hash:'manifest'},link:{task_id:'pending-task',status:'generating',phase:'generating',gate:'waiting_policy'}},opened=[],calls=[];
+ const hooks={...React,useState:initial=>[initial===null?recovery:initial,()=>{}],useRef:initial=>({current:initial}),useEffect:()=>{}};
+ const {default:Recovery}=await loadComponent('StartupRecovery.jsx',hooks);const node=Recovery({task:'old',api:()=>{},post:()=>calls.push('POST'),onOpenTask:id=>opened.push(id)}),notice=node.props.children.find(child=>child?.props?.onViewProgress);
+ assert.equal(notice.props.canRegenerate,false);assert.equal(notice.props.canViewCandidate,false);notice.props.onViewProgress(notice.props.progressTaskId);assert.deepEqual(opened,['pending-task']);assert.deepEqual(calls,[]);
+});
+
+test('targetless guidance rows show distinct compact real statements while execution rows keep path titles',async()=>{
+ const {workbenchPolicyTitle,PolicyRecordRow}=await loadComponent('WorkbenchRecordViews.jsx');
+ const guidance=[{statement:'先检查当前结果，再说明本次修改。',policy_type:'semantic_only'},{statement:'保留用户提供的配置，说明需要人工确认的内容。',policy_type:'semantic_only'}];
+ const titles=guidance.map(r=>workbenchPolicyTitle(r,'/snapshot','任务指导'));assert.notEqual(titles[0],titles[1]);assert.equal(titles[0],guidance[0].statement);
+ assert.equal(workbenchPolicyTitle({targets:['/snapshot/tests/a.py'],statement:'实际执行语句'},'/snapshot','任务指导'),'tests/a.py');
+ const long='指导'.repeat(80),summary=workbenchPolicyTitle({statement:long},'/snapshot','任务指导');assert.equal(Array.from(summary).length,101);assert.ok(summary.endsWith('…'));
+ const html=renderToStaticMarkup(React.createElement(PolicyRecordRow,{title:titles[0],statementSummary:true,status:'任务指导',onOpen:()=>{}}));assert.match(html,/record-statement-summary/);assert.match(html,/先检查当前结果，再说明本次修改。/);
+});

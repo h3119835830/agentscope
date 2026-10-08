@@ -1,0 +1,12 @@
+{
+  "recorded_at": "2026-10-08T00:02:35.813980+00:00",
+  "origin_task_id": "0dae79b573f14bca",
+  "private_consistent_backup_created": true,
+  "origin_task_row_hash": "601acd83ad485c21860582094cf77e6f06446c019bff5c9caafc36af09974615",
+  "services": {
+    "agentscope-scope-demo-api.service": "1071142",
+    "agentscope-scope-demo-broker.service": "966501",
+    "agentscope-local-dsh-web-20261007.service": "870966"
+  },
+  "origin_context_json_sha256": "70f07f460747bf8f9f7ab82075708d5ec124f7f0f2811a5657a01164e1e26d81"
+}

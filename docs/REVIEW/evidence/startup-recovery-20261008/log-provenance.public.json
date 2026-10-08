@@ -1,0 +1,17 @@
+{
+  "backend-tests.log": {
+    "raw_sha256": "dd6b7a58acc4fbb9d9501a58ce232c2914b46b17ccefcb42c6424a06468010b3",
+    "saved_sha256": "b5ca7e984a9319da80cac241ca35e5a2efd65b289d7e48fe929b783f1439a69b",
+    "normalization": "trim trailing line whitespace only"
+  },
+  "frontend-tests.log": {
+    "raw_sha256": "0af708bd467f1df9875cf43bbadff955bd41540afdb69afd4171e900fd0307e5",
+    "saved_sha256": "0af708bd467f1df9875cf43bbadff955bd41540afdb69afd4171e900fd0307e5",
+    "normalization": "trim trailing line whitespace only"
+  },
+  "frontend-build.log": {
+    "raw_sha256": "7a0228fd5f4696b8519f68fb6267999c0f9f6788d02e584d0c18ba1aac84137f",
+    "saved_sha256": "7a0228fd5f4696b8519f68fb6267999c0f9f6788d02e584d0c18ba1aac84137f",
+    "normalization": "trim trailing line whitespace only"
+  }
+}

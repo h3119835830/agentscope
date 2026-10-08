@@ -1,0 +1,18 @@
+{
+  "observed_at_utc": "2026-10-08T00:18:12Z",
+  "before_pid": {
+    "api": "1264957",
+    "broker": "966501"
+  },
+  "after_pid": {
+    "api": "1270207",
+    "broker": "966501"
+  },
+  "native_dsh_pid_unchanged": 870966,
+  "index_sha256": "5b1d86cb12c33be17cbceba5773aba974e8e6011e41489d9993dbe903c122fc1",
+  "js": "index-B8HzGtqG.js",
+  "css": "index-B5Ij8QFp.css",
+  "link_status": "awaiting_review",
+  "recovery_task_id": "4ca8082805f74c6c",
+  "original_task_id": "0dae79b573f14bca"
+}

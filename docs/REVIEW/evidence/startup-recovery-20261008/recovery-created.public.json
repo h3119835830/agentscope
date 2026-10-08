@@ -1,0 +1,51 @@
+{
+  "recorded_at": "2026-10-08T00:10:48.058940+00:00",
+  "origin_task_id": "0dae79b573f14bca",
+  "recovery_task_id": "4ca8082805f74c6c",
+  "created_via": "actual browser Re-generate button",
+  "source_manifest_hash": "014d1db9e3ccaffdabb5861c0a610963150dd19f0b9eef4e1da1f37b0a438323",
+  "requirements_hash_equal": true,
+  "accepted_constraints_equal": true,
+  "accepted_constraint_count": 5,
+  "original_task_row_unchanged": true,
+  "original_context_json_sha256": "70f07f460747bf8f9f7ab82075708d5ec124f7f0f2811a5657a01164e1e26d81",
+  "project_root_mapping": {
+    "task.md": "task.md",
+    "workspace/test_validator.py": "workspace/test_validator.py",
+    "workspace/tests_rate_limiter.py": "workspace/tests_rate_limiter.py",
+    "workspace/transaction-verification-service/README.md": "p0/README.md",
+    "workspace/transaction-verification-service/config/config.json": "p0/config/config.json",
+    "workspace/transaction-verification-service/config/config.toml": "p0/config/config.toml",
+    "workspace/transaction-verification-service/run_tests.py": "p0/run_tests.py",
+    "workspace/transaction-verification-service/setup.py": "p0/setup.py",
+    "workspace/transaction-verification-service/tests/__init__.py": "p0/tests/__init__.py",
+    "workspace/transaction-verification-service/tests/test_validator.py": "p0/tests/test_validator.py",
+    "workspace/transaction-verification-service/tests/tests_rate_limiter.py": "p0/tests/tests_rate_limiter.py",
+    "workspace/transaction-verification-service/transaction-service/__init__.py": "p0/transaction-service/__init__.py",
+    "workspace/transaction-verification-service/transaction-service/config.py": "p0/transaction-service/config.py",
+    "workspace/transaction-verification-service/transaction-service/models.py": "p0/transaction-service/models.py",
+    "workspace/transaction-verification-service/transaction-service/validator.py": "p0/transaction-service/validator.py",
+    "workspace/transaction-verification-service/transaction-service/verification/__init__.py": "p0/transaction-service/verification/__init__.py",
+    "workspace/transaction-verification-service/transaction-service/verification/base.py": "p0/transaction-service/verification/base.py",
+    "workspace/transaction-verification-service/transaction-service/verification/customer_verifier.py": "p0/transaction-service/verification/customer_verifier.py",
+    "workspace/transaction-verification-service/transaction-service/verification/fraud_detector.py": "p0/transaction-service/verification/fraud_detector.py",
+    "workspace/transaction-verification-service/transaction-service/verification/rate_limiter.py": "p0/transaction-service/verification/rate_limiter.py"
+  },
+  "jobs": [
+    {
+      "id": "768441504f1b4f228b4da7c8d32cf4e3",
+      "status": "running",
+      "error": null
+    }
+  ],
+  "permissions": {
+    "policy_versions": 0,
+    "task_credentials": 0
+  },
+  "link": {
+    "origin_task_id": "0dae79b573f14bca",
+    "target_task_id": "4ca8082805f74c6c",
+    "action": "rebuild",
+    "status": "generating"
+  }
+}

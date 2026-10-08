@@ -1,3 +1,4 @@
+from typing import Literal
 from fastapi import APIRouter, HTTPException, Request, Query
 from pydantic import BaseModel, Field, ConfigDict, model_validator
 from . import registry as r
@@ -131,3 +132,24 @@ def scene_reader_tool(read_id: str, tool: str, body: dict, request: Request):
     supplied = request.headers.get('authorization', '')
     token = supplied[7:] if supplied.lower().startswith('bearer ') else ''
     return call(scene_read.invoke, read_id, tool, body, token)
+
+
+class StartupRecovery(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+    action: Literal['reuse', 'rebuild']
+    expected_context_hash: str = Field(pattern=r'^[a-f0-9]{64}$')
+    expected_manifest_hash: str = Field(pattern=r'^[a-f0-9]{64}$')
+    expected_candidate_task_id: str | None = Field(default=None, max_length=100)
+    expected_candidate_proposal_hash: str | None = Field(default=None, pattern=r'^[a-f0-9]{64}$')
+
+
+@router.get('/api/managed/tasks/{task_id}/startup/recovery')
+def startup_recovery(task_id: str):
+    from .recovery import get
+    return call(get, task_id)
+
+
+@router.post('/api/managed/tasks/{task_id}/startup/recovery')
+def prepare_startup_recovery(task_id: str, body: StartupRecovery):
+    from .recovery import prepare
+    return call(prepare, task_id, body.model_dump())

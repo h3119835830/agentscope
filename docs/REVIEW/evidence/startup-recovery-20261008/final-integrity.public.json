@@ -1,0 +1,428 @@
+{
+  "observed_at": "2026-10-08T00:20:19.909441+00:00",
+  "scope": "Independent SQLite mode=ro/query_only, frozen file reads and startup/recovery HTTP GET. No POST, model, Broker/status/check, approval or service action.",
+  "all_checks_passed": true,
+  "checks": {
+    "old_task_context_job_rows_unchanged": true,
+    "public_before_hashes_match": true,
+    "source_and_constraints_equal": true,
+    "exact_five_constraints": true,
+    "all_frozen_file_bytes_intact": true,
+    "no_execution_authority": true,
+    "pi_credentials_revoked": true,
+    "candidate_awaiting_review": true,
+    "deployed_get_link_correct": true
+  },
+  "origin_task_id": "0dae79b573f14bca",
+  "recovery_task_id": "4ca8082805f74c6c",
+  "origin_baseline_comparisons": {
+    "task": {
+      "row_sha256": "c4b233da98582db03d02fe4bde16ab4d71744225d6fe98e5c913b69988049585",
+      "baseline_row_sha256": "c4b233da98582db03d02fe4bde16ab4d71744225d6fe98e5c913b69988049585",
+      "unchanged": true,
+      "matches_public_before": true,
+      "public_before_row_sha256": "601acd83ad485c21860582094cf77e6f06446c019bff5c9caafc36af09974615",
+      "public_before_serialization": {
+        "sort_keys": true,
+        "ensure_ascii": true,
+        "separators": null
+      },
+      "row_sha256_serialization": {
+        "sort_keys": true,
+        "ensure_ascii": false,
+        "separators": [
+          ",",
+          ":"
+        ]
+      }
+    },
+    "context": {
+      "row_sha256": "6a3018d09037cb9c84ae991f64200fd33a3b2caaff62ac85ad5beb306f3a34c8",
+      "baseline_row_sha256": "6a3018d09037cb9c84ae991f64200fd33a3b2caaff62ac85ad5beb306f3a34c8",
+      "unchanged": true,
+      "raw_json_sha256": "70f07f460747bf8f9f7ab82075708d5ec124f7f0f2811a5657a01164e1e26d81",
+      "matches_public_before": true
+    },
+    "job": {
+      "row_sha256": "4d6d375f57ea71e8696ebef6e03e2252add2a742178505bffdb581eb9d3733f5",
+      "baseline_row_sha256": "4d6d375f57ea71e8696ebef6e03e2252add2a742178505bffdb581eb9d3733f5",
+      "unchanged": true
+    }
+  },
+  "source_integrity": {
+    "same_workspace": true,
+    "same_manifest": true,
+    "same_requirements": true,
+    "same_all_accepted_constraints": true,
+    "same_source_asset_bytes": true
+  },
+  "tasks": {
+    "0dae79b573f14bca": {
+      "context_hash": "81b5fb12afd129fa4834ee2149ad876342dfd87474427615fb7f627aff643009",
+      "manifest_hash": "014d1db9e3ccaffdabb5861c0a610963150dd19f0b9eef4e1da1f37b0a438323",
+      "manifest_hash_verified": true,
+      "requirements_hash": "7c6360125199266839ed52a309b3f2eed29f01307bebe909ed2708f3a69c14f3",
+      "accepted_constraint_count": 5,
+      "accepted_constraints_sha256": "d2c75ba3d6b4e4e6aba45136778e7dec24638c17c100c1c4305532c158986330",
+      "asset_count": 20,
+      "frozen_files": [
+        {
+          "source_relative_path": "task.md",
+          "expected_sha256": "929dec8c10ddbe69d7d83f76793fe1ac8212956850931b4601734d5b71b9b6a2",
+          "actual_sha256": "929dec8c10ddbe69d7d83f76793fe1ac8212956850931b4601734d5b71b9b6a2",
+          "regular_file": true,
+          "matches": true
+        },
+        {
+          "source_relative_path": "workspace/test_validator.py",
+          "expected_sha256": "30dfd0a46229395101ca3f7bf04d6841eef79f43bc4474bf48e30c3f41340dd6",
+          "actual_sha256": "30dfd0a46229395101ca3f7bf04d6841eef79f43bc4474bf48e30c3f41340dd6",
+          "regular_file": true,
+          "matches": true
+        },
+        {
+          "source_relative_path": "workspace/tests_rate_limiter.py",
+          "expected_sha256": "33f5270f01020994f626d12dc6712e8e0dcbf20c69166eebbd7aee7c8a1bae81",
+          "actual_sha256": "33f5270f01020994f626d12dc6712e8e0dcbf20c69166eebbd7aee7c8a1bae81",
+          "regular_file": true,
+          "matches": true
+        },
+        {
+          "source_relative_path": "workspace/transaction-verification-service/README.md",
+          "expected_sha256": "aa3e36b898e41b3acc014e01330768370022aca3012caadd3fabcfc417c276a8",
+          "actual_sha256": "aa3e36b898e41b3acc014e01330768370022aca3012caadd3fabcfc417c276a8",
+          "regular_file": true,
+          "matches": true
+        },
+        {
+          "source_relative_path": "workspace/transaction-verification-service/config/config.json",
+          "expected_sha256": "f7feaf518d1e9139daf66b588ebb47ef425990338163a2df09538c06f99a3c30",
+          "actual_sha256": "f7feaf518d1e9139daf66b588ebb47ef425990338163a2df09538c06f99a3c30",
+          "regular_file": true,
+          "matches": true
+        },
+        {
+          "source_relative_path": "workspace/transaction-verification-service/config/config.toml",
+          "expected_sha256": "605e80764c5bb04d021f15d196684821d915ecc922f2013342a9dc6c46730a60",
+          "actual_sha256": "605e80764c5bb04d021f15d196684821d915ecc922f2013342a9dc6c46730a60",
+          "regular_file": true,
+          "matches": true
+        },
+        {
+          "source_relative_path": "workspace/transaction-verification-service/run_tests.py",
+          "expected_sha256": "fa587dbff4a0bb6f7ba40a587b0ea873f2da4d69c6ff0fac9223c5c6896cf2cf",
+          "actual_sha256": "fa587dbff4a0bb6f7ba40a587b0ea873f2da4d69c6ff0fac9223c5c6896cf2cf",
+          "regular_file": true,
+          "matches": true
+        },
+        {
+          "source_relative_path": "workspace/transaction-verification-service/setup.py",
+          "expected_sha256": "f84d91dd06c7481ae7b89403c8620ab5f2d97282b2aafddb9c306647498fad7e",
+          "actual_sha256": "f84d91dd06c7481ae7b89403c8620ab5f2d97282b2aafddb9c306647498fad7e",
+          "regular_file": true,
+          "matches": true
+        },
+        {
+          "source_relative_path": "workspace/transaction-verification-service/tests/__init__.py",
+          "expected_sha256": "fe07077105accd6292fdb679f7adea9b01e2803f14f87d56e3e34bd4467b4200",
+          "actual_sha256": "fe07077105accd6292fdb679f7adea9b01e2803f14f87d56e3e34bd4467b4200",
+          "regular_file": true,
+          "matches": true
+        },
+        {
+          "source_relative_path": "workspace/transaction-verification-service/tests/test_validator.py",
+          "expected_sha256": "30dfd0a46229395101ca3f7bf04d6841eef79f43bc4474bf48e30c3f41340dd6",
+          "actual_sha256": "30dfd0a46229395101ca3f7bf04d6841eef79f43bc4474bf48e30c3f41340dd6",
+          "regular_file": true,
+          "matches": true
+        },
+        {
+          "source_relative_path": "workspace/transaction-verification-service/tests/tests_rate_limiter.py",
+          "expected_sha256": "33f5270f01020994f626d12dc6712e8e0dcbf20c69166eebbd7aee7c8a1bae81",
+          "actual_sha256": "33f5270f01020994f626d12dc6712e8e0dcbf20c69166eebbd7aee7c8a1bae81",
+          "regular_file": true,
+          "matches": true
+        },
+        {
+          "source_relative_path": "workspace/transaction-verification-service/transaction-service/__init__.py",
+          "expected_sha256": "4e35e62cafa0f99161a472a20c9ac6df497071fca5e626e697433f28044e0633",
+          "actual_sha256": "4e35e62cafa0f99161a472a20c9ac6df497071fca5e626e697433f28044e0633",
+          "regular_file": true,
+          "matches": true
+        },
+        {
+          "source_relative_path": "workspace/transaction-verification-service/transaction-service/config.py",
+          "expected_sha256": "83cfc9c8da6ca5df16be95ded3283f9ae51dac6b65d62b4ae583a80c40cb42e4",
+          "actual_sha256": "83cfc9c8da6ca5df16be95ded3283f9ae51dac6b65d62b4ae583a80c40cb42e4",
+          "regular_file": true,
+          "matches": true
+        },
+        {
+          "source_relative_path": "workspace/transaction-verification-service/transaction-service/models.py",
+          "expected_sha256": "65e5f453d21584d916eee389edf2c581d918ee9ec6d4553a5f8f096302fd322c",
+          "actual_sha256": "65e5f453d21584d916eee389edf2c581d918ee9ec6d4553a5f8f096302fd322c",
+          "regular_file": true,
+          "matches": true
+        },
+        {
+          "source_relative_path": "workspace/transaction-verification-service/transaction-service/validator.py",
+          "expected_sha256": "6b59238994541fa893c85ab6cdc17f71a99f00f6dc4d242ff55bca5ac92423e3",
+          "actual_sha256": "6b59238994541fa893c85ab6cdc17f71a99f00f6dc4d242ff55bca5ac92423e3",
+          "regular_file": true,
+          "matches": true
+        },
+        {
+          "source_relative_path": "workspace/transaction-verification-service/transaction-service/verification/__init__.py",
+          "expected_sha256": "4d653a75f6d2a6ac9ed661c674b95e22424e19167ce7ac9091c3fabab1261fa2",
+          "actual_sha256": "4d653a75f6d2a6ac9ed661c674b95e22424e19167ce7ac9091c3fabab1261fa2",
+          "regular_file": true,
+          "matches": true
+        },
+        {
+          "source_relative_path": "workspace/transaction-verification-service/transaction-service/verification/base.py",
+          "expected_sha256": "3d77564d6a425c1cbf4c5052491b94ed90550c2c84fbe9459d8253bb76834023",
+          "actual_sha256": "3d77564d6a425c1cbf4c5052491b94ed90550c2c84fbe9459d8253bb76834023",
+          "regular_file": true,
+          "matches": true
+        },
+        {
+          "source_relative_path": "workspace/transaction-verification-service/transaction-service/verification/customer_verifier.py",
+          "expected_sha256": "8cd56dc06d8a95d9028d20d1ddbe8efb879a6e134be6b9821750cbe84ddde15b",
+          "actual_sha256": "8cd56dc06d8a95d9028d20d1ddbe8efb879a6e134be6b9821750cbe84ddde15b",
+          "regular_file": true,
+          "matches": true
+        },
+        {
+          "source_relative_path": "workspace/transaction-verification-service/transaction-service/verification/fraud_detector.py",
+          "expected_sha256": "3896e39e3b24c13c19544b003b42da8315d5a49efb433420deca850a7c67b99a",
+          "actual_sha256": "3896e39e3b24c13c19544b003b42da8315d5a49efb433420deca850a7c67b99a",
+          "regular_file": true,
+          "matches": true
+        },
+        {
+          "source_relative_path": "workspace/transaction-verification-service/transaction-service/verification/rate_limiter.py",
+          "expected_sha256": "e6a84d0aff228f640a9dd3ef60fb4446c16c519932043f4f5624c64470d3aa7e",
+          "actual_sha256": "e6a84d0aff228f640a9dd3ef60fb4446c16c519932043f4f5624c64470d3aa7e",
+          "regular_file": true,
+          "matches": true
+        }
+      ],
+      "all_frozen_hashes_match": true,
+      "task_status": "failed",
+      "phase": "failed",
+      "gate": "failed",
+      "version": 0,
+      "active_version": 0,
+      "session_present": false,
+      "binding_present": false,
+      "active_domain_present": false,
+      "active_pid_present": false,
+      "watch_pid_present": false,
+      "policy_version_count": 0,
+      "task_credential_count": 0,
+      "pi_credential_count": 1,
+      "unrevoked_pi_credential_count": 0,
+      "startup_job": {
+        "id": "d5cb5fcc741848589eff12f2be82404c",
+        "status": "failed"
+      }
+    },
+    "4ca8082805f74c6c": {
+      "context_hash": "567c6e1d2a5de0aa8d6bf418023b9823d607e8bd12efe4ab8877bc3f1cf73edc",
+      "manifest_hash": "014d1db9e3ccaffdabb5861c0a610963150dd19f0b9eef4e1da1f37b0a438323",
+      "manifest_hash_verified": true,
+      "requirements_hash": "7c6360125199266839ed52a309b3f2eed29f01307bebe909ed2708f3a69c14f3",
+      "accepted_constraint_count": 5,
+      "accepted_constraints_sha256": "d2c75ba3d6b4e4e6aba45136778e7dec24638c17c100c1c4305532c158986330",
+      "asset_count": 20,
+      "frozen_files": [
+        {
+          "source_relative_path": "task.md",
+          "expected_sha256": "929dec8c10ddbe69d7d83f76793fe1ac8212956850931b4601734d5b71b9b6a2",
+          "actual_sha256": "929dec8c10ddbe69d7d83f76793fe1ac8212956850931b4601734d5b71b9b6a2",
+          "regular_file": true,
+          "matches": true
+        },
+        {
+          "source_relative_path": "workspace/test_validator.py",
+          "expected_sha256": "30dfd0a46229395101ca3f7bf04d6841eef79f43bc4474bf48e30c3f41340dd6",
+          "actual_sha256": "30dfd0a46229395101ca3f7bf04d6841eef79f43bc4474bf48e30c3f41340dd6",
+          "regular_file": true,
+          "matches": true
+        },
+        {
+          "source_relative_path": "workspace/tests_rate_limiter.py",
+          "expected_sha256": "33f5270f01020994f626d12dc6712e8e0dcbf20c69166eebbd7aee7c8a1bae81",
+          "actual_sha256": "33f5270f01020994f626d12dc6712e8e0dcbf20c69166eebbd7aee7c8a1bae81",
+          "regular_file": true,
+          "matches": true
+        },
+        {
+          "source_relative_path": "workspace/transaction-verification-service/README.md",
+          "expected_sha256": "aa3e36b898e41b3acc014e01330768370022aca3012caadd3fabcfc417c276a8",
+          "actual_sha256": "aa3e36b898e41b3acc014e01330768370022aca3012caadd3fabcfc417c276a8",
+          "regular_file": true,
+          "matches": true
+        },
+        {
+          "source_relative_path": "workspace/transaction-verification-service/config/config.json",
+          "expected_sha256": "f7feaf518d1e9139daf66b588ebb47ef425990338163a2df09538c06f99a3c30",
+          "actual_sha256": "f7feaf518d1e9139daf66b588ebb47ef425990338163a2df09538c06f99a3c30",
+          "regular_file": true,
+          "matches": true
+        },
+        {
+          "source_relative_path": "workspace/transaction-verification-service/config/config.toml",
+          "expected_sha256": "605e80764c5bb04d021f15d196684821d915ecc922f2013342a9dc6c46730a60",
+          "actual_sha256": "605e80764c5bb04d021f15d196684821d915ecc922f2013342a9dc6c46730a60",
+          "regular_file": true,
+          "matches": true
+        },
+        {
+          "source_relative_path": "workspace/transaction-verification-service/run_tests.py",
+          "expected_sha256": "fa587dbff4a0bb6f7ba40a587b0ea873f2da4d69c6ff0fac9223c5c6896cf2cf",
+          "actual_sha256": "fa587dbff4a0bb6f7ba40a587b0ea873f2da4d69c6ff0fac9223c5c6896cf2cf",
+          "regular_file": true,
+          "matches": true
+        },
+        {
+          "source_relative_path": "workspace/transaction-verification-service/setup.py",
+          "expected_sha256": "f84d91dd06c7481ae7b89403c8620ab5f2d97282b2aafddb9c306647498fad7e",
+          "actual_sha256": "f84d91dd06c7481ae7b89403c8620ab5f2d97282b2aafddb9c306647498fad7e",
+          "regular_file": true,
+          "matches": true
+        },
+        {
+          "source_relative_path": "workspace/transaction-verification-service/tests/__init__.py",
+          "expected_sha256": "fe07077105accd6292fdb679f7adea9b01e2803f14f87d56e3e34bd4467b4200",
+          "actual_sha256": "fe07077105accd6292fdb679f7adea9b01e2803f14f87d56e3e34bd4467b4200",
+          "regular_file": true,
+          "matches": true
+        },
+        {
+          "source_relative_path": "workspace/transaction-verification-service/tests/test_validator.py",
+          "expected_sha256": "30dfd0a46229395101ca3f7bf04d6841eef79f43bc4474bf48e30c3f41340dd6",
+          "actual_sha256": "30dfd0a46229395101ca3f7bf04d6841eef79f43bc4474bf48e30c3f41340dd6",
+          "regular_file": true,
+          "matches": true
+        },
+        {
+          "source_relative_path": "workspace/transaction-verification-service/tests/tests_rate_limiter.py",
+          "expected_sha256": "33f5270f01020994f626d12dc6712e8e0dcbf20c69166eebbd7aee7c8a1bae81",
+          "actual_sha256": "33f5270f01020994f626d12dc6712e8e0dcbf20c69166eebbd7aee7c8a1bae81",
+          "regular_file": true,
+          "matches": true
+        },
+        {
+          "source_relative_path": "workspace/transaction-verification-service/transaction-service/__init__.py",
+          "expected_sha256": "4e35e62cafa0f99161a472a20c9ac6df497071fca5e626e697433f28044e0633",
+          "actual_sha256": "4e35e62cafa0f99161a472a20c9ac6df497071fca5e626e697433f28044e0633",
+          "regular_file": true,
+          "matches": true
+        },
+        {
+          "source_relative_path": "workspace/transaction-verification-service/transaction-service/config.py",
+          "expected_sha256": "83cfc9c8da6ca5df16be95ded3283f9ae51dac6b65d62b4ae583a80c40cb42e4",
+          "actual_sha256": "83cfc9c8da6ca5df16be95ded3283f9ae51dac6b65d62b4ae583a80c40cb42e4",
+          "regular_file": true,
+          "matches": true
+        },
+        {
+          "source_relative_path": "workspace/transaction-verification-service/transaction-service/models.py",
+          "expected_sha256": "65e5f453d21584d916eee389edf2c581d918ee9ec6d4553a5f8f096302fd322c",
+          "actual_sha256": "65e5f453d21584d916eee389edf2c581d918ee9ec6d4553a5f8f096302fd322c",
+          "regular_file": true,
+          "matches": true
+        },
+        {
+          "source_relative_path": "workspace/transaction-verification-service/transaction-service/validator.py",
+          "expected_sha256": "6b59238994541fa893c85ab6cdc17f71a99f00f6dc4d242ff55bca5ac92423e3",
+          "actual_sha256": "6b59238994541fa893c85ab6cdc17f71a99f00f6dc4d242ff55bca5ac92423e3",
+          "regular_file": true,
+          "matches": true
+        },
+        {
+          "source_relative_path": "workspace/transaction-verification-service/transaction-service/verification/__init__.py",
+          "expected_sha256": "4d653a75f6d2a6ac9ed661c674b95e22424e19167ce7ac9091c3fabab1261fa2",
+          "actual_sha256": "4d653a75f6d2a6ac9ed661c674b95e22424e19167ce7ac9091c3fabab1261fa2",
+          "regular_file": true,
+          "matches": true
+        },
+        {
+          "source_relative_path": "workspace/transaction-verification-service/transaction-service/verification/base.py",
+          "expected_sha256": "3d77564d6a425c1cbf4c5052491b94ed90550c2c84fbe9459d8253bb76834023",
+          "actual_sha256": "3d77564d6a425c1cbf4c5052491b94ed90550c2c84fbe9459d8253bb76834023",
+          "regular_file": true,
+          "matches": true
+        },
+        {
+          "source_relative_path": "workspace/transaction-verification-service/transaction-service/verification/customer_verifier.py",
+          "expected_sha256": "8cd56dc06d8a95d9028d20d1ddbe8efb879a6e134be6b9821750cbe84ddde15b",
+          "actual_sha256": "8cd56dc06d8a95d9028d20d1ddbe8efb879a6e134be6b9821750cbe84ddde15b",
+          "regular_file": true,
+          "matches": true
+        },
+        {
+          "source_relative_path": "workspace/transaction-verification-service/transaction-service/verification/fraud_detector.py",
+          "expected_sha256": "3896e39e3b24c13c19544b003b42da8315d5a49efb433420deca850a7c67b99a",
+          "actual_sha256": "3896e39e3b24c13c19544b003b42da8315d5a49efb433420deca850a7c67b99a",
+          "regular_file": true,
+          "matches": true
+        },
+        {
+          "source_relative_path": "workspace/transaction-verification-service/transaction-service/verification/rate_limiter.py",
+          "expected_sha256": "e6a84d0aff228f640a9dd3ef60fb4446c16c519932043f4f5624c64470d3aa7e",
+          "actual_sha256": "e6a84d0aff228f640a9dd3ef60fb4446c16c519932043f4f5624c64470d3aa7e",
+          "regular_file": true,
+          "matches": true
+        }
+      ],
+      "all_frozen_hashes_match": true,
+      "task_status": "policy_review",
+      "phase": "policy_review",
+      "gate": "waiting_confirmation",
+      "version": 0,
+      "active_version": 0,
+      "session_present": false,
+      "binding_present": false,
+      "active_domain_present": false,
+      "active_pid_present": false,
+      "watch_pid_present": false,
+      "policy_version_count": 0,
+      "task_credential_count": 0,
+      "pi_credential_count": 1,
+      "unrevoked_pi_credential_count": 0,
+      "startup_job": {
+        "id": "768441504f1b4f228b4da7c8d32cf4e3",
+        "status": "completed"
+      }
+    }
+  },
+  "candidate": {
+    "task_id": "4ca8082805f74c6c",
+    "job_id": "768441504f1b4f228b4da7c8d32cf4e3",
+    "proposal_id": "6022bcbb0e50464288208ac5f7f18caf",
+    "proposal_hash": "60636babc268ad85b7c52f755620d5a2024fba171a757e2c3494e6ab25c6b7fc",
+    "context_hash": "567c6e1d2a5de0aa8d6bf418023b9823d607e8bd12efe4ab8877bc3f1cf73edc",
+    "context_revision": 0,
+    "phase": "policy_review",
+    "gate": "waiting_confirmation",
+    "status": "awaiting_review",
+    "atoms": 2,
+    "guidance": 5,
+    "validation_summary_has_embedded_proposal": false,
+    "validation_state": "validated",
+    "compile_state": "compiled",
+    "canonical_proposal_hash_verified": true
+  },
+  "deployed_api_get": {
+    "http_status": 200,
+    "link_task_id": "4ca8082805f74c6c",
+    "link_status": "awaiting_review"
+  },
+  "service_processes_present": {
+    "1270207": true,
+    "966501": true,
+    "870966": true
+  }
+}
