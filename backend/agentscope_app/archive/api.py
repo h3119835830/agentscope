@@ -51,3 +51,9 @@ def archive_policy_detail(task_id: str, record_id: str):
 def archive_execution_audit(task_id: str, category: Literal["os","tools","control"]="os", before: int|None=Query(None,ge=1)):
     from .policies import execution_audit
     return execution_audit(task_id,category,before)
+
+
+@router.get("/api/tasks/{task_id}/archive/runtime-hooks")
+def archive_runtime_hooks(task_id: str, before: str|None=None, limit: int=Query(50,ge=1,le=200)):
+    from .runtime_hooks import runtime_hooks
+    return runtime_hooks(task_id,before,limit)

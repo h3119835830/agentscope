@@ -122,9 +122,9 @@ test('archive policy and audit use the exact shared workbench record presentatio
  const audit=renderToStaticMarkup(React.createElement(ArchiveAuditRows,{records:[{id:'a',operation:'unlink',target:'/tests/a.py',source:'independent_probe',result:'denied',pid:12,domain_id:33}],onOpen:()=>{}}));
  assert.match(audit,/class="audit-record compact-audit"/);assert.match(audit,/删除 · \/tests\/a.py/);assert.match(audit,/独立验收探针/);assert.match(audit,/历史 PID 12/);assert.doesNotMatch(audit,/<table/);
 });
-test('runtime default reads independently paginated actual statements; jobs only read in the separate generation collection',async()=>{
+test('runtime default reads actual statements and saved Hook triggers; jobs only read in the separate generation collection',async()=>{
  const run=async(component,props)=>{const effects=[],calls=[],hooks={...React,useState:initial=>[typeof initial==='function'?initial():initial,()=>{}],useRef:initial=>({current:initial}),useEffect:effect=>effects.push(effect)};const exports=await loadComponent('TaskArchiveDetails.jsx',hooks);renderToStaticMarkup(React.createElement(exports[component],{...props,api:async path=>{calls.push(path);return {records:[]};}}));for(const effect of effects)effect();await Promise.resolve();return calls;};
- assert.deepEqual(await run('ArchiveBody',{pane:'runtime',data:{stages:[]},task:'old/rq5'}),['/api/tasks/old%2Frq5/archive/policies?stage=runtime&view=statements_only&limit=50']);
+ assert.deepEqual(await run('ArchiveBody',{pane:'runtime',data:{stages:[]},task:'old/rq5'}),['/api/tasks/old%2Frq5/archive/policies?stage=runtime&view=statements_only&limit=50','/api/tasks/old%2Frq5/archive/runtime-hooks?limit=50']);
  assert.deepEqual(await run('GenerationCollection',{stage:'runtime',task:'old/rq5'}),['/api/tasks/old%2Frq5/archive/policies?stage=runtime&view=jobs&limit=50']);
 });
 test('live and archived workbench share pure record drawer and monitor components without importing live workbench into replay',()=>{
