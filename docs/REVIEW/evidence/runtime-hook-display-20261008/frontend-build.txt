@@ -1,0 +1,13 @@
+
+> agentscope-ui@0.1.0 build
+> vite build --outDir /home/happy/projects/agentscope-hooks-artifacts-20261008/dist
+
+vite v6.4.3 building for production...
+transforming...
+✓ 66 modules transformed.
+rendering chunks...
+computing gzip size...
+../../../home/happy/projects/agentscope-hooks-artifacts-20261008/dist/index.html                   0.46 kB │ gzip:   0.32 kB
+../../../home/happy/projects/agentscope-hooks-artifacts-20261008/dist/assets/index-C5IshpC9.css   82.15 kB │ gzip:  15.79 kB
+../../../home/happy/projects/agentscope-hooks-artifacts-20261008/dist/assets/index-C3dChkLW.js   498.32 kB │ gzip: 146.55 kB
+✓ built in 1.20s

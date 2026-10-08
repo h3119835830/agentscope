@@ -1,0 +1,40 @@
+{
+  "date": "2026-10-08",
+  "implementation_commit": "e9cbf7938b05537dba11696da0d37cf0b2563ba5",
+  "backend_tests": {
+    "passed": 210,
+    "seconds": 19.42,
+    "scope": [
+      "test_archive_runtime_hooks.py",
+      "test_archive_policies.py",
+      "test_archive_policy_security.py",
+      "test_task_archive.py",
+      "test_startup_recovery.py"
+    ]
+  },
+  "frontend_tests": {
+    "passed": 125,
+    "hook_tests": 13
+  },
+  "build": {
+    "success": true,
+    "modules": 66
+  },
+  "deployment": "local_18003_verified",
+  "browser_acceptance": "desktop_passed_1280x720",
+  "integrated_commit": "996d715",
+  "live_evidence": {
+    "js": "/assets/index-C3dChkLW.js",
+    "api_pid": 1276459,
+    "broker_pid": 966501,
+    "dsh_pid": 870966,
+    "task": "bef449047cd24af6",
+    "saved_hooks": 12,
+    "pagination_unique": 12,
+    "foreign_cursor_status": 422,
+    "detail_focus": "H4",
+    "return_focus": "matching_record_button",
+    "empty_task": "4ca8082805f74c6c",
+    "narrow_viewport": "not_verified"
+  }
+}

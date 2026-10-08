@@ -1,0 +1,635 @@
+TAP version 13
+# Subtest: archive graph renders recorded historical PID without live verification or invented PID
+ok 1 - archive graph renders recorded historical PID without live verification or invented PID
+  ---
+  duration_ms: 13.50607
+  ...
+# Subtest: default live graph keeps excluding processes when graph is not live or observation is stale
+ok 2 - default live graph keeps excluding processes when graph is not live or observation is stale
+  ---
+  duration_ms: 4.484194
+  ...
+# Subtest: archive request paths remain task scoped and encoded
+ok 3 - archive request paths remain task scoped and encoded
+  ---
+  duration_ms: 0.202485
+  ...
+# Subtest: archive graph starts folded with no rendered evidence or API call
+ok 4 - archive graph starts folded with no rendered evidence or API call
+  ---
+  duration_ms: 0.642288
+  ...
+# Subtest: replay domain tab starts expanded but its initial client effects only read the archived task graph
+ok 5 - replay domain tab starts expanded but its initial client effects only read the archived task graph
+  ---
+  duration_ms: 11.439762
+  ...
+# Subtest: history without a replay task renders only the list and retains the explicit all-tasks shortcut
+ok 6 - history without a replay task renders only the list and retains the explicit all-tasks shortcut
+  ---
+  duration_ms: 13.723689
+  ...
+# Subtest: OpenAgentSafety replay shortcut selects all old scenarios without hardcoded task identity
+ok 7 - OpenAgentSafety replay shortcut selects all old scenarios without hardcoded task identity
+  ---
+  duration_ms: 13.139477
+  ...
+# Subtest: replay is a full width task page with scoped page selector and no dialog or live workbench
+ok 8 - replay is a full width task page with scoped page selector and no dialog or live workbench
+  ---
+  duration_ms: 1.720557
+  ...
+# Subtest: replay initial client read uses the explicit selected archive identity only
+ok 9 - replay initial client read uses the explicit selected archive identity only
+  ---
+  duration_ms: 13.123282
+  ...
+# Subtest: policy detail restores four keyboard reachable subpages while DSL remains exact statement
+ok 10 - policy detail restores four keyboard reachable subpages while DSL remains exact statement
+  ---
+  duration_ms: 4.244813
+  ...
+# Subtest: startup exposes distinct lazy file generation tool and version entry points
+ok 11 - startup exposes distinct lazy file generation tool and version entry points
+  ---
+  duration_ms: 2.047238
+  ...
+# Subtest: historical graph only associates loaded operation resources from the same task and version
+ok 12 - historical graph only associates loaded operation resources from the same task and version
+  ---
+  duration_ms: 1.380768
+  ...
+# Subtest: same-name replay selector labels include creation time and exact identity suffix
+ok 13 - same-name replay selector labels include creation time and exact identity suffix
+  ---
+  duration_ms: 21.848658
+  ...
+# Subtest: historical monitor defaults to relationship graph with four distinct internal modes
+ok 14 - historical monitor defaults to relationship graph with four distinct internal modes
+  ---
+  duration_ms: 11.490581
+  ...
+# Subtest: source directories and historical missing materials default to closed disclosures
+ok 15 - source directories and historical missing materials default to closed disclosures
+  ---
+  duration_ms: 17.053306
+  ...
+# Subtest: archive policy and audit use the exact shared workbench record presentation
+ok 16 - archive policy and audit use the exact shared workbench record presentation
+  ---
+  duration_ms: 13.080975
+  ...
+# Subtest: runtime default reads actual statements and saved Hook triggers; jobs only read in the separate generation collection
+ok 17 - runtime default reads actual statements and saved Hook triggers; jobs only read in the separate generation collection
+  ---
+  duration_ms: 22.911832
+  ...
+# Subtest: live and archived workbench share pure record drawer and monitor components without importing live workbench into replay
+ok 18 - live and archived workbench share pure record drawer and monitor components without importing live workbench into replay
+  ---
+  duration_ms: 0.909088
+  ...
+# Subtest: bootstrap failure is a pure compact notice with factual diagnosis and independently authorized recovery actions
+ok 19 - bootstrap failure is a pure compact notice with factual diagnosis and independently authorized recovery actions
+  ---
+  duration_ms: 4.600724
+  ...
+# Subtest: embedded preparation keeps confirmation and evidence folds without a second strategy table or task summary
+ok 20 - embedded preparation keeps confirmation and evidence folds without a second strategy table or task summary
+  ---
+  duration_ms: 9.367543
+  ...
+# Subtest: startup recovery only reads on mount and explicit candidate action navigates to returned target without confirming
+ok 21 - startup recovery only reads on mount and explicit candidate action navigates to returned target without confirming
+  ---
+  duration_ms: 4.348249
+  ...
+# Subtest: verified recovery readiness is distinct from original failure, while generating link offers navigation only
+ok 22 - verified recovery readiness is distinct from original failure, while generating link offers navigation only
+  ---
+  duration_ms: 7.409665
+  ...
+# Subtest: targetless guidance rows show distinct compact real statements while execution rows keep path titles
+ok 23 - targetless guidance rows show distinct compact real statements while execution rows keep path titles
+  ---
+  duration_ms: 4.08032
+  ...
+# Subtest: selected statement DSL is visible and inherited whole package starts in a separate closed disclosure
+ok 24 - selected statement DSL is visible and inherited whole package starts in a separate closed disclosure
+  ---
+  duration_ms: 5.16005
+  ...
+# Subtest: candidate bundle-only material is never the default statement code block
+ok 25 - candidate bundle-only material is never the default statement code block
+  ---
+  duration_ms: 0.570844
+  ...
+# Subtest: guidance states that no OS rule is generated while output expansion shows only recorded boolean change
+ok 26 - guidance states that no OS rule is generated while output expansion shows only recorded boolean change
+  ---
+  duration_ms: 0.817249
+  ...
+# Subtest: scene evidence remains escaped text and only explicit supplements are labelled as user input
+ok 27 - scene evidence remains escaped text and only explicit supplements are labelled as user input
+  ---
+  duration_ms: 8.101924
+  ...
+# Subtest: long goal starts in a native disclosure without truncating or changing its source text
+ok 28 - long goal starts in a native disclosure without truncating or changing its source text
+  ---
+  duration_ms: 0.808202
+  ...
+# Subtest: short goal stays directly readable while multiline goals can be expanded
+ok 29 - short goal stays directly readable while multiline goals can be expanded
+  ---
+  duration_ms: 0.666195
+  ...
+# Subtest: first two constraints are visible and remaining original constraints start folded
+ok 30 - first two constraints are visible and remaining original constraints start folded
+  ---
+  duration_ms: 0.967266
+  ...
+# Subtest: empty recognition does not invent a goal or require a form field
+ok 31 - empty recognition does not invent a goal or require a form field
+  ---
+  duration_ms: 0.360718
+  ...
+# Subtest: historical policy and audit pane survives refresh without changing current task
+ok 32 - historical policy and audit pane survives refresh without changing current task
+  ---
+  duration_ms: 2.464722
+  ...
+# Subtest: old archive links open startup policies and unknown panes cannot select arbitrary content
+ok 33 - old archive links open startup policies and unknown panes cannot select arbitrary content
+  ---
+  duration_ms: 0.219926
+  ...
+# Subtest: replay domain pane restores task identity and list context without selecting an active workbench task
+ok 34 - replay domain pane restores task identity and list context without selecting an active workbench task
+  ---
+  duration_ms: 2.039806
+  ...
+# Subtest: history route without a replay task remains the list even with a domains pane
+ok 35 - history route without a replay task remains the list even with a domains pane
+  ---
+  duration_ms: 1.993998
+  ...
+# Subtest: history exposes explicit strategy and execution audit tabs with legacy pane migration
+ok 36 - history exposes explicit strategy and execution audit tabs with legacy pane migration
+  ---
+  duration_ms: 1.256225
+  ...
+# Subtest: each statement keeps its exact child ID and text even within the same generation job
+ok 37 - each statement keeps its exact child ID and text even within the same generation job
+  ---
+  duration_ms: 0.347989
+  ...
+# Subtest: failed and statement-less jobs remain honest placeholders without fabricated policy text
+ok 38 - failed and statement-less jobs remain honest placeholders without fabricated policy text
+  ---
+  duration_ms: 0.153815
+  ...
+# Subtest: OS rows show actual operation result and distinguish probe process domain from ancestor rule domain
+ok 39 - OS rows show actual operation result and distinguish probe process domain from ancestor rule domain
+  ---
+  duration_ms: 0.218525
+  ...
+# Subtest: missing generation and review receipts stay explicit and pending is not approved
+ok 40 - missing generation and review receipts stay explicit and pending is not approved
+  ---
+  duration_ms: 0.108228
+  ...
+# Subtest: policy detail reads stored loading receipt without pretending completion alone is loading
+ok 41 - policy detail reads stored loading receipt without pretending completion alone is loading
+  ---
+  duration_ms: 0.794596
+  ...
+# Subtest: 50-row audit batch reveals its last two rows before the next server page
+ok 42 - 50-row audit batch reveals its last two rows before the next server page
+  ---
+  duration_ms: 0.268207
+  ...
+# Subtest: unverified or integrity-failed compilation is never presented as a recorded success
+ok 43 - unverified or integrity-failed compilation is never presented as a recorded success
+  ---
+  duration_ms: 0.111915
+  ...
+# Subtest: whole candidate DSL cannot masquerade as a statement mapping
+ok 44 - whole candidate DSL cannot masquerade as a statement mapping
+  ---
+  duration_ms: 0.195553
+  ...
+# Subtest: a retained clause under a no-change job still shows its own exact DSL
+ok 45 - a retained clause under a no-change job still shows its own exact DSL
+  ---
+  duration_ms: 0.193089
+  ...
+# Subtest: semantic guidance never exports OS DSL and integrity failure cannot show a claimed mapping
+ok 46 - semantic guidance never exports OS DSL and integrity failure cannot show a claimed mapping
+  ---
+  duration_ms: 0.119401
+  ...
+# Subtest: expansion displays recorded permission delta without inventing a removed deny clause
+ok 47 - expansion displays recorded permission delta without inventing a removed deny clause
+  ---
+  duration_ms: 12.571743
+  ...
+# Subtest: stage previews preserve preparation and closure beside a busy execution page without duplicating events
+ok 48 - stage previews preserve preparation and closure beside a busy execution page without duplicating events
+  ---
+  duration_ms: 6.11599
+  ...
+# Subtest: runtime assessment displays its public no-change decision in Chinese
+ok 49 - runtime assessment displays its public no-change decision in Chinese
+  ---
+  duration_ms: 0.458721
+  ...
+# Subtest: archived loaded and legacy active status never claim current enforcement
+ok 50 - archived loaded and legacy active status never claim current enforcement
+  ---
+  duration_ms: 0.406267
+  ...
+# Subtest: missing source snapshots remain explicitly unrecorded
+ok 51 - missing source snapshots remain explicitly unrecorded
+  ---
+  duration_ms: 0.137256
+  ...
+# Subtest: archive list defaults to ended tasks and keeps explicit all/active filters
+ok 52 - archive list defaults to ended tasks and keeps explicit all/active filters
+  ---
+  duration_ms: 0.185951
+  ...
+# Subtest: archive list exposes the recorded Agent and workspace without inventing missing identity
+ok 53 - archive list exposes the recorded Agent and workspace without inventing missing identity
+  ---
+  duration_ms: 0.168515
+  ...
+# Subtest: file snapshots form one collapsed evidence batch and stage preview never exceeds five groups
+ok 54 - file snapshots form one collapsed evidence batch and stage preview never exceeds five groups
+  ---
+  duration_ms: 6.020239
+  ...
+# Subtest: policy lifecycle links exact job and version across candidate review compile and load receipts
+ok 55 - policy lifecycle links exact job and version across candidate review compile and load receipts
+  ---
+  duration_ms: 0.21098
+  ...
+# Subtest: missing identity, unrelated jobs and different task versions are not guessed into a policy group
+ok 56 - missing identity, unrelated jobs and different task versions are not guessed into a policy group
+  ---
+  duration_ms: 0.286941
+  ...
+# Subtest: no-change assessments retain their own decision instead of joining a prior loaded version
+ok 57 - no-change assessments retain their own decision instead of joining a prior loaded version
+  ---
+  duration_ms: 0.21184
+  ...
+# Subtest: constraint disclosure presents Chinese field entries without a JSON document
+ok 58 - constraint disclosure presents Chinese field entries without a JSON document
+  ---
+  duration_ms: 0.199436
+  ...
+# Subtest: default stage summary keeps an earlier policy v4 ahead of the latest five probe results without reordering history
+ok 59 - default stage summary keeps an earlier policy v4 ahead of the latest five probe results without reordering history
+  ---
+  duration_ms: 0.32306
+  ...
+# Subtest: operation verification summary names the operation target and recorded classification
+ok 60 - operation verification summary names the operation target and recorded classification
+  ---
+  duration_ms: 0.17562
+  ...
+# Subtest: global highlights seed old v3/v4 receipts beyond the latest fifty probes without changing pagination records
+ok 61 - global highlights seed old v3/v4 receipts beyond the latest fifty probes without changing pagination records
+  ---
+  duration_ms: 2.608152
+  ...
+# Subtest: v4 no-change runtime candidate and resolved events remain assessments outside a true expansion job
+ok 62 - v4 no-change runtime candidate and resolved events remain assessments outside a true expansion job
+  ---
+  duration_ms: 0.391891
+  ...
+# Subtest: different jobs with the same version are never unioned and an ambiguous version-only receipt stays separate
+ok 63 - different jobs with the same version are never unioned and an ambiguous version-only receipt stays separate
+  ---
+  duration_ms: 0.349018
+  ...
+# Subtest: legacy JSON constraints translate duplicate requirements without losing either authority
+ok 64 - legacy JSON constraints translate duplicate requirements without losing either authority
+  ---
+  duration_ms: 1.943769
+  ...
+# Subtest: declared constraints preserve original requirements and exact protected targets
+ok 65 - declared constraints preserve original requirements and exact protected targets
+  ---
+  duration_ms: 0.217309
+  ...
+# Subtest: an operation probe exposes its classification rather than treating recorded as proof of success
+ok 66 - an operation probe exposes its classification rather than treating recorded as proof of success
+  ---
+  duration_ms: 0.509469
+  ...
+# Subtest: stored event provenance never invents an executor and archived loading remains historical
+ok 67 - stored event provenance never invents an executor and archived loading remains historical
+  ---
+  duration_ms: 0.163268
+  ...
+# Subtest: search includes operation targets and deduplicates stable event IDs in reverse chronological order
+ok 68 - search includes operation targets and deduplicates stable event IDs in reverse chronological order
+  ---
+  duration_ms: 0.42154
+  ...
+# Subtest: critical receipts remain available beyond a busy first page and never infer an event from a version
+ok 69 - critical receipts remain available beyond a busy first page and never infer an event from a version
+  ---
+  duration_ms: 0.207313
+  ...
+# Subtest: nested no-change and guidance decisions stay assessments rather than permission changes
+ok 70 - nested no-change and guidance decisions stay assessments rather than permission changes
+  ---
+  duration_ms: 0.269007
+  ...
+# Subtest: historical event lenses retain separate evidence classes without inventing server categories
+ok 71 - historical event lenses retain separate evidence classes without inventing server categories
+  ---
+  duration_ms: 1.857004
+  ...
+# Subtest: history route preserves selected task but cannot mount live workbench or global refresh
+ok 72 - history route preserves selected task but cannot mount live workbench or global refresh
+  ---
+  duration_ms: 0.826773
+  ...
+# Subtest: opening replay resets old list scroll and cancelled frames cannot overwrite it; returning restores list position
+ok 73 - opening replay resets old list scroll and cancelled frames cannot overwrite it; returning restores list position
+  ---
+  duration_ms: 0.387147
+  ...
+# Subtest: connection history navigation survives refresh and back without selecting a task
+ok 74 - connection history navigation survives refresh and back without selecting a task
+  ---
+  duration_ms: 2.849896
+  ...
+# Subtest: older connection event pages merge without losing a receipt or duplicating rows
+ok 75 - older connection event pages merge without losing a receipt or duplicating rows
+  ---
+  duration_ms: 0.731463
+  ...
+# Subtest: unknown transport state and ended binding cannot be described as a verified live connection
+ok 76 - unknown transport state and ended binding cannot be described as a verified live connection
+  ---
+  duration_ms: 0.18244
+  ...
+# Subtest: connection immediately loses green on failure or expired evidence despite active phase
+ok 77 - connection immediately loses green on failure or expired evidence despite active phase
+  ---
+  duration_ms: 1.252671
+  ...
+# Subtest: a delayed check cannot replace the newer request
+ok 78 - a delayed check cannot replace the newer request
+  ---
+  duration_ms: 0.165392
+  ...
+# Subtest: logical task produces one row even when snapshots repeat
+ok 79 - logical task produces one row even when snapshots repeat
+  ---
+  duration_ms: 0.144137
+  ...
+# Subtest: archive navigation preserves workbench agent task and history filters across refresh/back
+ok 80 - archive navigation preserves workbench agent task and history filters across refresh/back
+  ---
+  duration_ms: 1.849457
+  ...
+# Subtest: old task/runtime/agent links migrate to the three modules
+ok 81 - old task/runtime/agent links migrate to the three modules
+  ---
+  duration_ms: 0.228403
+  ...
+# Subtest: instance and workspace remain selected when archive query and browser history change
+ok 82 - instance and workspace remain selected when archive query and browser history change
+  ---
+  duration_ms: 0.856591
+  ...
+# Subtest: history opens with ended filter and all remains explicitly restorable
+ok 83 - history opens with ended filter and all remains explicitly restorable
+  ---
+  duration_ms: 0.312239
+  ...
+# Subtest: pending change wording follows proposal decision and confirmation is distinct from Pi evaluation
+ok 84 - pending change wording follows proposal decision and confirmation is distinct from Pi evaluation
+  ---
+  duration_ms: 0.302706
+  ...
+# Subtest: no-change and guidance rows distinguish unchanged permission from unapplied rejected or expired candidates
+ok 85 - no-change and guidance rows distinguish unchanged permission from unapplied rejected or expired candidates
+  ---
+  duration_ms: 0.358323
+  ...
+# Subtest: workbench selections show current tasks and keep failed history out of the dropdown
+ok 86 - workbench selections show current tasks and keep failed history out of the dropdown
+  ---
+  duration_ms: 0.850574
+  ...
+# Subtest: ended managed instances disappear from connection choices while current registered instances remain unknown
+ok 87 - ended managed instances disappear from connection choices while current registered instances remain unknown
+  ---
+  duration_ms: 0.266104
+  ...
+# Subtest: audit rows preserve operation process domain and distinguish acceptance probes from DSH
+ok 88 - audit rows preserve operation process domain and distinguish acceptance probes from DSH
+  ---
+  duration_ms: 0.251202
+  ...
+# Subtest: two live tasks plus dozens of failed histories keep the current dropdown small and explicit failed remains recoverable
+ok 89 - two live tasks plus dozens of failed histories keep the current dropdown small and explicit failed remains recoverable
+  ---
+  duration_ms: 0.310901
+  ...
+# Subtest: current selector requires managed web evidence and leaves old headless records in history
+ok 90 - current selector requires managed web evidence and leaves old headless records in history
+  ---
+  duration_ms: 1.445252
+  ...
+# Subtest: loaded restriction subtitle follows stored loading receipts without requiring a version field
+ok 91 - loaded restriction subtitle follows stored loading receipts without requiring a version field
+  ---
+  duration_ms: 0.211012
+  ...
+# Subtest: pending review ignores a one-child statement delta and reconstructs the complete job scope
+ok 92 - pending review ignores a one-child statement delta and reconstructs the complete job scope
+  ---
+  duration_ms: 0.491847
+  ...
+# Subtest: frozen parent baseline and process generation outrank current workbench values
+ok 93 - frozen parent baseline and process generation outrank current workbench values
+  ---
+  duration_ms: 0.269854
+  ...
+# Subtest: archive audit attributes by action_source and never interprets a storage table as DSH
+ok 94 - archive audit attributes by action_source and never interprets a storage table as DSH
+  ---
+  duration_ms: 0.335063
+  ...
+# Subtest: stale pending fallback does not invent a baseline from a newer live version
+ok 95 - stale pending fallback does not invent a baseline from a newer live version
+  ---
+  duration_ms: 0.130043
+  ...
+# Subtest: audit reveals every row of a 50-row batch before requesting its older cursor
+ok 96 - audit reveals every row of a 50-row batch before requesting its older cursor
+  ---
+  duration_ms: 0.383524
+  ...
+# Subtest: probe operation labels describe file-descriptor mappings and path mutations
+ok 97 - probe operation labels describe file-descriptor mappings and path mutations
+  ---
+  duration_ms: 0.122449
+  ...
+# Subtest: restored workspace selection waits for an explicitly readable registration before reading files
+ok 98 - restored workspace selection waits for an explicitly readable registration before reading files
+  ---
+  duration_ms: 0.110585
+  ...
+# Subtest: Hook read path remains task scoped with encoded task and opaque cursor
+ok 99 - Hook read path remains task scoped with encoded task and opaque cursor
+  ---
+  duration_ms: 1.147295
+  ...
+# Subtest: HTML fallbacks and current-state responses cannot become historical trigger records
+ok 100 - HTML fallbacks and current-state responses cannot become historical trigger records
+  ---
+  duration_ms: 0.417342
+  ...
+# Subtest: only public trigger identifiers are retained, with zero-valued turns and revisions preserved
+ok 101 - only public trigger identifiers are retained, with zero-valued turns and revisions preserved
+  ---
+  duration_ms: 0.289969
+  ...
+# Subtest: switching tasks and refreshing the same task both isolate delayed request results
+ok 102 - switching tasks and refreshing the same task both isolate delayed request results
+  ---
+  duration_ms: 0.669239
+  ...
+# Subtest: overlapping pages deduplicate receipts while a failed older-page read retains saved rows
+ok 103 - overlapping pages deduplicate receipts while a failed older-page read retains saved rows
+  ---
+  duration_ms: 0.329433
+  ...
+# Subtest: current mechanism starts folded and never manufactures actual historical calls
+ok 104 - current mechanism starts folded and never manufactures actual historical calls
+  ---
+  duration_ms: 6.323852
+  ...
+# Subtest: record detail escapes public source text and leaves hashes and evidence in closed disclosure
+ok 105 - record detail escapes public source text and leaves hashes and evidence in closed disclosure
+  ---
+  duration_ms: 12.669477
+  ...
+# Subtest: list initially displays five saved records with explicit expansion rather than an endless stack
+ok 106 - list initially displays five saved records with explicit expansion rather than an endless stack
+  ---
+  duration_ms: 2.667023
+  ...
+# Subtest: missing trigger material stays unrecorded and initial rendering performs no API or execution action
+ok 107 - missing trigger material stays unrecorded and initial rendering performs no API or execution action
+  ---
+  duration_ms: 2.629107
+  ...
+# Subtest: partial frozen observations retain missing-field status and are not presented as all newly triggered
+ok 108 - partial frozen observations retain missing-field status and are not presented as all newly triggered
+  ---
+  duration_ms: 2.996417
+  ...
+# Subtest: archive runtime list exposes the Hook module without adding it to startup or issuing SSR requests
+ok 109 - archive runtime list exposes the Hook module without adding it to startup or issuing SSR requests
+  ---
+  duration_ms: 2.773976
+  ...
+# Subtest: return focus uses the newly registered button after the list unmounts and remounts
+ok 110 - return focus uses the newly registered button after the list unmounts and remounts
+  ---
+  duration_ms: 0.266622
+  ...
+# Subtest: task changes clear return targets and reject stale ref callbacks and pending focus requests
+ok 111 - task changes clear return targets and reject stale ref callbacks and pending focus requests
+  ---
+  duration_ms: 0.135075
+  ...
+# Subtest: recovery prepare and reuse are bound to immutable origin and exact selected candidate without approval
+ok 112 - recovery prepare and reuse are bound to immutable origin and exact selected candidate without approval
+  ---
+  duration_ms: 1.546169
+  ...
+# Subtest: failed startup cannot retry fixed context start, while runtime recovery and explicit startup confirmation remain
+ok 113 - failed startup cannot retry fixed context start, while runtime recovery and explicit startup confirmation remain
+  ---
+  duration_ms: 1.684961
+  ...
+# Subtest: recovery polling is serial, retries GET failure after clearing stale ready data, and ignores unmounted responses
+ok 114 - recovery polling is serial, retries GET failure after clearing stale ready data, and ignores unmounted responses
+  ---
+  duration_ms: 0.453561
+  ...
+# Subtest: record search and phase filters keep review separate from historical completion
+ok 115 - record search and phase filters keep review separate from historical completion
+  ---
+  duration_ms: 1.819971
+  ...
+# Subtest: each policy record shows its own compiler rules, without a full-document dump
+ok 116 - each policy record shows its own compiler rules, without a full-document dump
+  ---
+  duration_ms: 0.323458
+  ...
+# Subtest: scene reads use task-independent encoded workspace and read paths
+ok 117 - scene reads use task-independent encoded workspace and read paths
+  ---
+  duration_ms: 2.788049
+  ...
+# Subtest: confirmed input uses immutable read receipt without requiring manually entered name or prompt
+ok 118 - confirmed input uses immutable read receipt without requiring manually entered name or prompt
+  ---
+  duration_ms: 1.094048
+  ...
+# Subtest: an earlier result cannot be used after switching workspace instance files or supplemental intent
+ok 119 - an earlier result cannot be used after switching workspace instance files or supplemental intent
+  ---
+  duration_ms: 0.47123
+  ...
+# Subtest: a workspace description without a goal remains clarification instead of becoming an execution task
+ok 120 - a workspace description without a goal remains clarification instead of becoming an execution task
+  ---
+  duration_ms: 0.325365
+  ...
+# Subtest: unexpected HTML-shaped or execution-bearing responses cannot enable the read-only scene flow
+ok 121 - unexpected HTML-shaped or execution-bearing responses cannot enable the read-only scene flow
+  ---
+  duration_ms: 0.910284
+  ...
+# Subtest: refresh restores only an existing read pointer and changed material keeps supplement but loses the pointer
+ok 122 - refresh restores only an existing read pointer and changed material keeps supplement but loses the pointer
+  ---
+  duration_ms: 0.621282
+  ...
+# Subtest: editing intent clears the stored read pointer and adopted results cannot create a second task
+ok 123 - editing intent clears the stored read pointer and adopted results cannot create a second task
+  ---
+  duration_ms: 0.238905
+  ...
+# Subtest: pending failed and interrupted reads never provide task creation input
+ok 124 - pending failed and interrupted reads never provide task creation input
+  ---
+  duration_ms: 0.328048
+  ...
+# Subtest: user supplement citations keep their source role without duplicating the entered goal
+ok 125 - user supplement citations keep their source role without duplicating the entered goal
+  ---
+  duration_ms: 0.268486
+  ...
+1..125
+# tests 125
+# suites 0
+# pass 125
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 353.071491
