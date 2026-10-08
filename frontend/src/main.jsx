@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import './styles.css';
 import HistoryLibrary from './HistoryLibrary.jsx';
 import TaskHub from './TaskHub.jsx';
-import AgentWorkspaces from './AgentWorkspaces.jsx';
+import AgentWorkspaces from './AgentInstances.jsx';
 import ManagedWorkbench from './ManagedWorkbench.jsx';
 import {uniqueTasks,selectableTasks,isTaskEnded} from './consoleState.mjs';
 import TaskArchive from './TaskArchive.jsx';

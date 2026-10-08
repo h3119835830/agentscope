@@ -4,11 +4,12 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import z from '@deepseek-ai/schemastery';
 export const name='agentscope-instance-bridge';
-export const inject=['workspaceController','workspaceRegistry','directoryPickerController'];
+export const inject=['workspaceController','workspaceRegistry','directoryPickerController','connection'];
 export const Config=z.object({
  instanceId:z.string().default('native-dsh'),
  socketPath:z.string().default('/run/agentscope-dsh/instance.sock'),
  roots:z.array(z.string()).default([]),
+ webUrl:z.string().default('http://127.0.0.1:3000/'),
 });
 export function generation(instanceId,pid,startTicks){
  return createHash('sha256').update(instanceId+':'+pid+':'+startTicks).digest('hex').slice(0,24);
@@ -25,6 +26,10 @@ export async function dispatchWorkspaceRequest(ctx, request, state){
  const {config,currentGeneration,roots,ready,revision}=state;
  if(request.version!==1||request.instance_id!==config.instanceId||request.generation!==currentGeneration||!(/^[a-f0-9]{48}$/).test(request.nonce))throw Error('Handshake mismatch');
  if(!ready)throw Error('Workspace baseline unavailable');
+ if(request.operation==='open-url'){
+  if(!/^http:\/\/127\.0\.0\.1:\d+\/$/.test(config.webUrl))throw Error('Invalid native page address');
+  return {url:ctx.connection.authenticatedUrl(config.webUrl)};
+ }
  if(request.operation==='observe'){
   const workspaces=[];
   for(const workspace of ctx.workspaceRegistry.list()){

@@ -123,6 +123,9 @@ def test_ended_managed_binding_is_preserved_as_history(isolated,monkeypatch,seed
     module.observer.rows[old['id']]=old
     h.record(old)
     monkeypatch.setattr(module,'broker',lambda *a,**k:{'instances':[]})
+    # This case removes its sole synthetic binding. Other tests may have
+    # durable managed_tasks in the session database; they are unrelated input.
+    monkeypatch.setattr(module,'managed_catalog',lambda:({},{}))
     module.observer.collect()
     value=h.detail(old['id'])
     assert value['events'][0]['event']=='binding_ended'

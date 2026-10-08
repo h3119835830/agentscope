@@ -86,3 +86,11 @@ reasoning is not collected, and complete native-session replay is not claimed.
 AgentScope control-plane additions are MIT licensed. ActPlane retains its
 upstream MIT license at `actplane/LICENSE`; bundled dependencies retain their
 own licenses and provenance.
+
+## Agent 连接与实例共享策略（2026-10-08）
+
+- [架构与接口](docs/RFC/RFC-Agent实例共享策略与原生接入-20261008.md)
+- [技术决策](docs/ADR/ADR-Agent实例共享策略与短路径-20261008.md)
+- [验收、部署与限制](docs/REVIEW/REVIEW-Agent实例接入验收-20261008.md)
+- [复现问题与修复](docs/BUG/BUG-Agent实例接入与路径核验-20261008.md)
+- [脱敏执行证据](docs/acceptance/agent-instances-20261008/summary.json)

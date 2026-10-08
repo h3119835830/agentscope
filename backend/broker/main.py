@@ -798,6 +798,11 @@ def dispatch(m):
 
 def _dispatch(m):
     action=m.get("action")
+    if str(action).startswith('agent-instance-'):
+        sys.path.insert(0, str(REPO_ROOT/'backend'))
+        import instance_runtime
+        instance_runtime.initialize(sys.modules[__name__])
+        return instance_runtime.dispatch(m)
     if action in ('dsh-instance-inventory', 'dsh-instance-observe', 'dsh-workspace-operation'):
         sys.path.insert(0, str(REPO_ROOT/'backend'))
         from agentscope_app.workspaces import broker_instances as instances
@@ -923,6 +928,17 @@ def main():
     control_group=grp.getgrnam(os.getenv("AGENTSCOPE_CONTROL_GROUP","agentscope-control")).gr_gid
     server=Server(str(SOCKET),Handler); os.chown(SOCKET,0,control_group); os.chmod(SOCKET,0o660)
     print(f"AgentScope privileged ActPlane broker listening on {SOCKET}",flush=True)
-    server.serve_forever()
+    def terminate(*_):
+        raise SystemExit(0)
+    signal.signal(signal.SIGTERM,terminate)
+    # Recover abandoned controlled instances before accepting requests.
+    sys.path.insert(0, str(REPO_ROOT/'backend'))
+    import instance_runtime
+    instance_runtime.initialize(sys.modules[__name__])
+    try:
+        server.serve_forever()
+    finally:
+        instance_runtime.shutdown()
+        server.server_close()
 
 if __name__=="__main__": main()
