@@ -1,0 +1,82 @@
+{
+  "checks": [
+    {
+      "check": "inherited rule inputs locked",
+      "pass": true
+    },
+    {
+      "check": "child domain inherits six and adds narrow local scope",
+      "pass": true
+    },
+    {
+      "check": "research task scope independent",
+      "pass": true
+    },
+    {
+      "check": "default feedback restored",
+      "pass": true
+    },
+    {
+      "check": "platform draft edit saved",
+      "pass": true
+    },
+    {
+      "check": "custom reason treated as text",
+      "pass": true
+    },
+    {
+      "check": "existing session snapshot unchanged by baseline draft",
+      "pass": true
+    },
+    {
+      "check": "argv block option disabled",
+      "pass": true
+    },
+    {
+      "check": "branch request shown as non-executable",
+      "pass": true
+    },
+    {
+      "check": "search empty state",
+      "pass": true
+    },
+    {
+      "check": "catalogue category filtering",
+      "pass": true
+    },
+    {
+      "check": "safety check does not claim active protection",
+      "pass": true
+    },
+    {
+      "check": "keyboard tab navigation",
+      "pass": true
+    },
+    {
+      "check": "Agent proposal stored as pending draft",
+      "pass": true
+    },
+    {
+      "check": "frozen provenance links visible",
+      "pass": true
+    },
+    {
+      "check": "423px session has no page overflow",
+      "pass": true
+    },
+    {
+      "check": "423px configuration dialog fits",
+      "pass": true
+    },
+    {
+      "check": "desktop has six permissions and no overflow",
+      "pass": true
+    },
+    {
+      "check": "no browser script errors",
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "scope": "offline prototype only; no runtime enforcement tested"
+}

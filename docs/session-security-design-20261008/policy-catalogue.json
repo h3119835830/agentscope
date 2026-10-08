@@ -1,0 +1,407 @@
+{
+  "schema": "agentscope.safety-catalogue.proposal.v1",
+  "status": "research_design_only",
+  "paper": "https://arxiv.org/html/2606.25189v2",
+  "artifact_commit": "63db86945c9b8618a46aa68c8de214bc4b8343d9",
+  "corpus_sha256": "7e91b63ca74544823e067b58bbc746060cd0ba57a0ceb4e68c0e49b9b8b8b81d",
+  "verified_policy_bodies": 607,
+  "verified_directive_records": 607,
+  "independent_policies": 607,
+  "policy_types": {
+    "per_event": 392,
+    "cross_event": 215
+  },
+  "local_effect_clause_counts": {
+    "block": 367,
+    "notify": 843,
+    "kill": 67
+  },
+  "count_note": "Local regex count is 1277 effect clauses; the paper says 1283 rule lines. Counting units/version alignment are not established; do not substitute either for policy count.",
+  "ssh_literal_directive_hits": 0,
+  "templates": [
+    {
+      "id": "P01",
+      "name": "秘密配置文件",
+      "category": "文件与凭据",
+      "scope": "baseline",
+      "kind": "file",
+      "target": "/workspace/.env",
+      "operation": "read",
+      "effect": "block",
+      "reason": "配置文件可能含有凭据。请使用 .env.example 或申请受控凭据接口。",
+      "evidence_uids": [
+        "abhigyanpatwari__GitNexus::2",
+        "ruvnet__ruflo::30"
+      ],
+      "origin": "RQ1 提炼",
+      "limitations": "精确路径应由可信侧解析；.env.example 单独列为非秘密模板。禁止读取与禁止写入是不同权限。"
+    },
+    {
+      "id": "P02",
+      "name": "SSH 私钥",
+      "category": "文件与凭据",
+      "scope": "baseline",
+      "kind": "file",
+      "target": "/home/agent/.ssh/id_ed25519",
+      "operation": "read",
+      "effect": "block",
+      "reason": "此会话不能直接读取 SSH 私钥。请使用获准的凭据代理。",
+      "evidence_uids": [],
+      "origin": "用户需求扩展",
+      "limitations": "607 份策略原文没有 .ssh 字面命中。私钥读取与 config/authorized_keys 修改应分开；不能把整个 .ssh 无差别禁读当成可用的 SSH 集成。"
+    },
+    {
+      "id": "P03",
+      "name": "云与集群凭据",
+      "category": "文件与凭据",
+      "scope": "baseline",
+      "kind": "file",
+      "target": "/home/agent/.aws/credentials",
+      "operation": "read",
+      "effect": "block",
+      "reason": "云凭据由平台托管。请申请限定用途的访问能力。",
+      "evidence_uids": [
+        "abhigyanpatwari__GitNexus::2"
+      ],
+      "origin": "从凭据保护扩展",
+      "limitations": ".aws、.kube、.npmrc、.pypirc 等为模板扩展；按实际凭据位置与操作分别实例化，不能声称这些路径均直接来自 RQ1。"
+    },
+    {
+      "id": "P04",
+      "name": "平台策略与审批记录",
+      "category": "文件与凭据",
+      "scope": "baseline",
+      "kind": "file",
+      "target": "/platform/policy/**",
+      "operation": "write",
+      "effect": "block",
+      "reason": "会话不能修改平台安全底线和审批记录。请通过平台配置入口提交变更。",
+      "evidence_uids": [
+        "zeroclaw-labs__zeroclaw::34"
+      ],
+      "origin": "RQ1 提炼与平台扩展",
+      "limitations": "原例保护开发契约文件删除。平台策略、批准记录需存于 Agent 写权限之外；规则本身不能作为唯一的自保护措施。还需覆盖创建、删除、重命名和权限改变等路径。"
+    },
+    {
+      "id": "P05",
+      "name": "重要数据禁止删除",
+      "category": "文件与凭据",
+      "scope": "baseline",
+      "kind": "file",
+      "target": "/data/protected/**",
+      "operation": "unlink",
+      "effect": "block",
+      "reason": "此目录保存重要数据，禁止删除。请在任务临时目录中操作。",
+      "evidence_uids": [
+        "openclaw__openclaw::123",
+        "zeroclaw-labs__zeroclaw::34"
+      ],
+      "origin": "RQ1 提炼；论文图 9",
+      "limitations": "unlink 保护不等于防止覆盖、truncate、rename 替换或 rmdir；完整数据完整性策略需合并相应事件并做绕过验收。"
+    },
+    {
+      "id": "P06",
+      "name": "任务写入范围",
+      "category": "任务范围",
+      "scope": "scene",
+      "kind": "file",
+      "target": "/workspace/**",
+      "operation": "write",
+      "effect": "block",
+      "reason": "写入超出了当前任务范围。请修改已分配目录或申请范围调整。",
+      "evidence_uids": [
+        "abhigyanpatwari__GitNexus::2"
+      ],
+      "origin": "RQ1 提炼",
+      "limitations": "策略实际形式是 block write any unless target allowlist；目标目录由场景实例化，子 Agent 可再缩小，不能扩张父域许可。"
+    },
+    {
+      "id": "P07",
+      "name": "其他会话与业务数据隔离",
+      "category": "任务范围",
+      "scope": "scene",
+      "kind": "file",
+      "target": "/sessions/other/**",
+      "operation": "open",
+      "effect": "block",
+      "reason": "此资源属于其他会话或受保护业务。请通过授权接口访问。",
+      "evidence_uids": [],
+      "origin": "架构扩展",
+      "limitations": "需要可信 session/domain 与资源归属映射；绝不能仅靠当前目录或 PID 展示推断隔离已生效。"
+    },
+    {
+      "id": "P08",
+      "name": "危险 Git 操作",
+      "category": "代码与发布",
+      "scope": "workflow",
+      "kind": "argv",
+      "target": "git --force / reset / clean",
+      "operation": "exec",
+      "effect": "kill",
+      "reason": "此操作可能覆盖历史或删除其他工作。请提交变更说明并走受控流程。",
+      "evidence_uids": [
+        "earendil-works__pi::36",
+        "earendil-works__pi::39",
+        "OthmanAdi__planning-with-files::5"
+      ],
+      "origin": "RQ1 提炼",
+      "limitations": "当前单 argv token 匹配只支持事后 kill/notify；reset、-f、. 等粗粒度匹配会误伤，且不能覆盖 libgit2 或自制客户端。需规范命令解析与底层资源保护。"
+    },
+    {
+      "id": "P09",
+      "name": "发布与远端推送",
+      "category": "代码与发布",
+      "scope": "workflow",
+      "kind": "argv",
+      "target": "git push / npm publish",
+      "operation": "exec",
+      "effect": "kill",
+      "reason": "发布会改变共享状态。请准备发布内容并申请批准。",
+      "evidence_uids": [
+        "colbymchenry__codegraph::51"
+      ],
+      "origin": "RQ1 提炼",
+      "limitations": "当前 kill 不承诺共享状态未改变。可靠发布审批需要可信执行器、不可伪造且绑定对象/版本/有效期的授权、外部系统权限与底层事件控制。"
+    },
+    {
+      "id": "P10",
+      "name": "按分支限制提交",
+      "category": "代码与发布",
+      "scope": "workflow",
+      "kind": "branch",
+      "target": "main / other branches",
+      "operation": "commit",
+      "effect": "kill",
+      "reason": "main 分支禁止直接提交，请使用工作分支和受控合并。",
+      "evidence_uids": [
+        "OthmanAdi__planning-with-files::5"
+      ],
+      "origin": "用户需求；RQ1 相关动机",
+      "limitations": "原例是禁止 force-push master，不能据此声称支持 main commit 分类。git commit argv 不提供当前分支。需要可信仓库/HEAD/ref 解析及对原子 ref 更新的强制中介；当前不生成可执行 DSL。"
+    },
+    {
+      "id": "P11",
+      "name": "提交前测试通过且结果新鲜",
+      "category": "代码与发布",
+      "scope": "workflow",
+      "kind": "gate",
+      "target": "git commit ← tests passed",
+      "operation": "exec",
+      "effect": "kill",
+      "reason": "最新代码修改之后尚无成功测试记录。请运行项目测试并通过后再提交。",
+      "evidence_uids": [
+        "chenhg5__cc-connect::29",
+        "chenhg5__cc-connect::38"
+      ],
+      "origin": "RQ1 提炼；论文图 9",
+      "limitations": "after gate exits 0 since write；测试命令/覆盖路径由场景确定。不能把任何 go 进程当作测试，更不能把任意成功退出当成可信测试验收。argv commit 仍为事后处置；事前阻断要配可信提交中介。"
+    },
+    {
+      "id": "P12",
+      "name": "生成文件走规定生成器",
+      "category": "代码与发布",
+      "scope": "scene",
+      "kind": "file",
+      "target": "/workspace/data/hf_models.json",
+      "operation": "write",
+      "effect": "block",
+      "reason": "此文件由生成器维护。请运行规定生成器后检查结果。",
+      "evidence_uids": [
+        "AlexsJones__llmfit::17"
+      ],
+      "origin": "RQ1 提炼",
+      "limitations": "原 YAML 的 python* 祖先只证明某 Python 进程参与，不证明执行了指定脚本。生产模板需可信生成器身份和固定输入/产物凭据。"
+    },
+    {
+      "id": "P13",
+      "name": "网络目的地范围",
+      "category": "网络与数据流",
+      "scope": "scene",
+      "kind": "network",
+      "target": "10.0.0.",
+      "operation": "connect",
+      "effect": "block",
+      "reason": "目标地址不在当前会话允许范围内。请使用已批准服务。",
+      "evidence_uids": [
+        "earendil-works__pi::22"
+      ],
+      "origin": "RQ1 相关例；研究扩展",
+      "limitations": "优先明确数值 IPv4 支持；域名、DNS、IPv6、代理、现有连接与 UDP 需要单独验证。必须预留 Agent/模型正常工作所需连接。"
+    },
+    {
+      "id": "P14",
+      "name": "读取秘密后禁止外联",
+      "category": "网络与数据流",
+      "scope": "scene",
+      "kind": "flow",
+      "target": "/workspace/.env → external endpoint",
+      "operation": "connect",
+      "effect": "block",
+      "reason": "当前进程处理过秘密数据，不能向未批准目的地发送。请使用脱敏流程。",
+      "evidence_uids": [],
+      "origin": "论文 §3.3 的 IFC 示例",
+      "limitations": "基于来源标签而非文件内容扫描；会保守传播且可能过度污染。已建立连接、send/recv、IPC、继承环境和启动前历史都需要覆盖证据。"
+    },
+    {
+      "id": "P15",
+      "name": "输出、隐私与业务承诺",
+      "category": "通用约束",
+      "scope": "semantic",
+      "kind": "semantic",
+      "target": "报告 / 消息 / 业务行为",
+      "operation": "review",
+      "effect": "notify",
+      "reason": "请隐去隐私信息；结论注明证据；对外承诺前请求确认。",
+      "evidence_uids": [
+        "nearai__ironclaw::28"
+      ],
+      "origin": "通用语义约束",
+      "limitations": "可统一展示，但由内容检查、Agent 或业务授权接口执行。文件名命中与 notify 不能证明没有泄露或没有削弱鉴权。"
+    }
+  ],
+  "evidence": [
+    {
+      "uid": "AlexsJones__llmfit::17",
+      "repo": "AlexsJones/llmfit",
+      "source_file": "AlexsJones/llmfit/AGENTS.md",
+      "source_lines": "75-83",
+      "directive": "Do not manually edit `hf_models.json`. Regenerate it by running the scraper:\n\n```sh\npython3 scripts/scrape_hf_models.py\n```\n\nThe scraper has hardcoded fallback entries for gated models that require authentication.",
+      "policy_yaml": "version: 1\npolicy: |\n  source AGENT = exec \"**\"\n  \n  rule regen-hf-models:\n    block write file \"data/hf_models.json\" if AGENT unless lineage-includes exec \"python*\"\n    because \"Do not manually edit data/hf_models.json; run python3 scripts/scrape_hf_models.py.\"\n",
+      "enforceability": "per_event",
+      "source_url": "https://github.com/AlexsJones/llmfit/blob/855ad3d34160cce6200c0ff128c34bcdcb0b922b/AGENTS.md#L75-L83",
+      "artifact_url": "https://github.com/eunomia-bpf/ActPlane/blob/63db86945c9b8618a46aa68c8de214bc4b8343d9/docs/eval_runs/rq1-expressiveness/full-607-subagents/batches/batch01/policies/AlexsJones__llmfit_17.yaml"
+    },
+    {
+      "uid": "OthmanAdi__planning-with-files::5",
+      "repo": "OthmanAdi/planning-with-files",
+      "source_file": "OthmanAdi/planning-with-files/AGENTS.md",
+      "source_lines": "12-13",
+      "directive": "- No `--no-verify`. No force push to master except tag ref updates.",
+      "policy_yaml": "version: 1\npolicy: |\n  source AGENT = exec \"**\"\n  \n  rule no-noverify-or-force-master:\n    kill exec \"git\" \"--no-verify\" if AGENT\n    kill exec \"git\" \"--force\" if AGENT\n    kill exec \"git\" \"--force-with-lease\" if AGENT\n    because \"Do not use --no-verify, and do not force-push master except tag ref updates.\"\n",
+      "enforceability": "per_event",
+      "source_url": "https://github.com/OthmanAdi/planning-with-files/blob/fadbf1f6e31356628cc990de64f4b20a0fbe3378/AGENTS.md#L12-L13",
+      "artifact_url": "https://github.com/eunomia-bpf/ActPlane/blob/63db86945c9b8618a46aa68c8de214bc4b8343d9/docs/eval_runs/rq1-expressiveness/full-607-subagents/batches/batch06/policies/OthmanAdi__planning-with-files_5.yaml"
+    },
+    {
+      "uid": "abhigyanpatwari__GitNexus::2",
+      "repo": "abhigyanpatwari/GitNexus",
+      "source_file": "abhigyanpatwari/GitNexus/AGENTS.md",
+      "source_lines": "7-16",
+      "directive": "## Scope\n\n| Boundary | Rule |\n|----------|------|\n| **Reads** | `gitnexus/`, `gitnexus-web/`, `eval/`, plugin packages, `.github/`, `.gitnexus/`, docs. |\n| **Writes** | Only paths required for the change; keep diffs minimal. Update lockfiles when deps change. |\n| **Executes** | `npm`, `npx`, `node` under `gitnexus/` and `gitnexus-web/`; `uv run` for Python under `eval/`; documented CI/dev workflows. |\n| **Off-limits** | Real `.env` / secrets, production credentials, unrelated repos, destructive git ops without confirmation. |",
+      "policy_yaml": "version: 1\npolicy: |\n  source AGENT = exec \"**/*\"\n  \n  rule gitnexus-scope:\n    block open file \"**/.env\" if AGENT\n    block open file \"**/secrets/**\" if AGENT\n    notify exec \"npm\" if AGENT\n    notify exec \"npx\" if AGENT\n    notify exec \"node\" if AGENT\n    notify exec \"uv\" if AGENT\n    because \"Stay within the documented read, write, and execution scope; real env files and secrets are off limits.\"\n",
+      "enforceability": "per_event",
+      "source_url": "https://github.com/abhigyanpatwari/GitNexus/blob/51e667808aea7ed5a5872514aae6b8a5fd28737c/AGENTS.md#L7-L16",
+      "artifact_url": "https://github.com/eunomia-bpf/ActPlane/blob/63db86945c9b8618a46aa68c8de214bc4b8343d9/docs/eval_runs/rq1-expressiveness/full-607-subagents/batches/batch02/policies/abhigyanpatwari__GitNexus__2.yaml"
+    },
+    {
+      "uid": "chenhg5__cc-connect::29",
+      "repo": "chenhg5/cc-connect",
+      "source_file": "chenhg5/cc-connect/AGENTS.md",
+      "source_lines": "152-154",
+      "directive": "- Tests must pass before committing: `go test ./...`",
+      "policy_yaml": "version: 1\npolicy: |\n  source CODE = file \"**/*.go\"\n  \n  rule go-test-before-commit:\n    notify exec \"git\" \"commit\" if CODE unless after exec \"go\" since write \"**/*.go\"\n    because \"Run go test ./... before committing; tests must pass.\"\n",
+      "enforceability": "cross_event",
+      "source_url": "https://github.com/chenhg5/cc-connect/blob/e055bc8cf5e2fa6c976b657fa3cee40f7839d5dc/AGENTS.md#L152-L154",
+      "artifact_url": "https://github.com/eunomia-bpf/ActPlane/blob/63db86945c9b8618a46aa68c8de214bc4b8343d9/docs/eval_runs/rq1-expressiveness/full-607-subagents/batches/batch07/policies/chenhg5__cc-connect_29.yaml"
+    },
+    {
+      "uid": "chenhg5__cc-connect::38",
+      "repo": "chenhg5/cc-connect",
+      "source_file": "chenhg5/cc-connect/AGENTS.md",
+      "source_lines": "210-218",
+      "directive": "## Pre-Commit Checklist\n\n1. **Build passes**: `go build ./...`\n2. **Tests pass**: `go test ./...`\n3. **No new hardcoded platform/agent names in core**: grep for platform names in `core/*.go`\n4. **i18n complete**: all new user-facing strings have translations for all languages\n5. **No secrets in code**: no API keys, tokens, or credentials in source files",
+      "policy_yaml": "version: 1\npolicy: |\n  source CODE = file \"**/*.go\"\n  source I18N = file \"i18n/**\"\n  \n  rule precommit-checklist:\n    notify exec \"git\" \"commit\" if CODE unless after exec \"go\" since write \"**/*.go\"\n    notify write file \"core/*.go\" if CODE\n    notify exec \"git\" \"commit\" if I18N\n    because \"Before commit, run go build, go test, avoid new hardcoded platform or agent names in core, and complete i18n.\"\n",
+      "enforceability": "cross_event",
+      "source_url": "https://github.com/chenhg5/cc-connect/blob/e055bc8cf5e2fa6c976b657fa3cee40f7839d5dc/AGENTS.md#L210-L218",
+      "artifact_url": "https://github.com/eunomia-bpf/ActPlane/blob/63db86945c9b8618a46aa68c8de214bc4b8343d9/docs/eval_runs/rq1-expressiveness/full-607-subagents/batches/batch07/policies/chenhg5__cc-connect_38.yaml"
+    },
+    {
+      "uid": "colbymchenry__codegraph::51",
+      "repo": "colbymchenry/codegraph",
+      "source_file": "colbymchenry/codegraph/CLAUDE.md",
+      "source_lines": "158-161",
+      "directive": "**Do not run `npm publish`, `git push`, or `git tag` yourself** — these are\npublish actions on shared state. Write the files, hand the user the commands.",
+      "policy_yaml": "version: 1\npolicy: |\n  source AGENT = exec \"**\"\n\n  rule no-publish-shared-state:\n    kill exec \"npm\" \"publish\" if AGENT\n    kill exec \"git\" \"push\" if AGENT\n    kill exec \"git\" \"tag\" if AGENT\n    because \"do not run publish actions on shared state; write files and hand commands to the user\"\n",
+      "enforceability": "per_event",
+      "source_url": "https://github.com/colbymchenry/codegraph/blob/c9d2a25b73c3fc66c0f464a1ec0e0eb1cf53de65/CLAUDE.md#L158-L161",
+      "artifact_url": "https://github.com/eunomia-bpf/ActPlane/blob/63db86945c9b8618a46aa68c8de214bc4b8343d9/docs/eval_runs/rq1-expressiveness/full-607-subagents/batches/batch05/policies/colbymchenry__codegraph__51.yaml"
+    },
+    {
+      "uid": "earendil-works__pi::22",
+      "repo": "earendil-works/pi",
+      "source_file": "earendil-works/pi/AGENTS.md",
+      "source_lines": "32-33",
+      "directive": "- For `packages/coding-agent/test/suite/`, use `test/suite/harness.ts` + the faux provider. No real provider APIs, keys, or paid tokens.",
+      "policy_yaml": "version: 1\npolicy: |\n  source AGENT = exec \"**/*\"\n  \n  source SUITE = file \"packages/coding-agent/test/suite/**\"\n  \n  rule suite-no-real-provider:\n    block connect endpoint \"*\" if AGENT and SUITE\n    because \"For coding-agent suite tests, use the harness and faux provider; no real provider APIs, keys, or paid tokens.\"\n",
+      "enforceability": "per_event",
+      "source_url": "https://github.com/earendil-works/pi/blob/c841a6c78fbbb12e3ef6014c3044faa15aa7b259/AGENTS.md#L32-L33",
+      "artifact_url": "https://github.com/eunomia-bpf/ActPlane/blob/63db86945c9b8618a46aa68c8de214bc4b8343d9/docs/eval_runs/rq1-expressiveness/full-607-subagents/batches/batch02/policies/earendil-works__pi__22.yaml"
+    },
+    {
+      "uid": "earendil-works__pi::36",
+      "repo": "earendil-works/pi",
+      "source_file": "earendil-works/pi/AGENTS.md",
+      "source_lines": "55-59",
+      "directive": "Never run (destroys other agents' work or bypasses checks):\n\n- `git reset --hard`, `git checkout .`, `git clean -fd`, `git stash`, `git add -A`, `git add .`, `git commit --no-verify`.",
+      "policy_yaml": "version: 1\npolicy: |\n  source AGENT = exec \"**/*\"\n  \n  rule no-destructive-git:\n    kill exec \"git\" \"reset\" if AGENT\n    kill exec \"git\" \"clean\" if AGENT\n    kill exec \"git\" \"stash\" if AGENT\n    kill exec \"git\" \"-A\" if AGENT\n    kill exec \"git\" \".\" if AGENT\n    kill exec \"git\" \"--no-verify\" if AGENT\n    because \"Never run destructive git operations or bypass checks: reset hard, checkout dot, clean, stash, bulk add, or commit no-verify.\"\n",
+      "enforceability": "per_event",
+      "source_url": "https://github.com/earendil-works/pi/blob/c841a6c78fbbb12e3ef6014c3044faa15aa7b259/AGENTS.md#L55-L59",
+      "artifact_url": "https://github.com/eunomia-bpf/ActPlane/blob/63db86945c9b8618a46aa68c8de214bc4b8343d9/docs/eval_runs/rq1-expressiveness/full-607-subagents/batches/batch02/policies/earendil-works__pi__36.yaml"
+    },
+    {
+      "uid": "earendil-works__pi::39",
+      "repo": "earendil-works/pi",
+      "source_file": "earendil-works/pi/AGENTS.md",
+      "source_lines": "64-65",
+      "directive": "- Never force push.",
+      "policy_yaml": "version: 1\npolicy: |\n  source AGENT = exec \"**/*\"\n  \n  rule no-force-push:\n    kill exec \"git\" \"--force\" if AGENT\n    kill exec \"git\" \"-f\" if AGENT\n    because \"Never force push.\"\n",
+      "enforceability": "per_event",
+      "source_url": "https://github.com/earendil-works/pi/blob/c841a6c78fbbb12e3ef6014c3044faa15aa7b259/AGENTS.md#L64-L65",
+      "artifact_url": "https://github.com/eunomia-bpf/ActPlane/blob/63db86945c9b8618a46aa68c8de214bc4b8343d9/docs/eval_runs/rq1-expressiveness/full-607-subagents/batches/batch02/policies/earendil-works__pi__39.yaml"
+    },
+    {
+      "uid": "nearai__ironclaw::28",
+      "repo": "nearai/ironclaw",
+      "source_file": "nearai/ironclaw/AGENTS.md",
+      "source_lines": "61-62",
+      "directive": "- Do not weaken bearer-token auth, webhook auth, CORS/origin checks, body limits, rate limits, allowlists, or secret-handling guarantees.",
+      "policy_yaml": "version: 1\npolicy: |\n  source AGENT = exec \"**\"\n  \n  rule preserve-security-guarantees:\n    notify write file \"**/*auth*\" if AGENT\n    notify write file \"**/*cors*\" if AGENT\n    notify write file \"**/*secret*\" if AGENT\n    notify write file \"**/*rate*\" if AGENT\n    because \"Do not weaken auth, CORS, body limits, rate limits, allowlists, or secret-handling guarantees.\"\n",
+      "enforceability": "per_event",
+      "source_url": "https://github.com/nearai/ironclaw/blob/1ecb16907d18430da9071fe16c8eee85eec3d674/AGENTS.md#L61-L62",
+      "artifact_url": "https://github.com/eunomia-bpf/ActPlane/blob/63db86945c9b8618a46aa68c8de214bc4b8343d9/docs/eval_runs/rq1-expressiveness/full-607-subagents/batches/batch01/policies/nearai__ironclaw_28.yaml"
+    },
+    {
+      "uid": "openclaw__openclaw::123",
+      "repo": "openclaw/openclaw",
+      "source_file": "openclaw/openclaw/AGENTS.md",
+      "source_lines": "156-157",
+      "directive": "- Do not delete/rename unexpected files; ask if blocking, else ignore.",
+      "policy_yaml": "version: 1\npolicy: |\n  source AGENT = exec \"**\"\n\n  rule no-unexpected-delete:\n    notify unlink file \"**\" if AGENT\n    because \"do not delete or rename unexpected files; ask if blocking, else ignore\"\n",
+      "enforceability": "per_event",
+      "source_url": "https://github.com/openclaw/openclaw/blob/b6c8807ca0ffe27326f7594767ad63c336556c8a/AGENTS.md#L156-L157",
+      "artifact_url": "https://github.com/eunomia-bpf/ActPlane/blob/63db86945c9b8618a46aa68c8de214bc4b8343d9/docs/eval_runs/rq1-expressiveness/full-607-subagents/batches/batch04/policies/openclaw__openclaw__123.yaml"
+    },
+    {
+      "uid": "ruvnet__ruflo::30",
+      "repo": "ruvnet/ruflo",
+      "source_file": "ruvnet/ruflo/AGENTS.md",
+      "source_lines": "313-314",
+      "directive": "- NEVER commit secrets or .env files",
+      "policy_yaml": "version: 1\npolicy: |\n  source AGENT = exec \"**\"\n  source SECRET = file \"**/.env\"\n  source SECRET = file \"**/*secret*\"\n  \n  rule no-secret-commits:\n    block exec \"git\" \"commit\" if SECRET\n    block write file \"**/.env\" if AGENT\n    because \"Never commit secrets or .env files.\"\n",
+      "enforceability": "per_event",
+      "source_url": "https://github.com/ruvnet/ruflo/blob/b8a2faa3e9ef5a83a89486d792f6f301c1f8f110/AGENTS.md#L313-L314",
+      "artifact_url": "https://github.com/eunomia-bpf/ActPlane/blob/63db86945c9b8618a46aa68c8de214bc4b8343d9/docs/eval_runs/rq1-expressiveness/full-607-subagents/batches/batch01/policies/ruvnet__ruflo_30.yaml"
+    },
+    {
+      "uid": "zeroclaw-labs__zeroclaw::34",
+      "repo": "zeroclaw-labs/zeroclaw",
+      "source_file": "zeroclaw-labs/zeroclaw/AGENTS.md",
+      "source_lines": "205-216",
+      "directive": "Dev-operational contracts — files consumed by AI coding skills and development tooling. Do not move or delete without updating all consuming skills and AGENTS.md:\n\n| Protected file | Consuming skill / tool |\n|---|---|\n| `docs/book/src/contributing/pr-review-protocol.md` | `github-pr-review-session` — review protocol |\n| `docs/book/src/maintainers/changelog-generation.md` | `changelog-generation` — release procedure |\n| `docs/book/src/maintainers/reviewer-playbook.md` | `github-issue-triage` — triage governance |\n| `docs/book/src/maintainers/pr-workflow.md` | `github-issue-triage` — triage discipline |\n| `docs/book/src/contributing/privacy.md` | `github-issue-triage`, PR template — privacy rules |\n| `docs/book/src/foundations/fnd-00*.md` | `github-pr-review-session` — RFC reference data; public transparency documents |",
+      "policy_yaml": "version: 1\npolicy: |\n  source AGENT = exec \"**\"\n  \n  rule protected-dev-contract-files:\n    block unlink file \"docs/book/src/contributing/pr-review-protocol.md\" if AGENT\n    block unlink file \"docs/book/src/maintainers/changelog-generation.md\" if AGENT\n    block unlink file \"docs/book/src/maintainers/reviewer-playbook.md\" if AGENT\n    block unlink file \"docs/book/src/maintainers/pr-workflow.md\" if AGENT\n    block unlink file \"docs/book/src/contributing/privacy.md\" if AGENT\n    block unlink file \"docs/book/src/foundations/fnd-00*.md\" if AGENT\n    because \"Do not move or delete dev-operational contract files without updating consuming skills and AGENTS.md.\"\n",
+      "enforceability": "per_event",
+      "source_url": "https://github.com/zeroclaw-labs/zeroclaw/blob/18622d91b681f1898dfc02414bdcdf2a77116670/AGENTS.md#L205-L216",
+      "artifact_url": "https://github.com/eunomia-bpf/ActPlane/blob/63db86945c9b8618a46aa68c8de214bc4b8343d9/docs/eval_runs/rq1-expressiveness/full-607-subagents/batches/batch07/policies/zeroclaw-labs__zeroclaw_34.yaml"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "compiler_binary": "/opt/agentscope/actplane/target/release/actplane",
+  "compiler_version": "actplane 0.1.8",
+  "compiler_sha256": "7c269dd10ac946684f772276a20033893838786bbda802c8e57ce2eb5566ca6d",
+  "runtime_source_head": "23d4eb917543bd6e14d2190b3647a093769fa298",
+  "ui_branch_source_head": "0ae28a99ae47cc17376afa84c0bf6d447f612b55",
+  "operations_performed": [
+    "compile --json --rule only"
+  ],
+  "runtime_policy_loaded": false,
+  "test_type": "static_compiler_host_capability_not_runtime_enforcement"
+}

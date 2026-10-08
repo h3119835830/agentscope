@@ -1,0 +1,341 @@
+[
+  {
+    "name": "env_read",
+    "dsl": "source AGENT = exec \"**\"\nrule protected-env:\n  block read file \"/workspace/.env\" if AGENT\n  because \"Use .env.example.\"\n",
+    "exit_code": 0,
+    "report": {
+      "backend_support": {
+        "clauses": [
+          {
+            "clause_index": 0,
+            "condition_warnings": [],
+            "effect": "block",
+            "limitations": [],
+            "mode": "bpf-lsm",
+            "op": "read",
+            "pre_op": true,
+            "reason": "pre-op block via BPF-LSM file/path hooks",
+            "rule": "protected-env",
+            "status": "supported",
+            "supported": true,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/workspace/.env"
+          }
+        ],
+        "sources": [
+          {
+            "kind": "exec",
+            "label": "AGENT",
+            "limitations": [],
+            "pattern": "**",
+            "reason": "exec source labels are applied on process exec",
+            "supported": true
+          }
+        ]
+      },
+      "domain": null,
+      "environment": {
+        "ACTPLANE_ENABLE_ADVANCED_HOOKS": null,
+        "ACTPLANE_FORCE_TRACEPOINT": null,
+        "ACTPLANE_HOOK_PROFILE": null,
+        "ACTPLANE_RESERVE_FILE_FLOW": null
+      },
+      "host": {
+        "active_lsms": "capability,landlock,yama,safesetid,selinux,bpf",
+        "bpf_lsm_active": true,
+        "force_tracepoint": false
+      },
+      "matrix_note": "This reports static host/backend support for the selected policy. Runtime delta admission can reject later deltas that require hook classes or path matcher classes not enabled when the engine was loaded.",
+      "matrix_scope": "static_policy_host_support",
+      "ok": true,
+      "policy_ref": "--rule",
+      "rule_count": 1,
+      "rules": [
+        {
+          "clause_end_line": 3,
+          "clause_hash": "fnv1a64:c4c5992fb7bcc2a8",
+          "clause_op": "read",
+          "clause_source_index": 0,
+          "clause_start_line": 3,
+          "clause_text": "  block read file \"/workspace/.env\" if AGENT",
+          "effect": "block",
+          "immutable": false,
+          "kernel_op": "read",
+          "name": "protected-env",
+          "ops": [
+            "read"
+          ],
+          "reason": "Use .env.example.",
+          "rule_id": 0,
+          "source_end_line": 4,
+          "source_hash": "fnv1a64:065c334456b0ceb2",
+          "source_ref": "rule:protected-env",
+          "source_start_line": 2,
+          "source_text": "rule protected-env:\n  block read file \"/workspace/.env\" if AGENT\n  because \"Use .env.example.\"",
+          "target_arg": null,
+          "target_kind": "file",
+          "target_pattern": "/workspace/.env"
+        }
+      ],
+      "schema": "actplane.compile.v1",
+      "warnings": []
+    }
+  },
+  {
+    "name": "git_commit_block",
+    "dsl": "source AGENT = exec \"**\"\nrule commit-gate:\n  block exec \"git\" \"commit\" if AGENT\n  because \"Review before committing.\"\n",
+    "exit_code": 0,
+    "report": {
+      "backend_support": {
+        "clauses": [
+          {
+            "clause_index": 0,
+            "condition_warnings": [],
+            "effect": "block",
+            "limitations": [
+              "use kill exec for post-exec termination"
+            ],
+            "mode": "none",
+            "op": "exec",
+            "pre_op": false,
+            "reason": "argv is only available after exec, so this cannot block pre-exec",
+            "rule": "commit-gate",
+            "status": "unsupported",
+            "supported": false,
+            "target_arg": "commit",
+            "target_kind": "exec",
+            "target_pattern": "**/git"
+          }
+        ],
+        "sources": [
+          {
+            "kind": "exec",
+            "label": "AGENT",
+            "limitations": [],
+            "pattern": "**",
+            "reason": "exec source labels are applied on process exec",
+            "supported": true
+          }
+        ]
+      },
+      "domain": null,
+      "environment": {
+        "ACTPLANE_ENABLE_ADVANCED_HOOKS": null,
+        "ACTPLANE_FORCE_TRACEPOINT": null,
+        "ACTPLANE_HOOK_PROFILE": null,
+        "ACTPLANE_RESERVE_FILE_FLOW": null
+      },
+      "host": {
+        "active_lsms": "capability,landlock,yama,safesetid,selinux,bpf",
+        "bpf_lsm_active": true,
+        "force_tracepoint": false
+      },
+      "matrix_note": "This reports static host/backend support for the selected policy. Runtime delta admission can reject later deltas that require hook classes or path matcher classes not enabled when the engine was loaded.",
+      "matrix_scope": "static_policy_host_support",
+      "ok": true,
+      "policy_ref": "--rule",
+      "rule_count": 1,
+      "rules": [
+        {
+          "clause_end_line": 3,
+          "clause_hash": "fnv1a64:65dda4010e3de720",
+          "clause_op": "exec",
+          "clause_source_index": 0,
+          "clause_start_line": 3,
+          "clause_text": "  block exec \"git\" \"commit\" if AGENT",
+          "effect": "block",
+          "immutable": false,
+          "kernel_op": "exec",
+          "name": "commit-gate",
+          "ops": [
+            "exec"
+          ],
+          "reason": "Review before committing.",
+          "rule_id": 0,
+          "source_end_line": 4,
+          "source_hash": "fnv1a64:47d527cb0d552d35",
+          "source_ref": "rule:commit-gate",
+          "source_start_line": 2,
+          "source_text": "rule commit-gate:\n  block exec \"git\" \"commit\" if AGENT\n  because \"Review before committing.\"",
+          "target_arg": "commit",
+          "target_kind": "exec",
+          "target_pattern": "**/git"
+        }
+      ],
+      "schema": "actplane.compile.v1",
+      "warnings": [
+        {
+          "code": "argv_block_exec_post_exec_only",
+          "message": "commit-gate: `block exec` with an argv token cannot block pre-exec because argv is only available after exec; use `kill exec` if termination after exec is acceptable."
+        }
+      ]
+    }
+  },
+  {
+    "name": "git_all_block",
+    "dsl": "source AGENT = exec \"**\"\nrule no-git:\n  block exec \"git\" if AGENT\n  because \"Git is disabled.\"\n",
+    "exit_code": 0,
+    "report": {
+      "backend_support": {
+        "clauses": [
+          {
+            "clause_index": 0,
+            "condition_warnings": [],
+            "effect": "block",
+            "limitations": [],
+            "mode": "bpf-lsm",
+            "op": "exec",
+            "pre_op": true,
+            "reason": "pre-op block via BPF-LSM bprm_check_security",
+            "rule": "no-git",
+            "status": "supported",
+            "supported": true,
+            "target_arg": null,
+            "target_kind": "exec",
+            "target_pattern": "**/git"
+          }
+        ],
+        "sources": [
+          {
+            "kind": "exec",
+            "label": "AGENT",
+            "limitations": [],
+            "pattern": "**",
+            "reason": "exec source labels are applied on process exec",
+            "supported": true
+          }
+        ]
+      },
+      "domain": null,
+      "environment": {
+        "ACTPLANE_ENABLE_ADVANCED_HOOKS": null,
+        "ACTPLANE_FORCE_TRACEPOINT": null,
+        "ACTPLANE_HOOK_PROFILE": null,
+        "ACTPLANE_RESERVE_FILE_FLOW": null
+      },
+      "host": {
+        "active_lsms": "capability,landlock,yama,safesetid,selinux,bpf",
+        "bpf_lsm_active": true,
+        "force_tracepoint": false
+      },
+      "matrix_note": "This reports static host/backend support for the selected policy. Runtime delta admission can reject later deltas that require hook classes or path matcher classes not enabled when the engine was loaded.",
+      "matrix_scope": "static_policy_host_support",
+      "ok": true,
+      "policy_ref": "--rule",
+      "rule_count": 1,
+      "rules": [
+        {
+          "clause_end_line": 3,
+          "clause_hash": "fnv1a64:d2889ba5114bc10f",
+          "clause_op": "exec",
+          "clause_source_index": 0,
+          "clause_start_line": 3,
+          "clause_text": "  block exec \"git\" if AGENT",
+          "effect": "block",
+          "immutable": false,
+          "kernel_op": "exec",
+          "name": "no-git",
+          "ops": [
+            "exec"
+          ],
+          "reason": "Git is disabled.",
+          "rule_id": 0,
+          "source_end_line": 4,
+          "source_hash": "fnv1a64:d962d7ddccf4dc7f",
+          "source_ref": "rule:no-git",
+          "source_start_line": 2,
+          "source_text": "rule no-git:\n  block exec \"git\" if AGENT\n  because \"Git is disabled.\"",
+          "target_arg": null,
+          "target_kind": "exec",
+          "target_pattern": "**/git"
+        }
+      ],
+      "schema": "actplane.compile.v1",
+      "warnings": []
+    }
+  },
+  {
+    "name": "git_commit_kill",
+    "dsl": "source AGENT = exec \"**\"\nrule commit-gate:\n  kill exec \"git\" \"commit\" if AGENT\n  because \"Review before committing.\"\n",
+    "exit_code": 0,
+    "report": {
+      "backend_support": {
+        "clauses": [
+          {
+            "clause_index": 0,
+            "condition_warnings": [],
+            "effect": "kill",
+            "limitations": [],
+            "mode": "tracepoint",
+            "op": "exec",
+            "pre_op": false,
+            "reason": "post-exec tracepoint kill",
+            "rule": "commit-gate",
+            "status": "supported",
+            "supported": true,
+            "target_arg": "commit",
+            "target_kind": "exec",
+            "target_pattern": "**/git"
+          }
+        ],
+        "sources": [
+          {
+            "kind": "exec",
+            "label": "AGENT",
+            "limitations": [],
+            "pattern": "**",
+            "reason": "exec source labels are applied on process exec",
+            "supported": true
+          }
+        ]
+      },
+      "domain": null,
+      "environment": {
+        "ACTPLANE_ENABLE_ADVANCED_HOOKS": null,
+        "ACTPLANE_FORCE_TRACEPOINT": null,
+        "ACTPLANE_HOOK_PROFILE": null,
+        "ACTPLANE_RESERVE_FILE_FLOW": null
+      },
+      "host": {
+        "active_lsms": "capability,landlock,yama,safesetid,selinux,bpf",
+        "bpf_lsm_active": true,
+        "force_tracepoint": false
+      },
+      "matrix_note": "This reports static host/backend support for the selected policy. Runtime delta admission can reject later deltas that require hook classes or path matcher classes not enabled when the engine was loaded.",
+      "matrix_scope": "static_policy_host_support",
+      "ok": true,
+      "policy_ref": "--rule",
+      "rule_count": 1,
+      "rules": [
+        {
+          "clause_end_line": 3,
+          "clause_hash": "fnv1a64:c07f1e2f49732635",
+          "clause_op": "exec",
+          "clause_source_index": 0,
+          "clause_start_line": 3,
+          "clause_text": "  kill exec \"git\" \"commit\" if AGENT",
+          "effect": "kill",
+          "immutable": false,
+          "kernel_op": "exec",
+          "name": "commit-gate",
+          "ops": [
+            "exec"
+          ],
+          "reason": "Review before committing.",
+          "rule_id": 0,
+          "source_end_line": 4,
+          "source_hash": "fnv1a64:a2fee980ec8a53d6",
+          "source_ref": "rule:commit-gate",
+          "source_start_line": 2,
+          "source_text": "rule commit-gate:\n  kill exec \"git\" \"commit\" if AGENT\n  because \"Review before committing.\"",
+          "target_arg": "commit",
+          "target_kind": "exec",
+          "target_pattern": "**/git"
+        }
+      ],
+      "schema": "actplane.compile.v1",
+      "warnings": []
+    }
+  }
+]

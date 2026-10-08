@@ -1,0 +1,11 @@
+# BUG：编译成功被误用为保护成功的接入风险
+
+日期：2026-10-08。状态：能力差异已复现；设计原型已显式区分。未认定为编译器缺陷，未宣称生产平台已经修复。
+
+离线输入：`block exec "git" "commit" if AGENT`。
+
+结果：编译进程退出 0，JSON `ok=true`，但 `backend_support.clauses[0].supported=false`、`pre_op=false`、`status=unsupported`，并给出 `argv_block_exec_post_exec_only`。这说明语法正确且可生成 IR，并不支持事前阻断该 argv 级操作。证据：evidence/compile-support.json。
+
+如 UI 只读取 exit code 或 ok，会产生虚假保护状态。原型将相关选项禁用，并将按分支处置保存为不可执行需求；生产接入时必须同时检查支持报告和真实加载/探针回执。生产 UI 是否已经存在误报，尚未在本轮复现。
+
+原始 RQ1 的 .env/提交、测试门、Git 参数过宽等语义差异见 README。既有内核运行时写保护失败记录没有被本轮关闭。
