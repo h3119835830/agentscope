@@ -50,3 +50,11 @@ Hermes 网页静态资源来自独立原生安装的 frontend 源码副本，构
 - 本地编译、当前绑定、内核拦截、原生工具反馈和功能测试是不同证据层，后续扩展仍需分别验收。
 
 证据目录：[执行摘要](../acceptance/agent-instances-20261008/summary.json)、[截图](../acceptance/agent-instances-20261008/connections-desktop.jpg)。相关 [RFC](../RFC/RFC-Agent实例共享策略与原生接入-20261008.md)、[ADR](../ADR/ADR-Agent实例共享策略与短路径-20261008.md)、[BUG](../BUG/BUG-Agent实例接入与路径核验-20261008.md)。
+
+## 实例名称与进程记录调整
+
+按用户要求，已知 Agent 在列表、配置标题和新增入口统一使用 DeepSeek Harness、Hermes、Codex 等原生名称；移除受控、演示、RQ5 等命名前缀。新增已知 Agent 不再要求填写实例名称，其他 Agent 仍可手动命名。原来重复的 Agent 类型列改为进程号（PID），同类实例通过当前 OS 进程记录区分；未运行或观测过期显示“—”。名称只用于展示，实例 ID、运行代次、进程启动标识及策略归属保持不变，PID 不单独作为安全身份。
+
+本次仅部署 18003 静态前端，没有重启 Agent、API 或 Broker。Vite 构建通过；浏览器实测两条 DeepSeek Harness 分别显示 PID 1643381、870966，Hermes 显示 1643551，未启动安装入口显示“—”；配置标题及新增表单符合上述名称规则。320/423px 实际视口检查通过，整页没有横向溢出，宽记录表内部滚动。桌面构建目录为 root 所有，最初 happy 构建因 EACCES 失败，沿用原部署用户 root 构建后通过。
+
+本机 frontend-design skill 已移出启用目录，此次没有使用该 skill。界面证据：[名称与 PID](../acceptance/agent-instances-20261008/connections-native-names-pid.jpg)、[320px](../acceptance/agent-instances-20261008/connections-native-names-320.jpg)。
