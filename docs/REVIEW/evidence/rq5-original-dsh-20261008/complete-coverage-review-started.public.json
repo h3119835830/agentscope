@@ -1,0 +1,16 @@
+{
+  "task_id": "7411a201b87a4670",
+  "previous_candidate_id": "efb69f53bebc4e7da9fdc233f96b563a",
+  "result": {
+    "task_id": "7411a201b87a4670",
+    "job_id": "f518dac20f4040f68aae26c7cd7a6f05",
+    "previous_job_id": "2c64fafb8b49458a9eee322ccb279b2e",
+    "status": "generating",
+    "decision": "return_for_revision",
+    "context_hash": "6eeb5567dafb7afaf3c92a2782b95e342b648d85f8f8f94ab431038d15ba662e",
+    "proposal_hash": "6657d82d62ed780c6c62af8e53f234743b328f1305a194e77d9491a0ddee1ff4",
+    "reason": "Current-candidate factual/coverage review: registered original /s/0I/r/p/tests/__init__.py (source_id fc75dd250e3a498f95a95ec8151f4ffa, 86 bytes, SHA256 fe07077105accd6292fdb679f7adea9b01e2803f14f87d56e3e34bd4467b4200) is part of the original project tests package explicitly required to remain untouched. It has no read receipt in this job and no exact or /** coverage in this candidate. registered_asset_coverage confirms only two of the three original project tests assets are protected; ancestor directory identity guards do not block writes/unlinks of this omitted file. Also, guidance claims several tests are intentionally failing or impossible, but the registered task does not establish this and functional outcomes have not been evaluated here. Reassess all current gaps against the unchanged original task and registered evidence; do not treat an untested outcome as fact. Bare paths remain exact and /** matches descendants. This review adds no new requirement or authority; it is a complete factual review of the current candidate, preserving the original project tests scope and excluding automatic protection of workspace-root copies."
+  },
+  "scope_authorization": false,
+  "loaded": false
+}

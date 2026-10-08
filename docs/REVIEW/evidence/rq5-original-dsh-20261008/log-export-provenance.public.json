@@ -1,0 +1,48 @@
+{
+  "schema": "PublicLogExport/1",
+  "note": "Git copies normalize terminal whitespace. Canonical local evidence retains original captured logs. Test outcomes and warning text are unchanged.",
+  "logs": [
+    {
+      "path": "backend-regression-720.log",
+      "canonical_raw_sha256": "6f5b98255005575357437e20668ac9ce0d61228aa0af245f2d80ef2d4d596ab9",
+      "git_export_sha256": "a3633ff64d4c1c762f5f817c92bd6deb8d3b77fdb6288c0e829b263552213dc6",
+      "export_transform": "remove trailing line whitespace; normalize final newline; no content lines removed"
+    },
+    {
+      "path": "backend-regression-872.log",
+      "canonical_raw_sha256": "ad82aff0784cdc59347b7c8c9c3318010d126686e3b52a38190bef35e10e36fa",
+      "git_export_sha256": "380adf98be8a26c2f25a14053f0fdd210c5e391839b44aa8105b640dd6417f9e",
+      "export_transform": "remove trailing line whitespace; normalize final newline; no content lines removed"
+    },
+    {
+      "path": "startup-regenerate-recovery-unit.log",
+      "canonical_raw_sha256": "acd4054381970d4d52acbe0c67bd93e5ccb425aadb0184a1403d0312465c6de5",
+      "git_export_sha256": "4984602da830a65b500a0b33fe6bac9360cfdb8979c84eed965e83e559da84db",
+      "export_transform": "remove trailing line whitespace; normalize final newline; no content lines removed"
+    },
+    {
+      "path": "baseline-test.log",
+      "canonical_raw_sha256": "2cdc182a695373506962e023836f2b62ef0b99af53ed7d0785111d899b852b41",
+      "git_export_sha256": "2cdc182a695373506962e023836f2b62ef0b99af53ed7d0785111d899b852b41",
+      "export_transform": "remove trailing line whitespace; normalize final newline; no content lines removed"
+    },
+    {
+      "path": "backend-regression-773.log",
+      "canonical_raw_sha256": "2ac3c297716e80514addcf713f9e569d24176264d7060c6690c5365f6b7fce68",
+      "git_export_sha256": "1e830a37e4b9b6cb0817b7b0a89b50e8580d763b7442e85516d06777a52d36eb",
+      "export_transform": "remove trailing line whitespace; normalize final newline; no content lines removed"
+    },
+    {
+      "path": "startup-retry-unit.log",
+      "canonical_raw_sha256": "2050f742cc7c7d062467c70fc70b9aec2af068d1ae833dab0936bf638f246aee",
+      "git_export_sha256": "9b887e346ecf44b030af2dd92466cd6f9a8172deeaaa2cd2348301a2cd5308d0",
+      "export_transform": "remove trailing line whitespace; normalize final newline; no content lines removed"
+    },
+    {
+      "path": "backend-regression-865.log",
+      "canonical_raw_sha256": "50206429d766838f308038b871010c4ead6dd3df04a811dd9227e871bd316662",
+      "git_export_sha256": "27ad5b9a48fd44bd323ec9eaf3f80684a0ede9dd3f9109fa183ea46580816137",
+      "export_transform": "remove trailing line whitespace; normalize final newline; no content lines removed"
+    }
+  ]
+}
