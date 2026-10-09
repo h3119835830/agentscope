@@ -154,3 +154,27 @@ def test_windows_discovery_is_path_checked_expires_and_never_claims_enforcement(
     assert d.windows_snapshot()[0]['status']=='stale'
     with pytest.raises(ValueError):d.windows_report([{**base,'executable':r'C:\\Python\\python.exe'}])
     d.windows_report([])
+
+
+def test_listing_distinguishes_controlled_web_native_web_and_cli_installation(instance,monkeypatch):
+    store.create('Hermes','hermes',instance['resources'])
+    monkeypatch.setattr(c.observer,'snapshot',lambda:[
+        {'id':'native-dsh','agent_type':'dsh','entry_kind':'web','status':'unknown','connected':False},
+        {'id':'installed-wsl-hermes','agent_type':'hermes','entry_kind':'cli_install','status':'installed','connected':False},
+    ])
+    monkeypatch.setattr(c.discovery,'windows_snapshot',lambda:[])
+    rows=c.listing()['instances']
+    assert len(rows)==4
+    assert [r['entry']['kind'] for r in rows]==['web','web','web','cli_install']
+    installed=rows[-1]
+    assert installed['entry']['label']=='CLI 安装入口'
+    assert installed['entry']['command']=='wsl -d Ubuntu -u happy -- /home/happy/.local/bin/hermes'
+    assert not installed['connected'] and not installed['can_open']
+    assert '直接运行 CLI 尚未接入实例策略' in installed['entry']['instructions']
+
+
+def test_unclassified_os_process_cannot_advertise_a_cli_or_web_entry():
+    from agentscope_app.instances.adapters import entry_details
+    row={'agent_type':'codex','executable':'codex.exe','status':'discovered'}
+    assert entry_details(row)['kind']=='process'
+    assert 'command' not in entry_details(row)

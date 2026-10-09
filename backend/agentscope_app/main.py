@@ -637,7 +637,10 @@ def spa(asset_path:str):
     file=(UI_DIST/asset_path).resolve()
     try: file.relative_to(UI_DIST.resolve())
     except Exception: raise HTTPException(404)
-    if asset_path and file.is_file(): return FileResponse(file)
     index=UI_DIST/"index.html"
-    if index.exists(): return FileResponse(index)
+    # Revalidate the HTML entry on every navigation so an old cached index
+    # cannot keep selecting a previous deployment's hashed JS bundle.
+    headers={'Cache-Control':'no-cache, max-age=0, must-revalidate'}
+    if asset_path and file.is_file(): return FileResponse(file,headers=headers if file==index.resolve() else None)
+    if index.exists(): return FileResponse(index,headers=headers)
     return HTMLResponse("<h1>AgentScope UI 尚未构建</h1><p>请在 Linux 虚拟机里运行前端构建脚本。</p>",status_code=503)

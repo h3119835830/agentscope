@@ -564,6 +564,10 @@ def inventory():
             result.append({'id':'wsl-hermes-'+proc.name+'-'+current['start_ticks'],'name':'WSL 原生 Hermes 进程','agent_type':'hermes','environment':'wsl','connected':False,'status':'discovered','pid':current['pid'],'start_ticks':current['start_ticks'],'resources':[],'source':'原生安装路径、独立 HERMES_HOME 与 OS 进程'})
         except (OSError,ValueError): pass
     for value in list(RUNS): result.append(observe(value))
+    for row in result:
+        # Registered DSH bridges and the explicitly matched Hermes dashboard
+        # expose Web entry types; installation alone is not a live CLI process.
+        row['entry_kind']='cli_install' if row['id']=='installed-wsl-hermes' else 'web'
     return {'instances':result}
 
 def existing_dsh_url(row,proc):

@@ -3,7 +3,7 @@ import ConnectionHistory from './ConnectionHistory.jsx';
 import AgentWorkspaces from './AgentWorkspaces.jsx';
 import {tabKeys} from './consoleState.mjs';
 import {timeLabel} from './taskPresentation.mjs';
-import {agentTypes as types,agentName,processLabel,canOpen,canStart,connectionStatus as status,groupAgentInstances} from './agentInstancePresentation.mjs';
+import {agentTypes as types,agentName,processLabel,observedProcesses,canStart,entryLabel,entryAction,connectionStatus as status,groupAgentInstances} from './agentInstancePresentation.mjs';
 import './taskConsole.css';
 import './connections.css';
 import './agentInstances.css';
@@ -24,12 +24,12 @@ function InstancePicker({group,busy,onOpen,onConfigure,onProcesses,onClose,retur
   <div className="record-drawer-head"><h2>{group.name} · 实例与进程</h2><button type="button" className="button tiny ghost" onClick={onClose}>关闭</button></div>
   <div className="record-drawer-body">
    <p className="field-note">多个网页标签可以共用一个执行进程。各实例的策略分别配置。</p>
-   <Records labels={['连接来源','实例标识','进程号（PID）','运行环境','连接情况','安全覆盖','操作']} rows={group.members.map(row=>[
+   <Records labels={['连接来源','入口方式','进程号（PID）','运行环境','连接情况','安全覆盖','操作']} rows={group.members.map(row=>[
     row.mode==='controlled'?'受控实例':row.status==='installed'?'安装入口':'本机观测',
-    row.id,processLabel(row),row.environment==='wsl'?'WSL / Ubuntu':row.environment,status(row),row.security,
+    entryLabel(row),processLabel(row),row.environment==='wsl'?'WSL / Ubuntu':row.environment,status(row),row.security,
     <div className="actions">
-     <button type="button" className="button tiny ghost" disabled={!!busy||(!canOpen(row)&&!canStart(row))} onClick={()=>onOpen(row)}>{busy===row.id?'正在启动与核验…':canStart(row)?'启动并打开':'打开'}</button>
-     <button type="button" className="button tiny ghost" disabled={row.status==='installed'} onClick={()=>onProcesses(row.id)}>查看进程</button>
+     <button type="button" className="button tiny ghost" disabled={!!busy} onClick={()=>onOpen(row)}>{busy===row.id?(canStart(row)?'正在启动与核验…':'正在打开…'):entryAction(row).label}</button>
+     {entryAction(row).action!=='processes'&&row.status!=='installed'&&<button type="button" className="button tiny ghost" onClick={()=>onProcesses(row.id)}>查看进程</button>}
      <button type="button" className="button tiny ghost" onClick={()=>onConfigure(row.id)}>配置</button>
     </div>
    ])}/>
@@ -62,14 +62,14 @@ function Drawer({id,api,post,onClose,onChanged,initialTab='connection'}){
   let active=true;setSessions(null);setProcesses(null);
   function load(){
    if(tab==='sessions'&&row){
-    if(!row.connected){setSessions({sessions:[],mapping_available:false});setProcesses({processes:[],mapping_available:false});return;}
+    if(!row.connected){setSessions({sessions:[],mapping_available:false});setProcesses({processes:observedProcesses(row),mapping_available:false});return;}
     Promise.all([api(endpoint(id)+'/sessions'),api(endpoint(id)+'/processes')]).then(([s,p])=>{if(active){setSessions(s);setProcesses(p);}}).catch(e=>active&&setError(e.message));
    }
    if(tab==='policy')api(endpoint(id)+'/events').then(r=>active&&setEvents(r.events||[])).catch(e=>active&&setError(e.message));
   }
   load();const timer=setInterval(load,5000);
   return()=>{active=false;clearInterval(timer);};
- },[tab,row?.generation,row?.updated_at,row?.connected,revision]);
+ },[tab,row?.generation,row?.updated_at,row?.connected,row?.pid,row?.status,revision]);
  async function act(label,fn){setBusy(label);setError('');try{await fn();await refresh();setRevision(n=>n+1);onChanged();}catch(e){setError(e.message);}finally{setBusy('');}}
  const controlled=row?.mode==='controlled'; const pending=proposals.filter(p=>p.state==='pending'&&p.classification==='expand'&&p.generation===row?.generation&&p.base_hash===row?.policy_hash);
  return <dialog ref={dialog} className="record-drawer instance-drawer" aria-label="Agent 实例配置" onCancel={e=>{e.preventDefault();onClose();}}>
@@ -78,7 +78,7 @@ function Drawer({id,api,post,onClose,onChanged,initialTab='connection'}){
  <div className="record-drawer-body" role="tabpanel" id={'instance-pane-'+tab} aria-labelledby={'instance-tab-'+tab}>
  {error&&<p role="alert" className="inline-notice warning">{error}</p>}{busy&&<p role="status">{busy}…</p>}
  {row&&tab==='connection'&&<>
-  <Fields values={[['Agent 类型',types[row.agent_type]||row.agent_type],['运行环境',row.environment==='wsl'?'WSL / Ubuntu':row.environment],['连接情况',status(row)],['安全覆盖',row.security],['策略归属',controlled?'此实例内全部会话与子进程共享':'尚未接管此实例的执行'],['启动来源',controlled?(row.agent_type==='hermes'?'/home/happy/.local/bin/hermes（WSL 独立安装）':'DeepSeek Harness'):(row.source||row.executable||row.runtime?.open_url||'原生观测')]]}/>
+  <Fields values={[['Agent 类型',types[row.agent_type]||row.agent_type],['入口方式',entryLabel(row)],['打开方式',row.entry?.instructions||'尚未接入原生入口'],...(row.entry?.command?[['CLI 启动命令',<code>{row.entry.command}</code>]]:[]),['运行环境',row.environment==='wsl'?'WSL / Ubuntu':row.environment],['连接情况',status(row)],['安全覆盖',row.security],['策略归属',controlled?'此实例内全部会话与子进程共享':'尚未接管此实例的执行'],['启动来源',controlled?(row.agent_type==='hermes'?'/home/happy/.local/bin/hermes（WSL 独立安装）':'DeepSeek Harness'):(row.source||row.executable||row.runtime?.open_url||'原生观测')]]}/>
   {controlled?<form className="instance-form" onSubmit={e=>{e.preventDefault();act('保存连接设置',()=>api(endpoint(id),{method:'PUT',body:JSON.stringify({name,resources:paths.split('\n').map(p=>p.trim()).filter(Boolean),expected_policy_hash:row.policy_hash})}));}}>
     <label>资源目录<textarea required rows={4} value={paths} onChange={e=>setPaths(e.target.value)} placeholder="每行一个已有项目目录"/></label>
     <p className="field-note">资源目录用于会话映射和文件权限。连接设置在实例停止后修改。</p><div className="actions"><button className="button primary" disabled={!!busy||!['closed','failed'].includes(row.gate)}>保存连接设置</button><button type="button" className="button ghost" disabled={!!busy||row.gate==='closed'} onClick={()=>act('停止实例',()=>post(endpoint(id)+'/stop'))}>停止实例</button></div>
@@ -94,7 +94,7 @@ function Drawer({id,api,post,onClose,onChanged,initialTab='connection'}){
   <section className="instance-events"><h3>运行时记录</h3><PagedRecords labels={['时间','操作','会话 / 工具','处理结果']} rows={events.map(e=>[timeLabel(e.created_at),kinds[e.kind]||e.kind,[e.session_id,e.tool].filter(Boolean).join(' / ')||'整个实例',eventResult(e)])}/></section>
  </>}</>}
  {row&&tab==='sessions'&&<>
-  <p className="field-note">会话归属来自原生注册表或会话接口；进程归属来自当前 cgroup 和内核策略域。共享执行器会关联多个会话。</p>
+  <p className="field-note">会话归属来自原生注册表或会话接口。受控进程核验 cgroup 和策略域；仅发现的进程显示 OS 观测信息。共享执行器会关联多个会话。</p>
   <h3>资源目录</h3><Records labels={['原始目录','执行目录','策略归属']} rows={(row.resources||[]).map(p=>[p,row.resource_records?.find(r=>r.source===p)?.execution||'—',controlled?'实例共享策略':'仅观测'])}/>
   <div className="instance-session-heading"><h3>会话记录</h3>{controlled&&<div className="actions"><select aria-label="新会话资源目录" value={resource} onChange={e=>setResource(e.target.value)}>{(row.resources||[]).map(p=><option key={p}>{p}</option>)}</select><button type="button" className="button tiny primary" disabled={!!busy||!row.active} onClick={()=>act('建立原生会话',()=>post(endpoint(id)+'/sessions',{resource}))}>新建会话</button></div>}</div>
   <Records labels={['会话标识','资源目录','执行进程','关联依据']} rows={(sessions?.sessions||[]).map(s=>[s.id,s.resource,(s.process_ids||[]).join(', '),({native_registry:'原生注册表',native_gateway:'原生会话接口',native_session_database:'原生会话记录'})[s.mapping]||'未提供'])} empty={sessions?'暂无原生会话':'正在读取会话…'}/>
@@ -130,13 +130,13 @@ export default function AgentInstances(props){
    if(target)target.location.replace(url.href);else throw Error('浏览器阻止新标签页，请允许弹出窗口后重试');
   }catch(e){target?.close();throw e;}
  }
- const openInstance=row=>act(row.id,'打开',()=>open(row,canStart(row)));
+ const openInstance=row=>{const action=entryAction(row).action;if(action==='instructions'){configure(row.id);return;}if(action==='processes'){configure(row.id,'sessions');return;}return act(row.id,'打开',()=>open(row,action==='start'));};
  // Old workspace deep links retain their existing read-only association view.
  if(workspaceSeed)return <AgentWorkspaces {...props}/>;
  return <div className="content task-console agent-connections agent-instance-console"><h1 className="connection-screen-reader-heading">Agent连接</h1>
  <div className="connection-toolbar"><div className="task-hub-tabs" role="tablist" aria-label="连接视图">{[['current','当前连接'],['history','连接历史']].map(([v,l])=><button key={v} type="button" role="tab" className={pane===v?'active':''} aria-selected={pane===v} onClick={()=>onContext?.({connectionsPane:v})}>{l}</button>)}</div><div className="actions">{pane!=='history'&&<><button type="button" className="button ghost" disabled={!!busy} onClick={()=>act('discover','发现 Agent',async()=>{const r=await post('/api/agent-instances/discover');setRows(r.instances||[]);})}>发现 Agent</button><button type="button" className="button primary" onClick={()=>setAdding(true)}>添加连接</button></>}</div></div>
  {error&&<p role="alert" className="inline-notice warning">{error}</p>}
- {pane==='history'?<ConnectionHistory api={api} active={active} revision={historyRevision} selected={historySeed} onSelect={id=>onContext?.({connectionHistory:id})} onOpenTask={onOpenTask}/>:<Records labels={['Agent','当前进程（PID）','运行环境','连接情况','安全覆盖','操作']} rows={groups.map(g=>{const row=g.preferred;return [<b>{g.name}</b>,processLabel(row),row.environment==='wsl'?'WSL / Ubuntu':row.environment,status(row),row.security,<div className="actions"><button type="button" className="button tiny ghost" disabled={!!busy||(!canOpen(row)&&!canStart(row))} onClick={()=>openInstance(row)}>{busy===row.id?'正在启动与核验…':canStart(row)?'启动并打开':'打开'}</button><button type="button" className="button tiny ghost" onClick={()=>configure(row.id)}>配置</button><button type="button" className="button tiny ghost" onClick={e=>{groupReturn.current=e.currentTarget;setGroupKey(g.key);}}>实例与进程</button></div>];})} empty={loaded?(error?"当前观测不可用，请重新检查。":"尚未发现 Agent。点击“发现 Agent”，或添加连接。") :"正在观测本机 Agent…"}/>}
+ {pane==='history'?<ConnectionHistory api={api} active={active} revision={historyRevision} selected={historySeed} onSelect={id=>onContext?.({connectionHistory:id})} onOpenTask={onOpenTask}/>:<Records labels={['Agent','入口方式','当前进程（PID）','运行环境','连接情况','安全覆盖','操作']} rows={groups.map(g=>{const row=g.preferred;return [<b>{g.name}</b>,entryLabel(row),processLabel(row),row.environment==='wsl'?'WSL / Ubuntu':row.environment,status(row),row.security,<div className="actions"><button type="button" className="button tiny ghost" disabled={!!busy} onClick={()=>openInstance(row)}>{busy===row.id?(canStart(row)?'正在启动与核验…':'正在打开…'):entryAction(row).label}</button><button type="button" className="button tiny ghost" onClick={()=>configure(row.id)}>配置</button><button type="button" className="button tiny ghost" onClick={e=>{groupReturn.current=e.currentTarget;setGroupKey(g.key);}}>实例与进程</button></div>];})} empty={loaded?(error?"当前观测不可用，请重新检查。":"尚未发现 Agent。点击“发现 Agent”，或添加连接。") :"正在观测本机 Agent…"}/>}
  {adding&&active&&<Add api={api} post={post} onClose={()=>setAdding(false)} onCreated={r=>{setAdding(false);configure(r.id);refresh();}}/>}
  {group&&active&&!selected&&<InstancePicker group={group} busy={busy} returnFocus={groupReturn} onOpen={openInstance} onConfigure={configure} onProcesses={id=>configure(id,'sessions')} onClose={()=>setGroupKey('')}/>}
  {selected&&active&&<Drawer key={selected+detailTab} id={selected} initialTab={detailTab} api={api} post={post} onChanged={refresh} onClose={()=>setSelected('')}/>}

@@ -18,7 +18,7 @@ def windows_report(rows):
         allowed=(kind=='codex' and path.endswith('\\codex.exe') and ('\\openai.codex_' in path or '\\programs\\codex\\' in path or any(re.search(pattern,path) for pattern in codex_paths))) or (kind=='hermes-desktop' and path.endswith('\\hermes.exe') and '\\programs\\hermes' in path)
         if not allowed: raise ValueError('进程安装路径无法识别，普通 Python / Node 不能登记为 Agent')
         key='windows-'+str(row['pid'])+'-'+row['started_at']
-        result[key]={**row,'id':key,'name':row['name'],'environment':'windows','connected':False,'status':'discovered','resources':[],'source':'Windows 安装路径与 OS 进程观测','_observed':now}
+        result[key]={**row,'id':key,'name':row['name'],'environment':'windows','connected':False,'status':'discovered','entry_kind':'desktop' if kind=='hermes-desktop' else 'process','resources':[],'source':'Windows 安装路径与 OS 进程观测','_observed':now}
     with _lock:
         _windows.clear();_windows.update(result)
     return {'accepted':len(result)}

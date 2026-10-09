@@ -3,7 +3,7 @@ import hashlib, hmac, json, os, secrets, threading, time, uuid
 from .. import db
 from ..broker_client import call as broker
 from . import store, discovery
-from .adapters import adapter
+from .adapters import adapter, entry_details
 from .policy import canonical, clean_resources, digest, records, restrictive
 
 _locks={}; _lock=threading.Lock()
@@ -55,6 +55,7 @@ def listing(discover=False):
         result.append(live)
     result.extend(discovery.windows_snapshot())
     for r in result:
+        r['entry']=entry_details(r)
         if r['mode']=='observed':
             r['security']='仅观测，未接管执行' if r.get('connected') else '仅登记或发现，未接管执行'
             r['can_open']=bool(r.get('connected') and r.get('agent_type')=='dsh' or r.get('runtime',{}).get('open_url'))
