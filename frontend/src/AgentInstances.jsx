@@ -1,6 +1,7 @@
 import React,{useEffect,useRef,useState} from 'react';
 import ConnectionHistory from './ConnectionHistory.jsx';
 import AgentWorkspaces from './AgentWorkspaces.jsx';
+import InstanceSecurity from './InstanceSecurity.jsx';
 import {tabKeys} from './consoleState.mjs';
 import {timeLabel} from './taskPresentation.mjs';
 import {agentTypes as types,agentName,processLabel,observedProcesses,canStart,entryLabel,entryAction,connectionStatus as status,groupAgentInstances} from './agentInstancePresentation.mjs';
@@ -8,7 +9,6 @@ import './taskConsole.css';
 import './connections.css';
 import './agentInstances.css';
 const endpoint=id=>'/api/agent-instances/'+encodeURIComponent(id);
-const ruleSentence=r=>r.action==='behavior'?r.text:({allow:'允许',deny:'禁止',confirm:'须经确认'})[r.effect]+({read:'读取',write:'修改与删除',tool:'使用工具',network:'连接 IPv4'})[r.action]+'「'+r.target+'」'+(r.text?'；'+r.text:'。');
 const eventResult=e=>e.kind==='tool_result'?(e.detail.succeeded?'工具已返回':'工具返回失败'):e.kind==='tool_denied'?e.detail.reason:e.kind==='tool_start'?'允许执行':e.kind==='policy_applied'?'已应用并核验':e.kind==='policy_proposed'?(e.detail.classification==='expand'?'等待用户确认':'校验收紧'):e.kind==='verified'?'实际保护已核验':e.kind==='quiesced'||e.kind==='stopped'?'旧执行进程已终止':e.detail.scope||e.detail.message||'已记录';
 function PagedRecords(props){
  const [page,setPage]=useState(1);const total=Math.max(1,Math.ceil(props.rows.length/15));const current=Math.min(page,total);
@@ -36,19 +36,11 @@ function InstancePicker({group,busy,onOpen,onConfigure,onProcesses,onClose,retur
   </div>
  </dialog>;
 }
-function Editor({policy,onChange}){
- const labels={read:'读取文件',write:'修改与删除文件',tool:'使用工具',network:'连接 IPv4',behavior:'行为约定'};
- const add=()=>onChange({...policy,rules:[...policy.rules,{action:'write',target:'',effect:'deny',text:''}]});
- const change=(i,key,value)=>onChange({...policy,rules:policy.rules.map((r,n)=>n===i?{...r,[key]:value}:r)});
- return <div className="instance-policy-editor"><label>网络连接<select aria-label="网络连接" value={policy.network} onChange={e=>onChange({...policy,network:e.target.value})}><option value="model_only">本机控制端、DNS 与模型地址</option><option value="disabled">仅保留本机控制端</option></select></label>
- {policy.rules.map((r,i)=><fieldset className="instance-rule" key={i}><legend>策略 {i+1}</legend><label>行为<select aria-label="行为" value={r.action} onChange={e=>change(i,'action',e.target.value)}>{Object.entries(labels).map(([v,l])=><option key={v} value={v}>{l}</option>)}</select></label><label>决定<select aria-label="决定" value={r.effect} onChange={e=>change(i,'effect',e.target.value)}><option value="deny">禁止</option><option value="allow">允许</option><option value="confirm">确认后允许工具</option></select></label><label className="instance-rule-target">目标<input aria-label="目标" value={r.target} placeholder={r.action==='tool'?'原生工具名称':'已登记目录内的绝对路径'} onChange={e=>change(i,'target',e.target.value)}/></label><label className="instance-rule-text">补充约束<textarea aria-label="补充约束" value={r.text} onChange={e=>change(i,'text',e.target.value)} rows={2}/></label><button type="button" className="button ghost tiny" onClick={()=>onChange({...policy,rules:policy.rules.filter((_,n)=>n!==i)})}>移除</button></fieldset>)}
- <button type="button" className="button ghost tiny" onClick={add}>添加策略</button></div>
-}
 function Drawer({id,api,post,onClose,onChanged,initialTab='connection'}){
  const dialog=useRef(null),origin=useRef(document.activeElement),seq=useRef(0),initialized=useRef(false);
  const [revision,setRevision]=useState(0);
- const [tab,setTab]=useState(initialTab),[row,setRow]=useState(null),[error,setError]=useState(''),[busy,setBusy]=useState(''),[name,setName]=useState(''),[paths,setPaths]=useState(''),[edit,setEdit]=useState(null),[sessions,setSessions]=useState(null),[processes,setProcesses]=useState(null),[events,setEvents]=useState([]),[proposals,setProposals]=useState([]),[resource,setResource]=useState('');
- const tabs=[['connection','连接设置'],['policy','实例策略'],['sessions','会话与进程']];
+ const [tab,setTab]=useState(initialTab),[row,setRow]=useState(null),[error,setError]=useState(''),[busy,setBusy]=useState(''),[name,setName]=useState(''),[paths,setPaths]=useState(''),[sessions,setSessions]=useState(null),[processes,setProcesses]=useState(null),[events,setEvents]=useState(null),[eventsError,setEventsError]=useState(''),[proposals,setProposals]=useState([]),[resource,setResource]=useState('');
+ const tabs=[['connection','连接设置'],['policy','安全配置'],['sessions','会话与进程'],['events','运行记录']];
  async function refresh(){
   const n=++seq.current;
   try{
@@ -59,18 +51,18 @@ function Drawer({id,api,post,onClose,onChanged,initialTab='connection'}){
  }
  useEffect(()=>{dialog.current?.showModal();refresh();const timer=setInterval(refresh,5000);return()=>{seq.current++;clearInterval(timer);dialog.current?.close();if(origin.current?.isConnected)origin.current.focus({preventScroll:true});};},[id]);
  useEffect(()=>{
-  let active=true;setSessions(null);setProcesses(null);
+  let active=true;setSessions(null);setProcesses(null);if(tab==='events'){setEvents(null);setEventsError('');}
   function load(){
    if(tab==='sessions'&&row){
     if(!row.connected){setSessions({sessions:[],mapping_available:false});setProcesses({processes:observedProcesses(row),mapping_available:false});return;}
     Promise.all([api(endpoint(id)+'/sessions'),api(endpoint(id)+'/processes')]).then(([s,p])=>{if(active){setSessions(s);setProcesses(p);}}).catch(e=>active&&setError(e.message));
    }
-   if(tab==='policy')api(endpoint(id)+'/events').then(r=>active&&setEvents(r.events||[])).catch(e=>active&&setError(e.message));
+   if(tab==='events')api(endpoint(id)+'/events').then(r=>{if(active){setEvents(r.events||[]);setEventsError('');}}).catch(e=>{if(active)setEventsError(e.message);});
   }
   load();const timer=setInterval(load,5000);
   return()=>{active=false;clearInterval(timer);};
  },[tab,row?.generation,row?.updated_at,row?.connected,row?.pid,row?.status,revision]);
- async function act(label,fn){setBusy(label);setError('');try{await fn();await refresh();setRevision(n=>n+1);onChanged();}catch(e){setError(e.message);}finally{setBusy('');}}
+ async function act(label,fn){setBusy(label);setError('');try{const value=await fn();await refresh();setRevision(n=>n+1);onChanged();return {ok:true,value};}catch(e){setError(e.message);return {ok:false};}finally{setBusy('');}}
  const controlled=row?.mode==='controlled'; const pending=proposals.filter(p=>p.state==='pending'&&p.classification==='expand'&&p.generation===row?.generation&&p.base_hash===row?.policy_hash);
  return <dialog ref={dialog} className="record-drawer instance-drawer" aria-label="Agent 实例配置" onCancel={e=>{e.preventDefault();onClose();}}>
  <div className="record-drawer-head"><h2>{row?agentName(row):'读取实例…'}</h2><button type="button" className="button tiny ghost" onClick={onClose}>关闭</button></div>
@@ -83,16 +75,10 @@ function Drawer({id,api,post,onClose,onChanged,initialTab='connection'}){
     <label>资源目录<textarea required rows={4} value={paths} onChange={e=>setPaths(e.target.value)} placeholder="每行一个已有项目目录"/></label>
     <p className="field-note">资源目录用于会话映射和文件权限。连接设置在实例停止后修改。</p><div className="actions"><button className="button primary" disabled={!!busy||!['closed','failed'].includes(row.gate)}>保存连接设置</button><button type="button" className="button ghost" disabled={!!busy||row.gate==='closed'} onClick={()=>act('停止实例',()=>post(endpoint(id)+'/stop'))}>停止实例</button></div>
   </form>:<p className="field-note">这是发现的本机实例。新建受控连接后可配置共享策略，原实例继续保持原有运行方式。</p>}
-  <details className="instance-identifiers"><summary>连接身份与核验详情</summary><Fields values={[['实例标识',row.id],['主机标识',row.host_id],['系统启动标识',row.boot_id],['运行代次',row.generation],['主进程',row.pid],['启动时刻标识',row.start_ticks],['策略域',row.domain_id],['执行入口',row.gate],['策略哈希',row.policy_hash],['进程范围',row.process_cgroup]]}/></details>
  </>}
  {row&&tab==='policy'&&<>
-  {!controlled?<p className="task-empty">当前仅观测此实例，还没有受控策略。请添加受控连接。</p>:<>
-  <div className="instance-policy-toolbar"><p>这些规则适用于此实例内的全部会话。</p><button type="button" className="button tiny ghost" disabled={!!busy} onClick={()=>setEdit(edit?null:structuredClone(row.policy))}>{edit?'取消编辑':'编辑策略'}</button></div>
-  <Records labels={['完整策略语句','来源','执行方式','当前结果']} rows={(row.policy_records||[]).map(r=>[r.sentence,r.source,r.method,r.result])}/>
-  {edit&&<form onSubmit={e=>{e.preventDefault();act('校验并提交策略',async()=>{await post(endpoint(id)+'/policy/proposals',{policy:edit,generation:row.generation,base_hash:row.policy_hash,request_key:crypto.randomUUID()});setEdit(null);});}}><Editor policy={edit} onChange={setEdit}/><p className="field-note">收紧自动应用；扩权需确认候选。更新时全部会话暂停，进程重建后恢复。</p><button className="button primary" disabled={!!busy}>提交策略变更</button></form>}
-  {!!pending.length&&<section className="instance-pending"><h3>等待确认的扩权</h3>{pending.map(p=><div key={p.id}><p>影响范围：此实例全部会话</p><p>确认后以以下完整候选替换当前实例策略。未列入的旧规则将被移除。</p><Records labels={['完整策略语句']} rows={[[p.policy.network==='disabled'?'禁止外部网络，保留实例控制连接。':'允许本机控制、DNS 与启动层解析的模型 IPv4 连接。'],...(p.policy.rules||[]).map(r=>[ruleSentence(r)])]}/><button type="button" className="button primary" disabled={!!busy} onClick={()=>act('确认并核验扩权',()=>post(endpoint(id)+'/policy/proposals/'+p.id+'/confirm',{proposal_hash:p.proposal_hash}))}>确认此候选并应用</button></div>)}</section>}
-  <section className="instance-events"><h3>运行时记录</h3><PagedRecords labels={['时间','操作','会话 / 工具','处理结果']} rows={events.map(e=>[timeLabel(e.created_at),kinds[e.kind]||e.kind,[e.session_id,e.tool].filter(Boolean).join(' / ')||'整个实例',eventResult(e)])}/></section>
- </>}</>}
+  {!controlled?<p className="task-empty">当前仅观测此实例，还没有可管理的安全配置。请添加受控连接。</p>:<InstanceSecurity key={id} row={row} pending={pending} busy={!!busy} onPropose={candidate=>act('提交安全配置',()=>post(endpoint(id)+'/policy/proposals',{policy:candidate.policy,generation:candidate.generation,base_hash:candidate.base_hash,request_key:crypto.randomUUID()}))} onConfirm={proposal=>act('确认并应用变更',()=>post(endpoint(id)+'/policy/proposals/'+proposal.id+'/confirm',{proposal_hash:proposal.proposal_hash}))}/>}</>}
+ {row&&tab==='events'&&<div className="security-runtime">{eventsError&&<p role="alert">{eventsError}</p>}<PagedRecords labels={['时间','操作','会话 / 工具','处理结果']} rows={(events||[]).map(e=>[timeLabel(e.created_at),kinds[e.kind]||e.kind,[e.session_id,e.tool].filter(Boolean).join(' / ')||'整个实例',eventResult(e)])} empty={eventsError?'运行记录读取失败':events?'暂无运行记录':'正在读取运行记录…'}/></div>}
  {row&&tab==='sessions'&&<>
   <p className="field-note">会话归属来自原生注册表或会话接口。受控进程核验 cgroup 和策略域；仅发现的进程显示 OS 观测信息。共享执行器会关联多个会话。</p>
   <h3>资源目录</h3><Records labels={['原始目录','执行目录','策略归属']} rows={(row.resources||[]).map(p=>[p,row.resource_records?.find(r=>r.source===p)?.execution||'—',controlled?'实例共享策略':'仅观测'])}/>

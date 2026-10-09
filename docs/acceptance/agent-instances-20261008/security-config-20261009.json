@@ -1,0 +1,17 @@
+{
+  "checked_at": "2026-10-09T07:40:30.533Z",
+  "http_status": 200,
+  "bundle": "/assets/index-DuxxdRuj.js",
+  "stylesheet": "/assets/index-BqDS-Klq.css",
+  "frontend_tests": 145,
+  "backend_instance_policy_tests": 17,
+  "service_pids_unchanged": true,
+  "agent_process_and_policy_identity_unchanged": true,
+  "current_rule_count": 6,
+  "rendered_delete_actions": 6,
+  "base_protection_readonly": true,
+  "frontend_static_only": true,
+  "browser_visual_verified": false,
+  "agent_policy_mutations_performed": false,
+  "notes": "Read-only HTTP, static bundle and live-data server-render checks. No Agent/API/Broker restart. Browser URL policy still blocks real browser verification."
+}

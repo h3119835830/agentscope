@@ -178,3 +178,25 @@ def test_unclassified_os_process_cannot_advertise_a_cli_or_web_entry():
     row={'agent_type':'codex','executable':'codex.exe','status':'discovered'}
     assert entry_details(row)['kind']=='process'
     assert 'command' not in entry_details(row)
+
+
+def test_deleting_protected_rule_waits_for_exact_confirmation_and_keeps_other_permissions(instance,monkeypatch):
+    from pathlib import Path
+    base=instance['resources'][0]
+    protected=Path(base)/'tests';protected.mkdir()
+    grant={'action':'write','target':base,'effect':'allow','text':'修复源码'}
+    deny={'action':'write','target':str(protected),'effect':'deny','text':'保留测试'}
+    original=canonical({'rules':[grant,deny],'network':'model_only'},[base])
+    store.update(instance['id'],policy=original,policy_hash=digest(original))
+    row=store.get(instance['id'])
+    candidate={**original,'rules':[grant]}
+    p=c.proposals(row['id'],proposal(row,candidate))
+    assert p['state']=='pending' and p['classification']=='expand'
+    assert store.get(row['id'])['policy']==original
+    with pytest.raises(ValueError): c.apply(row['id'],p['id'],'wrong-confirmation')
+    assert store.get(row['id'])['policy']==original
+    class Adapter:
+        def stop(self,row):return {'status':'stopped'}
+    monkeypatch.setattr(c,'adapter',lambda _:Adapter())
+    assert c.apply(row['id'],p['id'],p['proposal_hash'])['state']=='applied'
+    assert store.get(row['id'])['policy']==candidate
