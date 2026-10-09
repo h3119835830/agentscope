@@ -38,15 +38,15 @@ def sessions():
     if path.exists():
         con=sqlite3.connect(path.as_uri()+'?mode=ro',uri=True)
         try:
-            for sid,cwd in con.execute('SELECT id,cwd FROM sessions ORDER BY started_at DESC LIMIT 200'):
-                result[sid]={'id':sid,'resource':cwd,'process_ids':[],'mapping':'native_session_database'}
+            for sid,cwd,title in con.execute('SELECT id,cwd,title FROM sessions ORDER BY started_at DESC LIMIT 200'):
+                result[sid]={'id':sid,'name':title,'resource':cwd,'process_ids':[],'mapping':'native_session_database','status':'stored'}
         finally: con.close()
     try:
         from tui_gateway import server
         with server._sessions_lock:
             for sid,s in server._sessions.items():
                 stored=s['session_key']
-                result[stored]={'id':stored,'runtime_session_id':sid,'resource':s.get('cwd'),'process_ids':[os.getpid()],'mapping':'native_gateway','running':s.get('running',False)}
+                result[stored]={'id':stored,'name':s.get('pending_title') or result.get(stored,{}).get('name'),'runtime_session_id':sid,'resource':s.get('cwd'),'process_ids':[os.getpid()],'mapping':'native_gateway','running':s.get('running',False),'status':'running' if s.get('running') else 'idle'}
     except Exception: pass
     return list(result.values())
 

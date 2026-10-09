@@ -4,6 +4,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from . import controller as c, store, discovery
 from .adapters import adapter
 from .mapping import agent_policy,resource_records
+from .session_names import with_session_names
 from ..broker_client import call as broker
 router=APIRouter()
 
@@ -94,7 +95,8 @@ def sessions(ident:str):
     row=invoke(c.detail,ident)
     if row['mode']=='observed' and (not row.get('connected') or row.get('runtime',{}).get('open_url')) or row.get('gate')=='closed':
         return {'sessions':[],'resources':row.get('resources',[]),'mapping_available':False}
-    return invoke(broker,{'action':'agent-instance-sessions','instance_id':ident})
+    result=invoke(broker,{'action':'agent-instance-sessions','instance_id':ident})
+    return with_session_names(row,result,lambda:broker({'action':'agent-instance-open','instance_id':ident}))
 @router.post('/api/agent-instances/{ident}/sessions')
 def session(ident:str,body:Session):
     row=invoke(store.get,ident)

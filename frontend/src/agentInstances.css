@@ -22,9 +22,6 @@ body:has(.instance-drawer[open]),body:has(.instance-add[open]){overflow:hidden}
 .instance-session-heading{margin-top:26px;flex-wrap:wrap}
 .instance-session-heading select{max-width:320px;font-size:12px}
 .instance-drawer h3{font-size:15px;margin-top:24px}
-.instance-drawer.instance-picker .instance-record-table{min-width:880px;table-layout:auto}
-.instance-picker .instance-record-table th:first-child{width:auto}
-.instance-picker .instance-record-table td:nth-child(2){max-width:180px}
 .instance-drawer .record-drawer-tabs{overflow-x:auto;white-space:nowrap}
 .instance-security{min-width:0;font-size:13px}
 .security-toolbar,.security-edit-head,.security-pending-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px}
@@ -88,3 +85,18 @@ body:has(.instance-drawer[open]),body:has(.instance-add[open]){overflow:hidden}
  .instance-session-heading .actions{width:100%;flex-wrap:wrap}
  .instance-session-heading select{max-width:100%}
 }
+.session-process-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}
+.session-process-heading>div{display:flex;align-items:baseline;gap:12px}
+.instance-drawer .session-process-heading h3{margin:0;font-size:15px;color:#203b59}
+.session-process-heading span{font-size:12px;color:#6d8097}
+.session-process-table{width:100%;min-width:680px;table-layout:fixed;border-collapse:collapse;text-align:left}
+.session-process-table th:nth-child(1){width:34%}
+.session-process-table th:nth-child(2){width:36%}
+.session-process-table th:nth-child(3){width:13%}
+.session-process-table th:nth-child(4){width:17%}
+.session-process-name{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere;line-height:1.7}
+.session-process-id{display:block;color:#6944a7;font-family:Consolas,"Cascadia Code",monospace;font-size:12px;line-height:1.7;overflow-wrap:anywhere;white-space:normal}
+.session-process-pids{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.session-process-pids small{display:block;width:100%;font-size:11px;color:#6d8097}
+.session-process-inactive{font-size:12px;color:#6d8097}
+@media(max-width:650px){.session-process-table{min-width:680px}.session-process-heading>div{gap:8px}}

@@ -32,3 +32,11 @@ export function groupAgentInstances(rows){
   return {...group,preferred};
  });
 }
+
+// Keep every configurable instance reachable after removing the instance picker.
+export function visibleAgentInstances(rows){
+ return groupAgentInstances(rows).flatMap(group=>{
+  const controlled=group.members.filter(row=>row.mode==='controlled');
+  return controlled.length?controlled:[group.preferred];
+ });
+}

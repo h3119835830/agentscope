@@ -5,8 +5,9 @@ import AgentWorkspaces from './AgentWorkspaces.jsx';
 import InstanceSecurity from './InstanceSecurity.jsx';
 import {tabKeys} from './consoleState.mjs';
 import {timeLabel} from './taskPresentation.mjs';
-import {agentTypes as types,agentName,processLabel,observedProcesses,canOpen,canStart,entryLabel,entryAction,connectionStatus as status,groupAgentInstances} from './agentInstancePresentation.mjs';
+import {agentTypes as types,agentName,processLabel,visibleAgentInstances,canOpen,canStart,entryLabel,entryAction,connectionStatus as status} from './agentInstancePresentation.mjs';
 import {openAgentPage} from './openAgentPage.mjs';
+import SessionProcesses from './SessionProcesses.jsx';
 import './taskConsole.css';
 import './connections.css';
 import './agentInstances.css';
@@ -19,45 +20,26 @@ function PagedRecords(props){
 const kinds={registered:'登记连接',configured:'修改连接',starting:'启动实例',verified:'保护核验通过',verification_failed:'保护核验失败',start_failed:'启动失败',stopped:'停止实例',policy_proposed:'提出策略变更',gate_closed:'暂停全部会话',quiesced:'终止旧执行进程',policy_applied:'应用共享策略',policy_apply_failed:'策略应用失败',tool_start:'工具执行前检查',tool_result:'工具执行结果',tool_denied:'工具被拒绝'};
 function Fields({values}){return <dl className="task-fields">{values.map(([k,v])=><React.Fragment key={k}><dt>{k}</dt><dd>{v??'—'}</dd></React.Fragment>)}</dl>}
 function Records({labels,rows,empty='暂无记录'}){return <div className="table-scroll" tabIndex={0}><table className="task-record-table instance-record-table"><thead><tr>{labels.map(label=><th key={label}>{label}</th>)}</tr></thead><tbody>{rows.map((row,i)=><tr key={i}>{row.map((value,n)=><td key={n}>{value??'—'}</td>)}</tr>)}{!rows.length&&<tr><td colSpan={labels.length} className="task-empty">{empty}</td></tr>}</tbody></table></div>}
-function InstancePicker({group,busy,onOpen,onConfigure,onProcesses,onClose,returnFocus}){
- const dialog=useRef(null),origin=useRef(document.activeElement);
- useEffect(()=>{dialog.current?.showModal();return()=>{dialog.current?.close();const target=returnFocus?.current||origin.current;if(target?.isConnected)target.focus({preventScroll:true});};},[]);
- return <dialog ref={dialog} className="record-drawer instance-drawer instance-picker" aria-label="Agent 实例与进程" onCancel={e=>{e.preventDefault();onClose();}}>
-  <div className="record-drawer-head"><h2>{group.name} · 实例与进程</h2><button type="button" className="button tiny ghost" onClick={onClose}>关闭</button></div>
-  <div className="record-drawer-body">
-   <p className="field-note">多个网页标签可以共用一个执行进程。各实例的策略分别配置。</p>
-   <Records labels={['连接来源','入口方式','进程号（PID）','运行环境','连接情况','安全覆盖','操作']} rows={group.members.map(row=>[
-    row.mode==='controlled'?'受控实例':row.status==='installed'?'安装入口':'本机观测',
-    <RecordBadge tone="purple" dot={false}>{entryLabel(row)}</RecordBadge>,<RecordBadge tone={processLabel(row)==='—'?'neutral':'info'} mono dot={false}>{processLabel(row)}</RecordBadge>,row.environment==='wsl'?'WSL / Ubuntu':row.environment,<RecordBadge>{status(row)}</RecordBadge>,<RecordBadge>{row.security}</RecordBadge>,
-    <div className="actions">
-     <button type="button" className="button tiny ghost" disabled={!!busy} onClick={()=>onOpen(row)}>{busy===row.id?(canStart(row)?'正在启动与核验…':'正在打开…'):entryAction(row).label}</button>
-     {entryAction(row).action!=='processes'&&row.status!=='installed'&&<button type="button" className="button tiny ghost" onClick={()=>onProcesses(row.id)}>查看进程</button>}
-     <button type="button" className="button tiny ghost" onClick={()=>onConfigure(row.id)}>配置</button>
-    </div>
-   ])}/>
-  </div>
- </dialog>;
-}
 function Drawer({id,api,post,onClose,onChanged,onOpen,initialTab='connection'}){
  const dialog=useRef(null),origin=useRef(document.activeElement),seq=useRef(0),initialized=useRef(false);
  const [revision,setRevision]=useState(0);
- const [tab,setTab]=useState(initialTab),[row,setRow]=useState(null),[error,setError]=useState(''),[busy,setBusy]=useState(''),[name,setName]=useState(''),[paths,setPaths]=useState(''),[sessions,setSessions]=useState(null),[processes,setProcesses]=useState(null),[events,setEvents]=useState(null),[eventsError,setEventsError]=useState(''),[proposals,setProposals]=useState([]),[resource,setResource]=useState('');
+ const [tab,setTab]=useState(initialTab),[row,setRow]=useState(null),[error,setError]=useState(''),[busy,setBusy]=useState(''),[name,setName]=useState(''),[paths,setPaths]=useState(''),[sessions,setSessions]=useState(null),[sessionsError,setSessionsError]=useState(''),[events,setEvents]=useState(null),[eventsError,setEventsError]=useState(''),[proposals,setProposals]=useState([]);
  const tabs=[['connection','连接设置'],['policy','安全配置'],['sessions','会话与进程'],['events','运行记录']];
  async function refresh(){
   const n=++seq.current;
   try{
    const data=await api(endpoint(id));if(n!==seq.current)return;
    setRow(data);setProposals(data.proposals||[]);setError('');
-   if(!initialized.current){initialized.current=true;setName(agentName(data));setPaths((data.resources||[]).join('\n'));setResource(data.resources?.[0]||'');}
+   if(!initialized.current){initialized.current=true;setName(agentName(data));setPaths((data.resources||[]).join('\n'));}
   }catch(e){if(n===seq.current)setError(e.message);}
  }
  useEffect(()=>{dialog.current?.showModal();refresh();const timer=setInterval(refresh,5000);return()=>{seq.current++;clearInterval(timer);dialog.current?.close();if(origin.current?.isConnected)origin.current.focus({preventScroll:true});};},[id]);
  useEffect(()=>{
-  let active=true;setSessions(null);setProcesses(null);if(tab==='events'){setEvents(null);setEventsError('');}
+  let active=true;setSessions(null);setSessionsError('');if(tab==='events'){setEvents(null);setEventsError('');}
   function load(){
    if(tab==='sessions'&&row){
-    if(!row.connected){setSessions({sessions:[],mapping_available:false});setProcesses({processes:observedProcesses(row),mapping_available:false});return;}
-    Promise.all([api(endpoint(id)+'/sessions'),api(endpoint(id)+'/processes')]).then(([s,p])=>{if(active){setSessions(s);setProcesses(p);}}).catch(e=>active&&setError(e.message));
+    if(!row.connected){setSessions({sessions:[],mapping_available:false,disconnected:true});return;}
+    api(endpoint(id)+'/sessions').then(s=>{if(active){setSessions(s);setSessionsError('');}}).catch(e=>{if(active){setSessions(null);setSessionsError(e.message);}});
    }
    if(tab==='events')api(endpoint(id)+'/events').then(r=>{if(active){setEvents(r.events||[]);setEventsError('');}}).catch(e=>{if(active)setEventsError(e.message);});
   }
@@ -81,13 +63,7 @@ function Drawer({id,api,post,onClose,onChanged,onOpen,initialTab='connection'}){
  {row&&tab==='policy'&&<>
   {!controlled?<p className="task-empty">当前仅观测此实例，还没有可管理的安全配置。请添加受控连接。</p>:<InstanceSecurity key={id} row={row} pending={pending} busy={!!busy} onPropose={candidate=>act('提交安全配置',()=>post(endpoint(id)+'/policy/proposals',{policy:candidate.policy,generation:candidate.generation,base_hash:candidate.base_hash,request_key:crypto.randomUUID()}))} onConfirm={proposal=>act('确认并应用变更',()=>post(endpoint(id)+'/policy/proposals/'+proposal.id+'/confirm',{proposal_hash:proposal.proposal_hash}))}/>}</>}
  {row&&tab==='events'&&<div className="security-runtime">{eventsError&&<p role="alert">{eventsError}</p>}<PagedRecords labels={['时间','操作','会话 / 工具','处理结果']} rows={(events||[]).map(e=>[timeLabel(e.created_at),kinds[e.kind]||e.kind,[e.session_id,e.tool].filter(Boolean).join(' / ')||'整个实例',<RecordBadge>{eventResult(e)}</RecordBadge>])} empty={eventsError?'运行记录读取失败':events?'暂无运行记录':'正在读取运行记录…'}/></div>}
- {row&&tab==='sessions'&&<>
-  <p className="field-note">会话归属来自原生注册表或会话接口。受控进程核验 cgroup 和策略域；仅发现的进程显示 OS 观测信息。共享执行器会关联多个会话。</p>
-  <h3>资源目录</h3><Records labels={['原始目录','执行目录','策略归属']} rows={(row.resources||[]).map(p=>[p,row.resource_records?.find(r=>r.source===p)?.execution||'—',controlled?'实例共享策略':'仅观测'])}/>
-  <div className="instance-session-heading"><h3>会话记录</h3>{controlled&&<div className="actions"><select aria-label="新会话资源目录" value={resource} onChange={e=>setResource(e.target.value)}>{(row.resources||[]).map(p=><option key={p}>{p}</option>)}</select><button type="button" className="button tiny primary" disabled={!!busy||!row.active} onClick={()=>act('建立原生会话',()=>post(endpoint(id)+'/sessions',{resource}))}>新建会话</button></div>}</div>
-  <Records labels={['会话标识','资源目录','执行进程','关联依据']} rows={(sessions?.sessions||[]).map(s=>[s.id,s.resource,(s.process_ids||[]).join(', '),({native_registry:'原生注册表',native_gateway:'原生会话接口',native_session_database:'原生会话记录'})[s.mapping]||'未提供'])} empty={sessions?'暂无原生会话':'正在读取会话…'}/>
-  <h3>执行进程</h3><Records labels={['进程','父进程','职责','策略域核验']} rows={(processes?.processes||[]).map(p=>[p.pid,p.ppid,({'control relay':'实例控制','shared agent executor':'共享 Agent 执行器',child:'子进程','observed process':'OS 观测进程'})[p.role]||p.role,<RecordBadge>{p.domain_verified?'已核验':'未核验'}</RecordBadge>])} empty={processes?'当前未运行':'正在读取进程…'}/>
- </>}
+ {row&&tab==='sessions'&&<SessionProcesses data={sessions} error={sessionsError} onRefresh={()=>setRevision(n=>n+1)}/>}
  </div></dialog>
 }
 function Add({api,post,onClose,onCreated}){
@@ -99,10 +75,9 @@ function Add({api,post,onClose,onCreated}){
 }
 export default function AgentInstances(props){
  const {api,post,notify,active,pane,onContext,onOpenTask,historySeed,workspaceSeed}=props;
- const [rows,setRows]=useState([]),[loaded,setLoaded]=useState(false),[error,setError]=useState(''),[busy,setBusy]=useState(''),[selected,setSelected]=useState(''),[detailTab,setDetailTab]=useState('connection'),[groupKey,setGroupKey]=useState(''),[adding,setAdding]=useState(false),[historyRevision,setHistoryRevision]=useState(0);
+ const [rows,setRows]=useState([]),[loaded,setLoaded]=useState(false),[error,setError]=useState(''),[busy,setBusy]=useState(''),[selected,setSelected]=useState(''),[detailTab,setDetailTab]=useState('connection'),[adding,setAdding]=useState(false),[historyRevision,setHistoryRevision]=useState(0);
  const seq=useRef(0);
- const groupReturn=useRef(null);
- const groups=groupAgentInstances(rows),group=groups.find(g=>g.key===groupKey);
+ const visibleRows=visibleAgentInstances(rows);
  function configure(id,tab='connection'){setDetailTab(tab);setSelected(id);}
  async function refresh(){const n=++seq.current;try{const r=await api('/api/agent-instances');if(n===seq.current){setRows(r.instances||[]);setLoaded(true);setError('');}}catch(e){if(n===seq.current){setLoaded(true);setError(e.message);setRows(old=>old.map(r=>({...r,connected:false,active:false,status:'unknown',security:'当前未核验',can_open:false})));}}}
  useEffect(()=>{if(!active)return;refresh();const t=setInterval(refresh,5000);return()=>{seq.current++;clearInterval(t);};},[active,api]);
@@ -114,9 +89,8 @@ export default function AgentInstances(props){
  return <div className="content task-console agent-connections agent-instance-console"><h1 className="connection-screen-reader-heading">Agent连接</h1>
  <div className="connection-toolbar"><div className="task-hub-tabs" role="tablist" aria-label="连接视图">{[['current','当前连接'],['history','连接历史']].map(([v,l])=><button key={v} type="button" role="tab" className={pane===v?'active':''} aria-selected={pane===v} onClick={()=>onContext?.({connectionsPane:v})}>{l}</button>)}</div><div className="actions">{pane!=='history'&&<><button type="button" className="button ghost" disabled={!!busy} onClick={()=>act('discover','发现 Agent',async()=>{const r=await post('/api/agent-instances/discover');setRows(r.instances||[]);})}>发现 Agent</button><button type="button" className="button primary" onClick={()=>setAdding(true)}>添加连接</button></>}</div></div>
  {error&&<p role="alert" className="inline-notice warning">{error}</p>}
- {pane==='history'?<ConnectionHistory api={api} active={active} revision={historyRevision} selected={historySeed} onSelect={id=>onContext?.({connectionHistory:id})} onOpenTask={onOpenTask}/>:<Records labels={['Agent','入口方式','当前进程（PID）','运行环境','连接情况','安全覆盖','操作']} rows={groups.map(g=>{const row=g.preferred;return [<span className={"record-agent brand-"+row.agent_type}><span className="record-agent-icon" aria-hidden="true">{g.name.slice(0,1)}</span><b>{g.name}</b></span>,<RecordBadge tone="purple" dot={false}>{entryLabel(row)}</RecordBadge>,<RecordBadge tone={processLabel(row)==='—'?'neutral':'info'} mono dot={false}>{processLabel(row)}</RecordBadge>,row.environment==='wsl'?'WSL / Ubuntu':row.environment,<RecordBadge>{status(row)}</RecordBadge>,<RecordBadge>{row.security}</RecordBadge>,<div className="actions"><button type="button" className="button tiny ghost" disabled={!!busy} onClick={()=>openInstance(row)}>{busy===row.id?(canStart(row)?'正在启动与核验…':'正在打开…'):entryAction(row).label}</button><button type="button" className="button tiny ghost" onClick={()=>configure(row.id)}>配置</button><button type="button" className="button tiny ghost" onClick={e=>{groupReturn.current=e.currentTarget;setGroupKey(g.key);}}>实例与进程</button></div>];})} empty={loaded?(error?"当前观测不可用，请重新检查。":"尚未发现 Agent。点击“发现 Agent”，或添加连接。") :"正在观测本机 Agent…"}/>}
+ {pane==='history'?<ConnectionHistory api={api} active={active} revision={historyRevision} selected={historySeed} onSelect={id=>onContext?.({connectionHistory:id})} onOpenTask={onOpenTask}/>:<Records labels={['Agent','入口方式','当前进程（PID）','运行环境','连接情况','安全覆盖','操作']} rows={visibleRows.map(row=>{return [<span className={"record-agent brand-"+row.agent_type}><span className="record-agent-icon" aria-hidden="true">{agentName(row).slice(0,1)}</span><span><b>{agentName(row)}</b>{visibleRows.filter(r=>r.agent_type===row.agent_type).length>1&&<small>{row.name!==agentName(row)?row.name:row.id}</small>}</span></span>,<RecordBadge tone="purple" dot={false}>{entryLabel(row)}</RecordBadge>,<RecordBadge tone={processLabel(row)==='—'?'neutral':'info'} mono dot={false}>{processLabel(row)}</RecordBadge>,row.environment==='wsl'?'WSL / Ubuntu':row.environment,<RecordBadge>{status(row)}</RecordBadge>,<RecordBadge>{row.security}</RecordBadge>,<div className="actions"><button type="button" className="button tiny ghost" disabled={!!busy} onClick={()=>openInstance(row)}>{busy===row.id?(canStart(row)?'正在启动与核验…':'正在打开…'):entryAction(row).label}</button><button type="button" className="button tiny ghost" onClick={()=>configure(row.id)}>配置</button></div>];})} empty={loaded?(error?"当前观测不可用，请重新检查。":"尚未发现 Agent。点击“发现 Agent”，或添加连接。") :"正在观测本机 Agent…"}/>}
  {adding&&active&&<Add api={api} post={post} onClose={()=>setAdding(false)} onCreated={r=>{setAdding(false);configure(r.id);refresh();}}/>}
- {group&&active&&!selected&&<InstancePicker group={group} busy={busy} returnFocus={groupReturn} onOpen={openInstance} onConfigure={configure} onProcesses={id=>configure(id,'sessions')} onClose={()=>setGroupKey('')}/>}
  {selected&&active&&<Drawer key={selected+detailTab} id={selected} initialTab={detailTab} api={api} post={post} onOpen={row=>open(row,canStart(row))} onChanged={refresh} onClose={()=>setSelected('')}/>}
  </div>
 }
