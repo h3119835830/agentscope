@@ -58,3 +58,11 @@ Hermes 网页静态资源来自独立原生安装的 frontend 源码副本，构
 本次仅部署 18003 静态前端，没有重启 Agent、API 或 Broker。Vite 构建通过；浏览器实测两条 DeepSeek Harness 分别显示 PID 1643381、870966，Hermes 显示 1643551，未启动安装入口显示“—”；配置标题及新增表单符合上述名称规则。320/423px 实际视口检查通过，整页没有横向溢出，宽记录表内部滚动。桌面构建目录为 root 所有，最初 happy 构建因 EACCES 失败，沿用原部署用户 root 构建后通过。
 
 本机 frontend-design skill 已移出启用目录，此次没有使用该 skill。界面证据：[名称与 PID](../acceptance/agent-instances-20261008/connections-native-names-pid.jpg)、[320px](../acceptance/agent-instances-20261008/connections-native-names-320.jpg)。
+
+## 2026-10-09：产品入口聚合及进程入口
+
+首页已改为每种 Agent 一行，优先可打开的既有入口，再选择可启动的受控连接。当前真实接口四条记录聚为 DeepSeek Harness、Hermes 两行，全部成员 ID 保留。首页 PID、安全覆盖、配置对应选中的具体入口；不汇总为整类 Agent 已受控。“实例与进程”展开结构化记录，每条连接可分别打开、配置、查看会话与进程。多个网页标签不推算成多个后端进程。
+
+新增五项有意义的分组选择测试：四条记录聚为两类但保留身份；可打开观测入口优先于停止受控实例；当前已核验可打开实例优先且不更改其他覆盖状态；过期/未知 PID 不提供打开入口或历史 PID；同名未知 Agent 不擅自合并。前端共 135 passed，构建成功。未连接实例不会查询不可用的当前进程/会话映射。仅部署 18003 静态资源，未重启 Agent、API/Broker，未修改后端或业务代码。
+
+当前 /api/status 显示 WSL Linux 6.6.114.1、BTF/BPF-LSM 为 true、ActPlane Broker 可用，/sys/kernel/security/lsm 含 bpf；这是内核接入能力证据。当前受控实例未连接，不能据此声称当前执行已受保护。Windows 进程需其 OS 观测接口，WSL 内核不能代替 Windows 内核。浏览器工具的 URL 策略限制尚未解除，未完成本轮真实浏览器及窄屏/弹窗视觉复验；此前截图不作为新分组界面证据。

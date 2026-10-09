@@ -3,14 +3,11 @@ import ConnectionHistory from './ConnectionHistory.jsx';
 import AgentWorkspaces from './AgentWorkspaces.jsx';
 import {tabKeys} from './consoleState.mjs';
 import {timeLabel} from './taskPresentation.mjs';
+import {agentTypes as types,agentName,processLabel,canOpen,canStart,connectionStatus as status,groupAgentInstances} from './agentInstancePresentation.mjs';
 import './taskConsole.css';
 import './connections.css';
 import './agentInstances.css';
 const endpoint=id=>'/api/agent-instances/'+encodeURIComponent(id);
-const types={dsh:'DeepSeek Harness',hermes:'Hermes',codex:'Codex',other:'其他 Agent','hermes-desktop':'Hermes Desktop'};
-const agentName=row=>row.agent_type==='other'?(row.name||types.other):(types[row.agent_type]||row.name||'Agent');
-const processLabel=row=>row.pid&&['running','discovered'].includes(row.status)?row.pid:'—';
-const status=row=>row.connected?'已连接':({installed:'已安装，未启动',discovered:'已发现进程',starting:'正在启动',stale:'证据已过期',unknown:'状态未知',paused:'执行暂停',offline:'未运行'})[row.status]||'已登记';
 const ruleSentence=r=>r.action==='behavior'?r.text:({allow:'允许',deny:'禁止',confirm:'须经确认'})[r.effect]+({read:'读取',write:'修改与删除',tool:'使用工具',network:'连接 IPv4'})[r.action]+'「'+r.target+'」'+(r.text?'；'+r.text:'。');
 const eventResult=e=>e.kind==='tool_result'?(e.detail.succeeded?'工具已返回':'工具返回失败'):e.kind==='tool_denied'?e.detail.reason:e.kind==='tool_start'?'允许执行':e.kind==='policy_applied'?'已应用并核验':e.kind==='policy_proposed'?(e.detail.classification==='expand'?'等待用户确认':'校验收紧'):e.kind==='verified'?'实际保护已核验':e.kind==='quiesced'||e.kind==='stopped'?'旧执行进程已终止':e.detail.scope||e.detail.message||'已记录';
 function PagedRecords(props){
@@ -20,6 +17,25 @@ function PagedRecords(props){
 const kinds={registered:'登记连接',configured:'修改连接',starting:'启动实例',verified:'保护核验通过',verification_failed:'保护核验失败',start_failed:'启动失败',stopped:'停止实例',policy_proposed:'提出策略变更',gate_closed:'暂停全部会话',quiesced:'终止旧执行进程',policy_applied:'应用共享策略',policy_apply_failed:'策略应用失败',tool_start:'工具执行前检查',tool_result:'工具执行结果',tool_denied:'工具被拒绝'};
 function Fields({values}){return <dl className="task-fields">{values.map(([k,v])=><React.Fragment key={k}><dt>{k}</dt><dd>{v??'—'}</dd></React.Fragment>)}</dl>}
 function Records({labels,rows,empty='暂无记录'}){return <div className="table-scroll" tabIndex={0}><table className="task-record-table instance-record-table"><thead><tr>{labels.map(label=><th key={label}>{label}</th>)}</tr></thead><tbody>{rows.map((row,i)=><tr key={i}>{row.map((value,n)=><td key={n}>{value??'—'}</td>)}</tr>)}{!rows.length&&<tr><td colSpan={labels.length} className="task-empty">{empty}</td></tr>}</tbody></table></div>}
+function InstancePicker({group,busy,onOpen,onConfigure,onProcesses,onClose,returnFocus}){
+ const dialog=useRef(null),origin=useRef(document.activeElement);
+ useEffect(()=>{dialog.current?.showModal();return()=>{dialog.current?.close();const target=returnFocus?.current||origin.current;if(target?.isConnected)target.focus({preventScroll:true});};},[]);
+ return <dialog ref={dialog} className="record-drawer instance-drawer instance-picker" aria-label="Agent 实例与进程" onCancel={e=>{e.preventDefault();onClose();}}>
+  <div className="record-drawer-head"><h2>{group.name} · 实例与进程</h2><button type="button" className="button tiny ghost" onClick={onClose}>关闭</button></div>
+  <div className="record-drawer-body">
+   <p className="field-note">多个网页标签可以共用一个执行进程。各实例的策略分别配置。</p>
+   <Records labels={['连接来源','实例标识','进程号（PID）','运行环境','连接情况','安全覆盖','操作']} rows={group.members.map(row=>[
+    row.mode==='controlled'?'受控实例':row.status==='installed'?'安装入口':'本机观测',
+    row.id,processLabel(row),row.environment==='wsl'?'WSL / Ubuntu':row.environment,status(row),row.security,
+    <div className="actions">
+     <button type="button" className="button tiny ghost" disabled={!!busy||(!canOpen(row)&&!canStart(row))} onClick={()=>onOpen(row)}>{busy===row.id?'正在启动与核验…':canStart(row)?'启动并打开':'打开'}</button>
+     <button type="button" className="button tiny ghost" disabled={row.status==='installed'} onClick={()=>onProcesses(row.id)}>查看进程</button>
+     <button type="button" className="button tiny ghost" onClick={()=>onConfigure(row.id)}>配置</button>
+    </div>
+   ])}/>
+  </div>
+ </dialog>;
+}
 function Editor({policy,onChange}){
  const labels={read:'读取文件',write:'修改与删除文件',tool:'使用工具',network:'连接 IPv4',behavior:'行为约定'};
  const add=()=>onChange({...policy,rules:[...policy.rules,{action:'write',target:'',effect:'deny',text:''}]});
@@ -28,10 +44,10 @@ function Editor({policy,onChange}){
  {policy.rules.map((r,i)=><fieldset className="instance-rule" key={i}><legend>策略 {i+1}</legend><label>行为<select aria-label="行为" value={r.action} onChange={e=>change(i,'action',e.target.value)}>{Object.entries(labels).map(([v,l])=><option key={v} value={v}>{l}</option>)}</select></label><label>决定<select aria-label="决定" value={r.effect} onChange={e=>change(i,'effect',e.target.value)}><option value="deny">禁止</option><option value="allow">允许</option><option value="confirm">确认后允许工具</option></select></label><label className="instance-rule-target">目标<input aria-label="目标" value={r.target} placeholder={r.action==='tool'?'原生工具名称':'已登记目录内的绝对路径'} onChange={e=>change(i,'target',e.target.value)}/></label><label className="instance-rule-text">补充约束<textarea aria-label="补充约束" value={r.text} onChange={e=>change(i,'text',e.target.value)} rows={2}/></label><button type="button" className="button ghost tiny" onClick={()=>onChange({...policy,rules:policy.rules.filter((_,n)=>n!==i)})}>移除</button></fieldset>)}
  <button type="button" className="button ghost tiny" onClick={add}>添加策略</button></div>
 }
-function Drawer({id,api,post,onClose,onChanged}){
+function Drawer({id,api,post,onClose,onChanged,initialTab='connection'}){
  const dialog=useRef(null),origin=useRef(document.activeElement),seq=useRef(0),initialized=useRef(false);
  const [revision,setRevision]=useState(0);
- const [tab,setTab]=useState('connection'),[row,setRow]=useState(null),[error,setError]=useState(''),[busy,setBusy]=useState(''),[name,setName]=useState(''),[paths,setPaths]=useState(''),[edit,setEdit]=useState(null),[sessions,setSessions]=useState(null),[processes,setProcesses]=useState(null),[events,setEvents]=useState([]),[proposals,setProposals]=useState([]),[resource,setResource]=useState('');
+ const [tab,setTab]=useState(initialTab),[row,setRow]=useState(null),[error,setError]=useState(''),[busy,setBusy]=useState(''),[name,setName]=useState(''),[paths,setPaths]=useState(''),[edit,setEdit]=useState(null),[sessions,setSessions]=useState(null),[processes,setProcesses]=useState(null),[events,setEvents]=useState([]),[proposals,setProposals]=useState([]),[resource,setResource]=useState('');
  const tabs=[['connection','连接设置'],['policy','实例策略'],['sessions','会话与进程']];
  async function refresh(){
   const n=++seq.current;
@@ -45,12 +61,15 @@ function Drawer({id,api,post,onClose,onChanged}){
  useEffect(()=>{
   let active=true;setSessions(null);setProcesses(null);
   function load(){
-   if(tab==='sessions')Promise.all([api(endpoint(id)+'/sessions'),api(endpoint(id)+'/processes')]).then(([s,p])=>{if(active){setSessions(s);setProcesses(p);}}).catch(e=>active&&setError(e.message));
+   if(tab==='sessions'&&row){
+    if(!row.connected){setSessions({sessions:[],mapping_available:false});setProcesses({processes:[],mapping_available:false});return;}
+    Promise.all([api(endpoint(id)+'/sessions'),api(endpoint(id)+'/processes')]).then(([s,p])=>{if(active){setSessions(s);setProcesses(p);}}).catch(e=>active&&setError(e.message));
+   }
    if(tab==='policy')api(endpoint(id)+'/events').then(r=>active&&setEvents(r.events||[])).catch(e=>active&&setError(e.message));
   }
   load();const timer=setInterval(load,5000);
   return()=>{active=false;clearInterval(timer);};
- },[tab,row?.generation,row?.updated_at,revision]);
+ },[tab,row?.generation,row?.updated_at,row?.connected,revision]);
  async function act(label,fn){setBusy(label);setError('');try{await fn();await refresh();setRevision(n=>n+1);onChanged();}catch(e){setError(e.message);}finally{setBusy('');}}
  const controlled=row?.mode==='controlled'; const pending=proposals.filter(p=>p.state==='pending'&&p.classification==='expand'&&p.generation===row?.generation&&p.base_hash===row?.policy_hash);
  return <dialog ref={dialog} className="record-drawer instance-drawer" aria-label="Agent 实例配置" onCancel={e=>{e.preventDefault();onClose();}}>
@@ -92,8 +111,11 @@ function Add({api,post,onClose,onCreated}){
 }
 export default function AgentInstances(props){
  const {api,post,notify,active,pane,onContext,onOpenTask,historySeed,workspaceSeed}=props;
- const [rows,setRows]=useState([]),[loaded,setLoaded]=useState(false),[error,setError]=useState(''),[busy,setBusy]=useState(''),[selected,setSelected]=useState(''),[adding,setAdding]=useState(false),[historyRevision,setHistoryRevision]=useState(0);
+ const [rows,setRows]=useState([]),[loaded,setLoaded]=useState(false),[error,setError]=useState(''),[busy,setBusy]=useState(''),[selected,setSelected]=useState(''),[detailTab,setDetailTab]=useState('connection'),[groupKey,setGroupKey]=useState(''),[adding,setAdding]=useState(false),[historyRevision,setHistoryRevision]=useState(0);
  const seq=useRef(0);
+ const groupReturn=useRef(null);
+ const groups=groupAgentInstances(rows),group=groups.find(g=>g.key===groupKey);
+ function configure(id,tab='connection'){setDetailTab(tab);setSelected(id);}
  async function refresh(){const n=++seq.current;try{const r=await api('/api/agent-instances');if(n===seq.current){setRows(r.instances||[]);setLoaded(true);setError('');}}catch(e){if(n===seq.current){setLoaded(true);setError(e.message);setRows(old=>old.map(r=>({...r,connected:false,active:false,status:'unknown',security:'当前未核验',can_open:false})));}}}
  useEffect(()=>{if(!active)return;refresh();const t=setInterval(refresh,5000);return()=>{seq.current++;clearInterval(t);};},[active,api]);
  async function act(id,label,fn){setBusy(id);try{await fn();await refresh();}catch(e){notify(e.message);setError(e.message);}finally{setBusy('');}}
@@ -108,13 +130,15 @@ export default function AgentInstances(props){
    if(target)target.location.replace(url.href);else throw Error('浏览器阻止新标签页，请允许弹出窗口后重试');
   }catch(e){target?.close();throw e;}
  }
+ const openInstance=row=>act(row.id,'打开',()=>open(row,canStart(row)));
  // Old workspace deep links retain their existing read-only association view.
  if(workspaceSeed)return <AgentWorkspaces {...props}/>;
  return <div className="content task-console agent-connections agent-instance-console"><h1 className="connection-screen-reader-heading">Agent连接</h1>
  <div className="connection-toolbar"><div className="task-hub-tabs" role="tablist" aria-label="连接视图">{[['current','当前连接'],['history','连接历史']].map(([v,l])=><button key={v} type="button" role="tab" className={pane===v?'active':''} aria-selected={pane===v} onClick={()=>onContext?.({connectionsPane:v})}>{l}</button>)}</div><div className="actions">{pane!=='history'&&<><button type="button" className="button ghost" disabled={!!busy} onClick={()=>act('discover','发现 Agent',async()=>{const r=await post('/api/agent-instances/discover');setRows(r.instances||[]);})}>发现 Agent</button><button type="button" className="button primary" onClick={()=>setAdding(true)}>添加连接</button></>}</div></div>
  {error&&<p role="alert" className="inline-notice warning">{error}</p>}
- {pane==='history'?<ConnectionHistory api={api} active={active} revision={historyRevision} selected={historySeed} onSelect={id=>onContext?.({connectionHistory:id})} onOpenTask={onOpenTask}/>:<Records labels={['实例名称','进程号（PID）','运行环境','连接情况','安全覆盖','操作']} rows={rows.map(row=>[<b>{agentName(row)}</b>,processLabel(row),row.environment==='wsl'?'WSL / Ubuntu':row.environment,status(row),row.security,<div className="actions"><button type="button" className="button tiny ghost" disabled={!!busy||(!row.connected&&!row.can_open&&row.mode!=='controlled')} onClick={()=>act(row.id,'打开',()=>open(row,row.mode==='controlled'&&!row.connected))}>{busy===row.id?'正在启动与核验…':row.mode==='controlled'&&!row.connected?'启动并打开':'打开'}</button><button type="button" className="button tiny ghost" onClick={()=>setSelected(row.id)}>配置</button></div>])} empty={loaded?(error?"当前观测不可用，请重新检查。":"尚未发现实例。点击“发现 Agent”，或添加受控连接。") :"正在观测本机 Agent…"}/>}
- {adding&&active&&<Add api={api} post={post} onClose={()=>setAdding(false)} onCreated={r=>{setAdding(false);setSelected(r.id);refresh();}}/>}
- {selected&&active&&<Drawer key={selected} id={selected} api={api} post={post} onChanged={refresh} onClose={()=>setSelected('')}/>}
+ {pane==='history'?<ConnectionHistory api={api} active={active} revision={historyRevision} selected={historySeed} onSelect={id=>onContext?.({connectionHistory:id})} onOpenTask={onOpenTask}/>:<Records labels={['Agent','当前进程（PID）','运行环境','连接情况','安全覆盖','操作']} rows={groups.map(g=>{const row=g.preferred;return [<b>{g.name}</b>,processLabel(row),row.environment==='wsl'?'WSL / Ubuntu':row.environment,status(row),row.security,<div className="actions"><button type="button" className="button tiny ghost" disabled={!!busy||(!canOpen(row)&&!canStart(row))} onClick={()=>openInstance(row)}>{busy===row.id?'正在启动与核验…':canStart(row)?'启动并打开':'打开'}</button><button type="button" className="button tiny ghost" onClick={()=>configure(row.id)}>配置</button><button type="button" className="button tiny ghost" onClick={e=>{groupReturn.current=e.currentTarget;setGroupKey(g.key);}}>实例与进程</button></div>];})} empty={loaded?(error?"当前观测不可用，请重新检查。":"尚未发现 Agent。点击“发现 Agent”，或添加连接。") :"正在观测本机 Agent…"}/>}
+ {adding&&active&&<Add api={api} post={post} onClose={()=>setAdding(false)} onCreated={r=>{setAdding(false);configure(r.id);refresh();}}/>}
+ {group&&active&&!selected&&<InstancePicker group={group} busy={busy} returnFocus={groupReturn} onOpen={openInstance} onConfigure={configure} onProcesses={id=>configure(id,'sessions')} onClose={()=>setGroupKey('')}/>}
+ {selected&&active&&<Drawer key={selected+detailTab} id={selected} initialTab={detailTab} api={api} post={post} onChanged={refresh} onClose={()=>setSelected('')}/>}
  </div>
 }

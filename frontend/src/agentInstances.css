@@ -32,6 +32,9 @@ body:has(.instance-drawer[open]),body:has(.instance-add[open]){overflow:hidden}
 .instance-session-heading{margin-top:26px;flex-wrap:wrap}
 .instance-session-heading select{max-width:320px;font-size:12px}
 .instance-drawer h3{font-size:15px;margin-top:24px}
+.instance-drawer.instance-picker .instance-record-table{min-width:880px;table-layout:auto}
+.instance-picker .instance-record-table th:first-child{width:auto}
+.instance-picker .instance-record-table td:nth-child(2){max-width:180px}
 @media(max-width:650px){
  .agent-instance-console .connection-toolbar{align-items:flex-start;flex-wrap:wrap}
  .agent-instance-console .connection-toolbar>.actions{width:100%;padding-bottom:14px}
