@@ -4,7 +4,8 @@ import AgentWorkspaces from './AgentWorkspaces.jsx';
 import InstanceSecurity from './InstanceSecurity.jsx';
 import {tabKeys} from './consoleState.mjs';
 import {timeLabel} from './taskPresentation.mjs';
-import {agentTypes as types,agentName,processLabel,observedProcesses,canStart,entryLabel,entryAction,connectionStatus as status,groupAgentInstances} from './agentInstancePresentation.mjs';
+import {agentTypes as types,agentName,processLabel,observedProcesses,canOpen,canStart,entryLabel,entryAction,connectionStatus as status,groupAgentInstances} from './agentInstancePresentation.mjs';
+import {openAgentPage} from './openAgentPage.mjs';
 import './taskConsole.css';
 import './connections.css';
 import './agentInstances.css';
@@ -36,7 +37,7 @@ function InstancePicker({group,busy,onOpen,onConfigure,onProcesses,onClose,retur
   </div>
  </dialog>;
 }
-function Drawer({id,api,post,onClose,onChanged,initialTab='connection'}){
+function Drawer({id,api,post,onClose,onChanged,onOpen,initialTab='connection'}){
  const dialog=useRef(null),origin=useRef(document.activeElement),seq=useRef(0),initialized=useRef(false);
  const [revision,setRevision]=useState(0);
  const [tab,setTab]=useState(initialTab),[row,setRow]=useState(null),[error,setError]=useState(''),[busy,setBusy]=useState(''),[name,setName]=useState(''),[paths,setPaths]=useState(''),[sessions,setSessions]=useState(null),[processes,setProcesses]=useState(null),[events,setEvents]=useState(null),[eventsError,setEventsError]=useState(''),[proposals,setProposals]=useState([]),[resource,setResource]=useState('');
@@ -65,7 +66,7 @@ function Drawer({id,api,post,onClose,onChanged,initialTab='connection'}){
  async function act(label,fn){setBusy(label);setError('');try{const value=await fn();await refresh();setRevision(n=>n+1);onChanged();return {ok:true,value};}catch(e){setError(e.message);return {ok:false};}finally{setBusy('');}}
  const controlled=row?.mode==='controlled'; const pending=proposals.filter(p=>p.state==='pending'&&p.classification==='expand'&&p.generation===row?.generation&&p.base_hash===row?.policy_hash);
  return <dialog ref={dialog} className="record-drawer instance-drawer" aria-label="Agent 实例配置" onCancel={e=>{e.preventDefault();onClose();}}>
- <div className="record-drawer-head"><h2>{row?agentName(row):'读取实例…'}</h2><button type="button" className="button tiny ghost" onClick={onClose}>关闭</button></div>
+ <div className="record-drawer-head"><h2>{row?agentName(row):'读取实例…'}</h2><div className="actions">{row&&(canOpen(row)||canStart(row))&&<button type="button" className="button tiny primary" disabled={!!busy} onClick={()=>act(canStart(row)?'启动并打开 Agent':'打开 Agent',()=>onOpen(row))}>{canStart(row)?'启动并打开 Agent':'打开 Agent'}</button>}<button type="button" className="button tiny ghost" onClick={onClose}>关闭</button></div></div>
  <div className="record-drawer-tabs" role="tablist" aria-label="实例配置内容">{tabs.map(([key,label])=><button type="button" id={'instance-tab-'+key} key={key} role="tab" aria-controls={'instance-pane-'+key} aria-selected={tab===key} tabIndex={tab===key?0:-1} onClick={()=>setTab(key)} onKeyDown={e=>tabKeys(e,tabs.map(t=>t[0]),tab,setTab)}>{label}</button>)}</div>
  <div className="record-drawer-body" role="tabpanel" id={'instance-pane-'+tab} aria-labelledby={'instance-tab-'+tab}>
  {error&&<p role="alert" className="inline-notice warning">{error}</p>}{busy&&<p role="status">{busy}…</p>}
@@ -105,17 +106,7 @@ export default function AgentInstances(props){
  async function refresh(){const n=++seq.current;try{const r=await api('/api/agent-instances');if(n===seq.current){setRows(r.instances||[]);setLoaded(true);setError('');}}catch(e){if(n===seq.current){setLoaded(true);setError(e.message);setRows(old=>old.map(r=>({...r,connected:false,active:false,status:'unknown',security:'当前未核验',can_open:false})));}}}
  useEffect(()=>{if(!active)return;refresh();const t=setInterval(refresh,5000);return()=>{seq.current++;clearInterval(t);};},[active,api]);
  async function act(id,label,fn){setBusy(id);try{await fn();await refresh();}catch(e){notify(e.message);setError(e.message);}finally{setBusy('');}}
- async function open(row,start){
-  const target=window.open('about:blank','_blank');
-  if(target)target.opener=null;
-  try{
-   if(start)await post(endpoint(row.id)+'/start');
-   const result=await post(endpoint(row.id)+'/open');
-   const url=new URL(result.url);
-   if(url.protocol!=='http:'||url.hostname!=='127.0.0.1')throw Error('原生页面地址未通过本机核验');
-   if(target)target.location.replace(url.href);else throw Error('浏览器阻止新标签页，请允许弹出窗口后重试');
-  }catch(e){target?.close();throw e;}
- }
+ const open=(row,start)=>openAgentPage({id:row.id,start,post});
  const openInstance=row=>{const action=entryAction(row).action;if(action==='instructions'){configure(row.id);return;}if(action==='processes'){configure(row.id,'sessions');return;}return act(row.id,'打开',()=>open(row,action==='start'));};
  // Old workspace deep links retain their existing read-only association view.
  if(workspaceSeed)return <AgentWorkspaces {...props}/>;
@@ -125,6 +116,6 @@ export default function AgentInstances(props){
  {pane==='history'?<ConnectionHistory api={api} active={active} revision={historyRevision} selected={historySeed} onSelect={id=>onContext?.({connectionHistory:id})} onOpenTask={onOpenTask}/>:<Records labels={['Agent','入口方式','当前进程（PID）','运行环境','连接情况','安全覆盖','操作']} rows={groups.map(g=>{const row=g.preferred;return [<b>{g.name}</b>,entryLabel(row),processLabel(row),row.environment==='wsl'?'WSL / Ubuntu':row.environment,status(row),row.security,<div className="actions"><button type="button" className="button tiny ghost" disabled={!!busy} onClick={()=>openInstance(row)}>{busy===row.id?(canStart(row)?'正在启动与核验…':'正在打开…'):entryAction(row).label}</button><button type="button" className="button tiny ghost" onClick={()=>configure(row.id)}>配置</button><button type="button" className="button tiny ghost" onClick={e=>{groupReturn.current=e.currentTarget;setGroupKey(g.key);}}>实例与进程</button></div>];})} empty={loaded?(error?"当前观测不可用，请重新检查。":"尚未发现 Agent。点击“发现 Agent”，或添加连接。") :"正在观测本机 Agent…"}/>}
  {adding&&active&&<Add api={api} post={post} onClose={()=>setAdding(false)} onCreated={r=>{setAdding(false);configure(r.id);refresh();}}/>}
  {group&&active&&!selected&&<InstancePicker group={group} busy={busy} returnFocus={groupReturn} onOpen={openInstance} onConfigure={configure} onProcesses={id=>configure(id,'sessions')} onClose={()=>setGroupKey('')}/>}
- {selected&&active&&<Drawer key={selected+detailTab} id={selected} initialTab={detailTab} api={api} post={post} onChanged={refresh} onClose={()=>setSelected('')}/>}
+ {selected&&active&&<Drawer key={selected+detailTab} id={selected} initialTab={detailTab} api={api} post={post} onOpen={row=>open(row,canStart(row))} onChanged={refresh} onClose={()=>setSelected('')}/>}
  </div>
 }
