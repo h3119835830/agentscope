@@ -15,14 +15,14 @@ export function RuleForm({initial,network,title,busy,stale,onSubmit,onCancel}){
    {!behavior&&<label>{rule.action==='network'?'IPv4 地址':rule.action==='tool'?'工具名称':'目标文件或目录'}<input required disabled={busy} value={rule.target} onChange={e=>setRule({...rule,target:e.target.value})} placeholder={rule.action==='network'?'例如 203.0.113.8':rule.action==='tool'?'原生工具名称':'已登记资源内的绝对路径'}/></label>}
    <label>{behavior?'行为约定':'补充说明'}<textarea required={behavior} disabled={busy} maxLength={2000} rows={3} value={rule.text||''} onChange={e=>setRule({...rule,text:e.target.value})}/></label>
   </>}
-  <p className="field-note">修改影响此 Agent 实例的全部会话。收紧自动应用，放宽权限需确认；运行中的实例会暂停并重建执行进程。</p>
+  <p className="field-note">修改影响当前 Agent 受控连接的所有工作区、会话和子进程。收紧自动应用，放宽权限需确认；运行中的实例会暂停并重建执行进程。</p>
   {stale&&<p role="alert">配置已有更新，请返回列表后重新编辑。</p>}
   <div className="actions"><button className="button primary" disabled={busy||stale}>提交更改</button><button type="button" className="button ghost" disabled={busy} onClick={onCancel}>取消</button></div>
  </form>;
 }
 export function PendingChange({proposal,current,busy,onConfirm}){
  return <section className="security-pending" aria-label="待确认的权限变更">
-  <div className="security-pending-head"><h3>待确认的权限变更</h3><span>影响全部会话</span></div>
+  <div className="security-pending-head"><h3>待确认的权限变更</h3><span>影响当前 Agent 的所有工作区与会话</span></div>
   <p>这项变更会放宽权限，当前规则尚未被替换。</p>
   <dl className="security-change-list">{policyChanges(current,proposal.policy).map((change,i)=><React.Fragment key={i}><dt>{change.operation}</dt><dd>{change.sentence}</dd></React.Fragment>)}</dl>
   <details><summary>查看变更后的完整配置</summary><ul className="security-exact-rules"><li>{networkSentence(proposal.policy.network)}</li>{proposal.policy.rules.map((rule,i)=><li key={i}>{ruleSentence(rule)}</li>)}</ul></details>
@@ -49,19 +49,19 @@ export default function InstanceSecurity({row,pending=[],busy=false,onPropose,on
  if(detail!==null){
   const rule=detail.rule,record=rule?recordFor(rule):null,stale=!sameBaseline(row,detail);
   return <div className="instance-security"><div className="security-edit-head"><h3>规则详情</h3><button type="button" className="button tiny ghost" onClick={()=>setDetail(null)}>返回规则列表</button></div>
-   <Facts values={rule?[['完整安全规则',ruleSentence(rule)],['目标',rule.target||'整个任务行为'],['来源',record?.source||'安全配置'],['执行方式',record?.method||'尚未提供'],['当前状态',stale?'配置已变化，请返回列表':resultFor(rule)]]:[['完整安全规则',networkSentence(detail.policy.network)],['执行方式','实例 cgroup 网络过滤'],['当前状态',stale?'配置已变化，请返回列表':row.active?'已核验':'待启动核验']]}/>
+   <Facts values={[["作用范围","当前 Agent 受控连接的所有工作区、会话和子进程"],...(rule?[['完整安全规则',ruleSentence(rule)],['目标',rule.target||'整个任务行为'],['来源',record?.source||'安全配置'],['执行方式',record?.method||'尚未提供'],['当前状态',stale?'配置已变化，请返回列表':resultFor(rule)]]:[['完整安全规则',networkSentence(detail.policy.network)],['执行方式','实例 cgroup 网络过滤'],['当前状态',stale?'配置已变化，请返回列表':row.active?'已核验':'待启动核验']])]}/>
    <div className="actions"><button type="button" className="button primary" disabled={busy||stale} onClick={()=>capture(rule?'edit':'network',rule?detail.index:null)}>编辑此规则</button></div>
   </div>;
  }
  return <div className="instance-security">
-  <div className="security-toolbar"><p>此实例的全部会话共享这些规则。更改时会暂停运行并重新核验。</p><button type="button" className="button primary" disabled={busy} onClick={()=>capture('add')}>添加规则</button></div>
+  <div className="security-scope-heading"><div><h3>当前 Agent 配置</h3><RecordBadge tone="info" dot={false}>所有工作区共用</RecordBadge></div></div>
+  <div className="security-toolbar"><p>适用于当前 Agent 受控连接的所有工作区、会话和子进程。文件规则按各自目标路径执行。</p><button type="button" className="button primary" disabled={busy} onClick={()=>capture('add')}>添加规则</button></div>
   {message&&<p className="security-message" role="status">{message}</p>}
   <div className="security-table-scroll" tabIndex={0} aria-label="安全规则记录"><table className="security-rules"><colgroup><col/><col className="security-status-col"/><col className="security-actions-col"/></colgroup><thead><tr><th>安全规则</th><th>当前状态</th><th>操作</th></tr></thead><tbody>
    {policy.rules.map((rule,i)=><tr key={i}><td><p className="security-sentence" data-effect={rule.action==='behavior'?'behavior':rule.effect}>{ruleSentence(rule,resources,false)}</p></td><td><RecordBadge>{resultFor(rule)}</RecordBadge></td><td><div className="security-actions"><button type="button" onClick={()=>showDetail(i)}>详情</button><button type="button" disabled={busy} onClick={()=>capture('edit',i)}>编辑</button><button type="button" className="security-delete" disabled={busy} onClick={()=>{setMessage('');submit(proposalDraft(row,removeRule(policy,i)));}}>删除</button></div></td></tr>)}
    <tr><td><p className="security-sentence">{networkSentence(policy.network)}</p></td><td><RecordBadge>{row.active?'已核验':'待启动核验'}</RecordBadge></td><td><div className="security-actions"><button type="button" onClick={()=>showDetail('network')}>详情</button><button type="button" disabled={busy} onClick={()=>capture('network')}>编辑</button></div></td></tr>
   </tbody></table></div>
   {!policy.rules.length&&<p className="field-note">尚未添加文件、工具或行为规则，资源目录保持默认只读。</p>}
-  <details className="security-baseline"><summary>基础保护（只读）</summary><p>全部会话与子进程继承平台底线，不能写入控制目录或自行扩权。已登记资源默认只读，额外写入须有明确授权。</p><p>行为约定用于指导 Agent，不作为强制拦截声明。</p></details>
   {!!pending.length&&<>{pending.length>1&&<label className="security-pending-select">待确认变更<select value={selected.id} onChange={e=>setPendingId(e.target.value)}>{pending.map((p,i)=><option key={p.id} value={p.id}>变更 {i+1}</option>)}</select></label>}<PendingChange proposal={selected} current={policy} busy={busy} onConfirm={confirm}/></>}
  </div>;
 }

@@ -20,14 +20,15 @@ const policy={rules:[allow,deny],network:'model_only'};
 const row={id:'instance',mode:'controlled',resources:[root],policy,policy_hash:'original',generation:'generation',active:false,policy_records:[]};
 const render=(Component,props)=>renderToStaticMarkup(React.createElement(Component,props));
 
-test('rule list offers per-rule operations, keeps inheritance read-only and performs no mutations on render',()=>{
+test('Agent rule list retains editing, labels all workspaces and removes the obsolete baseline field',()=>{
  let calls=0;const html=render(InstanceSecurity,{row,onPropose:()=>calls++,onConfirm:()=>calls++});
  assert.match(html,/安全规则<\/th><th>当前状态<\/th><th>操作<\/th>/);
  assert.match(html,/禁止修改与删除「transaction-verification-service\/tests」。/);
  assert.doesNotMatch(html,/\/s\/instance-resources|策略哈希|连接身份与核验详情|执行方式<\/th>|来源<\/th>/);
  assert.equal((html.match(/>删除<\/button>/g)||[]).length,2);
  assert.equal((html.match(/>编辑<\/button>/g)||[]).length,3);
- assert.match(html,/基础保护（只读）/);
+ assert.match(html,/所有工作区、会话和子进程/);
+ assert.doesNotMatch(html,/基础保护|security-baseline/);
  assert.doesNotMatch(html,/<details[^>]*\sopen(?:[\s=>])/);
  assert.equal(calls,0);
 });

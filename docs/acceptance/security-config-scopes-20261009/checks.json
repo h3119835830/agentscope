@@ -1,0 +1,177 @@
+{
+  "checks": [
+    {
+      "name": "desktop_scope_tabs_default_agent",
+      "pass": true,
+      "detail": [
+        {
+          "selected": "false",
+          "text": "系统配置所有 Agent 共用"
+        },
+        {
+          "selected": "true",
+          "text": "当前 Agent 配置所有工作区共用"
+        }
+      ]
+    },
+    {
+      "name": "obsolete_baseline_removed",
+      "pass": true
+    },
+    {
+      "name": "existing_six_rules_and_network_preserved",
+      "pass": true
+    },
+    {
+      "name": "agent_all_workspace_scope",
+      "pass": true
+    },
+    {
+      "name": "desktop_table_fits",
+      "pass": true,
+      "detail": {
+        "width": 1146,
+        "tableRight": 1125
+      }
+    },
+    {
+      "name": "details_show_scope_and_exact_target",
+      "pass": true
+    },
+    {
+      "name": "editor_scope_and_expansion_confirmation_preserved",
+      "pass": true
+    },
+    {
+      "name": "system_config_read_only",
+      "pass": true
+    },
+    {
+      "name": "system_does_not_claim_single_agent_verification",
+      "pass": true
+    },
+    {
+      "name": "system_four_existing_controls",
+      "pass": true
+    },
+    {
+      "name": "scope_keyboard_selection_and_focus",
+      "pass": true
+    },
+    {
+      "name": "hermes_rules_isolated_from_dsh",
+      "pass": true
+    },
+    {
+      "name": "system_configuration_identical_across_agents",
+      "pass": true
+    },
+    {
+      "name": "mobile_target_viewport_confirmed",
+      "pass": true,
+      "detail": 423
+    },
+    {
+      "name": "mobile_tabs_and_dialog_fit",
+      "pass": true,
+      "detail": {
+        "clientWidth": 377,
+        "dialog": {
+          "bottom": 850,
+          "height": 850,
+          "left": 0,
+          "right": 423,
+          "top": 0,
+          "width": 423,
+          "x": 0,
+          "y": 0
+        },
+        "scroll": 423,
+        "scrollWidth": 580,
+        "scroller": {
+          "bottom": 881.140625,
+          "height": 545.703125,
+          "left": 15,
+          "right": 394,
+          "top": 335.4375,
+          "width": 379,
+          "x": 15,
+          "y": 335.4375
+        },
+        "tabs": [
+          {
+            "bottom": 201.75,
+            "height": 71.78125,
+            "left": 21,
+            "right": 199.5,
+            "top": 129.96875,
+            "width": 178.5,
+            "x": 21,
+            "y": 129.96875
+          },
+          {
+            "bottom": 201.75,
+            "height": 71.78125,
+            "left": 209.5,
+            "right": 388,
+            "top": 129.96875,
+            "width": 178.5,
+            "x": 209.5,
+            "y": 129.96875
+          }
+        ],
+        "width": 423
+      }
+    },
+    {
+      "name": "mobile_rule_table_scroll_is_contained",
+      "pass": true
+    },
+    {
+      "name": "mobile_system_read_only_and_no_page_overflow",
+      "pass": true
+    },
+    {
+      "name": "final_mobile_system_fits_without_horizontal_scroll",
+      "pass": true,
+      "detail": {
+        "asset": [
+          "/assets/index-Bfo012_n.js"
+        ],
+        "clientWidth": 392,
+        "scrollWidth": 392,
+        "text": "系统配置所有 Agent 共用由系统统一管理 · 只读所有受控 Agent 共用；仅观测的连接需接管执行后才能应用。配置项配置内容运行隔离隔离文件系统与进程，使用非特权身份运行。控制面访问Agent 不获得 Broker 和控制 API 的访问权限。权限变更放宽权限须人工确认；变更后重新核验再执行。控制失联处理控制心跳超过 8 秒，终止对应的受控执行进程。",
+        "width": 423
+      }
+    },
+    {
+      "name": "final_agent_rules_unchanged",
+      "pass": true
+    },
+    {
+      "name": "session_process_view_preserved",
+      "pass": true
+    },
+    {
+      "name": "connection_scope_description_consistent",
+      "pass": true
+    },
+    {
+      "name": "final_live_bundle_loaded",
+      "pass": true,
+      "detail": [
+        "/assets/index-Bfo012_n.js"
+      ]
+    }
+  ],
+  "total": 22,
+  "passed": 22,
+  "frontend_tests": 163,
+  "backend_tests": 22,
+  "build": "passed",
+  "live_index_sha256": "33470687eea0767f9de2674b971972b79114d8bc0f9f6f830e871c8b68209a14",
+  "limitations": [
+    "System settings are read-only existing controller settings; no new global policy write/load API.",
+    "UI verification is not new kernel enforcement acceptance."
+  ]
+}

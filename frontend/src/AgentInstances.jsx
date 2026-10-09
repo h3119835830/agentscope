@@ -2,7 +2,7 @@ import RecordBadge from './RecordBadge.jsx';
 import React,{useEffect,useRef,useState} from 'react';
 import ConnectionHistory from './ConnectionHistory.jsx';
 import AgentWorkspaces from './AgentWorkspaces.jsx';
-import InstanceSecurity from './InstanceSecurity.jsx';
+import SecurityConfiguration from './SecurityConfiguration.jsx';
 import {tabKeys} from './consoleState.mjs';
 import {timeLabel} from './taskPresentation.mjs';
 import {agentTypes as types,agentName,processLabel,visibleAgentInstances,canOpen,canStart,entryLabel,entryAction,connectionStatus as status} from './agentInstancePresentation.mjs';
@@ -54,14 +54,14 @@ function Drawer({id,api,post,onClose,onChanged,onOpen,initialTab='connection'}){
  <div className="record-drawer-body" role="tabpanel" id={'instance-pane-'+tab} aria-labelledby={'instance-tab-'+tab}>
  {error&&<p role="alert" className="inline-notice warning">{error}</p>}{busy&&<p role="status">{busy}…</p>}
  {row&&tab==='connection'&&<>
-  <Fields values={[['Agent 类型',types[row.agent_type]||row.agent_type],['入口方式',<RecordBadge tone="purple" dot={false}>{entryLabel(row)}</RecordBadge>],['打开方式',row.entry?.instructions||'尚未接入原生入口'],...(row.entry?.command?[['CLI 启动命令',<code>{row.entry.command}</code>]]:[]),['运行环境',row.environment==='wsl'?'WSL / Ubuntu':row.environment],['连接情况',<RecordBadge>{status(row)}</RecordBadge>],['安全覆盖',<RecordBadge>{row.security}</RecordBadge>],['策略归属',controlled?'此实例内全部会话与子进程共享':'尚未接管此实例的执行'],['启动来源',controlled?(row.agent_type==='hermes'?'/home/happy/.local/bin/hermes（WSL 独立安装）':'DeepSeek Harness'):(row.source||row.executable||row.runtime?.open_url||'原生观测')]]}/>
+  <Fields values={[['Agent 类型',types[row.agent_type]||row.agent_type],['入口方式',<RecordBadge tone="purple" dot={false}>{entryLabel(row)}</RecordBadge>],['打开方式',row.entry?.instructions||'尚未接入原生入口'],...(row.entry?.command?[['CLI 启动命令',<code>{row.entry.command}</code>]]:[]),['运行环境',row.environment==='wsl'?'WSL / Ubuntu':row.environment],['连接情况',<RecordBadge>{status(row)}</RecordBadge>],['安全覆盖',<RecordBadge>{row.security}</RecordBadge>],['策略归属',controlled?'当前受控连接的所有工作区、会话与子进程共享':'尚未接管此实例的执行'],['启动来源',controlled?(row.agent_type==='hermes'?'/home/happy/.local/bin/hermes（WSL 独立安装）':'DeepSeek Harness'):(row.source||row.executable||row.runtime?.open_url||'原生观测')]]}/>
   {controlled?<form className="instance-form" onSubmit={e=>{e.preventDefault();act('保存连接设置',()=>api(endpoint(id),{method:'PUT',body:JSON.stringify({name,resources:paths.split('\n').map(p=>p.trim()).filter(Boolean),expected_policy_hash:row.policy_hash})}));}}>
     <label>资源目录<textarea required rows={4} value={paths} onChange={e=>setPaths(e.target.value)} placeholder="每行一个已有项目目录"/></label>
     <p className="field-note">资源目录用于会话映射和文件权限。连接设置在实例停止后修改。</p><div className="actions"><button className="button primary" disabled={!!busy||!['closed','failed'].includes(row.gate)}>保存连接设置</button><button type="button" className="button ghost" disabled={!!busy||row.gate==='closed'} onClick={()=>act('停止实例',()=>post(endpoint(id)+'/stop'))}>停止实例</button></div>
   </form>:<p className="field-note">这是发现的本机实例。新建受控连接后可配置共享策略，原实例继续保持原有运行方式。</p>}
  </>}
  {row&&tab==='policy'&&<>
-  {!controlled?<p className="task-empty">当前仅观测此实例，还没有可管理的安全配置。请添加受控连接。</p>:<InstanceSecurity key={id} row={row} pending={pending} busy={!!busy} onPropose={candidate=>act('提交安全配置',()=>post(endpoint(id)+'/policy/proposals',{policy:candidate.policy,generation:candidate.generation,base_hash:candidate.base_hash,request_key:crypto.randomUUID()}))} onConfirm={proposal=>act('确认并应用变更',()=>post(endpoint(id)+'/policy/proposals/'+proposal.id+'/confirm',{proposal_hash:proposal.proposal_hash}))}/>}</>}
+  <SecurityConfiguration key={id} row={row} pending={pending} busy={!!busy} onPropose={candidate=>act('提交安全配置',()=>post(endpoint(id)+'/policy/proposals',{policy:candidate.policy,generation:candidate.generation,base_hash:candidate.base_hash,request_key:crypto.randomUUID()}))} onConfirm={proposal=>act('确认并应用变更',()=>post(endpoint(id)+'/policy/proposals/'+proposal.id+'/confirm',{proposal_hash:proposal.proposal_hash}))}/></>}
  {row&&tab==='events'&&<div className="security-runtime">{eventsError&&<p role="alert">{eventsError}</p>}<PagedRecords labels={['时间','操作','会话 / 工具','处理结果']} rows={(events||[]).map(e=>[timeLabel(e.created_at),kinds[e.kind]||e.kind,[e.session_id,e.tool].filter(Boolean).join(' / ')||'整个实例',<RecordBadge>{eventResult(e)}</RecordBadge>])} empty={eventsError?'运行记录读取失败':events?'暂无运行记录':'正在读取运行记录…'}/></div>}
  {row&&tab==='sessions'&&<SessionProcesses data={sessions} error={sessionsError} onRefresh={()=>setRevision(n=>n+1)}/>}
  </div></dialog>
