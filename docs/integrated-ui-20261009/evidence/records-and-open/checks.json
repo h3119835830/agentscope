@@ -1,0 +1,118 @@
+{
+  "date": "2026-10-09",
+  "scope": "corrected external native opening prototype; no live navigation test",
+  "checks": [
+    {
+      "name": "overview uses instance summary without graph",
+      "passed": true
+    },
+    {
+      "name": "filtered catalogue contains distinct parent and child identities",
+      "passed": true
+    },
+    {
+      "name": "unbound native opening disabled",
+      "passed": true
+    },
+    {
+      "name": "canonical parent rule table has six rules",
+      "passed": true
+    },
+    {
+      "name": "Agent graph and records share node identities",
+      "passed": true
+    },
+    {
+      "name": "node click directly shows all seven child policies",
+      "passed": true
+    },
+    {
+      "name": "policy source and inheritance are visible",
+      "passed": true
+    },
+    {
+      "name": "drawer opens no embedded chat",
+      "passed": true
+    },
+    {
+      "name": "drawer native open disabled for unbound fixture",
+      "passed": true
+    },
+    {
+      "name": "metadata identifies Agent name session ID name parent and workspace",
+      "passed": true
+    },
+    {
+      "name": "canonical child policy page keeps child session identity",
+      "passed": true
+    },
+    {
+      "name": "canonical child rules match drawer count",
+      "passed": true
+    },
+    {
+      "name": "record format persists when relationship type changes",
+      "passed": true
+    },
+    {
+      "name": "process graph and record identities match",
+      "passed": true
+    },
+    {
+      "name": "shared host allows selecting associated session",
+      "passed": true
+    },
+    {
+      "name": "shared host shows selected child policies",
+      "passed": true
+    },
+    {
+      "name": "selected host association keeps original child identity",
+      "passed": true
+    },
+    {
+      "name": "closing drawer returns focus to originating node",
+      "passed": true
+    },
+    {
+      "name": "host association switches to six parent policies",
+      "passed": true
+    },
+    {
+      "name": "inspector supports keyboard tab navigation",
+      "passed": true
+    },
+    {
+      "name": "domain graph and records share node identities",
+      "passed": true
+    },
+    {
+      "name": "platform domain lists only baseline policies",
+      "passed": true
+    },
+    {
+      "name": "baseline opens unique fifteen-template configuration table",
+      "passed": true
+    },
+    {
+      "name": "mobile record page has no viewport overflow",
+      "passed": true
+    },
+    {
+      "name": "mobile policy drawer stays inside viewport",
+      "passed": true
+    },
+    {
+      "name": "mobile record format persists",
+      "passed": true
+    },
+    {
+      "name": "current browser has no script errors",
+      "passed": true
+    },
+    {
+      "name": "child version detail identifies child session",
+      "passed": true
+    }
+  ]
+}

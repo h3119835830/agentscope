@@ -16,11 +16,14 @@ def build():
     names = ["selectedRules", "capability", "ruleTable", "renderPlatform", "openRuleDetails", "evidenceHtml", "preview", "openEditor", "editorValue", "closeDialog", "inspect"]
     shared = []
     for name in names:
+        if name == "selectedRules":
+            shared.append("function selectedRules(){return policyRulesForScope(domain); }\n")
+            continue
         start = re.search(r"^function " + name + r"\(", script, re.M).start()
         end = re.search(r"^(?:function |document\.addEventListener|for\(const id)", script[start + 1:], re.M)
         shared.append(script[start:start + 1 + end.start()] if end else script[start:])
     submit = re.search(r"^document\.addEventListener\('submit'.*$", script, re.M).group(0)
-    app = (HERE / "app.js").read_text(encoding="utf-8")
+    app = "\n".join((HERE / name).read_text(encoding="utf-8") for name in ["session-model.js", "session-controller.js", "session-views.js", "app.js"])
     extra_styles = (HERE / "integrated.css").read_text(encoding="utf-8")
     catalogue = json.loads((DOCS / "session-security-design-20261008/policy-catalogue.json").read_text(encoding="utf-8"))
     data = json.dumps(catalogue, ensure_ascii=False).replace("<", "\\u003c").replace("\u2028", "\\u2028").replace("\u2029", "\\u2029")
