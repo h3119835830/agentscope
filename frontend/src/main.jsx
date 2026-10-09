@@ -8,6 +8,7 @@ import ManagedWorkbench from './ManagedWorkbench.jsx';
 import {uniqueTasks,selectableTasks,isTaskEnded} from './consoleState.mjs';
 import TaskArchive from './TaskArchive.jsx';
 import {navigationTarget, readNavigation} from './navigation.mjs';
+import './prototypeTheme.css';
 
 const api = async (url, options = {}) => {
   const response = await fetch(url, {...options, credentials:'omit', headers:{'Content-Type':'application/json', ...options.headers}});
@@ -96,7 +97,7 @@ function App() {
   const openTask = id => navigate({page:'history',archiveTask:id});
   const createTask = (workspace='') => {setWorkspaceSeed(workspace);navigate({page:'workbench',task:'',archiveTask:'',workbenchSection:'startup',workspace});};
 
-  return <div className={`shell ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+  return <div className={`shell prototype-theme ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
     <aside className="sidebar">
       <div className="sidebar-header"><div className="brand"><div className="brand-mark">A</div><div className="brand-copy"><b>AgentScope</b><small>策略管控台</small></div></div><button className="sidebar-toggle" aria-label={sidebarCollapsed?'展开侧栏':'收起侧栏'} title={sidebarCollapsed?'展开侧栏':'收起侧栏'} aria-expanded={!sidebarCollapsed} aria-controls="workspace-navigation" onClick={()=>setSidebarCollapsed(value=>!value)}><span aria-hidden="true">{sidebarCollapsed?'›':'‹'}</span></button></div>
       <div className="side-label">工作区</div>
