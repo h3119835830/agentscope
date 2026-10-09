@@ -1,0 +1,24 @@
+.sidebar nav{display:flex;flex-direction:column;gap:8px}.nav{width:100%;display:flex;align-items:center;gap:10px}.nav [data-count]{margin-left:auto;font-size:11px}.nav [data-count]:not(:empty){background:#ffffff20;border-radius:4px;padding:0 6px}
+.back-button{border:0;color:var(--muted);padding:4px 6px;background:transparent;font-size:18px}.context .back-button{margin-left:-7px}
+.section-tabs{margin-top:0}.inline-action{font-size:12px}.page-actions .primary{padding:7px 12px}
+.diagram-panel{background:white;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.diagram-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 16px;border-bottom:1px solid var(--line);font-size:12px;flex-wrap:wrap}
+.diagram-toolbar .row{gap:8px}.diagram-toolbar select{font-size:12px;padding:5px 9px}
+.diagram-scroll{overflow:auto;max-width:100%;background:radial-gradient(#dfe7f0 1px,transparent 1px);background-size:18px 18px}
+.diagram-canvas{position:relative;min-width:640px;height:440px;isolation:isolate}.diagram-canvas.services{height:470px}
+.diagram-lines{position:absolute;inset:0;pointer-events:none;z-index:-1;width:100%;height:100%;overflow:visible}
+.diagram-lines text{font:10px "Microsoft YaHei",sans-serif;fill:#728397;paint-order:stroke;stroke:white;stroke-width:5px;stroke-linejoin:round}
+.graph-node{position:absolute;transform:translateX(-50%);width:178px;min-height:76px;text-align:left;padding:10px 12px;border:1px solid #cfdbe7;border-radius:7px;box-shadow:0 2px 5px #203e5c05;background:#fff;white-space:normal}
+.graph-node:hover{border-color:#7fa9e5;background:#f8fbff}.graph-node.selected{border-color:var(--blue);box-shadow:0 0 0 2px #1f6feb14}
+.graph-node .node-kind{display:flex;justify-content:space-between;color:var(--muted);font-size:10px;margin-bottom:4px}
+.graph-node strong{display:block;font-size:13px;font-weight:600;line-height:1.5}.graph-node .node-meta{display:block;font-size:10px;color:var(--muted);margin-top:4px;overflow-wrap:anywhere}
+.graph-node.agent{border-left:3px solid #4b8a78}.graph-node.session{border-left:3px solid #1f6feb}.graph-node.domain{border-left:3px solid #8b79ac}.graph-node.process{border-left:3px solid #889bb0}.graph-node.workspace{border-left:3px solid #c4a56a}
+.diagram-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:11px 16px;border-top:1px solid var(--line);font-size:11px;color:var(--muted)}
+.legend-item{display:inline-flex;gap:6px;align-items:center}.legend-item i{width:16px;border-top:1px solid #93a7bb;display:block}.legend-item.dashed i{border-top-style:dashed}
+.seg{display:inline-flex;border:1px solid #d4dee9;border-radius:5px;padding:2px;gap:2px;background:#f6f8fb}.seg button{border:0;padding:4px 10px;font-size:12px;background:transparent}.seg button.on{background:white;color:var(--blue);box-shadow:0 1px 3px #203e5c12}
+.list-subtle{font-size:12px;color:var(--muted);margin:0 0 12px}.task-table td:first-child{width:36%}.task-table code{font-size:10px}
+.service-table td:first-child{width:25%}.empty-state{background:white;border:1px solid var(--line);border-radius:8px;padding:70px 24px;text-align:center}.empty-state strong{display:block;font-size:14px;margin-bottom:8px}.empty-state p{color:var(--muted);font-size:12px;max-width:440px;margin:0 auto 18px}
+.side-drawer{position:fixed;inset:0 0 0 auto;margin:0;width:min(390px,94vw);height:100vh;max-height:100vh;border-radius:0;box-shadow:-12px 0 50px #102d4c25}.side-drawer .dialog-body{padding-top:24px}.side-drawer .dialog-footer{justify-content:flex-end}.side-drawer::backdrop{background:#0f1c2e30}
+.template-list td:first-child{width:31%}.template-list td:nth-child(3){max-width:270px}.approval-table td:first-child{width:29%}.info-stack{display:grid;gap:16px}.info-stack .panel{padding:18px}
+@media(max-width:1000px){.graph-node{width:168px}.context{gap:8px}.topbar{align-items:center}.tabs{gap:22px}.tabs button{font-size:13px}}
+@media(max-width:700px){.sidebar{display:block;padding:10px 12px}.brand{padding-bottom:10px;font-size:16px}.sidebar nav{flex-direction:row;gap:5px;overflow:auto}.nav{width:auto;flex:0 0 auto;justify-content:center;padding:7px 12px;gap:6px}.nav [data-count]{margin-left:2px}.topbar{align-items:flex-start}.page-actions{width:100%;justify-content:space-between}.tabs{gap:20px}.tabs button{font-size:12px}.diagram-toolbar{padding:11px 12px}.diagram-footer{padding:11px 12px}.diagram-canvas{min-width:620px}.diagram-panel{min-width:0}.seg button{padding:4px 8px}.template-list td:first-child,.task-table td:first-child{width:auto}.list-subtle{font-size:11px}}

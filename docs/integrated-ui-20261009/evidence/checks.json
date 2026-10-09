@@ -1,0 +1,145 @@
+{
+  "scope": "integrated standalone prototype; no runtime APIs",
+  "checks": [
+    {
+      "check": "five navigation entries, no repeated h1, seven graph nodes with drawn edges and no page overflow",
+      "pass": true
+    },
+    {
+      "check": "global connection filter scopes nodes to one task",
+      "pass": true
+    },
+    {
+      "check": "service graph is separate from task graph and contains six service nodes",
+      "pass": true
+    },
+    {
+      "check": "global session node opens task-scoped process tree with five detail tabs",
+      "pass": true
+    },
+    {
+      "check": "domain inheritance view is distinct from process parentage",
+      "pass": true
+    },
+    {
+      "check": "process drawer shows PID, parent PID, domain, and unverified enforcement separately",
+      "pass": true
+    },
+    {
+      "check": "process-to-rules link selects child domain and seven rules",
+      "pass": true
+    },
+    {
+      "check": "child inherited rule filter includes three platform plus three parent-task rules",
+      "pass": true
+    },
+    {
+      "check": "inherited rule details remain read-only with technical evidence collapsed",
+      "pass": true
+    },
+    {
+      "check": "session safety check explicitly lacks runtime receipts",
+      "pass": true
+    },
+    {
+      "check": "session pending-change link opens the shared approval record filtered to that session",
+      "pass": true
+    },
+    {
+      "check": "proposal action updates the one shared record and pending count without claiming activation",
+      "pass": true
+    },
+    {
+      "check": "approval filter does not leak coding proposals into research session",
+      "pass": true
+    },
+    {
+      "check": "platform baseline lives under System and keeps all fifteen templates",
+      "pass": true
+    },
+    {
+      "check": "baseline draft updates in its sole editor",
+      "pass": true
+    },
+    {
+      "check": "platform draft edit does not rewrite existing session inherited snapshot",
+      "pass": true
+    },
+    {
+      "check": "library is a read-only catalogue with fifteen templates",
+      "pass": true
+    },
+    {
+      "check": "template library search filters source records",
+      "pass": true
+    },
+    {
+      "check": "library links to the existing baseline editor, including its previously saved value",
+      "pass": true
+    },
+    {
+      "check": "unsupported argv-specific block remains disabled in integrated editor",
+      "pass": true
+    },
+    {
+      "check": "branch policies stay non-executable intent with separate main/other dispositions",
+      "pass": true
+    },
+    {
+      "check": "local feedback edits are isolated between coding and research sessions",
+      "pass": true
+    },
+    {
+      "check": "custom feedback remains literal text after revisiting its session",
+      "pass": true
+    },
+    {
+      "check": "workspace resource link locates child-domain rule instead of opening a second editor",
+      "pass": true
+    },
+    {
+      "check": "version and origin information occupies one dedicated session tab",
+      "pass": true
+    },
+    {
+      "check": "execution tab has an explicit empty state instead of fabricated runtime events",
+      "pass": true
+    },
+    {
+      "check": "keyboard tab navigation changes view and restores tab focus",
+      "pass": true
+    },
+    {
+      "check": "session directory contains both tasks and returns from detail",
+      "pass": true
+    },
+    {
+      "check": "System capability view keeps all statuses unknown and links to the same service graph",
+      "pass": true
+    },
+    {
+      "check": "423px global graph scrolls inside its panel without page overflow",
+      "pass": true
+    },
+    {
+      "check": "mobile process drawer fits within viewport",
+      "pass": true
+    },
+    {
+      "check": "mobile session records have no horizontal page overflow",
+      "pass": true
+    },
+    {
+      "check": "mobile rule editor is visible and fits in the viewport",
+      "pass": true
+    },
+    {
+      "check": "mobile baseline table keeps all fifteen records with no page overflow",
+      "pass": true
+    },
+    {
+      "check": "browser console has no script errors",
+      "pass": true
+    }
+  ]
+}
