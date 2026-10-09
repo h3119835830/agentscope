@@ -1,0 +1,29 @@
+{
+  "scope": "homepage prototype boundary; no live launch",
+  "checks": [
+    {
+      "name": "catalogue offers three Agent homepage buttons",
+      "passed": true
+    },
+    {
+      "name": "unbound instance is identified without fake launch",
+      "passed": true
+    },
+    {
+      "name": "drawer retains child policies and homepage button",
+      "passed": true
+    },
+    {
+      "name": "metadata keeps child identity separate from instance home",
+      "passed": true
+    },
+    {
+      "name": "no embedded chat added",
+      "passed": true
+    },
+    {
+      "name": "no browser script errors",
+      "passed": true
+    }
+  ]
+}

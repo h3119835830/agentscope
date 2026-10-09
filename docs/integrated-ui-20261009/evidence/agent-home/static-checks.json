@@ -1,0 +1,9 @@
+{
+  "source_syntax": true,
+  "inline_syntax": true,
+  "catalogue_unchanged": true,
+  "homepage_label": true,
+  "no_embedded_chat": true,
+  "reproducible_build": true,
+  "html_sha256": "47cc75177207b36302242cee01dc6a931edb946446da033250ee74970e6e1e57"
+}

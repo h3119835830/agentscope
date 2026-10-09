@@ -187,7 +187,8 @@ const sessionRecords=Object.freeze([
   {id:'S-DEMO',name:'登录表单修复',agent:'编码 Agent',instanceId:'DSH-CODE-01',workspace:'/workspace',scope:'D-A',taskKey:'coding',parentId:null,lastActivity:'2026-10-09 10:20（样例）'},
   {id:'S-DEMO-TEST',name:'登录表单修复 · 测试',agent:'测试 Agent',instanceId:'DSH-CODE-01',workspace:'/workspace/tests',scope:'D-A1',taskKey:'coding',parentId:'S-DEMO',lastActivity:'2026-10-09 10:21（样例）'},
   {id:'S-RESEARCH',name:'研究任务 B',agent:'研究 Agent',instanceId:'DSH-RESEARCH-01',workspace:'/workspace/research',scope:'D-B',taskKey:'research',parentId:null,lastActivity:'2026-10-09 09:30（样例）'}
-].map(s=>Object.freeze({...s,nativeRef:null})));
+].map(s=>Object.freeze(s)));
+const agentHomeRecords=Object.fromEntries([...new Set(sessionRecords.map(s=>s.instanceId))].map(id=>[id,{instanceId:id,homeRef:null}]));
 const sessionsById=Object.fromEntries(sessionRecords.map(s=>[s.id,s]));
 const sessionForScope=scope=>sessionRecords.find(s=>s.scope===scope);
 const taskInfo=Object.fromEntries(sessionRecords.filter(s=>!s.parentId).map(s=>[s.taskKey,{...s,root:s.scope}]));
@@ -203,7 +204,6 @@ function policyRulesForScope(scope){
   ];
 }
 function sessionStateText(id){
-  if(pendingSessionOpens.has(id))return '正在打开原生会话';
   const r=sessionRuntime[id];
   if(r.executor==='stopped')return '已停止（样例）';
   if(r.connection==='disconnected')return '连接中断（样例）';
@@ -227,58 +227,57 @@ function relationModel(view,taskKey){
   return {nodes:nodes.map(n=>({...n,selected:n.scope===domain})),edges};
 }
 
-// Open the Agent's native UI; never render chat or substitute an Agent home page.
-function createNativeSessionLauncher({adapter,browser}){
+// Open the native Agent instance home page; no session navigation or creation.
+function createAgentHomeLauncher({adapter,browser}){
   const inFlight=new Map();
   function open(ref){
-    if(!ref?.instanceId||!ref?.sessionId)return Promise.reject(new Error('尚未绑定真实 Agent 会话。'));
-    const key=ref.instanceId+'\n'+ref.sessionId;
+    if(!ref?.instanceId)return Promise.reject(new Error('尚未绑定真实 Agent 实例首页。'));
+    const instanceRef={instanceId:ref.instanceId},key=ref.instanceId;
     if(inFlight.has(key))return inFlight.get(key);
     const target=browser.open('about:blank','_blank');
     if(!target)return Promise.reject(new Error('浏览器阻止打开原生页面；未启动执行端。'));
     target.opener=null;
     const operation=Promise.resolve().then(async()=>{
-      const state=await adapter.inspect(ref);
-      if(state.instanceId!==ref.instanceId||state.sessionId!==ref.sessionId)throw new Error('原生会话身份不一致。');
-      if(state.sessionNavigation!==true)throw new Error('当前 Agent 仅支持实例入口，尚不支持定位指定会话。');
+      const state=await adapter.inspect(instanceRef);
+      if(state.instanceId!==ref.instanceId)throw new Error('Agent 实例身份不一致。');
       let kind='reused';
       if(state.executor==='stopped'){
-        if(state.resumeAllowed!==true)throw new Error('恢复前需完成安全检查或审批。');
-        await adapter.resume(ref,state.revision);kind='resumed';
+        if(state.startAllowed!==true)throw new Error('启动前需完成安全检查或审批。');
+        await adapter.start(instanceRef,state.revision);kind='started';
       }else if(['idle','running'].includes(state.executor)){
-        if(state.connection==='disconnected'){await adapter.reconnect(ref);kind='reconnected';}
+        if(state.connection==='disconnected'){await adapter.reconnect(instanceRef);kind='reconnected';}
         else if(state.connection!=='connected')throw new Error('连接状态尚未确认，暂不重复启动。');
       }else throw new Error('执行端状态尚未确认，暂不重复启动。');
-      const entry=await adapter.resolveSessionEntry(ref);
-      if(entry.instanceId!==ref.instanceId||entry.sessionId!==ref.sessionId||entry.scope!=='session')throw new Error('原生入口未定位到请求的会话。');
+      const entry=await adapter.resolveHomeEntry(instanceRef);
+      if(entry.instanceId!==ref.instanceId||entry.scope!=='instance')throw new Error('首页入口与请求的 Agent 实例不一致。');
       const url=new URL(entry.url);
       if(url.protocol!=='http:'||url.hostname!=='127.0.0.1'||url.username||url.password)throw new Error('原生入口未通过本机校验。');
       if(target.closed)throw new Error('原生标签已关闭，请重新打开。');
       target.location.replace(url.href);
-      return {instanceId:ref.instanceId,sessionId:ref.sessionId,kind};
+      return {instanceId:ref.instanceId,scope:'instance',kind};
     }).catch(error=>{target.close();throw error;}).finally(()=>inFlight.delete(key));
     inFlight.set(key,operation);return operation;
   }
   return {open};
 }
-if(typeof module!=='undefined'&&module.exports)module.exports={createNativeSessionLauncher};
+if(typeof module!=='undefined'&&module.exports)module.exports={createAgentHomeLauncher};
 
-// Opens native Agent pages only. Prototype fixtures have no live bindings.
+// Opens native Agent pages only. Homepage bindings belong to instances, not logical sessions.
 let relationFormat='graph',sessionScope='all',inspectedNode=null;
-const pendingSessionOpens=new Set();
-let nativeSessionAdapter=null;
-function sessionOpenButton(id,{primary=false}={}){
-  const bound=!!sessionsById[id].nativeRef&&!!nativeSessionAdapter;
-  return `<button ${primary?'class="primary"':''} data-open-native="${id}" ${!bound||pendingSessionOpens.has(id)?'disabled':''} title="${bound?'在新标签中打开 Agent 原生会话':'样例记录尚未绑定真实 Agent 会话'}">打开原生会话 ↗</button>`;
+const pendingHomeOpens=new Set();
+let agentHomeAdapter=null;
+function agentHomeButton(id,{primary=false}={}){
+  const bound=!!agentHomeRecords[sessionsById[id].instanceId].homeRef&&!!agentHomeAdapter;
+  return `<button ${primary?'class="primary"':''} data-open-native="${id}" ${!bound||pendingHomeOpens.has(sessionsById[id].instanceId)?'disabled':''} title="${bound?'在新标签中打开对应 Agent 实例首页':'样例实例尚未绑定真实 Agent 首页'}">打开 Agent 首页 ↗</button>`;
 }
-async function openNativeSession(id){
-  const session=sessionsById[id];
-  if(!session?.nativeRef||!nativeSessionAdapter){toast('尚未绑定真实 Agent 会话；没有打开或启动执行端。');return;}
-  const launcher=nativeSessionAdapter.launcher;
-  if(pendingSessionOpens.has(id))return;
-  pendingSessionOpens.add(id);
-  try{await launcher.open(session.nativeRef);}catch(error){toast(error.message);}
-  finally{pendingSessionOpens.delete(id);}
+async function openAgentHome(id){
+  const session=sessionsById[id],ref=session&&agentHomeRecords[session.instanceId].homeRef;
+  if(!ref||!agentHomeAdapter){toast('尚未绑定真实 Agent 实例首页；没有打开或启动执行端。');return;}
+  const launcher=agentHomeAdapter.launcher;
+  if(pendingHomeOpens.has(sessionsById[id].instanceId))return;
+  pendingHomeOpens.add(session.instanceId);
+  try{await launcher.open(ref);}catch(error){toast(error.message);}
+  finally{pendingHomeOpens.delete(session.instanceId);}
 }
 function relationRecords(nodes,edges){
   return `<div class="table-wrap"><table class="records relation-table" aria-label="运行关系记录"><thead><tr><th>对象 / 身份</th><th>关联会话</th><th>关系</th><th>策略</th><th></th></tr></thead><tbody>${nodes.map(n=>{
@@ -295,7 +294,7 @@ function nodePolicies(n,owner){
 function nodeMetadata(n,owner){
   if(!owner)return '<dl class="kv"><dt>配置来源</dt><dd>平台安全底线 D0</dd><dt>版本</dt><dd>v0.1 · 会话继承快照</dd><dt>执行状态</dt><dd>未加载 · 未验证</dd></dl>';
   const runtime=sessionRuntime[owner.id];
-  return `<dl class="kv" aria-label="会话元数据"><dt>Agent 名称</dt><dd>${esc(owner.agent)}</dd><dt>会话 ID</dt><dd><code>${owner.id}</code></dd><dt>会话名称</dt><dd>${esc(owner.name)}</dd><dt>Agent 实例</dt><dd>${owner.instanceId}</dd><dt>原生会话入口</dt><dd>${owner.nativeRef?'已绑定':'样例 · 尚未绑定真实会话'}</dd><dt>父会话</dt><dd>${owner.parentId||'—'}</dd><dt>工作区</dt><dd><code>${esc(owner.workspace)}</code></dd><dt>最近活动</dt><dd>${owner.lastActivity}</dd><dt>会话活动</dt><dd>${sessionStateText(owner.id)}</dd><dt>连接状态</dt><dd>${runtime.connection==='connected'?'已连接（样例）':'已断开（样例）'}</dd><dt>配置目标域</dt><dd>${owner.scope}</dd></dl>`;
+  return `<dl class="kv" aria-label="会话元数据"><dt>Agent 名称</dt><dd>${esc(owner.agent)}</dd><dt>会话 ID</dt><dd><code>${owner.id}</code></dd><dt>会话名称</dt><dd>${esc(owner.name)}</dd><dt>Agent 实例</dt><dd>${owner.instanceId}</dd><dt>Agent 首页</dt><dd>${agentHomeRecords[owner.instanceId].homeRef?'已绑定实例入口':'样例 · 尚未绑定真实实例'}</dd><dt>父会话</dt><dd>${owner.parentId||'—'}</dd><dt>工作区</dt><dd><code>${esc(owner.workspace)}</code></dd><dt>最近活动</dt><dd>${owner.lastActivity}</dd><dt>会话活动</dt><dd>${sessionStateText(owner.id)}</dd><dt>连接状态</dt><dd>${runtime.connection==='connected'?'已连接（样例）':'已断开（样例）'}</dd><dt>配置目标域</dt><dd>${owner.scope}</dd></dl>`;
 }
 function renderNodeInspector(opener){
   const {node:n,ownerId,pane}=inspectedNode,owner=sessionsById[ownerId];
@@ -303,7 +302,7 @@ function renderNodeInspector(opener){
   const chooser=n.sessionIds.length>1?`<label class="node-owner">关联会话<select id="node-owner" aria-label="节点关联会话">${n.sessionIds.map(id=>`<option value="${id}" ${ownerId===id?'selected':''}>${esc(sessionsById[id].name)} · ${id}</option>`).join('')}</select></label>`:'';
   const tabs=`<div class="tabs node-tabs" role="tablist" aria-label="节点详情"><button role="tab" id="node-policies" aria-controls="node-panel" aria-selected="${pane==='policies'}" tabindex="${pane==='policies'?0:-1}" class="${pane==='policies'?'on':''}" data-inspector-pane="policies">关联策略</button><button role="tab" id="node-metadata" aria-controls="node-panel" aria-selected="${pane==='metadata'}" tabindex="${pane==='metadata'?0:-1}" class="${pane==='metadata'?'on':''}" data-inspector-pane="metadata">会话信息</button></div>`;
   const technical=`<details><summary>运行与绑定说明</summary><dl class="kv"><dt>对象类型</dt><dd>${esc(n.type)}</dd>${n.pid?`<dt>PID / 父 PID</dt><dd>${n.pid} / ${n.ppid}（样例）</dd>`:''}<dt>OS 绑定</dt><dd>未核验</dd></dl>${n.note?`<p class="list-subtle">${esc(n.note)}</p>`:''}</details>`;
-  const footer=`${owner?`<button data-node-rules="${owner.scope}">查看全部策略</button>${sessionOpenButton(owner.id,{primary:true})}`:'<button data-node-baseline>查看平台底线</button>'}`;
+  const footer=`${owner?`<button data-node-rules="${owner.scope}">查看全部策略</button>${agentHomeButton(owner.id,{primary:true})}`:'<button data-node-baseline>查看平台底线</button>'}`;
   showDetails(n.name,chooser+tabs+`<div id="node-panel" role="tabpanel" aria-labelledby="node-${pane}">${pane==='policies'?nodePolicies(n,owner):nodeMetadata(n,owner)}</div>`+technical,footer,inspectedNode.opener,true);
   document.getElementById('inspector').classList.add('node-drawer');
 }
@@ -344,7 +343,7 @@ function renderOverview(){
 }
 function renderSessionList(){
   const rows=sessionRecords.filter(s=>sessionScope==='all'||s.taskKey===sessionScope);
-  return `<div class="toolbar"><label class="sr" for="session-scope">会话范围</label><select id="session-scope"><option value="all" ${sessionScope==='all'?'selected':''}>全部会话</option><option value="coding" ${sessionScope==='coding'?'selected':''}>编码任务</option><option value="research" ${sessionScope==='research'?'selected':''}>研究任务</option></select><span class="record-count">${rows.length} 条记录</span></div><div class="panel"><div class="table-wrap"><table class="records task-table" aria-label="会话列表"><thead><tr><th>会话名称 / ID</th><th>Agent</th><th>会话活动</th><th>安全状态</th><th></th></tr></thead><tbody>${rows.map(t=>`<tr data-session-record="${t.id}"><td data-label="会话"><strong>${esc(t.name)}</strong><code>${t.id}</code>${t.parentId?'<small>子会话</small>':''}</td><td data-label="Agent">${esc(t.agent)}<small>${t.instanceId}</small></td><td data-label="会话活动"><span class="badge">${sessionStateText(t.id)}</span></td><td data-label="安全状态"><span class="badge">未加载</span></td><td><div class="record-actions"><button class="text-action" data-session="${t.scope}">查看安全</button>${sessionOpenButton(t.id)}</div></td></tr>`).join('')}</tbody></table></div></div>`;
+  return `<div class="toolbar"><label class="sr" for="session-scope">会话范围</label><select id="session-scope"><option value="all" ${sessionScope==='all'?'selected':''}>全部会话</option><option value="coding" ${sessionScope==='coding'?'selected':''}>编码任务</option><option value="research" ${sessionScope==='research'?'selected':''}>研究任务</option></select><span class="record-count">${rows.length} 条记录</span></div><div class="panel"><div class="table-wrap"><table class="records task-table" aria-label="会话列表"><thead><tr><th>会话名称 / ID</th><th>Agent</th><th>会话活动</th><th>安全状态</th><th></th></tr></thead><tbody>${rows.map(t=>`<tr data-session-record="${t.id}"><td data-label="会话"><strong>${esc(t.name)}</strong><code>${t.id}</code>${t.parentId?'<small>子会话</small>':''}</td><td data-label="Agent">${esc(t.agent)}<small>${t.instanceId}</small></td><td data-label="会话活动"><span class="badge">${sessionStateText(t.id)}</span></td><td data-label="安全状态"><span class="badge">未加载</span></td><td><div class="record-actions"><button class="text-action" data-session="${t.scope}">查看安全</button>${agentHomeButton(t.id)}</div></td></tr>`).join('')}</tbody></table></div></div>`;
 }
 function renderRules(){
   const rules=selectedRules().filter(r=>(sessionFilter==='all'||(sessionFilter==='inherited')===r.inherited)&&`${r.name} ${r.target}`.toLowerCase().includes(sessionSearch.toLowerCase()));
@@ -391,7 +390,7 @@ function render(){
   if(page==='overview')context='<strong>演示工作区</strong><small>2 个执行端实例</small>';
   if(page==='sessions'){
 
-    if(sessionOpen){const session=currentSession();context=`<button class="back-button" data-all-sessions aria-label="返回会话列表">←</button><strong>${esc(session.name)}</strong><small>${session.id} · ${esc(session.agent)}</small>${domainOptions()}`;actions=`${domain!=='D-B'?`<button data-session-approvals>${changeState==='pending'?'待处理 · 1':'变更记录'}</button>`:''}${sessionOpenButton(session.id)}<button data-inspect="check">检查安全配置</button>`;}
+    if(sessionOpen){const session=currentSession();context=`<button class="back-button" data-all-sessions aria-label="返回会话列表">←</button><strong>${esc(session.name)}</strong><small>${session.id} · ${esc(session.agent)}</small>${domainOptions()}`;actions=`${domain!=='D-B'?`<button data-session-approvals>${changeState==='pending'?'待处理 · 1':'变更记录'}</button>`:''}${agentHomeButton(session.id)}<button data-inspect="check">检查安全配置</button>`;}
     else context='<strong>会话目录</strong><small>3 个样例会话</small>';
   }
   if(page==='approvals')context=`<strong>${changeState==='pending'?'1 项待处理':'暂无待处理项'}</strong><small>统一变更记录</small>`;
@@ -419,7 +418,7 @@ document.addEventListener('click',e=>{
   if(n.dataset.page){page=n.dataset.page;render();}
   else if(n.dataset.view)setView(n.dataset.view,n.dataset.value);
   else if(n.dataset.sessionFilter){sessionScope=n.dataset.sessionFilter;page='sessions';sessionOpen=false;render();}
-  else if(n.dataset.openNative)openNativeSession(n.dataset.openNative);
+  else if(n.dataset.openNative)openAgentHome(n.dataset.openNative);
   else if(n.dataset.session){openSession(n.dataset.session,n.dataset.openView||'permissions');render();}
   else if(n.hasAttribute('data-all-sessions')){sessionOpen=false;render();}
   else if(n.dataset.relation){relationView=n.dataset.relation;render();}

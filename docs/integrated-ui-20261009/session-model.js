@@ -4,7 +4,8 @@ const sessionRecords=Object.freeze([
   {id:'S-DEMO',name:'登录表单修复',agent:'编码 Agent',instanceId:'DSH-CODE-01',workspace:'/workspace',scope:'D-A',taskKey:'coding',parentId:null,lastActivity:'2026-10-09 10:20（样例）'},
   {id:'S-DEMO-TEST',name:'登录表单修复 · 测试',agent:'测试 Agent',instanceId:'DSH-CODE-01',workspace:'/workspace/tests',scope:'D-A1',taskKey:'coding',parentId:'S-DEMO',lastActivity:'2026-10-09 10:21（样例）'},
   {id:'S-RESEARCH',name:'研究任务 B',agent:'研究 Agent',instanceId:'DSH-RESEARCH-01',workspace:'/workspace/research',scope:'D-B',taskKey:'research',parentId:null,lastActivity:'2026-10-09 09:30（样例）'}
-].map(s=>Object.freeze({...s,nativeRef:null})));
+].map(s=>Object.freeze(s)));
+const agentHomeRecords=Object.fromEntries([...new Set(sessionRecords.map(s=>s.instanceId))].map(id=>[id,{instanceId:id,homeRef:null}]));
 const sessionsById=Object.fromEntries(sessionRecords.map(s=>[s.id,s]));
 const sessionForScope=scope=>sessionRecords.find(s=>s.scope===scope);
 const taskInfo=Object.fromEntries(sessionRecords.filter(s=>!s.parentId).map(s=>[s.taskKey,{...s,root:s.scope}]));
@@ -20,7 +21,6 @@ function policyRulesForScope(scope){
   ];
 }
 function sessionStateText(id){
-  if(pendingSessionOpens.has(id))return '正在打开原生会话';
   const r=sessionRuntime[id];
   if(r.executor==='stopped')return '已停止（样例）';
   if(r.connection==='disconnected')return '连接中断（样例）';

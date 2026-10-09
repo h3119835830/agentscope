@@ -34,7 +34,7 @@ function renderOverview(){
 }
 function renderSessionList(){
   const rows=sessionRecords.filter(s=>sessionScope==='all'||s.taskKey===sessionScope);
-  return `<div class="toolbar"><label class="sr" for="session-scope">会话范围</label><select id="session-scope"><option value="all" ${sessionScope==='all'?'selected':''}>全部会话</option><option value="coding" ${sessionScope==='coding'?'selected':''}>编码任务</option><option value="research" ${sessionScope==='research'?'selected':''}>研究任务</option></select><span class="record-count">${rows.length} 条记录</span></div><div class="panel"><div class="table-wrap"><table class="records task-table" aria-label="会话列表"><thead><tr><th>会话名称 / ID</th><th>Agent</th><th>会话活动</th><th>安全状态</th><th></th></tr></thead><tbody>${rows.map(t=>`<tr data-session-record="${t.id}"><td data-label="会话"><strong>${esc(t.name)}</strong><code>${t.id}</code>${t.parentId?'<small>子会话</small>':''}</td><td data-label="Agent">${esc(t.agent)}<small>${t.instanceId}</small></td><td data-label="会话活动"><span class="badge">${sessionStateText(t.id)}</span></td><td data-label="安全状态"><span class="badge">未加载</span></td><td><div class="record-actions"><button class="text-action" data-session="${t.scope}">查看安全</button>${sessionOpenButton(t.id)}</div></td></tr>`).join('')}</tbody></table></div></div>`;
+  return `<div class="toolbar"><label class="sr" for="session-scope">会话范围</label><select id="session-scope"><option value="all" ${sessionScope==='all'?'selected':''}>全部会话</option><option value="coding" ${sessionScope==='coding'?'selected':''}>编码任务</option><option value="research" ${sessionScope==='research'?'selected':''}>研究任务</option></select><span class="record-count">${rows.length} 条记录</span></div><div class="panel"><div class="table-wrap"><table class="records task-table" aria-label="会话列表"><thead><tr><th>会话名称 / ID</th><th>Agent</th><th>会话活动</th><th>安全状态</th><th></th></tr></thead><tbody>${rows.map(t=>`<tr data-session-record="${t.id}"><td data-label="会话"><strong>${esc(t.name)}</strong><code>${t.id}</code>${t.parentId?'<small>子会话</small>':''}</td><td data-label="Agent">${esc(t.agent)}<small>${t.instanceId}</small></td><td data-label="会话活动"><span class="badge">${sessionStateText(t.id)}</span></td><td data-label="安全状态"><span class="badge">未加载</span></td><td><div class="record-actions"><button class="text-action" data-session="${t.scope}">查看安全</button>${agentHomeButton(t.id)}</div></td></tr>`).join('')}</tbody></table></div></div>`;
 }
 function renderRules(){
   const rules=selectedRules().filter(r=>(sessionFilter==='all'||(sessionFilter==='inherited')===r.inherited)&&`${r.name} ${r.target}`.toLowerCase().includes(sessionSearch.toLowerCase()));
@@ -81,7 +81,7 @@ function render(){
   if(page==='overview')context='<strong>演示工作区</strong><small>2 个执行端实例</small>';
   if(page==='sessions'){
 
-    if(sessionOpen){const session=currentSession();context=`<button class="back-button" data-all-sessions aria-label="返回会话列表">←</button><strong>${esc(session.name)}</strong><small>${session.id} · ${esc(session.agent)}</small>${domainOptions()}`;actions=`${domain!=='D-B'?`<button data-session-approvals>${changeState==='pending'?'待处理 · 1':'变更记录'}</button>`:''}${sessionOpenButton(session.id)}<button data-inspect="check">检查安全配置</button>`;}
+    if(sessionOpen){const session=currentSession();context=`<button class="back-button" data-all-sessions aria-label="返回会话列表">←</button><strong>${esc(session.name)}</strong><small>${session.id} · ${esc(session.agent)}</small>${domainOptions()}`;actions=`${domain!=='D-B'?`<button data-session-approvals>${changeState==='pending'?'待处理 · 1':'变更记录'}</button>`:''}${agentHomeButton(session.id)}<button data-inspect="check">检查安全配置</button>`;}
     else context='<strong>会话目录</strong><small>3 个样例会话</small>';
   }
   if(page==='approvals')context=`<strong>${changeState==='pending'?'1 项待处理':'暂无待处理项'}</strong><small>统一变更记录</small>`;
@@ -109,7 +109,7 @@ document.addEventListener('click',e=>{
   if(n.dataset.page){page=n.dataset.page;render();}
   else if(n.dataset.view)setView(n.dataset.view,n.dataset.value);
   else if(n.dataset.sessionFilter){sessionScope=n.dataset.sessionFilter;page='sessions';sessionOpen=false;render();}
-  else if(n.dataset.openNative)openNativeSession(n.dataset.openNative);
+  else if(n.dataset.openNative)openAgentHome(n.dataset.openNative);
   else if(n.dataset.session){openSession(n.dataset.session,n.dataset.openView||'permissions');render();}
   else if(n.hasAttribute('data-all-sessions')){sessionOpen=false;render();}
   else if(n.dataset.relation){relationView=n.dataset.relation;render();}

@@ -1,0 +1,70 @@
+TAP version 13
+# Subtest: online instance opens native homepage without restart
+ok 1 - online instance opens native homepage without restart
+  ---
+  duration_ms: 0.8696
+  type: 'test'
+  ...
+# Subtest: transport loss reconnects rather than restarts
+ok 2 - transport loss reconnects rather than restarts
+  ---
+  duration_ms: 0.1374
+  type: 'test'
+  ...
+# Subtest: stopped instance starts with observed revision
+ok 3 - stopped instance starts with observed revision
+  ---
+  duration_ms: 0.6072
+  type: 'test'
+  ...
+# Subtest: parent and child clicks share one instance launch and start
+ok 4 - parent and child clicks share one instance launch and start
+  ---
+  duration_ms: 1.0067
+  type: 'test'
+  ...
+# Subtest: unbound sample does not launch any window or process
+ok 5 - unbound sample does not launch any window or process
+  ---
+  duration_ms: 0.4302
+  type: 'test'
+  ...
+# Subtest: popup denial performs no backend operation
+ok 6 - popup denial performs no backend operation
+  ---
+  duration_ms: 0.1181
+  type: 'test'
+  ...
+# Subtest: homepage opens without session ID or deep-link capability
+ok 7 - homepage opens without session ID or deep-link capability
+  ---
+  duration_ms: 0.1106
+  type: 'test'
+  ...
+# Subtest: unknown state and pending approval cannot start execution
+ok 8 - unknown state and pending approval cannot start execution
+  ---
+  duration_ms: 0.1891
+  type: 'test'
+  ...
+# Subtest: wrong instance or session-specific entry is rejected
+ok 9 - wrong instance or session-specific entry is rejected
+  ---
+  duration_ms: 0.4322
+  type: 'test'
+  ...
+# Subtest: unsafe URL fails closed and retry releases pending state
+ok 10 - unsafe URL fails closed and retry releases pending state
+  ---
+  duration_ms: 0.5114
+  type: 'test'
+  ...
+1..10
+# tests 10
+# suites 0
+# pass 10
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 81.5682
