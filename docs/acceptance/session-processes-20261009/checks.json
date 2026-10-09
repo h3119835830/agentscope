@@ -33,8 +33,77 @@
       "pass": true
     }
   ],
-  "previewData": "Read-only snapshot produced by the new name projection from actual native session metadata; live acceptance pending.",
+  "liveChecks": [
+    {
+      "name": "live-picker-removed",
+      "pass": true
+    },
+    {
+      "name": "live-new-build",
+      "pass": true
+    },
+    {
+      "name": "live-seven-sessions-six-native-names",
+      "pass": true
+    },
+    {
+      "name": "live-full-identifiers-and-correct-processes",
+      "pass": true
+    },
+    {
+      "name": "live-single-table-with-four-fields",
+      "pass": true
+    },
+    {
+      "name": "live-423px-session-table",
+      "pass": true,
+      "observed": {
+        "container": 392,
+        "drawer": 423,
+        "ids": true,
+        "page": 423,
+        "table": 680,
+        "viewport": 423
+      }
+    },
+    {
+      "name": "live-320px-contained",
+      "pass": true,
+      "observed": {
+        "drawer": 320,
+        "page": 320,
+        "viewport": 320
+      }
+    },
+    {
+      "name": "live-refresh-works",
+      "pass": true
+    },
+    {
+      "name": "live-security-tab-preserved",
+      "pass": true
+    },
+    {
+      "name": "live-connection-settings-preserved",
+      "pass": true
+    },
+    {
+      "name": "live-no-browser-errors",
+      "pass": true
+    }
+  ],
+  "previewData": "Candidate preview used a read-only native metadata snapshot; live checks use the deployed 18003 API.",
   "invalidatedChecks": [
-    "Initial responsive measurements targeted another selected tab; removed from pass count and will be repeated on the live selected tab."
-  ]
+    "Initial candidate responsive checks targeted another selected tab; removed from the pass count. Repeated on selected live tab at exact 423px and 320px."
+  ],
+  "runtime": {
+    "apiRestartSeconds": 1.0172913459991832,
+    "brokerPid": 381,
+    "dshPid": 8401,
+    "brokerAndDshIdentityUnchanged": true,
+    "liveSessions": 7,
+    "namedSessions": 6,
+    "associatedProcessRows": 2,
+    "storedRowsWithoutPid": 5
+  }
 }
