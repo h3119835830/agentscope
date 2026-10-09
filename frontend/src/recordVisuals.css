@@ -1,0 +1,78 @@
+/* Records share the overview palette. Scope all layout changes away from overview. */
+.record-badge{display:inline-flex;align-items:center;gap:6px;max-width:100%;padding:4px 9px;border:1px solid transparent;border-radius:6px;font-size:12px;font-weight:500;line-height:1.5;white-space:nowrap;vertical-align:middle}
+.record-badge-dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
+.record-badge-mono{font-family:Consolas,"Cascadia Code",monospace;font-variant-numeric:tabular-nums;letter-spacing:.15px}
+.record-badge.tone-neutral{color:#5c6c80;background:#f1f4f8;border-color:#e4e9f0}
+.record-badge.tone-good{color:#16704a;background:#eaf7f1;border-color:#d3edde}
+.record-badge.tone-info{color:#245caa;background:#edf4ff;border-color:#dce8fc}
+.record-badge.tone-warn{color:#8b570d;background:#fff4df;border-color:#f3e2bc}
+.record-badge.tone-bad{color:#ac3029;background:#fff0ee;border-color:#f5d9d5}
+.record-badge.tone-purple{color:#6944a7;background:#f2efff;border-color:#e6dff7}
+.prototype-theme .main[data-page]:not([data-page="overview"]){--muted:#677b93;--ink-secondary:#344b65}
+.prototype-theme .main[data-page]:not([data-page="overview"]) .content{max-width:1440px;padding:26px 26px 40px}
+.prototype-theme .main[data-page]:not([data-page="overview"]) .panel{background:#fff;border:1px solid #e1e8f0;box-shadow:0 2px 8px #1c365707;border-radius:12px}
+.prototype-theme .main[data-page]:not([data-page="overview"]) .panel-head h2,.prototype-theme .main[data-page]:not([data-page="overview"]) .task-section-heading h2{font-size:15px;font-weight:600;color:#203b59}
+.prototype-theme .main[data-page]:not([data-page="overview"]) .table-scroll,.prototype-theme .main[data-page]:not([data-page="overview"]) .security-table-scroll{max-width:100%;min-width:0;border:1px solid #e1e8f0;border-radius:10px;background:#fff;box-shadow:0 2px 7px #1c365704}
+.prototype-theme .main[data-page]:not([data-page="overview"]) table{background:#fff;font-size:13px}
+.prototype-theme .main[data-page]:not([data-page="overview"]) th{background:#f1f5fb;color:#506781;font-size:12px;font-weight:600;border-bottom:1px solid #e1e8f0;padding:13px 16px;white-space:nowrap}
+.prototype-theme .main[data-page]:not([data-page="overview"]) td{padding:16px;color:#344b65;border-bottom:1px solid #edf1f6;line-height:1.65;vertical-align:middle}
+.prototype-theme .main[data-page]:not([data-page="overview"]) tbody tr:last-child td{border-bottom:0}
+.prototype-theme .main[data-page]:not([data-page="overview"]) tbody tr:nth-child(even){background:#fbfcfe}
+.prototype-theme .main[data-page]:not([data-page="overview"]) tbody tr:hover{background:#f4f8ff}
+.prototype-theme .main[data-page]:not([data-page="overview"]) td b{color:#203b59;font-weight:600}
+.prototype-theme .main[data-page]:not([data-page="overview"]) td small{font-size:11px;color:#6d8097;margin-top:5px}
+.prototype-theme .main[data-page]:not([data-page="overview"]) .button.ghost{color:#315f9c;border:1px solid #e0e9f7;background:#f7faff}
+.prototype-theme .main[data-page]:not([data-page="overview"]) .button.ghost:hover:not(:disabled){color:#1f58ac;border-color:#b9cfee;background:#edf4ff}
+.prototype-theme .main[data-page]:not([data-page="overview"]) .button:disabled{color:#8494a8;background:#f4f6f9;border-color:#e4e9f0;opacity:1}
+.prototype-theme .main[data-page]:not([data-page="overview"]) :is(.tag,.record-tag){padding:4px 8px;border-radius:6px;font-size:12px;font-weight:500;line-height:1.5}
+.prototype-theme .main[data-page]:not([data-page="overview"]) :is(.tag.good,.record-tag.good){color:#16704a;background:#eaf7f1}
+.prototype-theme .main[data-page]:not([data-page="overview"]) :is(.tag.warn,.record-tag.warn){color:#8b570d;background:#fff4df}
+.prototype-theme .main[data-page]:not([data-page="overview"]) :is(.tag.bad,.record-tag.bad){color:#ac3029;background:#fff0ee}
+.prototype-theme .main[data-page]:not([data-page="overview"]) :is(.managed-main-tabs,.task-hub-tabs,.scope-tabs,.archive-main-tabs){gap:6px}
+.prototype-theme .main[data-page]:not([data-page="overview"]) :is(.managed-main-tabs,.task-hub-tabs,.scope-tabs,.archive-main-tabs)>button:is(.active,[aria-selected="true"]){background:#edf4ff;border-color:#d7e5fa;color:#245caa}
+.prototype-theme .main[data-page]:not([data-page="overview"]) :is(.history-subnav,.history-status-subnav) [role="tab"].active{background:#edf4ff;border-color:#d7e5fa;color:#245caa}
+.prototype-theme .main[data-page]:not([data-page="overview"]) .record-drawer-tabs button[aria-selected="true"]{color:#245caa;background:#edf4ff;border-bottom-color:#245caa}
+.prototype-theme .main[data-page]:not([data-page="overview"]) .record-drawer-tabs button{padding:12px 13px;border-radius:6px 6px 0 0}
+.prototype-theme .main[data-page]:not([data-page="overview"]) :is(.task-fields,.record-fields,.security-facts,.record-metadata){row-gap:8px;column-gap:16px}
+.prototype-theme .main[data-page]:not([data-page="overview"]) :is(.task-fields,.record-fields,.security-facts,.record-metadata) dt{color:#63768d;padding:9px 0;align-self:start}
+.prototype-theme .main[data-page]:not([data-page="overview"]) :is(.task-fields,.record-fields,.security-facts,.record-metadata) dd{padding:8px 12px;background:#f6f8fc;border:1px solid #eaf0f6;border-radius:6px;color:#2b435e;line-height:1.7;min-width:0}
+.prototype-theme .main[data-page]:not([data-page="overview"]) :is(.task-fields,.record-fields,.security-facts,.record-metadata) dd code{color:#6944a7;font-size:12px;overflow-wrap:anywhere}
+.prototype-theme .main[data-page]:not([data-page="overview"]) .record-drawer-head{background:#fbfcff}
+.prototype-theme .main[data-page]:not([data-page="overview"]) .record-drawer-head h2{color:#203b59}
+.prototype-theme .main[data-page]:not([data-page="overview"]) .policy-record{border-color:#e1e8f0;box-shadow:0 1px 4px #1c365705}
+.prototype-theme .main[data-page]:not([data-page="overview"]) .policy-record:hover{border-color:#a9c3e8;background:#f8fbff}
+.prototype-theme .main[data-page]:not([data-page="overview"]) .field-note{color:#6d8097;line-height:1.7}
+.prototype-theme .main[data-page="connections"] .connection-toolbar{margin-bottom:18px;border-bottom:0;align-items:center}
+.prototype-theme .main[data-page="connections"] .connection-toolbar .task-hub-tabs{margin:0}
+.prototype-theme .main[data-page="connections"] .connection-toolbar .task-hub-tabs button{border-radius:8px;padding:9px 15px;border:1px solid transparent}
+.prototype-theme .main[data-page="connections"] .connection-toolbar .task-hub-tabs button.active{border-color:#d6e5fa;background:#eaf2ff;color:#245caa}
+.record-agent{display:inline-flex;align-items:center;gap:11px;white-space:nowrap}
+.record-agent-icon{display:grid;place-items:center;width:32px;height:32px;border:1px solid #d9e5f8;border-radius:9px;background:#edf4ff;color:#245caa;font-size:14px;font-weight:650;flex-shrink:0}
+.record-agent.brand-hermes .record-agent-icon{color:#6944a7;background:#f2efff;border-color:#e6dff7}
+.prototype-theme .main[data-page="connections"] .instance-record-table>tbody>tr>td:first-child{min-width:190px}
+.prototype-theme .main[data-page="connections"] .instance-record-table .actions{gap:7px}
+@media(max-width:650px){
+ .prototype-theme .main[data-page]:not([data-page="overview"]) .content{padding:20px 14px 32px}
+ .prototype-theme .main[data-page]:not([data-page="overview"]) th,.prototype-theme .main[data-page]:not([data-page="overview"]) td{padding:12px}
+ .prototype-theme .main[data-page]:not([data-page="overview"]) .task-record-table{min-width:660px}
+ .prototype-theme .main[data-page]:not([data-page="overview"]) .panel{padding:16px 14px}
+ .prototype-theme .main[data-page]:not([data-page="overview"]) .record-drawer-tabs{gap:4px}
+ .prototype-theme .main[data-page]:not([data-page="overview"]) .record-drawer-tabs button{padding:12px 8px}
+ .record-badge{font-size:11px;padding:3px 7px}
+}
+@media(prefers-reduced-motion:reduce){.record-badge{transition:none}}
+
+.prototype-theme .main[data-page="connections"] .agent-instance-console>.table-scroll td:nth-child(4){white-space:nowrap}
+.prototype-theme .main[data-page="connections"] .security-sentence[data-effect]{padding-left:11px;border-left:3px solid #c5d5ed}
+.prototype-theme .main[data-page="connections"] .security-sentence[data-effect="deny"]{border-left-color:#df9a92}
+.prototype-theme .main[data-page="connections"] .security-sentence[data-effect="allow"]{border-left-color:#83addd}
+.prototype-theme .main[data-page="connections"] .security-sentence[data-effect="confirm"]{border-left-color:#dfbb71}
+.prototype-theme .main[data-page="connections"] .security-sentence[data-effect="behavior"]{border-left-color:#b7a1db}
+
+/* Reserve action width so narrow tables scroll rather than stacking each character. */
+.prototype-theme .main[data-page="connections"] .agent-instance-console>.table-scroll .actions{min-width:126px}
+.prototype-theme .main[data-page]:not([data-page="overview"]) .table-scroll .button{white-space:nowrap}
+
+@media(min-width:651px) and (max-width:1280px){
+ .prototype-theme .main[data-page="connections"] .agent-instance-console>.table-scroll th,.prototype-theme .main[data-page="connections"] .agent-instance-console>.table-scroll td{padding:14px 10px}
+}

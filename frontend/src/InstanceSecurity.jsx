@@ -1,3 +1,4 @@
+import RecordBadge from './RecordBadge.jsx';
 import React,{useState} from 'react';
 import {actionLabels,networkSentence,ruleSentence,replaceRule,removeRule,policyChanges,sameBaseline,proposalDraft} from './instanceSecurity.mjs';
 
@@ -56,8 +57,8 @@ export default function InstanceSecurity({row,pending=[],busy=false,onPropose,on
   <div className="security-toolbar"><p>此实例的全部会话共享这些规则。更改时会暂停运行并重新核验。</p><button type="button" className="button primary" disabled={busy} onClick={()=>capture('add')}>添加规则</button></div>
   {message&&<p className="security-message" role="status">{message}</p>}
   <div className="security-table-scroll" tabIndex={0} aria-label="安全规则记录"><table className="security-rules"><colgroup><col/><col className="security-status-col"/><col className="security-actions-col"/></colgroup><thead><tr><th>安全规则</th><th>当前状态</th><th>操作</th></tr></thead><tbody>
-   {policy.rules.map((rule,i)=><tr key={i}><td><p className="security-sentence">{ruleSentence(rule,resources,false)}</p></td><td>{resultFor(rule)}</td><td><div className="security-actions"><button type="button" onClick={()=>showDetail(i)}>详情</button><button type="button" disabled={busy} onClick={()=>capture('edit',i)}>编辑</button><button type="button" className="security-delete" disabled={busy} onClick={()=>{setMessage('');submit(proposalDraft(row,removeRule(policy,i)));}}>删除</button></div></td></tr>)}
-   <tr><td><p className="security-sentence">{networkSentence(policy.network)}</p></td><td>{row.active?'已核验':'待启动核验'}</td><td><div className="security-actions"><button type="button" onClick={()=>showDetail('network')}>详情</button><button type="button" disabled={busy} onClick={()=>capture('network')}>编辑</button></div></td></tr>
+   {policy.rules.map((rule,i)=><tr key={i}><td><p className="security-sentence" data-effect={rule.action==='behavior'?'behavior':rule.effect}>{ruleSentence(rule,resources,false)}</p></td><td><RecordBadge>{resultFor(rule)}</RecordBadge></td><td><div className="security-actions"><button type="button" onClick={()=>showDetail(i)}>详情</button><button type="button" disabled={busy} onClick={()=>capture('edit',i)}>编辑</button><button type="button" className="security-delete" disabled={busy} onClick={()=>{setMessage('');submit(proposalDraft(row,removeRule(policy,i)));}}>删除</button></div></td></tr>)}
+   <tr><td><p className="security-sentence">{networkSentence(policy.network)}</p></td><td><RecordBadge>{row.active?'已核验':'待启动核验'}</RecordBadge></td><td><div className="security-actions"><button type="button" onClick={()=>showDetail('network')}>详情</button><button type="button" disabled={busy} onClick={()=>capture('network')}>编辑</button></div></td></tr>
   </tbody></table></div>
   {!policy.rules.length&&<p className="field-note">尚未添加文件、工具或行为规则，资源目录保持默认只读。</p>}
   <details className="security-baseline"><summary>基础保护（只读）</summary><p>全部会话与子进程继承平台底线，不能写入控制目录或自行扩权。已登记资源默认只读，额外写入须有明确授权。</p><p>行为约定用于指导 Agent，不作为强制拦截声明。</p></details>
