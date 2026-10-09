@@ -1,0 +1,74 @@
+[
+  {
+    "name": "live-first-entry",
+    "pass": true
+  },
+  {
+    "name": "live-remember-close",
+    "pass": true
+  },
+  {
+    "name": "live-case-script",
+    "pass": true
+  },
+  {
+    "name": "live-case-link",
+    "pass": true
+  },
+  {
+    "name": "live-case-integrity",
+    "pass": true
+  },
+  {
+    "name": "live-case-revoke",
+    "pass": true
+  },
+  {
+    "name": "live-case-plugin",
+    "pass": true
+  },
+  {
+    "name": "live-case-dataflow",
+    "pass": true
+  },
+  {
+    "name": "live-case-isolation",
+    "pass": true
+  },
+  {
+    "name": "live-case-approval",
+    "pass": true
+  },
+  {
+    "name": "live-case-context",
+    "pass": true
+  },
+  {
+    "name": "live-case-stale-receipt",
+    "pass": true
+  },
+  {
+    "name": "live-case-snapshot",
+    "pass": true
+  },
+  {
+    "name": "live-case-inactive",
+    "pass": true
+  },
+  {
+    "name": "live-connections-navigation",
+    "pass": true
+  },
+  {
+    "name": "live-return-home-does-not-reopen",
+    "pass": true
+  },
+  {
+    "name": "live-create-task-entry",
+    "pass": true
+  },
+  {
+    "name": "live-no-browser-errors",
+    "pass": true
+  }
+]

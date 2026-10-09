@@ -1,0 +1,165 @@
+{
+  "artifact": "display-only design prototype",
+  "desktop": [
+    1280,
+    720
+  ],
+  "mobile": [
+    423,
+    900
+  ],
+  "narrow": [
+    320,
+    800
+  ],
+  "repairHistory": [
+    {
+      "name": "弹窗 Tab 焦点不离开",
+      "pass": false,
+      "observation": "native Tab moved focus to body; added explicit dialog boundary handling"
+    },
+    {
+      "name": "弹窗 Shift Tab 焦点不离开",
+      "pass": false,
+      "observation": "native Tab moved focus to body; added explicit dialog boundary handling"
+    }
+  ],
+  "checks": [
+    {
+      "name": "首次进入自动展示",
+      "pass": true
+    },
+    {
+      "name": "初始场景与样例标记",
+      "pass": true
+    },
+    {
+      "name": "场景切换 01 脚本偷读凭证",
+      "pass": true
+    },
+    {
+      "name": "桌面无横向溢出 01 脚本偷读凭证",
+      "pass": true
+    },
+    {
+      "name": "场景切换 02 链接越界写入",
+      "pass": true
+    },
+    {
+      "name": "桌面无横向溢出 02 链接越界写入",
+      "pass": true
+    },
+    {
+      "name": "场景切换 03 篡改验收证据",
+      "pass": true
+    },
+    {
+      "name": "桌面无横向溢出 03 篡改验收证据",
+      "pass": true
+    },
+    {
+      "name": "场景切换 04 后台继续写入",
+      "pass": true
+    },
+    {
+      "name": "桌面无横向溢出 04 后台继续写入",
+      "pass": true
+    },
+    {
+      "name": "场景切换 05 跨任务越权",
+      "pass": true
+    },
+    {
+      "name": "桌面无横向溢出 05 跨任务越权",
+      "pass": true
+    },
+    {
+      "name": "场景切换 06 伪造扩权审批",
+      "pass": true
+    },
+    {
+      "name": "桌面无横向溢出 06 伪造扩权审批",
+      "pass": true
+    },
+    {
+      "name": "审批场景区分控制面",
+      "pass": true
+    },
+    {
+      "name": "叉号关闭公告",
+      "pass": true
+    },
+    {
+      "name": "关闭后焦点回到首页入口",
+      "pass": true
+    },
+    {
+      "name": "关闭后刷新不再自动弹出",
+      "pass": true
+    },
+    {
+      "name": "首页按钮重新打开",
+      "pass": true
+    },
+    {
+      "name": "Escape 可关闭",
+      "pass": true
+    },
+    {
+      "name": "默认场景首屏包含价值与边界入口",
+      "pass": true
+    },
+    {
+      "name": "弹窗 Tab 焦点不离开",
+      "pass": true
+    },
+    {
+      "name": "弹窗 Shift Tab 焦点不离开",
+      "pass": true
+    },
+    {
+      "name": "边界说明可展开",
+      "pass": true
+    },
+    {
+      "name": "手机视口尺寸",
+      "pass": true
+    },
+    {
+      "name": "手机无横向溢出 脚本偷读凭证",
+      "pass": true
+    },
+    {
+      "name": "手机无横向溢出 链接越界写入",
+      "pass": true
+    },
+    {
+      "name": "手机无横向溢出 篡改验收证据",
+      "pass": true
+    },
+    {
+      "name": "手机无横向溢出 后台继续写入",
+      "pass": true
+    },
+    {
+      "name": "手机无横向溢出 跨任务越权",
+      "pass": true
+    },
+    {
+      "name": "手机无横向溢出 伪造扩权审批",
+      "pass": true
+    },
+    {
+      "name": "窄屏无横向溢出",
+      "pass": true
+    },
+    {
+      "name": "窄屏首页按钮可用且无溢出",
+      "pass": true
+    },
+    {
+      "name": "脚本无浏览器错误",
+      "pass": true
+    }
+  ]
+}
