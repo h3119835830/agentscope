@@ -1,0 +1,339 @@
+{
+  "artifact": "security notice design v2",
+  "desktop": [
+    1280,
+    720
+  ],
+  "mobile": [
+    423,
+    900
+  ],
+  "narrow": [
+    320,
+    800
+  ],
+  "measurementHistory": [
+    {
+      "name": "桌面无横向溢出 脚本偷读凭证",
+      "pass": false,
+      "reason": "Preview tab was 967x884; viewport override applied to a different selected tab. Rechecked at verified 1280x720."
+    },
+    {
+      "name": "桌面无横向溢出 链接越界写入",
+      "pass": false,
+      "reason": "Preview tab was 967x884; viewport override applied to a different selected tab. Rechecked at verified 1280x720."
+    },
+    {
+      "name": "桌面无横向溢出 篡改验收证据",
+      "pass": false,
+      "reason": "Preview tab was 967x884; viewport override applied to a different selected tab. Rechecked at verified 1280x720."
+    },
+    {
+      "name": "桌面无横向溢出 后台继续写入",
+      "pass": false,
+      "reason": "Preview tab was 967x884; viewport override applied to a different selected tab. Rechecked at verified 1280x720."
+    },
+    {
+      "name": "桌面无横向溢出 插件自行外联",
+      "pass": false,
+      "reason": "Preview tab was 967x884; viewport override applied to a different selected tab. Rechecked at verified 1280x720."
+    },
+    {
+      "name": "桌面无横向溢出 跨进程数据外流",
+      "pass": false,
+      "reason": "Preview tab was 967x884; viewport override applied to a different selected tab. Rechecked at verified 1280x720."
+    },
+    {
+      "name": "桌面无横向溢出 跨任务越权",
+      "pass": false,
+      "reason": "Preview tab was 967x884; viewport override applied to a different selected tab. Rechecked at verified 1280x720."
+    },
+    {
+      "name": "桌面无横向溢出 伪造扩权审批",
+      "pass": false,
+      "reason": "Preview tab was 967x884; viewport override applied to a different selected tab. Rechecked at verified 1280x720."
+    },
+    {
+      "name": "桌面无横向溢出 上下文丢失约束",
+      "pass": false,
+      "reason": "Preview tab was 967x884; viewport override applied to a different selected tab. Rechecked at verified 1280x720."
+    },
+    {
+      "name": "桌面无横向溢出 验收结果过期",
+      "pass": false,
+      "reason": "Preview tab was 967x884; viewport override applied to a different selected tab. Rechecked at verified 1280x720."
+    },
+    {
+      "name": "桌面无横向溢出 审批后对象变化",
+      "pass": false,
+      "reason": "Preview tab was 967x884; viewport override applied to a different selected tab. Rechecked at verified 1280x720."
+    },
+    {
+      "name": "桌面无横向溢出 保护尚未生效",
+      "pass": false,
+      "reason": "Preview tab was 967x884; viewport override applied to a different selected tab. Rechecked at verified 1280x720."
+    }
+  ],
+  "checks": [
+    {
+      "name": "更新版本首次自动展示",
+      "pass": true
+    },
+    {
+      "name": "12场景与6项分组导航",
+      "pass": true
+    },
+    {
+      "name": "默认非工具场景没有伪造调用标识",
+      "pass": true
+    },
+    {
+      "name": "说明改为案例过程",
+      "pass": true
+    },
+    {
+      "name": "分类选中 execution",
+      "pass": true
+    },
+    {
+      "name": "场景选中与trace 脚本偷读凭证",
+      "pass": true
+    },
+    {
+      "name": "人物对象三步过程和结果 脚本偷读凭证",
+      "pass": true
+    },
+    {
+      "name": "桌面无横向溢出 脚本偷读凭证",
+      "pass": true
+    },
+    {
+      "name": "场景选中与trace 链接越界写入",
+      "pass": true
+    },
+    {
+      "name": "人物对象三步过程和结果 链接越界写入",
+      "pass": true
+    },
+    {
+      "name": "桌面无横向溢出 链接越界写入",
+      "pass": true
+    },
+    {
+      "name": "场景选中与trace 篡改验收证据",
+      "pass": true
+    },
+    {
+      "name": "人物对象三步过程和结果 篡改验收证据",
+      "pass": true
+    },
+    {
+      "name": "桌面无横向溢出 篡改验收证据",
+      "pass": true
+    },
+    {
+      "name": "场景选中与trace 后台继续写入",
+      "pass": true
+    },
+    {
+      "name": "人物对象三步过程和结果 后台继续写入",
+      "pass": true
+    },
+    {
+      "name": "桌面无横向溢出 后台继续写入",
+      "pass": true
+    },
+    {
+      "name": "场景选中与trace 插件自行外联",
+      "pass": true
+    },
+    {
+      "name": "人物对象三步过程和结果 插件自行外联",
+      "pass": true
+    },
+    {
+      "name": "桌面无横向溢出 插件自行外联",
+      "pass": true
+    },
+    {
+      "name": "场景选中与trace 跨进程数据外流",
+      "pass": true
+    },
+    {
+      "name": "人物对象三步过程和结果 跨进程数据外流",
+      "pass": true
+    },
+    {
+      "name": "桌面无横向溢出 跨进程数据外流",
+      "pass": true
+    },
+    {
+      "name": "分类选中 governance",
+      "pass": true
+    },
+    {
+      "name": "场景选中与trace 跨任务越权",
+      "pass": true
+    },
+    {
+      "name": "人物对象三步过程和结果 跨任务越权",
+      "pass": true
+    },
+    {
+      "name": "桌面无横向溢出 跨任务越权",
+      "pass": true
+    },
+    {
+      "name": "场景选中与trace 伪造扩权审批",
+      "pass": true
+    },
+    {
+      "name": "人物对象三步过程和结果 伪造扩权审批",
+      "pass": true
+    },
+    {
+      "name": "桌面无横向溢出 伪造扩权审批",
+      "pass": true
+    },
+    {
+      "name": "场景选中与trace 上下文丢失约束",
+      "pass": true
+    },
+    {
+      "name": "人物对象三步过程和结果 上下文丢失约束",
+      "pass": true
+    },
+    {
+      "name": "桌面无横向溢出 上下文丢失约束",
+      "pass": true
+    },
+    {
+      "name": "场景选中与trace 验收结果过期",
+      "pass": true
+    },
+    {
+      "name": "人物对象三步过程和结果 验收结果过期",
+      "pass": true
+    },
+    {
+      "name": "桌面无横向溢出 验收结果过期",
+      "pass": true
+    },
+    {
+      "name": "场景选中与trace 审批后对象变化",
+      "pass": true
+    },
+    {
+      "name": "人物对象三步过程和结果 审批后对象变化",
+      "pass": true
+    },
+    {
+      "name": "桌面无横向溢出 审批后对象变化",
+      "pass": true
+    },
+    {
+      "name": "场景选中与trace 保护尚未生效",
+      "pass": true
+    },
+    {
+      "name": "人物对象三步过程和结果 保护尚未生效",
+      "pass": true
+    },
+    {
+      "name": "桌面无横向溢出 保护尚未生效",
+      "pass": true
+    },
+    {
+      "name": "未生效场景显示暂停而非内核拦截",
+      "pass": true
+    },
+    {
+      "name": "叉号关闭并恢复入口焦点",
+      "pass": true
+    },
+    {
+      "name": "关闭后刷新不再弹出",
+      "pass": true
+    },
+    {
+      "name": "首页按钮重新打开",
+      "pass": true
+    },
+    {
+      "name": "Tab焦点留在弹窗",
+      "pass": true
+    },
+    {
+      "name": "ShiftTab焦点留在弹窗",
+      "pass": true
+    },
+    {
+      "name": "Escape关闭",
+      "pass": true
+    },
+    {
+      "name": "手机视口确认",
+      "pass": true
+    },
+    {
+      "name": "手机案例展开无横向溢出 脚本偷读凭证",
+      "pass": true
+    },
+    {
+      "name": "手机案例展开无横向溢出 链接越界写入",
+      "pass": true
+    },
+    {
+      "name": "手机案例展开无横向溢出 篡改验收证据",
+      "pass": true
+    },
+    {
+      "name": "手机案例展开无横向溢出 后台继续写入",
+      "pass": true
+    },
+    {
+      "name": "手机案例展开无横向溢出 插件自行外联",
+      "pass": true
+    },
+    {
+      "name": "手机案例展开无横向溢出 跨进程数据外流",
+      "pass": true
+    },
+    {
+      "name": "手机案例展开无横向溢出 跨任务越权",
+      "pass": true
+    },
+    {
+      "name": "手机案例展开无横向溢出 伪造扩权审批",
+      "pass": true
+    },
+    {
+      "name": "手机案例展开无横向溢出 上下文丢失约束",
+      "pass": true
+    },
+    {
+      "name": "手机案例展开无横向溢出 验收结果过期",
+      "pass": true
+    },
+    {
+      "name": "手机案例展开无横向溢出 审批后对象变化",
+      "pass": true
+    },
+    {
+      "name": "手机案例展开无横向溢出 保护尚未生效",
+      "pass": true
+    },
+    {
+      "name": "320窄屏执行分类无溢出",
+      "pass": true
+    },
+    {
+      "name": "320窄屏流程分类及案例无溢出",
+      "pass": true
+    },
+    {
+      "name": "浏览器无脚本错误",
+      "pass": true
+    }
+  ]
+}

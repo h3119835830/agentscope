@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="notice.css">
 </head>
 <body>
-  <div class="design-label">界面设计预览 <span>未接入运行时</span></div>
+  <div class="design-label">AgentScope · 安全亮点交互预览</div>
   <div class="console-shell">
     <aside class="sidebar" aria-label="控制台导航示意">
       <a class="brand" href="index.html"><span class="brand-symbol">A</span>AgentScope</a>
@@ -39,18 +39,18 @@
 
   <dialog id="security-notice" aria-labelledby="notice-heading">
     <header class="notice-header">
-      <div class="notice-title"><span class="notice-mark" aria-hidden="true">◈</span><h2 id="notice-heading">安全亮点</h2><span class="case-count">6 个场景</span></div>
+      <div class="notice-title"><span class="notice-mark" aria-hidden="true">◈</span><h2 id="notice-heading">安全亮点</h2><span id="case-count" class="case-count"></span></div>
       <button id="close-notice" class="close-button" type="button" aria-label="关闭公告">×</button>
     </header>
     <div class="notice-layout">
       <nav class="scenario-nav" aria-label="选择安全场景">
-        <div class="nav-caption">从具体行为看防护价值</div>
+        <div id="scenario-groups" class="scenario-groups" aria-label="场景分类"></div>
         <div id="scenario-buttons"></div>
-        <div class="sample-note"><span class="sample-dot"></span>示例 trace<br><span>用于展示设计，非本机实测</span></div>
+        <div class="sample-note">从用户任务到系统行为，<br>看清每一步如何受约束。</div>
       </nav>
       <article id="scenario-content" class="scenario-content" aria-live="polite"></article>
     </div>
-    <footer class="notice-footer"><span>关闭后，本浏览器不再自动展示这一版公告。</span><button id="understood" type="button" class="primary-button">知道了</button></footer>
+    <footer class="notice-footer"><span>可随时从首页「安全亮点」再次打开。</span><button id="understood" type="button" class="primary-button">知道了</button></footer>
   </dialog>
   <script src="notice.js"></script>
 </body>
