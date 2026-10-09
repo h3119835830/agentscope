@@ -1,0 +1,314 @@
+{
+  "date": "2026-10-09",
+  "scope": "Display-only security notice; no kernel enforcement acceptance",
+  "frontendTests": {
+    "passed": 152,
+    "failed": 0
+  },
+  "candidateBrowser": [
+    {
+      "name": "first-entry-dialog",
+      "pass": true
+    },
+    {
+      "name": "close-restores-button",
+      "pass": true
+    },
+    {
+      "name": "seen-survives-reload",
+      "pass": true
+    },
+    {
+      "name": "shift-tab-wrap",
+      "pass": true
+    },
+    {
+      "name": "tab-wrap",
+      "pass": true
+    },
+    {
+      "name": "case-script",
+      "pass": true,
+      "observed": {
+        "actor": "开发者小林",
+        "objects": 3,
+        "overflow": false,
+        "story": 3,
+        "toolId": true,
+        "traces": 2,
+        "verdict": "拒绝"
+      }
+    },
+    {
+      "name": "case-link",
+      "pass": true,
+      "observed": {
+        "actor": "开发者小周",
+        "objects": 2,
+        "overflow": false,
+        "story": 3,
+        "toolId": true,
+        "traces": 2,
+        "verdict": "拒绝"
+      }
+    },
+    {
+      "name": "case-integrity",
+      "pass": true,
+      "observed": {
+        "actor": "开发者小陈",
+        "objects": 3,
+        "overflow": false,
+        "story": 3,
+        "toolId": true,
+        "traces": 2,
+        "verdict": "拒绝"
+      }
+    },
+    {
+      "name": "case-revoke",
+      "pass": true,
+      "observed": {
+        "actor": "分析员小王",
+        "objects": 3,
+        "overflow": false,
+        "story": 3,
+        "toolId": true,
+        "traces": 2,
+        "verdict": "拒绝"
+      }
+    },
+    {
+      "name": "case-plugin",
+      "pass": true,
+      "observed": {
+        "actor": "产品经理小林",
+        "objects": 3,
+        "overflow": false,
+        "story": 3,
+        "toolId": false,
+        "traces": 2,
+        "verdict": "拒绝"
+      }
+    },
+    {
+      "name": "case-dataflow",
+      "pass": true,
+      "observed": {
+        "actor": "分析员小许",
+        "objects": 3,
+        "overflow": false,
+        "story": 3,
+        "toolId": false,
+        "traces": 2,
+        "verdict": "拒绝"
+      }
+    },
+    {
+      "name": "case-isolation",
+      "pass": true,
+      "observed": {
+        "actor": "分析员小赵",
+        "objects": 2,
+        "overflow": false,
+        "story": 3,
+        "toolId": true,
+        "traces": 2,
+        "verdict": "拒绝"
+      }
+    },
+    {
+      "name": "case-approval",
+      "pass": true,
+      "observed": {
+        "actor": "项目负责人小吴",
+        "objects": 2,
+        "overflow": false,
+        "story": 3,
+        "toolId": true,
+        "traces": 2,
+        "verdict": "未批准"
+      }
+    },
+    {
+      "name": "case-context",
+      "pass": true,
+      "observed": {
+        "actor": "开发者小周",
+        "objects": 3,
+        "overflow": false,
+        "story": 3,
+        "toolId": false,
+        "traces": 2,
+        "verdict": "拒绝"
+      }
+    },
+    {
+      "name": "case-stale-receipt",
+      "pass": true,
+      "observed": {
+        "actor": "发布负责人小陈",
+        "objects": 3,
+        "overflow": false,
+        "story": 3,
+        "toolId": false,
+        "traces": 2,
+        "verdict": "暂停"
+      }
+    },
+    {
+      "name": "case-snapshot",
+      "pass": true,
+      "observed": {
+        "actor": "项目负责人小吴",
+        "objects": 3,
+        "overflow": false,
+        "story": 3,
+        "toolId": false,
+        "traces": 2,
+        "verdict": "暂停"
+      }
+    },
+    {
+      "name": "case-inactive",
+      "pass": true,
+      "observed": {
+        "actor": "数据管理员小许",
+        "objects": 3,
+        "overflow": false,
+        "story": 3,
+        "toolId": false,
+        "traces": 2,
+        "verdict": "暂停"
+      }
+    },
+    {
+      "name": "responsive-423",
+      "pass": true,
+      "observed": {
+        "columns": "340px",
+        "dialogWidth": 389,
+        "navColumns": "111.328px 111.328px 111.344px",
+        "overflow": false,
+        "width": 423
+      }
+    },
+    {
+      "name": "responsive-320",
+      "pass": true,
+      "observed": {
+        "columns": "237px",
+        "dialogWidth": 286,
+        "navColumns": "77px 77px 77px",
+        "overflow": false,
+        "width": 320
+      }
+    },
+    {
+      "name": "escape-closes",
+      "pass": true
+    }
+  ],
+  "liveBrowser": [
+    {
+      "name": "live-first-entry",
+      "pass": true
+    },
+    {
+      "name": "live-remember-close",
+      "pass": true
+    },
+    {
+      "name": "live-case-script",
+      "pass": true
+    },
+    {
+      "name": "live-case-link",
+      "pass": true
+    },
+    {
+      "name": "live-case-integrity",
+      "pass": true
+    },
+    {
+      "name": "live-case-revoke",
+      "pass": true
+    },
+    {
+      "name": "live-case-plugin",
+      "pass": true
+    },
+    {
+      "name": "live-case-dataflow",
+      "pass": true
+    },
+    {
+      "name": "live-case-isolation",
+      "pass": true
+    },
+    {
+      "name": "live-case-approval",
+      "pass": true
+    },
+    {
+      "name": "live-case-context",
+      "pass": true
+    },
+    {
+      "name": "live-case-stale-receipt",
+      "pass": true
+    },
+    {
+      "name": "live-case-snapshot",
+      "pass": true
+    },
+    {
+      "name": "live-case-inactive",
+      "pass": true
+    },
+    {
+      "name": "live-connections-navigation",
+      "pass": true
+    },
+    {
+      "name": "live-return-home-does-not-reopen",
+      "pass": true
+    },
+    {
+      "name": "live-create-task-entry",
+      "pass": true
+    },
+    {
+      "name": "live-no-browser-errors",
+      "pass": true
+    }
+  ],
+  "liveIndexSha256": "1410e0c11a51df901e8625f8d17da55ae40a7f439176e3a4053dd28eff656fc6",
+  "services": {
+    "apiPid": 8108,
+    "brokerPid": 381,
+    "dshPid": 8401,
+    "restarted": false
+  },
+  "mainIntegration": {
+    "frontendTests": {
+      "passed": 125,
+      "failed": 0
+    },
+    "browser": [
+      {
+        "name": "main-dialog-and-layout",
+        "pass": true
+      },
+      {
+        "name": "main-close-memory",
+        "pass": true
+      },
+      {
+        "name": "main-flow-trace",
+        "pass": true
+      }
+    ],
+    "scope": "notice-only integration on fresh origin/main"
+  }
+}
