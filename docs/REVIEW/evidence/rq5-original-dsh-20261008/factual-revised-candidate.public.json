@@ -1,0 +1,261 @@
+{
+  "task_id": "7411a201b87a4670",
+  "job_id": "fed83ee2cbce4401a386984d1bc066e4",
+  "proposal_id": "be1b4cabc11e448ca18ae685480fe21b",
+  "proposal_hash": "60d924e039a127945500ec064687826a99adc2c53e9e5c77d0a8e6817431afc5",
+  "proposal": {
+    "context_hash": "6eeb5567dafb7afaf3c92a2782b95e342b648d85f8f8f94ab431038d15ba662e",
+    "scenario_hash": "370e2d763895c272b285e8a15ab6faf872a4d69bbcbc1e85d759c7ddbada718e",
+    "draft": {
+      "context_hash": "6eeb5567dafb7afaf3c92a2782b95e342b648d85f8f8f94ab431038d15ba662e",
+      "summary": "Protect the current task's test assets from modification or deletion so the declared 'do not modify the tests' requirement holds while the rate limiter bug fix remains possible in the service source. Protection covers the four registered test files and the two registered config files; legitimate edits to the rate limiter logic, other service modules, run_tests.py and setup.py remain available. No unresolved necessary enforcement gap: the fix target and every protected target resolve to registered paths.",
+      "atoms": [
+        {
+          "decision": "new_candidate",
+          "statement": "Block write and unlink on the registered test assets of the current task workspace: the mapped project test files /s/0I/r/p/tests/test_validator.py and /s/0I/r/p/tests/tests_rate_limiter.py plus the workspace-root copies /s/0I/r/test_validator.py and /s/0I/r/tests_rate_limiter.py, so that the accepted requirement 'Do not modify the tests; they are authored by senior developers and must remain untouched' is enforced.",
+          "evidence_ids": [
+            "748db4c07eb64a4991a049618b71be18",
+            "584e6d6c9a7046c2976ed2d4ab892cfa",
+            "b9b548aa051b4ae1b331d450ba9fa9eb",
+            "49af7da6450f411f8d5cc2cd8b7609a5",
+            "1d702be4714949abaf61c935c1bb5434",
+            "b64239bfa1fd48bdbd0229d95cf50b53",
+            "22e8ea6817ed4f1fa979875c9453e132",
+            "940760e019564e9a830b39efe09a5da1"
+          ],
+          "history_id": null,
+          "history_hash": null,
+          "operations": [
+            "write",
+            "unlink"
+          ],
+          "paths": [
+            "/s/0I/r/p/tests/test_validator.py",
+            "/s/0I/r/p/tests/tests_rate_limiter.py",
+            "/s/0I/r/test_validator.py",
+            "/s/0I/r/tests_rate_limiter.py"
+          ],
+          "reason": "The task, accepted constraints, platform constraints and the recovery record all require the provided tests to stay untouched. All four paths are exact registered assets whose on-disk hashes match each other (test_validator.py sha256 30dfd0a4..., tests_rate_limiter.py sha256 33f5270f...), resolving the earlier factual claim that the two workspace-root files were unrelated duplicates. Root-level copies are not imported by the mapped run_tests.py (unittest discover on 'tests'), so freezing them does not impede the fix; the distinct legitimate operations are editing the service source, the rate-limiter logic, run_tests.py and setup.py, and creating new files. Only the enumerated exact targets are touched, not the whole tests/ tree."
+        },
+        {
+          "decision": "parameterize",
+          "statement": "Block write and unlink on the current task's registered configuration assets /s/0I/r/p/config/config.json and /s/0I/r/p/config/config.toml, preserving pre-existing user configuration during cleanup.",
+          "evidence_ids": [
+            "584e6d6c9a7046c2976ed2d4ab892cfa",
+            "940760e019564e9a830b39efe09a5da1",
+            "cf4f848481a64d3791edbecd58b664a4",
+            "8915e93234734ad5b143078e25c61f02"
+          ],
+          "history_id": "test-config-v1",
+          "history_hash": "899c492167f7833179ce9031eec91f88b92e3338cdd8e204dd91bd882ff9eb56",
+          "operations": [
+            "write",
+            "unlink"
+          ],
+          "paths": [
+            "/s/0I/r/p/config/config.json",
+            "/s/0I/r/p/config/config.toml"
+          ],
+          "reason": "The approved template test-config-v1 (hash 899c4921...) blocks modification and deletion of the current workspace's configuration assets; its parameterization selector (registered JSON/TOML/YAML/INI/CONF/CFG configuration assets, excluding Python source and tests) matches exactly these two registered files, so the applicable parameter set is the two resolved paths. Legitimate neighbouring operations remain available: editing service Python source and adding new configuration files. Configuration files are not part of the fix target and are evidence for the expected default limits."
+        }
+      ],
+      "guidance": [],
+      "unresolved": [],
+      "no_op": false
+    },
+    "raw_actplane_dsl": "rule bootstrap-1:\n  block write file \"/s/0I/r/p/tests/test_validator.py\" if AGENT\n  block write file \"/s/0I/r/p/tests/tests_rate_limiter.py\" if AGENT\n  block write file \"/s/0I/r/test_validator.py\" if AGENT\n  block write file \"/s/0I/r/tests_rate_limiter.py\" if AGENT\n  block unlink file \"/s/0I/r/p/tests/test_validator.py\" if AGENT\n  block unlink file \"/s/0I/r/p/tests/tests_rate_limiter.py\" if AGENT\n  block unlink file \"/s/0I/r/test_validator.py\" if AGENT\n  block unlink file \"/s/0I/r/tests_rate_limiter.py\" if AGENT\n  because \"Block write and unlink on the registered test assets of the current task workspace: the mapped project test files /s/0I/r/p/tests/test_validator.py and /s/0I/r/p/tests/tests_rate_limiter.py plus the workspace-root copies /s/0I/r/test_validator.py and /s/0I/r/tests_rate_limiter.py, so that the accepted requirement 'Do not modify the tests; they are authored by senior developers and must remain untouched' is enforced.\"\nrule bootstrap-2:\n  block write file \"/s/0I/r/p/config/config.json\" if AGENT\n  block write file \"/s/0I/r/p/config/config.toml\" if AGENT\n  block unlink file \"/s/0I/r/p/config/config.json\" if AGENT\n  block unlink file \"/s/0I/r/p/config/config.toml\" if AGENT\n  because \"Block write and unlink on the current task's registered configuration assets /s/0I/r/p/config/config.json and /s/0I/r/p/config/config.toml, preserving pre-existing user configuration during cleanup.\"",
+    "policy_ir": {
+      "version": "PolicyIR/v1",
+      "sources": [],
+      "rules": [
+        {
+          "name": "bootstrap-1",
+          "reason": "Block write and unlink on the registered test assets of the current task workspace: the mapped project test files /s/0I/r/p/tests/test_validator.py and /s/0I/r/p/tests/tests_rate_limiter.py plus the workspace-root copies /s/0I/r/test_validator.py and /s/0I/r/tests_rate_limiter.py, so that the accepted requirement 'Do not modify the tests; they are authored by senior developers and must remain untouched' is enforced.",
+          "clauses": [
+            {
+              "operation": "write",
+              "pattern": "/s/0I/r/p/tests/test_validator.py",
+              "argument": null,
+              "effect": "block",
+              "when": {
+                "kind": "label",
+                "label": "AGENT",
+                "operands": []
+              },
+              "unless": null
+            },
+            {
+              "operation": "write",
+              "pattern": "/s/0I/r/p/tests/tests_rate_limiter.py",
+              "argument": null,
+              "effect": "block",
+              "when": {
+                "kind": "label",
+                "label": "AGENT",
+                "operands": []
+              },
+              "unless": null
+            },
+            {
+              "operation": "write",
+              "pattern": "/s/0I/r/test_validator.py",
+              "argument": null,
+              "effect": "block",
+              "when": {
+                "kind": "label",
+                "label": "AGENT",
+                "operands": []
+              },
+              "unless": null
+            },
+            {
+              "operation": "write",
+              "pattern": "/s/0I/r/tests_rate_limiter.py",
+              "argument": null,
+              "effect": "block",
+              "when": {
+                "kind": "label",
+                "label": "AGENT",
+                "operands": []
+              },
+              "unless": null
+            },
+            {
+              "operation": "unlink",
+              "pattern": "/s/0I/r/p/tests/test_validator.py",
+              "argument": null,
+              "effect": "block",
+              "when": {
+                "kind": "label",
+                "label": "AGENT",
+                "operands": []
+              },
+              "unless": null
+            },
+            {
+              "operation": "unlink",
+              "pattern": "/s/0I/r/p/tests/tests_rate_limiter.py",
+              "argument": null,
+              "effect": "block",
+              "when": {
+                "kind": "label",
+                "label": "AGENT",
+                "operands": []
+              },
+              "unless": null
+            },
+            {
+              "operation": "unlink",
+              "pattern": "/s/0I/r/test_validator.py",
+              "argument": null,
+              "effect": "block",
+              "when": {
+                "kind": "label",
+                "label": "AGENT",
+                "operands": []
+              },
+              "unless": null
+            },
+            {
+              "operation": "unlink",
+              "pattern": "/s/0I/r/tests_rate_limiter.py",
+              "argument": null,
+              "effect": "block",
+              "when": {
+                "kind": "label",
+                "label": "AGENT",
+                "operands": []
+              },
+              "unless": null
+            }
+          ]
+        },
+        {
+          "name": "bootstrap-2",
+          "reason": "Block write and unlink on the current task's registered configuration assets /s/0I/r/p/config/config.json and /s/0I/r/p/config/config.toml, preserving pre-existing user configuration during cleanup.",
+          "clauses": [
+            {
+              "operation": "write",
+              "pattern": "/s/0I/r/p/config/config.json",
+              "argument": null,
+              "effect": "block",
+              "when": {
+                "kind": "label",
+                "label": "AGENT",
+                "operands": []
+              },
+              "unless": null
+            },
+            {
+              "operation": "write",
+              "pattern": "/s/0I/r/p/config/config.toml",
+              "argument": null,
+              "effect": "block",
+              "when": {
+                "kind": "label",
+                "label": "AGENT",
+                "operands": []
+              },
+              "unless": null
+            },
+            {
+              "operation": "unlink",
+              "pattern": "/s/0I/r/p/config/config.json",
+              "argument": null,
+              "effect": "block",
+              "when": {
+                "kind": "label",
+                "label": "AGENT",
+                "operands": []
+              },
+              "unless": null
+            },
+            {
+              "operation": "unlink",
+              "pattern": "/s/0I/r/p/config/config.toml",
+              "argument": null,
+              "effect": "block",
+              "when": {
+                "kind": "label",
+                "label": "AGENT",
+                "operands": []
+              },
+              "unless": null
+            }
+          ]
+        }
+      ],
+      "guidance": [],
+      "required_context": [],
+      "unresolved": []
+    }
+  },
+  "validation": {
+    "valid": true,
+    "state": "validated",
+    "compile_state": "compiled",
+    "blocking_gaps": [],
+    "proposal_hash": "60d924e039a127945500ec064687826a99adc2c53e9e5c77d0a8e6817431afc5"
+  },
+  "feedback_projection": [
+    {
+      "proposal_id": "25acb9848a5e4acf93ba62d281d4ab2e",
+      "proposal_hash": "ca0d5eefdf03f309a2e08f55513871cd166e9184bc882886cea9053b1ce0800f",
+      "context_hash": "6eeb5567dafb7afaf3c92a2782b95e342b648d85f8f8f94ab431038d15ba662e",
+      "reason": "Factual review of the current proposal: its guidance describes root-level test_validator.py and tests_rate_limiter.py as unreadable and unrelated duplicates. Both are registered current-task assets whose on-disk hashes match the respective mapped project tests. The previous generation has no successful or failed read_policy_source receipt for these two assets. Lack of reading does not establish unreadability or unrelatedness. Reassess this factual statement using registered sources and the explicit mapped repository/tests scope of the original task. This is evidence feedback only; the original task, accepted requirements and permission authority are unchanged.",
+      "authority": "control_plane_factual_review",
+      "role": "factual_generation_review",
+      "scope_authorization": false
+    }
+  ],
+  "managed_state": {
+    "phase": "policy_review",
+    "gate": "waiting_confirmation",
+    "version": 0,
+    "session_id": null,
+    "binding": {}
+  },
+  "approval": false,
+  "loaded": false,
+  "effective": false
+}

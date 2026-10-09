@@ -1,0 +1,240 @@
+{
+  "task_id": "7411a201b87a4670",
+  "job": {
+    "id": "5760fc2f3ba949ba84082bd7b8ad00d0",
+    "status": "failed",
+    "created_at": "2026-10-08T01:21:25.307352+00:00",
+    "finished_at": "2026-10-08T01:23:07.055314+00:00",
+    "error": "ValueError: Pi validation repair budget exhausted: target is not among cited registered assets or evidenced directories: {\"target\": \"/s/0I/r/p/transaction-service/__init__.py\", \"cited_asset_paths\": [\"/s/0I/r/p/transaction-service/validator.py\", \"/s/0I/r/p/transaction-service/verification/rate_limiter.py\", \"/s/0I/r/p/transaction-service/verification/customer_verifier.py\", \"/s/0I/r/p/transaction-service/verification/fraud_detector.py\", \"/s/0I/r/p/transaction-service/verification/base.py\", \"/s/0I/r/p/transaction-service/verification/__init__.py\", \"/s/0I/r/p/transaction-service/config.py\", \"/s/0I/r/p/transaction-service/models.py\", \"/s/0I/r/p/setup.py\"], \"read_tool\": \"list_policy_sources and read_policy_source\"}"
+  },
+  "registered_target": {
+    "id": "f85b74b6101144e999ed3dd4a5137b1c",
+    "path": "/s/0I/r/p/transaction-service/__init__.py",
+    "bytes": 137,
+    "content_hash": "4e35e62cafa0f99161a472a20c9ac6df497071fca5e626e697433f28044e0633"
+  },
+  "successful_reads": [
+    {
+      "occurred_at": "2026-10-08T01:21:32.423252+00:00",
+      "returned_hash": "4e35e62cafa0f99161a472a20c9ac6df497071fca5e626e697433f28044e0633"
+    },
+    {
+      "occurred_at": "2026-10-08T01:22:07.506858+00:00",
+      "returned_hash": "4e35e62cafa0f99161a472a20c9ac6df497071fca5e626e697433f28044e0633"
+    }
+  ],
+  "validations": [
+    {
+      "occurred_at": "2026-10-08T01:21:41.378838+00:00",
+      "valid": false,
+      "missing_exact_target_references": [
+        {
+          "atom_index": 0,
+          "target": "/s/0I/r/test_validator.py",
+          "source_id": "b64239bfa1fd48bdbd0229d95cf50b53"
+        },
+        {
+          "atom_index": 0,
+          "target": "/s/0I/r/tests_rate_limiter.py",
+          "source_id": "22e8ea6817ed4f1fa979875c9453e132"
+        },
+        {
+          "atom_index": 1,
+          "target": "/s/0I/r/p/transaction-service/__init__.py",
+          "source_id": "f85b74b6101144e999ed3dd4a5137b1c"
+        },
+        {
+          "atom_index": 1,
+          "target": "/s/0I/r/p/transaction-service/config.py",
+          "source_id": "73ccd5761ec34750a7cbcde1c55703a0"
+        },
+        {
+          "atom_index": 1,
+          "target": "/s/0I/r/p/transaction-service/models.py",
+          "source_id": "6729811d9358471c85b5820b7c169049"
+        },
+        {
+          "atom_index": 1,
+          "target": "/s/0I/r/p/README.md",
+          "source_id": "cec789c380ba4e3a96e275923b2d041c"
+        },
+        {
+          "atom_index": 1,
+          "target": "/s/0I/r/p/run_tests.py",
+          "source_id": "46eaa56ea3f44ad4a42db5084815f956"
+        },
+        {
+          "atom_index": 1,
+          "target": "/s/0I/r/p/setup.py",
+          "source_id": "dc32b0c175f54923a0421b278caab17f"
+        },
+        {
+          "atom_index": 1,
+          "target": "/s/0I/r/p/tests/__init__.py",
+          "source_id": "fc75dd250e3a498f95a95ec8151f4ffa"
+        },
+        {
+          "atom_index": 1,
+          "target": "/s/0I/r/p/tests/test_validator.py",
+          "source_id": "49af7da6450f411f8d5cc2cd8b7609a5"
+        },
+        {
+          "atom_index": 1,
+          "target": "/s/0I/r/p/tests/tests_rate_limiter.py",
+          "source_id": "1d702be4714949abaf61c935c1bb5434"
+        }
+      ]
+    },
+    {
+      "occurred_at": "2026-10-08T01:21:49.878714+00:00",
+      "valid": false,
+      "missing_exact_target_references": [
+        {
+          "atom_index": 0,
+          "target": "/s/0I/r/test_validator.py",
+          "source_id": "b64239bfa1fd48bdbd0229d95cf50b53"
+        },
+        {
+          "atom_index": 0,
+          "target": "/s/0I/r/tests_rate_limiter.py",
+          "source_id": "22e8ea6817ed4f1fa979875c9453e132"
+        },
+        {
+          "atom_index": 1,
+          "target": "/s/0I/r/p/transaction-service/__init__.py",
+          "source_id": "f85b74b6101144e999ed3dd4a5137b1c"
+        },
+        {
+          "atom_index": 1,
+          "target": "/s/0I/r/p/transaction-service/config.py",
+          "source_id": "73ccd5761ec34750a7cbcde1c55703a0"
+        },
+        {
+          "atom_index": 1,
+          "target": "/s/0I/r/p/transaction-service/models.py",
+          "source_id": "6729811d9358471c85b5820b7c169049"
+        },
+        {
+          "atom_index": 1,
+          "target": "/s/0I/r/p/README.md",
+          "source_id": "cec789c380ba4e3a96e275923b2d041c"
+        },
+        {
+          "atom_index": 1,
+          "target": "/s/0I/r/p/run_tests.py",
+          "source_id": "46eaa56ea3f44ad4a42db5084815f956"
+        },
+        {
+          "atom_index": 1,
+          "target": "/s/0I/r/p/setup.py",
+          "source_id": "dc32b0c175f54923a0421b278caab17f"
+        },
+        {
+          "atom_index": 1,
+          "target": "/s/0I/r/p/tests/__init__.py",
+          "source_id": "fc75dd250e3a498f95a95ec8151f4ffa"
+        },
+        {
+          "atom_index": 1,
+          "target": "/s/0I/r/p/tests/test_validator.py",
+          "source_id": "49af7da6450f411f8d5cc2cd8b7609a5"
+        },
+        {
+          "atom_index": 1,
+          "target": "/s/0I/r/p/tests/tests_rate_limiter.py",
+          "source_id": "1d702be4714949abaf61c935c1bb5434"
+        }
+      ]
+    },
+    {
+      "occurred_at": "2026-10-08T01:21:58.028296+00:00",
+      "valid": false,
+      "missing_exact_target_references": [
+        {
+          "atom_index": 1,
+          "target": "/s/0I/r/p/transaction-service/__init__.py",
+          "source_id": "f85b74b6101144e999ed3dd4a5137b1c"
+        },
+        {
+          "atom_index": 1,
+          "target": "/s/0I/r/p/transaction-service/config.py",
+          "source_id": "73ccd5761ec34750a7cbcde1c55703a0"
+        },
+        {
+          "atom_index": 1,
+          "target": "/s/0I/r/p/transaction-service/models.py",
+          "source_id": "6729811d9358471c85b5820b7c169049"
+        },
+        {
+          "atom_index": 1,
+          "target": "/s/0I/r/p/README.md",
+          "source_id": "cec789c380ba4e3a96e275923b2d041c"
+        },
+        {
+          "atom_index": 1,
+          "target": "/s/0I/r/p/run_tests.py",
+          "source_id": "46eaa56ea3f44ad4a42db5084815f956"
+        },
+        {
+          "atom_index": 1,
+          "target": "/s/0I/r/p/setup.py",
+          "source_id": "dc32b0c175f54923a0421b278caab17f"
+        },
+        {
+          "atom_index": 1,
+          "target": "/s/0I/r/p/tests/__init__.py",
+          "source_id": "fc75dd250e3a498f95a95ec8151f4ffa"
+        },
+        {
+          "atom_index": 1,
+          "target": "/s/0I/r/p/tests/test_validator.py",
+          "source_id": "49af7da6450f411f8d5cc2cd8b7609a5"
+        },
+        {
+          "atom_index": 1,
+          "target": "/s/0I/r/p/tests/tests_rate_limiter.py",
+          "source_id": "1d702be4714949abaf61c935c1bb5434"
+        }
+      ]
+    },
+    {
+      "occurred_at": "2026-10-08T01:22:06.804881+00:00",
+      "valid": false,
+      "missing_exact_target_references": [
+        {
+          "atom_index": 1,
+          "target": "/s/0I/r/p/transaction-service/__init__.py",
+          "source_id": "f85b74b6101144e999ed3dd4a5137b1c"
+        },
+        {
+          "atom_index": 1,
+          "target": "/s/0I/r/p/README.md",
+          "source_id": "cec789c380ba4e3a96e275923b2d041c"
+        },
+        {
+          "atom_index": 1,
+          "target": "/s/0I/r/p/run_tests.py",
+          "source_id": "46eaa56ea3f44ad4a42db5084815f956"
+        },
+        {
+          "atom_index": 1,
+          "target": "/s/0I/r/p/tests/__init__.py",
+          "source_id": "fc75dd250e3a498f95a95ec8151f4ffa"
+        },
+        {
+          "atom_index": 1,
+          "target": "/s/0I/r/p/tests/test_validator.py",
+          "source_id": "49af7da6450f411f8d5cc2cd8b7609a5"
+        },
+        {
+          "atom_index": 1,
+          "target": "/s/0I/r/p/tests/tests_rate_limiter.py",
+          "source_id": "1d702be4714949abaf61c935c1bb5434"
+        }
+      ]
+    }
+  ],
+  "effective": false,
+  "permission_versions": 0,
+  "explanation": "Source is present and readable; target source IDs are omitted by draft evidence wiring. First-target diagnostics and semantic budget classification make repair incomplete."
+}

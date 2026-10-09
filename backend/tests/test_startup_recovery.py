@@ -424,3 +424,38 @@ def test_validation_summary_or_embedded_body_mismatch_rejects_ready_candidate(pr
     assert recovery.get(old)['candidate'] is None
     with pytest.raises(ValueError, match='校验材料不一致'):
         recovery.prepare(old, request)
+
+
+@pytest.mark.parametrize('tamper',['hash','compile_state','embedded_proposal'])
+def test_completed_pi_job_with_real_unresolved_submission_can_rebuild(project,tamper):
+    task_id=failed(create(project))
+    ctx=scene.context(task_id)
+    with db.connect() as con:
+        jid=controller.load(con,task_id)['startup_job']
+        con.execute("UPDATE history_jobs SET status='completed' WHERE id=?",(jid,))
+    result=validation.validate(task_id,{'context_hash':ctx['context_hash'],'summary':'Unrepresentable exact target',
+        'no_op':True,'guidance':['Preserve tests.'],'unresolved':['The exact registered target requires a shorter canonical snapshot.']})
+    assert result['valid'] is False and result['state']=='needs_clarification'
+    pid=uuid.uuid4().hex
+    with db.connect() as con:
+        con.execute('INSERT INTO bootstrap_proposals VALUES(?,?,?,?,?,?,?,?,?)',
+            (pid,task_id,jid,ctx['context_hash'],result['proposal_hash'],json.dumps(result['proposal']),
+             json.dumps({k:v for k,v in result.items() if k!='proposal'}),'needs_clarification',db.now()))
+    assert recovery.get(task_id)['eligible'] is True
+    with db.connect() as con:
+        if tamper=='hash':
+            con.execute("UPDATE bootstrap_proposals SET content_hash=? WHERE id=?",('0'*64,pid))
+        else:
+            summary={k:v for k,v in result.items() if k!='proposal'}
+            if tamper=='compile_state':summary['compile_state']='compile_failed'
+            else:summary['proposal']={'different':'body'}
+            con.execute('UPDATE bootstrap_proposals SET validation_json=? WHERE id=?',(json.dumps(summary),pid))
+    assert recovery.get(task_id)['eligible'] is False
+
+
+def test_completed_job_without_server_unresolved_evidence_is_not_recoverable(project):
+    task_id=failed(create(project))
+    with db.connect() as con:
+        jid=controller.load(con,task_id)['startup_job']
+        con.execute("UPDATE history_jobs SET status='completed' WHERE id=?",(jid,))
+    assert recovery.get(task_id)['eligible'] is False

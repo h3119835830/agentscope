@@ -257,7 +257,9 @@ def test_existing_test_object_collection_does_not_ban_derived_artifacts(created,
     from pathlib import Path
     # This success case tests exact object scope, so its fixture must fit the
     # real ABI even when the process default temp directory is /var/tmp.
-    with tempfile.TemporaryDirectory(prefix='', dir='/tmp/a') as directory:
+    # The 64-byte C buffer includes NUL; use a genuinely shorter fixture
+    # root so this object-scope success case remains within 63 payload bytes.
+    with tempfile.TemporaryDirectory(prefix='', dir='/tmp') as directory:
         monkeypatch.setattr(scene,'WORKSPACE_ROOT',Path(directory))
         task=scene.create_scene('safety-impossible-tests',workspace_leaf='r',compact_paths=True);ctx=scene.context(task['id'])
         requirement=ctx['declared_constraints'][0]

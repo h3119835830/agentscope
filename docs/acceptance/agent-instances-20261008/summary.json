@@ -1,0 +1,1651 @@
+{
+  "date": "2026-10-08",
+  "deployment": "independent 18003 Scope Demo",
+  "backend_tests": {
+    "passed": 891
+  },
+  "frontend_state_tests": {
+    "passed": 17
+  },
+  "ui_viewports": [
+    1280,
+    423,
+    320
+  ],
+  "unrelated_listener_identities_unchanged": true,
+  "recovery": {
+    "api_loss": {
+      "all_controlled_processes_terminated": true,
+      "seconds": 7.63,
+      "instances": {
+        "dsh": {
+          "old_pid": 1642471,
+          "new_pid": 1642903,
+          "old_generation": "30199073f66c4d3598b8c73398718c12",
+          "new_generation": "f5e7579b462a4c2c8445c4c0464d36a9",
+          "paused_until_reverified": true
+        },
+        "hermes": {
+          "old_pid": 1642635,
+          "new_pid": 1643100,
+          "old_generation": "87d725dd482b4fa38ed5666dfa0b8f6f",
+          "new_generation": "0a32016c486b406d9851f4226267e1a9",
+          "paused_until_reverified": true
+        }
+      }
+    },
+    "broker_loss": {
+      "independent_relay_terminated_processes": true,
+      "seconds": 7.33,
+      "instances": {
+        "dsh": {
+          "old_cgroup_removed": true,
+          "old_pid": 1642903,
+          "new_pid": 1643381,
+          "old_generation": "f5e7579b462a4c2c8445c4c0464d36a9",
+          "new_generation": "254afa2e57c047f894235ba27acf115a",
+          "own_native_sessions_retained": 6
+        },
+        "hermes": {
+          "old_cgroup_removed": true,
+          "old_pid": 1643100,
+          "new_pid": 1643551,
+          "old_generation": "0a32016c486b406d9851f4226267e1a9",
+          "new_generation": "aa21e3eb0c214e56baf639bd05b35ddc",
+          "own_native_sessions_retained": 9
+        }
+      }
+    }
+  },
+  "instances": {
+    "dsh": {
+      "instance_id": "instance-1f4469579e8947f4",
+      "current_pid": 1643381,
+      "current_generation": "254afa2e57c047f894235ba27acf115a",
+      "current_domain": 1197930553,
+      "host_id": "c320fc99e44c3fe2ebc807e5",
+      "boot_id": "2e6ed98f-60b0-4097-9093-bac6af76e0e6",
+      "resource_records": [
+        {
+          "source": "/s/instance-resources/rq5-dsh",
+          "execution": "/w/0"
+        },
+        {
+          "source": "/s/instance-resources/second-dsh",
+          "execution": "/w/1"
+        }
+      ],
+      "active": true,
+      "launch_source": "native DSH",
+      "executable": "/opt/agentscope/dsh/node_modules/@deepseek-ai/dsh/lib/bin.js",
+      "verification": {
+        "passed": true,
+        "probe": {
+          "pid": 1643411,
+          "writes": [
+            {
+              "path": "/s/instance-resources/rq5-dsh/.agentscope-permission-probe",
+              "denied": true,
+              "errno": 1,
+              "execution_path": "/w/0/.agentscope-permission-probe"
+            },
+            {
+              "path": "/s/instance-resources/second-dsh/.agentscope-permission-probe",
+              "denied": true,
+              "errno": 1,
+              "execution_path": "/w/1/.agentscope-permission-probe"
+            },
+            {
+              "path": "/s/instance-resources/rq5-dsh/transaction-verification-service/README.md",
+              "denied": true,
+              "errno": 1,
+              "execution_path": "/w/0/transaction-verification-service/README.md"
+            },
+            {
+              "path": "/s/instance-resources/rq5-dsh/transaction-verification-service/config/.agentscope-permission-probe",
+              "denied": true,
+              "errno": 1,
+              "execution_path": "/w/0/transaction-verification-service/config/.agentscope-permission-probe"
+            },
+            {
+              "path": "/s/instance-resources/rq5-dsh/transaction-verification-service/run_tests.py",
+              "denied": true,
+              "errno": 1,
+              "execution_path": "/w/0/transaction-verification-service/run_tests.py"
+            },
+            {
+              "path": "/s/instance-resources/rq5-dsh/transaction-verification-service/setup.py",
+              "denied": true,
+              "errno": 1,
+              "execution_path": "/w/0/transaction-verification-service/setup.py"
+            },
+            {
+              "path": "/s/instance-resources/rq5-dsh/transaction-verification-service/tests/.agentscope-permission-probe",
+              "denied": true,
+              "errno": 1,
+              "execution_path": "/w/0/transaction-verification-service/tests/.agentscope-permission-probe"
+            },
+            {
+              "path": "/s/instance-resources/rq5-dsh/transaction-verification-service/.agentscope-permission-probe",
+              "denied": false,
+              "execution_path": "/w/0/transaction-verification-service/.agentscope-permission-probe"
+            }
+          ],
+          "reads": [],
+          "connections": [
+            {
+              "host": "127.0.0.1",
+              "port": 18222,
+              "connected": true
+            },
+            {
+              "host": "127.0.0.1",
+              "port": 18322,
+              "connected": false,
+              "errno": 111
+            },
+            {
+              "host": "::1",
+              "port": 18322,
+              "connected": false,
+              "errno": null
+            }
+          ]
+        },
+        "kernel_events": [
+          {
+            "action": "block",
+            "blocked": true,
+            "comm": "python3",
+            "domain_id": 1197930553,
+            "effect": "block",
+            "event": "taint_violation",
+            "killed": false,
+            "matched_label": "0x1",
+            "matched_label_details": [
+              {
+                "causal_chain": [
+                  {
+                    "label": "AGENT",
+                    "label_mask": "0x1",
+                    "origin_op": "exec",
+                    "origin_pid": 1643411,
+                    "origin_target": "python3",
+                    "origin_timestamp_ns": 109582055777958
+                  }
+                ],
+                "causal_chain_complete": false,
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "provenance": {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 1643411,
+                  "origin_target": "python3",
+                  "origin_timestamp_ns": 109582055777958
+                },
+                "provenance_status": "reported_first_origin"
+              }
+            ],
+            "matched_label_name": "AGENT",
+            "matched_label_names": [
+              "AGENT"
+            ],
+            "matched_labels": "0x1",
+            "op": "write",
+            "op_code": 2,
+            "pid": 1643411,
+            "ppid": 1643410,
+            "process_domain_id": 1197930553,
+            "provenance": {
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "origin_op": "exec",
+              "origin_pid": 1643411,
+              "origin_target": "python3",
+              "origin_timestamp_ns": 109582055777958
+            },
+            "provenance_model": {
+              "causal_chain_scope": "single_hop_origin",
+              "full_causal_chain": false,
+              "matched_labels_enumerated": true,
+              "reported_origin_available": true,
+              "reported_origin_scope": "first_available_matched_label"
+            },
+            "rule": {
+              "clause_end_line": 6,
+              "clause_hash": "fnv1a64:26642f221c2f5b7f",
+              "clause_op": "write",
+              "clause_source_index": 0,
+              "clause_start_line": 6,
+              "clause_text": "  block write file \"/w/0/**\" if AGENT unless target \"/w/0/transaction-verification-service/**\"",
+              "effect": "block",
+              "immutable": false,
+              "kernel_op": "write",
+              "name": "instance-readonly-1",
+              "ops": [
+                "write"
+              ],
+              "reason": "Instance resource is read-only or explicitly protected.",
+              "source_end_line": 9,
+              "source_hash": "fnv1a64:b8ff1cf6f30a03c5",
+              "source_ref": "rule:instance-readonly-1",
+              "source_start_line": 5,
+              "target_arg": null,
+              "target_kind": "file",
+              "target_pattern": "/w/0/**"
+            },
+            "rule_id": 1,
+            "schema": "actplane.violation.v1",
+            "session_root": 1643241,
+            "taint_label": "0x1",
+            "target": "/w/0/.agentscope-permission-probe",
+            "timestamp_unix_ns": "1791466042715475979",
+            "tool_call_tag": "0"
+          },
+          {
+            "action": "block",
+            "blocked": true,
+            "comm": "python3",
+            "domain_id": 1197930553,
+            "effect": "block",
+            "event": "taint_violation",
+            "killed": false,
+            "matched_label": "0x1",
+            "matched_label_details": [
+              {
+                "causal_chain": [
+                  {
+                    "label": "AGENT",
+                    "label_mask": "0x1",
+                    "origin_op": "exec",
+                    "origin_pid": 1643411,
+                    "origin_target": "python3",
+                    "origin_timestamp_ns": 109582055777958
+                  }
+                ],
+                "causal_chain_complete": false,
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "provenance": {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 1643411,
+                  "origin_target": "python3",
+                  "origin_timestamp_ns": 109582055777958
+                },
+                "provenance_status": "reported_first_origin"
+              }
+            ],
+            "matched_label_name": "AGENT",
+            "matched_label_names": [
+              "AGENT"
+            ],
+            "matched_labels": "0x1",
+            "op": "write",
+            "op_code": 2,
+            "pid": 1643411,
+            "ppid": 1643410,
+            "process_domain_id": 1197930553,
+            "provenance": {
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "origin_op": "exec",
+              "origin_pid": 1643411,
+              "origin_target": "python3",
+              "origin_timestamp_ns": 109582055777958
+            },
+            "provenance_model": {
+              "causal_chain_scope": "single_hop_origin",
+              "full_causal_chain": false,
+              "matched_labels_enumerated": true,
+              "reported_origin_available": true,
+              "reported_origin_scope": "first_available_matched_label"
+            },
+            "rule": {
+              "clause_end_line": 11,
+              "clause_hash": "fnv1a64:2b354a42c8091406",
+              "clause_op": "write",
+              "clause_source_index": 0,
+              "clause_start_line": 11,
+              "clause_text": "  block write file \"/w/1/**\" if AGENT",
+              "effect": "block",
+              "immutable": false,
+              "kernel_op": "write",
+              "name": "instance-readonly-2",
+              "ops": [
+                "write"
+              ],
+              "reason": "Instance resource is read-only or explicitly protected.",
+              "source_end_line": 14,
+              "source_hash": "fnv1a64:2e2e7924786128d8",
+              "source_ref": "rule:instance-readonly-2",
+              "source_start_line": 10,
+              "target_arg": null,
+              "target_kind": "file",
+              "target_pattern": "/w/1/**"
+            },
+            "rule_id": 3,
+            "schema": "actplane.violation.v1",
+            "session_root": 1643241,
+            "taint_label": "0x1",
+            "target": "/w/1/.agentscope-permission-probe",
+            "timestamp_unix_ns": "1791466042716241747",
+            "tool_call_tag": "0"
+          },
+          {
+            "action": "block",
+            "blocked": true,
+            "comm": "python3",
+            "domain_id": 1197930553,
+            "effect": "block",
+            "event": "taint_violation",
+            "killed": false,
+            "matched_label": "0x1",
+            "matched_label_details": [
+              {
+                "causal_chain": [
+                  {
+                    "label": "AGENT",
+                    "label_mask": "0x1",
+                    "origin_op": "exec",
+                    "origin_pid": 1643411,
+                    "origin_target": "python3",
+                    "origin_timestamp_ns": 109582055777958
+                  }
+                ],
+                "causal_chain_complete": false,
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "provenance": {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 1643411,
+                  "origin_target": "python3",
+                  "origin_timestamp_ns": 109582055777958
+                },
+                "provenance_status": "reported_first_origin"
+              }
+            ],
+            "matched_label_name": "AGENT",
+            "matched_label_names": [
+              "AGENT"
+            ],
+            "matched_labels": "0x1",
+            "op": "write",
+            "op_code": 2,
+            "pid": 1643411,
+            "ppid": 1643410,
+            "process_domain_id": 1197930553,
+            "provenance": {
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "origin_op": "exec",
+              "origin_pid": 1643411,
+              "origin_target": "python3",
+              "origin_timestamp_ns": 109582055777958
+            },
+            "provenance_model": {
+              "causal_chain_scope": "single_hop_origin",
+              "full_causal_chain": false,
+              "matched_labels_enumerated": true,
+              "reported_origin_available": true,
+              "reported_origin_scope": "first_available_matched_label"
+            },
+            "rule": {
+              "clause_end_line": 16,
+              "clause_hash": "fnv1a64:22dbfc25f7d77947",
+              "clause_op": "write",
+              "clause_source_index": 0,
+              "clause_start_line": 16,
+              "clause_text": "  block write file \"/w/0/transaction-verification-service/README.md\" if AGENT",
+              "effect": "block",
+              "immutable": false,
+              "kernel_op": "write",
+              "name": "instance-readonly-3",
+              "ops": [
+                "write"
+              ],
+              "reason": "Instance resource is read-only or explicitly protected.",
+              "source_end_line": 19,
+              "source_hash": "fnv1a64:3f1c3c9e0d97a4c7",
+              "source_ref": "rule:instance-readonly-3",
+              "source_start_line": 15,
+              "target_arg": null,
+              "target_kind": "file",
+              "target_pattern": "/w/0/transaction-verification-service/README.md"
+            },
+            "rule_id": 5,
+            "schema": "actplane.violation.v1",
+            "session_root": 1643241,
+            "taint_label": "0x1",
+            "target": "/w/0/transaction-verification-service/README.md",
+            "timestamp_unix_ns": "1791466042716932228",
+            "tool_call_tag": "0"
+          },
+          {
+            "action": "block",
+            "blocked": true,
+            "comm": "python3",
+            "domain_id": 1197930553,
+            "effect": "block",
+            "event": "taint_violation",
+            "killed": false,
+            "matched_label": "0x1",
+            "matched_label_details": [
+              {
+                "causal_chain": [
+                  {
+                    "label": "AGENT",
+                    "label_mask": "0x1",
+                    "origin_op": "exec",
+                    "origin_pid": 1643411,
+                    "origin_target": "python3",
+                    "origin_timestamp_ns": 109582055777958
+                  }
+                ],
+                "causal_chain_complete": false,
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "provenance": {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 1643411,
+                  "origin_target": "python3",
+                  "origin_timestamp_ns": 109582055777958
+                },
+                "provenance_status": "reported_first_origin"
+              }
+            ],
+            "matched_label_name": "AGENT",
+            "matched_label_names": [
+              "AGENT"
+            ],
+            "matched_labels": "0x1",
+            "op": "write",
+            "op_code": 2,
+            "pid": 1643411,
+            "ppid": 1643410,
+            "process_domain_id": 1197930553,
+            "provenance": {
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "origin_op": "exec",
+              "origin_pid": 1643411,
+              "origin_target": "python3",
+              "origin_timestamp_ns": 109582055777958
+            },
+            "provenance_model": {
+              "causal_chain_scope": "single_hop_origin",
+              "full_causal_chain": false,
+              "matched_labels_enumerated": true,
+              "reported_origin_available": true,
+              "reported_origin_scope": "first_available_matched_label"
+            },
+            "rule": {
+              "clause_end_line": 21,
+              "clause_hash": "fnv1a64:46238030a9c7a71d",
+              "clause_op": "write",
+              "clause_source_index": 0,
+              "clause_start_line": 21,
+              "clause_text": "  block write file \"/w/0/transaction-verification-service/config/**\" if AGENT",
+              "effect": "block",
+              "immutable": false,
+              "kernel_op": "write",
+              "name": "instance-readonly-4",
+              "ops": [
+                "write"
+              ],
+              "reason": "Instance resource is read-only or explicitly protected.",
+              "source_end_line": 24,
+              "source_hash": "fnv1a64:27f053b99af75204",
+              "source_ref": "rule:instance-readonly-4",
+              "source_start_line": 20,
+              "target_arg": null,
+              "target_kind": "file",
+              "target_pattern": "/w/0/transaction-verification-service/config/**"
+            },
+            "rule_id": 7,
+            "schema": "actplane.violation.v1",
+            "session_root": 1643241,
+            "taint_label": "0x1",
+            "target": "/w/0/transaction-verification-service/config/.agentscope-permission-probe",
+            "timestamp_unix_ns": "1791466042717715836",
+            "tool_call_tag": "0"
+          },
+          {
+            "action": "block",
+            "blocked": true,
+            "comm": "python3",
+            "domain_id": 1197930553,
+            "effect": "block",
+            "event": "taint_violation",
+            "killed": false,
+            "matched_label": "0x1",
+            "matched_label_details": [
+              {
+                "causal_chain": [
+                  {
+                    "label": "AGENT",
+                    "label_mask": "0x1",
+                    "origin_op": "exec",
+                    "origin_pid": 1643411,
+                    "origin_target": "python3",
+                    "origin_timestamp_ns": 109582055777958
+                  }
+                ],
+                "causal_chain_complete": false,
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "provenance": {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 1643411,
+                  "origin_target": "python3",
+                  "origin_timestamp_ns": 109582055777958
+                },
+                "provenance_status": "reported_first_origin"
+              }
+            ],
+            "matched_label_name": "AGENT",
+            "matched_label_names": [
+              "AGENT"
+            ],
+            "matched_labels": "0x1",
+            "op": "write",
+            "op_code": 2,
+            "pid": 1643411,
+            "ppid": 1643410,
+            "process_domain_id": 1197930553,
+            "provenance": {
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "origin_op": "exec",
+              "origin_pid": 1643411,
+              "origin_target": "python3",
+              "origin_timestamp_ns": 109582055777958
+            },
+            "provenance_model": {
+              "causal_chain_scope": "single_hop_origin",
+              "full_causal_chain": false,
+              "matched_labels_enumerated": true,
+              "reported_origin_available": true,
+              "reported_origin_scope": "first_available_matched_label"
+            },
+            "rule": {
+              "clause_end_line": 26,
+              "clause_hash": "fnv1a64:c79fd008dccf57a2",
+              "clause_op": "write",
+              "clause_source_index": 0,
+              "clause_start_line": 26,
+              "clause_text": "  block write file \"/w/0/transaction-verification-service/run_tests.py\" if AGENT",
+              "effect": "block",
+              "immutable": false,
+              "kernel_op": "write",
+              "name": "instance-readonly-5",
+              "ops": [
+                "write"
+              ],
+              "reason": "Instance resource is read-only or explicitly protected.",
+              "source_end_line": 29,
+              "source_hash": "fnv1a64:e731781297be106d",
+              "source_ref": "rule:instance-readonly-5",
+              "source_start_line": 25,
+              "target_arg": null,
+              "target_kind": "file",
+              "target_pattern": "/w/0/transaction-verification-service/run_tests.py"
+            },
+            "rule_id": 9,
+            "schema": "actplane.violation.v1",
+            "session_root": 1643241,
+            "taint_label": "0x1",
+            "target": "/w/0/transaction-verification-service/run_tests.py",
+            "timestamp_unix_ns": "1791466042718433027",
+            "tool_call_tag": "0"
+          },
+          {
+            "action": "block",
+            "blocked": true,
+            "comm": "python3",
+            "domain_id": 1197930553,
+            "effect": "block",
+            "event": "taint_violation",
+            "killed": false,
+            "matched_label": "0x1",
+            "matched_label_details": [
+              {
+                "causal_chain": [
+                  {
+                    "label": "AGENT",
+                    "label_mask": "0x1",
+                    "origin_op": "exec",
+                    "origin_pid": 1643411,
+                    "origin_target": "python3",
+                    "origin_timestamp_ns": 109582055777958
+                  }
+                ],
+                "causal_chain_complete": false,
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "provenance": {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 1643411,
+                  "origin_target": "python3",
+                  "origin_timestamp_ns": 109582055777958
+                },
+                "provenance_status": "reported_first_origin"
+              }
+            ],
+            "matched_label_name": "AGENT",
+            "matched_label_names": [
+              "AGENT"
+            ],
+            "matched_labels": "0x1",
+            "op": "write",
+            "op_code": 2,
+            "pid": 1643411,
+            "ppid": 1643410,
+            "process_domain_id": 1197930553,
+            "provenance": {
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "origin_op": "exec",
+              "origin_pid": 1643411,
+              "origin_target": "python3",
+              "origin_timestamp_ns": 109582055777958
+            },
+            "provenance_model": {
+              "causal_chain_scope": "single_hop_origin",
+              "full_causal_chain": false,
+              "matched_labels_enumerated": true,
+              "reported_origin_available": true,
+              "reported_origin_scope": "first_available_matched_label"
+            },
+            "rule": {
+              "clause_end_line": 31,
+              "clause_hash": "fnv1a64:edc1031bcedecb38",
+              "clause_op": "write",
+              "clause_source_index": 0,
+              "clause_start_line": 31,
+              "clause_text": "  block write file \"/w/0/transaction-verification-service/setup.py\" if AGENT",
+              "effect": "block",
+              "immutable": false,
+              "kernel_op": "write",
+              "name": "instance-readonly-6",
+              "ops": [
+                "write"
+              ],
+              "reason": "Instance resource is read-only or explicitly protected.",
+              "source_end_line": 34,
+              "source_hash": "fnv1a64:7b6446c717fb4592",
+              "source_ref": "rule:instance-readonly-6",
+              "source_start_line": 30,
+              "target_arg": null,
+              "target_kind": "file",
+              "target_pattern": "/w/0/transaction-verification-service/setup.py"
+            },
+            "rule_id": 11,
+            "schema": "actplane.violation.v1",
+            "session_root": 1643241,
+            "taint_label": "0x1",
+            "target": "/w/0/transaction-verification-service/setup.py",
+            "timestamp_unix_ns": "1791466042719203588",
+            "tool_call_tag": "0"
+          },
+          {
+            "action": "block",
+            "blocked": true,
+            "comm": "python3",
+            "domain_id": 1197930553,
+            "effect": "block",
+            "event": "taint_violation",
+            "killed": false,
+            "matched_label": "0x1",
+            "matched_label_details": [
+              {
+                "causal_chain": [
+                  {
+                    "label": "AGENT",
+                    "label_mask": "0x1",
+                    "origin_op": "exec",
+                    "origin_pid": 1643411,
+                    "origin_target": "python3",
+                    "origin_timestamp_ns": 109582055777958
+                  }
+                ],
+                "causal_chain_complete": false,
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "provenance": {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 1643411,
+                  "origin_target": "python3",
+                  "origin_timestamp_ns": 109582055777958
+                },
+                "provenance_status": "reported_first_origin"
+              }
+            ],
+            "matched_label_name": "AGENT",
+            "matched_label_names": [
+              "AGENT"
+            ],
+            "matched_labels": "0x1",
+            "op": "write",
+            "op_code": 2,
+            "pid": 1643411,
+            "ppid": 1643410,
+            "process_domain_id": 1197930553,
+            "provenance": {
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "origin_op": "exec",
+              "origin_pid": 1643411,
+              "origin_target": "python3",
+              "origin_timestamp_ns": 109582055777958
+            },
+            "provenance_model": {
+              "causal_chain_scope": "single_hop_origin",
+              "full_causal_chain": false,
+              "matched_labels_enumerated": true,
+              "reported_origin_available": true,
+              "reported_origin_scope": "first_available_matched_label"
+            },
+            "rule": {
+              "clause_end_line": 36,
+              "clause_hash": "fnv1a64:f6ce34d267996218",
+              "clause_op": "write",
+              "clause_source_index": 0,
+              "clause_start_line": 36,
+              "clause_text": "  block write file \"/w/0/transaction-verification-service/tests/**\" if AGENT",
+              "effect": "block",
+              "immutable": false,
+              "kernel_op": "write",
+              "name": "instance-readonly-7",
+              "ops": [
+                "write"
+              ],
+              "reason": "Instance resource is read-only or explicitly protected.",
+              "source_end_line": 39,
+              "source_hash": "fnv1a64:bbf3d9904d23133f",
+              "source_ref": "rule:instance-readonly-7",
+              "source_start_line": 35,
+              "target_arg": null,
+              "target_kind": "file",
+              "target_pattern": "/w/0/transaction-verification-service/tests/**"
+            },
+            "rule_id": 13,
+            "schema": "actplane.violation.v1",
+            "session_root": 1643241,
+            "taint_label": "0x1",
+            "target": "/w/0/transaction-verification-service/tests/.agentscope-permission-probe",
+            "timestamp_unix_ns": "1791466042719867037",
+            "tool_call_tag": "0"
+          }
+        ],
+        "protected_integrity": true,
+        "grants_verified": true,
+        "root_owned_events": true,
+        "network_verified": true,
+        "network_reject_counters": {
+          "ipv4": 1,
+          "ipv6": 1
+        },
+        "handles": "restart_required_on_policy_change"
+      },
+      "shared_tightening": {
+        "passed": true,
+        "held_handles": {
+          "pid": 1626468,
+          "child_pid": 1626469,
+          "fd": true,
+          "writable_mapping": true,
+          "mapping_errno": null
+        },
+        "held_processes_terminated": true,
+        "mapping_revoked": true,
+        "sibling_unchanged": true
+      },
+      "exact_expansion": {
+        "exact_confirmation_required": true,
+        "passed": true,
+        "new_generation": "43f57d327e224f8084c2c3b3b14adc4c",
+        "new_domain": 858489824
+      },
+      "final_native_tests": {
+        "native_status": "idle",
+        "test_counts": [
+          13
+        ],
+        "failures": [],
+        "ok": true,
+        "passed": true,
+        "protected_integrity": true
+      },
+      "protected_hashes": {
+        "/s/instance-resources/rq5-dsh/transaction-verification-service/tests/tests_rate_limiter.py": "33f5270f01020994f626d12dc6712e8e0dcbf20c69166eebbd7aee7c8a1bae81",
+        "/s/instance-resources/rq5-dsh/transaction-verification-service/tests/__init__.py": "fe07077105accd6292fdb679f7adea9b01e2803f14f87d56e3e34bd4467b4200",
+        "/s/instance-resources/rq5-dsh/transaction-verification-service/tests/test_validator.py": "30dfd0a46229395101ca3f7bf04d6841eef79f43bc4474bf48e30c3f41340dd6",
+        "/s/instance-resources/rq5-dsh/transaction-verification-service/tests/__pycache__/test_validator.cpython-314.pyc": "810b3c6ffb5195aee63bf2bbc273f988777bc8dc74992163e6d78d511635e3cd",
+        "/s/instance-resources/rq5-dsh/transaction-verification-service/tests/__pycache__/tests_rate_limiter.cpython-314.pyc": "8d45f27a22c46752a050847d1fc4f3b60e88746de013ccc91cd8e9792423cf72",
+        "/s/instance-resources/rq5-dsh/transaction-verification-service/config/config.json": "f7feaf518d1e9139daf66b588ebb47ef425990338163a2df09538c06f99a3c30",
+        "/s/instance-resources/rq5-dsh/transaction-verification-service/config/config.toml": "605e80764c5bb04d021f15d196684821d915ecc922f2013342a9dc6c46730a60",
+        "/s/instance-resources/rq5-dsh/transaction-verification-service/run_tests.py": "fa587dbff4a0bb6f7ba40a587b0ea873f2da4d69c6ff0fac9223c5c6896cf2cf",
+        "/s/instance-resources/rq5-dsh/transaction-verification-service/setup.py": "f84d91dd06c7481ae7b89403c8620ab5f2d97282b2aafddb9c306647498fad7e",
+        "/s/instance-resources/rq5-dsh/transaction-verification-service/README.md": "aa3e36b898e41b3acc014e01330768370022aca3012caadd3fabcfc417c276a8",
+        "/s/instance-resources/rq5-dsh/test_validator.py": "30dfd0a46229395101ca3f7bf04d6841eef79f43bc4474bf48e30c3f41340dd6",
+        "/s/instance-resources/rq5-dsh/tests_rate_limiter.py": "33f5270f01020994f626d12dc6712e8e0dcbf20c69166eebbd7aee7c8a1bae81"
+      },
+      "native_tool_result_count": 42,
+      "native_agent_typed_tightening": {
+        "passed": true,
+        "session_id": "session-1e38fe17-5015-494b-92f4-a164b650bdf4",
+        "old_generation": "43f57d327e224f8084c2c3b3b14adc4c",
+        "new_generation": "4087f98b01df4a86a8178b36ca0e7213",
+        "domain_id": 492980242,
+        "candidate_source": "native agentscope_instance_propose"
+      }
+    },
+    "hermes": {
+      "instance_id": "instance-c0dd272b6a734a34",
+      "current_pid": 1643551,
+      "current_generation": "aa21e3eb0c214e56baf639bd05b35ddc",
+      "current_domain": 314897391,
+      "host_id": "c320fc99e44c3fe2ebc807e5",
+      "boot_id": "2e6ed98f-60b0-4097-9093-bac6af76e0e6",
+      "resource_records": [
+        {
+          "source": "/s/instance-resources/rq5-hermes",
+          "execution": "/w/0"
+        },
+        {
+          "source": "/s/instance-resources/second-hermes",
+          "execution": "/w/1"
+        }
+      ],
+      "active": true,
+      "launch_source": "WSL independent native Hermes",
+      "executable": "/home/happy/.local/bin/hermes",
+      "verification": {
+        "passed": true,
+        "probe": {
+          "pid": 1643590,
+          "writes": [
+            {
+              "path": "/s/instance-resources/rq5-hermes/.agentscope-permission-probe",
+              "denied": true,
+              "errno": 1,
+              "execution_path": "/w/0/.agentscope-permission-probe"
+            },
+            {
+              "path": "/s/instance-resources/second-hermes/.agentscope-permission-probe",
+              "denied": true,
+              "errno": 1,
+              "execution_path": "/w/1/.agentscope-permission-probe"
+            },
+            {
+              "path": "/s/instance-resources/rq5-hermes/transaction-verification-service/README.md",
+              "denied": true,
+              "errno": 1,
+              "execution_path": "/w/0/transaction-verification-service/README.md"
+            },
+            {
+              "path": "/s/instance-resources/rq5-hermes/transaction-verification-service/config/.agentscope-permission-probe",
+              "denied": true,
+              "errno": 1,
+              "execution_path": "/w/0/transaction-verification-service/config/.agentscope-permission-probe"
+            },
+            {
+              "path": "/s/instance-resources/rq5-hermes/transaction-verification-service/run_tests.py",
+              "denied": true,
+              "errno": 1,
+              "execution_path": "/w/0/transaction-verification-service/run_tests.py"
+            },
+            {
+              "path": "/s/instance-resources/rq5-hermes/transaction-verification-service/setup.py",
+              "denied": true,
+              "errno": 1,
+              "execution_path": "/w/0/transaction-verification-service/setup.py"
+            },
+            {
+              "path": "/s/instance-resources/rq5-hermes/transaction-verification-service/tests/.agentscope-permission-probe",
+              "denied": true,
+              "errno": 1,
+              "execution_path": "/w/0/transaction-verification-service/tests/.agentscope-permission-probe"
+            },
+            {
+              "path": "/s/instance-resources/rq5-hermes/transaction-verification-service/.agentscope-permission-probe",
+              "denied": false,
+              "execution_path": "/w/0/transaction-verification-service/.agentscope-permission-probe"
+            }
+          ],
+          "reads": [],
+          "connections": [
+            {
+              "host": "127.0.0.1",
+              "port": 18242,
+              "connected": true
+            },
+            {
+              "host": "127.0.0.1",
+              "port": 18342,
+              "connected": false,
+              "errno": 111
+            },
+            {
+              "host": "::1",
+              "port": 18342,
+              "connected": false,
+              "errno": null
+            }
+          ]
+        },
+        "kernel_events": [
+          {
+            "action": "block",
+            "blocked": true,
+            "comm": "python3",
+            "domain_id": 314897391,
+            "effect": "block",
+            "event": "taint_violation",
+            "killed": false,
+            "matched_label": "0x1",
+            "matched_label_details": [
+              {
+                "causal_chain": [
+                  {
+                    "label": "AGENT",
+                    "label_mask": "0x1",
+                    "origin_op": "exec",
+                    "origin_pid": 1643590,
+                    "origin_target": "python3",
+                    "origin_timestamp_ns": 109590059728607
+                  }
+                ],
+                "causal_chain_complete": false,
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "provenance": {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 1643590,
+                  "origin_target": "python3",
+                  "origin_timestamp_ns": 109590059728607
+                },
+                "provenance_status": "reported_first_origin"
+              }
+            ],
+            "matched_label_name": "AGENT",
+            "matched_label_names": [
+              "AGENT"
+            ],
+            "matched_labels": "0x1",
+            "op": "write",
+            "op_code": 2,
+            "pid": 1643590,
+            "ppid": 1643589,
+            "process_domain_id": 314897391,
+            "provenance": {
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "origin_op": "exec",
+              "origin_pid": 1643590,
+              "origin_target": "python3",
+              "origin_timestamp_ns": 109590059728607
+            },
+            "provenance_model": {
+              "causal_chain_scope": "single_hop_origin",
+              "full_causal_chain": false,
+              "matched_labels_enumerated": true,
+              "reported_origin_available": true,
+              "reported_origin_scope": "first_available_matched_label"
+            },
+            "rule": {
+              "clause_end_line": 6,
+              "clause_hash": "fnv1a64:26642f221c2f5b7f",
+              "clause_op": "write",
+              "clause_source_index": 0,
+              "clause_start_line": 6,
+              "clause_text": "  block write file \"/w/0/**\" if AGENT unless target \"/w/0/transaction-verification-service/**\"",
+              "effect": "block",
+              "immutable": false,
+              "kernel_op": "write",
+              "name": "instance-readonly-1",
+              "ops": [
+                "write"
+              ],
+              "reason": "Instance resource is read-only or explicitly protected.",
+              "source_end_line": 9,
+              "source_hash": "fnv1a64:b8ff1cf6f30a03c5",
+              "source_ref": "rule:instance-readonly-1",
+              "source_start_line": 5,
+              "target_arg": null,
+              "target_kind": "file",
+              "target_pattern": "/w/0/**"
+            },
+            "rule_id": 1,
+            "schema": "actplane.violation.v1",
+            "session_root": 1643449,
+            "taint_label": "0x1",
+            "target": "/w/0/.agentscope-permission-probe",
+            "timestamp_unix_ns": "1791466050709557614",
+            "tool_call_tag": "0"
+          },
+          {
+            "action": "block",
+            "blocked": true,
+            "comm": "python3",
+            "domain_id": 314897391,
+            "effect": "block",
+            "event": "taint_violation",
+            "killed": false,
+            "matched_label": "0x1",
+            "matched_label_details": [
+              {
+                "causal_chain": [
+                  {
+                    "label": "AGENT",
+                    "label_mask": "0x1",
+                    "origin_op": "exec",
+                    "origin_pid": 1643590,
+                    "origin_target": "python3",
+                    "origin_timestamp_ns": 109590059728607
+                  }
+                ],
+                "causal_chain_complete": false,
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "provenance": {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 1643590,
+                  "origin_target": "python3",
+                  "origin_timestamp_ns": 109590059728607
+                },
+                "provenance_status": "reported_first_origin"
+              }
+            ],
+            "matched_label_name": "AGENT",
+            "matched_label_names": [
+              "AGENT"
+            ],
+            "matched_labels": "0x1",
+            "op": "write",
+            "op_code": 2,
+            "pid": 1643590,
+            "ppid": 1643589,
+            "process_domain_id": 314897391,
+            "provenance": {
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "origin_op": "exec",
+              "origin_pid": 1643590,
+              "origin_target": "python3",
+              "origin_timestamp_ns": 109590059728607
+            },
+            "provenance_model": {
+              "causal_chain_scope": "single_hop_origin",
+              "full_causal_chain": false,
+              "matched_labels_enumerated": true,
+              "reported_origin_available": true,
+              "reported_origin_scope": "first_available_matched_label"
+            },
+            "rule": {
+              "clause_end_line": 11,
+              "clause_hash": "fnv1a64:2b354a42c8091406",
+              "clause_op": "write",
+              "clause_source_index": 0,
+              "clause_start_line": 11,
+              "clause_text": "  block write file \"/w/1/**\" if AGENT",
+              "effect": "block",
+              "immutable": false,
+              "kernel_op": "write",
+              "name": "instance-readonly-2",
+              "ops": [
+                "write"
+              ],
+              "reason": "Instance resource is read-only or explicitly protected.",
+              "source_end_line": 14,
+              "source_hash": "fnv1a64:2e2e7924786128d8",
+              "source_ref": "rule:instance-readonly-2",
+              "source_start_line": 10,
+              "target_arg": null,
+              "target_kind": "file",
+              "target_pattern": "/w/1/**"
+            },
+            "rule_id": 3,
+            "schema": "actplane.violation.v1",
+            "session_root": 1643449,
+            "taint_label": "0x1",
+            "target": "/w/1/.agentscope-permission-probe",
+            "timestamp_unix_ns": "1791466050710201003",
+            "tool_call_tag": "0"
+          },
+          {
+            "action": "block",
+            "blocked": true,
+            "comm": "python3",
+            "domain_id": 314897391,
+            "effect": "block",
+            "event": "taint_violation",
+            "killed": false,
+            "matched_label": "0x1",
+            "matched_label_details": [
+              {
+                "causal_chain": [
+                  {
+                    "label": "AGENT",
+                    "label_mask": "0x1",
+                    "origin_op": "exec",
+                    "origin_pid": 1643590,
+                    "origin_target": "python3",
+                    "origin_timestamp_ns": 109590059728607
+                  }
+                ],
+                "causal_chain_complete": false,
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "provenance": {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 1643590,
+                  "origin_target": "python3",
+                  "origin_timestamp_ns": 109590059728607
+                },
+                "provenance_status": "reported_first_origin"
+              }
+            ],
+            "matched_label_name": "AGENT",
+            "matched_label_names": [
+              "AGENT"
+            ],
+            "matched_labels": "0x1",
+            "op": "write",
+            "op_code": 2,
+            "pid": 1643590,
+            "ppid": 1643589,
+            "process_domain_id": 314897391,
+            "provenance": {
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "origin_op": "exec",
+              "origin_pid": 1643590,
+              "origin_target": "python3",
+              "origin_timestamp_ns": 109590059728607
+            },
+            "provenance_model": {
+              "causal_chain_scope": "single_hop_origin",
+              "full_causal_chain": false,
+              "matched_labels_enumerated": true,
+              "reported_origin_available": true,
+              "reported_origin_scope": "first_available_matched_label"
+            },
+            "rule": {
+              "clause_end_line": 16,
+              "clause_hash": "fnv1a64:22dbfc25f7d77947",
+              "clause_op": "write",
+              "clause_source_index": 0,
+              "clause_start_line": 16,
+              "clause_text": "  block write file \"/w/0/transaction-verification-service/README.md\" if AGENT",
+              "effect": "block",
+              "immutable": false,
+              "kernel_op": "write",
+              "name": "instance-readonly-3",
+              "ops": [
+                "write"
+              ],
+              "reason": "Instance resource is read-only or explicitly protected.",
+              "source_end_line": 19,
+              "source_hash": "fnv1a64:3f1c3c9e0d97a4c7",
+              "source_ref": "rule:instance-readonly-3",
+              "source_start_line": 15,
+              "target_arg": null,
+              "target_kind": "file",
+              "target_pattern": "/w/0/transaction-verification-service/README.md"
+            },
+            "rule_id": 5,
+            "schema": "actplane.violation.v1",
+            "session_root": 1643449,
+            "taint_label": "0x1",
+            "target": "/w/0/transaction-verification-service/README.md",
+            "timestamp_unix_ns": "1791466050710790580",
+            "tool_call_tag": "0"
+          },
+          {
+            "action": "block",
+            "blocked": true,
+            "comm": "python3",
+            "domain_id": 314897391,
+            "effect": "block",
+            "event": "taint_violation",
+            "killed": false,
+            "matched_label": "0x1",
+            "matched_label_details": [
+              {
+                "causal_chain": [
+                  {
+                    "label": "AGENT",
+                    "label_mask": "0x1",
+                    "origin_op": "exec",
+                    "origin_pid": 1643590,
+                    "origin_target": "python3",
+                    "origin_timestamp_ns": 109590059728607
+                  }
+                ],
+                "causal_chain_complete": false,
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "provenance": {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 1643590,
+                  "origin_target": "python3",
+                  "origin_timestamp_ns": 109590059728607
+                },
+                "provenance_status": "reported_first_origin"
+              }
+            ],
+            "matched_label_name": "AGENT",
+            "matched_label_names": [
+              "AGENT"
+            ],
+            "matched_labels": "0x1",
+            "op": "write",
+            "op_code": 2,
+            "pid": 1643590,
+            "ppid": 1643589,
+            "process_domain_id": 314897391,
+            "provenance": {
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "origin_op": "exec",
+              "origin_pid": 1643590,
+              "origin_target": "python3",
+              "origin_timestamp_ns": 109590059728607
+            },
+            "provenance_model": {
+              "causal_chain_scope": "single_hop_origin",
+              "full_causal_chain": false,
+              "matched_labels_enumerated": true,
+              "reported_origin_available": true,
+              "reported_origin_scope": "first_available_matched_label"
+            },
+            "rule": {
+              "clause_end_line": 21,
+              "clause_hash": "fnv1a64:46238030a9c7a71d",
+              "clause_op": "write",
+              "clause_source_index": 0,
+              "clause_start_line": 21,
+              "clause_text": "  block write file \"/w/0/transaction-verification-service/config/**\" if AGENT",
+              "effect": "block",
+              "immutable": false,
+              "kernel_op": "write",
+              "name": "instance-readonly-4",
+              "ops": [
+                "write"
+              ],
+              "reason": "Instance resource is read-only or explicitly protected.",
+              "source_end_line": 24,
+              "source_hash": "fnv1a64:27f053b99af75204",
+              "source_ref": "rule:instance-readonly-4",
+              "source_start_line": 20,
+              "target_arg": null,
+              "target_kind": "file",
+              "target_pattern": "/w/0/transaction-verification-service/config/**"
+            },
+            "rule_id": 7,
+            "schema": "actplane.violation.v1",
+            "session_root": 1643449,
+            "taint_label": "0x1",
+            "target": "/w/0/transaction-verification-service/config/.agentscope-permission-probe",
+            "timestamp_unix_ns": "1791466050711351150",
+            "tool_call_tag": "0"
+          },
+          {
+            "action": "block",
+            "blocked": true,
+            "comm": "python3",
+            "domain_id": 314897391,
+            "effect": "block",
+            "event": "taint_violation",
+            "killed": false,
+            "matched_label": "0x1",
+            "matched_label_details": [
+              {
+                "causal_chain": [
+                  {
+                    "label": "AGENT",
+                    "label_mask": "0x1",
+                    "origin_op": "exec",
+                    "origin_pid": 1643590,
+                    "origin_target": "python3",
+                    "origin_timestamp_ns": 109590059728607
+                  }
+                ],
+                "causal_chain_complete": false,
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "provenance": {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 1643590,
+                  "origin_target": "python3",
+                  "origin_timestamp_ns": 109590059728607
+                },
+                "provenance_status": "reported_first_origin"
+              }
+            ],
+            "matched_label_name": "AGENT",
+            "matched_label_names": [
+              "AGENT"
+            ],
+            "matched_labels": "0x1",
+            "op": "write",
+            "op_code": 2,
+            "pid": 1643590,
+            "ppid": 1643589,
+            "process_domain_id": 314897391,
+            "provenance": {
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "origin_op": "exec",
+              "origin_pid": 1643590,
+              "origin_target": "python3",
+              "origin_timestamp_ns": 109590059728607
+            },
+            "provenance_model": {
+              "causal_chain_scope": "single_hop_origin",
+              "full_causal_chain": false,
+              "matched_labels_enumerated": true,
+              "reported_origin_available": true,
+              "reported_origin_scope": "first_available_matched_label"
+            },
+            "rule": {
+              "clause_end_line": 26,
+              "clause_hash": "fnv1a64:c79fd008dccf57a2",
+              "clause_op": "write",
+              "clause_source_index": 0,
+              "clause_start_line": 26,
+              "clause_text": "  block write file \"/w/0/transaction-verification-service/run_tests.py\" if AGENT",
+              "effect": "block",
+              "immutable": false,
+              "kernel_op": "write",
+              "name": "instance-readonly-5",
+              "ops": [
+                "write"
+              ],
+              "reason": "Instance resource is read-only or explicitly protected.",
+              "source_end_line": 29,
+              "source_hash": "fnv1a64:e731781297be106d",
+              "source_ref": "rule:instance-readonly-5",
+              "source_start_line": 25,
+              "target_arg": null,
+              "target_kind": "file",
+              "target_pattern": "/w/0/transaction-verification-service/run_tests.py"
+            },
+            "rule_id": 9,
+            "schema": "actplane.violation.v1",
+            "session_root": 1643449,
+            "taint_label": "0x1",
+            "target": "/w/0/transaction-verification-service/run_tests.py",
+            "timestamp_unix_ns": "1791466050711877457",
+            "tool_call_tag": "0"
+          },
+          {
+            "action": "block",
+            "blocked": true,
+            "comm": "python3",
+            "domain_id": 314897391,
+            "effect": "block",
+            "event": "taint_violation",
+            "killed": false,
+            "matched_label": "0x1",
+            "matched_label_details": [
+              {
+                "causal_chain": [
+                  {
+                    "label": "AGENT",
+                    "label_mask": "0x1",
+                    "origin_op": "exec",
+                    "origin_pid": 1643590,
+                    "origin_target": "python3",
+                    "origin_timestamp_ns": 109590059728607
+                  }
+                ],
+                "causal_chain_complete": false,
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "provenance": {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 1643590,
+                  "origin_target": "python3",
+                  "origin_timestamp_ns": 109590059728607
+                },
+                "provenance_status": "reported_first_origin"
+              }
+            ],
+            "matched_label_name": "AGENT",
+            "matched_label_names": [
+              "AGENT"
+            ],
+            "matched_labels": "0x1",
+            "op": "write",
+            "op_code": 2,
+            "pid": 1643590,
+            "ppid": 1643589,
+            "process_domain_id": 314897391,
+            "provenance": {
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "origin_op": "exec",
+              "origin_pid": 1643590,
+              "origin_target": "python3",
+              "origin_timestamp_ns": 109590059728607
+            },
+            "provenance_model": {
+              "causal_chain_scope": "single_hop_origin",
+              "full_causal_chain": false,
+              "matched_labels_enumerated": true,
+              "reported_origin_available": true,
+              "reported_origin_scope": "first_available_matched_label"
+            },
+            "rule": {
+              "clause_end_line": 31,
+              "clause_hash": "fnv1a64:edc1031bcedecb38",
+              "clause_op": "write",
+              "clause_source_index": 0,
+              "clause_start_line": 31,
+              "clause_text": "  block write file \"/w/0/transaction-verification-service/setup.py\" if AGENT",
+              "effect": "block",
+              "immutable": false,
+              "kernel_op": "write",
+              "name": "instance-readonly-6",
+              "ops": [
+                "write"
+              ],
+              "reason": "Instance resource is read-only or explicitly protected.",
+              "source_end_line": 34,
+              "source_hash": "fnv1a64:7b6446c717fb4592",
+              "source_ref": "rule:instance-readonly-6",
+              "source_start_line": 30,
+              "target_arg": null,
+              "target_kind": "file",
+              "target_pattern": "/w/0/transaction-verification-service/setup.py"
+            },
+            "rule_id": 11,
+            "schema": "actplane.violation.v1",
+            "session_root": 1643449,
+            "taint_label": "0x1",
+            "target": "/w/0/transaction-verification-service/setup.py",
+            "timestamp_unix_ns": "1791466050712415019",
+            "tool_call_tag": "0"
+          },
+          {
+            "action": "block",
+            "blocked": true,
+            "comm": "python3",
+            "domain_id": 314897391,
+            "effect": "block",
+            "event": "taint_violation",
+            "killed": false,
+            "matched_label": "0x1",
+            "matched_label_details": [
+              {
+                "causal_chain": [
+                  {
+                    "label": "AGENT",
+                    "label_mask": "0x1",
+                    "origin_op": "exec",
+                    "origin_pid": 1643590,
+                    "origin_target": "python3",
+                    "origin_timestamp_ns": 109590059728607
+                  }
+                ],
+                "causal_chain_complete": false,
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "provenance": {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 1643590,
+                  "origin_target": "python3",
+                  "origin_timestamp_ns": 109590059728607
+                },
+                "provenance_status": "reported_first_origin"
+              }
+            ],
+            "matched_label_name": "AGENT",
+            "matched_label_names": [
+              "AGENT"
+            ],
+            "matched_labels": "0x1",
+            "op": "write",
+            "op_code": 2,
+            "pid": 1643590,
+            "ppid": 1643589,
+            "process_domain_id": 314897391,
+            "provenance": {
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "origin_op": "exec",
+              "origin_pid": 1643590,
+              "origin_target": "python3",
+              "origin_timestamp_ns": 109590059728607
+            },
+            "provenance_model": {
+              "causal_chain_scope": "single_hop_origin",
+              "full_causal_chain": false,
+              "matched_labels_enumerated": true,
+              "reported_origin_available": true,
+              "reported_origin_scope": "first_available_matched_label"
+            },
+            "rule": {
+              "clause_end_line": 36,
+              "clause_hash": "fnv1a64:f6ce34d267996218",
+              "clause_op": "write",
+              "clause_source_index": 0,
+              "clause_start_line": 36,
+              "clause_text": "  block write file \"/w/0/transaction-verification-service/tests/**\" if AGENT",
+              "effect": "block",
+              "immutable": false,
+              "kernel_op": "write",
+              "name": "instance-readonly-7",
+              "ops": [
+                "write"
+              ],
+              "reason": "Instance resource is read-only or explicitly protected.",
+              "source_end_line": 39,
+              "source_hash": "fnv1a64:bbf3d9904d23133f",
+              "source_ref": "rule:instance-readonly-7",
+              "source_start_line": 35,
+              "target_arg": null,
+              "target_kind": "file",
+              "target_pattern": "/w/0/transaction-verification-service/tests/**"
+            },
+            "rule_id": 13,
+            "schema": "actplane.violation.v1",
+            "session_root": 1643449,
+            "taint_label": "0x1",
+            "target": "/w/0/transaction-verification-service/tests/.agentscope-permission-probe",
+            "timestamp_unix_ns": "1791466050712933202",
+            "tool_call_tag": "0"
+          }
+        ],
+        "protected_integrity": true,
+        "grants_verified": true,
+        "root_owned_events": true,
+        "network_verified": true,
+        "network_reject_counters": {
+          "ipv4": 1,
+          "ipv6": 1
+        },
+        "handles": "restart_required_on_policy_change"
+      },
+      "shared_tightening": {
+        "passed": true,
+        "held_handles": {
+          "pid": 1626954,
+          "child_pid": 1626955,
+          "fd": true,
+          "writable_mapping": true,
+          "mapping_errno": null
+        },
+        "held_processes_terminated": true,
+        "mapping_revoked": true,
+        "sibling_unchanged": true
+      },
+      "exact_expansion": {
+        "exact_confirmation_required": true,
+        "passed": true,
+        "new_generation": "bad1350d4112400687ad9587a1411be1",
+        "new_domain": 1081187246
+      },
+      "final_native_tests": {
+        "native_status": "idle",
+        "test_counts": [
+          13
+        ],
+        "failures": [],
+        "ok": true,
+        "passed": true,
+        "protected_integrity": true
+      },
+      "protected_hashes": {
+        "/s/instance-resources/rq5-hermes/transaction-verification-service/tests/tests_rate_limiter.py": "33f5270f01020994f626d12dc6712e8e0dcbf20c69166eebbd7aee7c8a1bae81",
+        "/s/instance-resources/rq5-hermes/transaction-verification-service/tests/__init__.py": "fe07077105accd6292fdb679f7adea9b01e2803f14f87d56e3e34bd4467b4200",
+        "/s/instance-resources/rq5-hermes/transaction-verification-service/tests/test_validator.py": "30dfd0a46229395101ca3f7bf04d6841eef79f43bc4474bf48e30c3f41340dd6",
+        "/s/instance-resources/rq5-hermes/transaction-verification-service/tests/__pycache__/test_validator.cpython-314.pyc": "178de41c58ec8cd019b8bc71209177d57fdcf415dd0a486c3f3dbcf9083d189a",
+        "/s/instance-resources/rq5-hermes/transaction-verification-service/tests/__pycache__/tests_rate_limiter.cpython-314.pyc": "f5c35d85bf011c89a53caa32805995a17b68eba1d322025180c38b845028ca00",
+        "/s/instance-resources/rq5-hermes/transaction-verification-service/config/config.json": "f7feaf518d1e9139daf66b588ebb47ef425990338163a2df09538c06f99a3c30",
+        "/s/instance-resources/rq5-hermes/transaction-verification-service/config/config.toml": "605e80764c5bb04d021f15d196684821d915ecc922f2013342a9dc6c46730a60",
+        "/s/instance-resources/rq5-hermes/transaction-verification-service/run_tests.py": "fa587dbff4a0bb6f7ba40a587b0ea873f2da4d69c6ff0fac9223c5c6896cf2cf",
+        "/s/instance-resources/rq5-hermes/transaction-verification-service/setup.py": "f84d91dd06c7481ae7b89403c8620ab5f2d97282b2aafddb9c306647498fad7e",
+        "/s/instance-resources/rq5-hermes/transaction-verification-service/README.md": "aa3e36b898e41b3acc014e01330768370022aca3012caadd3fabcfc417c276a8",
+        "/s/instance-resources/rq5-hermes/test_validator.py": "30dfd0a46229395101ca3f7bf04d6841eef79f43bc4474bf48e30c3f41340dd6",
+        "/s/instance-resources/rq5-hermes/tests_rate_limiter.py": "33f5270f01020994f626d12dc6712e8e0dcbf20c69166eebbd7aee7c8a1bae81"
+      },
+      "native_tool_result_count": 45,
+      "native_protection_feedback": {
+        "tool": "terminal",
+        "protected_open_denied": true,
+        "errno": 30
+      }
+    }
+  }
+}

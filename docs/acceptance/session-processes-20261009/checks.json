@@ -1,0 +1,109 @@
+{
+  "candidateChecks": [
+    {
+      "name": "picker-entry-removed",
+      "pass": true
+    },
+    {
+      "name": "real-seven-sessions-and-six-names",
+      "pass": true
+    },
+    {
+      "name": "two-shared-pid-rows-and-five-stored",
+      "pass": true
+    },
+    {
+      "name": "full-session-identifiers",
+      "pass": true
+    },
+    {
+      "name": "unrelated-tables-removed",
+      "pass": true
+    },
+    {
+      "name": "refresh-keeps-corresponding-sessions",
+      "pass": true
+    },
+    {
+      "name": "offline-agent-does-not-borrow-other-pid",
+      "pass": true
+    },
+    {
+      "name": "no-preview-browser-errors",
+      "pass": true
+    }
+  ],
+  "liveChecks": [
+    {
+      "name": "live-picker-removed",
+      "pass": true
+    },
+    {
+      "name": "live-new-build",
+      "pass": true
+    },
+    {
+      "name": "live-seven-sessions-six-native-names",
+      "pass": true
+    },
+    {
+      "name": "live-full-identifiers-and-correct-processes",
+      "pass": true
+    },
+    {
+      "name": "live-single-table-with-four-fields",
+      "pass": true
+    },
+    {
+      "name": "live-423px-session-table",
+      "pass": true,
+      "observed": {
+        "container": 392,
+        "drawer": 423,
+        "ids": true,
+        "page": 423,
+        "table": 680,
+        "viewport": 423
+      }
+    },
+    {
+      "name": "live-320px-contained",
+      "pass": true,
+      "observed": {
+        "drawer": 320,
+        "page": 320,
+        "viewport": 320
+      }
+    },
+    {
+      "name": "live-refresh-works",
+      "pass": true
+    },
+    {
+      "name": "live-security-tab-preserved",
+      "pass": true
+    },
+    {
+      "name": "live-connection-settings-preserved",
+      "pass": true
+    },
+    {
+      "name": "live-no-browser-errors",
+      "pass": true
+    }
+  ],
+  "previewData": "Candidate preview used a read-only native metadata snapshot; live checks use the deployed 18003 API.",
+  "invalidatedChecks": [
+    "Initial candidate responsive checks targeted another selected tab; removed from the pass count. Repeated on selected live tab at exact 423px and 320px."
+  ],
+  "runtime": {
+    "apiRestartSeconds": 1.0172913459991832,
+    "brokerPid": 381,
+    "dshPid": 8401,
+    "brokerAndDshIdentityUnchanged": true,
+    "liveSessions": 7,
+    "namedSessions": 6,
+    "associatedProcessRows": 2,
+    "storedRowsWithoutPid": 5
+  }
+}

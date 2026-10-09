@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-09",
+  "change": "Open Agent action in instance configuration header",
+  "frontend_tests": {
+    "passed": 152,
+    "failed": 0
+  },
+  "build": {
+    "modules": 75,
+    "isolated": true,
+    "js": "index-BJQxj19I.js",
+    "css": "index-CAvb_OQ_.css"
+  },
+  "live": {
+    "instance": "instance-1f4469579e8947f4",
+    "agent": "DeepSeek Harness",
+    "native_origin": "http://127.0.0.1:18020",
+    "native_path": "/",
+    "native_auth_present": true,
+    "api_requests": [
+      "/api/agent-instances/instance-1f4469579e8947f4/open"
+    ],
+    "pid_before": 8401,
+    "pid_after": 8401,
+    "generation_unchanged": true,
+    "policy_unchanged": true,
+    "active_after": true
+  },
+  "deployment": {
+    "port": 18003,
+    "static_only": true,
+    "services_restarted": false,
+    "unrelated_changes_included": false
+  },
+  "limitations": {
+    "native_session_deep_link": false,
+    "native_workspace_names_changed": false,
+    "browser_click_verified": false,
+    "narrow_screen_visual_verified": false,
+    "reason": "Existing browser tool localhost access restriction"
+  },
+  "secrets_recorded": false,
+  "remote_push": false
+}

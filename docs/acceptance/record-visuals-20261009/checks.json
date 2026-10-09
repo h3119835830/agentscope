@@ -1,0 +1,339 @@
+{
+  "checks": [
+    {
+      "name": "connection-palette-contrast",
+      "pass": true,
+      "observed": [
+        {
+          "contrast": 6.218731186671959,
+          "label": "Web",
+          "tone": "record-badge tone-purple"
+        },
+        {
+          "contrast": 5.958325257230847,
+          "label": "8401",
+          "tone": "record-badge tone-info record-badge-mono"
+        },
+        {
+          "contrast": 5.527329927108813,
+          "label": "已连接",
+          "tone": "record-badge tone-good"
+        },
+        {
+          "contrast": 5.958325257230847,
+          "label": "执行受控",
+          "tone": "record-badge tone-info"
+        },
+        {
+          "contrast": 6.218731186671959,
+          "label": "Web",
+          "tone": "record-badge tone-purple"
+        },
+        {
+          "contrast": 4.866286754915946,
+          "label": "—",
+          "tone": "record-badge tone-neutral record-badge-mono"
+        },
+        {
+          "contrast": 5.554792314266973,
+          "label": "执行暂停",
+          "tone": "record-badge tone-warn"
+        },
+        {
+          "contrast": 5.554792314266973,
+          "label": "已加载，执行暂停",
+          "tone": "record-badge tone-warn"
+        }
+      ]
+    },
+    {
+      "name": "paused-is-amber-and-protection-is-blue",
+      "pass": true
+    },
+    {
+      "name": "connection-page-contained",
+      "pass": true
+    },
+    {
+      "name": "detail-fields-have-surfaces",
+      "pass": true
+    },
+    {
+      "name": "detail-status-badges",
+      "pass": true
+    },
+    {
+      "name": "security-rule-badges-and-effect",
+      "pass": true
+    },
+    {
+      "name": "historical-states-look-historical",
+      "pass": true
+    },
+    {
+      "name": "task-history-badges",
+      "pass": true
+    },
+    {
+      "name": "workbench-navigation-and-panels",
+      "pass": true
+    },
+    {
+      "name": "policy-records-navigation",
+      "pass": true
+    },
+    {
+      "name": "governance-panels",
+      "pass": true
+    },
+    {
+      "name": "overview-keeps-existing-style",
+      "pass": true
+    },
+    {
+      "name": "mobile-table-scroll-contained",
+      "pass": true,
+      "observed": {
+        "container": 335,
+        "page": 423,
+        "table": 781,
+        "width": 423
+      }
+    },
+    {
+      "name": "mobile-detail-fits",
+      "pass": true
+    },
+    {
+      "name": "mobile-history-fits",
+      "pass": true
+    },
+    {
+      "name": "narrow-history-fits",
+      "pass": true
+    },
+    {
+      "name": "no-browser-errors",
+      "pass": true
+    },
+    {
+      "name": "mobile-row-density-repaired",
+      "pass": true,
+      "observed": {
+        "page": 423,
+        "rowHeights": [
+          89.1875,
+          88.6875
+        ],
+        "width": 423
+      }
+    },
+    {
+      "name": "narrow-connection-density",
+      "pass": true
+    },
+    {
+      "name": "desktop-actions-fit-1280",
+      "pass": true,
+      "observed": {
+        "actions": [
+          1243,
+          1243
+        ],
+        "container": 1010,
+        "table": 1010,
+        "viewport": 1280
+      }
+    },
+    {
+      "name": "desktop-actions-fit-1146",
+      "pass": true,
+      "observed": {
+        "container": 876,
+        "table": 876,
+        "viewport": 1146
+      }
+    },
+    {
+      "name": "mobile-density-after-desktop-fix",
+      "pass": true,
+      "observed": {
+        "page": 423,
+        "rows": [
+          89.1875,
+          88.6875
+        ],
+        "width": 423
+      }
+    }
+  ],
+  "liveChecks": [
+    {
+      "name": "live-build-and-connection-table",
+      "pass": true,
+      "observed": {
+        "assets": [
+          "http://127.0.0.1:18003/assets/index-CpFssnY7.js"
+        ],
+        "badges": [
+          {
+            "text": "Web",
+            "tone": "record-badge tone-purple"
+          },
+          {
+            "text": "8401",
+            "tone": "record-badge tone-info record-badge-mono"
+          },
+          {
+            "text": "已连接",
+            "tone": "record-badge tone-good"
+          },
+          {
+            "text": "执行受控",
+            "tone": "record-badge tone-info"
+          },
+          {
+            "text": "Web",
+            "tone": "record-badge tone-purple"
+          },
+          {
+            "text": "—",
+            "tone": "record-badge tone-neutral record-badge-mono"
+          },
+          {
+            "text": "执行暂停",
+            "tone": "record-badge tone-warn"
+          },
+          {
+            "text": "已加载，执行暂停",
+            "tone": "record-badge tone-warn"
+          }
+        ],
+        "container": 876,
+        "table": 876,
+        "viewport": 1146
+      }
+    },
+    {
+      "name": "live-detail-field-surfaces",
+      "pass": true,
+      "observed": {
+        "backgrounds": [
+          "rgb(246, 248, 252)",
+          "rgb(246, 248, 252)",
+          "rgb(246, 248, 252)",
+          "rgb(246, 248, 252)",
+          "rgb(246, 248, 252)",
+          "rgb(246, 248, 252)",
+          "rgb(246, 248, 252)",
+          "rgb(246, 248, 252)"
+        ],
+        "badges": [
+          "Web",
+          "已连接",
+          "执行受控"
+        ],
+        "list": "task-fields"
+      }
+    },
+    {
+      "name": "live-rules-colored",
+      "pass": true,
+      "observed": {
+        "badges": 7,
+        "effects": [
+          "allow",
+          "deny",
+          "deny",
+          "deny",
+          "deny",
+          "deny"
+        ]
+      }
+    },
+    {
+      "name": "live-history-purple",
+      "pass": true
+    },
+    {
+      "name": "live-navigation-策略工作台",
+      "pass": true,
+      "observed": {
+        "badgeCount": 1,
+        "headings": [
+          "策略工作台",
+          "选择 Agent 与工作区",
+          "读取场景"
+        ],
+        "page": "workbench"
+      }
+    },
+    {
+      "name": "live-navigation-任务历史",
+      "pass": true,
+      "observed": {
+        "badgeCount": 24,
+        "headings": [
+          "任务历史",
+          "任务回放"
+        ],
+        "page": "history"
+      }
+    },
+    {
+      "name": "live-navigation-历史策略库",
+      "pass": true,
+      "observed": {
+        "badgeCount": 24,
+        "headings": [
+          "本次生成与审核"
+        ],
+        "page": "strategies"
+      }
+    },
+    {
+      "name": "live-navigation-持久治理",
+      "pass": true,
+      "observed": {
+        "badgeCount": 24,
+        "headings": [
+          "持久治理候选",
+          "登记候选更新",
+          "候选审核队列"
+        ],
+        "page": "governance"
+      }
+    },
+    {
+      "name": "live-no-browser-errors",
+      "pass": true,
+      "observed": []
+    }
+  ],
+  "repairHistory": [
+    {
+      "issue": "Mobile actions column compressed buttons into characters",
+      "initialRowHeight": 273.53125,
+      "retested": {
+        "page": 423,
+        "rows": [
+          89.1875,
+          88.6875
+        ],
+        "width": 423
+      }
+    },
+    {
+      "issue": "Desktop actions cropped at 1146px",
+      "retested": {
+        "container": 876,
+        "table": 876,
+        "viewport": 1146
+      }
+    },
+    {
+      "issue": "Live field check queried record-fields while actual class was task-fields",
+      "testSelectorCorrected": true
+    }
+  ]
+}

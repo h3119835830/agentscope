@@ -1,0 +1,17 @@
+{
+  "before_pids": {
+    "agentscope-scope-demo-api.service": "1326221",
+    "agentscope-scope-demo-broker.service": "966501"
+  },
+  "after_pids": {
+    "agentscope-scope-demo-api.service": "1338852",
+    "agentscope-scope-demo-broker.service": "966501"
+  },
+  "health": {
+    "ok": true,
+    "service": "AgentScope",
+    "version": "0.2.0"
+  },
+  "api_only_restarted": true,
+  "regression": "865 passed, 5 existing warnings"
+}

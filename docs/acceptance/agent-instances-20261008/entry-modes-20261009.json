@@ -1,0 +1,66 @@
+{
+  "checked_at": "2026-10-09T07:30:20.684Z",
+  "url": "http://127.0.0.1:18003/?view=connections",
+  "http_status": 200,
+  "cache_control": "no-cache, max-age=0, must-revalidate",
+  "bundle": "/assets/index-BIpEzPg9.js",
+  "bundle_sha256": "fd95fb2e6c604128057df74e2dc03988a40f00e090a0cf308c6f24ca59528722",
+  "raw_records": 4,
+  "product_rows": 2,
+  "groups": [
+    {
+      "name": "DeepSeek Harness",
+      "selected_entry": "Web",
+      "action": "启动网页",
+      "members": [
+        {
+          "id": "instance-1f4469579e8947f4",
+          "mode": "controlled",
+          "entry": "Web",
+          "pid": "—",
+          "connected": false,
+          "active": false,
+          "action": "启动网页"
+        },
+        {
+          "id": "native-dsh",
+          "mode": "observed",
+          "entry": "Web",
+          "pid": "—",
+          "connected": false,
+          "active": false,
+          "action": "查看入口"
+        }
+      ]
+    },
+    {
+      "name": "Hermes",
+      "selected_entry": "Web",
+      "action": "启动网页",
+      "members": [
+        {
+          "id": "instance-c0dd272b6a734a34",
+          "mode": "controlled",
+          "entry": "Web",
+          "pid": "—",
+          "connected": false,
+          "active": false,
+          "action": "启动网页"
+        },
+        {
+          "id": "installed-wsl-hermes",
+          "mode": "observed",
+          "entry": "CLI 安装入口",
+          "pid": "—",
+          "connected": false,
+          "active": false,
+          "action": "CLI 启动方式"
+        }
+      ]
+    }
+  ],
+  "browser_visual_verified": false,
+  "visual_limitation": "Browser automation rejected this localhost URL; no alternate browser route used.",
+  "cli_launch_verified": false,
+  "notes": "Read-only delivery and entry metadata acceptance; no Agent launched and no instance policy changed."
+}

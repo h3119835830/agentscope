@@ -1,0 +1,32 @@
+{
+  "task_id": "7411a201b87a4670",
+  "previous_candidate_id": "fe97cbfa3a59407cbf95b24c5e0ea4d8",
+  "result": {
+    "task_id": "7411a201b87a4670",
+    "job_id": "2c64fafb8b49458a9eee322ccb279b2e",
+    "previous_job_id": "4da18fc1e83341449f005f5e30fc8d0a",
+    "status": "generating",
+    "decision": "return_for_revision",
+    "context_hash": "6eeb5567dafb7afaf3c92a2782b95e342b648d85f8f8f94ab431038d15ba662e",
+    "proposal_hash": "7df37f78b9bc6e7161f98c3a750287eaefc3400d46f1ac999bf0a783cc472f2e",
+    "reason": "Execution-semantics review of the current candidate: its statement claims the whole mapped project tests tree including three descendants is protected, but raw DSL contains only write/unlink rules for the bare directory node. ActPlane lowers a bare absolute path to exact matching; it does not match descendant file paths. No exact descendant-file or recursive /** clauses are present, so none of the three registered project test files is covered by that atom. The enforcement-capabilities tool now explicitly documents exact versus descendant matching, and draft validation reports registered_asset_coverage without modifying rules. Reassess the candidate using these actual capabilities and the unchanged original task scope. This is factual execution/coverage feedback, not a new task requirement or permission authorization."
+  },
+  "deploy": {
+    "before_pids": {
+      "agentscope-scope-demo-api.service": "1338852",
+      "agentscope-scope-demo-broker.service": "966501"
+    },
+    "after_pids": {
+      "agentscope-scope-demo-api.service": "1345616",
+      "agentscope-scope-demo-broker.service": "966501"
+    },
+    "health": {
+      "ok": true,
+      "service": "AgentScope",
+      "version": "0.2.0"
+    },
+    "regression": "872 passed, 5 existing warnings"
+  },
+  "scope_authorization": false,
+  "loaded": false
+}

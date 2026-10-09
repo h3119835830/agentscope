@@ -1,0 +1,6 @@
+name: agentscope-instance
+version: 1.0.0
+description: Instance-wide AgentScope execution gate and native session adapter
+hooks:
+  - pre_tool_call
+  - post_tool_call

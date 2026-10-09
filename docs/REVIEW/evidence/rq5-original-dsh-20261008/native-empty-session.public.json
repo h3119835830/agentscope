@@ -1,0 +1,47 @@
+{
+  "schema": "NativeEmptySessionReceipt/1",
+  "observed_at": "2026-10-08T00:53:06.710744+00:00",
+  "source": "AgentScope current native bridge registry projection",
+  "instance_id": "native-dsh",
+  "instance_generation": "cae27d3cd08e4d65dc80593d",
+  "pid": 870966,
+  "start_ticks": "2300804",
+  "workspaceId": "38c72b43-6a63-4a1f-9603-37a33ce0a56d",
+  "agentscope_workspace_id": "5bb6fb75283568ec",
+  "path": "/mnt/c/Users/happy/Desktop/projects/agentscope-rq5-original-20261008",
+  "sessionId": "session-d9e7f5e5-443c-457c-9af9-9b270c1e43a8",
+  "workspace_session_ids": [
+    "session-d9e7f5e5-443c-457c-9af9-9b270c1e43a8"
+  ],
+  "creation_performed_by": "root agent through authenticated native DSH UI/API",
+  "verified_workspace_binding": true,
+  "empty_session_verified_independently": true,
+  "model_or_tool_execution_performed_by_this_agent": false,
+  "policy_loaded_by_this_agent": false,
+  "private_content_exported": false,
+  "note": "Verified exact native workspace membership and empty durable session event log. No credentials or raw session content exported. Actual managed task execution still awaits startup policy review.",
+  "creator_acknowledgement": {
+    "source": "root agent authenticated native DSH UI",
+    "action": "selected newly registered workspace; new-session page; no message submitted"
+  },
+  "persisted_session_verification": {
+    "verified_at": "2026-10-08T00:53:50.573561+00:00",
+    "source": "native v4 compressed durable session log; metadata only",
+    "header_session_id": "session-d9e7f5e5-443c-457c-9af9-9b270c1e43a8",
+    "cwd": "/mnt/c/Users/happy/Desktop/projects/agentscope-rq5-original-20261008",
+    "agent_preset": "standard",
+    "log_sha256": "5e9a8895e14d6594ff18839da2aa4e559489d7f2be96a3c0772ebe46123dd034",
+    "persisted_event_count": 3,
+    "persisted_event_types": [
+      "permission/preset",
+      "sandbox/mode",
+      "approval/policy"
+    ],
+    "user_message_count": 0,
+    "turn_start_count": 0,
+    "assistant_message_count": 0,
+    "tool_event_count": 0,
+    "model_request_event_count": 0,
+    "conclusion": "Only initial native session settings are persisted; no prompt, turn, assistant output or tool execution exists in this session log."
+  }
+}

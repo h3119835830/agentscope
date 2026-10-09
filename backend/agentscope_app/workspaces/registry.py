@@ -27,6 +27,8 @@ MAX_FILES, MAX_FILE_BYTES, MAX_TOTAL_BYTES = 1500, 16 * 1024 * 1024, 64 * 1024 *
 def init():
     with db.connect() as con:
         con.executescript(SCHEMA)
+        from .layout import SCHEMA as LAYOUT_SCHEMA
+        con.executescript(LAYOUT_SCHEMA)
         from .recovery import SCHEMA as RECOVERY_SCHEMA
         con.executescript(RECOVERY_SCHEMA)
         from .connections import SCHEMA as CONNECTION_SCHEMA
@@ -326,10 +328,13 @@ def create_task(ident, name, prompt, expected_manifest_hash, *, scene_adoption=N
     if not manifest['files']:
         raise ValueError('工作区没有可读取的项目文件，请先放入文件')
     task_id = uuid.uuid4().hex[:16]
-    root = WORKSPACE_ROOT / task_id
+    from .layout import allocate_snapshot_layout
+    # Allocation commits a never-reused physical root independently. Any later
+    # task transaction failure leaves its reservation and directory intact.
+    with db.connect() as allocation_con:
+        root, asset_mapping, project_aliases, storage = allocate_snapshot_layout(
+            manifest['files'], WORKSPACE_ROOT, task_id, allocation_con)
     workspace, output = root / 'r', root / 'output'
-    from .layout import snapshot_layout
-    asset_mapping, project_aliases = snapshot_layout(manifest['files'], workspace)
     with db.connect() as con:
         con.execute('BEGIN IMMEDIATE')
         recovery_context = None
@@ -369,6 +374,21 @@ def create_task(ident, name, prompt, expected_manifest_hash, *, scene_adoption=N
                        + 'The source workspace is retained separately. Binary assets have metadata evidence only.')
         mapping = {source['path']: str(workspace)}
         mapping.update({str(Path(source['path']) / original): str(workspace / alias) for original, alias in project_aliases.items()})
+        # Logical container paths are routing aliases, not additional access.
+        # Only asset-backed project prefixes are bound; conflicting aliases fail.
+        from .layout import PROJECT_MARKERS
+        for entry in manifest['files']:
+            marker = Path(entry['relative_path'])
+            if marker.name not in PROJECT_MARKERS:
+                continue
+            original = str(marker.parent)
+            logical = '/workspace' + ('/' + original if original != '.' else '')
+            target = str(workspace / Path(asset_mapping[entry['relative_path']]).parent)
+            if logical in mapping and mapping[logical] != target:
+                raise ValueError('项目逻辑路径映射与来源路径冲突')
+            mapping[logical] = target
+        environment += (' Resolve task-declared logical /workspace project paths only by the frozen mapping, using the longest matching prefix. '
+                        + json.dumps(mapping, sort_keys=True) + '. Unmapped logical paths do not grant access.')
         if project_aliases:
             environment += (' Project roots use the following frozen shortest-path aliases to fit the enforcement engine limit: '
                             + json.dumps(mapping, sort_keys=True)
@@ -379,7 +399,8 @@ def create_task(ident, name, prompt, expected_manifest_hash, *, scene_adoption=N
                'scenario_hash': manifest['manifest_hash'], 'raw_prompt_hash': digest(prompt), 'environment': environment,
                'environment_hash': digest(environment), 'workspace': str(workspace), 'mapping': mapping,
                'assets': assets, 'asset_layout_mapping': asset_mapping,
-               'asset_layout': {'algorithm': 'project_root_alias_v1', 'project_prefixes': project_aliases},
+               'asset_layout': {'algorithm': 'project_root_alias_v2' if storage['compact'] else 'project_root_alias_v1', 'project_prefixes': project_aliases},
+               'execution_storage': storage,
                'declared_constraints': [], 'execution_constraints': EXECUTION_CONSTRAINTS, 'platform_constraints': PLATFORM,
                'base_settings': SETTINGS, 'dsh': runtime, 'evaluation': 'Agent workspace task; not a benchmark fixture',
                'workspace_source': {'id': ident, 'agent_id': source['agent_id'], 'path': source['path'], 'manifest_hash': manifest['manifest_hash'], 'runtime_profile_hash': digest(runtime), 'instance': source_identity}}
@@ -442,7 +463,7 @@ def create_task(ident, name, prompt, expected_manifest_hash, *, scene_adoption=N
         state = c.load(con, task_id)
         state['startup_review_required'] = True
         c.save(con, task_id, state)
-        db.audit(con, task_id, 'workspace_snapshot_created', 'administrator', {'workspace_id': ident, 'manifest_hash': manifest['manifest_hash'], 'file_count': manifest['file_count'], 'asset_layout_mapping_hash': ctx['asset_layout_mapping_hash'], 'project_aliases': project_aliases})
+        db.audit(con, task_id, 'workspace_snapshot_created', 'administrator', {'workspace_id': ident, 'manifest_hash': manifest['manifest_hash'], 'file_count': manifest['file_count'], 'asset_layout_mapping_hash': ctx['asset_layout_mapping_hash'], 'project_aliases': project_aliases, 'execution_storage': storage})
     return result
 
 

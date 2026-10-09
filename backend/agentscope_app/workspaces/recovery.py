@@ -123,7 +123,23 @@ def origin(con, task_id, expected_context=None, expected_manifest=None):
                       (state.get('startup_job'), task_id)).fetchone()
     if con.execute("SELECT 1 FROM history_jobs WHERE kind='task_bootstrap' AND json_extract(input_json,'$.task_id')=? AND status IN ('queued','running')", (task_id,)).fetchone():
         raise ValueError('原任务仍有启动生成作业，请等待终止')
-    if not job or job['status'] not in ('failed', 'interrupted', 'cancelled'):
+    terminal_failure = job and job['status'] in ('failed', 'interrupted', 'cancelled')
+    if job and job['status'] == 'completed':
+        # A real server-submitted unresolved proposal is a completed Pi job,
+        # while admission has failed closed. Preserve it as failure evidence.
+        row = con.execute("SELECT * FROM bootstrap_proposals WHERE task_id=? AND job_id=? AND context_hash=? AND state='needs_clarification' ORDER BY created_at DESC LIMIT 1",
+                          (task_id, job['id'], ctx['context_hash'])).fetchone()
+        if row:
+            proposal, validation = json.loads(row['proposal_json']), json.loads(row['validation_json'])
+            terminal_failure = (digest(proposal) == row['content_hash']
+                and proposal.get('context_hash') == ctx['context_hash']
+                and bool(proposal.get('draft', {}).get('unresolved'))
+                and validation.get('valid') is False
+                and validation.get('state') == 'needs_clarification'
+                and validation.get('compile_state') == 'compiled'
+                and validation.get('proposal_hash') == row['content_hash']
+                and ('proposal' not in validation or digest(validation['proposal']) == row['content_hash']))
+    if not terminal_failure:
         raise ValueError('缺少已终止的启动失败作业证据')
     if expected_context is not None and ctx['context_hash'] != expected_context:
         raise ValueError('固定上下文已变化，请刷新恢复信息')
@@ -175,13 +191,13 @@ def failure(con, job, ctx):
         if output.get('valid') is not False:
             continue
         details = output.get('diagnostic_details', {})
-        legacy_error = 'IR pattern 超过 ' + str(PATTERN_MAX_UTF8_BYTES) + ' UTF-8 bytes 或包含控制字符'
+        legacy_errors = {'IR pattern 超过 ' + str(limit) + ' UTF-8 bytes 或包含控制字符' for limit in (64, PATTERN_MAX_UTF8_BYTES)}
         draft = json.loads(row['input_json']).get('draft', {})
         paths = [p for atom in draft.get('atoms', []) if isinstance(atom, dict)
                  for p in atom.get('paths', []) if isinstance(p, str)]
         overlong = [p for p in paths if p in registered and len(p.encode('utf-8')) > PATTERN_MAX_UTF8_BYTES]
         if ((isinstance(details, dict) and details.get('code') == 'engine_pattern_limit_exceeded')
-                or (output.get('diagnostic') == legacy_error and overlong)):
+                or (output.get('diagnostic') in legacy_errors and overlong)):
             code = 'engine_pattern_limit_exceeded'
             diagnostics = [{'code': code, 'max_utf8_bytes': PATTERN_MAX_UTF8_BYTES,
                             'target_utf8_bytes': sorted({len(p.encode('utf-8')) for p in overlong})}]

@@ -4,11 +4,14 @@ import { createRoot } from 'react-dom/client';
 import './styles.css';
 import HistoryLibrary from './HistoryLibrary.jsx';
 import TaskHub from './TaskHub.jsx';
-import AgentWorkspaces from './AgentWorkspaces.jsx';
+import AgentWorkspaces from './AgentInstances.jsx';
 import ManagedWorkbench from './ManagedWorkbench.jsx';
 import {uniqueTasks,selectableTasks,isTaskEnded} from './consoleState.mjs';
 import TaskArchive from './TaskArchive.jsx';
 import {navigationTarget, readNavigation} from './navigation.mjs';
+import './prototypeTheme.css';
+import './recordVisuals.css';
+import SecurityNotice from './SecurityNotice.jsx';
 
 const api = async (url, options = {}) => {
   const response = await fetch(url, {...options, credentials:'omit', headers:{'Content-Type':'application/json', ...options.headers}});
@@ -97,7 +100,7 @@ function App() {
   const openTask = id => navigate({page:'history',archiveTask:id});
   const createTask = (workspace='') => {setWorkspaceSeed(workspace);navigate({page:'workbench',task:'',archiveTask:'',workbenchSection:'startup',workspace});};
 
-  return <div className={`shell ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+  return <div className={`shell prototype-theme ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
     <aside className="sidebar">
       <div className="sidebar-header"><div className="brand"><div className="brand-mark">A</div><div className="brand-copy"><b>AgentScope</b><small>策略管控台</small></div></div><button className="sidebar-toggle" aria-label={sidebarCollapsed?'展开侧栏':'收起侧栏'} title={sidebarCollapsed?'展开侧栏':'收起侧栏'} aria-expanded={!sidebarCollapsed} aria-controls="workspace-navigation" onClick={()=>setSidebarCollapsed(value=>!value)}><span aria-hidden="true">{sidebarCollapsed?'›':'‹'}</span></button></div>
       <div className="side-label">工作区</div>
@@ -111,8 +114,8 @@ function App() {
       </nav>
       <div className="side-foot" title={`Linux VM · ${status?.architecture || '连接中'} · ActPlane 执行后端`}><span className={`pulse ${status?.bpf_lsm ? 'ok' : 'bad'}`} /><span className="side-foot-copy">Linux VM · {status?.architecture || '连接中'}<br/><span className="muted">ActPlane 执行后端</span></span></div>
     </aside>
-    <main className="main">
-      <header className="topbar"><div><span className="crumb">AgentScope</span><span className="slash">/</span><b>{pageTitle(page)}</b></div><div className="top-right">{page==='history'?<span className="status-pill neutral">历史回放</span>:<span className={`status-pill ${status?.broker?.available && status?.bpf_lsm ? 'good' : 'warn'}`}><i />{status?.broker?.available && status?.bpf_lsm ? '执行后端可用' : '执行后端待检查'}</span>}</div></header>
+    <main className="main" data-page={page}>
+      {page!=='connections'&&<header className="topbar"><div><span className="crumb">AgentScope</span><span className="slash">/</span><b>{pageTitle(page)}</b></div><div className="top-right">{page==='history'?<span className="status-pill neutral">历史回放</span>:<span className={`status-pill ${status?.broker?.available && status?.bpf_lsm ? 'good' : 'warn'}`}><i />{status?.broker?.available && status?.bpf_lsm ? '执行后端可用' : '执行后端待检查'}</span>}</div></header>}
       {page === 'overview' && <Overview dash={dash} status={status} tasks={tasks} onSelect={openTask} onCreate={createTask} onNav={setPage} />}
       <div hidden={page!=='workbench'}><div className="content workbench-selector"><label>当前任务<select aria-label="当前工作台任务" value={selected} onChange={e=>selectTask(e.target.value)}><option value="">新建任务</option>{selected&&!selectableTasks(tasks).some(t=>t.id===selected)&&<option value={selected}>{isTaskEnded(tasks.find(t=>t.id===selected))?'历史任务（只读）':'选定任务（查看与恢复）'}</option>}{selectableTasks(tasks).map(t=><option key={t.id} value={t.id}>{t.name||t.id}</option>)}</select></label></div>{page==='workbench'&&(!selected?<TaskHub api={api} post={post} notify={notify} tasks={tasks} task="" onSelectTask={selectTask} onFollowTask={selectTask} onAgents={()=>setPage('connections')} workspaceSeed={navigation.workspace} agentSeed={navigation.agent} onContext={context=>navigate(context)} createOnly/>:<ManagedWorkbench api={api} post={post} notify={notify} task={selected} onSelectTask={selectTask} onCreateTask={createTask} onTaskRecord={()=>navigate({workbenchSection:'startup'})} readOnly={isTaskEnded(tasks.find(t=>t.id===selected))} sourceTask={tasks.find(t=>t.id===selected)} section={navigation.workbenchSection} onSection={workbenchSection=>navigate({workbenchSection})}/>)}</div>
       <div hidden={page!=='history'}><TaskArchive api={api} navigation={navigation} navigate={navigate}/></div>
