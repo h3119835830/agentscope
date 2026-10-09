@@ -1,0 +1,139 @@
+{
+  "date": "2026-10-09",
+  "revision": "connection lists and session lifecycle",
+  "passed": 25,
+  "total": 25,
+  "checks": [
+    {
+      "name": "overview uses two connection records and no graph",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "service overview is a six-row list, no diagram",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "connection filter isolates coding session",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "session opens logical Agent diagram without PID allocation",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "child drawer warns about shared PID and unverified OS binding",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "child links canonical seven-rule table",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "OS tree contains host and tools, no fictitious child Agent PID",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "process edges are drawn from rendered nodes",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "host drawer distinguishes association from exclusive ownership",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "shared host opens session rules rather than inferred PID policy",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "domain graph remains intent with three nodes",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "domain selection shares canonical seven-rule table",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "lifecycle shows four stages and Web/headless distinction",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "lifecycle discloses code version and no live experiment",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "research session has one logical Agent and no invented PID",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "no fabricated execution evidence",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "baseline retains all fifteen templates",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "coding rule snapshot remains six records",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "inherited secrets stay read-only",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "mobile list has two rows and no page overflow",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "mobile diagram scrolls within its container",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "mobile lifecycle dialog fits viewport",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "desktop Agent nodes do not overlap",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "system service entry links to same responsibility list",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "browser has no script errors",
+      "passed": true,
+      "detail": ""
+    }
+  ],
+  "console_errors": [],
+  "scope": "Independent static HTML only; no live DSH lifecycle experiment",
+  "mobile_viewport": {
+    "width": 423,
+    "height": 900
+  }
+}
