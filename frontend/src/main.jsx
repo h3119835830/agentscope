@@ -9,6 +9,7 @@ import {uniqueTasks,selectableTasks,isTaskEnded} from './consoleState.mjs';
 import TaskArchive from './TaskArchive.jsx';
 import {navigationTarget, readNavigation} from './navigation.mjs';
 import './prototypeTheme.css';
+import SecurityNotice from './SecurityNotice.jsx';
 
 const api = async (url, options = {}) => {
   const response = await fetch(url, {...options, credentials:'omit', headers:{'Content-Type':'application/json', ...options.headers}});
@@ -133,6 +134,7 @@ function stateTag(value) { const map = { approved: ['已审核', 'good'], pendin
 
 function Overview({ dash, status, tasks, onSelect, onCreate, onNav }) {
   return <div className="content"><Header eyebrow="系统概览" title="策略运行总览" description="从历史策略、任务启动策略到运行时 Scope，集中查看 Agent 的策略版本与执行状态。" action={<button className="button primary" onClick={() => onCreate()}>＋ 创建任务</button>} />
+    <SecurityNotice />
     <section className="metric-grid"><Metric label="历史策略" value={dash?.stats?.strategies ?? 0} note={`${dash?.stats?.pending_strategies ?? 0} 条待人工审核`} icon="▤"/><Metric label="任务总数" value={dash?.stats?.tasks ?? 0} note={`${dash?.stats?.active_tasks ?? 0} 个正在运行`} icon="◈"/><Metric label="治理候选" value={dash?.stats?.pending_governance ?? 0} note="批准后才进入后续检索" icon="⟳"/><Metric label="内核执行" value={status?.bpf_lsm ? 'BPF-LSM' : '待检查'} note={status?.kernel || 'Linux 内核'} icon="⌁"/></section>
       <section className="panel"><div className="panel-head"><div><h2>执行环境</h2><p>AgentScope 服务运行于 Linux 虚拟机</p></div><StatusTag kind={status?.broker?.available && status?.bpf_lsm ? 'good' : 'warn'}>{status?.broker?.available && status?.bpf_lsm ? '可用' : '检查中'}</StatusTag></div>
         <div className="env-list"><EnvRow label="Linux 内核" value={`${status?.kernel || '检测中'} · ${status?.architecture || ''}`} ok={!!status?.kernel}/><EnvRow label="BPF-LSM" value={status?.lsm || '检测中'} ok={!!status?.bpf_lsm}/><EnvRow label="ActPlane CLI" value={status?.actplane_cli ? '已安装' : '未安装'} ok={!!status?.actplane_cli}/><EnvRow label="DSH CLI" value={status?.dsh_cli ? '已安装' : '未安装'} ok={!!status?.dsh_cli}/><EnvRow label="特权代理" value={status?.broker?.available ? '已连接' : status?.broker?.error || '未连接'} ok={!!status?.broker?.available}/></div>

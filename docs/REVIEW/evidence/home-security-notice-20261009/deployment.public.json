@@ -1,0 +1,28 @@
+{
+  "source_base": "b05ee34dc1d9168812afcda91f00ab629b6ff163",
+  "ui_dist": "/var/lib/agentscope-scope-demo/ui",
+  "before_index_sha256": "a1c66aba625076f40e0a43706908a352692536e093333787ed6f1951e4674f00",
+  "after_index_sha256": "338d197a66314a8a36819d28668ad2398a148b2afc15d9d5861498a7c14106c0",
+  "assets_sha256": {
+    "index-m1hCfqCK.js": "571d039613df676966afe6f0bb0ba9fb8dd0442d4396d0920c78f2c3c33b6af4",
+    "index-Bhc_AFoB.css": "154f77f3f15eb71d68f92efb9ec81ab4cd50016fb573a54cb9e4478c1e7e257b"
+  },
+  "services": {
+    "agentscope-scope-demo-api.service": {
+      "pid": 8108,
+      "unchanged": true
+    },
+    "agentscope-scope-demo-broker.service": {
+      "pid": 7613,
+      "unchanged": true
+    }
+  },
+  "http": {
+    "/": 200,
+    "/api/health": 200,
+    "/api/status": 200,
+    "/api/dashboard": 200,
+    "/api/tasks": 200,
+    "/api/agent-instances": 200
+  }
+}
