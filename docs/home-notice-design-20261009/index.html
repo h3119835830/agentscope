@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AgentScope · 安全亮点公告设计稿</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="notice.css">
+</head>
+<body>
+  <div class="design-label">界面设计预览 <span>未接入运行时</span></div>
+  <div class="console-shell">
+    <aside class="sidebar" aria-label="控制台导航示意">
+      <a class="brand" href="index.html"><span class="brand-symbol">A</span>AgentScope</a>
+      <div class="nav-heading">工作台</div>
+      <div class="nav-item selected"><span>◫</span>总览</div>
+      <div class="nav-item"><span>▤</span>任务中心</div>
+      <div class="nav-item"><span>⌘</span>Agent 工作区</div>
+      <div class="nav-heading">策略与审计</div>
+      <div class="nav-item"><span>▦</span>策略库</div>
+      <div class="nav-item"><span>≡</span>历史记录</div>
+      <div class="sidebar-footer">安全执行控制台</div>
+    </aside>
+    <main class="homepage">
+      <header class="page-header">
+        <div><div class="breadcrumb">工作台 / 总览</div><h1>总览</h1><p>查看任务、执行规则和安全事件。</p></div>
+        <button id="open-notice" class="notice-button" type="button"><span class="announcement-symbol" aria-hidden="true">◈</span>安全亮点<span id="unread-dot" class="unread-dot" aria-label="未读"></span></button>
+      </header>
+      <section class="overview-summary" aria-label="首页布局示意">
+        <div><span>Agent 连接</span><strong>—</strong><small>连接后查看</small></div>
+        <div><span>执行中任务</span><strong>—</strong><small>连接后查看</small></div>
+        <div><span>待审变更</span><strong>—</strong><small>连接后查看</small></div>
+        <div><span>安全事件</span><strong>—</strong><small>连接后查看</small></div>
+      </section>
+      <section class="tasks-preview"><div class="section-header"><h2>任务与执行</h2><span>首页布局示意</span></div><div class="table-heading"><span>任务</span><span>Agent</span><span>状态</span><span>操作</span></div><div class="empty-home"><span class="empty-symbol" aria-hidden="true">▤</span><strong>任务信息将在这里展示</strong><p>公告关闭后，首页保留清晰的工作入口。</p></div></section>
+      <p class="design-note">公告首次进入自动展示；关闭后可从右上角「安全亮点」再次打开。</p>
+    </main>
+  </div>
+
+  <dialog id="security-notice" aria-labelledby="notice-heading">
+    <header class="notice-header">
+      <div class="notice-title"><span class="notice-mark" aria-hidden="true">◈</span><h2 id="notice-heading">安全亮点</h2><span class="case-count">6 个场景</span></div>
+      <button id="close-notice" class="close-button" type="button" aria-label="关闭公告">×</button>
+    </header>
+    <div class="notice-layout">
+      <nav class="scenario-nav" aria-label="选择安全场景">
+        <div class="nav-caption">从具体行为看防护价值</div>
+        <div id="scenario-buttons"></div>
+        <div class="sample-note"><span class="sample-dot"></span>示例 trace<br><span>用于展示设计，非本机实测</span></div>
+      </nav>
+      <article id="scenario-content" class="scenario-content" aria-live="polite"></article>
+    </div>
+    <footer class="notice-footer"><span>关闭后，本浏览器不再自动展示这一版公告。</span><button id="understood" type="button" class="primary-button">知道了</button></footer>
+  </dialog>
+  <script src="notice.js"></script>
+</body>
+</html>
