@@ -2,8 +2,7 @@ import React,{useEffect,useRef,useState} from 'react';
 import {displayName,timeLabel} from './taskPresentation.mjs';
 import './taskConsole.css';
 import './connections.css';
-import {instanceState,visibleInstances,canReadWorkspace,tabKeys} from './consoleState.mjs';
-import ConnectionHistory from './ConnectionHistory.jsx';
+import {instanceState,visibleInstances,canReadWorkspace} from './consoleState.mjs';
 import WorkspaceRecords from './WorkspaceRecords.jsx';
 import {workspaceTasks,workspaceSessions} from './workspaceRecords.mjs';
 
@@ -35,7 +34,7 @@ function ConnectionEvidence({agent,failed,error,now,onClose}){
  return <dialog ref={dialog} className="record-drawer" aria-label="Agent连接证据" onCancel={onClose}><div className="record-drawer-head"><h2>连接证据</h2><button className="button ghost tiny" onClick={onClose}>关闭</button></div><div className="record-drawer-body"><FieldRecords items={values.map(([label,value])=>[label,value===undefined||value===null||value===''?'未记录':value])}/></div></dialog>;
 }
 
-export default function AgentWorkspaces({api,post,notify,onCreateTask,tasks=[],active=true,agentSeed='',workspaceSeed='',onContext,pane='current',historySeed='',onOpenTask}) {
+export default function AgentWorkspaces({api,post,notify,onCreateTask,tasks=[],active=true,agentSeed='',workspaceSeed='',onContext,onOpenTask}) {
  const [agents,setAgents]=useState([]),[instance,setInstance]=useState(agentSeed),[workspaces,setWorkspaces]=useState([]),[selected,setSelected]=useState(workspaceSeed);
  const [inventory,setInventory]=useState(null),[loading,setLoading]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState(''),[failed,setFailed]=useState(false),[now,setNow]=useState(Date.now());
  const [adding,setAdding]=useState(false),[name,setName]=useState(''),[path,setPath]=useState(''),[revision,setRevision]=useState(0),[connectionDetail,setConnectionDetail]=useState(null);
@@ -43,9 +42,8 @@ export default function AgentWorkspaces({api,post,notify,onCreateTask,tasks=[],a
  const [inventoryRevision,setInventoryRevision]=useState(0);
  const [inventoryError,setInventoryError]=useState('');
  const recordTrigger=useRef(null);
- const [historyRevision,setHistoryRevision]=useState(0);
  const seq=useRef(0),workspaceSeq=useRef(0),current=agents.find(a=>a.id===instance),status=instanceState(current,now,failed);
- async function refresh(check){const n=++seq.current;try{const r=check?await post(`/api/workspace-agents/${encodeURIComponent(check)}/check`):await api('/api/workspace-agents');if(n!==seq.current)return;setAgents(r.agents||[]);setFailed(false);setError('');}catch(e){if(n===seq.current){setFailed(true);setError(e.message);}}finally{if(check)setHistoryRevision(v=>v+1);}}
+ async function refresh(check){const n=++seq.current;try{const r=check?await post(`/api/workspace-agents/${encodeURIComponent(check)}/check`):await api('/api/workspace-agents');if(n!==seq.current)return;setAgents(r.agents||[]);setFailed(false);setError('');}catch(e){if(n===seq.current){setFailed(true);setError(e.message);}}}
  useEffect(()=>{refresh();const t=setInterval(()=>refresh(),7000),clock=setInterval(()=>setNow(Date.now()),1000);return()=>{seq.current++;clearInterval(t);clearInterval(clock);};},[api]);
  useEffect(()=>{const n=++workspaceSeq.current;setWorkspaces([]);setWorkspaceError('');setAdding(false);setQuery('');if(!instance){setWorkspacesLoading(false);return;}setWorkspacesLoading(true);api(`/api/workspace-agents/${encodeURIComponent(instance)}/workspaces`).then(r=>{if(n===workspaceSeq.current)setWorkspaces(r.workspaces||[]);}).catch(e=>{if(n===workspaceSeq.current)setWorkspaceError(e.message);}).finally(()=>{if(n===workspaceSeq.current)setWorkspacesLoading(false);});return()=>{workspaceSeq.current++;};},[instance,revision,current?.generation,api]);
  useEffect(()=>{if(!instance){const first=visibleInstances(agents,tasks)[0];if(first)setInstance(first.id);}},[agents,instance,tasks]);
@@ -60,8 +58,8 @@ export default function AgentWorkspaces({api,post,notify,onCreateTask,tasks=[],a
  const registered=visibleInstances(agents,tasks);
  const selectedWorkspace=workspaces.find(workspace=>workspace.id===selected);
  return <div className="content task-console agent-connections"><h1 className="connection-screen-reader-heading">Agent连接</h1>
- <div className="connection-toolbar"><div className="task-hub-tabs" role="tablist" aria-label="连接视图">{[['current','当前连接'],['history','连接历史']].map(([key,label])=><button type="button" key={key} id={`connection-tab-${key}`} role="tab" aria-controls={`connection-pane-${key}`} aria-selected={pane===key} tabIndex={pane===key?0:-1} className={pane===key?'active':''} onClick={()=>onContext?.({connectionsPane:key})} onKeyDown={event=>tabKeys(event,['current','history'],pane,key=>onContext?.({connectionsPane:key}))}>{label}</button>)}</div><button className="button ghost" disabled={busy} onClick={()=>pane==='history'?setHistoryRevision(v=>v+1):run(async()=>{await refresh();setRevision(value=>value+1);})}>{pane==='history'?'刷新历史':'刷新记录'}</button></div>
- {pane==='history'?<div id="connection-pane-history" role="tabpanel" aria-labelledby="connection-tab-history"><ConnectionHistory api={api} active={active} revision={historyRevision} selected={historySeed} onSelect={id=>onContext?.({connectionHistory:id})} onOpenTask={onOpenTask}/></div>:<div id="connection-pane-current" role="tabpanel" aria-labelledby="connection-tab-current">
+ <div className="connection-toolbar"><h2 className="connection-current-title">当前连接</h2><button className="button ghost" disabled={busy} onClick={()=>run(async()=>{await refresh();setRevision(value=>value+1);})}>刷新记录</button></div>
+ <div id="connection-pane-current">
  {error&&<p role="alert" className="inline-notice warning">检查失败：{error}。连接状态未知。</p>}
  <section className="panel task-section connection-record-section" aria-label="实例记录"><div className="task-section-heading"><h2>实例记录</h2></div><div className="table-scroll" tabIndex={0} aria-label="实例记录表格"><table className="task-record-table connection-instances"><thead><tr><th>实例</th><th>接入方式</th><th>连接状态</th><th>工作区</th><th>操作</th></tr></thead><tbody>{registered.map(agent=>{const state=instanceState(agent,now,failed);return <tr key={agent.id} className={agent.id===instance?'task-selected-row':''}><td><b>{agent.name}</b></td><td>{agent.kind==='managed'?'受管执行':'原生观测'}</td><td>{state.label}</td><td>{agent.workspace_count??'未提供'}</td><td><div className="actions"><button type="button" className="button tiny ghost" disabled={busy} onClick={()=>run(()=>refresh(agent.id))}>检查</button><button type="button" className="button tiny ghost" aria-pressed={agent.id===instance} onClick={()=>setInstance(agent.id)}>查看工作区</button><button type="button" className="button tiny ghost" onClick={()=>setConnectionDetail(agent)}>连接记录</button></div></td></tr>})}{!registered.length&&<tr><td colSpan={5} className="task-empty">{failed?'状态未知，请重新检查。':'尚未发现实例。'}</td></tr>}</tbody></table></div></section>
  {instance&&<section className="panel task-section connection-record-section" aria-label="工作区记录"><div className="task-section-heading"><h2>工作区记录</h2><div className="connection-workspace-tools"><input type="search" aria-label="搜索工作区" placeholder="搜索名称或目录" value={query} onChange={event=>setQuery(event.target.value)}/><button className="button tiny ghost" disabled={!status.live} onClick={()=>setAdding(!adding)}>添加工作区</button></div></div><dl className="connection-instance-field"><dt>所属实例</dt><dd>{current?.name||instance}</dd></dl>
@@ -71,6 +69,6 @@ export default function AgentWorkspaces({api,post,notify,onCreateTask,tasks=[],a
  </section>}
  {selectedWorkspace&&active&&<WorkspaceRecords key={selectedWorkspace.id} trigger={recordTrigger.current} workspace={selectedWorkspace} agent={current} tasks={tasks} api={api} files={inventoryError?<p role="alert" className="inline-notice warning">文件读取失败：{inventoryError} <button type="button" className="button tiny ghost" onClick={()=>setInventoryRevision(value=>value+1)}>重试</button></p>:<WorkspaceFiles inventory={inventory} loading={loading||!inventory} onRefresh={()=>setInventoryRevision(value=>value+1)}/>} onFilesActive={setFilesActive} onOpenTask={onOpenTask} onCreateTask={onCreateTask} canCreate={selectedWorkspace.readable&&status.live} onClose={()=>setSelected('')}/>}
  {connectionDetail&&active&&<ConnectionEvidence agent={agents.find(a=>a.id===connectionDetail.id)||connectionDetail} failed={failed} error={error} now={now} onClose={()=>setConnectionDetail(null)}/>}
- </div>}
+ </div>
  </div>;
 }

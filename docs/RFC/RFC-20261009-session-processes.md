@@ -21,3 +21,13 @@ DSH 名称来自原生只读 session/list：服务端向 Broker 取得当前受�
 前端只查询 sessions，不再为此页额外查询全部 processes。保留 5 秒刷新及手动刷新，异步失败清除当前进程列表并提供重试，不将过期进程显示为当前。
 
 参见 [ADR](../ADR/ADR-20261009-session-processes.md)、[REVIEW](../REVIEW/REVIEW-20261009-session-processes.md)、[BUG](../BUG/BUG-20261009-session-processes.md)。
+
+## 2026-10-10：会话工作区与连接界面简化
+
+DSH 的“会话与进程”增加工作区列，展示目录名与完整路径。直接读取 GET /api/agent-instances/{id}/sessions 中逐会话 resource，不使用实例资源清单、进程 cwd、会话名称或默认目录推断归属；Broker 已将原生 workspaceRegistry 的隔离执行路径翻译为对应主机资源目录。execution_resource（例如 /w/0）仍保留接口原语义，不作为主路径展示。已保存会话同样保留其真实工作区，不因此显示执行 PID；缺失目录显示“未提供”。
+
+Hermes 不展示项目工作区列；其运行资源目录不自动解释为 coding Agent 项目工作区。其他 Agent 若返回逐会话工作区目录，也可显示该列；没有目录数据则隐藏。DSH 自身支持工作区，因此加载中或暂未读取到目录时仍保留列头。
+
+Agent连接及旧工作区关联界面移除连接历史页签、历史内容与任务技术详情中的连接历史跳转。旧 connectionsPane/connectionHistory URL 退回当前连接并在导航时清理；任务历史、运行记录及既有 append-only 审计存储/只读接口保留。本轮只修改前端，未改变会话、权限、执行或历史数据接口。
+
+见 [本轮验收](../REVIEW/REVIEW-20261010-session-workspaces.md)。

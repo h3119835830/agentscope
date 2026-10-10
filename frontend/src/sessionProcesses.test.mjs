@@ -20,3 +20,14 @@ test('an observed product keeps its preferred entry when no controlled connectio
  const cli={id:'cli',agent_type:'hermes',status:'installed'},web={id:'web',agent_type:'hermes',connected:true,entry:{kind:'web'}};
  assert.deepEqual(visibleAgentInstances([cli,web]),[web]);
 });
+
+test('each saved or live session retains its own native workspace rather than an executor directory',()=>{
+ const rows=[{id:'saved',resource:'/projects/first',execution_resource:'/w/0',process_ids:[]},{id:'live',resource:'/projects/second',execution_resource:'/w/1',process_ids:[42]}].map(sessionProcessRow);
+ assert.deepEqual(rows.map(r=>r.workspace),['/projects/first','/projects/second']);
+ assert.deepEqual(rows.map(r=>r.workspaceName),['first','second']);
+ assert.deepEqual(rows[0].pids,[]);
+});
+test('missing workspace metadata is not inferred from PID or execution mount',()=>{
+ for(const resource of [undefined,null,{},'   '])assert.equal(sessionProcessRow({id:'s',resource,execution_resource:'/w/0',process_ids:[42]}).workspace,'');
+ assert.equal(sessionProcessRow({id:'windows',resource:'C:\\Projects\\checkout'}).workspaceName,'checkout');
+});

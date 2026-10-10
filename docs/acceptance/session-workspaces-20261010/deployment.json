@@ -1,0 +1,71 @@
+{
+  "deployed_at": "2026-10-10T13:41:10.319609+08:00",
+  "before": {
+    "instance": {
+      "id": "instance-1f4469579e8947f4",
+      "connected": true,
+      "active": true,
+      "gate": "open",
+      "pid": 1343,
+      "start_ticks": "8657",
+      "generation": "d47ddb8cffe4422d89a33c4e03227d15",
+      "policy_hash": "9c5fa9fbb63c9bcd71da29007179d6c9fed00b23ac9b9f4e41165a76b92425c1",
+      "domain_id": 627647253,
+      "boot_id": "182e64b0-b143-4e8a-ae1c-045b181db448"
+    },
+    "services": "Id=agentscope-scope-demo-api.service\nMainPID=496\n\nId=agentscope-scope-demo-broker.service\nMainPID=407"
+  },
+  "after": {
+    "instance": {
+      "id": "instance-1f4469579e8947f4",
+      "connected": true,
+      "active": true,
+      "gate": "open",
+      "pid": 1343,
+      "start_ticks": "8657",
+      "generation": "d47ddb8cffe4422d89a33c4e03227d15",
+      "policy_hash": "9c5fa9fbb63c9bcd71da29007179d6c9fed00b23ac9b9f4e41165a76b92425c1",
+      "domain_id": 627647253,
+      "boot_id": "182e64b0-b143-4e8a-ae1c-045b181db448"
+    },
+    "services": "Id=agentscope-scope-demo-api.service\nMainPID=496\n\nId=agentscope-scope-demo-broker.service\nMainPID=407"
+  },
+  "assets": [
+    {
+      "path": "/assets/index-Boy4Q_TT.js",
+      "sha256": "b2a8e729643a7bbb8293417f58b59d59ccc49eebc3d78ec721730df7bd5c20e7"
+    },
+    {
+      "path": "/assets/index-FU_Lkc6C.css",
+      "sha256": "fcb183550232da0e0f61bd796b234128fba00e17def76553d7f8baf008bb7228"
+    }
+  ],
+  "index_sha256": "bed098e2a2ac54055fdc09e68cd6705e1a0697ac1185db320da690d0cda566dd",
+  "runtime_restarted": false,
+  "old_assets_preserved": true,
+  "final_check": {
+    "at": "2026-10-10T13:44:09.543478+08:00",
+    "http": [
+      {
+        "path": "/",
+        "status": 200
+      },
+      {
+        "path": "/api/health",
+        "status": 200
+      },
+      {
+        "path": "/assets/index-Boy4Q_TT.js",
+        "status": 200
+      },
+      {
+        "path": "/assets/index-FU_Lkc6C.css",
+        "status": 200
+      }
+    ],
+    "session_workspace_matches_by_id": true,
+    "runtime_identity_unchanged": true,
+    "startup_verification_still_passed": true,
+    "session_count": 7
+  }
+}

@@ -114,3 +114,15 @@ body:has(.instance-drawer[open]),body:has(.instance-add[open]){overflow:hidden}
 .session-process-pids small{display:block;width:100%;font-size:11px;color:#6d8097}
 .session-process-inactive{font-size:12px;color:#6d8097}
 @media(max-width:650px){.session-process-table{min-width:680px}.session-process-heading>div{gap:8px}}
+
+.connection-current-title{margin:0;font-size:15px;color:#203b59}
+.session-process-table.has-workspace{min-width:880px}
+.session-process-table.has-workspace th:nth-child(1){width:23%}
+.session-process-table.has-workspace th:nth-child(2){width:29%}
+.session-process-table.has-workspace th:nth-child(3){width:25%}
+.session-process-table.has-workspace th:nth-child(4){width:10%}
+.session-process-table.has-workspace th:nth-child(5){width:13%}
+.session-workspace{display:grid;gap:7px;min-width:0}
+.session-workspace-name{display:flex;align-items:center;gap:6px;width:fit-content;max-width:100%;color:#236b6b;background:#edf7f5;border:1px solid #d8eae6;border-radius:5px;padding:4px 7px;font-size:12px;font-weight:600;overflow-wrap:anywhere}
+.session-workspace-name svg{flex-shrink:0}
+.session-workspace-path{display:block;color:#61768b;font:11px/1.65 Consolas,"Cascadia Code",monospace;overflow-wrap:anywhere;white-space:normal}

@@ -1,0 +1,83 @@
+[
+  {
+    "check": "DSH session workspace column",
+    "passed": true,
+    "headers": [
+      "会话名称",
+      "会话 ID",
+      "工作区",
+      "状态",
+      "执行进程（PID）"
+    ],
+    "historyVisible": false,
+    "rows": [
+      {
+        "id": "session-1e38fe17-5015-494b-92f4-a164b650bdf4",
+        "pid": null,
+        "workspace": "/s/instance-resources/second-dsh"
+      },
+      {
+        "id": "session-f1aaccc8-ab10-4719-9499-0c1f2af76996",
+        "pid": null,
+        "workspace": "/s/instance-resources/second-dsh"
+      },
+      {
+        "id": "session-74fe57c1-fe55-4bd4-9db8-5e624d3c5702",
+        "pid": "1343共享进程",
+        "workspace": "/s/instance-resources/second-dsh"
+      },
+      {
+        "id": "session-4b0ba2e5-36dd-419d-be19-6fa17f1a596e",
+        "pid": null,
+        "workspace": "/s/instance-resources/rq5-dsh"
+      },
+      {
+        "id": "session-248b69ae-bc23-4fe4-8a43-0493d1412795",
+        "pid": null,
+        "workspace": "/s/instance-resources/rq5-dsh"
+      },
+      {
+        "id": "session-55c08c67-1ecc-4e64-9079-8a1009b31b65",
+        "pid": null,
+        "workspace": "/s/instance-resources/rq5-dsh"
+      },
+      {
+        "id": "session-4ee319d9-3257-485f-a13a-04a009b1afc5",
+        "pid": null,
+        "workspace": "/s/instance-resources/rq5-dsh"
+      }
+    ]
+  },
+  {
+    "check": "Hermes hides workspace column",
+    "passed": true,
+    "emptyColSpan": 4,
+    "hasWorkspace": false,
+    "headers": [
+      "会话名称",
+      "会话 ID",
+      "状态",
+      "执行进程（PID）"
+    ]
+  },
+  {
+    "check": "Old connection history URL falls back to current list",
+    "passed": true,
+    "hasDiscover": true,
+    "hasHistory": false,
+    "headings": [
+      "当前连接"
+    ]
+  },
+  {
+    "check": "Default viewport layout and bounded table scrolling",
+    "passed": true,
+    "bodyOverflowY": "auto",
+    "containerWidth": 949,
+    "documentWidth": 1007,
+    "overflowX": "auto",
+    "tableMinimumWidth": "880px",
+    "tableWidth": 949,
+    "viewport": 1007
+  }
+]
