@@ -1,0 +1,179 @@
+{
+  "checked_at": "2026-10-10T13:33:57.0314453+08:00",
+  "http": {
+    "health_ok": true,
+    "index_status": 200,
+    "assets": [
+      {
+        "path": "/assets/index-Bfo012_n.js",
+        "status": 200
+      },
+      {
+        "path": "/assets/index-BImwV6SW.css",
+        "status": 200
+      }
+    ]
+  },
+  "instance": {
+    "id": "instance-1f4469579e8947f4",
+    "name": "RQ5 DSH 受控实例",
+    "connected": true,
+    "active": true,
+    "gate": "open",
+    "pid": 1343,
+    "start_ticks": "8657",
+    "generation": "d47ddb8cffe4422d89a33c4e03227d15",
+    "policy_hash": "9c5fa9fbb63c9bcd71da29007179d6c9fed00b23ac9b9f4e41165a76b92425c1",
+    "security": "执行受控",
+    "domain_id": 627647253,
+    "process_cgroup": "/sys/fs/cgroup/agentscope-scope-demo/29cc2b14fdf3b3cc-627647253",
+    "boot_id": "182e64b0-b143-4e8a-ae1c-045b181db448"
+  },
+  "verification": {
+    "passed": true,
+    "protected_integrity": true,
+    "grants_verified": true,
+    "network_verified": true,
+    "network_reject_counters": {
+      "ipv4": 1,
+      "ipv6": 1
+    },
+    "root_owned_events": true
+  },
+  "kernel_event_count": 7,
+  "session_count": 7,
+  "process_count": 4,
+  "live_processes": [
+    {
+      "pid": 1334,
+      "role": "control relay",
+      "domain_verified": true
+    },
+    {
+      "pid": 1340,
+      "role": "child",
+      "domain_verified": true
+    },
+    {
+      "pid": 1342,
+      "role": "child",
+      "domain_verified": true
+    },
+    {
+      "pid": 1343,
+      "role": "shared agent executor",
+      "domain_verified": true
+    }
+  ],
+  "windows_residents": [
+    {
+      "ProcessId": 23332,
+      "ParentProcessId": 53476,
+      "CreationDate": "2026-10-10T13:31:11.724307+08:00"
+    },
+    {
+      "ProcessId": 53056,
+      "ParentProcessId": 23332,
+      "CreationDate": "2026-10-10T13:31:11.772491+08:00"
+    }
+  ],
+  "browser_verification": "Blocked: existing error tab protocol rejected by browser URL policy; no workaround attempted.",
+  "linux_checked_at": "2026-10-10T13:35:10.032504+08:00",
+  "current_boot_id": "182e64b0-b143-4e8a-ae1c-045b181db448",
+  "current_cgroup": "0::/agentscope-scope-demo/29cc2b14fdf3b3cc-627647253",
+  "systemd": "Id=agentscope-scope-demo-api.service\nActiveState=active\nMainPID=496\nExecMainStartTimestamp=Sat 2026-10-10 13:31:14 CST\n\nId=agentscope-scope-demo-broker.service\nActiveState=active\nMainPID=407\nExecMainStartTimestamp=Sat 2026-10-10 13:31:14 CST",
+  "previous_shutdown": [
+    "2026-10-09T23:07:52+08:00 Claire systemd-logind[331]: The system will power off now!",
+    "2026-10-09T23:07:52+08:00 Claire systemd-logind[331]: System is powering down.",
+    "2026-10-09T23:07:56+08:00 Claire systemd[1]: Finished systemd-poweroff.service - System Power Off.",
+    "2026-10-09T23:07:56+08:00 Claire systemd[1]: Reached target poweroff.target - System Power Off.",
+    "2026-10-09T23:07:56+08:00 Claire systemd-journald[54]: Journal stopped"
+  ],
+  "diagnosis": {
+    "confirmed": "WSL system poweroff completed 2026-10-09 23:07:56 +08:00; old DSH process absent at recovery.",
+    "direct_shutdown_initiator": "Not identified by the available Windows and Linux logs.",
+    "residency_gap": "Prior keepalive depended on a tool-managed foreground execution session. No login startup task was installed.",
+    "current_residency": "Independent hidden Windows wsl.exe /bin/sleep infinity process, started 2026-10-10 13:31:11 +08:00; this is not a login startup guarantee."
+  },
+  "final_windows_check": {
+    "checked_at": "2026-10-10T13:37:46.3163896+08:00",
+    "http": {
+      "health_ok": true,
+      "index_status": 200,
+      "assets": [
+        {
+          "path": "/assets/index-Bfo012_n.js",
+          "status": 200
+        },
+        {
+          "path": "/assets/index-BImwV6SW.css",
+          "status": 200
+        }
+      ]
+    },
+    "instance": {
+      "id": "instance-1f4469579e8947f4",
+      "name": "RQ5 DSH 受控实例",
+      "connected": true,
+      "active": true,
+      "gate": "open",
+      "pid": 1343,
+      "start_ticks": "8657",
+      "generation": "d47ddb8cffe4422d89a33c4e03227d15",
+      "policy_hash": "9c5fa9fbb63c9bcd71da29007179d6c9fed00b23ac9b9f4e41165a76b92425c1",
+      "security": "执行受控",
+      "domain_id": 627647253,
+      "process_cgroup": "/sys/fs/cgroup/agentscope-scope-demo/29cc2b14fdf3b3cc-627647253",
+      "boot_id": "182e64b0-b143-4e8a-ae1c-045b181db448"
+    },
+    "verification": {
+      "passed": true,
+      "protected_integrity": true,
+      "grants_verified": true,
+      "network_verified": true,
+      "network_reject_counters": {
+        "ipv4": 1,
+        "ipv6": 1
+      },
+      "root_owned_events": true
+    },
+    "kernel_event_count": 7,
+    "session_count": 7,
+    "process_count": 4,
+    "live_processes": [
+      {
+        "pid": 1334,
+        "role": "control relay",
+        "domain_verified": true
+      },
+      {
+        "pid": 1340,
+        "role": "child",
+        "domain_verified": true
+      },
+      {
+        "pid": 1342,
+        "role": "child",
+        "domain_verified": true
+      },
+      {
+        "pid": 1343,
+        "role": "shared agent executor",
+        "domain_verified": true
+      }
+    ],
+    "windows_residents": [
+      {
+        "ProcessId": 23332,
+        "ParentProcessId": 53476,
+        "CreationDate": "2026-10-10T13:31:11.724307+08:00"
+      },
+      {
+        "ProcessId": 53056,
+        "ParentProcessId": 23332,
+        "CreationDate": "2026-10-10T13:31:11.772491+08:00"
+      }
+    ],
+    "browser_verification": "Blocked: existing error tab protocol rejected by browser URL policy; no workaround attempted."
+  }
+}

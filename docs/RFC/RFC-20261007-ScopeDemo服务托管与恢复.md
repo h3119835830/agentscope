@@ -19,3 +19,11 @@ scripts/Open-ScopeDemo.cmd 及桌面文档目录的 打开ScopeDemo.cmd 先启�
 ## 证据边界
 
 本次恢复页面、API 与服务生命周期。旧任务 eada0606a5014c9d 仍 completed、effective=false，仅为历史记录。服务健康、本机登录及 API 自动恢复均不代表 DSH 当前在线，也不替代此前未完成的内核机制验收。
+
+## 2026-10-10：WSL 驻留与当前 Agent 恢复边界
+
+systemd 的 enabled 配置仅在 WSL 启动后托管服务，不能保持 WSL 实例存活，见 [Microsoft WSL systemd 文档](https://learn.microsoft.com/en-us/windows/wsl/systemd)。本机此前仅有工具管理的临时前台驻留会话，桌面入口也只执行 systemctl start；两者都不保证后续长期可达。
+
+本轮恢复采用独立隐藏的 Windows wsl.exe 进程执行 /bin/sleep infinity，不依赖诊断终端。尚未安装 Windows 登录启动项或计划任务；注销、主动终止驻留进程或关闭 WSL 后仍须重新启动。API/Broker 托管、Agent 启动与策略授权合同保持原定义：通过现有实例 start 接口恢复当前 DSH，并重新验证 generation、PID、安全域及启动核验，不能把持久化 gate/runtime 字段当作当前在线证据。
+
+当前 API/Broker 执行脚本来自 /opt/agentscope-task-archive-20261007/scripts/scope_systemd_exec.py，UI 来自 /var/lib/agentscope-scope-demo/ui。本轮具体证据及限制见 [连接恢复验收](../REVIEW/REVIEW-20261010-18003与DSH连接恢复.md)。
