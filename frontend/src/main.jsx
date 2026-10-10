@@ -113,8 +113,8 @@ function App() {
         <NavItem active={page === 'connections'} icon="⇄" label="Agent连接" onClick={() => navigate({page:'connections',connectionInstance:'',connectionTab:''})} />
         <div className="nav-connection-children" aria-label="Agent连接下的模块"><NavItem active={page === 'sessions'} icon="▤" label="会话" onClick={() => navigate({page:'sessions',sessionInstance:'',sessionId:'',sessionFilterInstance:'',sessionWorkspace:'',sessionCursor:0})} /></div>
         <NavItem active={page === 'workbench'} icon="◈" label="Agent" onClick={() => setPage('workbench')} />
-        <NavItem active={page === 'history'} icon="▤" label="任务历史" onClick={() => setPage('history')} />
         <NavItem active={page === 'strategies'} icon="▤" label="系统" count={dash?.stats?.pending_strategies} onClick={() => navigate({page:'strategies',systemTab:'policies'})} />
+        <NavItem active={page === 'history'} icon="▤" label="任务历史" onClick={() => setPage('history')} />
       </nav>
     </aside>
     <main className="main" data-page={page}>

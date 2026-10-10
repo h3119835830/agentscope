@@ -1,0 +1,66 @@
+{
+  "scope": "AgentScope customer UI, conversation template candidates and explicit Agent source declarations",
+  "frontend_tests": {
+    "passed": 204,
+    "failed": 0
+  },
+  "backend_tests": {
+    "passed": 26,
+    "failed": 0,
+    "database": "isolated",
+    "executor": "mocked",
+    "parser_compiler": "real ActPlane adapter"
+  },
+  "build": {
+    "result": "passed",
+    "modules": 103,
+    "warning": "main JS exceeds 500 kB"
+  },
+  "skill_validation": "passed",
+  "browser": {
+    "origin": "http://127.0.0.1:18003",
+    "viewport": "1280x720",
+    "console_errors": [],
+    "composer_bottom": 665,
+    "visible_repeated_module_headings": [],
+    "page_horizontal_overflow": false,
+    "checks": [
+      "task history last in sidebar",
+      "templates selected within policy conversation",
+      "candidate visible with structured fields",
+      "exact DSH editor receives node source and registered protected path",
+      "Hermes switch does not show DSH candidate",
+      "refresh restores same-tab candidate",
+      "system config shows readable fields and live summary",
+      "system DSL has node and python executor declarations",
+      "native-session shortcut selects its owning Agent"
+    ]
+  },
+  "authority": {
+    "current_scopes_unchanged": true,
+    "controlled_lifecycle_unchanged": true,
+    "api_service_unchanged": true,
+    "confirm_calls": 0,
+    "review_calls": 0,
+    "new_live_proposals": 0,
+    "new_live_generation_runs": 0
+  },
+  "sources": {
+    "dsh": "**/node",
+    "hermes": "**/python",
+    "basis": [
+      "ActPlane lower_exec basename/comm implementation",
+      "allowlisted controlled instance_runner launch contract",
+      "registered runtime executable and current DSH proc executable"
+    ],
+    "actual_kernel_application_test": "not_run; requires user confirmation"
+  },
+  "remaining": [
+    "Free-form Agent environment adaptation still lacks a server-verified Agent context contract",
+    "Per-session policy application not added; generated Agent policies cover all its sessions"
+  ],
+  "assets": {
+    "index-DZw3GZjX.js": "e2ed0b09e89d1e88f80b24e8e0122b7f0c08994b9cec063010041900038bef17",
+    "index-BJgrhIkW.css": "06afffeafd8bcbae05b936e15b59ad4d901728d3866bf47e60e44b47be8ade8c"
+  }
+}

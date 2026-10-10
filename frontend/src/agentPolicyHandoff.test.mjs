@@ -9,10 +9,10 @@ import React from 'react';
 import {materializeTemplate,createHandoff,appendHandoff,previewMatches,templateDefaults} from './agentPolicyHandoff.mjs';
 import {readNavigation,navigationTarget} from './navigation.mjs';
 const catalogue=JSON.parse(readFileSync(new URL('./rq1-agent-templates.json',import.meta.url),'utf8'));
-const t=catalogue.templates[0],values={target:'/project/.env'},target={id:'agent-one',mode:'controlled'},handoff=()=>createHandoff(t,values,'该项目的秘密配置',target,'draft-one');
+const t=catalogue.templates[0],values={target:'/project/.env'},target={id:'agent-one',mode:'controlled',agent_type:'dsh'},handoff=()=>createHandoff(t,values,'该项目的秘密配置',target,'draft-one');
 test('all six curated candidates preserve evidence and do not inherit historical compilation',()=>{
  assert.equal(catalogue.verified_records,607);assert.equal(catalogue.templates.length,6);
- for(const item of catalogue.templates){assert.equal(item.scope_type,'agent');assert.equal(item.adapted_compile_status,'not_run');assert.ok(item.evidence.directive);assert.ok(item.caveat);const doc=materializeTemplate(item,Object.fromEntries(item.parameters.map(p=>[p.key,p.value])),'','d');assert.doesNotMatch(doc.original_dsl,/\{\{/);assert.ok(Object.keys(doc.metadata).length);}
+ for(const item of catalogue.templates){assert.equal(item.scope_type,'agent');assert.equal(item.adapted_compile_status,'not_run');assert.ok(item.evidence.directive);assert.ok(item.caveat);const doc=materializeTemplate(item,Object.fromEntries(item.parameters.map(p=>[p.key,p.value])),'','d',[{pattern:'**/node'}]);assert.doesNotMatch(doc.original_dsl,/\{\{/);assert.ok(Object.keys(doc.metadata).length);}
 });
 test('template arguments reject unsupported quotes, backslashes, control, relative and traversal paths',()=>{
  assert.throws(()=>materializeTemplate(t,{target:'/project/"quote"'},'','d'),/引号/);

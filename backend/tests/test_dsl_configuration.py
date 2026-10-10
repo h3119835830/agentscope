@@ -237,7 +237,7 @@ def test_curated_rq1_templates_compile_as_unapplied_agent_candidates(world,templ
     program="""import fs from 'node:fs';
 import {materializeTemplate} from './src/agentPolicyHandoff.mjs';
 const t=JSON.parse(fs.readFileSync('./src/rq1-agent-templates.json','utf8')).templates[Number(process.argv[1])];
-console.log(JSON.stringify(materializeTemplate(t,Object.fromEntries(t.parameters.map(p=>[p.key,p.value])),'isolated acceptance','rq1-candidate')));"""
+console.log(JSON.stringify(materializeTemplate(t,Object.fromEntries(t.parameters.map(p=>[p.key,p.value])),'isolated acceptance','rq1-candidate',[{pattern:'**/node'}])));"""
     result=subprocess.run(['node','--input-type=module','-e',program,str(template_index)],cwd=frontend,capture_output=True,text=True,check=True)
     doc=json.loads(result.stdout)
     proposal=candidate(world.a['id'],[doc])
@@ -255,7 +255,7 @@ def test_system_configuration_records_compile_without_applying(world,template_in
     program="""import fs from 'node:fs';
 import {createSystemHandoff} from './src/agentPolicyHandoff.mjs';
 const t=JSON.parse(fs.readFileSync('./src/system-policy-configurations.json','utf8'))[Number(process.argv[1])];
-console.log(JSON.stringify(createSystemHandoff(t,Object.fromEntries(t.parameters.map(p=>[p.key,p.value])),'isolated acceptance','system-candidate').document));"""
+console.log(JSON.stringify(createSystemHandoff(t,Object.fromEntries(t.parameters.map(p=>[p.key,p.value])),'isolated acceptance','system-candidate',[{pattern:'**/node'},{pattern:'**/python'}]).document));"""
     result=subprocess.run(['node','--input-type=module','-e',program,str(template_index)],cwd=frontend,capture_output=True,text=True,check=True)
     proposal=candidate('system',[json.loads(result.stdout)])
     assert proposal['state']=='pending',proposal['result']['error']

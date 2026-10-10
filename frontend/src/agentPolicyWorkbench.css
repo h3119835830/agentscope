@@ -30,3 +30,90 @@
 
 .assistant-chat-messages.empty{container-type:size}
 @container(max-height:235px){.assistant-welcome-mark{display:none}.assistant-welcome{margin:0 auto}.assistant-welcome h2{font-size:18px;margin-bottom:6px}.assistant-welcome>p{font-size:12px;margin-bottom:10px}.assistant-prompts button{font-size:11px;padding:6px 10px}}
+
+/* Customer configuration: compact editor with a live, readable summary. */
+.customer-policy-dialog{width:min(960px,96vw)}
+.customer-config-head{display:flex;align-items:center;gap:14px;padding:24px 28px 18px;flex-shrink:0}
+.customer-config-symbol{width:42px;height:42px;display:grid;place-items:center;border:1px solid #e4defa;border-radius:12px;background:#f5f1ff;color:#8b6dcc;font-size:25px}
+.customer-config-kicker{font-size:11px;color:#8290a7;display:flex;align-items:center;gap:9px}
+.customer-config-kicker span{font:10px/1.8 Consolas,monospace;border:1px solid #e9edf5;padding:0 6px;border-radius:4px}
+.customer-config-head h2{font-size:19px;letter-spacing:.1px;margin:5px 0 0;color:#223853}
+.config-close{margin-left:auto;width:32px;height:32px;border:1px solid #e4e9f2;border-radius:8px;background:white;color:#8290a5;font:24px/1 Arial;cursor:pointer}
+.config-close:hover{background:#f3f6fb;color:#2a4261}
+.customer-policy-dialog .config-tabs{padding:0 28px;background:#fff;flex-shrink:0}
+.customer-policy-dialog .config-tabs button{padding:13px 0;font-size:12px}
+.customer-config-body{padding:0;flex:1;min-height:0;overflow:auto;background:#fff}
+.customer-config-layout{display:grid;grid-template-columns:minmax(0,1fr) 264px;min-height:100%}
+.customer-config-form{padding:24px 28px}
+.customer-policy-dialog label{color:#687c97;font-size:12px;gap:8px}
+.customer-policy-dialog input,.customer-policy-dialog select{padding:9px 11px;line-height:1.6;border-radius:8px;border-color:#dfe6f0;font-size:13px}
+.customer-policy-dialog textarea{font-size:12px;line-height:1.9;padding:11px 13px;border-color:#dfe6f0;border-radius:8px;color:#3d5473;background:#fcfdff}
+.customer-config-section{margin-top:22px;padding-top:20px;border-top:1px solid #edf0f6}
+.customer-config-section h3{font-size:13px;color:#2b4260;margin:0 0 13px;font-weight:600}
+.customer-scope-line{display:flex;align-items:center;gap:10px}
+.customer-scope-icon{display:grid;place-items:center;color:#6685d0;background:#f1f5fd;border:1px solid #e3ebfb;border-radius:8px;width:34px;height:34px;font-size:19px;flex-shrink:0}
+.customer-scope-line strong{font-size:12px;color:#3b5273;font-weight:500;display:block}
+.customer-scope-line small{font-size:11px;color:#95a3b7;display:block;margin-top:5px}
+.customer-scope-count{margin-left:auto;font-size:10px;color:#92a0b4;white-space:nowrap}
+.customer-agent-chips{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0 0 44px}
+.customer-agent-chips>span{font-size:10px;color:#5c75a1;background:#f6f8fc;border:1px solid #e6ebf5;border-radius:5px;padding:3px 7px}
+.customer-agent-field{display:block}.customer-agent-field select{display:block;margin-top:8px}
+.customer-operation{display:flex;align-items:center;gap:9px;color:#7a8da7;font-size:12px;margin-bottom:14px}
+.customer-event-dot{width:7px;height:7px;border:3px solid #e7edfc;background:#718bd8;border-radius:50%;box-sizing:content-box}
+.customer-operation strong{font-weight:500;color:#456696;background:#f3f6fc;border-radius:4px;padding:3px 8px}
+.customer-condition-fields{display:grid;gap:14px}.customer-path-input{display:flex;align-items:center;border:1px solid #dce4f0;border-radius:8px;overflow:hidden;background:#fbfcff;min-width:0}
+.customer-path-input>span{color:#a2b0c5;padding-left:11px;font-size:19px}
+.customer-policy-dialog .customer-path-input input{border:0;background:transparent;outline:none;box-shadow:none;min-width:0;font:12px/1.8 Consolas,monospace;padding:10px 11px}
+.customer-path-input:focus-within{border-color:#a6bcf4;box-shadow:0 0 0 3px #477aff08}
+.customer-fixed-condition{font:12px/1.8 Consolas,monospace;color:#496084;background:#f7f9fe;border-radius:7px;padding:12px}
+.customer-field-help{display:block;color:#96a4b7;font-size:10px;line-height:1.8;margin-top:8px}
+.customer-section-line{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px}.customer-section-line h3{margin:0}.customer-section-line .effect-pill{font-size:10px;padding:3px 7px}
+.customer-config-more{border-top:1px solid #edf0f6;margin-top:20px;padding-top:14px;color:#91a0b5;font-size:11px;line-height:1.9}
+.customer-config-more summary{cursor:pointer}.customer-config-more label{margin-top:12px}.customer-config-more p{font-size:11px;margin:12px 0 0;color:#8394ad}
+.customer-config-preview{background:linear-gradient(160deg,#f8faff,#f5f7fc);border-left:1px solid #e9eef6;padding:26px 23px;color:#526784;min-width:0}
+.customer-preview-label{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#8898ad}
+.customer-draft-dot{display:inline-flex;align-items:center;gap:5px;font-size:10px;color:#ad8c5c}.customer-draft-dot:before{content:'';width:4px;height:4px;border-radius:50%;background:#d4ac71}
+.customer-preview-effect{display:flex;align-items:center;gap:9px;margin:24px 0 12px;background:none!important}
+.customer-preview-effect>span{font-size:25px}.customer-preview-effect strong{font-size:16px;font-weight:600}
+.customer-preview-effect.effect-block{color:#bc6363}.customer-preview-effect.effect-kill{color:#b07c4d}.customer-preview-effect.effect-notify{color:#5b7bad}
+.customer-config-preview>p{font-size:11px;line-height:1.9;color:#8b9aaf;margin:0 0 23px}
+.customer-config-preview dl{margin:0;display:grid;gap:8px}.customer-config-preview dt{font-size:10px;color:#93a2b7;margin-top:10px}.customer-config-preview dd{font-size:12px;line-height:1.8;margin:0;color:#4a6080;overflow-wrap:anywhere}
+.customer-config-preview .customer-preview-target{font:11px/1.8 Consolas,monospace;background:#fff;border:1px solid #e6ebf5;border-radius:6px;padding:9px 10px}
+.customer-source-preview{margin-top:24px;border-top:1px solid #e2e8f3;padding-top:16px;display:flex;gap:7px;flex-wrap:wrap}
+.customer-source-preview>span{display:block;width:100%;font-size:10px;color:#93a1b4;margin-bottom:3px}.customer-source-preview code{font:11px/1.8 Consolas,monospace;color:#647ca7;background:#edf2fb;padding:2px 7px;border:1px solid #e1e8f4;border-radius:4px}
+.customer-confirm-note{display:flex;align-items:center;gap:9px;margin-top:28px;padding-top:18px;border-top:1px solid #e2e8f3}.customer-confirm-note>span{color:#8099c0;border:1px solid #dbe4f2;border-radius:50%;width:20px;height:20px;display:grid;place-items:center;font-size:10px}.customer-confirm-note p{font-size:10px;line-height:1.8;color:#90a0b6;margin:0}
+.customer-config-footer{padding:17px 28px;flex-shrink:0;box-shadow:none}.customer-config-footer>span{font-size:10px}.customer-config-footer .button{font-size:12px}
+.customer-dsl-preview{padding:24px 28px}.customer-dsl-caption{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;font-size:12px}.customer-dsl-caption>span{font-size:10px;color:#95a1b4}
+.customer-dsl-preview .dsl-code{max-height:450px}.customer-dsl-agents{margin-top:24px;font-size:11px;color:#8b9bb1}.customer-dsl-agents>strong{font-weight:500;display:block;margin-bottom:12px}.customer-dsl-agents>div{display:grid;grid-template-columns:140px 1fr;gap:8px;padding:10px 0;border-bottom:1px solid #edf1f7;color:#607999}.customer-dsl-agents code{font-size:11px}.customer-dsl-agents small{grid-column:1/-1;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;font:10px/1.8 Consolas,monospace;color:#9aa8bc}
+/* No repeated module titles. The selected Agent belongs to the conversation. */
+.agent-workbench-bar{display:flex;align-items:center;gap:20px;border-bottom:1px solid #dfe6f0;margin-bottom:20px;flex-shrink:0}
+.agent-workbench-bar .policy-page-tabs{flex:1;margin:0!important;border:0}.agent-workbench-actions{display:flex;gap:8px}
+.policy-workbench.agent-assistant-page{min-height:520px;padding-top:16px;padding-bottom:22px}
+.agent-assistant-page .policy-assistant{border-color:#dfe6f2;box-shadow:0 5px 26px #233c5b04;border-radius:13px}
+.assistant-chat-head small select{border:0!important;outline:none;background:transparent!important;padding:0 22px 0 0!important;font-size:11px;color:#8294ae;max-width:360px;line-height:1.8;height:auto;cursor:pointer}
+.assistant-chat-head small{margin-top:6px}.assistant-welcome h2{font-size:20px;color:#3a4f6b;font-weight:500}.assistant-welcome>p{color:#95a3b6;font-size:12px}.assistant-prompts button{display:flex;gap:16px;justify-content:space-between;min-width:150px;color:#7185a5;font-size:11px}.assistant-prompts span{color:#a9b6cb}
+.assistant-composer-footer{display:flex;align-items:center;gap:12px!important}
+.assistant-composer-footer>select{background:#f7f9fd;border:1px solid #e4eaf5;border-radius:6px;color:#6c83a9;font-size:11px;padding:6px 8px;width:145px;cursor:pointer;flex-shrink:0}
+.assistant-composer-footer>span{flex:1;font-size:10px!important;text-align:right}.assistant-composer-footer>button{font-size:12px}
+.assistant-policy-card{border:1px solid #e0e7f3;border-radius:10px;background:#fff;overflow:hidden;margin-top:15px;box-shadow:0 4px 16px #233e6904}
+.assistant-policy-card-title{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:15px 18px;border-bottom:1px solid #edf1f7;background:#fafcff}.assistant-policy-card-title strong{font-size:13px;font-weight:600}.assistant-policy-card-title>span{font-size:10px;color:#a38e6b;white-space:nowrap}
+.assistant-policy-card dl{display:grid;grid-template-columns:75px minmax(0,1fr);gap:11px;margin:18px;font-size:12px;line-height:1.7}.assistant-policy-card dt{color:#92a1b6;font-size:11px}.assistant-policy-card dd{margin:0;color:#4d6587;overflow-wrap:anywhere}
+.assistant-policy-feedback{font-size:11px;color:#8a9ab2;background:#f8faff;border-radius:6px;margin:0 18px;padding:10px 12px;line-height:1.9}
+.assistant-policy-card-actions{display:flex;justify-content:flex-end;gap:8px;padding:14px 18px}
+.policy-scope-caption{font-size:12px;color:#8c9cb2}.system-workbench .dsl-scope-header{margin-bottom:18px}.system-workbench .policy-page-tabs{margin-bottom:22px}
+@media(max-width:760px){.customer-config-layout{grid-template-columns:1fr}.customer-config-preview{border-left:0;border-top:1px solid #e9eef6;display:none}.customer-config-form{padding:20px}.customer-config-head{padding:20px}.customer-policy-dialog .config-tabs{padding:0 20px}.customer-config-footer{padding:14px 20px}.customer-dsl-preview{padding:20px}.agent-workbench-actions .button{font-size:10px;padding:6px 9px}.assistant-composer-footer>span{display:none}.assistant-composer-footer>select{width:135px}.assistant-chat-head small select{max-width:210px}.assistant-policy-card-title{align-items:flex-start;flex-direction:column;gap:3px}.customer-config-section{margin-top:18px;padding-top:16px}}
+
+/* Neutralize inherited form margins so configuration fits a normal desktop viewport. */
+.policy-config-dialog.customer-policy-dialog label{margin:0;gap:6px}
+.policy-config-dialog.customer-policy-dialog :is(input,select,textarea){margin:0}
+.policy-config-dialog.customer-policy-dialog input,.policy-config-dialog.customer-policy-dialog select{height:36px;min-height:0;padding:7px 10px}
+.policy-config-dialog.customer-policy-dialog .customer-path-input input{height:36px;padding:7px 10px}
+.customer-config-form{padding:20px 28px}
+.customer-config-section{margin-top:16px;padding-top:15px}.customer-config-section h3{margin-bottom:10px}
+.customer-operation{margin-bottom:10px}.customer-field-help{margin-top:6px}
+.customer-section-line{margin-bottom:10px}.customer-section-line h3{margin:0}
+.customer-config-more{margin-top:15px;padding-top:11px}
+.customer-policy-dialog textarea{padding:9px 11px}
+
+.assistant-policy-card-title{padding:12px 16px}.assistant-policy-card dl{margin:14px 16px;gap:7px}.assistant-policy-feedback{margin:0 16px;padding:8px 10px}.assistant-policy-card-actions{padding:11px 16px}
+@media(max-height:800px){.customer-config-head{padding-top:18px;padding-bottom:14px}.customer-config-form{padding-top:16px;padding-bottom:16px}.customer-config-section{margin-top:12px;padding-top:11px}.customer-config-section h3{margin-bottom:8px}.customer-section-line h3{margin:0}.customer-operation{margin-bottom:8px}.customer-agent-chips{margin-top:8px}.assistant-chat-composer textarea{height:50px;min-height:50px;margin:0!important}.assistant-chat-composer{padding:11px 14px}.assistant-chat-head{padding:12px 20px}}

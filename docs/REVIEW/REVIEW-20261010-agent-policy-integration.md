@@ -71,3 +71,29 @@
 真实助手结果的限制见 BUG：现有生成服务的结构化分支要求任务环境，Agent 层服务端适配仍待实施。本轮只验收真实候选展示、对话归属、模板到 DSL 的交接和人工确认边界，不声称自然语言助手已完成 Agent 环境适配或策略内核执行。
 
 证据目录：[记录与配置验收](evidence/agent-policy-records-20261010/acceptance.json)。图片包括 template-records、template-configuration、agent-assistant 和 system-policies。验收生成批次保留，未最终审核、未加载；上一轮 `7df4ac16c8c5` 待应用草案保持原样。
+
+## 客户界面与会话选策略修订验收（2026-10-10 最终批次）
+
+用户继续否定上一轮模块大标题、层级标签、生成诊断和配置详情外观。本次工程验收仅证明下面的功能与显示事实，不代表用户已经认可视觉设计。
+
+| 验收项 | 当前结果 |
+|---|---|
+| 导航与标题 | 任务历史位于最后；Agent/系统首屏无重复模块大标题或层级标签 |
+| 助手目标 | 在对话头部选择真实受控 Agent；切到 Hermes 不显示 DSH 候选，切回恢复 |
+| 会话内策略 | 输入区可选 6 条 RQ1 模板；参数配置后候选在对话中以保护对象、操作、处置、反馈展示，可调整和重选 |
+| 精确交接 | 检查并导入进入 DSH 的精确实例编辑器，保护路径取登记资源，来源为 **/node；保留既有待应用草案 |
+| 客户提示 | 去掉查看生成说明、IR/英文阻塞码及内部生成 ID；缺少上下文用补充执行范围的可操作提示 |
+| 系统详情 | 表单与实时摘要双栏，提供保护路径、触发操作、反馈、启动程序来源及独立 DSL 预览；配置仍为候选 |
+| 原生会话入口 | 实际 DSH 原生会话详情“起草 Agent 策略”跳转到其所属连接；不会新建或伪造原生会话 |
+| 浏览器 | 1280×720，输入区 bottom=665，首屏可见，无页面横向溢出，无 console error |
+| 应用与运行 | 本轮无 confirm/review、新 live proposal 或 generation；全部当前 scope、受控生命周期和 API 服务快照相同 |
+
+最终自动验收：前端 204/204；后端 DSL 配置/事件读取 26/26（隔离 DB/执行器，真实 ActPlane AST/编译器）；Vite 103 modules 构建通过；新 skill 官方 quick_validate 通过。实际来源模式 node/python、系统多来源同标签声明已被真实解析器与编译器接受；未进行当前实例加载或内核拦截验收。主 JS 506 kB 体积提示保留。
+
+最终静态资源：`index-DZw3GZjX.js` / `index-BJgrhIkW.css`，HTTP 返回字节与本地构建逐项一致。只复制静态文件；未重启 API/Broker/DSH/Hermes，未触及 18000/18004 或普通 ERP。运行快照比较通过，系统与全部 Agent 当前 DSL revision/hash/phase、PID/generation/gate/policy_hash 均保持一致。
+
+自由描述到任意 Agent 策略的通用环境适配仍未完成；历史生成服务的 task-context 要求保留。当前对话内模板候选闭环与后续配置上下文已完成，不能把二者写成任意自然语言策略均可生成执行 DSL。此处是 Agent 层策略，作用于该 Agent 的全部会话；没有新增单会话策略应用。
+
+已安装专用设计 skill，并保存桌面/仓库约定及用户授权的个人记忆更新 note。前端 AGENTS.md 链接约定；后续直接指令优先。代码与设计文档均仅本地提交，未推送。
+
+证据：[结构化验收](evidence/agent-policy-customer-ui-20261010/acceptance.json)、[对话候选](evidence/agent-policy-customer-ui-20261010/agent-conversation.jpg)、[系统记录](evidence/agent-policy-customer-ui-20261010/system-records.jpg)、[系统配置](evidence/agent-policy-customer-ui-20261010/system-configuration.jpg)、[DSL 来源](evidence/agent-policy-customer-ui-20261010/system-dsl-sources.jpg)。独立验收标签保留新版系统配置详情供用户查看，原用户标签未被导航或清空。

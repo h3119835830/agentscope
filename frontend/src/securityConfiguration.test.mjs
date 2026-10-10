@@ -58,7 +58,7 @@ test('system change preview lists the affected Agents and requires explicit conf
 
 test('current Agent editor uses its own rules and shared restrictions remain separately identified',()=>{
  const html=render(SecurityConfiguration,{row:{...row,system_network:'disabled',local_policy:{network:'model_only',rules:[]},policy:{...row.policy,rules:[{action:'tool',effect:'deny',target:'shared_tool',text:''}]}}});
- assert.doesNotMatch(html,/shared_tool/);assert.match(html,/此 Agent 所有工作区与会话共用/);assert.match(html,/ActPlane DSL/);
+ assert.doesNotMatch(html,/shared_tool/);assert.match(html,/适用于此 Agent 的全部会话/);assert.match(html,/导入 DSL/);assert.match(html,/编辑 DSL/);
 });
 
 test('observed connections expose no editable Agent policy',()=>{

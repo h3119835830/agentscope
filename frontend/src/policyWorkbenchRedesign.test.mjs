@@ -28,7 +28,7 @@ test('templates open as a structured record table, with configuration deferred u
 });
 test('system configurations are explicit system candidates and cannot be imported as Agent templates',()=>{
  assert.equal(configurations.length,3);
- for(const t of configurations){const values=Object.fromEntries(t.parameters.map(p=>[p.key,p.value]));const candidate=createSystemHandoff(t,values,'test','system-draft');assert.equal(candidate.targetId,'system');assert.equal(appendHandoff({scope_id:'system',documents:[]},candidate,'system').length,1);assert.throws(()=>appendHandoff({scope_id:target.id,documents:[]},candidate,target.id));assert.throws(()=>createHandoff(t,values,'',target));}
+ for(const t of configurations){const values=Object.fromEntries(t.parameters.map(p=>[p.key,p.value]));const candidate=createSystemHandoff(t,values,'test','system-draft',[{pattern:'**/node'}]);assert.equal(candidate.targetId,'system');assert.equal(appendHandoff({scope_id:'system',documents:[]},candidate,'system').length,1);assert.throws(()=>appendHandoff({scope_id:target.id,documents:[]},candidate,target.id));assert.throws(()=>createHandoff(t,values,'',target));}
  assert.throws(()=>createSystemHandoff(catalogue.templates[0],{}));
 });
 test('detail configuration uses the exact selected Agent resource, resets parameters when target changes and writes only on submit',async()=>{
@@ -48,4 +48,22 @@ test('assistant rejects observed targets and missing DSL, while generated DSL re
  assert.throws(()=>assistantInput('保护敏感配置', {...target,mode:'observed'}));assert.throws(()=>generatedHandoff({},target));
  const result={artifact:{actplane_dsl:'rule generated:\n  block open file "/actual/project/.env" if AGENT\n  because "Use sample"'},record:{statement:{text_zh:'保护敏感配置',context_requirement:'project'}}};
  const candidate=generatedHandoff(result,target,'generated');assert.equal(candidate.targetId,target.id);assert.equal(candidate.scopeType,'agent');assert.ok(candidate.document.original_dsl.startsWith('source AGENT'));assert.ok(candidate.document.metadata.generated.statement);assert.throws(()=>appendHandoff({scope_id:'agent-2',documents:[]},candidate,'agent-2'));
+});
+
+test('conversation template selection creates a local exact-Agent candidate, can be edited, and never saves or applies on selection',async()=>{
+ const render=await harness('AgentPolicyAssistant.jsx');let writes=0,imported=null;
+ const props={target,post:async()=>writes++,onHandoff:c=>imported=c};
+ let tree=render(props),nodes=elements(tree);
+ nodes.find(e=>e.type==='select'&&e.props['aria-label']==='选择策略').props.onChange({target:{value:'RQ1-ENV'}});
+ tree=render(props);const panel=elements(tree).find(e=>e.props?.conversation===true);assert.ok(panel);assert.equal(panel.props.targetId,target.id);assert.equal(writes,0);
+ const candidate=createHandoff(catalogue.templates[0],{target:'/actual/project/.env'},'',target,'chat-draft');candidate.presentation={name:candidate.document.name,template:catalogue.templates[0],values:{target:'/actual/project/.env'},operation:'open',effect:'block',reason:'Use sample'};
+ panel.props.onHandoff(candidate);tree=render(props);nodes=elements(tree);
+ assert.ok(nodes.some(e=>e.type==='strong'&&e.props.children===candidate.document.name));assert.equal(writes,0);assert.equal(imported,null);
+ nodes.find(e=>e.type==='button'&&e.props.children==='检查并导入 →').props.onClick();assert.equal(imported.targetId,target.id);assert.match(imported.document.original_dsl,/source AGENT = exec "\*\*\/node"/);assert.equal(writes,0);
+ nodes.find(e=>e.type==='button'&&e.props.children==='调整配置').props.onClick();tree=render(props);assert.equal(elements(tree).find(e=>e.props?.conversation===true).props.initialCandidate.id,'chat-draft');
+});
+
+test('follow-up generation receives the selected candidate configuration as context, without pretending it is approved or verified',()=>{
+ const payload=assistantInput('改为只提醒，保留相同路径',target,[{kind:'template',text:'配置策略',candidate:{presentation:{name:'敏感文件保护',values:{target:'/actual/project/.env'},operation:'open',effect:'block',reason:'Use sample'}}}]);
+ assert.match(payload.text,/\/actual\/project\/\.env/);assert.match(payload.text,/尚未应用/);assert.ok(payload.text.startsWith('改为只提醒'));assert.doesNotMatch(payload.text,/agent_id|verified_task_environment/);
 });
