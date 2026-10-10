@@ -1,0 +1,64 @@
+{
+  "date": "2026-10-10",
+  "scope": "record-first policy UI and Agent assistant revision",
+  "frontend_tests": {
+    "passed": 198,
+    "failed": 0
+  },
+  "backend_dsl_tests": {
+    "passed": 26,
+    "failed": 0
+  },
+  "build": {
+    "passed": true,
+    "modules": 102,
+    "js": "index-5W4KcMyX.js",
+    "css": "index-BQlypGmi.css"
+  },
+  "browser": {
+    "template_records": 6,
+    "workflow_filter_records": 2,
+    "empty_search_recoverable": true,
+    "configuration_sections": [
+      "基本信息",
+      "匹配条件",
+      "处置与反馈"
+    ],
+    "configuration_tabs": [
+      "配置",
+      "DSL 预览",
+      "适用条件"
+    ],
+    "template_handoff_exact_agent": true,
+    "system_candidate_scope": "system",
+    "agent_conversation_isolation": true,
+    "assistant_composer_visible_at_1280_720": true,
+    "assistant_welcome_scroll": 0,
+    "narrow_document_overflow": false,
+    "console_errors": []
+  },
+  "real_generation_runs": [
+    {
+      "id": "184d2eb5efa34800a32f7f901771966b",
+      "status": "completed",
+      "compile_state": "requires_context",
+      "limitation": "Routing metadata was incorrectly supplied as generation context; retained as evidence."
+    },
+    {
+      "id": "762d4987cdb9430aa0ef91120711f1db",
+      "status": "completed",
+      "compile_state": "requires_context",
+      "limitation": "Generator requires verified task environment; Agent layer adaptation not yet implemented."
+    }
+  ],
+  "runtime": {
+    "controlled_agent_lifecycle_unchanged": true,
+    "dsl_revisions_and_hashes_unchanged": true,
+    "api_service_unchanged": true,
+    "policy_confirmation_called": false,
+    "final_review_called": false,
+    "new_policy_loaded": false
+  },
+  "deployment": "static UI only",
+  "remote_push": false
+}

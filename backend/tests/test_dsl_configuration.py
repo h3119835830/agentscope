@@ -247,3 +247,16 @@ console.log(JSON.stringify(materializeTemplate(t,Object.fromEntries(t.parameters
         assert proposal['state']=='invalid' and proposal['result']['error']
     else:
         assert proposal['state']=='pending',proposal['result']['error']
+
+
+@pytest.mark.parametrize('template_index',range(3))
+def test_system_configuration_records_compile_without_applying(world,template_index):
+    frontend=Path(__file__).resolve().parents[2]/'frontend'
+    program="""import fs from 'node:fs';
+import {createSystemHandoff} from './src/agentPolicyHandoff.mjs';
+const t=JSON.parse(fs.readFileSync('./src/system-policy-configurations.json','utf8'))[Number(process.argv[1])];
+console.log(JSON.stringify(createSystemHandoff(t,Object.fromEntries(t.parameters.map(p=>[p.key,p.value])),'isolated acceptance','system-candidate').document));"""
+    result=subprocess.run(['node','--input-type=module','-e',program,str(template_index)],cwd=frontend,capture_output=True,text=True,check=True)
+    proposal=candidate('system',[json.loads(result.stdout)])
+    assert proposal['state']=='pending',proposal['result']['error']
+    assert dsl.current('system')['documents']==[] and not world.calls

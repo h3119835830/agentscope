@@ -1,0 +1,77 @@
+[
+  {
+    "id": "SYS-ENV",
+    "uid": "prototype-P01",
+    "name": "秘密配置文件",
+    "category": "文件与凭据",
+    "summary": "限制所有受控 Agent 打开指定的秘密配置文件。",
+    "operation": "open",
+    "effect": "block",
+    "reason": "配置文件可能含有凭据。请使用 .env.example 或申请受控凭据接口。",
+    "caveat": "请填写实际秘密文件路径；此配置限制打开操作，不会自动发现所有凭据。",
+    "origin": "原 HTML · P01 / RQ1 提炼",
+    "scope_type": "system",
+    "kind": "file",
+    "parameters": [
+      {
+        "key": "target",
+        "label": "保护路径",
+        "value": "/workspace/.env"
+      }
+    ],
+    "clauses": [
+      "block open file {{target}} if AGENT"
+    ],
+    "adapted_compile_status": "not_run"
+  },
+  {
+    "id": "SYS-SSH",
+    "uid": "prototype-P02",
+    "name": "SSH 私钥",
+    "category": "文件与凭据",
+    "summary": "限制所有受控 Agent 打开指定的 SSH 私钥。",
+    "operation": "open",
+    "effect": "block",
+    "reason": "Agent 不能直接读取 SSH 私钥。请使用获准的凭据代理。",
+    "caveat": "只匹配指定私钥，不会限制整个 .ssh 目录。请核对真实私钥位置。",
+    "origin": "原 HTML · P02 / 用户需求扩展",
+    "scope_type": "system",
+    "kind": "file",
+    "parameters": [
+      {
+        "key": "target",
+        "label": "保护路径",
+        "value": "/home/agent/.ssh/id_ed25519"
+      }
+    ],
+    "clauses": [
+      "block open file {{target}} if AGENT"
+    ],
+    "adapted_compile_status": "not_run"
+  },
+  {
+    "id": "SYS-POLICY",
+    "uid": "prototype-P04",
+    "name": "平台策略与审批记录",
+    "category": "平台保护",
+    "summary": "限制所有受控 Agent 写入指定的平台策略与审批记录。",
+    "operation": "write",
+    "effect": "block",
+    "reason": "Agent 不能修改平台安全约束和审批记录。请通过平台配置入口提交变更。",
+    "caveat": "此配置只限制写入，删除、重命名和权限变更需另行覆盖；平台记录仍应存放在 Agent 写权限之外。",
+    "origin": "原 HTML · P04 / 平台扩展",
+    "scope_type": "system",
+    "kind": "file",
+    "parameters": [
+      {
+        "key": "target",
+        "label": "保护路径",
+        "value": "/platform/policy/**"
+      }
+    ],
+    "clauses": [
+      "block write file {{target}} if AGENT"
+    ],
+    "adapted_compile_status": "not_run"
+  }
+]
