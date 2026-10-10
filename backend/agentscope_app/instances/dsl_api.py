@@ -26,8 +26,8 @@ def agent_propose(ident:str,body:Candidate):return invoke(dsl.propose,ident,body
 def agent_confirm(ident:str,pid:str,body:Confirm):return invoke(dsl.apply,ident,pid,body.proposal_hash)
 
 @router.get('/api/sessions')
-def directory(agent_type:str='',instance_id:str='',q:str=Query('',max_length=200),cursor:int=Query(0,ge=0),limit:int=Query(30,ge=1,le=100)):
-    return invoke(sessions.directory,agent_type,instance_id,q,cursor,limit)
+def directory(agent_type:str='',instance_id:str='',q:str=Query('',max_length=200),cursor:int=Query(0,ge=0),limit:int=Query(30,ge=1,le=100),workspace:str=Query('',max_length=4096)):
+    return invoke(sessions.directory,agent_type,instance_id,q,cursor,limit,workspace)
 @router.get('/api/agent-instances/{ident}/sessions/{sid}/policies')
 def policies(ident:str,sid:str,generation:str|None=None):return invoke(sessions.policies,ident,sid,generation)
 @router.get('/api/agent-instances/{ident}/sessions/{sid}/domains')

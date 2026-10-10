@@ -44,24 +44,35 @@ def native_sessions(row):
             for item in rows:con.execute('INSERT OR REPLACE INTO instance_session_cache VALUES(?,?,?,?,?)',(row['id'],item['id'],json.dumps(item),row.get('generation'),db.now()))
     return {**result,'sessions':rows,'mapping_available':True}
 
-def directory(agent_type='',instance_id='',q='',cursor=0,limit=30):
+def current_agent_pid(row):
+    pid=row.get('pid')
+    return pid if row.get('connected') and isinstance(pid,int) and not isinstance(pid,bool) and pid>0 else None
+
+
+def directory(agent_type='',instance_id='',q='',cursor=0,limit=30,workspace=''):
     from . import controller as c
-    products=[r for r in c.listing()['instances'] if not agent_type or r['agent_type']==agent_type]
+    products=[r for r in c.listing()['instances'] if (r['mode']=='controlled' or r.get('connected')) and (not agent_type or r['agent_type']==agent_type)]
     selected=[r for r in products if not instance_id or r['id']==instance_id]
-    rows=[];errors=[];connections=[{'id':r['id'],'name':r['name'],'agent_type':r['agent_type'],'connected':r.get('connected',False)} for r in products]
+    rows=[];errors=[];workspaces=set()
+    connections=[{'id':r['id'],'name':r['name'],'agent_type':r['agent_type'],'connected':r.get('connected',False),
+        'pid':current_agent_pid(r),'resources':r.get('resources',[])} for r in products]
     for row in selected:
         try:result=native_sessions(row)
         except (OSError,RuntimeError,ValueError,TimeoutError):
             errors.append({'instance_id':row['id'],'message':'原生会话映射读取失败'});continue
         if not result.get('mapping_available'):errors.append({'instance_id':row['id'],'message':'当前会话映射不可用，已保存记录仅供查看'})
         for s in result.get('sessions',[]):
+            if s.get('resource'):workspaces.add(s['resource'])
+            if workspace and s.get('resource')!=workspace:continue
             if q.lower() not in ((s.get('name') or '')+' '+s['id']).lower():continue
             rows.append({**s,'instance_id':row['id'],'instance_name':row['name'],'agent_type':row['agent_type'],
+                'agent_pid':current_agent_pid(row),
                 'generation':row.get('generation'),'policy_state':'active' if row.get('active') and not s.get('historical') else 'uncontrolled' if row['mode']=='observed' else 'not_verified',
                 'executor_shared':bool(result.get('executor_shared'))})
     rows.sort(key=lambda s:(s['instance_id'],s['id']))
     return {'records':rows[cursor:cursor+limit],'next_cursor':cursor+limit if len(rows)>cursor+limit else None,
-        'total':len(rows),'count_complete':not errors,'connections':connections,'errors':errors,'workspace_available':any(s.get('resource') for s in rows)}
+        'total':len(rows),'count_complete':not errors,'connections':connections,'errors':errors,
+        'workspaces':sorted(workspaces),'workspace_available':bool(workspaces)}
 
 def session_context(ident,sid,generation=None):
     from . import controller as c
@@ -116,6 +127,7 @@ def policies(ident,sid,generation=None):
                 records.append({**record,'scope_type':'session','scope_id':sid,'context_requirement':record.get('context_scope','task'),'editable':False})
     return {'session':session,'instance':{'id':ident,'name':row['name'],'mode':row['mode'],'agent_type':row['agent_type']},
         'generation':gen,'generations':generations,'active':active,'executor_shared':True,'pid':row.get('pid') if active else None,
+        'agent_pid':current_agent_pid(row),
         'domain_id':row.get('domain_id') if active else None,'records':records,'bundle_hash':saved['bundle_hash'] if saved else None,
         'effective_dsl':saved['artifact']['effective_dsl'] if saved else None,'task_binding_available':bool(binding)}
 
@@ -129,7 +141,7 @@ def attach_hits(records,row,generation):
             continue
         refs={(r.get('source_ref'),r.get('clause_hash')) for r in record.get('compiled_refs',[])}
         record['hits']=[e for e in events if any((r['source_ref'],r['clause_hash']) in refs for r in e['source_refs'])][:20]
-        record['hit_coverage']='当前所选运行代次最近 300 条已采集事件中，最多展示本策略 20 条命中。'
+        record['hit_coverage']='当前 Agent 运行期间最近 300 条已采集事件中，最多展示本策略 20 条命中。'
         record['generation']=generation
         if saved:
             record['loaded_document']=saved['artifact']['effective_dsl']

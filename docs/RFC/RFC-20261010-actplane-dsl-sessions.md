@@ -41,3 +41,11 @@ Broker 固定读取自身受保护目录的 root-owned、不可组／其他写�
 会话四页为策略详情、策略域、系统调用匹配、工具拦截 Trace。匹配源没有 syscall 名时展示真实 op。原生工具没有可信内核标签时，共享 PID 事件标为“共享执行器事件，未归属会话”，禁止按 PID／名称／时间邻近拼接。工具准入拒绝不生成内核事件。反馈没有送达回执时不能显示“已送达”。notify 的 report 与 block、kill 分别展示，kill 不宣称事前阻断。
 
 本期不替换 Pi 界面，不实现统一审批中心和历史库复用；保留手动确认应用。现有任务绑定仅在可信 instance/generation/native session/task/domain 映射存在时投影，缺失映射时不补造会话策略。
+
+## 生产界面修订：Agent、工作区、会话
+
+会话目录以 Agent 产品、当前进程 PID、原生工作区和会话组织。已知产品统一使用产品名，DSH 显示 DeepSeek Harness；不展示旧登记名称中的测试别名或内部 instance ID。目录增加 workspace 精确筛选，工作区选项来自已读取的原生会话资源，在名称搜索和分页之前汇总；无可信工作区时不显示字段。产品只有一个可选 Agent 时省略进程筛选。未连接的安装／发现占位项不进入会话目录，受控 Agent 的已保存会话继续可读。
+
+GET /api/sessions 新增可选 workspace（最长 4096 字符），返回 workspaces。connections 增加当前 pid 和 resources，records 增加 agent_pid；策略详情也返回 agent_pid。agent_pid 仅在对应 Agent 当前 connected 且 PID 为正整数时返回，停止后为 null。它表示会话所属 Agent 的进程，不改变会话已保存／活动状态，也不伪造该会话正在执行。
+
+详情按原生会话名、Agent 产品与 PID、原生工作区展示。移除运行代次选择及普通字段；控制台始终读取当前 Agent 运行上下文，旧 URL 的 sessionGeneration 参数忽略并在 URL 规范化时删除。底层 generation、稳定连接 ID、版本、域及来源校验继续保留，后端既有历史读取合同不删。四个详情页、DSL 原文及真实命中保持原语义。

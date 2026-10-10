@@ -1,5 +1,7 @@
 export const agentTypes={dsh:'DeepSeek Harness',hermes:'Hermes',codex:'Codex',other:'其他 Agent','hermes-desktop':'Hermes Desktop'};
 export const agentName=row=>row.agent_type==='other'?(row.name||agentTypes.other):(agentTypes[row.agent_type]||row.name||'Agent');
+// Product names identify the Agent; a verified current PID distinguishes its processes.
+export const agentProcessLabel=row=>`${agentName(row)} · ${Number.isInteger(row.pid)&&row.pid>0?'PID '+row.pid:'未运行'}`;
 export const entryKind=row=>row.entry?.kind||(row.mode==='controlled'&&['dsh','hermes'].includes(row.agent_type)?'web':'process');
 export const entryLabel=row=>row.entry?.label||({web:'Web',cli:'CLI',cli_install:'CLI 安装入口',desktop:'桌面应用',process:'进程观测'})[entryKind(row)]||'进程观测';
 export const processLabel=row=>row.pid&&['running','discovered'].includes(row.status)?row.pid:'—';

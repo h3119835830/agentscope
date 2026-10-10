@@ -28,11 +28,12 @@ test('source DSL displays literal text safely and preserves line numbers',()=>{
  assert.match(html,/&lt;script&gt;/);assert.doesNotMatch(html,/<script>/);
  assert.match(html,/>7<\/span>/);assert.match(html,/>9<\/span>/);
 });
-test('session deep links preserve directory filters and selected runtime generation',()=>{
- const origin='http://localhost/?view=sessions&sessionAgent=dsh&sessionFilterInstance=i1&sessionQuery=fix&sessionCursor=30';
+test('session deep links preserve Agent and workspace filters and retire runtime selection',()=>{
+ const origin='http://localhost/?view=sessions&sessionAgent=dsh&sessionFilterInstance=i1&sessionWorkspace=%2Fprojects%2Fone&sessionQuery=fix&sessionCursor=30&sessionGeneration=old';
  const selected=navigationTarget(origin,{sessionInstance:'i1',sessionId:'same id',sessionGeneration:'g1',sessionTab:'syscalls'});
  const n=readNavigation('http://localhost'+selected);
- assert.equal(n.sessionId,'same id');assert.equal(n.sessionGeneration,'g1');assert.equal(n.sessionTab,'syscalls');
+ assert.equal(n.sessionId,'same id');assert.equal(n.sessionGeneration,undefined);assert.equal(n.sessionTab,'syscalls');
+ assert.equal(n.sessionWorkspace,'/projects/one');assert.doesNotMatch(selected,/sessionGeneration/);
  const back=readNavigation('http://localhost'+navigationTarget('http://localhost'+selected,{sessionInstance:'',sessionId:'',sessionGeneration:''}));
- assert.equal(back.sessionAgent,'dsh');assert.equal(back.sessionQuery,'fix');assert.equal(back.sessionCursor,30);assert.equal(back.sessionFilterInstance,'i1');
+ assert.equal(back.sessionAgent,'dsh');assert.equal(back.sessionQuery,'fix');assert.equal(back.sessionCursor,30);assert.equal(back.sessionFilterInstance,'i1');assert.equal(back.sessionWorkspace,'/projects/one');
 });

@@ -34,3 +34,11 @@
 - 收尾停止测试连接，保留原 DSH 受控运行，Hermes 保持停止；最终状态写入脱敏证据。18000/18004 未部署或重启。末次完整部署备份为 /var/lib/agentscope-scope-demo/deploy-backups/dsl-20261010-153838。
 - 当前 pinned engine 不支持文件 contains/suffix matcher，候选阶段明确拒绝；可用明确资源路径／前缀。采集是匹配事件而非完整 syscall 流；没有 syscall 名、可信任务映射、原文或送达回执时明确缺失。
 - notify 证明 report 与操作继续；kill 证明进程终止，不宣称事前阻断。Pi 替换、历史库复用与统一审批中心继续延期。没有修改普通 ERP 业务或 ActPlane 子树。
+
+## 生产会话呈现修订验收
+
+- 前端回归 176 passed，Vite 86 modules 构建通过；保留既有 bundle 大小提示。后端完整回归 897 passed、52 skipped；最终目录过滤修订后 DSL／会话合同 14 passed。
+- 新增渲染断言：已知 DSH 产品统一 DeepSeek Harness，旧测试别名和内部 ID 不呈现；原生会话名称／路径照实保留；单一 Agent 省略进程筛选；详情没有运行代次选项；旧代次链接转为当前上下文并保留工作区与目录筛选。
+- 部署只替换本次 API 模块与前端资源、重启 18003 API。DSH 当前 PID 54870、绑定及运行状态未改变，Broker／DSH 未重启；停止的 Hermes 和验收 Agent 未启动。18000/18004 未改动。部署备份见后续浏览器验收记录。
+- 最终浏览器检查：Agent 连接列表使用产品名与当前 PID；会话详情及策略域无“运行代次”控件和旧登记别名。DSH 原生会话名称与路径保留；second-dsh 工作区精确筛选得到 3 条会话，进入详情后返回保留筛选。停止的 DSH 显示已保存／未运行且没有旧 PID；Hermes 未取得工作区映射时隐藏字段和多余进程选择。四页可访问，旧 sessionGeneration 链接参数被清除并正常显示当前绑定。
+- 最终部署备份：/var/lib/agentscope-scope-demo/deploy-backups/session-presentation-20261010-160827。实际进程 PID 54870 和绑定状态保持不变，没有重启 Broker／DSH 或自动启动停止 Agent。截图：evidence/20261010-agent-workspace-session.png。此次验收验证界面和接口，不将自动回归重新宣称为新的三动作内核实验。

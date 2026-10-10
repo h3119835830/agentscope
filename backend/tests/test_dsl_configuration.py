@@ -194,8 +194,19 @@ def test_directory_same_native_id_two_connections_workspace_optional_and_cache(w
         return {'sessions':[{'id':'same','name':'Same name','mapping':'native_gateway','process_ids':[5678],'status':'idle'}],'executor_shared':True}
     monkeypatch.setattr(sessions,'broker',native)
     rows=sessions.directory()['records'];assert len(rows)==2 and {r['instance_id'] for r in rows}=={world.a['id'],world.b['id']}
+    assert all(r['agent_pid']==1234 for r in rows)
+    assert all(r['pid']==1234 for r in sessions.directory()['connections'])
+    path=world.a['resources'][0]
+    filtered=sessions.directory(workspace=path,limit=1)
+    assert [s['instance_id'] for s in filtered['records']]==[world.a['id']]
+    assert filtered['workspaces']==[path] and filtered['total']==1
+    assert sessions.directory(workspace=path+'/not-native')['records']==[]
+    response=world.client.get('/api/sessions',headers=ADMIN,params={'workspace':path,'limit':1})
+    assert response.status_code==200 and response.json()['total']==1
     assert sessions.directory('hermes')['workspace_available'] is False
     world.live.clear();stored=sessions.directory()['records'];assert all(s['historical'] and not s['process_ids'] for s in stored)
+    assert all(s['agent_pid'] is None for s in stored)
+    assert all(s['pid'] is None for s in sessions.directory()['connections'])
     assert len(sessions.directory(q='Same name')['records'])==2
 
 def test_kernel_requires_exact_generation_domain_hash_clause_and_trusted_tool_tag(world):
