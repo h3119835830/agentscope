@@ -1,0 +1,10 @@
+{
+  "frontend_passed": 169,
+  "backend_passed": 880,
+  "backend_skipped": 52,
+  "new_system_rule_tests_passed": 21,
+  "browser_checks_passed": 6,
+  "build": "passed",
+  "kernel_acceptance_for_new_global_rule": "not_performed",
+  "existing_executor_identities_preserved": true
+}

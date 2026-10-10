@@ -1,0 +1,31 @@
+[
+  {
+    "check": "editable system rules replace fixed design descriptions",
+    "passed": true
+  },
+  {
+    "check": "shared tool rule editor offers restriction and explicit preview",
+    "passed": true
+  },
+  {
+    "check": "system network policy opens editable restriction form",
+    "passed": true
+  },
+  {
+    "check": "Agent retains its own existing rules separately",
+    "passed": true
+  },
+  {
+    "check": "DSH and Hermes expose the same independently stored system configuration",
+    "passed": true
+  },
+  {
+    "check": "aggregate verification badge fits its column without action overlap",
+    "passed": true,
+    "geometry": {
+      "actionsLeft": 834,
+      "badgeRight": 796.40625,
+      "nonOverlapping": true
+    }
+  }
+]

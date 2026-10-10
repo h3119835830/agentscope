@@ -1,0 +1,56 @@
+{
+  "api_before": "496",
+  "api_after": "9537",
+  "broker_pid": "407",
+  "api_restart_seconds": 1.08,
+  "identities_preserved": true,
+  "instances": [
+    {
+      "id": "instance-1f4469579e8947f4",
+      "gate": "open",
+      "generation": "d47ddb8cffe4422d89a33c4e03227d15",
+      "policy_hash": "9c5fa9fbb63c9bcd71da29007179d6c9fed00b23ac9b9f4e41165a76b92425c1",
+      "pid": 1343
+    },
+    {
+      "id": "instance-c0dd272b6a734a34",
+      "gate": "open",
+      "generation": "aa21e3eb0c214e56baf639bd05b35ddc",
+      "policy_hash": "f930aa4e9f224e24588a51a652d773cf022a74fa8be0b379ed4e80023c58ad87",
+      "pid": 1643551
+    }
+  ],
+  "system": {
+    "revision": 0,
+    "phase": "ready",
+    "connection_count": 2,
+    "active_count": 1,
+    "network_result": "已核验 1 / 2 个连接"
+  },
+  "system_custom_rule_count": 0,
+  "online": [
+    {
+      "id": "instance-1f4469579e8947f4",
+      "active": true,
+      "connected": true
+    },
+    {
+      "id": "instance-c0dd272b6a734a34",
+      "active": false,
+      "connected": false
+    }
+  ],
+  "ui_hash": "ad86268d15f9c008c34f5266f3064c7d2f80a290eb884e964d3919527edcae3a",
+  "backup": "/var/lib/agentscope-scope-demo/backups/system-rules-20261010-r1",
+  "post_acceptance": {
+    "no_rule_or_proposal_submitted": true,
+    "policies_and_generations_preserved": true,
+    "dsh_active": true,
+    "system_revision": 0
+  },
+  "ui_hash_before_status_spacing": "3e1c938f5c63b74581d7cde37085412ac8ee2a51042f71998fa2068cb75c0147",
+  "final_assets": [
+    "index-BloTyzdv.css",
+    "index-BVUJNqn4.js"
+  ]
+}

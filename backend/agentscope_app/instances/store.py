@@ -24,11 +24,16 @@ CREATE TABLE IF NOT EXISTS instance_leases (
  PRIMARY KEY(instance_id,generation,call_id));
 """
 def init():
-    with db.connect() as con: con.executescript(SCHEMA)
+    with db.connect() as con:
+        con.executescript(SCHEMA)
+        from . import system_policy
+        system_policy.init(con)
 def unpack(row):
     if not row: raise ValueError('实例不存在')
     r=dict(row)
     for key in ('resources','policy','runtime'): r[key]=json.loads(r.pop(key+'_json'))
+    with db.connect() as con: local=con.execute('SELECT policy_json FROM instance_local_policies WHERE instance_id=?',(r['id'],)).fetchone()
+    r['local_policy']=json.loads(local['policy_json']) if local else r['policy']
     r.pop('token_hash',None)
     return r
 def get(ident):
@@ -36,18 +41,25 @@ def get(ident):
 def rows():
     with db.connect() as con: return [unpack(r) for r in con.execute('SELECT * FROM agent_instances ORDER BY created_at')]
 def create(name,agent_type,resources,mode='controlled',environment='wsl'):
-    ident='instance-'+uuid.uuid4().hex[:16]; policy=default_policy()
+    from . import system_policy
+    system_policy.ensure_ready()
+    ident='instance-'+uuid.uuid4().hex[:16]; local=default_policy()
+    policy=system_policy.compose(local,resources) if mode=='controlled' else local
     with db.connect() as con:
         con.execute('INSERT INTO agent_instances(id,name,agent_type,environment,mode,resources_json,policy_json,policy_hash,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?)',(ident,name,agent_type,environment,mode,json.dumps(resources),json.dumps(policy),digest(policy),db.now(),db.now()))
+        con.execute('INSERT INTO instance_local_policies VALUES(?,?)',(ident,json.dumps(local)))
     event(ident,'registered',{'mode':mode})
     return get(ident)
 def update(ident,**fields):
-    if set(fields)-{'name','resources','policy','policy_hash','generation','gate','token_hash','runtime'}: raise ValueError('Invalid instance update')
+    if set(fields)-{'name','resources','policy','policy_hash','generation','gate','token_hash','runtime','local_policy'}: raise ValueError('Invalid instance update')
+    local=fields.pop('local_policy',fields.get('policy'))
     values=[]; columns=[]
     for key,value in fields.items():
         column=key+'_json' if key in ('resources','policy','runtime') else key
         columns.append(column+'=?'); values.append(json.dumps(value,ensure_ascii=False) if column.endswith('_json') else value)
-    with db.connect() as con: con.execute('UPDATE agent_instances SET '+','.join(columns)+',updated_at=? WHERE id=?',(*values,db.now(),ident))
+    with db.connect() as con:
+        if columns: con.execute('UPDATE agent_instances SET '+','.join(columns)+',updated_at=? WHERE id=?',(*values,db.now(),ident))
+        if local is not None: con.execute('INSERT OR REPLACE INTO instance_local_policies VALUES(?,?)',(ident,json.dumps(local)))
 def event(ident,kind,detail=None,generation=None,session_id=None,call_id=None,tool=None):
     with db.connect() as con:
         con.execute('INSERT INTO instance_events(instance_id,generation,kind,session_id,call_id,tool,detail_json,created_at) VALUES(?,?,?,?,?,?,?,?)',(ident,generation,kind,session_id,call_id,tool,json.dumps(detail or {},ensure_ascii=False),db.now()))

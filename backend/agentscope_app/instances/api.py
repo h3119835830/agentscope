@@ -1,7 +1,7 @@
 from typing import Literal
 from fastapi import APIRouter, HTTPException, Request, Query
 from pydantic import BaseModel, ConfigDict, Field
-from . import controller as c, store, discovery
+from . import controller as c, store, discovery, system_policy
 from .adapters import adapter
 from .mapping import agent_policy,resource_records
 from .session_names import with_session_names
@@ -55,6 +55,19 @@ class Prompt(Model):
     text:str=Field(min_length=1,max_length=12000)
 class Generation(Model):
     generation:str=Field(pattern=r'^[a-f0-9]{32}$')
+
+class SystemProposal(Model):
+    policy:dict
+    base_hash:str=Field(pattern=r'^[a-f0-9]{64}$')
+    revision:int=Field(ge=0)
+    request_key:str=Field(min_length=1,max_length=120)
+
+@router.get('/api/security/system')
+def system_rules(): return invoke(system_policy.detail)
+@router.post('/api/security/system/proposals')
+def propose_system_rules(body:SystemProposal): return invoke(system_policy.propose,body.model_dump())
+@router.post('/api/security/system/proposals/{pid}/confirm')
+def confirm_system_rules(pid:str,body:Confirm): return invoke(system_policy.apply,pid,body.proposal_hash)
 
 @router.get('/api/agent-instances')
 def instances(): return invoke(c.listing)

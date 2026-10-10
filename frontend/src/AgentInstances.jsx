@@ -60,7 +60,7 @@ function Drawer({id,api,post,onClose,onChanged,onOpen,initialTab='connection'}){
   </form>:<p className="field-note">这是发现的本机实例。新建受控连接后可配置共享策略，原实例继续保持原有运行方式。</p>}
  </>}
  {row&&tab==='policy'&&<>
-  <SecurityConfiguration key={id} row={row} pending={pending} busy={!!busy} onPropose={candidate=>act('提交安全配置',()=>post(endpoint(id)+'/policy/proposals',{policy:candidate.policy,generation:candidate.generation,base_hash:candidate.base_hash,request_key:crypto.randomUUID()}))} onConfirm={proposal=>act('确认并应用变更',()=>post(endpoint(id)+'/policy/proposals/'+proposal.id+'/confirm',{proposal_hash:proposal.proposal_hash}))}/></>}
+  <SecurityConfiguration key={id} row={row} api={api} post={post} onSystemChanged={()=>{refresh();onChanged();}} pending={pending} busy={!!busy} onPropose={candidate=>act('提交安全配置',()=>post(endpoint(id)+'/policy/proposals',{policy:candidate.policy,generation:candidate.generation,base_hash:candidate.base_hash,request_key:crypto.randomUUID()}))} onConfirm={proposal=>act('确认并应用变更',()=>post(endpoint(id)+'/policy/proposals/'+proposal.id+'/confirm',{proposal_hash:proposal.proposal_hash}))}/></>}
  {row&&tab==='events'&&<div className="security-runtime">{eventsError&&<p role="alert">{eventsError}</p>}<PagedRecords labels={['时间','操作','会话 / 工具','处理结果']} rows={(events||[]).map(e=>[timeLabel(e.created_at),kinds[e.kind]||e.kind,[e.session_id,e.tool].filter(Boolean).join(' / ')||'整个实例',<RecordBadge>{eventResult(e)}</RecordBadge>])} empty={eventsError?'运行记录读取失败':events?'暂无运行记录':'正在读取运行记录…'}/></div>}
  {row&&tab==='sessions'&&<SessionProcesses agentType={row.agent_type} data={sessions} error={sessionsError} onRefresh={()=>setRevision(n=>n+1)}/>}
  </div></dialog>

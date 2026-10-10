@@ -93,3 +93,10 @@ test('policy content stays escaped in list and full candidate review',()=>{
  assert.doesNotMatch(html,/<img/);
  assert.match(html,/&lt;img/);
 });
+
+
+test('system rule editor only offers common restrictions and previews before applying',()=>{
+ const html=render(RuleForm,{scope:'system',initial:deny,onCancel:()=>{},onSubmit:()=>{}});
+ assert.doesNotMatch(html,/<option value="allow"/);assert.match(html,/提交并预览/);
+ assert.match(html,/确认后应用/);assert.doesNotMatch(html,/收紧自动应用/);
+});
