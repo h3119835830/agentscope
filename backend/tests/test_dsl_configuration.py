@@ -228,3 +228,22 @@ def test_tool_admission_denial_does_not_fabricate_kernel_event(world,monkeypatch
     result=sessions.traces(row['id'],'same')['records'][0]
     assert result['result']=='tool_denied' and result['kernel_events']==[] and result['feedback_delivered'] is None
     assert sessions.kernel_page(row['id'],'same')['records']==[]
+
+
+@pytest.mark.parametrize('template_index',range(6))
+def test_curated_rq1_templates_compile_as_unapplied_agent_candidates(world,template_index):
+    # Reuse the frontend materializer and the real AST/runtime compiler in an isolated DB.
+    frontend=Path(__file__).resolve().parents[2]/'frontend'
+    program="""import fs from 'node:fs';
+import {materializeTemplate} from './src/agentPolicyHandoff.mjs';
+const t=JSON.parse(fs.readFileSync('./src/rq1-agent-templates.json','utf8')).templates[Number(process.argv[1])];
+console.log(JSON.stringify(materializeTemplate(t,Object.fromEntries(t.parameters.map(p=>[p.key,p.value])),'isolated acceptance','rq1-candidate')));"""
+    result=subprocess.run(['node','--input-type=module','-e',program,str(template_index)],cwd=frontend,capture_output=True,text=True,check=True)
+    doc=json.loads(result.stdout)
+    proposal=candidate(world.a['id'],[doc])
+    assert dsl.current(world.a['id'])['documents']==[] and not world.calls
+    # Unsupported runtime semantics must stay invalid, never become applicable based on RQ1 history.
+    if template_index==3:
+        assert proposal['state']=='invalid' and proposal['result']['error']
+    else:
+        assert proposal['state']=='pending',proposal['result']['error']

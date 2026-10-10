@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-10",
+  "baseline": "90af640",
+  "frontend_tests": {
+    "passed": 193,
+    "failed": 0
+  },
+  "dsl_and_event_tests": {
+    "passed": 23,
+    "failed": 0
+  },
+  "rq1_templates": {
+    "count": 6,
+    "compile_pending": 5,
+    "unsupported_invalid": [
+      "RQ1-CHECK"
+    ]
+  },
+  "real_browser": {
+    "dsh_template_import_and_compile": "passed_pending_only",
+    "hermes_target_import": "passed_no_save",
+    "draft_reload": "passed",
+    "edit_invalidates_confirmation": "passed",
+    "system_and_history_reads": "passed",
+    "session_product_filter_recovery": "passed",
+    "policy_domains_and_event_reads": "passed",
+    "template_switch_paths": "passed",
+    "console_errors": 0
+  },
+  "runtime": {
+    "controlled_agents_unchanged": true,
+    "dsl_scopes_unchanged": true,
+    "api_service_unchanged": true,
+    "policy_confirmation_called": false,
+    "acceptance_drafts_pending": 1
+  },
+  "static_assets": {
+    "index.html": "7e430b2f1a208d7a4041971e4bae3261332ecc3c4c7da0f77e1219887c008edd",
+    "assets/index-MBxO0vXE.js": "0b9bc4ef82e2c5b8cbe124e441ac87a007bb85a835368a87165f423679cebe87",
+    "assets/index-DUD8LDZ2.css": "8f5d157210f5670a5d895168d01fa4700c5bbe7e15678889210da9f2d800e4bb"
+  }
+}

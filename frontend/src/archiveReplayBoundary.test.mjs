@@ -11,7 +11,7 @@ test('historical event lenses retain separate evidence classes without inventing
 test('history route preserves selected task but cannot mount live workbench or global refresh',()=>{
  const main=readFileSync(new URL('./main.jsx',import.meta.url),'utf8');
  assert.match(main,/page!=='history'&&<div hidden=\{page!=='connections'\}><AgentWorkspaces/);
- assert.match(main,/page==='workbench'&&<ConsoleWorkbench/);
+ assert.match(main,/page==='workbench'&&<AgentPolicyWorkbench/);
  assert.doesNotMatch(main,/<TaskHub|<ManagedWorkbench|<Overview /);
  assert.match(main,/const refresh = useCallback\(async \(\) => \{\s*if\(page==='history'\)return/);
  assert.match(main,/useEffect\(\(\) => \{ if\(page==='history'\)return; refresh\(\)/);

@@ -1,4 +1,5 @@
 import React,{useEffect,useRef,useState} from 'react';
+import {appendHandoff,previewMatches} from './agentPolicyHandoff.mjs';
 import RecordBadge from './RecordBadge.jsx';
 import {agentProcessLabel} from './agentInstancePresentation.mjs';
 
@@ -8,16 +9,16 @@ export function DslCode({text,firstLine=1}){
  const tokens=line=>line.split(/(#[^\n]*|"(?:\\.|[^"\\])*"|\b(?:source|rule|block|kill|notify|if|unless|after|since|because|and|or|not|exec|file|endpoint|read|write|unlink|connect|recv|open|exits|declassify|endorse|via|lineageIncludes)\b)/g).map((part,i)=><span key={i} className={part.startsWith('#')?'dsl-comment':part.startsWith('"')?'dsl-string':/^[a-zA-Z]+$/.test(part)?'dsl-keyword':''}>{part}</span>);
  return <div className="dsl-code" tabIndex={0} aria-label="ActPlane DSL">{(text||'未记录').split('\n').map((line,i)=><div className="dsl-code-line" key={i}><span className="dsl-line-number" aria-hidden="true">{firstLine+i}</span><code>{tokens(line)||' '}</code></div>)}</div>;
 }
-export function PolicyRecords({records=[],onDetail,onEdit,empty='尚无已配置的 ActPlane 策略。'}){
- return <div className="table-scroll policy-records-wrap"><table className="policy-records"><thead><tr>{['策略语句','动作','事件类型','上下文需求','策略来源','状态','操作'].map(x=><th key={x}>{x}</th>)}</tr></thead><tbody>{records.map((r,i)=><tr key={r.id||i}>
+export function PolicyRecords({records=[],onDetail,onEdit,compact=false,empty='尚无已配置的 ActPlane 策略。'}){
+ return <div className="table-scroll policy-records-wrap"><table className={"policy-records"+(compact?" compact":"")}><thead><tr>{['策略语句','动作','事件类型',...(compact?[]:['上下文需求']), '策略类型','状态','操作'].map(x=><th key={x}>{x}</th>)}</tr></thead><tbody>{records.map((r,i)=><tr key={r.id||i}>
   <td><strong>{r.statement}</strong>{r.statement_origin==='dsl_summary'&&<small>DSL 摘要</small>}</td>
   <td><div className="policy-badges">{(r.effects||[r.effect]).filter(Boolean).map(e=><span key={e} className={'effect-pill effect-'+e}>{e}</span>)}</div></td>
   <td><div className="policy-badges">{(r.event_types||[r.policy_type]).filter(Boolean).map(t=><RecordBadge key={t} tone={t==='cross_event'?'purple':'info'} dot={false}>{typeName(t)}</RecordBadge>)}</div></td>
-  <td><RecordBadge tone={r.context_requirement==='self_contained'?'neutral':'purple'} dot={false}>{r.context_requirement||'未记录'}</RecordBadge></td>
+  {!compact&&<td><RecordBadge tone={r.context_requirement==='self_contained'?'neutral':'purple'} dot={false}>{r.context_requirement||'未记录'}</RecordBadge></td>}
   <td><RecordBadge tone={r.scope_type==='system'?'purple':r.scope_type==='session'?'good':'info'} dot={false}>{scopeName(r)}</RecordBadge></td>
   <td><RecordBadge tone={r.active?'good':r.loaded?'info':'neutral'}>{r.active?'当前绑定已核验':r.application_state==='blocked'?'应用失败 · 已暂停':r.coverage?.verified_count?'当前核验 '+r.coverage.verified_count+' / '+r.coverage.total_count+' 个连接':r.loaded?'历史已加载':r.application_state==='applied'?'已确认 · 待加载':r.compile_status==='compiled'?'编译通过 · 未加载':'未取得编译映射'}</RecordBadge></td>
   <td><div className="policy-row-actions"><button className="button tiny ghost" onClick={()=>onDetail?.(r)}>详情</button>{onEdit&&r.document_id&&r.editable!==false&&<button className="button tiny ghost" onClick={()=>onEdit(r)}>编辑 DSL</button>}</div></td>
- </tr>)}{!records.length&&<tr><td colSpan={7} className="task-empty">{empty}</td></tr>}</tbody></table></div>;
+ </tr>)}{!records.length&&<tr><td colSpan={compact?6:7} className="task-empty">{empty}</td></tr>}</tbody></table></div>;
 }
 export function PolicyDetail({record:r,onClose,onEdit}){
  const dialog=useRef(null),origin=useRef(document.activeElement),[copy,setCopy]=useState('');
@@ -31,10 +32,10 @@ export function PolicyDetail({record:r,onClose,onEdit}){
  </div></dialog>;
 }
 
-function DslEditor({data,record,importing,onClose,onValidate,onApply,busy}){
+export function DslEditor({data,record,importing,seed,onClose,onValidate,onApply,busy,baseStale=false,scopeLabel=''}){
  const dialog=useRef(null),input=useRef(null),gutter=useRef(null),origin=useRef(document.activeElement);
  const fresh=()=>({id:crypto.randomUUID(),name:'新策略文档',original_dsl:'',metadata:{}});
- const initial=structuredClone(data.documents||[]);if(importing||!initial.length)initial.push(fresh());
+ const initial=seed?appendHandoff(data,seed,data.scope_id):structuredClone(data.documents||[]);if(!seed&&(importing||!initial.length))initial.push(fresh());
  const [docs,setDocs]=useState(initial),[selected,setSelected]=useState(record?.document_id||initial.at(-1)?.id),[preview,setPreview]=useState(null),[checked,setChecked]=useState(''),[error,setError]=useState('');
  const doc=docs.find(d=>d.id===selected),known=(preview?.result?.compilations?.[0]?.documents||[]).flatMap(d=>d.rules.map(r=>({...r,document_id:d.id}))).filter(r=>r.document_id===selected);
  const rules=known.length?known:(data.records||[]).filter(r=>r.document_id===selected);
@@ -42,26 +43,35 @@ function DslEditor({data,record,importing,onClose,onValidate,onApply,busy}){
  useEffect(()=>{if(record?.source_start_line&&input.current){const offset=(doc?.original_dsl||'').split('\n').slice(0,record.source_start_line-1).join('\n').length;input.current.focus();input.current.setSelectionRange(offset,offset);}},[]);
  function change(patch){setDocs(old=>old.map(d=>d.id===selected?{...d,...patch}:d));}
  function metadata(rule,patch){change({metadata:{...doc.metadata,[rule]:{...doc.metadata?.[rule],...patch}}});}
- const current=JSON.stringify(docs),valid=preview?.state==='pending'&&checked===current;
- return <dialog ref={dialog} className="record-drawer dsl-editor" aria-label="编辑或导入 DSL" onCancel={e=>{e.preventDefault();if(!busy)onClose();}}><div className="record-drawer-head"><h2>{importing?'导入 DSL':'编辑 DSL'} · {data.scope_id==='system'?'系统策略':'当前 Agent 策略'}</h2><button className="button tiny ghost" disabled={busy} onClick={onClose}>关闭</button></div><div className="record-drawer-body">
+ const current=JSON.stringify(docs),valid=previewMatches(preview,checked,docs,baseStale);
+ return <dialog ref={dialog} className="record-drawer dsl-editor" aria-label="编辑或导入 DSL" onCancel={e=>{e.preventDefault();if(!busy)onClose();}}><div className="record-drawer-head"><h2>{importing?'导入 DSL':'编辑 DSL'} · {data.scope_id==='system'?'系统策略':scopeLabel||'当前 Agent 策略'}</h2><button className="button tiny ghost" disabled={busy} onClick={onClose}>关闭</button></div><div className="record-drawer-body">
+ {seed&&<div className="policy-handoff-banner" role="status"><b>{seed.templateId} · 候选已带入当前 Agent</b><p>保留 {data.documents.length} 个已有文档，追加 1 个模板候选。{preview?'草案已保存；运行策略未改变。':'尚未保存、编译或应用。'}</p><p>{seed.caveat}</p></div>}
+ {baseStale&&<p role="alert" className="inline-notice warning">当前策略已变化，请关闭后重新导入并校验。</p>}
  <p className="field-note">保存与校验不会改变运行策略。确认应用后，受影响的执行器会停止并重新加载策略。</p>
  <div className="dsl-document-toolbar"><label>所属文档<select aria-label="选择 DSL 文档" value={selected||''} onChange={e=>setSelected(e.target.value)}>{docs.map(d=><option key={d.id} value={d.id}>{d.name}</option>)}</select></label><button className="button tiny ghost" disabled={busy} onClick={()=>{const d=fresh();setDocs([...docs,d]);setSelected(d.id);}}>新增文档</button><label className="button tiny ghost dsl-file-input">导入 .dsl<input type="file" accept=".dsl,text/plain" disabled={busy} onChange={async e=>{const file=e.target.files?.[0];if(!file)return;try{if(file.size>50000)throw Error('DSL 文件不能超过 50000 字节');const text=new TextDecoder('utf-8',{fatal:true}).decode(await file.arrayBuffer());const d={...fresh(),name:file.name,original_dsl:text};setDocs(old=>[...old.filter(x=>x.original_dsl.trim()||x.id!==selected),d]);setSelected(d.id);setError('');}catch(e){setError(e.message);}e.target.value='';}}/></label></div>
  {doc?<><label className="dsl-name-field">文档名称<input maxLength={120} value={doc.name} disabled={busy} onChange={e=>change({name:e.target.value})}/></label><div className="dsl-edit-box"><div ref={gutter} className="dsl-editor-lines" aria-hidden="true">{doc.original_dsl.split('\n').map((_,i)=><div key={i}>{i+1}</div>)}</div><textarea ref={input} onScroll={e=>{if(gutter.current)gutter.current.scrollTop=e.target.scrollTop;}} spellCheck={false} aria-label="原始 DSL 文本" disabled={busy} value={doc.original_dsl} onChange={e=>change({original_dsl:e.target.value})} placeholder={'source AGENT = exec "**"\n\nrule policy-name:\n  notify exec "git" if AGENT\n  because "说明触发条件与原因"'}/></div>
  {rules.length>0&&<details className="dsl-metadata"><summary>策略语句与上下文 · {rules.length} 条规则</summary>{rules.map(r=><div className="dsl-rule-metadata" key={r.rule_name}><b>{r.rule_name}</b><button className="button tiny ghost" disabled={busy} onClick={()=>{const next={...doc.metadata};delete next[r.rule_name];change({metadata:next});}}>清除该规则的说明</button><label>策略原始语句<textarea value={doc.metadata?.[r.rule_name]?.statement||''} disabled={busy} onChange={e=>metadata(r.rule_name,{statement:e.target.value})} placeholder="留空时使用包含完整条件的 DSL 摘要"/></label><label>上下文需求<select value={doc.metadata?.[r.rule_name]?.context_requirement||'self_contained'} disabled={busy} onChange={e=>metadata(r.rule_name,{context_requirement:e.target.value})}><option value="self_contained">self_contained · 无外部上下文需求</option><option value="project">project · 项目上下文</option><option value="task">task · 任务上下文</option></select></label><label>上下文依据<input value={doc.metadata?.[r.rule_name]?.context_reason||''} disabled={busy} onChange={e=>metadata(r.rule_name,{context_reason:e.target.value})}/></label></div>)}</details>}
  <button className="button tiny danger" disabled={busy} onClick={()=>{setDocs(docs.filter(d=>d.id!==selected));setSelected(docs.find(d=>d.id!==selected)?.id||'');}}>从候选中移除此文档</button></>:<p className="task-empty">候选不包含任何用户 DSL。应用后将移除本层用户策略，继承约束仍然保留。</p>}
  {error&&<p role="alert" className="inline-notice warning">{error}</p>}
- <div className="dsl-save-actions"><button className="button primary" disabled={busy||docs.some(d=>!d.original_dsl.trim())} onClick={async()=>{setError('');try{const p=await onValidate(docs);setPreview(p);setChecked(current);}catch(e){setError(e.message);}}}>{busy?'正在处理…':'保存并校验'}</button><span className="field-note">{preview&&checked!==current?'内容已修改，需要重新校验':'校验后预览全部受影响连接'}</span></div>
- {preview&&<section className="dsl-preview"><h3>{preview.state==='pending'?'校验通过 · 待手动应用':'草案已保存 · 校验未通过'}</h3>{preview.result.error&&<p role="alert" className="inline-notice warning">{preview.result.error}</p>}<p>{preview.targets.filter(t=>!t.console_retained).length} 个受影响 Agent；只有变更前正在运行且已核验的连接才会重新启动。</p>{preview.targets.filter(t=>!t.console_retained).map(t=><div className="dsl-target" key={t.id}><strong>{agentProcessLabel(t)}</strong><small>{t.resources.join(' · ')} · {t.active?'将重新加载执行器':'保持未运行'}{t.pid?' · PID '+t.pid:''} · 所有工作区与会话</small></div>)}<details><summary>原始 DSL 变更前／候选内容</summary><div className="dsl-diff"><section><h4>变更前</h4><DslCode text={(data.documents||[]).map(d=>d.original_dsl).join('\n')||'无用户 DSL'}/></section><section><h4>候选</h4><DslCode text={preview.documents.map(d=>d.original_dsl).join('\n')||'无用户 DSL'}/></section></div></details><button className="button primary" disabled={busy||!valid} onClick={async()=>{try{await onApply(preview);onClose();}catch(e){setError(e.message);}}}>{busy?'正在应用…':'确认并应用到'+(data.scope_id==='system'?'系统策略':'当前 Agent')}</button></section>}
+ <div className="dsl-save-actions"><button className="button primary" disabled={busy||baseStale||docs.some(d=>!d.original_dsl.trim())} onClick={async()=>{setError('');try{const p=await onValidate(docs);setPreview(p);setChecked(current);}catch(e){setError(e.message);}}}>{busy?'正在处理…':'保存并校验'}</button><span className="field-note">{preview&&checked!==current?'内容已修改，需要重新校验':'校验后预览全部受影响连接'}</span></div>
+ {preview&&<section className="dsl-preview"><h3>{preview.state==='pending'?'校验通过 · 待手动应用':'草案已保存 · 校验未通过'}</h3>{preview.result.error&&<p role="alert" className="inline-notice warning">{preview.result.error}</p>}<p>{(preview.targets||[]).filter(t=>!t.console_retained).length} 个受影响 Agent；只有变更前正在运行且已核验的连接才会重新启动。</p>{(preview.targets||[]).filter(t=>!t.console_retained).map(t=><div className="dsl-target" key={t.id}><strong>{agentProcessLabel(t)}</strong><small>{(t.resources||[]).join(' · ')} · {t.active?'将重新加载执行器':'保持未运行'}{t.pid?' · PID '+t.pid:''} · 所有工作区与会话</small></div>)}<details><summary>原始 DSL 变更前／候选内容</summary><div className="dsl-diff"><section><h4>变更前</h4><DslCode text={(data.documents||[]).map(d=>d.original_dsl).join('\n')||'无用户 DSL'}/></section><section><h4>候选</h4><DslCode text={preview.documents.map(d=>d.original_dsl).join('\n')||'无用户 DSL'}/></section></div></details><button className="button primary" disabled={busy||!valid} onClick={async()=>{try{await onApply(preview);onClose();}catch(e){setError(e.message);}}}>{busy?'正在应用…':'确认并应用到'+(data.scope_id==='system'?'系统策略':'当前 Agent')}</button></section>}
  </div></dialog>;
 }
 
-export default function ActPlanePolicies({scopeId,api,post,onChanged}){
+export default function ActPlanePolicies({scopeId,scopeLabel='',api,post,onChanged,candidate,onCandidateConsumed}){
  const base=scopeId==='system'?'/api/security/system/dsl':'/api/agent-instances/'+encodeURIComponent(scopeId)+'/dsl';
  const [data,setData]=useState(null),[error,setError]=useState(''),[busy,setBusy]=useState(false),[detail,setDetail]=useState(null),[editor,setEditor]=useState(null),[query,setQuery]=useState('');
- const seq=useRef(0);
+ const seq=useRef(0),consumed=useRef('');
  function edit(options={}){setEditor({...options,base:structuredClone(data)});}
  async function refresh(){const n=++seq.current;try{const d=await api(base);if(n===seq.current){setData(d);setError('');}}catch(e){if(n===seq.current){setError(e.message);setData(null);}}}
  useEffect(()=>{refresh();const timer=setInterval(refresh,7000);return()=>{seq.current++;clearInterval(timer);};},[base,api]);
+ useEffect(()=>{
+  if(!candidate||consumed.current===candidate.id)return;
+  consumed.current=candidate.id;let alive=true;
+  // Fresh GET before merging. This effect never saves, compiles or applies policies.
+  api(base).then(value=>{if(!alive)return;appendHandoff(value,candidate,scopeId);setData(value);setEditor({seed:candidate,importing:true,base:structuredClone(value)});setError('');onCandidateConsumed?.();}).catch(e=>{if(alive)setError(e.message);});
+  return()=>{alive=false;};
+ },[candidate,base,scopeId,api,onCandidateConsumed]);
  async function run(fn){setBusy(true);try{return await fn();}finally{setBusy(false);}}
  const records=(data?.records||[]).filter(r=>(r.statement+' '+r.rule_name).toLowerCase().includes(query.toLowerCase()));
  return <section className="actplane-policies" aria-label={scopeId==='system'?'系统 ActPlane 策略':'Agent ActPlane 策略'}><div className="dsl-scope-header"><div><h3>{scopeId==='system'?'系统策略':'当前 Agent 策略'} <RecordBadge tone={scopeId==='system'?'purple':'info'} dot={false}>{scopeId==='system'?'所有受控 Agent 继承':'此 Agent 所有工作区与会话共用'}</RecordBadge></h3><p>配置真实的 ActPlane DSL；编译、加载与当前运行核验分别记录。</p></div><div className="actions"><button className="button ghost" disabled={!data||busy} onClick={()=>edit({importing:true})}>导入 DSL</button><button className="button primary" disabled={!data||busy} onClick={()=>edit()}>编辑 DSL</button></div></div>
@@ -69,9 +79,9 @@ export default function ActPlanePolicies({scopeId,api,post,onChanged}){
  {data?.phase!=='ready'&&data&&<p role="alert" className="inline-notice warning">上次 DSL 应用未完成，执行保持暂停。请打开编辑器，重新校验并确认恢复。</p>}
  {(data?.records?.length>0||query)&&<div className="dsl-list-toolbar"><input type="search" aria-label="搜索策略语句" placeholder="搜索策略语句或规则名" value={query} onChange={e=>setQuery(e.target.value)}/><span>{data?records.length+' 条策略 · v'+data.revision:'正在读取策略…'}</span></div>}
  {data&&query&&!records.length&&<p role="status" className="task-empty">没有匹配的策略，请修改搜索条件。</p>}
- {(!data||records.length>0)&&<PolicyRecords records={records} onDetail={setDetail} onEdit={r=>edit({record:r})} empty={data?'尚无用户配置的 ActPlane DSL。通过编辑或导入添加策略。':'正在读取策略记录…'}/>}
+ {(!data||records.length>0||!query)&&<PolicyRecords compact records={records} onDetail={setDetail} onEdit={r=>edit({record:r})} empty={data?'尚无用户配置的 ActPlane DSL。通过编辑或导入添加策略。':'正在读取策略记录…'}/>}
  {data?.proposals?.filter(p=>p.state!=='applied').length>0&&<details className="dsl-drafts"><summary>已保存的草案与应用记录</summary>{data.proposals.filter(p=>p.state!=='applied').map(p=><div className="dsl-draft-row" key={p.id}><code>{p.id.slice(0,12)}</code><span>{({pending:'校验通过 · 待应用',invalid:'校验未通过',failed:'应用失败',applying:'应用中'})[p.state]||p.state}</span><button className="button tiny ghost" onClick={()=>edit({draft:p})}>继续编辑</button></div>)}</details>}
  {detail&&<PolicyDetail record={detail} onClose={()=>setDetail(null)} onEdit={r=>{setDetail(null);edit({record:r});}}/>}
- {editor&&editor.base&&<DslEditor data={editor.draft?{...editor.base,documents:editor.draft.documents}:editor.base} record={editor.record} importing={editor.importing} busy={busy} onClose={()=>setEditor(null)} onValidate={docs=>run(()=>post(base+'/proposals',{documents:docs,base_hash:editor.base.document_hash,base_revision:editor.base.revision,request_key:crypto.randomUUID()}))} onApply={p=>run(async()=>{const result=await post(base+'/proposals/'+p.id+'/confirm',{proposal_hash:p.proposal_hash});await refresh();onChanged?.(result);return result;})}/>}
+ {editor&&editor.base&&<DslEditor data={editor.draft?{...editor.base,documents:editor.draft.documents}:editor.base} record={editor.record} importing={editor.importing} seed={editor.seed} scopeLabel={scopeLabel} baseStale={!!data&&(editor.base.document_hash!==data.document_hash||editor.base.revision!==data.revision)} busy={busy} onClose={()=>setEditor(null)} onValidate={docs=>run(async()=>{const p=await post(base+'/proposals',{documents:docs,base_hash:editor.base.document_hash,base_revision:editor.base.revision,request_key:crypto.randomUUID()});await refresh();return p;})} onApply={p=>run(async()=>{const result=await post(base+'/proposals/'+p.id+'/confirm',{proposal_hash:p.proposal_hash});await refresh();onChanged?.(result);return result;})}/>}
  </section>;
 }

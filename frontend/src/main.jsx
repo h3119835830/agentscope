@@ -14,7 +14,9 @@ import './actplanePolicies.css';
 import SecurityNotice from './SecurityNotice.jsx';
 import AgentSessions from './AgentSessions.jsx';
 import ProductOverview from './ProductOverview.jsx';
-import ConsoleWorkbench from './ConsoleWorkbench.jsx';
+import AgentPolicyWorkbench from './AgentPolicyWorkbench.jsx';
+import SystemWorkbench from './SystemWorkbench.jsx';
+import './agentPolicyWorkbench.css';
 import {productReadUrl,unknownAgentSummary} from './productConsole.mjs';
 import './productConsole.css';
 
@@ -77,6 +79,9 @@ function App() {
   const [governance, setGovernance] = useState([]);
   const [toast, setToast] = useState('');
   const [busy, setBusy] = useState(false);
+  const [candidate,setCandidate]=useState(null);
+  const consumeCandidate=useCallback(()=>setCandidate(null),[]);
+  const handoffCandidate=useCallback(value=>{setCandidate(value);navigate({page:'workbench',policyAgent:value.targetId,agentPolicyTab:'policies',connectionInstance:'',connectionTab:''});},[navigate]);
 
   const notify = useCallback(message => { setToast(message); setTimeout(() => setToast(''), 4200); }, []);
   const refresh = useCallback(async () => {
@@ -105,28 +110,28 @@ function App() {
       <div className="side-label">工作区</div>
       <nav id="workspace-navigation" aria-label="工作区导航">
         <NavItem active={page === 'overview'} icon="▦" label="总览" onClick={() => setPage('overview')} />
-        <NavItem active={page === 'connections'} icon="⇄" label="Agent连接" onClick={() => setPage('connections')} />
-        <NavItem active={page === 'sessions'} icon="▤" label="会话" onClick={() => setPage('sessions')} />
-        <NavItem active={page === 'workbench'} icon="◈" label="策略工作台" onClick={() => setPage('workbench')} />
+        <NavItem active={page === 'connections'} icon="⇄" label="Agent连接" onClick={() => navigate({page:'connections',connectionInstance:'',connectionTab:''})} />
+        <div className="nav-connection-children" aria-label="Agent连接下的模块"><NavItem active={page === 'sessions'} icon="▤" label="会话" onClick={() => navigate({page:'sessions',sessionInstance:'',sessionId:'',sessionFilterInstance:'',sessionWorkspace:'',sessionCursor:0})} /></div>
+        <NavItem active={page === 'workbench'} icon="◈" label="Agent" onClick={() => setPage('workbench')} />
         <NavItem active={page === 'history'} icon="▤" label="任务历史" onClick={() => setPage('history')} />
-        <NavItem active={page === 'strategies'} icon="▤" label="历史策略库" count={dash?.stats?.pending_strategies} onClick={() => setPage('strategies')} />
+        <NavItem active={page === 'strategies'} icon="▤" label="系统" count={dash?.stats?.pending_strategies} onClick={() => navigate({page:'strategies',systemTab:'policies'})} />
       </nav>
     </aside>
     <main className="main" data-page={page}>
       {page!=='connections'&&<header className="topbar"><div><span className="crumb">AgentScope</span><span className="slash">/</span><b>{pageTitle(page)}</b></div>{status&&(!status.broker?.available||!status.bpf_lsm)&&<span role="status" className="status-pill warn">{status.error?'状态读取失败':'保护服务暂不可用'}</span>}</header>}
       {page==='overview'&&<ProductOverview dash={dash} status={status} onNav={setPage} onSessions={id=>navigate({page:'sessions',sessionAgent:'',sessionFilterInstance:id,sessionInstance:'',sessionId:''})}/> }
-      {page==='workbench'&&<ConsoleWorkbench api={api} post={post} notify={notify} onConfigure={(scope,id)=>navigate({page:'connections',connectionWorkspace:'',connectionInstance:id,connectionTab:'policy',policyScope:scope})} onSessions={(id,sid='')=>navigate({page:'sessions',sessionAgent:'',sessionFilterInstance:id,sessionInstance:sid?id:'',sessionId:sid,sessionTab:'policies'})}/> }
+      {page==='workbench'&&<AgentPolicyWorkbench api={api} post={post} navigation={navigation} navigate={navigate} candidate={candidate} onConsumed={{handoff:handoffCandidate,consume:consumeCandidate}}/>}
       <div hidden={page!=='history'}><TaskArchive api={api} navigation={navigation} navigate={navigate}/></div>
-      {page === 'strategies' && <HistoryLibrary moduleIndex={historyModuleIndex} modules={HISTORY_MODULES} onModuleChange={setHistoryModuleIndex} api={api} post={post} tasks={tasks} busy={busy} action={withBusy} notify={notify} selectTask={openTask} />}
+      {page==='strategies'&&<SystemWorkbench api={api} post={post} navigation={navigation} navigate={navigate} onHandoff={handoffCandidate} tasks={tasks} busy={busy} action={withBusy} notify={notify} selectTask={openTask}/> }
       {page!=='history'&&<div hidden={page!=='connections'}><AgentWorkspaces api={api} post={post} notify={notify} onCreateTask={createTask} onOpenTask={openTask} tasks={tasks} active={page==='connections'} agentSeed={navigation.connectionAgent} workspaceSeed={navigation.connectionWorkspace} configurationId={navigation.connectionInstance} configurationTab={navigation.connectionTab} policyScope={navigation.policyScope} onSessions={id=>navigate({page:'sessions',sessionAgent:'',sessionFilterInstance:id,sessionWorkspace:'',sessionQuery:'',sessionCursor:0,sessionInstance:'',sessionId:''})} pane={navigation.connectionsPane} historySeed={navigation.connectionHistory} onContext={context=>navigate(context)} /></div>}
-      {page==='sessions'&&<AgentSessions api={api} navigation={navigation} navigate={navigate} onConfigure={(scope,id)=>navigate({page:'connections',connectionWorkspace:'',connectionInstance:id,connectionTab:'policy',policyScope:scope})}/>}
+      {page==='sessions'&&<AgentSessions api={api} navigation={navigation} navigate={navigate} onConfigure={(scope,id)=>navigate(scope==='system'?{page:'strategies',systemTab:'policies'}:{page:'workbench',policyAgent:id,agentPolicyTab:'policies'})}/>}
 
     </main>
     {toast && <div className="toast">{toast}</div>}
   </div>;
 }
 
-function pageTitle(page) { return ({ overview: '总览', sessions:'会话',workbench:'策略工作台',history:'任务历史',connections:'Agent连接', strategies: '历史策略库', task: '任务与场景策略', 'agent-bridge':'Agent 与工作区', governance: '持久治理' })[page]; }
+function pageTitle(page) { return ({ overview: '总览', sessions:'会话',workbench:'Agent',history:'任务历史',connections:'Agent连接', strategies: '系统', task: '任务与场景策略', 'agent-bridge':'Agent 与工作区', governance: '持久治理' })[page]; }
 function NavItem({ active, icon, label, count, onClick }) { return <button className={`nav-item ${active ? 'active' : ''}`} aria-label={label} aria-current={active?'page':undefined} title={label} onClick={onClick}><span className="nav-icon" aria-hidden="true">{icon}</span><span className="nav-label">{label}</span>{count > 0 && <em>{count}</em>}</button>; }
 function Header({ eyebrow, title, description, action }) { return <div className="page-head"><div><div className="eyebrow">{eyebrow}</div><h1>{title}</h1><p>{description}</p></div>{action}</div>; }
 function Metric({ label, value, note, icon }) { return <div className="metric"><div className="metric-top"><span>{label}</span><span className="metric-icon">{icon}</span></div><strong>{value ?? '—'}</strong><small>{note}</small></div>; }

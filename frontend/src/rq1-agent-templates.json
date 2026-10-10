@@ -1,0 +1,218 @@
+{
+  "schema": "agentscope.agent-template-candidates.v1",
+  "artifact_commit": "63db86945c9b8618a46aa68c8de214bc4b8343d9",
+  "export_sha256": "7e91b63ca74544823e067b58bbc746060cd0ba57a0ceb4e68c0e49b9b8b8b81d",
+  "verified_records": 607,
+  "note": "RQ1 原始样例的历史编译状态不传递给参数化候选；所有模板仅供第二层 Agent 策略使用。",
+  "templates": [
+    {
+      "id": "RQ1-ENV",
+      "uid": "abhigyanpatwari__GitNexus::2",
+      "name": "敏感配置访问限制",
+      "category": "文件保护",
+      "summary": "限制当前 Agent 打开指定的秘密配置文件。",
+      "effect": "block",
+      "kind": "file",
+      "operation": "open",
+      "parameters": [
+        {
+          "key": "target",
+          "label": "受保护文件",
+          "value": "/workspace/.env"
+        }
+      ],
+      "clauses": [
+        "block open file {{target}} if AGENT"
+      ],
+      "reason": "此文件可能包含凭据，请使用非秘密配置模板或受控凭据接口。",
+      "caveat": "本候选保护指定文件的打开操作；不自动扩展为全部秘密识别，也不证明其他访问路径已覆盖。",
+      "scope_type": "agent",
+      "adapted_compile_status": "not_run",
+      "evidence": {
+        "uid": "abhigyanpatwari__GitNexus::2",
+        "source_file": "abhigyanpatwari/GitNexus/AGENTS.md",
+        "source_lines": "7-16",
+        "directive": "## Scope\n\n| Boundary | Rule |\n|----------|------|\n| **Reads** | `gitnexus/`, `gitnexus-web/`, `eval/`, plugin packages, `.github/`, `.gitnexus/`, docs. |\n| **Writes** | Only paths required for the change; keep diffs minimal. Update lockfiles when deps change. |\n| **Executes** | `npm`, `npx`, `node` under `gitnexus/` and `gitnexus-web/`; `uv run` for Python under `eval/`; documented CI/dev workflows. |\n| **Off-limits** | Real `.env` / secrets, production credentials, unrelated repos, destructive git ops without confirmation. |",
+        "policy_yaml": "version: 1\npolicy: |\n  source AGENT = exec \"**/*\"\n  \n  rule gitnexus-scope:\n    block open file \"**/.env\" if AGENT\n    block open file \"**/secrets/**\" if AGENT\n    notify exec \"npm\" if AGENT\n    notify exec \"npx\" if AGENT\n    notify exec \"node\" if AGENT\n    notify exec \"uv\" if AGENT\n    because \"Stay within the documented read, write, and execution scope; real env files and secrets are off limits.\"\n",
+        "enforceability": "per_event",
+        "compile_status": "compiled"
+      }
+    },
+    {
+      "id": "RQ1-CONTRACT",
+      "uid": "zeroclaw-labs__zeroclaw::34",
+      "name": "开发契约文件保护",
+      "category": "文件保护",
+      "summary": "禁止当前 Agent 删除指定的开发契约文件。",
+      "effect": "block",
+      "kind": "file",
+      "operation": "unlink",
+      "parameters": [
+        {
+          "key": "target",
+          "label": "开发契约文件",
+          "value": "/workspace/AGENTS.md"
+        }
+      ],
+      "clauses": [
+        "block unlink file {{target}} if AGENT"
+      ],
+      "reason": "开发契约由人工维护，请通过评审流程申请删除。",
+      "caveat": "这里只保护删除；覆盖、重命名、目录删除和权限变更需另行覆盖与验收。",
+      "scope_type": "agent",
+      "adapted_compile_status": "not_run",
+      "evidence": {
+        "uid": "zeroclaw-labs__zeroclaw::34",
+        "source_file": "zeroclaw-labs/zeroclaw/AGENTS.md",
+        "source_lines": "205-216",
+        "directive": "Dev-operational contracts — files consumed by AI coding skills and development tooling. Do not move or delete without updating all consuming skills and AGENTS.md:\n\n| Protected file | Consuming skill / tool |\n|---|---|\n| `docs/book/src/contributing/pr-review-protocol.md` | `github-pr-review-session` — review protocol |\n| `docs/book/src/maintainers/changelog-generation.md` | `changelog-generation` — release procedure |\n| `docs/book/src/maintainers/reviewer-playbook.md` | `github-issue-triage` — triage governance |\n| `docs/book/src/maintainers/pr-workflow.md` | `github-issue-triage` — triage discipline |\n| `docs/book/src/contributing/privacy.md` | `github-issue-triage`, PR template — privacy rules |\n| `docs/book/src/foundations/fnd-00*.md` | `github-pr-review-session` — RFC reference data; public transparency documents |",
+        "policy_yaml": "version: 1\npolicy: |\n  source AGENT = exec \"**\"\n  \n  rule protected-dev-contract-files:\n    block unlink file \"docs/book/src/contributing/pr-review-protocol.md\" if AGENT\n    block unlink file \"docs/book/src/maintainers/changelog-generation.md\" if AGENT\n    block unlink file \"docs/book/src/maintainers/reviewer-playbook.md\" if AGENT\n    block unlink file \"docs/book/src/maintainers/pr-workflow.md\" if AGENT\n    block unlink file \"docs/book/src/contributing/privacy.md\" if AGENT\n    block unlink file \"docs/book/src/foundations/fnd-00*.md\" if AGENT\n    because \"Do not move or delete dev-operational contract files without updating consuming skills and AGENTS.md.\"\n",
+        "enforceability": "per_event",
+        "compile_status": "compiled"
+      }
+    },
+    {
+      "id": "RQ1-GENERATED",
+      "uid": "AlexsJones__llmfit::17",
+      "name": "生成文件写入约束",
+      "category": "生成产物",
+      "summary": "生成文件只能由指定工具的进程链写入。",
+      "effect": "block",
+      "kind": "file",
+      "operation": "write",
+      "parameters": [
+        {
+          "key": "target",
+          "label": "生成文件",
+          "value": "/workspace/data/hf_models.json"
+        },
+        {
+          "key": "producer",
+          "label": "允许的生成器可执行名",
+          "value": "python*"
+        }
+      ],
+      "clauses": [
+        "block write file {{target}} if AGENT unless lineage-includes exec {{producer}}"
+      ],
+      "reason": "请通过批准的生成器重新生成此文件，不要手动修改。",
+      "caveat": "python* 进程链匹配不能证明指定脚本执行过；正式使用需收紧可信生成器身份并验证替代写入路径。",
+      "scope_type": "agent",
+      "adapted_compile_status": "not_run",
+      "evidence": {
+        "uid": "AlexsJones__llmfit::17",
+        "source_file": "AlexsJones/llmfit/AGENTS.md",
+        "source_lines": "75-83",
+        "directive": "Do not manually edit `hf_models.json`. Regenerate it by running the scraper:\n\n```sh\npython3 scripts/scrape_hf_models.py\n```\n\nThe scraper has hardcoded fallback entries for gated models that require authentication.",
+        "policy_yaml": "version: 1\npolicy: |\n  source AGENT = exec \"**\"\n  \n  rule regen-hf-models:\n    block write file \"data/hf_models.json\" if AGENT unless lineage-includes exec \"python*\"\n    because \"Do not manually edit data/hf_models.json; run python3 scripts/scrape_hf_models.py.\"\n",
+        "enforceability": "per_event",
+        "compile_status": "compiled"
+      }
+    },
+    {
+      "id": "RQ1-CHECK",
+      "uid": "OpenPipe__ART::2",
+      "name": "提交前检查顺序",
+      "category": "开发流程",
+      "summary": "代码变更后，提交前应出现指定检查程序的执行事件。",
+      "effect": "block",
+      "kind": "workflow",
+      "operation": "exec",
+      "parameters": [
+        {
+          "key": "target",
+          "label": "代码文件范围",
+          "value": "/workspace/**/*.py"
+        },
+        {
+          "key": "checker",
+          "label": "检查程序可执行名",
+          "value": "uv"
+        }
+      ],
+      "sources": [
+        "source CODE = file {{target}}"
+      ],
+      "clauses": [
+        "block exec \"git\" \"commit\" if CODE unless after exec {{checker}} since write {{target}}"
+      ],
+      "reason": "代码变更后请先执行项目检查，再提交。",
+      "caveat": "RQ1 原例只关联 uv 执行顺序，不证明运行了正确子命令或测试成功；不能标为“测试通过才允许提交”。",
+      "scope_type": "agent",
+      "adapted_compile_status": "not_run",
+      "evidence": {
+        "uid": "OpenPipe__ART::2",
+        "source_file": "OpenPipe/ART/CLAUDE.md",
+        "source_lines": "8-12",
+        "directive": "## Testing\n\n- Always run tests before committing. The test command is `uv run prek run --all-files`.",
+        "policy_yaml": "version: 1\npolicy: |\n  source AGENT = exec \"**\"\n  source PYCODE = file \"**/*.py\"\n  \n  rule tests-before-commit:\n    block exec \"git\" \"commit\" if PYCODE unless after exec \"uv\" since write \"**/*.py\"\n    because \"Run uv run prek run --all-files before committing changes.\"\n",
+        "enforceability": "cross_event",
+        "compile_status": "compiled"
+      },
+      "runtime_note": "当前运行时不支持按命令参数预先 block；此模板可用于起草与查看校验反馈，校验失败时不能应用。"
+    },
+    {
+      "id": "RQ1-DELETE",
+      "uid": "openclaw__openclaw::123",
+      "name": "文件删除提醒",
+      "category": "行为提醒",
+      "summary": "记录并提醒当前 Agent 的文件删除操作。",
+      "effect": "notify",
+      "kind": "file",
+      "operation": "unlink",
+      "parameters": [
+        {
+          "key": "target",
+          "label": "需要提醒的文件范围",
+          "value": "/workspace/**"
+        }
+      ],
+      "clauses": [
+        "notify unlink file {{target}} if AGENT"
+      ],
+      "reason": "请保留非任务文件；遇到阻塞时先申请人工处理。",
+      "caveat": "notify 是提醒而非阻止；原例没有覆盖重命名，不能据此宣称删除已被拦截。",
+      "scope_type": "agent",
+      "adapted_compile_status": "not_run",
+      "evidence": {
+        "uid": "openclaw__openclaw::123",
+        "source_file": "openclaw/openclaw/AGENTS.md",
+        "source_lines": "156-157",
+        "directive": "- Do not delete/rename unexpected files; ask if blocking, else ignore.",
+        "policy_yaml": "version: 1\npolicy: |\n  source AGENT = exec \"**\"\n\n  rule no-unexpected-delete:\n    notify unlink file \"**\" if AGENT\n    because \"do not delete or rename unexpected files; ask if blocking, else ignore\"\n",
+        "enforceability": "per_event",
+        "compile_status": "compiled"
+      }
+    },
+    {
+      "id": "RQ1-GIT",
+      "uid": "earendil-works__pi::36",
+      "name": "高风险 Git 操作约束",
+      "category": "开发流程",
+      "summary": "对若干高风险 Git 参数匹配后终止违规进程。",
+      "effect": "kill",
+      "kind": "argv",
+      "operation": "exec",
+      "parameters": [],
+      "clauses": [
+        "kill exec \"git\" \"reset\" if AGENT",
+        "kill exec \"git\" \"clean\" if AGENT",
+        "kill exec \"git\" \"stash\" if AGENT",
+        "kill exec \"git\" \"--no-verify\" if AGENT"
+      ],
+      "reason": "请通过人工评审处理高风险 Git 操作，不应绕过检查。",
+      "caveat": "这是对原例的子集适配；参数匹配可能误伤，kill 属于事后处置，不能保证危险操作执行前被阻止。",
+      "scope_type": "agent",
+      "adapted_compile_status": "not_run",
+      "evidence": {
+        "uid": "earendil-works__pi::36",
+        "source_file": "earendil-works/pi/AGENTS.md",
+        "source_lines": "55-59",
+        "directive": "Never run (destroys other agents' work or bypasses checks):\n\n- `git reset --hard`, `git checkout .`, `git clean -fd`, `git stash`, `git add -A`, `git add .`, `git commit --no-verify`.",
+        "policy_yaml": "version: 1\npolicy: |\n  source AGENT = exec \"**/*\"\n  \n  rule no-destructive-git:\n    kill exec \"git\" \"reset\" if AGENT\n    kill exec \"git\" \"clean\" if AGENT\n    kill exec \"git\" \"stash\" if AGENT\n    kill exec \"git\" \"-A\" if AGENT\n    kill exec \"git\" \".\" if AGENT\n    kill exec \"git\" \"--no-verify\" if AGENT\n    because \"Never run destructive git operations or bypass checks: reset hard, checkout dot, clean, stash, bulk add, or commit no-verify.\"\n",
+        "enforceability": "per_event",
+        "compile_status": "compiled"
+      }
+    }
+  ]
+}
