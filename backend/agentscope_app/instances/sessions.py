@@ -22,6 +22,42 @@ CREATE TABLE IF NOT EXISTS instance_session_task_bindings(instance_id TEXT NOT N
 
 def init(con):con.executescript(SCHEMA)
 
+def internal_workspace_path(path):
+    return isinstance(path,str) and any(path==base or path.startswith(base+'/') for base in ('/w','/s/instance-resources'))
+
+def native_cwd(row,session):
+    """Return the adapter's actual cwd, never manufacture one from a mount."""
+    if session.get('mapping') not in ('native_registry','native_session_database','native_gateway'):return None
+    resource=session.get('resource')
+    if not isinstance(resource,str) or not resource:return None
+    if row.get('mode')!='controlled':return resource
+    cwd=session.get('execution_resource')
+    if not isinstance(cwd,str) or not any(resource==p or resource.startswith(p+'/') for p in row.get('resources',[])):return None
+    from .mapping import translate
+    try:return cwd if translate(cwd,row['resources'],reverse=True)==resource else None
+    except ValueError:return None
+
+def native_workspace_info(row,session):
+    """Only a native registry can identify a project; cwd and mounts cannot."""
+    info=session.get('native_workspace')
+    if not isinstance(info,dict) or info.get('source')!='dsh_workspace_registry':return None
+    path=info.get('path')
+    if not isinstance(path,str) or not path or path!=native_cwd(row,session):return None
+    # Reserved platform mount roots are not user project paths, even when a
+    # native workspace registration happens to point at one of them.
+    if internal_workspace_path(path):return None
+    import ntpath
+    from pathlib import PurePosixPath
+    if not (path.startswith('/') or (ntpath.isabs(path) and ntpath.splitdrive(path)[0])):return None
+    if '..' in PurePosixPath(path.replace('\\','/')).parts:return None
+    if not isinstance(info.get('id'),str) or not info['id']:return None
+    name=info.get('name')
+    return {'id':info['id'],'name':name.strip() if isinstance(name,str) and name.strip() else None,'path':path}
+
+def native_workspace(row,session):
+    info=native_workspace_info(row,session)
+    return info['path'] if info else None
+
 def native_sessions(row):
     if not row.get('connected'):
         with db.connect() as con:cached=con.execute('SELECT * FROM instance_session_cache WHERE instance_id=? ORDER BY observed_at DESC',(row['id'],)).fetchall()
@@ -37,7 +73,9 @@ def native_sessions(row):
         if not known or not isinstance(resource,str) or resource.startswith('/w/') or row.get('mode')=='controlled' and not any(resource==p or resource.startswith(p+'/') for p in row.get('resources',[])):
             resource=None
         item={k:raw[k] for k in ('id','name','status','running','parent_id','updated_at','mapping','runtime_session_id') if k in raw}
-        item.update(resource=resource,process_ids=[p for p in raw.get('process_ids',[]) if isinstance(p,int) and p>0],historical=False)
+        item.update(resource=resource,execution_resource=raw.get('execution_resource') if native_cwd(row,raw) else None,
+                    native_workspace=raw.get('native_workspace'),
+                    process_ids=[p for p in raw.get('process_ids',[]) if isinstance(p,int) and p>0],historical=False)
         rows.append(item)
     if row.get('mode')=='controlled':
         with db.connect() as con:
@@ -49,11 +87,15 @@ def current_agent_pid(row):
     return pid if row.get('connected') and isinstance(pid,int) and not isinstance(pid,bool) and pid>0 else None
 
 
-def directory(agent_type='',instance_id='',q='',cursor=0,limit=30,workspace=''):
+def directory(agent_type='',instance_id='',q='',cursor=0,limit=30,workspace='',console=False):
     from . import controller as c
+    if console and internal_workspace_path(workspace):workspace=''
     products=[r for r in c.listing()['instances'] if (r['mode']=='controlled' or r.get('connected')) and (not agent_type or r['agent_type']==agent_type)]
+    if console:
+        from ..console import hidden
+        excluded=hidden('agent');products=[r for r in products if r['id'] not in excluded]
     selected=[r for r in products if not instance_id or r['id']==instance_id]
-    rows=[];errors=[];workspaces=set()
+    rows=[];errors=[];workspaces=set();workspace_records={};selected_workspace=workspace
     connections=[{'id':r['id'],'name':r['name'],'agent_type':r['agent_type'],'connected':r.get('connected',False),
         'pid':current_agent_pid(r),'resources':r.get('resources',[])} for r in products]
     for row in selected:
@@ -62,8 +104,14 @@ def directory(agent_type='',instance_id='',q='',cursor=0,limit=30,workspace=''):
             errors.append({'instance_id':row['id'],'message':'原生会话映射读取失败'});continue
         if not result.get('mapping_available'):errors.append({'instance_id':row['id'],'message':'当前会话映射不可用，已保存记录仅供查看'})
         for s in result.get('sessions',[]):
+            source_resource=s.get('resource')
+            if console:
+                info=native_workspace_info(row,s)
+                s={**s,'resource':info['path'] if info else None,'workspace_name':info['name'] if info else None}
+                if info:workspace_records[info['path']]={'path':info['path'],'name':info['name']}
+                if workspace and source_resource==workspace and s['resource']:selected_workspace=s['resource']
             if s.get('resource'):workspaces.add(s['resource'])
-            if workspace and s.get('resource')!=workspace:continue
+            if workspace and s.get('resource')!=workspace and not (console and s.get('resource') and source_resource==workspace):continue
             if q.lower() not in ((s.get('name') or '')+' '+s['id']).lower():continue
             rows.append({**s,'instance_id':row['id'],'instance_name':row['name'],'agent_type':row['agent_type'],
                 'agent_pid':current_agent_pid(row),
@@ -72,7 +120,8 @@ def directory(agent_type='',instance_id='',q='',cursor=0,limit=30,workspace=''):
     rows.sort(key=lambda s:(s['instance_id'],s['id']))
     return {'records':rows[cursor:cursor+limit],'next_cursor':cursor+limit if len(rows)>cursor+limit else None,
         'total':len(rows),'count_complete':not errors,'connections':connections,'errors':errors,
-        'workspaces':sorted(workspaces),'workspace_available':bool(workspaces)}
+        'workspaces':sorted(workspaces),'workspace_records':sorted(workspace_records.values(),key=lambda w:w['path']),
+        'workspace_available':bool(workspaces),'selected_workspace':selected_workspace}
 
 def session_context(ident,sid,generation=None):
     from . import controller as c
@@ -97,7 +146,7 @@ def legacy_records(row,active):
         out.append({'id':'legacy:'+str(source_hash),'rule_name':name,'statement':'；'.join(c.strip() for c in clauses),
             'statement_origin':'dsl_summary','effects':list(dict.fromkeys(r['effect'] for r in refs)),
             'event_types':['cross_event' if any(r.get('semantics',{}).get('condition_kind') in ('after','lineage') or r.get('semantics',{}).get('gate_index') is not None for r in refs) else 'per_event'],
-            'context_requirement':'project' if any(r.get('target_kind')=='file' for r in refs) else 'self_contained',
+            'context_requirement':None,
             'scope_type':'agent','scope_id':row['id'],'source_kind':'legacy_generated','original_dsl':None,
             'effective_dsl':refs[0]['source_text'],'compiled_refs':refs,'compile_status':'compiled','loaded':True,'active':active,
             'context_reason':'既有启动编译器生成的规则；用户原始 DSL 未记录','editable':False})
@@ -125,7 +174,8 @@ def policies(ident,sid,generation=None):
         if state.get('session_id')==binding['managed_session_id'] and state.get('binding',{}).get('domain_id')==row.get('domain_id'):
             for record in workbench(binding['task_id']).get('records',[]):
                 records.append({**record,'scope_type':'session','scope_id':sid,'context_requirement':record.get('context_scope','task'),'editable':False})
-    return {'session':session,'instance':{'id':ident,'name':row['name'],'mode':row['mode'],'agent_type':row['agent_type']},
+    info=native_workspace_info(row,session)
+    return {'session':{**session,'workspace':info['path'] if info else None,'workspace_name':info['name'] if info else None},'instance':{'id':ident,'name':row['name'],'mode':row['mode'],'agent_type':row['agent_type']},
         'generation':gen,'generations':generations,'active':active,'executor_shared':True,'pid':row.get('pid') if active else None,
         'agent_pid':current_agent_pid(row),
         'domain_id':row.get('domain_id') if active else None,'records':records,'bundle_hash':saved['bundle_hash'] if saved else None,
@@ -189,22 +239,34 @@ def project_kernel(row,saved,raw):
         with db.connect() as con:starts=con.execute("SELECT session_id,call_id,detail_json FROM instance_events WHERE instance_id=? AND generation=? AND kind='tool_start'",(row['id'],raw['generation'])).fetchall()
         links=[r for r in starts if str(json.loads(r['detail_json']).get('kernel_call_tag',''))==tag and json.loads(r['detail_json']).get('domain_id')==event.get('process_domain_id')]
         if len({(r['session_id'],r['call_id']) for r in links})==1:sid,call_id=links[0]['session_id'],links[0]['call_id']
+    names={r['rule_name'] for r in dsl_policy.policy_records(saved['artifact']) if any(m['source_ref']==r.get('source_ref') for m in matched)} if saved and matched else set()
     return {'id':raw['id'],'time':event.get('timestamp_unix_ns') or raw['created_at'],'instance_id':row['id'],'generation':raw['generation'],
         'session_id':sid,'call_id':call_id,'attribution':'trusted_tool_tag' if sid else 'shared_executor_unattributed',
         'operation':event.get('op'),'syscall':event.get('syscall'),'target':event.get('target'),'pid':event.get('pid'),
         'domain_id':event.get('process_domain_id',event.get('domain_id')),'rule_domain_id':event.get('domain_id'),
         'effect':event.get('effect'),'actual_action':event.get('action'),'blocked':event.get('blocked',False),'killed':event.get('killed',False),
-        'rule_name':rule.get('name'),'rule_id':event.get('rule_id'),'source_refs':matched,'bundle_hash':raw['bundle_hash'],
+        'rule_name':rule.get('name'),'policy_name':next(iter(names)) if len(names)==1 else None,'rule_id':event.get('rule_id'),'source_refs':matched,'bundle_hash':raw['bundle_hash'],
         'reason':rule.get('reason'),'origin':event.get('causal_chain') or event.get('provenance'),'feedback_delivered':None}
 
-def kernel_page(ident,sid,generation=None,before=None,limit=30):
+def kernel_page(ident,sid,generation=None,before=None,limit=30,session_only=False):
     row,session,gen,active=session_context(ident,sid,generation)
     collection=collect_kernel(row) if gen==row.get('generation') else {'available':True,'historical':True}
     saved=dsl_policy.receipt(ident,gen)
-    with db.connect() as con:rows=con.execute('SELECT * FROM instance_kernel_events WHERE instance_id=? AND generation=? AND (? IS NULL OR id<?) ORDER BY id DESC LIMIT ?', (ident,gen,before,before,limit+1)).fetchall()
-    records=[project_kernel(row,saved,r) for r in rows[:limit]]
-    records=[r for r in records if r['session_id'] in (None,sid)]
-    return {'records':records,'generation':gen,'next_cursor':rows[limit-1]['id'] if len(rows)>limit else None,'collection':collection,
+    # Attribute before pagination. Unrelated events must not fill a page or make
+    # a later trusted event disappear behind an empty page.
+    accepted=[];cursor=before
+    with db.connect() as con:
+        while len(accepted)<=limit:
+            rows=con.execute('SELECT * FROM instance_kernel_events WHERE instance_id=? AND generation=? AND (? IS NULL OR id<?) ORDER BY id DESC LIMIT 200',(ident,gen,cursor,cursor)).fetchall()
+            if not rows:break
+            for raw in rows:
+                event=project_kernel(row,saved,raw)
+                if event['session_id']==sid or not session_only and event['session_id'] is None:accepted.append(event)
+                if len(accepted)>limit:break
+            cursor=rows[-1]['id']
+            if len(rows)<200:break
+    records=accepted[:limit]
+    return {'records':records,'generation':gen,'next_cursor':records[-1]['id'] if len(accepted)>limit else None,'collection':collection,
         'coverage':'仅采集内核策略匹配事件，不代表全量系统调用。共享进程中的未关联事件不归属于当前会话。'}
 
 def traces(ident,sid,generation=None,before=None,limit=30):

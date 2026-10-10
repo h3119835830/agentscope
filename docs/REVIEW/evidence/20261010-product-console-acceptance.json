@@ -1,0 +1,66 @@
+{
+  "recorded_at": "2026-10-10T17:06:35.3292778+08:00",
+  "scope": "18003 product console cleanup and native workspace correction",
+  "branch": "codex/system-security-rules-20261010",
+  "deployment": {
+    "backup": "/var/lib/agentscope-scope-demo/deploy-backups/product-console-20261010-170527",
+    "first_backup": "/var/lib/agentscope-scope-demo/deploy-backups/product-console-20261010-163819",
+    "ui_sha256": "c00ccdff3bd17704ebc2d50b3c01c69e52b4db16f52a58315d35bce11de4d3a5",
+    "api_only_restart": true,
+    "broker_restarted": false,
+    "native_agent_restarted": false,
+    "source_counts": {
+      "strategies": 2,
+      "tasks": 305,
+      "history_generations": 0,
+      "instance_policy_receipts": 19,
+      "agent_instances": 3
+    },
+    "retained_counts": {
+      "generation": 0,
+      "task": 305,
+      "agent": 1,
+      "strategy": 2
+    },
+    "source_records_deleted": false
+  },
+  "tests": {
+    "frontend_passed": 181,
+    "build": "passed, 90 modules, no JSX warnings",
+    "backend_skipped": 52,
+    "backend_deprecation_warnings": 5,
+    "backend_passed": 906
+  },
+  "native_runtime": {
+    "product": "DeepSeek Harness",
+    "workspace_paths": [
+      "/w/0",
+      "/w/1"
+    ],
+    "unchanged_after_deploy": true,
+    "native_session_count": 7,
+    "pid": 54870,
+    "workspace_evidence": "Trusted native session cwd plus process mountinfo; host source paths retained only in backend"
+  },
+  "browser": {
+    "connections": "one DSH current PID, Hermes without workspace",
+    "workbench": "same DSH native workspaces; no workspace field for Hermes",
+    "console_warn_error_count": 0,
+    "sessions": "directory, workspace filter, four tabs, details and trusted empty states",
+    "navigation": "back, forward and direct detail reload passed; old source-path filter resolves via verified mapping",
+    "configuration": "system and Agent DSL retained, generated boundaries hidden, editor and import available, no live save/apply",
+    "overview": "current verified Agent count, no legacy running counter",
+    "history": "retained fixtures excluded, no empty tables"
+  },
+  "screenshots": [
+    "20261010-product-connections.png",
+    "20261010-product-sessions.png",
+    "20261010-product-overview.png"
+  ],
+  "limitations": [
+    "No new live DSL applied or block/kill/notify probes in this cleanup",
+    "Future operations client not implemented",
+    "Shared admin credential does not identify an individual person"
+  ],
+  "remote_pushed": false
+}

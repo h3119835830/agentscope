@@ -1,4 +1,4 @@
-export const pages = ['overview','connections','sessions','workbench','history','strategies','governance'];
+export const pages = ['overview','connections','sessions','workbench','history','strategies'];
 export const historySections = ['generate','records','audit'];
 export const workbenchSections = ['startup','runtime','overview','audit'];
 export const archivePanes = ['overview','startup','runtime','audit','domains','closure'];

@@ -43,6 +43,9 @@ from .instances.controller import observer as instance_observer
 app.include_router(instance_router)
 from .instances.dsl_api import router as instance_dsl_router
 app.include_router(instance_dsl_router)
+from .console import router as console_router
+from .audit_identity import principal, AuditModel
+app.include_router(console_router)
 
 @app.middleware("http")
 async def protect_control_api(request: Request, call_next):
@@ -62,19 +65,29 @@ async def protect_control_api(request: Request, call_next):
     if development.passwordless(request):
         if supplied:
             return JSONResponse({"detail":"任务凭据不能调用本机控制接口"}, status_code=401)
-        return await call_next(request)
+        token=principal.set('本机控制操作（未识别个人）')
+        try:
+            from .console import retained_request
+            if retained_request(request):return JSONResponse({'detail':'此记录保留于后台资料中'},status_code=404)
+            return await call_next(request)
+        finally:principal.reset(token)
     if len(ADMIN_TOKEN)<32 or ADMIN_TOKEN=="replace-with-a-random-secret":
         return JSONResponse({"detail":"管理员口令未配置；请设置 AGENTSCOPE_ADMIN_TOKEN"},status_code=503)
     if not hmac.compare_digest(supplied,ADMIN_TOKEN):
         return JSONResponse({"detail":"需要有效的 AgentScope 管理员口令"},status_code=401)
-    return await call_next(request)
+    token=principal.set('管理员凭据操作（未识别个人）')
+    try:
+        from .console import retained_request
+        if retained_request(request):return JSONResponse({'detail':'此记录保留于后台资料中'},status_code=404)
+        return await call_next(request)
+    finally:principal.reset(token)
 
 class PrepareRequest(BaseModel):
     repo_url:str; ref:str="main"; prompt:str=Field(min_length=3,max_length=8000); dsh_profile:str="headless"
 class PolicyRequest(BaseModel):
     strategy_ids:list[str]=[]; artifact_version_ids:list[str]=[]; settings:dict[str,Any]={}
-class ReviewRequest(BaseModel):
-    decision:str; reviewed_by:str="研究者"; notes:str=""
+class ReviewRequest(AuditModel):
+    decision:str; reviewed_by:str="未识别操作者"; notes:str=""
     expected_context_hash:str|None=None; expected_proposal_hash:str|None=None
 class ScopeRequestBody(BaseModel):
     kind:str; path:str|None=None; justification:str=Field(min_length=4,max_length=1000); requested_by:str="用户"

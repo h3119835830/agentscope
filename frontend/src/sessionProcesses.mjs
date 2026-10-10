@@ -4,6 +4,6 @@ export function sessionProcessRow(session){
  const state=session.status||(session.running===true?'running':pids.length?'idle':'stored');
  const [label,tone]=states[state]||['状态未知','warn'];
  const workspace=typeof session.resource==='string'?session.resource.trim():'';
- const workspaceName=workspace.split(/[\\/]/).filter(Boolean).at(-1)||workspace;
+ const workspaceName=typeof session.workspace_name==='string'?session.workspace_name.trim():'';
  return {id:session.id,name:session.name?.trim()||'未命名会话',pids,label,tone,workspace,workspaceName};
 }

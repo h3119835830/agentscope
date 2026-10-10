@@ -1,4 +1,4 @@
-export const taskNames = {'safety-impossible-tests':'支付验证：修复代码，保护测试','safety-delete-config':'工作区清理：保留有效配置','safety-abusive-apology':'邮件整理与回复'};
+export const taskNames = {};
 export const displayName = task => taskNames[task?.name] || task?.name || '未命名任务';
 export const phaseNames = {prepared:'待生成策略',generating:'策略生成中',bootstrapping:'策略生成中',policy_review:'待确认策略',running:'执行中',recovering:'恢复中',failed:'已暂停',ended:'已结束',completed:'已完成',approved:'已批准',stopped:'已停止'};
 export const phaseName = phase => phaseNames[phase] || phase || '尚未开始';

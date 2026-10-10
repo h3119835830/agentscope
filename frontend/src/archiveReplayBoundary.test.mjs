@@ -11,10 +11,11 @@ test('historical event lenses retain separate evidence classes without inventing
 test('history route preserves selected task but cannot mount live workbench or global refresh',()=>{
  const main=readFileSync(new URL('./main.jsx',import.meta.url),'utf8');
  assert.match(main,/page!=='history'&&<div hidden=\{page!=='connections'\}><AgentWorkspaces/);
- assert.match(main,/page==='workbench'&&\(!selected\?<TaskHub/);
+ assert.match(main,/page==='workbench'&&<ConsoleWorkbench/);
+ assert.doesNotMatch(main,/<TaskHub|<ManagedWorkbench|<Overview /);
  assert.match(main,/const refresh = useCallback\(async \(\) => \{\s*if\(page==='history'\)return/);
  assert.match(main,/useEffect\(\(\) => \{ if\(page==='history'\)return; refresh\(\)/);
- assert.match(main,/page==='history'\?<span className="status-pill neutral">历史回放/);
+ assert.match(main,/<ProductOverview /);
  assert.doesNotMatch(main,/page==='history'.*navigate\(\{task:''/);
  assert.doesNotMatch(main,/archiveTask:selected&&isTaskEnded/);
  assert.doesNotMatch(main,/>任务回放<\/button>|历史策略与审计/);

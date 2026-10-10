@@ -48,21 +48,22 @@ test('replay domain tab starts expanded but its initial client effects only read
  assert.match(html,/<details[^>]*open/);for(const effect of effects)effect();await Promise.resolve();
  assert.deepEqual(calls,['/api/tasks/old%2Frq5/archive/domains']);assert.ok(calls.every(path=>!path.includes('/managed/')&&!path.includes('/workbench')));
 });
-test('history without a replay task renders only the list and retains the explicit all-tasks shortcut',async()=>{
+test('history without a replay task keeps native history search and has no fixed research shortcut',async()=>{
  const {default:TaskArchive}=await loadComponent('TaskArchive.jsx');
  const navigation={page:'history',archiveTask:'',archivePane:'domains',query:'',filter:'history',listPage:0};
  const html=renderToStaticMarkup(React.createElement(TaskArchive,{navigation,navigate:()=>{},api:()=>{throw new Error('server render must not fetch live task');}}));
- assert.match(html,/任务回放/);assert.match(html,/查看全部旧任务/);assert.match(html,/运行前策略、运行时策略、执行审计和进程与域图/);assert.doesNotMatch(html,/<dialog|新建任务|当前工作台任务/);
+ assert.match(html,/任务回放/);assert.match(html,/搜索历史任务/);assert.doesNotMatch(html,/查看全部旧任务|OpenAgentSafety 场景/);assert.match(html,/运行前策略、运行时策略、执行审计和进程与域图/);assert.doesNotMatch(html,/<dialog|新建任务|当前工作台任务/);
  const all=renderToStaticMarkup(React.createElement(TaskArchive,{navigation:{...navigation,filter:'all'},navigate:()=>{},api:()=>{}}));assert.doesNotMatch(all,/查看全部旧任务/);
 });
 
-test('OpenAgentSafety replay shortcut selects all old scenarios without hardcoded task identity',async()=>{
+test('history filters reset pagination without injecting a research query',async()=>{
  const hooks={...React,useLayoutEffect:()=>{},useState:initial=>[typeof initial==='function'?initial():initial,()=>{}],useRef:initial=>({current:initial}),useEffect:()=>{}};
  const {default:TaskArchive}=await loadComponent('TaskArchive.jsx',hooks),patches=[];
  const tree=TaskArchive({navigation:{page:'history',archiveTask:'',query:'previous',filter:'history',listPage:3},navigate:patch=>patches.push(patch),api:()=>{throw new Error('not a live workflow');}});
- function find(node,label){if(!node||typeof node!=='object')return null;if(node.type==='button'&&node.props.children===label)return node;for(const child of [node.props?.children].flat(Infinity)){const found=find(child,label);if(found)return found;}return null;}
- const shortcut=find(tree,'OpenAgentSafety 场景');assert.ok(shortcut);assert.match(shortcut.props.title,/RQ5/);shortcut.props.onClick();assert.deepEqual(patches,[{query:'OpenAgentSafety',filter:'all',listPage:0}]);
- const html=renderToStaticMarkup(tree);assert.match(html,/未结束（含失败）/);assert.doesNotMatch(html,/待启动与执行中/);
+ function find(node,type){if(!node||typeof node!=='object')return null;if(node.type===type)return node;for(const child of [node.props?.children].flat(Infinity)){const found=find(child,type);if(found)return found;}return null;}
+ find(tree,'select').props.onChange({target:{value:'all'}});find(tree,'input').props.onChange({target:{value:'用户真实会话'}});
+ assert.deepEqual(patches,[{filter:'all',listPage:0},{query:'用户真实会话',listPage:0}]);
+ const html=renderToStaticMarkup(tree);assert.match(html,/>未结束</);assert.doesNotMatch(html,/OpenAgentSafety|RQ5|含失败|<thead/);
 });
 
 const {ArchiveReplay,PolicyDetailContent,ArchiveBody}=await loadComponent('TaskArchiveDetails.jsx');

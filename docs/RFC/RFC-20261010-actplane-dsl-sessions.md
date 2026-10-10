@@ -1,5 +1,7 @@
 # RFC：ActPlane DSL 配置与独立会话模块
 
+最新生产呈现修订见文末“产品端与后台资料分离”；原始编译／运行接口合同保留。
+
 状态：实施；验收证据见同日 REVIEW。范围为独立 18003 控制台。
 
 ## 职责与导航
@@ -49,3 +51,33 @@ Broker 固定读取自身受保护目录的 root-owned、不可组／其他写�
 GET /api/sessions 新增可选 workspace（最长 4096 字符），返回 workspaces。connections 增加当前 pid 和 resources，records 增加 agent_pid；策略详情也返回 agent_pid。agent_pid 仅在对应 Agent 当前 connected 且 PID 为正整数时返回，停止后为 null。它表示会话所属 Agent 的进程，不改变会话已保存／活动状态，也不伪造该会话正在执行。
 
 详情按原生会话名、Agent 产品与 PID、原生工作区展示。移除运行代次选择及普通字段；控制台始终读取当前 Agent 运行上下文，旧 URL 的 sessionGeneration 参数忽略并在 URL 规范化时删除。底层 generation、稳定连接 ID、版本、域及来源校验继续保留，后端既有历史读取合同不删。四个详情页、DSL 原文及真实命中保持原语义。
+
+## 产品端与后台资料分离（2026-10-10 用户确认）
+
+新增 /api/console 产品读取投影：agents、summary、sessions、会话四页、系统／Agent DSL、history/records、history/generations/page、task-archives。前端只将相关 GET 转入投影；DSL 候选与确认接口保持既有合同、权限与人工确认，不增加 Agent 凭据能力。
+
+console_retained_records 按 kind + record_id 记录明确的可恢复呈现决定。列表过滤在计数与分页前执行。产品请求带 X-AgentScope-Surface: product，保留对象的直接详情／操作返回 404。管理员原始接口遵循既有认证，仍可读取来源记录。该 header 不是安全隔离或权限机制；未来独立端复用原始接口，本期不另建端。
+
+本端策略列表显示用户配置 DSL 或可信任务绑定策略，自动生成启动边界仍参与编译和约束但不充作用户配置。系统统计按可见对象计算；实际应用目标仍包括保留接入，不解除继承约束。候选目标快照增加 console_retained 呈现标记，后端确认继续核对全部目标，过期快照需重校验。
+
+原始 DSL 与完整原文继续展示；编译映射、加载包、代次／域／哈希和原始 JSON 保存后台。策略域页称“策略作用范围”，系统调用页称“内核策略命中”，仅展示可信归属本会话的事件，先过滤后分页。未归属事件完整保留，不按时间或 PID 强行拼接；无反馈事实时不展示占位列，没有 syscall 名时仅显示真实 op。
+
+连接目录工作区来自适配器已核验的原生会话缓存，重核注册资源范围；挂载本身不是工作区。无映射时隐藏字段。总览读取实时 Agent 状态；读取失败撤回历史 PID 和当前核验，不把 tasks.running 当实时运行数量。
+
+共享管理员凭据不能证明个人身份。HTTP 审核由认证中间件提供操作来源并标注未识别个人，不以客户端 actor 作为可信主体，历史审计不改写。
+
+发布仅更新 18003 API／UI，先私有备份数据库、代码、UI 与明确保留清单，不停止 Broker 或原生 Agent。恢复与验收见 REVIEW-20261010-product-console-cleanup.md。
+
+## 原生工作区与宿主机路径修正
+
+工作区展示使用原生适配器提供的实际 cwd。受控 DSH 的 execution_resource 与宿主机 resource 分别保存；仅在可信适配器来源、注册资源范围、双向路径映射均核对后，产品投影才显示原生 cwd。不得由挂载清单推造工作区。旧缓存没有原生 cwd 时不展示，重新读取原生会话后补齐。旧宿主机工作区筛选链接仅在存在已核验会话映射时兼容，选项显示原生路径。原始 API 和缓存继续保留来源路径，安全策略编译路径与挂载合同不变。
+
+本机实测 PID 54870 的 mountinfo 显示 /s/instance-resources/rq5-dsh 挂载到 /w/0，second-dsh 挂载到 /w/1；原生会话接口返回对应 cwd。这是同一份目录的两个访问路径，不是两份副本，也不能当作用户电脑的任意原始项目目录。生产 UI 不显示宿主机映射路径。
+
+## 原生工作区记录合同修订（替代前述 cwd 展示方案）
+
+工作区身份必须来自 DSH workspace/follow 的原生 baseline：workspaceId、title、path、sessionIds。复用既有 loopback 原生认证会话，只读取首个 baseline 后关闭 WebSocket；不调用 create、rename、initializeDefault，不读取会话正文。workspace 元数据与 session/list 的原生 ID、cwd 精确核对，再与已接入的 Agent 会话核对；成员重复、cwd 不同、接口不可用时不得绑定。
+
+缓存分别保留 resource、execution_resource 和 native_workspace；前两者仅是执行与资源映射，不能单独生成工作区。产品 GET 投影新增 workspace_records(path, name)，会话记录新增 workspace_name。名称仅使用 DSH title，禁止使用路径 basename、编号或挂载名称补齐；没有名称但有有效项目路径时只显示路径。没有有效项目路径时隐藏整个工作区项，包括筛选、表列与详情。/w 和 /s/instance-resources 是平台内部目录，即使存在原生登记也不充作用户项目；旧 URL 中这些筛选值忽略，避免丢失会话目录。
+
+workspace/follow 采集超时、断连或不支持时保留会话名称／运行归属，工作区元数据缺失。来源记录不改写，不由宿主机路径反推用户原始项目位置。新增显式 websockets 依赖；不升级 DSH 或改变原生启动、隔离、策略应用流程。本次当前 DSH baseline 中有会话的记录仅为“实例资源”加 /w/0、/w/1，没有用户项目元数据，故产品端隐藏。

@@ -82,10 +82,11 @@ def list_runs():
         return [db.row_dict(r) for r in con.execute("SELECT * FROM history_generations ORDER BY created_at DESC LIMIT 100")]
 
 
-def page_runs(q="",status="",limit=20,offset=0):
+def page_runs(q="",status="",limit=20,offset=0,console=False):
     if status not in ("","queued","running","completed","partial","failed","cancelled","interrupted"):
         raise ValueError("生成记录状态不合法")
     filters=[];params=[]
+    if console:filters.append("g.id NOT IN (SELECT record_id FROM console_retained_records WHERE kind='generation')")
     if status:filters.append("g.status=?");params.append(status)
     if q:
         filters.append("(g.id LIKE ? OR g.input_json LIKE ? OR g.source_json LIKE ? OR json_extract(v.record_json,'$.origin.repository') LIKE ? OR json_extract(v.record_json,'$.origin.commit') LIKE ? OR json_extract(v.record_json,'$.origin.path') LIKE ?)")

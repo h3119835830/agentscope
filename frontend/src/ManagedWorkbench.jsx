@@ -9,7 +9,7 @@ import RuntimeOverview from './RuntimeOverview.jsx';
 import RuntimeDetails from './RuntimeDetails.jsx';
 import RuntimeHooks from './RuntimeHooks.jsx';
 import {connectionView} from './runtimeView.mjs';
-const names={'safety-impossible-tests':'支付验证：修复代码，保护测试','safety-delete-config':'工作区清理：保留有效配置'};
+const names={};
 const phases={completed:'已结束',prepared:'待生成策略',generating:'生成启动策略',policy_review:'待确认策略',running:'运行中',failed:'已暂停',recovering:'恢复中',ended:'已结束'};
 const types={per_event:'单事件策略',cross_event:'跨事件策略',content:'内容策略',semantic_only:'语义指导',assessment:'上下文评估'};
 const statuses={unmapped:'规则未映射',active:'历史加载',loaded:'已加载',partially_loaded:'部分条款已加载',paused:'执行暂停',revoked:'已撤销',validated:'已校验',guidance:'任务指导',pending_confirmation:'待确认',needs_clarification:'待澄清',partially_active:'部分条款历史加载',superseded:'已被后续版本替代',expired:'候选已过期',rejected:'人工已拒绝',assessed:'评估完成',invalid:'未通过校验'};

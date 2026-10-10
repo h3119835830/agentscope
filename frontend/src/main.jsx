@@ -13,9 +13,13 @@ import './recordVisuals.css';
 import './actplanePolicies.css';
 import SecurityNotice from './SecurityNotice.jsx';
 import AgentSessions from './AgentSessions.jsx';
+import ProductOverview from './ProductOverview.jsx';
+import ConsoleWorkbench from './ConsoleWorkbench.jsx';
+import {productReadUrl,unknownAgentSummary} from './productConsole.mjs';
+import './productConsole.css';
 
 const api = async (url, options = {}) => {
-  const response = await fetch(url, {...options, credentials:'omit', headers:{'Content-Type':'application/json', ...options.headers}});
+  const response = await fetch(productReadUrl(url,options.method||'GET'), {...options, credentials:'omit', headers:{'Content-Type':'application/json','X-AgentScope-Surface':'product', ...options.headers}});
   const data = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(data.detail || `请求失败 (${response.status})`);
   return data;
@@ -25,7 +29,7 @@ const short = (value, n = 12) => value ? `${value.slice(0, n)}…` : '—';
 const HISTORY_MODULES = [
   {page:'generate',title:'策略生成',icon:'⌘'},
   {page:'records',title:'策略记录与加载',icon:'⇥'},
-  {page:'audit',title:'生成记录与审计',icon:'▦'},
+  {page:'audit',title:'生成记录',icon:'▦'},
 ];
 const when = value => value ? new Date(value).toLocaleString('zh-CN', { hour12: false }) : '—';
 
@@ -78,18 +82,12 @@ function App() {
   const refresh = useCallback(async () => {
     if(page==='history')return;
     try {
-      const [s, d, t, g, wt] = await Promise.all([
-        api('/api/status'), api('/api/dashboard'), api('/api/tasks'), api('/api/governance'),api('/api/workspace-tasks'),
-      ]);
-      setStatus(s); setDash(d); setTasks(uniqueTasks([...t,...(wt.records||[])])); setGovernance(g);
-    } catch (e) { notify(e.message); }
+      const [s,d]=await Promise.all([api('/api/status'),api('/api/console/summary')]);
+      setStatus(s);setDash(d);setTasks(d.tasks||[]);
+    } catch (e) { setDash(unknownAgentSummary);setStatus({error:e.message});notify(e.message); }
   }, [selected, page, notify]);
   useEffect(() => { if(page==='history')return; refresh(); const timer = setInterval(refresh, 7000); return () => clearInterval(timer); }, [refresh,page]);
-  useEffect(() => {
-    if(page==='history')return;
-    api(`/api/strategies?q=${encodeURIComponent(strategyQuery)}&limit=200${strategyStatus ? `&status=${strategyStatus}` : ''}`)
-      .then(setStrategies).catch(() => {});
-  }, [strategyQuery, strategyStatus,page]);
+
 
   const withBusy = async fn => {
     setBusy(true);
@@ -112,19 +110,17 @@ function App() {
         <NavItem active={page === 'workbench'} icon="◈" label="策略工作台" onClick={() => setPage('workbench')} />
         <NavItem active={page === 'history'} icon="▤" label="任务历史" onClick={() => setPage('history')} />
         <NavItem active={page === 'strategies'} icon="▤" label="历史策略库" count={dash?.stats?.pending_strategies} onClick={() => setPage('strategies')} />
-        <NavItem active={page === 'governance'} icon="⟳" label="持久治理" count={dash?.stats?.pending_governance} onClick={() => setPage('governance')} />
       </nav>
-      <div className="side-foot" title={`Linux VM · ${status?.architecture || '连接中'} · ActPlane 执行后端`}><span className={`pulse ${status?.bpf_lsm ? 'ok' : 'bad'}`} /><span className="side-foot-copy">Linux VM · {status?.architecture || '连接中'}<br/><span className="muted">ActPlane 执行后端</span></span></div>
     </aside>
     <main className="main" data-page={page}>
-      {page!=='connections'&&<header className="topbar"><div><span className="crumb">AgentScope</span><span className="slash">/</span><b>{pageTitle(page)}</b></div><div className="top-right">{page==='history'?<span className="status-pill neutral">历史回放</span>:<span className={`status-pill ${status?.broker?.available && status?.bpf_lsm ? 'good' : 'warn'}`}><i />{status?.broker?.available && status?.bpf_lsm ? '执行后端可用' : '执行后端待检查'}</span>}</div></header>}
-      {page === 'overview' && <Overview dash={dash} status={status} tasks={tasks} onSelect={openTask} onCreate={createTask} onNav={setPage} />}
-      <div hidden={page!=='workbench'}><div className="content workbench-selector"><label>当前任务<select aria-label="当前工作台任务" value={selected} onChange={e=>selectTask(e.target.value)}><option value="">新建任务</option>{selected&&!selectableTasks(tasks).some(t=>t.id===selected)&&<option value={selected}>{isTaskEnded(tasks.find(t=>t.id===selected))?'历史任务（只读）':'选定任务（查看与恢复）'}</option>}{selectableTasks(tasks).map(t=><option key={t.id} value={t.id}>{t.name||t.id}</option>)}</select></label></div>{page==='workbench'&&(!selected?<TaskHub api={api} post={post} notify={notify} tasks={tasks} task="" onSelectTask={selectTask} onFollowTask={selectTask} onAgents={()=>setPage('connections')} workspaceSeed={navigation.workspace} agentSeed={navigation.agent} onContext={context=>navigate(context)} createOnly/>:<ManagedWorkbench api={api} post={post} notify={notify} task={selected} onSelectTask={selectTask} onCreateTask={createTask} onTaskRecord={()=>navigate({workbenchSection:'startup'})} readOnly={isTaskEnded(tasks.find(t=>t.id===selected))} sourceTask={tasks.find(t=>t.id===selected)} section={navigation.workbenchSection} onSection={workbenchSection=>navigate({workbenchSection})}/>)}</div>
+      {page!=='connections'&&<header className="topbar"><div><span className="crumb">AgentScope</span><span className="slash">/</span><b>{pageTitle(page)}</b></div>{status&&(!status.broker?.available||!status.bpf_lsm)&&<span role="status" className="status-pill warn">{status.error?'状态读取失败':'保护服务暂不可用'}</span>}</header>}
+      {page==='overview'&&<ProductOverview dash={dash} status={status} onNav={setPage} onSessions={id=>navigate({page:'sessions',sessionAgent:'',sessionFilterInstance:id,sessionInstance:'',sessionId:''})}/> }
+      {page==='workbench'&&<ConsoleWorkbench api={api} post={post} notify={notify} onConfigure={(scope,id)=>navigate({page:'connections',connectionWorkspace:'',connectionInstance:id,connectionTab:'policy',policyScope:scope})} onSessions={(id,sid='')=>navigate({page:'sessions',sessionAgent:'',sessionFilterInstance:id,sessionInstance:sid?id:'',sessionId:sid,sessionTab:'policies'})}/> }
       <div hidden={page!=='history'}><TaskArchive api={api} navigation={navigation} navigate={navigate}/></div>
       {page === 'strategies' && <HistoryLibrary moduleIndex={historyModuleIndex} modules={HISTORY_MODULES} onModuleChange={setHistoryModuleIndex} api={api} post={post} tasks={tasks} busy={busy} action={withBusy} notify={notify} selectTask={openTask} />}
       {page!=='history'&&<div hidden={page!=='connections'}><AgentWorkspaces api={api} post={post} notify={notify} onCreateTask={createTask} onOpenTask={openTask} tasks={tasks} active={page==='connections'} agentSeed={navigation.connectionAgent} workspaceSeed={navigation.connectionWorkspace} configurationId={navigation.connectionInstance} configurationTab={navigation.connectionTab} policyScope={navigation.policyScope} onSessions={id=>navigate({page:'sessions',sessionAgent:'',sessionFilterInstance:id,sessionWorkspace:'',sessionQuery:'',sessionCursor:0,sessionInstance:'',sessionId:''})} pane={navigation.connectionsPane} historySeed={navigation.connectionHistory} onContext={context=>navigate(context)} /></div>}
       {page==='sessions'&&<AgentSessions api={api} navigation={navigation} navigate={navigate} onConfigure={(scope,id)=>navigate({page:'connections',connectionWorkspace:'',connectionInstance:id,connectionTab:'policy',policyScope:scope})}/>}
-      {page === 'governance' && <Governance rows={governance} busy={busy} action={withBusy} notify={notify} />}
+
     </main>
     {toast && <div className="toast">{toast}</div>}
   </div>;
@@ -155,10 +151,10 @@ function EmptyRow({ cols, text }) { return <tr><td colSpan={cols} className="emp
 function Governance({ rows, busy, action, notify }) {
   const [title,setTitle]=useState('');const [kind,setKind]=useState('memory_diff');const [content,setContent]=useState('');const [source,setSource]=useState('');
   const submit=()=>action(async()=>{await post('/api/governance',{kind,title,content,source_url:source||null});setTitle('');setContent('');setSource('');notify('持久治理候选已进入审核队列；审核通过后才会加入历史策略库');});
-  const review=(id,decision)=>action(async()=>{await post(`/api/governance/${id}/review`,{decision,reviewed_by:'研究者'});notify(decision==='approve'?'候选已审核并提升为后续策略':'候选已拒绝');});
+  const review=(id,decision)=>action(async()=>{await post(`/api/governance/${id}/review`,{decision,});notify(decision==='approve'?'候选已审核并提升为后续策略':'候选已拒绝');});
   return <div className="content"><Header eyebrow="第三层 · 跨任务持久更新" title="持久治理候选" description="memory.md 差异、Agent 规则维护和治理 PR 先进入隔离候选区；只有审核批准的版本会成为后续任务可检索策略。" />
     <div className="grid-two governance-grid"><section className="panel form-panel"><div className="panel-head"><div><h2>登记候选更新</h2><p>支持记忆差异、GitHub 治理 PR 和人工补充策略。</p></div></div><label>候选类型<select value={kind} onChange={e=>setKind(e.target.value)}><option value="memory_diff">memory.md 差异</option><option value="github_pr">Agent 规则治理 PR</option><option value="manual">人工新增策略</option></select></label><label>标题<input value={title} onChange={e=>setTitle(e.target.value)} placeholder="概括这条候选更新" /></label><label>内容<textarea rows="8" value={content} onChange={e=>setContent(e.target.value)} placeholder="填写新增或修改的规则内容；此处只是待审候选"/></label><label>来源链接（可选）<input value={source} onChange={e=>setSource(e.target.value)} placeholder="GitHub PR / commit 链接"/></label><button className="button primary full" disabled={busy||title.trim().length<2||content.trim().length<5} onClick={submit}>加入待审核队列</button></section>
-      <section className="panel"><div className="panel-head"><div><h2>候选审核队列</h2><p>审核通过的内容会生成一条带来源元数据的历史策略记录。</p></div><StatusTag kind={rows.some(r=>r.status==='pending_review')?'warn':'neutral'}>{rows.filter(r=>r.status==='pending_review').length} 待审核</StatusTag></div><div className="request-list">{rows.map(r=><article className="request-card" key={r.id}><div className="request-top"><b>{r.title}</b>{stateTag(r.status)}</div><small>{r.kind} · {when(r.created_at)}</small><p className="candidate-content">{r.content}</p>{r.source_url&&<a className="source-link" href={r.source_url} target="_blank" rel="noreferrer">查看来源 ↗</a>}{r.status==='pending_review'&&<div className="actions"><button className="button tiny primary" disabled={busy} onClick={()=>review(r.id,'approve')}>审核通过并发布</button><button className="button tiny ghost" disabled={busy} onClick={()=>review(r.id,'reject')}>拒绝</button></div>}</article>)}{rows.length===0&&<div className="empty-box">暂无候选更新。</div>}</div></section></div>
+      <section className="panel"><div className="panel-head"><div><h2>候选审核队列</h2><p>审核通过的内容会生成一条带来源元数据的历史策略记录。</p></div><StatusTag kind={rows.some(r=>r.status==='pending_review')?'warn':'neutral'}>{rows.filter(r=>r.status==='pending_review').length} 待审核</StatusTag></div><div className="request-list">{rows.map(r=><article className="request-card" key={r.id}><div className="request-top"><b>{r.title}</b>{stateTag(r.status)}</div><small>{r.kind} · {when(r.created_at)}</small><p className="candidate-content">{r.content}</p>{r.source_url&&<a className="source-link" href={r.source_url} target="_blank" rel="noreferrer">查看来源 ↗</a>}{r.status==='pending_review'&&<div className="actions"><button className="button tiny primary" disabled={busy} onClick={()=>review(r.id,'approve')}>批准入库</button><button className="button tiny ghost" disabled={busy} onClick={()=>review(r.id,'reject')}>拒绝</button></div>}</article>)}{rows.length===0&&<div className="empty-box">暂无候选更新。</div>}</div></section></div>
   </div>;
 }
 

@@ -56,10 +56,12 @@ def target_snapshot(scope,documents):
     from . import controller as c
     rows=[r for r in store.rows() if r['mode']=='controlled' and (scope=='system' or r['id']==scope)]
     live={r['id']:r for r in c.listing()['instances']}
+    from ..console import hidden
+    retained=hidden('agent')
     targets=[]
     for row in rows:
         docs=documents_for(row['id'],scope,documents)
-        targets.append({'id':row['id'],'name':row['name'],'agent_type':row['agent_type'],'resources':row['resources'],'generation':row['generation'],
+        targets.append({'id':row['id'],'console_retained':row['id'] in retained,'name':row['name'],'agent_type':row['agent_type'],'resources':row['resources'],'generation':row['generation'],
             'gate':row['gate'],'base_hash':row['policy_hash'],'current_dsl_hash':launch_spec(row)['dsl_hash'],
             'pid':live.get(row['id'],{}).get('pid'),'domain_id':live.get(row['id'],{}).get('domain_id'),
             'next_dsl_hash':fingerprint(docs,row['resources']),'system_revision':system.current()['revision'],

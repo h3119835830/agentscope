@@ -1,13 +1,13 @@
 import React,{useCallback,useState} from 'react';
 import StrategyRecords from './StrategyRecords.jsx';
-import HistoryAudit from './HistoryAudit.jsx';
+import HistoryAudit from './ProductGenerationHistory.jsx';
 import PolicyGeneration from './PolicyGeneration.jsx';
 const recordStates=[['','全部状态'],['pending_review','待审核'],['approved','已通过候选'],['rejected','已拒绝'],['loaded','已加载']];
 export default function HistoryLibrary({api,post,tasks,busy,action,notify,selectTask,moduleIndex,modules,onModuleChange}){
  const [recordStatus,setRecordStatus]=useState(''),[statementId,setStatementId]=useState('');
  const [generationId,setGenerationId]=useState(()=>{try{return sessionStorage.getItem('historyGeneration')||''}catch{return ''}}),[auditGenerationId,setAuditGenerationId]=useState(''),[emptyNotice,setEmptyNotice]=useState('');
  const selectGeneration=useCallback(id=>{setGenerationId(id);setEmptyNotice('');try{if(id)sessionStorage.setItem('historyGeneration',id);else sessionStorage.removeItem('historyGeneration')}catch{}},[]);
- const missingGeneration=useCallback(id=>{setGenerationId(current=>current===id?'':current);setEmptyNotice('当前生成记录不存在，请新建生成或到“生成记录与审计”中查看。');try{if(sessionStorage.getItem('historyGeneration')===id)sessionStorage.removeItem('historyGeneration')}catch{}},[]);
+ const missingGeneration=useCallback(id=>{setGenerationId(current=>current===id?'':current);setEmptyNotice('当前生成记录不存在，请新建生成或到“生成记录”中查看。');try{if(sessionStorage.getItem('historyGeneration')===id)sessionStorage.removeItem('historyGeneration')}catch{}},[]);
  const showGenerationRecord=id=>{setAuditGenerationId(id);onModuleChange(2)};
  const continueReview=id=>{selectGeneration(id);onModuleChange(0)};
  const tab=moduleIndex;

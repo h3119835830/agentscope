@@ -26,7 +26,7 @@ export function SystemSecurityConfiguration({api,post,onChanged}){
 
 export default function SecurityConfiguration({row,api,post,onSystemChanged,initialScope='agent',...props}){
  const [scope,setScope]=useState(initialScope);
- const tabs=[['system','系统配置','所有 Agent 共用'],['agent','当前 Agent 配置','所有工作区共用']];
+ const tabs=[['system','系统策略','所有 Agent 共用'],['agent','Agent 策略','所有工作区共用']];
  return <div className="security-configuration">
   <div className="security-scope-tabs" role="tablist" aria-label="安全配置作用范围">{tabs.map(([key,title,caption])=><button type="button" role="tab" key={key} id={'security-scope-'+key} aria-controls={'security-scope-panel-'+key} aria-selected={scope===key} tabIndex={scope===key?0:-1} onClick={()=>setScope(key)} onKeyDown={e=>tabKeys(e,tabs.map(t=>t[0]),scope,setScope)}><b>{title}</b><small>{caption}</small></button>)}</div>
   <div role="tabpanel" id={'security-scope-panel-'+scope} aria-labelledby={'security-scope-'+scope}>

@@ -38,7 +38,7 @@ export default function GenerationResults({runId,api,post,busy,action,notify,rea
  const load=useCallback(async()=>{const n=++sequence.current;const result=await api('/api/history/generations/'+runId+'/results?'+new URLSearchParams({...filters,limit:'20',offset:String(offset)}));if(n===sequence.current)setPage(result)},[api,runId,filters,offset]);
  useEffect(()=>{load().catch(e=>notify(e.message));const timer=setInterval(()=>load().catch(()=>{}),4000);return()=>{sequence.current++;clearInterval(timer)}},[load,notify]);
  const change=(name,value)=>{setFilters({...filters,[name]:value});setOffset(0);setSelected({})};
- const review=(rows,decision)=>{if(readOnly)return;action(async()=>{await post('/api/history/generations/'+runId+'/review',{decision,reviewed_by:'研究者',items:rows.map(r=>({statement_version_id:r.statement_version_id,expected_statement_hash:r.statement_hash,artifact_id:r.artifact_id,expected_artifact_hash:r.artifact_hash}))});setSelected({});await load();await onReviewed?.();notify(decision==='approve'?'语句与产物已共同审核':'已拒绝候选')})};
+ const review=(rows,decision)=>{if(readOnly)return;action(async()=>{await post('/api/history/generations/'+runId+'/review',{decision,items:rows.map(r=>({statement_version_id:r.statement_version_id,expected_statement_hash:r.statement_hash,artifact_id:r.artifact_id,expected_artifact_hash:r.artifact_hash}))});setSelected({});await load();await onReviewed?.();notify(decision==='approve'?'语句与产物已共同审核':'已拒绝候选')})};
  const picked=Object.values(selected);
  return <div className={'generation-results'+(readOnly?' history-result-preview':'')}>
   {readOnly&&<p className="field-note">历史结果预览，仅查看保存的版本；审核状态为当前状态。需要处理请点击“继续审核”。</p>}

@@ -356,7 +356,7 @@ def event_detail(task_id,event_id):
         return {**project(con,row,True),"task_id":task_id}
 
 
-def archive_index(q="",status="all",page_number=0,limit=12):
+def archive_index(q="",status="all",page_number=0,limit=12,console=False):
     """One row per persisted task; filtering and pagination happen in SQLite."""
     if status not in ("all","active","ended") or page_number<0 or not 1<=limit<=50:
         raise HTTPException(422,"无效的任务档案分页或状态")
@@ -382,6 +382,7 @@ def archive_index(q="",status="all",page_number=0,limit=12):
               "CASE WHEN ("+terminal+") THEN 1 ELSE 0 END AS is_ended FROM tasks t"+joins)
         params={"limit":limit,"offset":page_number*limit}
         predicate="1=1"
+        if console:predicate+=" AND id NOT IN (SELECT record_id FROM console_retained_records WHERE kind='task')"
         if status!="all":
             predicate+=" AND is_ended=:ended"
             params["ended"]=1 if status=="ended" else 0

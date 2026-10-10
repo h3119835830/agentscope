@@ -1,3 +1,4 @@
+from ..audit_identity import AuditModel
 import json
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field, ConfigDict
@@ -6,7 +7,7 @@ from . import jobs, registry
 from .sources import read_document
 
 router=APIRouter(prefix="/api/history",tags=["history"])
-class GenerationRequest(BaseModel):
+class GenerationRequest(AuditModel):
     model_config = ConfigDict(extra="forbid")
     repo_url: str | None = None
     ref: str = "main"
@@ -15,27 +16,27 @@ class GenerationRequest(BaseModel):
     request_key: str | None = Field(default=None,max_length=100)
     include_instruction_files: bool = True
 
-class FinalReviewItem(BaseModel):
+class FinalReviewItem(AuditModel):
     model_config = ConfigDict(extra="forbid")
     statement_version_id: str
     expected_statement_hash: str
     artifact_id: str | None = None
     expected_artifact_hash: str | None = None
 
-class FinalReviewRequest(BaseModel):
+class FinalReviewRequest(AuditModel):
     model_config = ConfigDict(extra="forbid")
     items: list[FinalReviewItem] = Field(min_length=1,max_length=100)
     decision: str
-    reviewed_by: str = "研究者"
-class CollectRequest(BaseModel):
+    reviewed_by: str = "未识别操作者"
+class CollectRequest(AuditModel):
     repo_url: str
     ref: str = "main"
     additional_paths: list[str] = []
-class ExtractRequest(BaseModel):
+class ExtractRequest(AuditModel):
     document_ids: list[str] = Field(min_length=1,max_length=100)
-class Review(BaseModel):
+class Review(AuditModel):
     decision: str
-    reviewed_by: str = "研究者"
+    reviewed_by: str = "未识别操作者"
 
 def invoke(fn,*args):
     try: return fn(*args)

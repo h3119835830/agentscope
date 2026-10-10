@@ -106,6 +106,8 @@ def init_db():
             with sqlite3.connect(DB_PATH) as source,sqlite3.connect(destination) as target: source.backup(target)
             destination.chmod(0o600)
         con.executescript(SCHEMA)
+        from .console import SCHEMA as CONSOLE_SCHEMA
+        con.executescript(CONSOLE_SCHEMA)
         for name,definition in additions.items():
             if columns and name not in columns: con.execute(f"ALTER TABLE strategies ADD COLUMN {name} {definition}")
         con.execute("CREATE INDEX IF NOT EXISTS idx_strategies_archived ON strategies(is_archived,status)")
@@ -134,6 +136,8 @@ def row_dict(row):
     return obj
 
 def audit(con, task_id, action, actor, details=None):
+    from .audit_identity import principal
+    actor = principal.get() or actor
     con.execute("INSERT INTO audit_log VALUES(?,?,?,?,?,?)", (
         __import__('uuid').uuid4().hex, task_id, action, actor,
         json.dumps(details or {}, ensure_ascii=False), now()))
