@@ -5,6 +5,7 @@ from ..broker_client import call as broker
 from . import store, discovery, system_policy as system
 from .adapters import adapter, entry_details
 from .policy import canonical, clean_resources, digest, records, restrictive
+from . import dsl_policy
 
 _locks={}; _lock=threading.Lock()
 def lock(ident):
@@ -29,7 +30,13 @@ class Observer:
         return values
     def run(self):
         while not self.stop_event.is_set():
-            self.collect(); self.stop_event.wait(3)
+            self.collect()
+            from .sessions import collect_kernel
+            for row in store.rows():
+                if row['mode']=='controlled' and row.get('generation'):
+                    try:collect_kernel(row)
+                    except Exception:pass # read APIs expose the collection failure separately
+            self.stop_event.wait(3)
     def start(self):
         if os.getenv('AGENTSCOPE_INSTANCE_WORKER','1')=='0': return
         if self.thread and self.thread.is_alive(): return
@@ -48,7 +55,7 @@ def listing(discover=False):
         current=live.get('generation')==row['generation']
         try: inherited=row['policy_hash']==digest(system.compose(row['local_policy'],row['resources'])) if row['mode']=='controlled' else True
         except (OSError,ValueError): inherited=False
-        active=bool(current and live.get('verified') and row['gate']=='open' and live.get('connected') and inherited and system.current()['phase']=='ready')
+        active=bool(current and live.get('verified') and row['gate']=='open' and live.get('connected') and inherited and system.current()['phase']=='ready' and dsl_policy.live_matches(row,live))
         result.append({**row, **live, 'policy':row['policy'], 'policy_hash':row['policy_hash'], 'gate':row['gate'],
                        'security': '执行受控' if active else '已加载，执行暂停' if row['gate'] in ('paused','open') else '正在加载与核验' if row['gate'] in ('starting','updating') else '未运行',
                        'active':active,'connected':bool(current and live.get('connected')),'mode':row['mode']})
@@ -99,7 +106,7 @@ def register(body):
 
 @system.lifecycle
 def configure(ident,body):
-    system.ensure_ready()
+    system.ensure_ready(ident)
     with lock(ident):
         row=store.get(ident)
         if row['gate'] not in ('closed','failed'): raise ValueError('请先停止实例再修改连接设置')
@@ -112,7 +119,7 @@ def configure(ident,body):
 
 @system.lifecycle
 def start(ident):
-    system.ensure_ready()
+    system.ensure_ready(ident)
     with lock(ident):
         row=store.get(ident)
         if row['mode']!='controlled': raise ValueError('手动登记的实例仅支持打开与观测')
@@ -131,6 +138,8 @@ def start(ident):
         store.event(ident,'starting',generation=generation)
         try:
             runtime=adapter(row).start(row,token,generation)
+            if runtime.get('dsl_hash')!=dsl_policy.launch_spec(row)['dsl_hash']:raise ValueError('运行 DSL 指纹与确认策略不一致')
+            dsl_policy.record_receipt(ident,generation,runtime)
             store.update(ident,runtime=runtime,gate='open' if runtime.get('verified') else 'paused')
             store.event(ident,'verified' if runtime.get('verified') else 'verification_failed',runtime.get('verification',{}),generation)
             observer.collect()
@@ -144,6 +153,8 @@ def start(ident):
 def stop(ident):
     with lock(ident):
         row=store.get(ident); store.update(ident,gate='paused')
+        from .sessions import collect_kernel
+        collect_kernel(row)
         result=adapter(row).stop(row)
         store.update(ident,gate='closed',token_hash=None,runtime={})
         with db.connect() as con: con.execute('DELETE FROM instance_leases WHERE instance_id=?',(ident,))
@@ -153,7 +164,7 @@ def stop(ident):
 
 @system.lifecycle
 def proposals(ident,body,actor='user'):
-    system.ensure_ready()
+    system.ensure_ready(ident)
     with lock(ident):
         row=store.get(ident)
         local=system.local_candidate(row,body['policy'],actor)
@@ -185,7 +196,7 @@ def proposals(ident,body,actor='user'):
 
 @system.lifecycle
 def apply(ident,pid,expected_hash):
-    system.ensure_ready()
+    system.ensure_ready(ident)
     with lock(ident):
         row=store.get(ident)
         with db.connect() as con: p=con.execute('SELECT * FROM instance_proposals WHERE id=? AND instance_id=?',(pid,ident)).fetchone()
@@ -238,6 +249,7 @@ def lease(ident,body):
         row=con.execute('SELECT * FROM agent_instances WHERE id=?',(ident,)).fetchone()
         if row['generation']!=body['generation'] or row['gate']!='open' or system.current(con)['phase']!='ready':
             denial='实例安全入口已暂停，请等待核验'
+        if con.execute("SELECT 1 FROM instance_dsl_scopes WHERE scope_id IN ('system',?) AND phase!='ready'",(ident,)).fetchone():denial='DSL 策略应用未完成，工具执行暂停'
         policy=json.loads(row['policy_json'])
         rule=next((r for r in policy['rules'] if r['action']=='tool' and r['target']==body['tool'] and r['effect']!='allow'),None)
         if rule: denial='实例策略'+('禁止此工具' if rule['effect']=='deny' else '要求在 AgentScope 中确认工具权限')

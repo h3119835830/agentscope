@@ -57,3 +57,4 @@ backend/agentscope_app/data/RQ1/corpus/*
 # Installed runtime dependencies may be symlinks in isolated development worktrees.
 node_modules
 /dsh
+backend/dsl-adapter/target/

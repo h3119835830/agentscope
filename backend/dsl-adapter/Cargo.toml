@@ -1,0 +1,10 @@
+[package]
+name = "agentscope-dsl-adapter"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+actplane-ifc-compiler = { path = "../../actplane/crates/actplane-ifc-compiler" }
+serde_json = "1"
+
+[workspace]

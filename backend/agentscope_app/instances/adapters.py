@@ -39,7 +39,8 @@ class LocalAdapter:
     def observe(self, instance): return self.invoke('observe',instance)
     def open(self, instance): return self.invoke('open',instance)
     def start(self, instance, token, generation):
-        return self.invoke('start',instance,agent_type=instance['agent_type'],resources=instance['resources'],policy=instance['policy'],policy_hash=instance['policy_hash'],token=token,generation=generation)
+        from .dsl_policy import launch_spec
+        return self.invoke('start',instance,agent_type=instance['agent_type'],resources=instance['resources'],policy=instance['policy'],policy_hash=instance['policy_hash'],token=token,generation=generation,**launch_spec(instance))
     def stop(self, instance): return self.invoke('stop',instance)
     def sessions(self, instance): return self.invoke('sessions',instance)
     def processes(self, instance): return self.invoke('processes',instance)

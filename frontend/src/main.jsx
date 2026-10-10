@@ -10,7 +10,9 @@ import TaskArchive from './TaskArchive.jsx';
 import {navigationTarget, readNavigation} from './navigation.mjs';
 import './prototypeTheme.css';
 import './recordVisuals.css';
+import './actplanePolicies.css';
 import SecurityNotice from './SecurityNotice.jsx';
+import AgentSessions from './AgentSessions.jsx';
 
 const api = async (url, options = {}) => {
   const response = await fetch(url, {...options, credentials:'omit', headers:{'Content-Type':'application/json', ...options.headers}});
@@ -106,6 +108,7 @@ function App() {
       <nav id="workspace-navigation" aria-label="工作区导航">
         <NavItem active={page === 'overview'} icon="▦" label="总览" onClick={() => setPage('overview')} />
         <NavItem active={page === 'connections'} icon="⇄" label="Agent连接" onClick={() => setPage('connections')} />
+        <NavItem active={page === 'sessions'} icon="▤" label="会话" onClick={() => setPage('sessions')} />
         <NavItem active={page === 'workbench'} icon="◈" label="策略工作台" onClick={() => setPage('workbench')} />
         <NavItem active={page === 'history'} icon="▤" label="任务历史" onClick={() => setPage('history')} />
         <NavItem active={page === 'strategies'} icon="▤" label="历史策略库" count={dash?.stats?.pending_strategies} onClick={() => setPage('strategies')} />
@@ -119,14 +122,15 @@ function App() {
       <div hidden={page!=='workbench'}><div className="content workbench-selector"><label>当前任务<select aria-label="当前工作台任务" value={selected} onChange={e=>selectTask(e.target.value)}><option value="">新建任务</option>{selected&&!selectableTasks(tasks).some(t=>t.id===selected)&&<option value={selected}>{isTaskEnded(tasks.find(t=>t.id===selected))?'历史任务（只读）':'选定任务（查看与恢复）'}</option>}{selectableTasks(tasks).map(t=><option key={t.id} value={t.id}>{t.name||t.id}</option>)}</select></label></div>{page==='workbench'&&(!selected?<TaskHub api={api} post={post} notify={notify} tasks={tasks} task="" onSelectTask={selectTask} onFollowTask={selectTask} onAgents={()=>setPage('connections')} workspaceSeed={navigation.workspace} agentSeed={navigation.agent} onContext={context=>navigate(context)} createOnly/>:<ManagedWorkbench api={api} post={post} notify={notify} task={selected} onSelectTask={selectTask} onCreateTask={createTask} onTaskRecord={()=>navigate({workbenchSection:'startup'})} readOnly={isTaskEnded(tasks.find(t=>t.id===selected))} sourceTask={tasks.find(t=>t.id===selected)} section={navigation.workbenchSection} onSection={workbenchSection=>navigate({workbenchSection})}/>)}</div>
       <div hidden={page!=='history'}><TaskArchive api={api} navigation={navigation} navigate={navigate}/></div>
       {page === 'strategies' && <HistoryLibrary moduleIndex={historyModuleIndex} modules={HISTORY_MODULES} onModuleChange={setHistoryModuleIndex} api={api} post={post} tasks={tasks} busy={busy} action={withBusy} notify={notify} selectTask={openTask} />}
-      {page!=='history'&&<div hidden={page!=='connections'}><AgentWorkspaces api={api} post={post} notify={notify} onCreateTask={createTask} onOpenTask={openTask} tasks={tasks} active={page==='connections'} agentSeed={navigation.connectionAgent} workspaceSeed={navigation.connectionWorkspace} pane={navigation.connectionsPane} historySeed={navigation.connectionHistory} onContext={context=>navigate(context)} /></div>}
+      {page!=='history'&&<div hidden={page!=='connections'}><AgentWorkspaces api={api} post={post} notify={notify} onCreateTask={createTask} onOpenTask={openTask} tasks={tasks} active={page==='connections'} agentSeed={navigation.connectionAgent} workspaceSeed={navigation.connectionWorkspace} configurationId={navigation.connectionInstance} configurationTab={navigation.connectionTab} policyScope={navigation.policyScope} onSessions={id=>navigate({page:'sessions',sessionFilterInstance:id,sessionInstance:'',sessionId:''})} pane={navigation.connectionsPane} historySeed={navigation.connectionHistory} onContext={context=>navigate(context)} /></div>}
+      {page==='sessions'&&<AgentSessions api={api} navigation={navigation} navigate={navigate} onConfigure={(scope,id)=>navigate({page:'connections',connectionWorkspace:'',connectionInstance:id,connectionTab:'policy',policyScope:scope})}/>}
       {page === 'governance' && <Governance rows={governance} busy={busy} action={withBusy} notify={notify} />}
     </main>
     {toast && <div className="toast">{toast}</div>}
   </div>;
 }
 
-function pageTitle(page) { return ({ overview: '总览', workbench:'策略工作台',history:'任务历史',connections:'Agent连接', strategies: '历史策略库', task: '任务与场景策略', 'agent-bridge':'Agent 与工作区', governance: '持久治理' })[page]; }
+function pageTitle(page) { return ({ overview: '总览', sessions:'会话',workbench:'策略工作台',history:'任务历史',connections:'Agent连接', strategies: '历史策略库', task: '任务与场景策略', 'agent-bridge':'Agent 与工作区', governance: '持久治理' })[page]; }
 function NavItem({ active, icon, label, count, onClick }) { return <button className={`nav-item ${active ? 'active' : ''}`} aria-label={label} aria-current={active?'page':undefined} title={label} onClick={onClick}><span className="nav-icon" aria-hidden="true">{icon}</span><span className="nav-label">{label}</span>{count > 0 && <em>{count}</em>}</button>; }
 function Header({ eyebrow, title, description, action }) { return <div className="page-head"><div><div className="eyebrow">{eyebrow}</div><h1>{title}</h1><p>{description}</p></div>{action}</div>; }
 function Metric({ label, value, note, icon }) { return <div className="metric"><div className="metric-top"><span>{label}</span><span className="metric-icon">{icon}</span></div><strong>{value ?? '—'}</strong><small>{note}</small></div>; }

@@ -28,6 +28,9 @@ def init():
         con.executescript(SCHEMA)
         from . import system_policy
         system_policy.init(con)
+        from . import dsl_policy, sessions
+        dsl_policy.init(con)
+        sessions.init(con)
 def unpack(row):
     if not row: raise ValueError('实例不存在')
     r=dict(row)

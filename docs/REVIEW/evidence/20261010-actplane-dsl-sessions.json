@@ -1,0 +1,343 @@
+{
+  "captured_at": "2026-10-10T07:48:25.006239+00:00",
+  "profile": "isolated 18003",
+  "tests": {
+    "backend_passed": 897,
+    "backend_skipped": 52,
+    "frontend_passed": 173,
+    "rust_passed": 5,
+    "build": "passed",
+    "privileged_lifecycle_unit_tests": "fakes; actual runtime results below"
+  },
+  "runtime": {
+    "instance_id": "instance-bb171d3176b644a2",
+    "generation": "566ddd5edaad438f9473d4ea08ec1cc1",
+    "bundle_hash": "8b6322ca063c0be3672f739f223245c339e7f85cbcab208946d4a9c3d084cb45",
+    "probes": {
+      "block": {
+        "pid": 57123,
+        "returncode": 0,
+        "outcome": {
+          "read_completed": false,
+          "errno": 1
+        }
+      },
+      "notify": {
+        "pid": 57127,
+        "returncode": 0,
+        "outcome": {
+          "read_completed": true,
+          "errno": null
+        }
+      },
+      "kill": {
+        "pid": 57131,
+        "returncode": 137,
+        "outcome": null
+      }
+    },
+    "events": [
+      {
+        "id": 45,
+        "generation": "566ddd5edaad438f9473d4ea08ec1cc1",
+        "operation": "read",
+        "syscall": null,
+        "target": "/w/0/.agentscope-dsl-kill.txt",
+        "pid": 57131,
+        "domain_id": 1451566378,
+        "effect": "kill",
+        "actual_action": "kill",
+        "blocked": false,
+        "killed": true,
+        "source_refs": [
+          {
+            "source_ref": "de7ae9b211f2b:0",
+            "compiler_rule_id": 9,
+            "kernel_rule_id": 10,
+            "clause_hash": "fnv1a64:69c69bf91abbd52d"
+          }
+        ],
+        "bundle_hash": "8b6322ca063c0be3672f739f223245c339e7f85cbcab208946d4a9c3d084cb45",
+        "attribution": "shared_executor_unattributed",
+        "session_id": null,
+        "feedback_delivered": null
+      },
+      {
+        "id": 44,
+        "generation": "566ddd5edaad438f9473d4ea08ec1cc1",
+        "operation": "read",
+        "syscall": null,
+        "target": "/w/0/.agentscope-dsl-notify.txt",
+        "pid": 57127,
+        "domain_id": 1451566378,
+        "effect": "notify",
+        "actual_action": "report",
+        "blocked": false,
+        "killed": false,
+        "source_refs": [
+          {
+            "source_ref": "de7ae9b211f2b:0",
+            "compiler_rule_id": 8,
+            "kernel_rule_id": 9,
+            "clause_hash": "fnv1a64:2dbb76e85da14d07"
+          }
+        ],
+        "bundle_hash": "8b6322ca063c0be3672f739f223245c339e7f85cbcab208946d4a9c3d084cb45",
+        "attribution": "shared_executor_unattributed",
+        "session_id": null,
+        "feedback_delivered": null
+      },
+      {
+        "id": 43,
+        "generation": "566ddd5edaad438f9473d4ea08ec1cc1",
+        "operation": "read",
+        "syscall": null,
+        "target": "/w/0/.agentscope-dsl-block.txt",
+        "pid": 57123,
+        "domain_id": 1451566378,
+        "effect": "block",
+        "actual_action": "block",
+        "blocked": true,
+        "killed": false,
+        "source_refs": [
+          {
+            "source_ref": "de7ae9b211f2b:0",
+            "compiler_rule_id": 7,
+            "kernel_rule_id": 8,
+            "clause_hash": "fnv1a64:0f6a9da053696815"
+          }
+        ],
+        "bundle_hash": "8b6322ca063c0be3672f739f223245c339e7f85cbcab208946d4a9c3d084cb45",
+        "attribution": "shared_executor_unattributed",
+        "session_id": null,
+        "feedback_delivered": null
+      },
+      {
+        "id": 42,
+        "generation": "566ddd5edaad438f9473d4ea08ec1cc1",
+        "operation": "write",
+        "syscall": null,
+        "target": "/w/1/.agentscope-permission-probe",
+        "pid": 57100,
+        "domain_id": 1451566378,
+        "effect": "block",
+        "actual_action": "block",
+        "blocked": true,
+        "killed": false,
+        "source_refs": [
+          {
+            "source_ref": "rule:instance-readonly-2",
+            "compiler_rule_id": 2,
+            "kernel_rule_id": 3,
+            "clause_hash": "fnv1a64:2b354a42c8091406"
+          }
+        ],
+        "bundle_hash": "8b6322ca063c0be3672f739f223245c339e7f85cbcab208946d4a9c3d084cb45",
+        "attribution": "shared_executor_unattributed",
+        "session_id": null,
+        "feedback_delivered": null
+      },
+      {
+        "id": 41,
+        "generation": "566ddd5edaad438f9473d4ea08ec1cc1",
+        "operation": "write",
+        "syscall": null,
+        "target": "/w/0/.agentscope-permission-probe",
+        "pid": 57100,
+        "domain_id": 1451566378,
+        "effect": "block",
+        "actual_action": "block",
+        "blocked": true,
+        "killed": false,
+        "source_refs": [
+          {
+            "source_ref": "rule:instance-readonly-1",
+            "compiler_rule_id": 0,
+            "kernel_rule_id": 1,
+            "clause_hash": "fnv1a64:329b0066f31642ff"
+          }
+        ],
+        "bundle_hash": "8b6322ca063c0be3672f739f223245c339e7f85cbcab208946d4a9c3d084cb45",
+        "attribution": "shared_executor_unattributed",
+        "session_id": null,
+        "feedback_delivered": null
+      }
+    ]
+  },
+  "restart": {
+    "passed": true,
+    "instance_id": "instance-bb171d3176b644a2",
+    "generations": [
+      {
+        "generation": "0af5dd37b4be4d99bb95f3a22adbe61a",
+        "bundle_hash": "8b6322ca063c0be3672f739f223245c339e7f85cbcab208946d4a9c3d084cb45",
+        "probes": {
+          "block": {
+            "pid": 56919,
+            "returncode": 0,
+            "outcome": {
+              "read_completed": false,
+              "errno": 1
+            }
+          },
+          "notify": {
+            "pid": 56926,
+            "returncode": 0,
+            "outcome": {
+              "read_completed": true,
+              "errno": null
+            }
+          },
+          "kill": {
+            "pid": 56932,
+            "returncode": 137,
+            "outcome": null
+          }
+        },
+        "mapped_events": 5
+      },
+      {
+        "generation": "566ddd5edaad438f9473d4ea08ec1cc1",
+        "bundle_hash": "8b6322ca063c0be3672f739f223245c339e7f85cbcab208946d4a9c3d084cb45",
+        "probes": {
+          "block": {
+            "pid": 57123,
+            "returncode": 0,
+            "outcome": {
+              "read_completed": false,
+              "errno": 1
+            }
+          },
+          "notify": {
+            "pid": 57127,
+            "returncode": 0,
+            "outcome": {
+              "read_completed": true,
+              "errno": null
+            }
+          },
+          "kill": {
+            "pid": 57131,
+            "returncode": 137,
+            "outcome": null
+          }
+        },
+        "mapped_events": 5
+      }
+    ]
+  },
+  "system": {
+    "active_connections": [
+      "instance-1f4469579e8947f4",
+      "instance-bb171d3176b644a2"
+    ],
+    "stopped_connections": [
+      "instance-c0dd272b6a734a34"
+    ],
+    "passed": true,
+    "apply": {
+      "id": "701096540de24a4389cb43ca3dd22f40",
+      "state": "applied",
+      "affected_count": 3,
+      "resumed_count": 2
+    },
+    "bindings": [
+      {
+        "instance_id": "instance-1f4469579e8947f4",
+        "generation": "b8beb57f1fff4dcd929eea0a989bec28",
+        "domain_id": 784088829,
+        "bundle_hash": "181920aefd1d7b1ede54491296136123046916c7028592de87927a615a06db37",
+        "source_ref": "d512ab70ab102:0",
+        "loaded_binding_verified": true,
+        "explicit_probe": false,
+        "matched_events": 0
+      },
+      {
+        "instance_id": "instance-bb171d3176b644a2",
+        "generation": "4dff97858e684197ba00a4c2a7e4f49c",
+        "domain_id": 304789233,
+        "bundle_hash": "ecc5d35de10053e73edf6c661e3fbf6eb57745711dbea8c7b9d8399c7596c80e",
+        "source_ref": "d512ab70ab102:0",
+        "loaded_binding_verified": true,
+        "explicit_probe": true,
+        "matched_events": 1
+      }
+    ],
+    "restore": {
+      "id": "cd720dead3f647eb87f7e094c3de9c15",
+      "state": "applied",
+      "affected_count": 3,
+      "resumed_count": 2
+    },
+    "original_documents_restored": true
+  },
+  "trace": {
+    "generation": "566ddd5edaad438f9473d4ea08ec1cc1",
+    "records": [
+      {
+        "tool": "read",
+        "result": "success",
+        "step_kinds": [
+          "tool_start",
+          "tool_result"
+        ],
+        "linked_kernel_count": 0,
+        "feedback_delivered": null
+      }
+    ]
+  },
+  "browser": {
+    "checked": [
+      "sidebar peer sessions",
+      "connection directory jump",
+      "product and connection filters",
+      "native workspace and PID",
+      "four tabs",
+      "original and loaded DSL separated",
+      "line numbers and copy",
+      "import and edit",
+      "invalid capability cannot apply",
+      "manual confirm then actual load",
+      "kernel action differs from declaration",
+      "no fabricated tool linkage or feedback",
+      "back and forward",
+      "direct link reload",
+      "return preserves filters",
+      "historical generations accessible",
+      "Hermes absent workspace column"
+    ],
+    "special_423px_acceptance": false
+  },
+  "final_state": [
+    {
+      "id": "instance-1f4469579e8947f4",
+      "mode": "controlled",
+      "gate": "open",
+      "active": true,
+      "connected": true,
+      "generation": "356dd3d4f7fe434db00e3c10e4ed407c",
+      "pid": 54870,
+      "domain_id": 310407274
+    },
+    {
+      "id": "instance-c0dd272b6a734a34",
+      "mode": "controlled",
+      "gate": "closed",
+      "active": false,
+      "connected": false,
+      "generation": "aa21e3eb0c214e56baf639bd05b35ddc",
+      "pid": null,
+      "domain_id": null
+    },
+    {
+      "id": "instance-bb171d3176b644a2",
+      "mode": "controlled",
+      "gate": "closed",
+      "active": false,
+      "connected": false,
+      "generation": "566ddd5edaad438f9473d4ea08ec1cc1",
+      "pid": null,
+      "domain_id": null
+    }
+  ]
+}

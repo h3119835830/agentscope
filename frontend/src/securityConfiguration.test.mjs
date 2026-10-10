@@ -22,7 +22,7 @@ test('scope tabs default to this Agent and never include another Agent policy',(
  assert.match(html,/id="security-scope-agent"[^>]*aria-selected="true"/);
  assert.match(html,/role="tabpanel" id="security-scope-panel-agent" aria-labelledby="security-scope-agent"/);
  assert.match(html,/所有 Agent 共用/);assert.match(html,/所有工作区共用/);
- assert.match(html,/dsh_only_tool/);assert.doesNotMatch(html,/基础保护|控制心跳超过/);
+ assert.doesNotMatch(html,/dsh_only_tool/);assert.match(html,/导入 DSL/);assert.doesNotMatch(html,/基础保护|控制心跳超过/);
  const hermes=render(SecurityConfiguration,{row:{...row,id:'hermes',policy:{network:'model_only',rules:[]}}});
  assert.doesNotMatch(hermes,/dsh_only_tool/);assert.equal(calls,0);
 });
@@ -58,7 +58,7 @@ test('system change preview lists the affected Agents and requires explicit conf
 
 test('current Agent editor uses its own rules and shared restrictions remain separately identified',()=>{
  const html=render(SecurityConfiguration,{row:{...row,system_network:'disabled',local_policy:{network:'model_only',rules:[]},policy:{...row.policy,rules:[{action:'tool',effect:'deny',target:'shared_tool',text:''}]}}});
- assert.doesNotMatch(html,/shared_tool/);assert.match(html,/并受系统规则约束/);assert.match(html,/系统禁止外部网络/);
+ assert.doesNotMatch(html,/shared_tool/);assert.match(html,/本连接所有工作区与会话共用/);assert.match(html,/ActPlane DSL/);
 });
 
 test('observed connections expose no editable Agent policy',()=>{

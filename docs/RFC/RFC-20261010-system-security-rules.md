@@ -1,5 +1,7 @@
 # 用户配置的系统共享安全规则
 
+更新：用户界面与 DSL 管理已由 [ActPlane DSL 与会话 RFC](RFC-20261010-actplane-dsl-sessions.md) 替代。本文的通用权限表仅保留为资源挂载与工具准入的底层兼容合同，不再作为 ActPlane 策略展示或编辑界面。
+
 日期：2026-10-10。范围：18003 的受控 Agent 连接。取代 RFC-20261009-security-config-scopes 中系统页只读设计说明。
 
 ## 产品与作用范围

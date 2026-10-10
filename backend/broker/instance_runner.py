@@ -74,6 +74,18 @@ if child==0:
 print(json.dumps({'pid':os.getpid(),'child_pid':child,'fd':True,'writable_mapping':mapped,'mapping_errno':mapping_errno}),flush=True)
 while True:time.sleep(1)
 """
+DSL_PROBE = """
+import json,os,sys
+print(json.dumps({'pid':os.getpid()}),flush=True)
+sys.stdin.read(1)
+try:
+    fd=os.open(os.environ['DSL_TARGET'],os.O_RDONLY)
+    os.read(fd,1);os.close(fd)
+    outcome={'read_completed':True,'errno':None}
+except OSError as error:
+    outcome={'read_completed':False,'errno':error.errno}
+print(json.dumps(outcome),flush=True)
+"""
 def main():
     handoff=Path(sys.argv[1])
     log=os.open(handoff.parent/'native.log',os.O_WRONLY|os.O_CREAT|os.O_APPEND|os.O_NOFOLLOW,0o600)
@@ -98,7 +110,7 @@ def main():
         argv=[config['hermes_root']+'/venv/bin/python','-c',code,'dashboard','--isolated','--no-open','--skip-build','--host','127.0.0.1','--port',str(config['web_port'])]
     def demote():
         os.setgroups([]);os.setgid(config['gid']);os.setuid(config['uid'])
-    def fixed_program(program,values,hold=False):
+    def fixed_program(program,values,hold=False,dsl_effect=False):
         child=subprocess.Popen([*sandbox(config,probe=True),'/usr/bin/python3','-c',program],env=values,preexec_fn=demote,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
         line=child.stdout.readline()
         if not line: raise RuntimeError(child.stderr.read()[-1000:])
@@ -114,6 +126,11 @@ def main():
             if len(matches)!=1: raise RuntimeError('Fixed probe namespace PID is ambiguous')
             return matches[0]
         result['pid']=host_pid(result['pid'])
+        if dsl_effect:
+            child.stdin.write('1');child.stdin.flush()
+            stdout,stderr=child.communicate(timeout=5)
+            result.update(returncode=child.returncode,outcome=json.loads(stdout) if stdout.strip() else None)
+            return result
         if hold: result['child_pid']=host_pid(result['child_pid'])
         else:
             child.stdin.write('1');child.stdin.flush();child.wait(timeout=5)
@@ -145,6 +162,16 @@ def main():
                 value=json.loads(req.read_text())
                 if value['request_id']!=last:
                     last=value['request_id']
+                    if value.get('operation')=='dsl-probe':
+                        effect=value.get('effect')
+                        if effect not in ('block','kill','notify'):raise ValueError('Unknown fixed DSL probe')
+                        target=Path(config['resources'][0])/('.agentscope-dsl-'+effect+'.txt')
+                        if target.is_symlink() or not target.is_file() or target.stat().st_nlink!=1:raise ValueError('Missing fixed DSL probe fixture')
+                        result=fixed_program(DSL_PROBE,{'DSL_TARGET':translate(str(target),config['resources'])},dsl_effect=True)
+                        output={'request_id':last,'ok':True,'probe':result}
+                        p=Path(config['result_path']);tmp=p.with_suffix('.tmp')
+                        tmp.write_text(json.dumps(output));tmp.chmod(0o600);os.replace(tmp,p)
+                        continue
                     if value.get('operation')=='hold':
                         target=Path(value['path'])
                         grants=[Path(r['target']) for r in config['policy']['rules'] if r['action']=='write' and r['effect']=='allow']

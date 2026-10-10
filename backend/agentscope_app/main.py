@@ -41,6 +41,8 @@ from .instances.api import router as instance_router
 from .instances.store import init as init_instances
 from .instances.controller import observer as instance_observer
 app.include_router(instance_router)
+from .instances.dsl_api import router as instance_dsl_router
+app.include_router(instance_dsl_router)
 
 @app.middleware("http")
 async def protect_control_api(request: Request, call_next):

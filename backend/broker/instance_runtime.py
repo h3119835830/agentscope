@@ -1,9 +1,11 @@
 """Allowlisted controlled DSH/Hermes lifecycle. Imported only by the root Broker."""
 import hashlib, hmac, http.server, ipaddress, json, os, pwd, re, secrets, shutil, signal, socket, subprocess, threading, time, urllib.request
+import stat
 from pathlib import Path
 from agentscope_app.instances.policy import canonical, clean_resources, digest
 from agentscope_app.instances.mapping import translate,resource_records
 from agentscope_app.workspaces import broker_instances as legacy
+from dsl_documents import prepare as prepare_documents, fingerprint as dsl_fingerprint
 
 HERMES_ENTRY=Path('/home/happy/.local/bin/hermes')
 HERMES_ROOT=Path('/home/happy/.hermes/hermes-agent-v020')
@@ -194,8 +196,64 @@ def policy_dsl(resources,policy):
         if r['action']=='read' and r['effect']=='deny':
             p=Path(r['target']); i+=1
             lines += [f'rule instance-read-deny-{i}:',f'  block read file {json.dumps(translate(str(p),resources)+("/**" if p.is_dir() else ""))} if AGENT','  because "Reading this registered resource was denied."','']
-    lines += ['rule immutable-no-publish:', '  kill exec "git" "push" if AGENT','  because "Publishing is outside the instance execution boundary."']
+    lines += ['# actplane-rule-source ref=platform.no-publish mode=locked','rule immutable-no-publish:', '  kill exec "git" "push" if AGENT','  because "Publishing is outside the instance execution boundary."']
     return '\n'.join(lines)+'\n'
+
+def compile_documents(value,resources,policy,documents):
+    """Compile before loading. User labels never address platform/other documents."""
+    parsed=prepare_documents(documents,resources)
+    validate_runtime_capabilities(parsed)
+    dsl=policy_dsl(resources,policy)+'\n'+'\n'.join(d['effective_dsl'] for d in parsed)
+    yaml='version: 1\npolicy: |\n'+'\n'.join('  '+l for l in dsl.splitlines())+'\n'
+    directory=root(value)/'dsl-validation';directory.mkdir(parents=True,exist_ok=True)
+    compiled=B.compile_policy(run_id(value),int(time.time_ns()),yaml,dsl,directory)
+    details=compiled['compile']
+    if details.get('ok') is not True:raise ValueError('ActPlane 未返回可核验的编译结果')
+    unsupported=[r for r in details.get('backend_support',{}).get('sources',[]) if not r.get('supported')]
+    if unsupported:raise ValueError('ActPlane 不支持该来源：'+json.dumps(unsupported,ensure_ascii=False))
+    for doc in parsed:
+        for rule in doc['rules']:
+            refs=[r for r in details.get('rules',[]) if r.get('source_ref')==rule['source_ref'] and r.get('name')==rule['compiled_name']]
+            if not refs or any(not r.get('clause_hash') for r in refs):raise ValueError('ActPlane 缺少规则与编译子句映射')
+    artifact={'effective_dsl':dsl,'documents':parsed,'compile':compiled['compile'],
+        'bundle_hash':hashlib.sha256(yaml.encode()).hexdigest(),'dsl_hash':dsl_fingerprint(documents,resources),'loaded':False}
+    return compiled,artifact
+
+def validate_runtime_capabilities(parsed):
+    # Static compile support is broader than the pinned engine used by this
+    # launch profile. These requirements come from the compiler's lowered ABI.
+    for doc in parsed:
+        missing=doc.get('pinned_runtime_unsupported',[])
+        if missing:raise ValueError('当前 ActPlane 受控引擎不支持 '+ '、'.join(missing)+'（文档 '+doc['name']+'）；请使用明确的资源路径或路径前缀。候选未应用。')
+
+def kernel_events(record,cursor=None):
+    """Read bounded root-owned NDJSON, never a user-supplied log path."""
+    eventpath=Path(record['workspace'])/'.actplane/events.jsonl'
+    if eventpath.parent.is_symlink() or eventpath.parent.stat().st_uid!=0 or eventpath.parent.stat().st_mode&0o022:raise ValueError('Invalid kernel audit directory')
+    if not eventpath.exists():return {'events':[],'cursor':cursor,'generation':record['generation']}
+    fd=os.open(eventpath,os.O_RDONLY|os.O_NOFOLLOW)
+    try:
+        info=os.fstat(fd)
+        if not stat.S_ISREG(info.st_mode) or info.st_uid!=0 or info.st_mode&0o022:raise ValueError('Invalid kernel audit ownership')
+        identity=f'{info.st_dev}:{info.st_ino}'
+        offset=int(cursor['offset']) if cursor and cursor.get('file')==identity else int(record.get('event_start',0))
+        if offset<0 or offset>info.st_size:raise ValueError('Kernel audit cursor changed')
+        events=[]
+        with os.fdopen(fd,'rb',closefd=False) as stream:
+            stream.seek(offset)
+            for _ in range(100):
+                begin=stream.tell();line=stream.readline(65537)
+                if len(line)>65536:raise ValueError('Kernel audit event exceeds bound')
+                if not line or not line.endswith(b'\n'):stream.seek(begin);break
+                try:raw=json.loads(line)
+                except ValueError:continue
+                if raw.get('event')!='taint_violation':continue
+                if raw.get('process_domain_id',raw.get('domain_id'))!=record['domain_id']:continue
+                events.append({'offset':begin,'event':raw})
+            offset=stream.tell()
+        return {'events':events,'cursor':{'file':identity,'offset':offset},'generation':record['generation'],
+            'bundle_hash':record.get('policy_artifact',{}).get('bundle_hash'),'domain_id':record['domain_id']}
+    finally:os.close(fd)
 
 def own_tree(path,uid,gid):
     for base,dirs,files in os.walk(path,followlinks=False):
@@ -344,7 +402,7 @@ def observe(value):
         group=B.task_cgroup(record)
         cgpids={int(p) for p in (group/'cgroup.procs').read_text().split()}
         if pid not in members or pid not in cgpids or identity(pid)!=before: raise ValueError('agent binding changed')
-        return {'id':value,'status':'running','connected':True,'verified':bool(record.get('verification',{}).get('passed')),'pid':pid,'start_ticks':before['start_ticks'],'generation':record['generation'],'domain_id':record['domain_id'],'process_cgroup':record['process_cgroup'],'resources':record['resources'],'resource_records':resource_records(record['resources']),'agent_type':record['agent_type'],'environment':'wsl','sessions':result.get('sessions',[]),'session_count':len(result.get('sessions',[])),'executor_shared':True,**host_identity()}
+        return {'id':value,'status':'running','connected':True,'verified':bool(record.get('verification',{}).get('passed')),'pid':pid,'dsl_hash':record.get('dsl_hash'),'start_ticks':before['start_ticks'],'generation':record['generation'],'domain_id':record['domain_id'],'process_cgroup':record['process_cgroup'],'resources':record['resources'],'resource_records':resource_records(record['resources']),'agent_type':record['agent_type'],'environment':'wsl','sessions':result.get('sessions',[]),'session_count':len(result.get('sessions',[])),'executor_shared':True,**host_identity()}
     except Exception:
         # Freeze the whole scope on lost native/control/binding evidence.
         try: (B.task_cgroup(record)/'cgroup.freeze').write_text('1')
@@ -456,15 +514,18 @@ def start(message):
         resources=clean_resources(message['resources']);policy=canonical(message['policy'],resources)
         if digest(policy)!=message['policy_hash'] or not re.fullmatch('[a-f0-9]{32}',message['generation']) or len(message['token'])<32: raise ValueError('Instance launch identity mismatch')
         directory=root(value);directory.mkdir(parents=True,exist_ok=True)
-        control=directory/'control';control.mkdir(exist_ok=True)
+        # ActPlane resets its feedback files when a watcher starts. Give each
+        # generation a fresh trusted directory, preserving older raw evidence
+        # and preventing an old byte offset from skipping new events.
+        control=directory/'control'/message['generation'];control.mkdir(parents=True,exist_ok=False)
         temp=directory/'state/tmp';temp.mkdir(parents=True,exist_ok=True)
         home,port,user=prepare_home(value,agent_type)
         os.chmod(directory,0o755);os.chmod(directory.parent,0o755)
         os.chown(directory/'state',user.pw_uid,user.pw_gid)
-        dsl=policy_dsl(resources,policy)
-        yaml='version: 1\npolicy: |\n'+'\n'.join('  '+l for l in dsl.splitlines())+'\n'
         key=run_id(value)
-        compiled=B.compile_policy(key,int(time.time_ns()),yaml,dsl,control)
+        documents=message.get('dsl_documents',[])
+        if dsl_fingerprint(documents,resources)!=message.get('dsl_hash'):raise ValueError('DSL launch fingerprint mismatch')
+        compiled,artifact=compile_documents(value,resources,policy,documents)
         env=B.child_env(task_id=key)
         env.update(ACTPLANE_ATTACH_PID='0',ACTPLANE_RESERVE_FILE_FLOW='1',ACTPLANE_ENABLE_ADVANCED_HOOKS='1',SUDO_UID='0',SUDO_GID='0',TMPDIR=str(temp))
         anchor=subprocess.Popen(['/usr/bin/sleep','infinity'],start_new_session=True)
@@ -473,6 +534,8 @@ def start(message):
         log=open(logfile,'a')
         watch=subprocess.Popen([str(B.ACTPLANE),'--policy',compiled['watch_path'],'watch'],cwd=control,env=env,stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
         record={'instance_id':value,'task_id':key,'workspace':str(control),'agent_type':agent_type,'resources':resources,'generation':message['generation'],'policy_hash':message['policy_hash'],'watch':watch,'watch_pid':watch.pid,'anchor':anchor,'watch_policy':compiled['watch_path'],'watch_log':str(logfile),'pin_root':env.get('ACTPLANE_BPF_PIN_ROOT'),'web_port':port,'native_token':secrets.token_urlsafe(36),'domain_id':secrets.randbelow(1800000000)+100000000}
+        record.update(policy_artifact={**artifact,'loaded':True},dsl_hash=artifact['dsl_hash'])
+        record['event_start']=0
         RUNS[value]=record
         try:
             deadline=time.monotonic()+45
@@ -516,7 +579,7 @@ def start(message):
             record['verification']=verify(record,policy)
             if not record['verification']['passed']: raise RuntimeError('实际权限拦截未通过，实例已暂停')
             record['ready']=True
-            return {**observe(value),'compile':compiled['compile'],'verification':record['verification'],'launch_source':'WSL independent native Hermes' if agent_type=='hermes' else 'native DSH','executable':str(HERMES_ENTRY) if agent_type=='hermes' else str(B.DSH_WEB)}
+            return {**observe(value),'compile':compiled['compile'],'policy_artifact':record['policy_artifact'],'dsl_hash':record['dsl_hash'],'verification':record['verification'],'launch_source':'WSL independent native Hermes' if agent_type=='hermes' else 'native DSH','executable':str(HERMES_ENTRY) if agent_type=='hermes' else str(B.DSH_WEB)}
         except Exception:
             stop(value)
             raise
@@ -609,14 +672,23 @@ def dispatch(message):
     action=message['action'].removeprefix('agent-instance-')
     if action=='inventory': return inventory()
     value=message['instance_id']
+    if action=='dsl-compile':
+        ident(value);resources=clean_resources(message['resources']);policy=canonical(message['policy'],resources)
+        return compile_documents(value,resources,policy,message['dsl_documents'])[1]
     if action=='start': return start(message)
     if value in RUNS:
         with inst_lock(value):
             record=RUNS[value]
             if action=='stop': return stop(value)
             if action=='observe': return observe(value)
+            if action=='kernel-events':
+                if message.get('generation')!=record['generation']:raise ValueError('Kernel audit generation mismatch')
+                return kernel_events(record,message.get('cursor'))
             if action=='processes': return {'processes':processes(record),'executor_shared':True}
             if action=='sessions': return {'sessions':session_records(record),'resources':record['resources'],'executor_shared':True}
+            if action=='dsl-probe':
+                if message.get('generation')!=record['generation'] or message.get('effect') not in ('block','kill','notify'):raise ValueError('Invalid fixed DSL probe')
+                return request_relay(record,{'operation':'dsl-probe','effect':message['effect']})
             if action=='handle-probe':
                 target=Path(message['target'])
                 if target.name!='.agentscope-held-handle-probe' or target.is_symlink() or not target.is_file() or target.stat().st_nlink!=1: raise ValueError('Invalid fixed held-handle probe')

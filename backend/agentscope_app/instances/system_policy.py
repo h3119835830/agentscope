@@ -44,9 +44,11 @@ def lifecycle(fn):
         with LOCK: return fn(*args, **kwargs)
     return run
 
-def ensure_ready():
+def ensure_ready(instance_id=None):
     if current()['phase'] != 'ready' and not getattr(CONTEXT, 'applying', False):
         raise ValueError('系统规则更新尚未完成，执行保持暂停；请重新确认系统规则')
+    from . import dsl_policy
+    if not getattr(dsl_policy.APPLYING,'value',False):dsl_policy.ensure_ready(instance_id)
 
 def applicable(rules, resources):
     return [rule for rule in rules if rule['action'] not in ('read','write') or
