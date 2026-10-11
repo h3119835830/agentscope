@@ -489,6 +489,8 @@ def _install(task_id,state,dirs,output,initial=False,protected_paths=None,review
         prior=state['pending_expansion'];proposal=prior['proposal']
         state['pending_expansion_intent']={'prior_hash':prior['hash'],'proposed_snapshot':{k:proposal.get(k) for k in ('allowed_write_dirs','allow_output','protected_paths')},'authority':'unapproved_candidate; never_a_grant','reason':'Native recovery invalidates a candidate hash but does not withdraw the authenticated pending request; revalidate before confirmation.'}
     state.update(execution_role_version=2,phase='running',gate='waiting_policy' if recovery else 'open',version=version,policy_hash=digest(yaml),allowed_write_dirs=dirs,allow_output=output,runtime_protected=runtime_protected,binding=receipt,verification=verify,session_id=native['sessionId'],web_url=receipt['web_url'],pending_expansion=None)
+    from .feedback import make_bundle
+    state['recovery_bundle']=make_bundle(task,state,frozen_context,receipt,version,state['policy_hash'])
     if report:
         parent=receipt.get('baseline_binding')
         if parent:
@@ -513,6 +515,7 @@ def _install(task_id,state,dirs,output,initial=False,protected_paths=None,review
             con.commit()  # retain fail-closed state when propagating the stale error
             raise ValueError('stale: context changed while replacing the process domain')
         normalization.persist(con,task_id,'loaded',str(version),report)
+        event(con,task_id,'feedback_bundle',str(version),state['recovery_bundle'])
         save(con,task_id,state)
         con.execute("UPDATE tasks SET status='running',active_pid=?,active_domain_id=?,watch_pid=?,active_version=?,updated_at=? WHERE id=?",(receipt['runner_pid'],receipt['domain_id'],receipt['watch_pid'],version,db.now(),task_id))
         event(con,task_id,'policy_active',str(version),{'version':version,'policy_hash':state['policy_hash'],'binding':receipt,'verification':verify,'session_id':state['session_id'],'baseline_hash':state['baseline_hash']})
@@ -560,7 +563,7 @@ def native_admission(task,ctx):
         '\n[Original task description]\n'+task['prompt']+
         '\n[Task clarifications]\n'+json.dumps(clarifications,ensure_ascii=False)+
         '\n[Admission request]\nRead the task and relevant registered project materials first. '+
-        'Summarize the constraints and proposed work; wait for the next real user message before modifying files.')
+        'Summarize the constraints and proposed work; wait for the next real user message before modifying files. 请使用中文与用户沟通。')
 
 def complete_start(task_id):
     from ..bootstrap.api import version as make_version
@@ -586,7 +589,7 @@ def complete_start(task_id):
     built=make_version(task_id,proposal['id'],VersionRequest(condition='B'))
     approve_version(task_id,built['version'],ReviewRequest(decision='approve',reviewed_by='工作区任务确认' if state.get('startup_review_required') else '预授权控制面',expected_context_hash=ctx['context_hash'],expected_proposal_hash=proposal['content_hash']))
     data=json.loads(proposal['proposal_json'])
-    state.update(baseline_extra=data['actplane_dsl']+'\n'+control_rules(task),protected=protected_files(ctx,data['draft']['atoms']),baseline_hash=digest({'extra':data['actplane_dsl'],'context':ctx['context_hash'],'controls':control_rules(task)}),startup_proposal=proposal['id'],startup_summary=data['draft']['summary'])
+    state.update(baseline_extra=data['actplane_dsl']+'\n'+control_rules(task),protected=protected_files(ctx,data['draft']['atoms']),baseline_hash=digest({'extra':data['actplane_dsl'],'context':ctx['context_hash'],'controls':control_rules(task)}),startup_proposal=proposal['id'],startup_summary=data['draft']['summary'],recovery_spec=data.get('recovery_spec'))
     with db.connect() as con:save(con,task_id,state)
     installed=install(task_id,state,['.'],False,initial=True)
     # Admission uses the native SessionController; no headless substitute session.
@@ -642,8 +645,12 @@ def _confirm_startup(task_id,expected_context_hash,expected_proposal_hash):
     return {'status':'confirmed','task_id':task_id}
 
 def gate(task_id):
-    with db.connect() as con:s=load(con,task_id)
-    return {'gate':s['gate'],'phase':s['phase']}
+    from .feedback import pending_events
+    with db.connect() as con:
+        s=load(con,task_id);pending=pending_events(con,task_id,s)
+    result={'gate':'awaiting_feedback' if pending and s['gate']=='open' else s['gate'],'phase':s['phase']}
+    if pending:result['pending_feedback_ids']=[e['feedback_id'] for e in pending]
+    return result
 
 def read_project_content(task,path):
     path=Path(path);relative=path.relative_to(Path(task['workspace']))
@@ -780,18 +787,20 @@ def ingest(task_id,args):
         if kind=='feedback_received':
             feedback=str(args.get('feedback',''))
             offer=con.execute("SELECT payload_json FROM managed_events WHERE task_id=? AND kind='feedback_offer' AND json_extract(payload_json,'$.feedback')=? ORDER BY id DESC LIMIT 1",(task_id,feedback)).fetchone()
-            if not offer:
-                from .feedback import operation_feedback
-                try:reported=json.loads(feedback.removeprefix('[ActPlane operation feedback] '));ident=int(reported['id'])
-                except (ValueError,KeyError,TypeError):raise ValueError('Native feedback receipt has no matching kernel feedback offer')
-                raw=con.execute("SELECT payload_json FROM managed_events WHERE task_id=? AND kind='kernel' AND id=?",(task_id,ident)).fetchone()
-                kernel=json.loads(raw[0]) if raw else None
-                if not kernel or reported!=operation_feedback(ident,kernel['event'],task_row(con,task_id)):raise ValueError('Native feedback receipt has no matching kernel feedback offer')
-                payload={'call_id':kernel.get('tool_call_id'),'event_ids':[ident],'feedback':feedback,'source':'late_kernel_feedback'}
-            else:payload=json.loads(offer[0])
+            if not offer:raise ValueError('Native feedback receipt has no matching kernel feedback offer')
+            payload=json.loads(offer[0])
+            if sid!=s['session_id'] or payload.get('session_id')!=sid or payload.get('process_epoch')!=s.get('recovery_bundle',{}).get('process_epoch'):
+                raise ValueError('Native feedback receipt has a stale process/session identity')
             payload.update(session_id=sid,authority='native_context_observed; persistence_checked_independently')
-            event(con,task_id,'feedback_delivery',key,payload)
+            from .feedback import digest as feedback_digest
+            for ident,feedback_id in zip(payload['event_ids'],payload['feedback_ids']):
+                admission_key=feedback_digest([sid,payload['process_epoch'],feedback_id])
+                admitted={**payload,'event_ids':[ident],'feedback_ids':[feedback_id],'native_event_key':key}
+                event(con,task_id,'feedback_context_admitted',admission_key,admitted)
+                event(con,task_id,'feedback_delivery',admission_key,admitted)
             return {'stored':True}
+        if kind in ('feedback_offer','feedback_delivery'):
+            raise ValueError('Feedback offers and delivery states are generated by the trusted control plane')
         if kind=='runtime_observation':
             category=str(args.get('category',''));content=str(args.get('content',''))
             if category not in ('system_prompt','instructions','tools','memory','memory_prune','context') or not content or len(content.encode())>131072:raise ValueError('Unsupported or oversized runtime observation')
@@ -838,7 +847,9 @@ def ingest(task_id,args):
             event(con,task_id,'agent_refusal' if args['decision']=='refuse' else 'agent_deferral',key,{'session_id':sid,'turn':s['turn'],'version':s['version'],'domain_id':s['binding'].get('domain_id'),'decision':args['decision'],'operation':clean(str(args.get('operation','')))[:100],'target':clean(str(args.get('target','')))[:500],'reason':clean(str(args.get('reason','')))[:1200],'authority':'agent_report; not_kernel_enforcement'})
         else:
             call_binding={}
-            if kind=='tool_start' and s['gate']!='open':raise ValueError('Control plane paused: pending policy analysis')
+            if kind=='tool_start':
+                from .feedback import pending_events
+                if s['gate']!='open' or pending_events(con,task_id,s):raise ValueError('Control plane paused: pending policy or feedback admission')
             if kind in ('tool_start','tool_result'):
                 call_binding=broker({'action':'managed-call','task_id':task_id,'operation':'start' if kind=='tool_start' else 'end','pid':int(args['pid']),'call_id':args['call_id']},timeout=10)
             payload={k:args.get(k) for k in ('session_id','call_id','name','succeeded','target','pid','started','feedback','event_ids','serialized','native_sdk_verification')}
@@ -1082,18 +1093,14 @@ def correlate_tool(con,task_id,raw):
     return candidates[0] if len(set(candidates))==1 else None
 
 def tool_feedback(task_id,call_id):
+    from .feedback import pending_events,offer
     deadline=time.monotonic()+1
     while True:
         with db.connect() as con:
             start=con.execute("SELECT payload_json FROM managed_events WHERE task_id=? AND kind='tool_start' AND event_key=?",(task_id,call_id)).fetchone()
             if not start:return {'events':[]}
-            delivered={ident for row in con.execute("SELECT payload_json FROM managed_events WHERE task_id=? AND kind='feedback_delivery'",(task_id,)) for ident in json.loads(row[0]).get('event_ids',[])}
-            events=[]
-            for row in con.execute("SELECT id,payload_json FROM managed_events WHERE task_id=? AND kind='kernel' ORDER BY id DESC LIMIT 150",(task_id,)):
-                payload=json.loads(row[1])
-                if payload.get('verification_probe') or row[0] in delivered:continue
-                if correlate_tool(con,task_id,payload['event'])==call_id:
-                    from .feedback import operation_feedback
-                    events.append(operation_feedback(row[0],payload['event'],task_row(con,task_id)))
-        if events or time.monotonic()>=deadline:return {'events':list(reversed(events))}
+            state=load(con,task_id)
+            events=pending_events(con,task_id,state,call_id=call_id)
+            if events:return offer(con,task_id,state,events,call_id)
+        if time.monotonic()>=deadline:return {'events':[]}
         time.sleep(.1)

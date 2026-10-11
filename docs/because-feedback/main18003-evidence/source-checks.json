@@ -1,0 +1,26 @@
+[
+  {
+    "check": "backend",
+    "exit_code": 0
+  },
+  {
+    "check": "frontend",
+    "exit_code": 0
+  },
+  {
+    "check": "build",
+    "exit_code": 0
+  },
+  {
+    "check": "managed-web",
+    "exit_code": 1
+  },
+  {
+    "check": "pi-tools",
+    "exit_code": 0
+  },
+  {
+    "check": "pi-skill",
+    "exit_code": 0
+  }
+]

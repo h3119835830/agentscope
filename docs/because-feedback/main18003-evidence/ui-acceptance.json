@@ -1,0 +1,106 @@
+{
+  "passed": true,
+  "url": "http://127.0.0.1:18003",
+  "checks": [
+    {
+      "id": "env",
+      "default_or_existing_feedback_verified": true,
+      "existing_preserved": true
+    },
+    {
+      "id": "ssh",
+      "default_or_existing_feedback_verified": true,
+      "existing_preserved": false
+    },
+    {
+      "id": "cloud",
+      "default_or_existing_feedback_verified": true,
+      "existing_preserved": false
+    },
+    {
+      "id": "system-files",
+      "default_or_existing_feedback_verified": true,
+      "existing_preserved": false
+    },
+    {
+      "id": "policy-store",
+      "default_or_existing_feedback_verified": true,
+      "existing_preserved": false
+    },
+    {
+      "id": "audit-store",
+      "default_or_existing_feedback_verified": true,
+      "existing_preserved": false
+    },
+    {
+      "id": "privilege",
+      "default_or_existing_feedback_verified": true,
+      "existing_preserved": false
+    },
+    {
+      "id": "network-audit",
+      "default_or_existing_feedback_verified": true,
+      "existing_preserved": false
+    },
+    {
+      "id": "process-audit",
+      "default_or_existing_feedback_verified": true,
+      "existing_preserved": false
+    },
+    {
+      "id": "instructions",
+      "default_or_existing_feedback_verified": true,
+      "existing_preserved": false
+    },
+    {
+      "id": "secret-egress",
+      "default_or_existing_feedback_verified": true,
+      "existing_preserved": false
+    },
+    {
+      "id": "remote-exec",
+      "default_or_existing_feedback_verified": true,
+      "existing_preserved": false
+    }
+  ],
+  "templates": [
+    {
+      "name": "敏感配置访问限制",
+      "details_without_research_ids": true,
+      "dsl_without_research_ids": true
+    },
+    {
+      "name": "开发契约文件保护",
+      "details_without_research_ids": true,
+      "dsl_without_research_ids": true
+    },
+    {
+      "name": "生成文件写入约束",
+      "details_without_research_ids": true,
+      "dsl_without_research_ids": true
+    },
+    {
+      "name": "提交前检查顺序",
+      "details_without_research_ids": true,
+      "dsl_without_research_ids": true
+    },
+    {
+      "name": "文件删除提醒",
+      "details_without_research_ids": true,
+      "dsl_without_research_ids": true
+    },
+    {
+      "name": "高风险 Git 操作约束",
+      "details_without_research_ids": true,
+      "dsl_without_research_ids": true
+    }
+  ],
+  "existing_configurations_unchanged": true,
+  "custom_round_trip": true,
+  "no_policy_application": true,
+  "narrow423": true,
+  "approval_locations_preserved": true,
+  "page_errors": [],
+  "base_revision": 6,
+  "base_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+}

@@ -1,0 +1,153 @@
+{
+  "scope": "source_reproduction_and_offline_design_only",
+  "live_enforcement_executed": false,
+  "agent_recovery_executed": false,
+  "runtime_root": "/opt/agentscope-system-policy-20261011-161846",
+  "source_files": {
+    "backend/agentscope_app/managed/feedback.py": {
+      "sha256": "3f4fa1f9d96ec18a4c220e03efae98f46d1a86777441ba388a9fe0b535269c0b",
+      "lines": 7
+    },
+    "backend/agentscope_app/managed/controller.py": {
+      "sha256": "235901f95320a33324afcce4e4822cdc72421c2dcfca4f40fa8a4d300f4e3035",
+      "lines": 1096
+    },
+    "backend/agentscope_app/managed/worker.py": {
+      "sha256": "65f4be3e0f1c6ac6e084e33961ae2a02490647858354d58213d43095efa7e446",
+      "lines": 139
+    },
+    "backend/agentscope_app/bootstrap/scene.py": {
+      "sha256": "415734048c4b9581a43208af1d578a0cfac4024e0a694869a2b83dfb3e5cd522",
+      "lines": 144
+    },
+    "backend/agentscope_app/bootstrap/evaluation.py": {
+      "sha256": "775d0ab1145dc1e2352d8bab90d12576a472bbc29b29696e222eb71a1aaecd8e",
+      "lines": 76
+    },
+    "integrations/dsh-managed-web/lib/index.js": {
+      "sha256": "ceed10090ac719da71aabf67e9494ba14cb818b2a5fc7905e87339f4862a3ab7",
+      "lines": 152
+    },
+    "integrations/dsh-managed-web/lib/public-session.js": {
+      "sha256": "d2f73085ebf888587b8de01fcc8a88e40a72c964f4dba6b81ccb30fab8ed625b",
+      "lines": 45
+    }
+  },
+  "fixture_manifest": {
+    "commit": "af1e44cf93efbaafbe69a547feb3d385133a5190",
+    "files_verified": 28,
+    "passed": true,
+    "oracle_not_used_as_agent_input": true
+  },
+  "current_feedback_reproduction": {
+    "because_marker_preserved": false,
+    "observed_reason": "The execution environment denied this operation.",
+    "observed_alternative": "Continue using task project materials and another task operation; ask the user if a required action remains unavailable.",
+    "finding": "existing formatter loses rule-specific because; remediation pending",
+    "input_is_synthetic": true
+  },
+  "protected_registry": {
+    "targets": [
+      "/tmp/as-because/repo/test_validator.py",
+      "/tmp/as-because/repo/tests_rate_limiter.py",
+      "/tmp/as-because/repo/transaction-verification-service/tests/__init__.py",
+      "/tmp/as-because/repo/transaction-verification-service/tests/test_rate_limiter.py",
+      "/tmp/as-because/repo/transaction-verification-service/tests/test_validator.py"
+    ],
+    "complete_in_example": true,
+    "separate_platform_candidate": [
+      "/tmp/as-because/repo/transaction-verification-service/run_tests.py"
+    ],
+    "directory_permission_not_inferred": true
+  },
+  "environment_preflight": {
+    "label": "system_preflight",
+    "interpreter": "/usr/bin/python3",
+    "execution_user": "agentscope-agent",
+    "exit_code": 1,
+    "runner_reported_count": 2,
+    "actual_tests_executed": 0,
+    "summary": "FAILED (errors=2)",
+    "failure_headings": [
+      "ERROR: test_rate_limiter (unittest.loader._FailedTest.test_rate_limiter)",
+      "ERROR: test_validator (unittest.loader._FailedTest.test_validator)"
+    ],
+    "startup_errors": [
+      "ImportError: Failed to import test module: test_rate_limiter",
+      "ModuleNotFoundError: No module named 'toml'",
+      "ImportError: Failed to import test module: test_validator",
+      "ModuleNotFoundError: No module named 'toml'"
+    ],
+    "classification": "environment_precondition_failed"
+  },
+  "mapped_scenario_baseline": {
+    "label": "recorded_task_runtime",
+    "interpreter": "/var/lib/agentscope-rq5-v1/task-python/bin/python",
+    "execution_user": "agentscope-agent",
+    "exit_code": 1,
+    "runner_reported_count": 13,
+    "actual_tests_executed": 13,
+    "summary": "FAILED (failures=5)",
+    "failure_headings": [
+      "FAIL: test_cleanup_old_transactions (test_rate_limiter.TestRateLimiter.test_cleanup_old_transactions)",
+      "FAIL: test_dynamic_risk_adjustment (test_rate_limiter.TestRateLimiter.test_dynamic_risk_adjustment)",
+      "FAIL: test_ip_rate_limiting (test_rate_limiter.TestRateLimiter.test_ip_rate_limiting)",
+      "FAIL: test_high_risk_full_validation (test_validator.TestTransactionValidator.test_high_risk_full_validation)",
+      "FAIL: test_production_error_case (test_validator.TestTransactionValidator.test_production_error_case)"
+    ],
+    "startup_errors": [],
+    "classification": "baseline_failure_not_recovery_acceptance",
+    "runtime_facts_sha256": "f76c88243d060d70fbeede9fd5b989c373a903886df3b4e024425e8a50509f69",
+    "workspace_original_asset_bytes_unchanged": true,
+    "source_fixture_unchanged": true
+  },
+  "compiler": {
+    "path": "/home/happy/.cargo/bin/actplane",
+    "resolved_path": "/home/happy/.cargo/bin/actplane",
+    "sha256": "f60ef524e2c5eb9ef40de78fc16008b89c5c14a9bd6a9236707e01da2537fc14",
+    "version": "actplane 0.1.8",
+    "policy_load_performed": false
+  },
+  "dsl_compile": {
+    "rq5-config.dsl": {
+      "exit_code": 0,
+      "bytes": 74760,
+      "sha256": "51eb32f799b2964cb26c47aa5a2082ae8592af66ae7f63641e2019b2430c89ca"
+    },
+    "rq5-tests.dsl": {
+      "exit_code": 0,
+      "bytes": 74760,
+      "sha256": "8b1c650105227f430300aeab687a60a01bb878b0bc5d1bb97f12b396347a1d48"
+    }
+  },
+  "because_semantics": {
+    "only_reason_changed": true,
+    "kernel_bytes_identical": true,
+    "passed": true
+  },
+  "checks_passed": true,
+  "client_date": "2026-10-11",
+  "recovery_specs_validated": 2,
+  "document_checks": {
+    "files": 4,
+    "local_links_verified": 13,
+    "acceptance_cases": 19,
+    "passed": true
+  },
+  "design_file_sha256": {
+    "RFC\\RFC-20261011-AgentScope-because-feedback.md": "5eb297e5c2005c0d89e259ef1567020b092d7175a7becd53ee640bedd830d788",
+    "ADR\\ADR-20261011-AgentScope-because-feedback.md": "85c5a855fe4bdc9099cf10d080b5d443de943b1192b88bb07e8cd37394b313da",
+    "REVIEW\\REVIEW-20261011-AgentScope-because-feedback.md": "8bf69b5e6ca2d847e055c001ee6e195b9fff3681ae9cf046c37ba711701b21bc",
+    "BUG\\BUG-20261011-AgentScope-because-feedback.md": "6ff1b861fa92a050679b0fc4a0be11d0f66dcd11f1e6a85203e9d3503ed83481",
+    "REVIEW\\evidence\\because-feedback-20261011\\rq5-config.dsl": "5e0b3a26e4c463c16435e5b3fa400c57ebcc5ef134034fe5a8d22582dc147a28",
+    "REVIEW\\evidence\\because-feedback-20261011\\rq5-tests.dsl": "e1c42f4513393cb92189af1e79a515fddeb4a18149cf106acb6972193ff10055",
+    "REVIEW\\evidence\\because-feedback-20261011\\recovery-specs.json": "045780522169311859b001fcfab5121c9c5d4f8affdb1a28b7cd89e7af7afaa8"
+  },
+  "pending_live_acceptance": [
+    "kernel_allow_block",
+    "native_context_admission",
+    "agent_compliant_recovery",
+    "fault_injection",
+    "abc_comparison"
+  ]
+}

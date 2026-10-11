@@ -39,7 +39,7 @@ async function harness(entry,exported='default'){
 test('templates open as a structured record table, with configuration deferred until a record is selected',async()=>{
  const render=await harness('AgentPolicyTemplates.jsx');let writes=0;const props={agents:[target],onHandoff:()=>writes++};let tree=render(props),nodes=elements(tree);
  assert.equal(nodes.filter(e=>e.type==='table').length,1);assert.equal(nodes.filter(e=>e.type==='tr').length,7);assert.equal(nodes.filter(e=>e.type==='form').length,0);
- const html=renderToStaticMarkup(tree);for(const field of ['策略名称 / 编号','匹配对象 / 操作','处置方式','适用范围'])assert.ok(html.includes(field));assert.doesNotMatch(html,/template-card/);
+ const html=renderToStaticMarkup(tree);for(const field of ['策略名称','匹配对象 / 操作','处置方式','适用范围'])assert.ok(html.includes(field));assert.doesNotMatch(html,/template-card|RQ\d/i);
  nodes.find(e=>e.type==='button'&&e.props['aria-label']==='配置 敏感配置访问限制').props.onClick();tree=render(props);assert.ok(elements(tree).some(e=>e.props?.template?.id==='RQ1-ENV'));assert.equal(writes,0);
 });
 test('system configurations are explicit system candidates and cannot be imported as Agent templates',()=>{
@@ -207,4 +207,26 @@ test('revalidating a stale draft uses the new proposal status and hands off only
  let tree=render(props);await elements(tree).find(e=>e.type==='button'&&e.props.children==='保存并校验').props.onClick();tree=render(props);
  const handoff=elements(tree).find(e=>e.type==='button'&&e.props.children==='前往审批');assert.equal(handoff.props.disabled,false);
  await handoff.props.onClick();assert.equal(handedOff,'fresh');
+});
+
+
+test('approval records show product, PID and native session with exact read navigation',async()=>{
+ const render=await harness('PolicyApprovals.jsx','ApprovalRecords'),paths=[];
+ const row={id:'proposal-a',name:'Protect secret',scope_type:'agent',document_count:1,status:'stale',created_at:'2026-10-11T01:00:00Z',target_name:'DeepSeek Harness',agents:[{id:'agent-a',name:'DeepSeek Harness',pid:54870}],origin_sessions:[{instance_id:'agent-a',session_id:'session-one',name:'Run native tests',available:true,generation_pid:54870}]};
+ const tree=render({rows:[row],navigate:p=>paths.push(p)}),html=renderToStaticMarkup(tree);
+ for(const value of ['Agent / PID','生成会话','DeepSeek Harness','54870','Run native tests','状态 / 提交时间'])assert.ok(html.includes(value));
+ assert.doesNotMatch(html,/RQ5|受控实例|批准并应用/);assert.equal(paths.length,0);
+ // Render the nested location components independently to exercise their buttons.
+ const agentNode=elements(tree).find(e=>e.type?.name==='AgentLocation');
+ elements(agentNode.type(agentNode.props)).find(e=>e.type==='button').props.onClick();
+ const sessionNode=elements(tree).find(e=>e.type?.name==='SessionLocations');
+ elements(sessionNode.type(sessionNode.props)).find(e=>e.type==='button').props.onClick();
+ assert.deepEqual(paths,[{page:'connections',connectionInstance:'agent-a',connectionTab:'policy',approvalId:''},{page:'sessions',sessionInstance:'agent-a',sessionId:'session-one',sessionTab:'policies',approvalId:''}]);
+});
+test('approval search finds native session and both current and historical PID',async()=>{
+ const {matchesApproval,processLabel,originLabel}=await import('./approvalPresentation.mjs');
+ const r={name:'Protect',agents:[{name:'DeepSeek Harness',pid:77,submitted_pid:55}],origin_sessions:[{session_id:'session-one',name:'Native task',generation_pid:33}]};
+ for(const q of ['PID 77','55','33','native task','session-one','DeepSeek','protect'])assert.ok(matchesApproval(r,q));
+ assert.ok(!matchesApproval(r,'Hermes'));assert.equal(processLabel({pid:null,process_state:'offline'}),'未运行');
+ assert.equal(originLabel({scope_type:'agent',origin_state:'unrecorded'}),'未关联会话');
 });

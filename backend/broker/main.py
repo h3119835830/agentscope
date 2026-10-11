@@ -175,6 +175,31 @@ def validate_managed_paths(workspace, paths):
         result.append(str(resolved))
     return result
 
+
+def loaded_rule_catalog(workspace,domain,watch_pid,anchor_pid,dsl,compiled,delta_path):
+    """Runtime deltas relocate rule IDs. Bind feedback to the actual load audit."""
+    path=Path(workspace)/'.actplane/audit.jsonl'
+    info=path.lstat()
+    if path.is_symlink() or info.st_uid!=0 or info.st_mode&0o022:raise ValueError('Untrusted ActPlane load audit')
+    value=0xcbf29ce484222325
+    # ActPlane CLI join_policy_delta_fragments prefixes the file reference.
+    submitted='\n# delta '+str(delta_path)+'\n'+dsl.strip()+'\n'
+    for byte in submitted.encode():value=((value^byte)*0x100000001b3)&0xffffffffffffffff
+    expected='fnv1a64:'+format(value,'016x')
+    records=[json.loads(line) for line in path.read_text().splitlines() if line.strip()]
+    matches=[r for r in records if r.get('event')=='append_policy_delta' and r.get('status')=='accepted'
+             and r.get('target_id')==domain and r.get('caller_pid')==watch_pid
+             and r.get('actor_pid')==anchor_pid and r.get('policy_hash')==expected]
+    if len(matches)!=1:raise ValueError('No unique ActPlane load audit for the confirmed child policy')
+    record=matches[0];rules=record.get('rule_provenance',[]);original=compiled.get('rules',[])
+    keys=('name','clause_hash','source_hash','clause_source_index','clause_op','effect','reason','target_pattern')
+    if len(rules)!=len(original) or record.get('rule_count')!=len(rules):raise ValueError('Loaded rule count differs from compiler metadata')
+    for index,(actual,source) in enumerate(zip(rules,original)):
+        if actual.get('rule_id')!=record['rule_id_base']+index or any(actual.get(k)!=source.get(k) for k in keys):
+            raise ValueError('Loaded clause provenance differs from approved compiler metadata')
+    return {'rules':rules,'rule_id_base':record['rule_id_base'],'policy_hash':expected,
+            'authority':'root_owned_actplane_append_audit; compiler_clause_hash_verified'}
+
 def prepare_web_home(home):
     import socket,yaml
     credential=home/".credentials.yaml"
@@ -470,11 +495,10 @@ def launch(task_id,version,workspace,output_dir,prompt,dsl_text,policy_yaml,dsh_
             parent_dsl=re.sub(r"\bAGENT\b","COMMAND",baseline_dsl)
             parent_yaml="version: 1\nfeedback:\n  path: "+json.dumps(str(workspace/".actplane/last-violation.txt"))+"\npolicy: |\n"+"\n".join("  "+line for line in parent_dsl.splitlines())+"\n"
             write_file(files["watch_path"],parent_yaml,0o440)
-            if normalization:
-                parent_check=run_actplane(["--policy",files["watch_path"],"compile","--json"],workspace,child_env(task_id=task_id),20)
-                parent_compiled=json.loads(parent_check)
-                if parent_compiled.get('ok') is not True:raise ValueError('Immutable parent policy did not compile')
-                files['baseline_binding']={'bundle_hash':hashlib.sha256(parent_yaml.encode()).hexdigest(),'compile':parent_compiled}
+            parent_check=run_actplane(["--policy",files["watch_path"],"compile","--json"],workspace,child_env(task_id=task_id),20)
+            parent_compiled=json.loads(parent_check)
+            if parent_compiled.get('ok') is not True:raise ValueError('Immutable parent policy did not compile')
+            files['baseline_binding']={'bundle_hash':hashlib.sha256(parent_yaml.encode()).hexdigest(),'compile':parent_compiled}
 
         if scope_mode and scope_mode!="managed-web":
             protected_manifest = POLICY_ROOT / task_id / "scope-manifest.json"
@@ -553,6 +577,7 @@ def launch(task_id,version,workspace,output_dir,prompt,dsl_text,policy_yaml,dsh_
             m=re.search(r"Launched pid (\d+) in child domain (\d+)",out)
             runner_pid=int(m.group(1)) if m else None
             domain_id=int(m.group(2)) if m else domain
+            loaded_catalog=loaded_rule_catalog(workspace,domain_id,watch.pid,anchor.pid,dsl_text,files['compile'],files['dsl_path']) if scope_mode=='managed-web' else None
             record={"task_id":task_id,"version":version,"workspace":str(workspace),"output_dir":str(output),"policy_path":policy_path,"watch_policy":watch_path,
               "watch":watch,"anchor":anchor,"watch_log":str(log_dir/f"{task_id}-v{version}-watch.log"),"watch_pid":watch.pid,"runner_pid":runner_pid,"domain_id":domain_id,
               "request_path":str(request_path),"result_path":str(result_path),"dsl_path":files["dsl_path"],"scope_mode":scope_mode,"web_port":web_port,"native_token":native_token,"pin_root":env.get("ACTPLANE_BPF_PIN_ROOT"),**process_scope}
@@ -569,7 +594,14 @@ def launch(task_id,version,workspace,output_dir,prompt,dsl_text,policy_yaml,dsh_
                 (task_cgroup(record)/"cgroup.procs").write_text(str(runner_pid))
                 write_file(relay_ready,relay_nonce,0o600)
             with LOCK:TASKS[task_id]=record
+            boot_id=Path('/proc/sys/kernel/random/boot_id').read_text().strip()
+            def process_start(pid):
+                value=Path('/proc',str(pid),'stat').read_text()
+                return value[value.rfind(')')+2:].split()[19]
+            engine_identity={'boot_id':boot_id,'watch_pid':watch.pid,'watch_start_ticks':process_start(watch.pid),'session_root':anchor.pid}
+            process_epoch=hashlib.sha256(json.dumps([boot_id,domain_id,runner_pid,process_start(runner_pid)]).encode()).hexdigest()
             return {"task_id":task_id,"status":"running","runner_pid":runner_pid,"domain_id":domain_id,"watch_pid":watch.pid,
+                    "engine_identity":engine_identity,"process_epoch":process_epoch,"loaded_catalog":loaded_catalog,
                     "web_url":f"http://127.0.0.1:{web_port}/" if web_port else None,"version":version,"compile_state":"loaded","compile":files["compile"],"baseline_binding":files.get("baseline_binding"),**process_scope,"message":"ActPlane 控制平面已加载；DSH 已由 child domain 接管"}
         except Exception:
             record=TASKS.get(task_id) or {"task_id":task_id,"domain_id":locals().get('domain',0),"pin_root":env.get('ACTPLANE_BPF_PIN_ROOT'),**locals().get("process_scope",{})}

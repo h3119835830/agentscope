@@ -9,7 +9,7 @@
     "effect": "block",
     "reason": "配置文件可能含有凭据。请使用 .env.example 或申请受控凭据接口。",
     "caveat": "请填写实际秘密文件路径；此配置限制打开操作，不会自动发现所有凭据。",
-    "origin": "原 HTML · P01 / RQ1 提炼",
+    "origin": "原 HTML · P01 / 固定来源提炼",
     "scope_type": "system",
     "kind": "file",
     "parameters": [

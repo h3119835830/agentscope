@@ -1,7 +1,7 @@
 """Bounded Pi RPC lifecycle; never persist assistant/reasoning/provider streams."""
 import json,os,queue,signal,subprocess,threading,time
 
-def drive(command,environment,prompt,status,trace,seconds=180,repairs=2):
+def drive(command,environment,prompt,status,trace,seconds=180,repairs=2,required_skill=None):
     process=subprocess.Popen(command,env=environment,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,start_new_session=True)
     inbox=queue.Queue()
     def consume():
@@ -13,17 +13,38 @@ def drive(command,environment,prompt,status,trace,seconds=180,repairs=2):
         while process.stderr.read(8192):pass
     readers=[threading.Thread(target=f,daemon=True) for f in (consume,discard)]
     for reader in readers:reader.start()
-    def send(message):
-        process.stdin.write((json.dumps({'type':'prompt','message':message})+'\n').encode());process.stdin.flush()
+    def rpc(value):
+        process.stdin.write((json.dumps(value)+'\n').encode());process.stdin.flush()
+    def send(message):rpc({'type':'prompt','message':message})
     deadline=time.monotonic()+seconds;used=0
+    discovered=False;verifying=False
     try:
-        send(prompt)
+        if required_skill:rpc({'type':'get_commands','id':'feedback-skill-discovery'})
+        else:send(prompt)
         while time.monotonic()<deadline:
             current=status()
             if current.get('cancelled'):raise ValueError('Pi analysis interrupted')
             try:event=inbox.get(timeout=min(.5,max(.01,deadline-time.monotonic())))
             except queue.Empty:continue
             typ=event.get('type')
+            if typ=='response' and event.get('id')=='feedback-skill-discovery':
+                skills=[c.get('name') for c in event.get('data',{}).get('commands',[]) if c.get('source')=='skill']
+                if not event.get('success') or skills!=['skill:'+required_skill['name']]:
+                    raise ValueError('Pi required feedback skill was not exclusively discovered')
+                discovered=True
+                send('/skill:'+required_skill['name']+' '+prompt)
+                continue
+            if typ=='response' and event.get('id')=='feedback-skill-context':
+                # Inspect only public user inputs. Never persist provider or assistant streams.
+                messages=event.get('data',{}).get('messages',[])
+                inputs=[''.join(c.get('text','') for c in m.get('content',[]) if c.get('type')=='text')
+                        if isinstance(m.get('content'),list) else m.get('content','')
+                        for m in messages if m.get('role')=='user']
+                marker='<skill name="'+required_skill['name']+'" location="'+required_skill['metadata']['mount']+'">'
+                if not event.get('success') or not inputs or not inputs[0].startswith(marker) or required_skill['body'] not in inputs[0]:
+                    raise ValueError('Pi feedback skill body was not admitted into native context')
+                return {'continuations':used,'protocol':'Pi RPC agent_settled; server submission verified',
+                        'skill':{'name':required_skill['name'],'discovery_verified':discovered,'context_verified':True}}
             if typ=='tool_execution_start':
                 trace({'kind':'tool_start','tool':event.get('toolName'),'args':event.get('args',{})})
             if typ=='tool_execution_end':
@@ -33,7 +54,11 @@ def drive(command,environment,prompt,status,trace,seconds=180,repairs=2):
             if typ in ('invalid_record','process_exit'):raise ValueError('Pi RPC process exited before submission')
             if typ=='agent_settled':
                 current=status()
-                if current.get('submitted'):return {'continuations':used,'protocol':'Pi RPC agent_settled; server submission verified'}
+                if current.get('submitted'):
+                    if not required_skill:return {'continuations':used,'protocol':'Pi RPC agent_settled; server submission verified'}
+                    if not verifying:
+                        verifying=True;rpc({'type':'get_messages','id':'feedback-skill-context'})
+                    continue
                 if current.get('workflow_error'):raise ValueError(current['workflow_error'])
                 if used>=repairs:
                     diagnostic=current.get('last_diagnostic')

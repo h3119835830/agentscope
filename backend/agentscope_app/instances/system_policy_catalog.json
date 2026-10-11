@@ -10,11 +10,12 @@
       "open"
     ],
     "effect": "block",
-    "reason": "该文件可能含有凭据。请使用脱敏配置或受控凭据接口。",
-    "origin": "RQ1 · 秘密配置约束提炼",
+    "reason": "环境配置可能含有凭据，应保留原件。先核对项目已登记的脱敏示例或受控凭据接口，用公开配置继续任务并验证结果；缺少必要接口时，提交凭据用途和最小访问需求请求审核，不复制或改名读取原件。",
+    "origin": "固定来源 · 秘密配置约束提炼",
     "source": "https://github.com/eunomia-bpf/ActPlane/blob/63db86945c9b8618a46aa68c8de214bc4b8343d9/docs/corpus/candidate_rules.tsv#L80",
     "configured": false,
-    "recommended": true
+    "recommended": true,
+    "research_origin": "RQ1 · 秘密配置约束提炼"
   },
   {
     "id": "ssh",
@@ -27,7 +28,7 @@
       "open"
     ],
     "effect": "block",
-    "reason": "请通过获准的 SSH 代理使用凭据，勿直接打开私钥。",
+    "reason": "SSH 私钥属于受保护凭据。先核对已获准的 SSH 代理和连接配置，通过凭据代理完成连接并检查结果；缺少代理或授权时，提交目标主机、用途和最小访问需求请求审核，保留私钥原件。",
     "origin": "平台扩展 · 私钥访问约束",
     "source": "https://github.com/eunomia-bpf/ActPlane/blob/master/docs/rule-language.md",
     "configured": false
@@ -43,7 +44,7 @@
       "open"
     ],
     "effect": "block",
-    "reason": "请使用受控云服务接口，或申请此凭据的特定访问权限。",
+    "reason": "云服务凭据与集群配置属于受保护材料。先核对已登记的受控云服务接口或脱敏配置，用公开参数完成当前允许的工作并验证结果；确需凭据访问时，提交服务、用途和最小权限需求请求审核，保留原件。",
     "origin": "平台扩展 · 凭据文件约束",
     "source": "https://github.com/eunomia-bpf/ActPlane/blob/master/docs/rule-language.md",
     "configured": false
@@ -60,7 +61,7 @@
       "unlink"
     ],
     "effect": "block",
-    "reason": "系统账号与授权配置由管理员维护，请提交变更申请。",
+    "reason": "系统账号与授权文件由管理员维护。先读取任务允许的公开诊断，在项目配置内处理可解决的问题并验证结果；确需系统变更时，提交目标、用途、实际错误和预期影响请求管理员审核，保留系统文件。",
     "origin": "平台扩展 · Linux 主机边界",
     "source": "https://github.com/eunomia-bpf/ActPlane/blob/master/docs/rule-language.md",
     "configured": false,
@@ -78,7 +79,7 @@
       "unlink"
     ],
     "effect": "block",
-    "reason": "请通过策略配置与人工确认流程变更安全策略。",
+    "reason": "安全策略由可信控制面维护。请在策略配置入口提交候选，核对差异与影响范围，经人工确认和加载核验后继续；如无法完成，提交目标、用途和实际错误请求审核，保留当前保护，不直接修改策略文件。",
     "origin": "平台设计 · 安全配置保护",
     "source": "https://github.com/eunomia-bpf/ActPlane/blob/master/docs/rule-language.md",
     "configured": false,
@@ -97,7 +98,7 @@
       "unlink"
     ],
     "effect": "block",
-    "reason": "审计记录由平台维护，Agent 不应修改或删除。",
+    "reason": "审计记录用于追溯执行事实，应保留完整原件。请使用已获准的查询或导出入口核对结果，在允许的输出位置整理公开报告；需修正或清理记录时，提交记录标识、原因和影响请求审核，不直接修改或删除原件。",
     "origin": "平台设计 · 审计完整性",
     "source": "https://github.com/eunomia-bpf/ActPlane/blob/master/docs/rule-language.md",
     "configured": false,
@@ -115,7 +116,7 @@
       "exec"
     ],
     "effect": "block",
-    "reason": "当前 Agent 不应自行提权，请申请受控的管理员操作。",
+    "reason": "当前 Agent 的操作受已有权限约束。先核对实际错误，在已获准的项目和工具范围内完成可执行工作并验证结果；确需管理员操作时，提交命令用途、目标与最小权限需求请求审核，不自行提权或换执行器绕过。",
     "origin": "平台扩展 · 最小权限边界",
     "source": "https://github.com/eunomia-bpf/ActPlane/blob/master/docs/rule-language.md",
     "configured": false,
@@ -132,7 +133,7 @@
       "connect"
     ],
     "effect": "notify",
-    "reason": "检测到网络连接，请确认目标符合任务需要。",
+    "reason": "网络连接需要与任务用途相符。请核对目标地址、发送内容和任务证据，使用已获准的目标并检查实际连接结果；用途或数据范围不明确时，暂停后续敏感发送并提交目标与用途请求审核。",
     "origin": "ActPlane · connect / notify",
     "source": "https://github.com/eunomia-bpf/ActPlane/blob/master/docs/rule-language.md",
     "configured": false,
@@ -149,7 +150,7 @@
       "exec"
     ],
     "effect": "notify",
-    "reason": "检测到程序执行，请确认其符合当前任务。",
+    "reason": "程序执行需要与当前任务相符。请核对程序来源、参数和预期副作用，使用已登记且获准的工具并检查退出状态；来源或影响不明确时，保留公开诊断并提交目标与用途请求审核。",
     "origin": "ActPlane · exec / notify",
     "source": "https://github.com/eunomia-bpf/ActPlane/blob/master/docs/rule-language.md",
     "configured": false,
@@ -167,11 +168,12 @@
       "unlink"
     ],
     "effect": "block",
-    "reason": "安全约定由人工维护，请先提交修改说明并取得批准。",
-    "origin": "RQ1 · 契约文件约束提炼",
+    "reason": "安全约定是当前任务的约束依据，应保留原件。请依据现有约定继续允许的实现和验证，将拟议修改、理由及影响另行提交人工审核；约定与任务冲突时，保留保护并提交可复现证据，不直接改写约定。",
+    "origin": "固定来源 · 契约文件约束提炼",
     "source": "https://github.com/eunomia-bpf/ActPlane/blob/63db86945c9b8618a46aa68c8de214bc4b8343d9/docs/corpus/candidate_rules.tsv",
     "configured": false,
-    "note": "这是可选约束；允许 Agent 维护约定文件的环境不应统一启用。"
+    "note": "这是可选约束；允许 Agent 维护约定文件的环境不应统一启用。",
+    "research_origin": "RQ1 · 契约文件约束提炼"
   },
   {
     "id": "secret-egress",
@@ -184,7 +186,7 @@
       "connect"
     ],
     "effect": "block",
-    "reason": "此进程已接触敏感文件。请使用已获准的脱敏或凭据处理流程。",
+    "reason": "当前进程已接触受保护文件，外发需遵守敏感数据边界。先核对已产生的副作用，通过已获准的脱敏或受控凭据处理流程完成允许的工作并验证输出不含秘密；无可用流程时，提交目的地、用途和最小数据需求请求审核，不换进程重试外发。",
     "origin": "ActPlane · 标签传播与信息流",
     "source": "https://github.com/eunomia-bpf/ActPlane/blob/master/docs/rule-language.md",
     "configured": false,
@@ -201,10 +203,11 @@
       "exec"
     ],
     "effect": "notify",
-    "reason": "此进程接触过网络输入，请核对执行内容及来源。",
-    "origin": "RQ1 远程脚本约束 / ActPlane 信息流",
+    "reason": "当前进程接触过网络输入，后续执行需要核对来源。请先检查下载内容、来源与参数，使用已获准且可验证的工具并核对实际结果；来源或副作用不明确时，暂停后续执行，提交公开诊断和用途请求审核。",
+    "origin": "固定来源远程脚本约束 / ActPlane 信息流",
     "source": "https://github.com/eunomia-bpf/ActPlane/blob/63db86945c9b8618a46aa68c8de214bc4b8343d9/docs/corpus/candidate_rules.tsv#L261",
     "configured": false,
-    "note": "按网络来源标签匹配，不能精确等同于 shell 管道或脚本签名校验。"
+    "note": "按网络来源标签匹配，不能精确等同于 shell 管道或脚本签名校验。",
+    "research_origin": "RQ1 远程脚本约束 / ActPlane 信息流"
   }
 ]

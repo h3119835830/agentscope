@@ -1,0 +1,292 @@
+{
+  "records": [
+    {
+      "id": 74,
+      "time": "1791729601953007461",
+      "instance_id": "instance-cc444fe38c094cbb",
+      "generation": "b31b6ccb79774e25b87116ef512d6f8a",
+      "session_id": null,
+      "call_id": null,
+      "attribution": "shared_executor_unattributed",
+      "operation": "write",
+      "syscall": null,
+      "target": "/w/0/sales.csv",
+      "pid": 1045005,
+      "domain_id": 648544754,
+      "rule_domain_id": 648544754,
+      "effect": "block",
+      "actual_action": "block",
+      "blocked": true,
+      "killed": false,
+      "rule_name": "deae8428f02d7-h_a557fe9061c847b9_intent_1",
+      "policy_name": "h_a557fe9061c847b9_intent_1",
+      "rule_id": 2,
+      "source_refs": [
+        {
+          "source_ref": "deae8428f02d7:0",
+          "compiler_rule_id": 1,
+          "kernel_rule_id": 2,
+          "clause_hash": "fnv1a64:5964c32c114eb14c"
+        }
+      ],
+      "bundle_hash": "7850c4611f6ede7a56ba3e29695dceefa960ded7c99c8d6c4f2192f400d3e3d7",
+      "reason": "不写入、追加或覆盖该文件",
+      "origin": {
+        "label": "deae8428f02d7_AGENT",
+        "label_mask": "0x2",
+        "origin_op": "exec",
+        "origin_pid": 1044878,
+        "origin_target": "node",
+        "origin_timestamp_ns": 119386931316117
+      },
+      "feedback_delivered": null
+    },
+    {
+      "id": 73,
+      "time": "1791729601920279295",
+      "instance_id": "instance-cc444fe38c094cbb",
+      "generation": "b31b6ccb79774e25b87116ef512d6f8a",
+      "session_id": null,
+      "call_id": null,
+      "attribution": "shared_executor_unattributed",
+      "operation": "write",
+      "syscall": null,
+      "target": "/w/0/sales.csv",
+      "pid": 1045003,
+      "domain_id": 648544754,
+      "rule_domain_id": 648544754,
+      "effect": "block",
+      "actual_action": "block",
+      "blocked": true,
+      "killed": false,
+      "rule_name": "deae8428f02d7-h_a557fe9061c847b9_intent_1",
+      "policy_name": "h_a557fe9061c847b9_intent_1",
+      "rule_id": 2,
+      "source_refs": [
+        {
+          "source_ref": "deae8428f02d7:0",
+          "compiler_rule_id": 1,
+          "kernel_rule_id": 2,
+          "clause_hash": "fnv1a64:5964c32c114eb14c"
+        }
+      ],
+      "bundle_hash": "7850c4611f6ede7a56ba3e29695dceefa960ded7c99c8d6c4f2192f400d3e3d7",
+      "reason": "不写入、追加或覆盖该文件",
+      "origin": {
+        "label": "deae8428f02d7_AGENT",
+        "label_mask": "0x2",
+        "origin_op": "exec",
+        "origin_pid": 1044878,
+        "origin_target": "node",
+        "origin_timestamp_ns": 119386931316117
+      },
+      "feedback_delivered": null
+    },
+    {
+      "id": 72,
+      "time": "1791729601919620164",
+      "instance_id": "instance-cc444fe38c094cbb",
+      "generation": "b31b6ccb79774e25b87116ef512d6f8a",
+      "session_id": null,
+      "call_id": null,
+      "attribution": "shared_executor_unattributed",
+      "operation": "write",
+      "syscall": null,
+      "target": "/w/0/sales.csv",
+      "pid": 1045003,
+      "domain_id": 648544754,
+      "rule_domain_id": 648544754,
+      "effect": "block",
+      "actual_action": "block",
+      "blocked": true,
+      "killed": false,
+      "rule_name": "deae8428f02d7-h_a557fe9061c847b9_intent_1",
+      "policy_name": "h_a557fe9061c847b9_intent_1",
+      "rule_id": 2,
+      "source_refs": [
+        {
+          "source_ref": "deae8428f02d7:0",
+          "compiler_rule_id": 1,
+          "kernel_rule_id": 2,
+          "clause_hash": "fnv1a64:5964c32c114eb14c"
+        }
+      ],
+      "bundle_hash": "7850c4611f6ede7a56ba3e29695dceefa960ded7c99c8d6c4f2192f400d3e3d7",
+      "reason": "不写入、追加或覆盖该文件",
+      "origin": {
+        "label": "deae8428f02d7_AGENT",
+        "label_mask": "0x2",
+        "origin_op": "exec",
+        "origin_pid": 1044878,
+        "origin_target": "node",
+        "origin_timestamp_ns": 119386931316117
+      },
+      "feedback_delivered": null
+    },
+    {
+      "id": 71,
+      "time": "1791729601918954510",
+      "instance_id": "instance-cc444fe38c094cbb",
+      "generation": "b31b6ccb79774e25b87116ef512d6f8a",
+      "session_id": null,
+      "call_id": null,
+      "attribution": "shared_executor_unattributed",
+      "operation": "write",
+      "syscall": null,
+      "target": "/w/0/sales.csv",
+      "pid": 1045003,
+      "domain_id": 648544754,
+      "rule_domain_id": 648544754,
+      "effect": "block",
+      "actual_action": "block",
+      "blocked": true,
+      "killed": false,
+      "rule_name": "deae8428f02d7-h_a557fe9061c847b9_intent_1",
+      "policy_name": "h_a557fe9061c847b9_intent_1",
+      "rule_id": 2,
+      "source_refs": [
+        {
+          "source_ref": "deae8428f02d7:0",
+          "compiler_rule_id": 1,
+          "kernel_rule_id": 2,
+          "clause_hash": "fnv1a64:5964c32c114eb14c"
+        }
+      ],
+      "bundle_hash": "7850c4611f6ede7a56ba3e29695dceefa960ded7c99c8d6c4f2192f400d3e3d7",
+      "reason": "不写入、追加或覆盖该文件",
+      "origin": {
+        "label": "deae8428f02d7_AGENT",
+        "label_mask": "0x2",
+        "origin_op": "exec",
+        "origin_pid": 1044878,
+        "origin_target": "node",
+        "origin_timestamp_ns": 119386931316117
+      },
+      "feedback_delivered": null
+    },
+    {
+      "id": 70,
+      "time": "1791729601918300162",
+      "instance_id": "instance-cc444fe38c094cbb",
+      "generation": "b31b6ccb79774e25b87116ef512d6f8a",
+      "session_id": null,
+      "call_id": null,
+      "attribution": "shared_executor_unattributed",
+      "operation": "write",
+      "syscall": null,
+      "target": "/w/0/sales.csv",
+      "pid": 1045003,
+      "domain_id": 648544754,
+      "rule_domain_id": 648544754,
+      "effect": "block",
+      "actual_action": "block",
+      "blocked": true,
+      "killed": false,
+      "rule_name": "deae8428f02d7-h_a557fe9061c847b9_intent_1",
+      "policy_name": "h_a557fe9061c847b9_intent_1",
+      "rule_id": 2,
+      "source_refs": [
+        {
+          "source_ref": "deae8428f02d7:0",
+          "compiler_rule_id": 1,
+          "kernel_rule_id": 2,
+          "clause_hash": "fnv1a64:5964c32c114eb14c"
+        }
+      ],
+      "bundle_hash": "7850c4611f6ede7a56ba3e29695dceefa960ded7c99c8d6c4f2192f400d3e3d7",
+      "reason": "不写入、追加或覆盖该文件",
+      "origin": {
+        "label": "deae8428f02d7_AGENT",
+        "label_mask": "0x2",
+        "origin_op": "exec",
+        "origin_pid": 1044878,
+        "origin_target": "node",
+        "origin_timestamp_ns": 119386931316117
+      },
+      "feedback_delivered": null
+    },
+    {
+      "id": 69,
+      "time": "1791729601917322496",
+      "instance_id": "instance-cc444fe38c094cbb",
+      "generation": "b31b6ccb79774e25b87116ef512d6f8a",
+      "session_id": null,
+      "call_id": null,
+      "attribution": "shared_executor_unattributed",
+      "operation": "write",
+      "syscall": null,
+      "target": "/w/0/sales.csv",
+      "pid": 1045003,
+      "domain_id": 648544754,
+      "rule_domain_id": 648544754,
+      "effect": "block",
+      "actual_action": "block",
+      "blocked": true,
+      "killed": false,
+      "rule_name": "deae8428f02d7-h_a557fe9061c847b9_intent_1",
+      "policy_name": "h_a557fe9061c847b9_intent_1",
+      "rule_id": 2,
+      "source_refs": [
+        {
+          "source_ref": "deae8428f02d7:0",
+          "compiler_rule_id": 1,
+          "kernel_rule_id": 2,
+          "clause_hash": "fnv1a64:5964c32c114eb14c"
+        }
+      ],
+      "bundle_hash": "7850c4611f6ede7a56ba3e29695dceefa960ded7c99c8d6c4f2192f400d3e3d7",
+      "reason": "不写入、追加或覆盖该文件",
+      "origin": {
+        "label": "deae8428f02d7_AGENT",
+        "label_mask": "0x2",
+        "origin_op": "exec",
+        "origin_pid": 1044878,
+        "origin_target": "node",
+        "origin_timestamp_ns": 119386931316117
+      },
+      "feedback_delivered": null
+    },
+    {
+      "id": 68,
+      "time": "1791729601916172516",
+      "instance_id": "instance-cc444fe38c094cbb",
+      "generation": "b31b6ccb79774e25b87116ef512d6f8a",
+      "session_id": null,
+      "call_id": null,
+      "attribution": "shared_executor_unattributed",
+      "operation": "write",
+      "syscall": null,
+      "target": "/w/0/sales.csv",
+      "pid": 1045003,
+      "domain_id": 648544754,
+      "rule_domain_id": 648544754,
+      "effect": "block",
+      "actual_action": "block",
+      "blocked": true,
+      "killed": false,
+      "rule_name": "deae8428f02d7-h_a557fe9061c847b9_intent_1",
+      "policy_name": "h_a557fe9061c847b9_intent_1",
+      "rule_id": 2,
+      "source_refs": [
+        {
+          "source_ref": "deae8428f02d7:0",
+          "compiler_rule_id": 1,
+          "kernel_rule_id": 2,
+          "clause_hash": "fnv1a64:5964c32c114eb14c"
+        }
+      ],
+      "bundle_hash": "7850c4611f6ede7a56ba3e29695dceefa960ded7c99c8d6c4f2192f400d3e3d7",
+      "reason": "不写入、追加或覆盖该文件",
+      "origin": {
+        "label": "deae8428f02d7_AGENT",
+        "label_mask": "0x2",
+        "origin_op": "exec",
+        "origin_pid": 1044878,
+        "origin_target": "node",
+        "origin_timestamp_ns": 119386931316117
+      },
+      "feedback_delivered": null
+    }
+  ],
+  "coverage": "仅采集内核策略匹配事件，不代表全量系统调用。共享进程中的未关联事件不归属于当前会话。"
+}

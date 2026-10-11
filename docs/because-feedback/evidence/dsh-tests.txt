@@ -1,0 +1,29 @@
+✔ parallel preflight and post batch completes with serialized bodies (18.150887ms)
+✔ cancelling queued call settles before running body finishes (0.577065ms)
+✔ failure releases body lane for later calls (0.432131ms)
+✔ denial cancels queued batch bodies and reaches post processing without deadlock (1.455072ms)
+✔ persistence, malformed receipts and partial admission cannot open the barrier (7.185492ms)
+✔ domain replacement restores public turns without private streams or hidden context (1.005283ms)
+✔ native question answers enter public context; pending/timeouts do not invent answers (0.551548ms)
+✔ admitted queue messages cross the seam before turn dispatch (0.976086ms)
+✔ feedback offers count only after actual native context admission (1.07729ms)
+✔ several feedback contexts in one native event keep distinct receipt identities (0.402696ms)
+✔ private reasoning, attempt streams and raw compaction output are excluded (1.804487ms)
+✔ prompt projection uses current surface including cleared prompts (0.279516ms)
+✔ tool observations have no model connection secrets (0.216651ms)
+✔ kernel feedback echo does not retrigger Pi (0.190407ms)
+✔ real namespace cannot see control roots, credentials, other tasks, parent processes or network (27.961207ms)
+✔ native filesystem reads, CAS replacement and directory listing work inside isolated world (438.310938ms)
+✔ file service rejects host/control/symlink aliases without returning bytes (57.854336ms)
+✔ published Python dependencies remain usable (91.043521ms)
+✔ accepted event waits through an outage and retains the same idempotency key (1.524322ms)
+✔ authentication failure is never retried or treated as success (1.174389ms)
+✔ unrecovered outage reaches a bounded failed-closed deadline (3.041169ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 721.581223

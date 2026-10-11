@@ -23,3 +23,9 @@
 ## 验收脚本自身问题（已修正）
 
 首次内核记录读取路径未跟随 runtime 的 runs/run-*/events.jsonl；另一次子进程写探针的字符串换行导致 SyntaxError。现按本次运行新事件文件收集，子进程拒绝必须出现 PermissionError，否则判为意外错误。最终 65 项均通过，不能用早期错误脚本的“进程失败”作为拒绝证据。
+
+## GEN-SEMANTICS-001 真实 DSH 闭环补充（2026-10-11，通过）
+
+18003 现已发布修复。同一真实 DSH 原生会话完成 6/6 基线、6/6 未审批权限不变、11/11 批准后可读不可改；实际 root 内核记录确认 7 条 write 阻断，来源和加载子句一致。原文原样生成，候选没有 open/read 禁止。原 3 个受控连接的权限与绑定指纹保持不变。详细 JSON、原生工具输出与截图见 [真实 DSH 验收](../acceptance/20261011-policy-source-semantics-dsh/README.md)。
+
+本轮工具/夹具问题均单独处理，没有修改 Agent 提示词：首次发布保护检查比较 systemd ExecStart 的可变显示时间，误判 Broker 身份变化并自动回滚；改为 PID/argv/start_ticks，重发成功。最后复查 ss 输出发现尾随空格变化，规范化空白后进程与监听一致。DSH 夹具起初属主与真实运行用户不一致，写结果文件遇到 DAC PermissionError；按核验的 happy uid 修正并重新执行完整基线，失败轮次未计入通过。合并后的测试夹具缺少审批定位读取的 session/listing 数据，补齐后全量通过。证据导出按统一审批 status 字段读取，不混用 mutation 回执的 state 字段。

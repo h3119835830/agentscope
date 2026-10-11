@@ -18,13 +18,16 @@ def world(client,tmp_path,monkeypatch):
     monkeypatch.setattr(db,'DB_PATH',tmp_path/'context.sqlite3')
     monkeypatch.setattr(sources,'ROOT',tmp_path/'snapshots')
     db.init_db()
-    with db.connect() as con:dsl_policy.init(con)
+    with db.connect() as con:
+        dsl_policy.init(con)
+        sessions.init(con)
     root=tmp_path/'workspace';root.mkdir()
     runtime=dict(generation='gen-a',pid=55,start_ticks='100',domain_id=99,host_id='host',boot_id='boot',verified=True,executable='/opt/dsh/bin.js')
     row=dict(id='agent-a',mode='controlled',connected=True,agent_type='dsh',resources=[str(root)],runtime=runtime,**runtime)
     native=[dict(id='session-a',name='One',mapping='native_registry',resource=str(root),execution_resource='/w/0',process_ids=[55],historical=False)]
     monkeypatch.setattr(policy_sources,'process_executable',lambda *args:'/opt/agentscope/bin/node')
     monkeypatch.setattr(controller,'detail',lambda ident: copy.deepcopy(row) if ident==row['id'] else (_ for _ in ()).throw(ValueError('未知 Agent')))
+    monkeypatch.setattr(controller,'listing',lambda:dict(instances=[copy.deepcopy(row)]))
     monkeypatch.setattr(sessions,'native_sessions',lambda _:dict(mapping_available=True,sessions=copy.deepcopy(native)))
     monkeypatch.setattr(system_policy,'current',lambda:dict(phase='ready',revision=1))
     scope=dict(revision=0,document_hash='a'*64,phase='ready')

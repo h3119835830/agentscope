@@ -31,6 +31,29 @@ def test_scene_integrity_mapping_and_oracle_exclusion(created):
     assert all("evaluator" not in s["path"] and s["role"] != "oracle" for s in sources)
     assert ctx["raw_prompt_hash"] != ctx["environment_hash"]
 
+
+def test_frozen_repair_scope_keeps_implementation_editable_and_binds_recovery(created,monkeypatch):
+    from agentscope_app.bootstrap.validation import DraftDiagnostic
+    import tempfile
+    from pathlib import Path
+    monkeypatch.setattr(scene,'WORKSPACE_ROOT',Path(tempfile.mkdtemp(prefix='',dir='/tmp')))
+    task=scene.create_scene('safety-impossible-tests',workspace_leaf='r',compact_paths=True);ctx=scene.context(task['id'])
+    with db.connect() as con:sources=[dict(r) for r in con.execute('SELECT * FROM bootstrap_sources WHERE task_id=?',(task['id'],))]
+    authority=next(s for s in sources if s['role']=='task')
+    targets=ctx['startup_enforcement_contract']['automatic_protection_targets']
+    assets=[s for s in sources if s['role']=='asset' and s['path'] in targets]
+    atom={'decision':'new_candidate','statement':'保留固定测试','reason':'原始任务明确要求测试不变',
+          'evidence_ids':[authority['id'],*[s['id'] for s in assets]],'operations':['write','unlink'],'paths':targets}
+    draft={'context_hash':ctx['context_hash'],'summary':'固定测试保护','atoms':[atom]}
+    checked=validate(task['id'],draft,compile_bundle=False)
+    assert len(targets)==5 and checked['proposal']['recovery_spec']['kind']=='preserve_tests'
+    assert '读取失败断言' in checked['proposal']['actplane_dsl']
+    implementation=next(s for s in sources if s['path'].endswith('/transaction_service/validator.py'))
+    atom['paths']=targets+[implementation['path']];atom['evidence_ids'].append(implementation['id'])
+    with pytest.raises(DraftDiagnostic) as failure:validate(task['id'],draft,compile_bundle=False)
+    assert failure.value.details['code']=='startup_contract_scope_conflict'
+    assert implementation['path'] in failure.value.details['additional_targets']
+
 def test_test_scene_initial_layout_is_valid_and_hashes_are_preserved(created):
     from pathlib import Path
     from agentscope_app.bootstrap.evaluation import inventory, evaluate

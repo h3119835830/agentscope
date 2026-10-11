@@ -58,3 +58,38 @@ def test_reject_routes_require_auth_and_do_not_reject_an_applied_proposal(world)
     dsl.apply(world.a['id'],p['id'],p['proposal_hash'])
     assert world.client.post(url,json={'proposal_hash':p['proposal_hash']},headers=ADMIN).status_code==409
     assert approval_views.detail(p['id'])['status']=='applied'
+
+
+def test_approval_locations_use_products_verified_pid_and_never_guess_a_session(world):
+    from agentscope_app.instances import store
+    store.update(world.a['id'],name='RQ5 DSH 受控实例')
+    world.run(world.a)
+    p=candidate(world.a['id'])
+    before=dsl.current(world.a['id'])
+    row=approval_views.detail(p['id'])
+    assert row['target_name']=='DeepSeek Harness'
+    assert row['agents']==[dict(id=world.a['id'],name='DeepSeek Harness',agent_type='dsh',pid=1234,
+                               process_state='running',submitted_pid=1234,active=True)]
+    assert row['origin_sessions']==[] and row['origin_state']=='unrecorded'
+    world.live[world.a['id']].update(connected=False,verified=False)
+    offline=approval_views.detail(p['id'])['agents'][0]
+    assert offline['pid'] is None and offline['submitted_pid']==1234
+    assert offline['process_state']=='unverified'
+    assert not world.calls and dsl.current(world.a['id'])==before
+
+
+def test_system_locations_keep_all_affected_targets_with_independent_pids(world):
+    world.run(world.a)
+    p=candidate('system')
+    console.retain([('agent',world.b['id'])],'test location visibility')
+    try:
+        row=approval_views.detail(p['id'])
+        assert {a['id'] for a in row['agents']}=={world.a['id'],world.b['id']}
+        assert next(a for a in row['agents'] if a['id']==world.b['id'])['pid'] is None
+        assert row['agents'][0]['pid']==1234
+        assert row['total_affected_count']==2 and row['affected_count']==2
+        assert row['origin_sessions']==[]
+        assert not world.calls
+    finally:
+        from agentscope_app import db
+        with db.connect() as con:con.execute("DELETE FROM console_retained_records WHERE kind='agent' AND record_id=?",(world.b['id'],))

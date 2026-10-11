@@ -1,0 +1,639 @@
+[
+  {
+    "action": "block",
+    "blocked": true,
+    "comm": "python3",
+    "domain_id": 648544754,
+    "effect": "block",
+    "event": "taint_violation",
+    "killed": false,
+    "matched_label": "0x2",
+    "matched_label_details": [
+      {
+        "causal_chain": [
+          {
+            "label": "deae8428f02d7_AGENT",
+            "label_mask": "0x2",
+            "origin_op": "exec",
+            "origin_pid": 1044878,
+            "origin_target": "node",
+            "origin_timestamp_ns": 119386931316117
+          }
+        ],
+        "causal_chain_complete": false,
+        "label": "deae8428f02d7_AGENT",
+        "label_mask": "0x2",
+        "provenance": {
+          "label": "deae8428f02d7_AGENT",
+          "label_mask": "0x2",
+          "origin_op": "exec",
+          "origin_pid": 1044878,
+          "origin_target": "node",
+          "origin_timestamp_ns": 119386931316117
+        },
+        "provenance_status": "reported_first_origin"
+      }
+    ],
+    "matched_label_name": "deae8428f02d7_AGENT",
+    "matched_label_names": [
+      "deae8428f02d7_AGENT"
+    ],
+    "matched_labels": "0x2",
+    "op": "write",
+    "op_code": 2,
+    "pid": 1045003,
+    "ppid": 1044878,
+    "process_domain_id": 648544754,
+    "provenance": {
+      "label": "deae8428f02d7_AGENT",
+      "label_mask": "0x2",
+      "origin_op": "exec",
+      "origin_pid": 1044878,
+      "origin_target": "node",
+      "origin_timestamp_ns": 119386931316117
+    },
+    "provenance_model": {
+      "causal_chain_scope": "single_hop_origin",
+      "full_causal_chain": false,
+      "matched_labels_enumerated": true,
+      "reported_origin_available": true,
+      "reported_origin_scope": "first_available_matched_label"
+    },
+    "rule": {
+      "clause_end_line": 14,
+      "clause_hash": "fnv1a64:5964c32c114eb14c",
+      "clause_op": "write",
+      "clause_source_index": 0,
+      "clause_start_line": 14,
+      "clause_text": "  block write file \"/w/0/sales.csv\" if deae8428f02d7_AGENT",
+      "effect": "block",
+      "immutable": false,
+      "kernel_op": "write",
+      "name": "deae8428f02d7-h_a557fe9061c847b9_intent_1",
+      "ops": [
+        "write"
+      ],
+      "reason": "不写入、追加或覆盖该文件",
+      "source_end_line": 15,
+      "source_hash": "fnv1a64:59c80f5bd6485af0",
+      "source_ref": "deae8428f02d7:0",
+      "source_start_line": 13,
+      "target_arg": null,
+      "target_kind": "file",
+      "target_pattern": "/w/0/sales.csv"
+    },
+    "rule_id": 2,
+    "schema": "actplane.violation.v1",
+    "session_root": 1044781,
+    "taint_label": "0x3",
+    "target": "/w/0/sales.csv",
+    "timestamp_unix_ns": "1791729601916172516",
+    "tool_call_tag": "0"
+  },
+  {
+    "action": "block",
+    "blocked": true,
+    "comm": "python3",
+    "domain_id": 648544754,
+    "effect": "block",
+    "event": "taint_violation",
+    "killed": false,
+    "matched_label": "0x2",
+    "matched_label_details": [
+      {
+        "causal_chain": [
+          {
+            "label": "deae8428f02d7_AGENT",
+            "label_mask": "0x2",
+            "origin_op": "exec",
+            "origin_pid": 1044878,
+            "origin_target": "node",
+            "origin_timestamp_ns": 119386931316117
+          }
+        ],
+        "causal_chain_complete": false,
+        "label": "deae8428f02d7_AGENT",
+        "label_mask": "0x2",
+        "provenance": {
+          "label": "deae8428f02d7_AGENT",
+          "label_mask": "0x2",
+          "origin_op": "exec",
+          "origin_pid": 1044878,
+          "origin_target": "node",
+          "origin_timestamp_ns": 119386931316117
+        },
+        "provenance_status": "reported_first_origin"
+      }
+    ],
+    "matched_label_name": "deae8428f02d7_AGENT",
+    "matched_label_names": [
+      "deae8428f02d7_AGENT"
+    ],
+    "matched_labels": "0x2",
+    "op": "write",
+    "op_code": 2,
+    "pid": 1045003,
+    "ppid": 1044878,
+    "process_domain_id": 648544754,
+    "provenance": {
+      "label": "deae8428f02d7_AGENT",
+      "label_mask": "0x2",
+      "origin_op": "exec",
+      "origin_pid": 1044878,
+      "origin_target": "node",
+      "origin_timestamp_ns": 119386931316117
+    },
+    "provenance_model": {
+      "causal_chain_scope": "single_hop_origin",
+      "full_causal_chain": false,
+      "matched_labels_enumerated": true,
+      "reported_origin_available": true,
+      "reported_origin_scope": "first_available_matched_label"
+    },
+    "rule": {
+      "clause_end_line": 14,
+      "clause_hash": "fnv1a64:5964c32c114eb14c",
+      "clause_op": "write",
+      "clause_source_index": 0,
+      "clause_start_line": 14,
+      "clause_text": "  block write file \"/w/0/sales.csv\" if deae8428f02d7_AGENT",
+      "effect": "block",
+      "immutable": false,
+      "kernel_op": "write",
+      "name": "deae8428f02d7-h_a557fe9061c847b9_intent_1",
+      "ops": [
+        "write"
+      ],
+      "reason": "不写入、追加或覆盖该文件",
+      "source_end_line": 15,
+      "source_hash": "fnv1a64:59c80f5bd6485af0",
+      "source_ref": "deae8428f02d7:0",
+      "source_start_line": 13,
+      "target_arg": null,
+      "target_kind": "file",
+      "target_pattern": "/w/0/sales.csv"
+    },
+    "rule_id": 2,
+    "schema": "actplane.violation.v1",
+    "session_root": 1044781,
+    "taint_label": "0x3",
+    "target": "/w/0/sales.csv",
+    "timestamp_unix_ns": "1791729601917322496",
+    "tool_call_tag": "0"
+  },
+  {
+    "action": "block",
+    "blocked": true,
+    "comm": "python3",
+    "domain_id": 648544754,
+    "effect": "block",
+    "event": "taint_violation",
+    "killed": false,
+    "matched_label": "0x2",
+    "matched_label_details": [
+      {
+        "causal_chain": [
+          {
+            "label": "deae8428f02d7_AGENT",
+            "label_mask": "0x2",
+            "origin_op": "exec",
+            "origin_pid": 1044878,
+            "origin_target": "node",
+            "origin_timestamp_ns": 119386931316117
+          }
+        ],
+        "causal_chain_complete": false,
+        "label": "deae8428f02d7_AGENT",
+        "label_mask": "0x2",
+        "provenance": {
+          "label": "deae8428f02d7_AGENT",
+          "label_mask": "0x2",
+          "origin_op": "exec",
+          "origin_pid": 1044878,
+          "origin_target": "node",
+          "origin_timestamp_ns": 119386931316117
+        },
+        "provenance_status": "reported_first_origin"
+      }
+    ],
+    "matched_label_name": "deae8428f02d7_AGENT",
+    "matched_label_names": [
+      "deae8428f02d7_AGENT"
+    ],
+    "matched_labels": "0x2",
+    "op": "write",
+    "op_code": 2,
+    "pid": 1045003,
+    "ppid": 1044878,
+    "process_domain_id": 648544754,
+    "provenance": {
+      "label": "deae8428f02d7_AGENT",
+      "label_mask": "0x2",
+      "origin_op": "exec",
+      "origin_pid": 1044878,
+      "origin_target": "node",
+      "origin_timestamp_ns": 119386931316117
+    },
+    "provenance_model": {
+      "causal_chain_scope": "single_hop_origin",
+      "full_causal_chain": false,
+      "matched_labels_enumerated": true,
+      "reported_origin_available": true,
+      "reported_origin_scope": "first_available_matched_label"
+    },
+    "rule": {
+      "clause_end_line": 14,
+      "clause_hash": "fnv1a64:5964c32c114eb14c",
+      "clause_op": "write",
+      "clause_source_index": 0,
+      "clause_start_line": 14,
+      "clause_text": "  block write file \"/w/0/sales.csv\" if deae8428f02d7_AGENT",
+      "effect": "block",
+      "immutable": false,
+      "kernel_op": "write",
+      "name": "deae8428f02d7-h_a557fe9061c847b9_intent_1",
+      "ops": [
+        "write"
+      ],
+      "reason": "不写入、追加或覆盖该文件",
+      "source_end_line": 15,
+      "source_hash": "fnv1a64:59c80f5bd6485af0",
+      "source_ref": "deae8428f02d7:0",
+      "source_start_line": 13,
+      "target_arg": null,
+      "target_kind": "file",
+      "target_pattern": "/w/0/sales.csv"
+    },
+    "rule_id": 2,
+    "schema": "actplane.violation.v1",
+    "session_root": 1044781,
+    "taint_label": "0x3",
+    "target": "/w/0/sales.csv",
+    "timestamp_unix_ns": "1791729601918300162",
+    "tool_call_tag": "0"
+  },
+  {
+    "action": "block",
+    "blocked": true,
+    "comm": "python3",
+    "domain_id": 648544754,
+    "effect": "block",
+    "event": "taint_violation",
+    "killed": false,
+    "matched_label": "0x2",
+    "matched_label_details": [
+      {
+        "causal_chain": [
+          {
+            "label": "deae8428f02d7_AGENT",
+            "label_mask": "0x2",
+            "origin_op": "exec",
+            "origin_pid": 1044878,
+            "origin_target": "node",
+            "origin_timestamp_ns": 119386931316117
+          }
+        ],
+        "causal_chain_complete": false,
+        "label": "deae8428f02d7_AGENT",
+        "label_mask": "0x2",
+        "provenance": {
+          "label": "deae8428f02d7_AGENT",
+          "label_mask": "0x2",
+          "origin_op": "exec",
+          "origin_pid": 1044878,
+          "origin_target": "node",
+          "origin_timestamp_ns": 119386931316117
+        },
+        "provenance_status": "reported_first_origin"
+      }
+    ],
+    "matched_label_name": "deae8428f02d7_AGENT",
+    "matched_label_names": [
+      "deae8428f02d7_AGENT"
+    ],
+    "matched_labels": "0x2",
+    "op": "write",
+    "op_code": 2,
+    "pid": 1045003,
+    "ppid": 1044878,
+    "process_domain_id": 648544754,
+    "provenance": {
+      "label": "deae8428f02d7_AGENT",
+      "label_mask": "0x2",
+      "origin_op": "exec",
+      "origin_pid": 1044878,
+      "origin_target": "node",
+      "origin_timestamp_ns": 119386931316117
+    },
+    "provenance_model": {
+      "causal_chain_scope": "single_hop_origin",
+      "full_causal_chain": false,
+      "matched_labels_enumerated": true,
+      "reported_origin_available": true,
+      "reported_origin_scope": "first_available_matched_label"
+    },
+    "rule": {
+      "clause_end_line": 14,
+      "clause_hash": "fnv1a64:5964c32c114eb14c",
+      "clause_op": "write",
+      "clause_source_index": 0,
+      "clause_start_line": 14,
+      "clause_text": "  block write file \"/w/0/sales.csv\" if deae8428f02d7_AGENT",
+      "effect": "block",
+      "immutable": false,
+      "kernel_op": "write",
+      "name": "deae8428f02d7-h_a557fe9061c847b9_intent_1",
+      "ops": [
+        "write"
+      ],
+      "reason": "不写入、追加或覆盖该文件",
+      "source_end_line": 15,
+      "source_hash": "fnv1a64:59c80f5bd6485af0",
+      "source_ref": "deae8428f02d7:0",
+      "source_start_line": 13,
+      "target_arg": null,
+      "target_kind": "file",
+      "target_pattern": "/w/0/sales.csv"
+    },
+    "rule_id": 2,
+    "schema": "actplane.violation.v1",
+    "session_root": 1044781,
+    "taint_label": "0x3",
+    "target": "/w/0/sales.csv",
+    "timestamp_unix_ns": "1791729601918954510",
+    "tool_call_tag": "0"
+  },
+  {
+    "action": "block",
+    "blocked": true,
+    "comm": "python3",
+    "domain_id": 648544754,
+    "effect": "block",
+    "event": "taint_violation",
+    "killed": false,
+    "matched_label": "0x2",
+    "matched_label_details": [
+      {
+        "causal_chain": [
+          {
+            "label": "deae8428f02d7_AGENT",
+            "label_mask": "0x2",
+            "origin_op": "exec",
+            "origin_pid": 1044878,
+            "origin_target": "node",
+            "origin_timestamp_ns": 119386931316117
+          }
+        ],
+        "causal_chain_complete": false,
+        "label": "deae8428f02d7_AGENT",
+        "label_mask": "0x2",
+        "provenance": {
+          "label": "deae8428f02d7_AGENT",
+          "label_mask": "0x2",
+          "origin_op": "exec",
+          "origin_pid": 1044878,
+          "origin_target": "node",
+          "origin_timestamp_ns": 119386931316117
+        },
+        "provenance_status": "reported_first_origin"
+      }
+    ],
+    "matched_label_name": "deae8428f02d7_AGENT",
+    "matched_label_names": [
+      "deae8428f02d7_AGENT"
+    ],
+    "matched_labels": "0x2",
+    "op": "write",
+    "op_code": 2,
+    "pid": 1045003,
+    "ppid": 1044878,
+    "process_domain_id": 648544754,
+    "provenance": {
+      "label": "deae8428f02d7_AGENT",
+      "label_mask": "0x2",
+      "origin_op": "exec",
+      "origin_pid": 1044878,
+      "origin_target": "node",
+      "origin_timestamp_ns": 119386931316117
+    },
+    "provenance_model": {
+      "causal_chain_scope": "single_hop_origin",
+      "full_causal_chain": false,
+      "matched_labels_enumerated": true,
+      "reported_origin_available": true,
+      "reported_origin_scope": "first_available_matched_label"
+    },
+    "rule": {
+      "clause_end_line": 14,
+      "clause_hash": "fnv1a64:5964c32c114eb14c",
+      "clause_op": "write",
+      "clause_source_index": 0,
+      "clause_start_line": 14,
+      "clause_text": "  block write file \"/w/0/sales.csv\" if deae8428f02d7_AGENT",
+      "effect": "block",
+      "immutable": false,
+      "kernel_op": "write",
+      "name": "deae8428f02d7-h_a557fe9061c847b9_intent_1",
+      "ops": [
+        "write"
+      ],
+      "reason": "不写入、追加或覆盖该文件",
+      "source_end_line": 15,
+      "source_hash": "fnv1a64:59c80f5bd6485af0",
+      "source_ref": "deae8428f02d7:0",
+      "source_start_line": 13,
+      "target_arg": null,
+      "target_kind": "file",
+      "target_pattern": "/w/0/sales.csv"
+    },
+    "rule_id": 2,
+    "schema": "actplane.violation.v1",
+    "session_root": 1044781,
+    "taint_label": "0x3",
+    "target": "/w/0/sales.csv",
+    "timestamp_unix_ns": "1791729601919620164",
+    "tool_call_tag": "0"
+  },
+  {
+    "action": "block",
+    "blocked": true,
+    "comm": "python3",
+    "domain_id": 648544754,
+    "effect": "block",
+    "event": "taint_violation",
+    "killed": false,
+    "matched_label": "0x2",
+    "matched_label_details": [
+      {
+        "causal_chain": [
+          {
+            "label": "deae8428f02d7_AGENT",
+            "label_mask": "0x2",
+            "origin_op": "exec",
+            "origin_pid": 1044878,
+            "origin_target": "node",
+            "origin_timestamp_ns": 119386931316117
+          }
+        ],
+        "causal_chain_complete": false,
+        "label": "deae8428f02d7_AGENT",
+        "label_mask": "0x2",
+        "provenance": {
+          "label": "deae8428f02d7_AGENT",
+          "label_mask": "0x2",
+          "origin_op": "exec",
+          "origin_pid": 1044878,
+          "origin_target": "node",
+          "origin_timestamp_ns": 119386931316117
+        },
+        "provenance_status": "reported_first_origin"
+      }
+    ],
+    "matched_label_name": "deae8428f02d7_AGENT",
+    "matched_label_names": [
+      "deae8428f02d7_AGENT"
+    ],
+    "matched_labels": "0x2",
+    "op": "write",
+    "op_code": 2,
+    "pid": 1045003,
+    "ppid": 1044878,
+    "process_domain_id": 648544754,
+    "provenance": {
+      "label": "deae8428f02d7_AGENT",
+      "label_mask": "0x2",
+      "origin_op": "exec",
+      "origin_pid": 1044878,
+      "origin_target": "node",
+      "origin_timestamp_ns": 119386931316117
+    },
+    "provenance_model": {
+      "causal_chain_scope": "single_hop_origin",
+      "full_causal_chain": false,
+      "matched_labels_enumerated": true,
+      "reported_origin_available": true,
+      "reported_origin_scope": "first_available_matched_label"
+    },
+    "rule": {
+      "clause_end_line": 14,
+      "clause_hash": "fnv1a64:5964c32c114eb14c",
+      "clause_op": "write",
+      "clause_source_index": 0,
+      "clause_start_line": 14,
+      "clause_text": "  block write file \"/w/0/sales.csv\" if deae8428f02d7_AGENT",
+      "effect": "block",
+      "immutable": false,
+      "kernel_op": "write",
+      "name": "deae8428f02d7-h_a557fe9061c847b9_intent_1",
+      "ops": [
+        "write"
+      ],
+      "reason": "不写入、追加或覆盖该文件",
+      "source_end_line": 15,
+      "source_hash": "fnv1a64:59c80f5bd6485af0",
+      "source_ref": "deae8428f02d7:0",
+      "source_start_line": 13,
+      "target_arg": null,
+      "target_kind": "file",
+      "target_pattern": "/w/0/sales.csv"
+    },
+    "rule_id": 2,
+    "schema": "actplane.violation.v1",
+    "session_root": 1044781,
+    "taint_label": "0x3",
+    "target": "/w/0/sales.csv",
+    "timestamp_unix_ns": "1791729601920279295",
+    "tool_call_tag": "0"
+  },
+  {
+    "action": "block",
+    "blocked": true,
+    "comm": "python3",
+    "domain_id": 648544754,
+    "effect": "block",
+    "event": "taint_violation",
+    "killed": false,
+    "matched_label": "0x2",
+    "matched_label_details": [
+      {
+        "causal_chain": [
+          {
+            "label": "deae8428f02d7_AGENT",
+            "label_mask": "0x2",
+            "origin_op": "exec",
+            "origin_pid": 1044878,
+            "origin_target": "node",
+            "origin_timestamp_ns": 119386931316117
+          }
+        ],
+        "causal_chain_complete": false,
+        "label": "deae8428f02d7_AGENT",
+        "label_mask": "0x2",
+        "provenance": {
+          "label": "deae8428f02d7_AGENT",
+          "label_mask": "0x2",
+          "origin_op": "exec",
+          "origin_pid": 1044878,
+          "origin_target": "node",
+          "origin_timestamp_ns": 119386931316117
+        },
+        "provenance_status": "reported_first_origin"
+      }
+    ],
+    "matched_label_name": "deae8428f02d7_AGENT",
+    "matched_label_names": [
+      "deae8428f02d7_AGENT"
+    ],
+    "matched_labels": "0x2",
+    "op": "write",
+    "op_code": 2,
+    "pid": 1045005,
+    "ppid": 1045003,
+    "process_domain_id": 648544754,
+    "provenance": {
+      "label": "deae8428f02d7_AGENT",
+      "label_mask": "0x2",
+      "origin_op": "exec",
+      "origin_pid": 1044878,
+      "origin_target": "node",
+      "origin_timestamp_ns": 119386931316117
+    },
+    "provenance_model": {
+      "causal_chain_scope": "single_hop_origin",
+      "full_causal_chain": false,
+      "matched_labels_enumerated": true,
+      "reported_origin_available": true,
+      "reported_origin_scope": "first_available_matched_label"
+    },
+    "rule": {
+      "clause_end_line": 14,
+      "clause_hash": "fnv1a64:5964c32c114eb14c",
+      "clause_op": "write",
+      "clause_source_index": 0,
+      "clause_start_line": 14,
+      "clause_text": "  block write file \"/w/0/sales.csv\" if deae8428f02d7_AGENT",
+      "effect": "block",
+      "immutable": false,
+      "kernel_op": "write",
+      "name": "deae8428f02d7-h_a557fe9061c847b9_intent_1",
+      "ops": [
+        "write"
+      ],
+      "reason": "不写入、追加或覆盖该文件",
+      "source_end_line": 15,
+      "source_hash": "fnv1a64:59c80f5bd6485af0",
+      "source_ref": "deae8428f02d7:0",
+      "source_start_line": 13,
+      "target_arg": null,
+      "target_kind": "file",
+      "target_pattern": "/w/0/sales.csv"
+    },
+    "rule_id": 2,
+    "schema": "actplane.violation.v1",
+    "session_root": 1044781,
+    "taint_label": "0x3",
+    "target": "/w/0/sales.csv",
+    "timestamp_unix_ns": "1791729601953007461",
+    "tool_call_tag": "0"
+  }
+]

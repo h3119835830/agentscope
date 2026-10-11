@@ -1,0 +1,26 @@
+{
+  "release": "/opt/agentscope-policy-semantics-20261011-222957",
+  "published": true,
+  "api": {
+    "MainPID": "1040028",
+    "WorkingDirectory": "/opt/agentscope-policy-semantics-20261011-222957",
+    "argv": [
+      "/opt/agentscope/.venv/bin/python",
+      "-m",
+      "uvicorn",
+      "agentscope_app.main:app",
+      "--host",
+      "127.0.0.1",
+      "--port",
+      "18003"
+    ],
+    "start_ticks": "11880721"
+  },
+  "broker_pid": "941388",
+  "broker_unchanged": true,
+  "other_ports_unchanged": true,
+  "authority_before_sha256": "10eaedc2908f9393fa5ef7bfe2a2fe049e261a4c527509fa432d1c102a98cc63",
+  "authority_after_sha256": "10eaedc2908f9393fa5ef7bfe2a2fe049e261a4c527509fa432d1c102a98cc63",
+  "live_source_matches": true,
+  "frontend_index_sha256": "fbdc131b818f8334e06fd2b30ebb74b45b47670d213223f2a960493b7021825f"
+}

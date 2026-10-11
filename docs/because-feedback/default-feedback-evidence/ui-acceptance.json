@@ -1,0 +1,74 @@
+{
+  "passed": true,
+  "url": "http://127.0.0.1:18005",
+  "checks": [
+    {
+      "id": "env",
+      "default_visible": true,
+      "editable": true
+    },
+    {
+      "id": "ssh",
+      "default_visible": true,
+      "editable": true
+    },
+    {
+      "id": "cloud",
+      "default_visible": true,
+      "editable": true
+    },
+    {
+      "id": "system-files",
+      "default_visible": true,
+      "editable": true
+    },
+    {
+      "id": "policy-store",
+      "default_visible": true,
+      "editable": true
+    },
+    {
+      "id": "audit-store",
+      "default_visible": true,
+      "editable": true
+    },
+    {
+      "id": "privilege",
+      "default_visible": true,
+      "editable": true
+    },
+    {
+      "id": "network-audit",
+      "default_visible": true,
+      "editable": true
+    },
+    {
+      "id": "process-audit",
+      "default_visible": true,
+      "editable": true
+    },
+    {
+      "id": "instructions",
+      "default_visible": true,
+      "editable": true
+    },
+    {
+      "id": "secret-egress",
+      "default_visible": true,
+      "editable": true
+    },
+    {
+      "id": "remote-exec",
+      "default_visible": true,
+      "editable": true
+    }
+  ],
+  "custom_round_trip": true,
+  "because_preview": true,
+  "no_application": true,
+  "base_revision": 0,
+  "base_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "acceptance_draft_archived": true,
+  "narrow423": true,
+  "page_errors": []
+}

@@ -1,0 +1,29 @@
+{
+  "old_api": 733196,
+  "new_api": 824181,
+  "broker_unchanged": 704622,
+  "records": [
+    {
+      "task_id": "cda3d1dd657c4789",
+      "kernel_id": 551,
+      "result": "denied",
+      "feedback_id": "7ccff075b7b47cbabdbf03ad0af1c44d3c2e5feb37317614f9c1ed83ad0d5976",
+      "guidance_complete": true,
+      "canonical_reason_and_guidance_in_api": true,
+      "legacy_delivery_record_ids": [
+        557
+      ]
+    },
+    {
+      "task_id": "651022bbd43c43d0",
+      "kernel_id": 587,
+      "result": "denied",
+      "feedback_id": "33669231a74cb9ed076103bfe3db87ab24a5cf783220928c085ea7ae702a293b",
+      "guidance_complete": true,
+      "canonical_reason_and_guidance_in_api": true,
+      "legacy_delivery_record_ids": [
+        592
+      ]
+    }
+  ]
+}

@@ -410,10 +410,10 @@ def test_baseline_object_is_not_a_new_runtime_restriction(bound):
 
 def test_outbox_retries_until_native_session_persists_feedback(bound,monkeypatch):
     from agentscope_app.managed.worker import Worker
+    from test_managed_feedback import seed_feedback
     task,state,_=bound
+    seed_feedback(task,state,call='late-call')
     with db.connect() as con:
-        c.event(con,task,'tool_result','late-call',{'session_id':state['session_id']})
-        c.event(con,task,'kernel','late-kernel',{'event':{'pid':987,'process_domain_id':7,'op':'write','target':'/tmp/work/tests/test.py','rule':{'name':'floor'}},'tool_call_id':'late-call','turn':2})
         con.execute("UPDATE managed_events SET occurred_at='2000-01-01T00:00:00+00:00' WHERE task_id=? AND kind='kernel'",(task,))
     calls=[]
     def broker(req,**kwargs):
@@ -425,9 +425,10 @@ def test_outbox_retries_until_native_session_persists_feedback(bound,monkeypatch
         def wait(self,*args):self.count+=1
     worker.halt=TwoPasses();worker.deliver_feedback()
     with db.connect() as con:
-        delivered=con.execute("SELECT payload_json FROM managed_events WHERE task_id=? AND kind='feedback_delivery'",(task,)).fetchall()
+        delivered=con.execute("SELECT payload_json FROM managed_events WHERE task_id=? AND kind='feedback_persisted'",(task,)).fetchall()
     assert len(calls)==2 and len(delivered)==1
-    payload=json.loads(delivered[0][0]);assert payload['call_id']=='late-call' and payload['authority']=='native_context_persisted'
+    payload=json.loads(delivered[0][0]);assert payload['event_ids'] and 'not_context_admission' in payload['authority']
+    assert c.gate(task)['gate']=='awaiting_feedback'
     assert calls[0]['session_id']==calls[1]['session_id']==state['session_id']
 
 
@@ -669,21 +670,23 @@ def test_operation_feedback_contains_no_control_policy(bound):
     from agentscope_app.managed.feedback import operation_feedback
     raw={'pid':99,'process_domain_id':7,'op':'write','target':'/tmp/work/tests/test.py','rule':{'id':'private-rule','reason':'private DSL and full policy'}}
     value=operation_feedback(1,raw,{'workspace':'/tmp/work','output_dir':'/tmp/output'})
-    assert value['target']==raw['target'] and value['result']=='denied'
-    assert not ({'pid','rule','version','policy_hash','process_domain_id','baseline'}&value.keys())
+    assert value['target']==raw['target'] and value['result']=='unverified'
+    assert not ({'dsl','source_text','credentials','baseline'}&value.keys())
     assert 'private-rule' not in json.dumps(value)
-    assert operation_feedback(2,{**raw,'target':'/opt/agentscope-history-v1/backend/secret'},{'workspace':'/tmp/work','output_dir':'/tmp/output'})['target']=='<outside task execution environment>'
+    assert operation_feedback(2,{**raw,'target':'/opt/agentscope-history-v1/backend/secret'},{'workspace':'/tmp/work','output_dir':'/tmp/output'})['target']=='<任务可见范围之外>'
 
 
 def test_feedback_receipt_requires_matching_kernel_offer(bound):
+    from test_managed_feedback import seed_feedback
     task,state,_=bound
     args={'kind':'feedback_received','session_id':state['session_id'],'event_key':'received','feedback':'[ActPlane operation feedback] denied'}
     with pytest.raises(ValueError,match='no matching'):c.ingest(task,args)
-    with db.connect() as con:c.event(con,task,'feedback_offer','call',{'call_id':'call','feedback':args['feedback'],'event_ids':[42]})
+    _,_,events=seed_feedback(task,state)
+    args['feedback']=c.tool_feedback(task,'call')['message']
     c.ingest(task,args)
     with db.connect() as con:
         value=json.loads(con.execute("select payload_json from managed_events where task_id=? and kind='feedback_delivery'",(task,)).fetchone()[0])
-        assert value['event_ids']==[42] and 'native_context_observed' in value['authority']
+        assert value['event_ids']==[events[0]['id']] and 'native_context_observed' in value['authority']
 
 
 def test_pi_context_publishes_fixed_temporary_area_as_already_granted(bound,monkeypatch):

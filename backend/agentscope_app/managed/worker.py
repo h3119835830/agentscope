@@ -68,71 +68,113 @@ class Worker:
             with db.connect() as con:tasks=[(r['task_id'],json.loads(r['state_json'])) for r in con.execute('SELECT * FROM managed_tasks')]
             for task_id,state in tasks:
                 try:
+                    # Collect before liveness checks: a killed main process cannot
+                    # return a hook. Its last kernel fact belongs to the supervisor.
+                    self.collect_task(task_id)
                     if state['phase']=='running' and state['gate']!='applying' and time.monotonic()-self.binding_checks.get(task_id,0)>3:
                         self.binding_checks[task_id]=time.monotonic()
                         binding=c.broker({'action':'status','task_id':task_id},timeout=10)
                         if binding.get('status')!='running' or binding.get('domain_verified') is False:
-                            self.fail(task_id,'Native DSH process/domain binding lost',state['revision'],state['policy_hash']);continue
-                    with db.connect() as con:task=c.task_row(con,task_id)
-                    p=Path(task['workspace'])/'.actplane/events.jsonl'
-                    if not p.exists():continue
-                    st=p.lstat()
-                    if p.is_symlink() or st.st_uid!=0 or st.st_mode&0o022:raise ValueError('Kernel event log ownership invalid')
-                    signature=(st.st_ino,st.st_size,st.st_mtime_ns)
-                    if self.log_signatures.get(task_id)==signature:continue
-                    for line in p.read_text().splitlines():
-                        try:raw=json.loads(line)
-                        except ValueError:continue
-                        if not raw.get('blocked'):continue
-                        domain=raw.get('process_domain_id',raw.get('domain_id'));version=next((b['version'] for b in state.get('binding_history',[]) if b['domain_id']==domain),None)
-                        if version is None:continue
-                        key=c.digest(raw)
-                        with c.lock(task_id),db.connect() as con:
-                            if con.execute("SELECT 1 FROM managed_events WHERE task_id=? AND kind='kernel' AND event_key=?",(task_id,key)).fetchone():continue
-                            s=c.load(con,task_id)
-                            registry=p.with_name('probes.jsonl')
-                            registered=[]
-                            if registry.exists():
-                                rst=registry.lstat()
-                                if registry.is_symlink() or rst.st_uid!=0 or rst.st_mode&0o022:raise ValueError('Probe registry ownership invalid')
-                                registered=[json.loads(line) for line in registry.read_text().splitlines()]
-                            is_probe=raw.get('pid') in s.get('probe_pids',[]) or any(x['pid']==raw.get('pid') and x['domain_id']==domain for x in registered)
-                            call_id=None if is_probe else c.correlate_tool(con,task_id,raw)
-                            start=con.execute("SELECT payload_json FROM managed_events WHERE task_id=? AND kind='tool_start' AND event_key=?",(task_id,call_id)).fetchone() if call_id else None
-                            call=json.loads(start[0]) if start else {}
-                            c.event(con,task_id,'kernel',key,{'event':raw,'session_id':call.get('session_id',s['session_id']),'turn':call.get('started',{}).get('turn'),'tool_call_id':call_id,'correlation':'exact_process_domain; inherited_kernel_call_identity' if call_id else 'exact_process_domain; tool_unresolved','version':version,'verification_probe':is_probe,'native_sdk_verification':call.get('native_sdk_verification',False),'authority':'root_owned_kernel_event'})
-                            con.execute("INSERT OR IGNORE INTO runtime_events(id,task_id,kind,operation,target,decision,reason,occurred_at,raw_json,dedupe_key) VALUES(?,?,?,?,?,?,?,?,?,?)",(key,task_id,'kernel',raw.get('op'),raw.get('target'),'block',str(raw.get('rule',{}).get('reason','')),db.now(),json.dumps(raw),key))
-                            if not is_probe and s['phase']=='running' and s['gate'] in ('open','waiting_policy') and domain==s['binding'].get('domain_id'):
-                                c.enqueue(con,task_id,s,'A real kernel denial was observed. Check whether the existing safety boundary is correct; denial alone does not authorize a grant. '+json.dumps({k:raw.get(k) for k in ('op','target','pid')}),'kernel:'+key+':'+s['policy_hash'],kind='guidance',actor='kernel')
-                    self.log_signatures[task_id]=signature
+                            self.fail(task_id,'Native DSH process/domain binding lost; supervisor retained kernel evidence',state['revision'],state['policy_hash'])
                 except Exception as e:
                     if state['phase']=='running':self.fail(task_id,e,state['revision'],state['policy_hash'])
-            self.halt.wait(.5)
+            self.halt.wait(.2)
+
+    def collect_task(self,task_id):
+        from .feedback import operation_feedback
+        with db.connect() as con:
+            task=c.task_row(con,task_id);state=c.load(con,task_id)
+            cursor=con.execute("SELECT payload_json FROM managed_events WHERE task_id=? AND kind='kernel_cursor' AND event_key='cursor'",(task_id,)).fetchone()
+        p=Path(task['workspace'])/'.actplane/events.jsonl'
+        if not p.exists():return
+        st=p.lstat()
+        if p.is_symlink() or st.st_uid!=0 or st.st_mode&0o022:raise ValueError('Kernel event log ownership invalid')
+        prior=json.loads(cursor[0]) if cursor else {}
+        epoch=state.get('recovery_bundle',{}).get('process_epoch')
+        offset=prior.get('offset',0) if prior.get('inode')==st.st_ino and prior.get('process_epoch')==epoch and prior.get('offset',0)<=st.st_size else 0
+        with p.open('rb') as stream:
+            stream.seek(offset);content=stream.read()
+        # Never consume an incomplete trailing record.
+        end=content.rfind(b'\n')+1
+        if not end:return
+        for line in content[:end].splitlines():
+            try:raw=json.loads(line)
+            except ValueError:continue
+            if not(raw.get('blocked') or raw.get('killed') or raw.get('effect')=='notify'):continue
+            domain=raw.get('process_domain_id',raw.get('domain_id'))
+            version=next((b['version'] for b in state.get('binding_history',[]) if b['domain_id']==domain),None)
+            if version is None:continue
+            key=c.digest(raw)
+            with c.lock(task_id),db.connect() as con:
+                if con.execute("SELECT 1 FROM managed_events WHERE task_id=? AND kind='kernel' AND event_key=?",(task_id,key)).fetchone():continue
+                s=c.load(con,task_id)
+                row=con.execute("SELECT payload_json FROM managed_events WHERE task_id=? AND kind='feedback_bundle' AND event_key=?",(task_id,str(version))).fetchone()
+                bundle=json.loads(row[0]) if row else s.get('recovery_bundle')
+                engine=(bundle or {}).get('engine',{})
+                if engine.get('session_root') and raw.get('session_root')!=engine['session_root']:continue
+                registry=p.with_name('probes.jsonl');registered=[]
+                if registry.exists():
+                    rst=registry.lstat()
+                    if registry.is_symlink() or rst.st_uid!=0 or rst.st_mode&0o022:raise ValueError('Probe registry ownership invalid')
+                    registered=[json.loads(line) for line in registry.read_text().splitlines()]
+                is_probe=raw.get('pid') in s.get('probe_pids',[]) or any(x['pid']==raw.get('pid') and x['domain_id']==domain for x in registered)
+                call_id=None if is_probe else c.correlate_tool(con,task_id,raw)
+                start=con.execute("SELECT payload_json FROM managed_events WHERE task_id=? AND kind='tool_start' AND event_key=?",(task_id,call_id)).fetchone() if call_id else None
+                call=json.loads(start[0]) if start else {}
+                payload={'event':raw,'session_id':call.get('session_id',s['session_id']),
+                         'turn':call.get('started',{}).get('turn'),'tool_call_id':call_id,
+                         'correlation':'exact_process_domain; inherited_kernel_call_identity' if call_id else 'exact_process_domain; tool_unresolved',
+                         'version':version,'verification_probe':is_probe,
+                         'native_sdk_verification':call.get('native_sdk_verification',False),'authority':'root_owned_kernel_event'}
+                c.event(con,task_id,'kernel',key,payload)
+                ident=con.execute("SELECT id FROM managed_events WHERE task_id=? AND kind='kernel' AND event_key=?",(task_id,key)).fetchone()[0]
+                f=operation_feedback(ident,raw,task,bundle=bundle,payload=payload)
+                payload['feedback']=f
+                con.execute("UPDATE managed_events SET payload_json=? WHERE id=?",(json.dumps(payload,ensure_ascii=False),ident))
+                con.execute("INSERT OR IGNORE INTO runtime_events(id,task_id,kind,operation,target,decision,reason,occurred_at,raw_json,dedupe_key) VALUES(?,?,?,?,?,?,?,?,?,?)",
+                            (key,task_id,'kernel',raw.get('op'),raw.get('target'),f['result'],f['because'],db.now(),json.dumps(raw),key))
+                if not is_probe:
+                    c.event(con,task_id,'feedback_pending',str(ident),{'event_ids':[ident],'feedback_ids':[f['feedback_id']],'session_id':payload['session_id'],'process_epoch':f['identity']['process_epoch'],'authority':'kernel_fact; not_context_admission'})
+                    if not call_id:c.event(con,task_id,'feedback_unresolved',str(ident),{'reason':'No unique kernel tool identity; no arbitrary session injection','event_ids':[ident]})
+                    if not f['guidance_complete'] and s['phase']=='running' and s['gate'] in ('open','waiting_policy') and domain==s['binding'].get('domain_id'):
+                        c.enqueue(con,task_id,s,'Kernel feedback requires diagnosis: no unique approved rule/recovery mapping. Denial does not authorize a grant. '+json.dumps({k:raw.get(k) for k in ('op','target','pid')}),'kernel:'+key+':'+s['policy_hash'],kind='guidance',actor='kernel')
+        with db.connect() as con:
+            payload=json.dumps({'inode':st.st_ino,'offset':offset+end,'process_epoch':epoch,'authority':'durable_root_log_cursor'})
+            con.execute("INSERT INTO managed_events(task_id,kind,event_key,payload_json,occurred_at) VALUES(?,?,?,?,?) ON CONFLICT(task_id,kind,event_key) DO UPDATE SET payload_json=excluded.payload_json,occurred_at=excluded.occurred_at",
+                        (task_id,'kernel_cursor','cursor',payload,db.now()))
+
+    def deliver_task_feedback(self,task_id):
+        from .feedback import pending_events,offer
+        with c.lock(task_id),db.connect() as con:
+            state=c.load(con,task_id)
+            if state['phase']!='running' or state['gate']=='applying':return
+            pending=pending_events(con,task_id,state)
+            ready=[]
+            for f in pending:
+                ident=f['id']
+                kernel=con.execute("SELECT (julianday('now')-julianday(occurred_at))*86400 FROM managed_events WHERE id=?",(ident,)).fetchone()
+                if not kernel or kernel[0]<2:continue
+                if not con.execute("SELECT 1 FROM managed_events WHERE task_id=? AND kind='tool_result' AND event_key=?",(task_id,f['identity']['call_id'])).fetchone():continue
+                # A persisted message still needs observed context admission.
+                previous=con.execute("SELECT (julianday('now')-julianday(occurred_at))*86400 FROM managed_events WHERE task_id=? AND (kind='feedback_persisted' OR (kind='feedback_offer' AND json_extract(payload_json,'$.channel')='immediate')) AND EXISTS(SELECT 1 FROM json_each(json_extract(payload_json,'$.event_ids')) WHERE value=?) ORDER BY id DESC LIMIT 1",(task_id,ident)).fetchone()
+                if previous and previous[0]<10:continue
+                if previous:c.event(con,task_id,'feedback_delivery_failed',str(ident),{'event_ids':[ident],'reason':'Context admission not observed within 10 seconds; execution remains paused'})
+                ready.append(f)
+            if not ready:return
+            response=offer(con,task_id,state,ready,channel='background')
+        acknowledgement=c.broker({'action':'native-session','task_id':task_id,'operation':'resume','session_id':state['session_id'],'text':response['message']},timeout=10)
+        if not acknowledgement.get('persisted'):raise ValueError('Native feedback has no durable session acknowledgement')
+        with c.lock(task_id),db.connect() as con:
+            c.event(con,task_id,'feedback_persisted',response['offer_id'],{'session_id':state['session_id'],'event_ids':[f['id'] for f in ready],'feedback_ids':[f['feedback_id'] for f in ready],'authority':'native_context_persisted; not_context_admission'})
 
     def deliver_feedback(self):
-        # Post hooks handle immediate events. This durable outbox catches denials
-        # from background descendants after the originating tool has returned.
         while not self.halt.is_set():
-            with db.connect() as con:
-                tasks=[(r['task_id'],json.loads(r['state_json'])) for r in con.execute('SELECT * FROM managed_tasks')]
-            for task_id,state in tasks:
-                if state['phase']!='running' or state['gate']=='applying':continue
-                try:
-                    with db.connect() as con:
-                        delivered={ident for r in con.execute("SELECT payload_json FROM managed_events WHERE task_id=? AND kind='feedback_delivery'",(task_id,)) for ident in json.loads(r[0]).get('event_ids',[])}
-                        pending=[(r['id'],json.loads(r['payload_json'])) for r in con.execute("SELECT * FROM managed_events WHERE task_id=? AND kind='kernel' AND (julianday('now')-julianday(occurred_at))*86400>2 ORDER BY id",(task_id,)) if r['id'] not in delivered]
-                        pending=[(ident,p) for ident,p in pending if not p.get('verification_probe') and p.get('tool_call_id') and con.execute("SELECT 1 FROM managed_events WHERE task_id=? AND kind='tool_result' AND event_key=?",(task_id,p['tool_call_id'])).fetchone()]
-                    for ident,payload in pending:
-                        raw=payload['event']
-                        from .feedback import operation_feedback
-                        with db.connect() as con:task=c.task_row(con,task_id)
-                        feedback='[ActPlane operation feedback] '+json.dumps(operation_feedback(ident,raw,task))
-                        acknowledgement=c.broker({'action':'native-session','task_id':task_id,'operation':'resume','session_id':state['session_id'],'text':feedback},timeout=10)
-                        if not acknowledgement.get('persisted'):raise ValueError('Native feedback has no durable session acknowledgement')
-                        with c.lock(task_id),db.connect() as con:c.event(con,task_id,'feedback_delivery','late:'+str(ident),{'session_id':state['session_id'],'call_id':payload['tool_call_id'],'event_ids':[ident],'feedback':feedback,'source':'durable_background_outbox','authority':'native_context_persisted'})
+            with db.connect() as con:tasks=[r[0] for r in con.execute('SELECT task_id FROM managed_tasks')]
+            for task_id in tasks:
+                try:self.deliver_task_feedback(task_id)
                 except Exception:
-                    # An unavailable/replacing native process does not lose the
-                    # durable event. Retry after recovery; never invent delivery.
+                    # Durable events survive transport errors and process replacement.
+                    # Neither an offer nor a persistence acknowledgement clears the gate.
                     pass
             self.halt.wait(.5)
 

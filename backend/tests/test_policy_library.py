@@ -31,6 +31,21 @@ def test_save_is_persistent_unselected_and_versioned_without_runtime_changes(wor
     with pytest.raises(ValueError,match='修改'):lib.save(dict(kind='structured',config=config(),base_revision=1),item['id'])
     assert not world.calls and dsl.current('system')['revision']==0
 
+def test_default_feedback_round_trips_and_never_overwrites_custom_reason(world,monkeypatch):
+    for preset in lib.CATALOG:
+        params=config(preset['id'])
+        if not params['values']:params['values']='/real-policy-store'
+        item=lib.save(dict(kind='structured',config=params,base_revision=0))
+        parsed=prepare([{**item['document'],'scope_id':'system'}],[],'**/node')[0]['rules'][0]
+        assert parsed['reason']==params['reason']
+        custom='请保留原件，使用本团队登记的凭据接口；失败时提交公开诊断请求审核。'
+        edited=lib.save(dict(kind='structured',config={**params,'reason':custom},base_revision=1),item['id'])
+        monkeypatch.setitem(preset,'reason','新的目录默认内容')
+        refreshed=next(i for i in lib.directory()['items'] if i['id']==item['id'])
+        assert refreshed['config']['reason']==custom
+        assert refreshed['document']==edited['document'] and not refreshed['applied']
+    assert not world.calls and dsl.current('system')['revision']==0
+
 def test_twelve_presets_all_three_effects_compile_with_trusted_identity(capable):
     for preset in lib.CATALOG:
         for effect in ('block','notify','kill'):

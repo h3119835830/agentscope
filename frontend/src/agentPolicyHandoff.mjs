@@ -16,8 +16,8 @@ export function materializeTemplate(template,values,goal='',id=crypto.randomUUID
  if(typeof template.reason!=='string'||!template.reason.trim()||/[\u0000-\u001f"\\]/.test(template.reason))throw Error('反馈说明不能包含引号、反斜杠或控制字符。');
  if(goal.length>1000)throw Error('策略说明不能超过 1000 字。');
  const fill=line=>line.replace(/\{\{(\w+)\}\}/g,(_,key)=>{if(!Object.hasOwn(values,key))throw Error('缺少模板参数');return JSON.stringify(values[key]);});
- const rule=template.id.toLowerCase().replace(/[^a-z0-9_-]/g,'-');
- const text=['# '+template.id+' | '+template.uid,sourceDeclarations(sources),...(template.sources||[]).map(fill),'',`rule ${rule}:`,...template.clauses.map(line=>'  '+fill(line)),'  because '+JSON.stringify(template.reason)].join('\n');
+ const rule=(template.rule_id||template.id).toLowerCase().replace(/[^a-z0-9_-]/g,'-');
+ const text=['# '+template.name,sourceDeclarations(sources),...(template.sources||[]).map(fill),'',`rule ${rule}:`,...template.clauses.map(line=>'  '+fill(line)),'  because '+JSON.stringify(template.reason)].join('\n');
  return {id,name:template.name,original_dsl:text,metadata:{[rule]:{statement:template.summary,context_requirement:template.parameters.length?'project':'self_contained',context_reason:template.parameters.length?('已指定保护对象。'+goal).trim():''}}};
 }
 export function createHandoff(template,values,goal,target,id=crypto.randomUUID()){

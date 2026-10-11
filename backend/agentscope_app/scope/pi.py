@@ -15,6 +15,8 @@ INTEGRATION = Path(__file__).resolve().parents[3] / "integrations/pi-policy-tool
 TOOLS = ["get_runtime_context", "search_reviewed_history", "submit_scope_proposal"]
 
 def generate(job):
+    from ..pi_feedback import skill, MOUNT
+    feedback_skill = skill(INTEGRATION)
     table = "managed_jobs" if job.get("managed") else "scope_jobs"
     selected_tools=TOOLS+(["read_runtime_source"] if job.get("managed") else [])
     token = secrets.token_urlsafe(36)
@@ -24,7 +26,7 @@ def generate(job):
     if not key: raise ValueError("Pi 模型服务未配置")
     root = STATE_DIR / "scope-pi"
     root.mkdir(mode=0o700, exist_ok=True)
-    runtime = {"package": "@earendil-works/pi-coding-agent", "version": "1.0.1", "thinking": "off",
+    runtime = {"feedback_skill":feedback_skill["metadata"],"package": "@earendil-works/pi-coding-agent", "version": "1.0.1", "thinking": "off",
                "tools": selected_tools, "extension_hash": digest((INTEGRATION / "runtime-extension.ts").read_text()),
                "system_hash": digest((INTEGRATION / "runtime-system.md").read_text()),
                "lock_hash": digest((INTEGRATION / "package-lock.json").read_text()),
@@ -45,6 +47,7 @@ def generate(job):
                    "--ro-bind", "/usr", "/usr", "--ro-bind", "/lib", "/lib", "--ro-bind", "/lib64", "/lib64",
                    "--ro-bind", "/etc/ssl", "/etc/ssl", "--ro-bind", "/etc/resolv.conf", "/etc/resolv.conf",
                    "--ro-bind", "/etc/hosts", "/etc/hosts", "--ro-bind", "/opt/agentscope/bin/node", "/runtime/node",
+                   "--ro-bind", str(feedback_skill["path"]), MOUNT,
                    "--ro-bind", str(INTEGRATION / "runtime-extension.ts"), "/pi/runtime-extension.ts",
                    "--ro-bind", str(INTEGRATION / "runtime-system.md"), "/pi/runtime-system.md",
                    "--ro-bind", str((INTEGRATION / "node_modules").resolve()), "/pi/node_modules",
@@ -52,7 +55,7 @@ def generate(job):
                    "--chdir", "/home/pi", "--", "/runtime/node", "/pi/node_modules/@earendil-works/pi-coding-agent/dist/cli.js",
                    "--mode", "rpc", "--no-session", "--provider", "agentscope-deepseek", "--model", "deepseek-flash", "--thinking", "off",
                    "--no-builtin-tools", "--tools", ",".join(selected_tools), "--no-extensions", "--extension", "/pi/runtime-extension.ts",
-                   "--no-skills", "--no-context-files", "--no-prompt-templates", "--no-themes", "--no-approve", "--offline",
+                   "--no-skills", "--skill", MOUNT, "--no-context-files", "--no-prompt-templates", "--no-themes", "--no-approve", "--offline",
                    "--system-prompt", "/pi/runtime-system.md"]
         from ..pi_rpc import drive
         def status():
@@ -63,7 +66,9 @@ def generate(job):
             if job.get('managed'):
                 from ..managed.controller import event
                 with db.connect() as con:event(con,job['task_id'],'pi_lifecycle',job['id']+':'+secrets.token_hex(6),value)
-        runtime['lifecycle']=drive(command,env,'Assess the bound Scope change using its immutable context and submit one supported candidate.',status,trace)
+        runtime['lifecycle']=drive(command,env,'Assess the bound Scope change using its immutable context and submit one supported candidate.',status,trace,required_skill=feedback_skill)
     if runtime["extension_hash"] != digest((INTEGRATION / "runtime-extension.ts").read_text()) or runtime["system_hash"] != digest((INTEGRATION / "runtime-system.md").read_text()) or runtime["lock_hash"] != digest((INTEGRATION / "package-lock.json").read_text()):
         raise ValueError("生成期间 Pi 固定输入发生漂移")
+    if skill(INTEGRATION)["metadata"] != runtime["feedback_skill"]:
+        raise ValueError("生成期间 Pi 反馈 Skill 发生漂移")
     return runtime

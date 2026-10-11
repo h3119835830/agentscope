@@ -1,0 +1,5 @@
+*.md text eol=lf
+# Preserve historical Windows evidence bytes and their recorded hashes.
+evidence/* -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+default-feedback-evidence/* -text -whitespace
+main18003-evidence/* -text -whitespace

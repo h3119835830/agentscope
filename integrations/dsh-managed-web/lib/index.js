@@ -2,6 +2,7 @@ import http from 'node:http';
 import {createRequester} from './transport.js';
 import {publicEvent,restorePublicSession,publicQuestionAnswer,acceptedUserMessages,receivedOperationFeedback} from './public-session.js';
 import {createExecutionLane} from './execution-lane.js';
+import {createFeedbackGuard} from './feedback-guard.js';
 import {randomUUID, timingSafeEqual} from 'node:crypto';
 import {createUserMessage} from '@deepseek-ai/dsh-llm';
 import {installTaskSandbox,TASK_TOOLS} from './task-sandbox.js';
@@ -24,6 +25,7 @@ export function apply(ctx) {
  }
  for(const key of Object.keys(process.env))if(key.startsWith('AGENTSCOPE_')||key.startsWith('ACTPLANE_'))delete process.env[key];
  const acquire=createExecutionLane();
+  const feedbackGuard=createFeedbackGuard(),feedbackByCall=new Map();
  installTaskSandbox(ctx,workspace);
  ctx.on('system-prompt/assemble',async(assembly,context,next)=>{
   const result=await next();result.tools=result.tools.filter(tool=>TASK_TOOLS.has(tool.name));return result;
@@ -43,7 +45,7 @@ export function apply(ctx) {
   const type=event.type, data=event.data||event;
   try {const observation=runtimeObservation(session,event);if(observation)pending=pending.then(()=>api('events',observation)).catch(e=>{transportError=e;console.error('Runtime observation transport:',e.message);});}
   catch(e){transportError=e;}
-  for(const received of receivedOperationFeedback(session,event))pending=pending.then(()=>api('events',received)).catch(e=>{transportError=e;});
+   for(const received of receivedOperationFeedback(session,event))pending=pending.then(async()=>{await api('events',received);feedbackGuard.admit(received.feedback);}).catch(e=>{transportError=e;});
   for(const accepted of acceptedUserMessages(session,event))pending=pending.then(()=>api('events',accepted)).catch(e=>{transportError=e;console.error('AgentScope accepted-message transport:',e.message);});
   const answered=publicQuestionAnswer(session,event);
   if(answered)pending=pending.then(()=>api('events',{kind:'user_question_answer',session_id:session.id,event_key:'question:'+answered.call_id,...answered})).catch(e=>{transportError=e;console.error('AgentScope question evidence transport:',e.message);});
@@ -64,18 +66,21 @@ export function apply(ctx) {
  // and release before post-processing, which may also await the whole batch.
  ctx.on('tools/execute',async(exec,next)=>{
   if(exec.parent)return next();
+   const feedbackTicket=feedbackGuard.ticket();
   const release=await acquire(exec.signal);
   if(!release)throw new DOMException('Managed tool cancelled','AbortError');
   let started=false;
   try{
-   await pending;if(transportError)throw transportError;let state;
+    await pending;if(transportError)throw transportError;feedbackGuard.check(feedbackTicket);let state;
    while(!exec.signal.aborted){
     state=await api('gate');
+     if(state.gate==='awaiting_feedback')throw Error('本次工具计划已取消：先接纳内核反馈，再依据 because 重新规划。');
     if(state.gate==='open')break;
     if(['failed','closed'].includes(state.gate))throw Error('AgentScope execution stopped: '+state.gate);
     await new Promise(resolve=>setTimeout(resolve,250));
    }
    exec.signal.throwIfAborted();
+    feedbackGuard.check(feedbackTicket);
    let argumentsObject=exec.arguments;try{if(typeof argumentsObject==='string')argumentsObject=JSON.parse(argumentsObject);}catch{argumentsObject={};}
    const start={session_id:sid,call_id:String(exec.callId),name:exec.name,pid:process.pid,native_sdk_verification:String(exec.callId).startsWith('managed-verification:'),kind:'tool_start',event_key:String(exec.callId),started:{turn},target:argumentsObject&&typeof argumentsObject==='object'?String(argumentsObject.path||argumentsObject.filePath||argumentsObject.file_path||''):'',serialized:true};
    starts.set(exec.callId,start);await api('events',start);started=true;
@@ -83,6 +88,10 @@ export function apply(ctx) {
    try{result=await next();return result;}
    finally{
     await api('events',{kind:'tool_result',event_key:String(exec.callId),session_id:sid,call_id:String(exec.callId),name:exec.name,pid:process.pid,succeeded:!!result&&!result.isError,started:start.started});
+     // Fetch before releasing the body lane. Do not hold it across post hooks:
+     // the native SDK may wait for the complete parallel batch at that stage.
+     const response=await api('feedback',{call_id:String(exec.callId)});
+     if(response.events.length){feedbackByCall.set(exec.callId,response);feedbackGuard.block(response.events);}
    }
   }finally{if(!started)starts.delete(exec.callId);release();}
  });
@@ -90,11 +99,10 @@ export function apply(ctx) {
   if(exec.parent)return next();
   const start=starts.get(exec.callId);if(!start)return next();starts.delete(exec.callId);
   {
-   const response=await api('feedback',{call_id:String(exec.callId)});
+    const response=feedbackByCall.get(exec.callId)||{events:[]};feedbackByCall.delete(exec.callId);
    const downstream=await next();
    if(!response.events.length)return downstream;
-   const message='[ActPlane operation feedback] '+JSON.stringify(response.events)+'\nAdjust the task operation using the available project materials. Ask the user if the task cannot be completed within this execution environment.';
-   await api('events',{kind:'feedback_offer',event_key:String(exec.callId),session_id:sid,call_id:String(exec.callId),name:exec.name,feedback:message,event_ids:response.events.map(e=>e.id)});
+    const message=response.message;
    return {...downstream,additionalContexts:[createUserMessage({content:[{type:'text',text:message}],source:{kind:'context'}}),...(downstream.additionalContexts||[])]};
   }
  });
@@ -138,7 +146,7 @@ export function apply(ctx) {
      if(execution.isError)throw Error('Native fixed verification tool failed: '+String(execution.error?.message||'unknown').slice(0,800));
      result={call_id:callId,result_path:output,target:data.target,source:'native_sdk_fixed_probe',attempted_by_agent:false};
     }
-    else if(data.operation==='observe'){const snapshot=await ctx.sessionController.inspect(sid,signal);if(snapshot?.error)throw Error('Native session unavailable');result={session_id:sid,status:'observed',events:visible,turn,active_tools:starts.size,transport:{...transport},observational:true};}
+     else if(data.operation==='observe'){const snapshot=await ctx.sessionController.inspect(sid,signal);if(snapshot?.error)throw Error('Native session unavailable');const found=await ctx.sessionController.resolveAgent(sid);if(found.error)throw found.error;result={session_id:sid,status:found.agent.status,events:visible,turn,active_tools:starts.size,transport:{...transport},observational:true};}
      else if(data.operation==='inspect'){const found=await ctx.sessionController.resolveAgent(sid);if(found.error)throw found.error;result={session_id:sid,events:visible,turn,active_tools:starts.size,status:found.agent.status,transport:{...transport}};}
     else if(data.operation==='flush'){const found=await ctx.sessionController.resolveAgent(sid);if(found.error)throw found.error;await found.agent.whenIdle();await ctx.parallel('session/flush',found.agent.session);await pending;if(transportError)throw transportError;result={flushed:true};}
     else if(data.operation==='resume'){const found=await ctx.sessionController.resolveAgent(sid);if(found.error)throw found.error;found.agent.followup(createUserMessage({content:[{type:'text',text:data.text}],source:{kind:'context'}}));await ctx.parallel('session/flush',found.agent.session);await pending;if(transportError)throw transportError;result={accepted:true,persisted:true};}

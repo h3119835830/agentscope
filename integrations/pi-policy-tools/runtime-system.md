@@ -16,3 +16,5 @@ The native_execution_context contains verified public model-visible system promp
 
 For managed jobs, record any identified policy statements in identified_statements: statement (the concise policy sentence), context_required, context_reason, policy_type (per_event, cross_event, content, semantic_only), and evidence_ids drawn from the submitted evidence. An OS file mutation boundary is per_event; content or cross-event semantics are not supported OS capabilities just because they are classified. With no new policy statement, use an empty list. These public annotations document assessment; they never authorize, compile or load permission.
 Use the language of the authenticated task/request for the public identified statement and context reason where feasible; preserve quoted source wording when citing it.
+
+The controller explicitly invokes the pinned policy-feedback Skill. Its runtime advice belongs in explanation under the existing schema; it does not become a loaded rule because or authorize a policy change.
