@@ -128,3 +128,14 @@ test('a restored removal proposal remains empty and clearly discloses removal',a
  const tree=render({data:{scope_id:'agent',documents:[],records:[]},scopeLabel:'Target',proposal});
  assert.equal(elements(tree).filter(e=>e.type==='textarea').length,0);assert.match(renderToStaticMarkup(tree),/候选不包含任何用户 DSL/);
 });
+
+test('DSL import uses a real button and reads a file into the local candidate without saving or applying',async()=>{
+ const render=await harness('ActPlanePolicies.jsx','DslEditor');let picked=0,writes=0;
+ const props={data:{scope_id:'agent',documents:[],records:[]},scopeLabel:'DeepSeek Harness',onValidate:()=>writes++,onApply:()=>writes++};
+ let tree=render(props),nodes=elements(tree),picker=nodes.find(e=>e.type==='input'&&e.props.type==='file');
+ assert.equal(picker.props.hidden,true);assert.equal(picker.props['aria-label'],'选择 DSL 文件');assert.ok(!nodes.some(e=>e.type==='label'&&e.props.className?.includes('dsl-file-input')));
+ picker.props.ref.current={click:()=>picked++};nodes.find(e=>e.type==='button'&&e.props.children==='导入 .dsl').props.onClick();assert.equal(picked,1);assert.equal(writes,0);
+ const text='source AGENT = exec "**/node"\n\nrule toolbar-test:\n  notify open file "/w/0/toolbar-check.txt" if AGENT\n  because "Toolbar acceptance"';const event={target:{files:[{name:'toolbar-check.dsl',size:300,arrayBuffer:async()=>new TextEncoder().encode(text).buffer}],value:'chosen'}};
+ await picker.props.onChange(event);tree=render(props);nodes=elements(tree);assert.equal(nodes.find(e=>e.type==='textarea'&&e.props['aria-label']==='原始 DSL 文本').props.value,text);assert.ok(nodes.some(e=>e.type==='input'&&e.props.value==='toolbar-check.dsl'));assert.equal(event.target.value,'');assert.equal(writes,0);
+ tree=render({...props,busy:true});assert.ok(elements(tree).find(e=>e.type==='button'&&e.props.children==='导入 .dsl').props.disabled);
+});

@@ -2,6 +2,7 @@ import React,{useEffect,useRef,useState} from 'react';
 import InstanceSecurity from './InstanceSecurity.jsx';
 import {tabKeys} from './consoleState.mjs';
 import {proposalDraft} from './instanceSecurity.mjs';
+import {agentName} from './agentInstancePresentation.mjs';
 import ActPlanePolicies from './ActPlanePolicies.jsx';
 
 export function SystemSecurityRules({data,error,busy,onPropose,onConfirm,onReload}){
@@ -30,7 +31,7 @@ export default function SecurityConfiguration({row,api,post,onSystemChanged,init
  return <div className="security-configuration">
   <div className="security-scope-tabs" role="tablist" aria-label="安全配置作用范围">{tabs.map(([key,title,caption])=><button type="button" role="tab" key={key} id={'security-scope-'+key} aria-controls={'security-scope-panel-'+key} aria-selected={scope===key} tabIndex={scope===key?0:-1} onClick={()=>setScope(key)} onKeyDown={e=>tabKeys(e,tabs.map(t=>t[0]),scope,setScope)}><b>{title}</b><small>{caption}</small></button>)}</div>
   <div role="tabpanel" id={'security-scope-panel-'+scope} aria-labelledby={'security-scope-'+scope}>
-   {scope==='system'||row.mode==='controlled'?<ActPlanePolicies key={scope} scopeId={scope==='system'?'system':row.id} api={api} post={post} onChanged={onSystemChanged}/>:<p className="task-empty">当前 Agent 尚未接管执行。添加受控连接后，可配置其所有工作区共用的规则。</p>}
+   {scope==='system'||row.mode==='controlled'?<ActPlanePolicies key={scope} scopeId={scope==='system'?'system':row.id} scopeLabel={scope==='system'?'所有受控 Agent':agentName(row)} api={api} post={post} onChanged={onSystemChanged}/>:<p className="task-empty">当前 Agent 尚未接管执行。添加受控连接后，可配置其所有工作区共用的规则。</p>}
   </div>
  </div>;
 }
