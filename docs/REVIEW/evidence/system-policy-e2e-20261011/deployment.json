@@ -1,0 +1,81 @@
+{
+  "release": "/opt/agentscope-system-policy-20261011-161846",
+  "backup": "/var/lib/agentscope-scope-demo/release-backups/agentscope-system-policy-20261011-161846",
+  "previous_active": [
+    "instance-1f4469579e8947f4"
+  ],
+  "before_agents": [
+    {
+      "id": "instance-1f4469579e8947f4",
+      "agent_type": "dsh",
+      "pid": 614279,
+      "gate": "open",
+      "active": true,
+      "policy_hash": "9c5fa9fbb63c9bcd71da29007179d6c9fed00b23ac9b9f4e41165a76b92425c1"
+    },
+    {
+      "id": "instance-c0dd272b6a734a34",
+      "agent_type": "hermes",
+      "pid": null,
+      "gate": "closed",
+      "active": false,
+      "policy_hash": "f930aa4e9f224e24588a51a652d773cf022a74fa8be0b379ed4e80023c58ad87"
+    },
+    {
+      "id": "instance-bb171d3176b644a2",
+      "agent_type": "dsh",
+      "pid": null,
+      "gate": "closed",
+      "active": false,
+      "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815"
+    }
+  ],
+  "published": true,
+  "capabilities": {
+    "verified": true,
+    "file_suffix": true,
+    "max_suffix_bytes": 63,
+    "binary_sha256": "5e8d43c279d88bd4215f654746675debfd976e28426c9fabdabeca408865d6da",
+    "reason": "",
+    "profile": "controlled-suffix-v1",
+    "running": [
+      {
+        "id": "instance-1f4469579e8947f4",
+        "pid": 615136,
+        "loaded_features": 1022
+      }
+    ]
+  },
+  "after_agents": [
+    {
+      "id": "instance-1f4469579e8947f4",
+      "agent_type": "dsh",
+      "pid": 615136,
+      "gate": "open",
+      "active": true,
+      "policy_hash": "9c5fa9fbb63c9bcd71da29007179d6c9fed00b23ac9b9f4e41165a76b92425c1"
+    },
+    {
+      "id": "instance-c0dd272b6a734a34",
+      "agent_type": "hermes",
+      "pid": null,
+      "gate": "closed",
+      "active": false,
+      "policy_hash": "f930aa4e9f224e24588a51a652d773cf022a74fa8be0b379ed4e80023c58ad87"
+    },
+    {
+      "id": "instance-bb171d3176b644a2",
+      "agent_type": "dsh",
+      "pid": null,
+      "gate": "closed",
+      "active": false,
+      "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815"
+    }
+  ],
+  "policy_scopes_unchanged": true,
+  "other_ports_unchanged": true,
+  "catalog_count": 12,
+  "configured_count": 0,
+  "dsh_session_count": 7,
+  "loaded_suffix_feature_verified": true
+}

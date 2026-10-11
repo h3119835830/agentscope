@@ -1727,13 +1727,19 @@ impl HookReserve {
             block_file: true,
             block_connect: true,
             advanced_tracepoints: true,
-            policy_features: PINNED_POLICY_FEATURES | reserved_open_features(std::env::var_os("ACTPLANE_RESERVE_OPEN_RULES").is_some()),
+            policy_features: PINNED_POLICY_FEATURES
+                | reserved_open_features(std::env::var_os("ACTPLANE_RESERVE_OPEN_RULES").is_some())
+                | reserved_suffix_features(std::env::var_os("ACTPLANE_RESERVE_PATH_SUFFIX").is_some()),
         }
     }
 }
 
 fn reserved_open_features(requested: bool) -> u32 {
     if requested { FEAT_OPEN_RULES } else { 0 }
+}
+
+fn reserved_suffix_features(requested: bool) -> u32 {
+    if requested { FEAT_PATH_SUFFIX } else { 0 }
 }
 
 #[cfg(test)]
@@ -1743,6 +1749,8 @@ mod open_reservation_tests {
     fn read_isolation_hooks_are_explicitly_reserved() {
         assert_eq!(reserved_open_features(false), 0);
         assert_eq!(reserved_open_features(true), FEAT_OPEN_RULES);
+        assert_eq!(reserved_suffix_features(false), 0);
+        assert_eq!(reserved_suffix_features(true), FEAT_PATH_SUFFIX);
     }
 }
 

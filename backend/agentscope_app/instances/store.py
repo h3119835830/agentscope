@@ -30,6 +30,8 @@ def init():
         system_policy.init(con)
         from . import dsl_policy, sessions
         dsl_policy.init(con)
+        from . import policy_library
+        policy_library.init(con)
         sessions.init(con)
 def unpack(row):
     if not row: raise ValueError('实例不存在')

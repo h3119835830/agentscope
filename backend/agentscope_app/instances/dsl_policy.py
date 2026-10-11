@@ -94,7 +94,7 @@ def propose(scope,body):
         try:
             row=store.get(target['id'])
             result=broker({'action':'agent-instance-dsl-compile','instance_id':row['id'],'resources':row['resources'],
-                'policy':row['policy'],'dsl_documents':documents_for(row['id'],scope,docs)},timeout=60)
+                'policy':row['policy'],'agent_type':row['agent_type'],'dsl_documents':documents_for(row['id'],scope,docs)},timeout=60)
             results.append({'instance_id':row['id'],**result})
         except (OSError,TimeoutError,ValueError,RuntimeError) as e:
             error=str(e)[:4000];break
@@ -127,7 +127,9 @@ def apply(scope,pid,expected_hash):
     with db.connect() as con:raw=con.execute('SELECT * FROM instance_dsl_proposals WHERE id=? AND scope_id=?',(pid,scope)).fetchone()
     if not raw or raw['proposal_hash']!=expected_hash:raise ValueError('DSL 候选确认内容不一致')
     p=unpack(raw)
-    if p['state']=='applied':return {'id':pid,'state':'applied','idempotent':True}
+    if p['state']=='applied':return {**p['result'].get('application',{}),'id':pid,'state':'applied','idempotent':True}
+    from .policy_library import verify_proposal
+    verify_proposal(pid)
     base=current(scope)
     if p['state']!='pending' or p['base_hash']!=base['document_hash'] or p['base_revision']!=base['revision']:raise ValueError('DSL 候选已过期或尚未通过编译')
     if target_snapshot(scope,p['documents'])!=p['targets']:raise ValueError('连接、资源、运行代次或继承策略已经变化，请重新校验')
@@ -136,13 +138,16 @@ def apply(scope,pid,expected_hash):
     # Recompile the same frozen effective policy before any process is stopped.
     for target,previous in zip(p['targets'],p['result']['compilations']):
         row=store.get(target['id'])
-        check=broker({'action':'agent-instance-dsl-compile','instance_id':row['id'],'resources':row['resources'],'policy':row['policy'],'dsl_documents':documents_for(row['id'],scope,p['documents'])},timeout=60)
+        check=broker({'action':'agent-instance-dsl-compile','instance_id':row['id'],'resources':row['resources'],'policy':row['policy'],'agent_type':row['agent_type'],'dsl_documents':documents_for(row['id'],scope,p['documents'])},timeout=60)
         if check['bundle_hash']!=previous['bundle_hash']:raise ValueError('确认后的编译内容不一致，请重新校验')
+        if check.get('execution_capabilities')!=previous.get('execution_capabilities'):raise ValueError('执行能力已经变化，请重新校验')
+    if target_snapshot(scope,p['documents'])!=p['targets']:raise ValueError('校验期间应用目标已经变化，请重新校验')
     affected=p['targets'];resume=[t['id'] for t in affected if t['active']]
     with db.connect() as con:
         con.execute("INSERT INTO instance_dsl_scopes VALUES(?,?,?,?,?,?) ON CONFLICT(scope_id) DO UPDATE SET phase='updating'",(scope,base['revision'],json.dumps(base['documents']),base['document_hash'],'updating',db.now()))
         con.execute("UPDATE instance_dsl_proposals SET state='applying' WHERE id=?",(pid,))
         for t in affected:con.execute("UPDATE agent_instances SET gate='updating' WHERE id=?",(t['id'],))
+    operation='stop';current_target=None
     try:
         deadline=time.monotonic()+8
         while time.monotonic()<deadline:
@@ -151,6 +156,7 @@ def apply(scope,pid,expected_hash):
             time.sleep(.05)
         from .sessions import collect_kernel
         for t in affected:
+            current_target=t['id']
             row=store.get(t['id']);collect_kernel(row);c.adapter(row).stop(row)
         with db.connect() as con:
             con.execute("UPDATE instance_dsl_scopes SET documents_json=?,document_hash=?,revision=revision+1,updated_at=? WHERE scope_id=?",(json.dumps(p['documents']),digest(p['documents']),db.now(),scope))
@@ -161,15 +167,19 @@ def apply(scope,pid,expected_hash):
         # Keep every gate closed until all restarts pass. Only this trusted thread
         # may start under an updating DSL scope; leases remain denied throughout.
         APPLYING.value=True
+        operation='load'
         for ident in resume:
+            current_target=ident
             result=c.start(ident)
             if not result.get('runtime',{}).get('verified'):raise ValueError('DSL 加载或绑定核验失败')
+        application={'id':pid,'state':'applied','affected_count':len(affected),'resumed_count':len(resume),
+            'targets':[{'id':t['id'],'status':'active' if t['id'] in resume else 'load_on_start'} for t in affected]}
         with db.connect() as con:
             con.execute("UPDATE instance_dsl_scopes SET phase='ready' WHERE scope_id=?",(scope,))
-            con.execute("UPDATE instance_dsl_proposals SET state='applied' WHERE id=?",(pid,))
+            con.execute("UPDATE instance_dsl_proposals SET state='applied',result_json=? WHERE id=?",(json.dumps({**p['result'],'application':application}),pid))
         for t in affected:store.event(t['id'],'dsl_applied',{'proposal_id':pid,'scope_id':scope},store.get(t['id'])['generation'])
         c.observer.collect()
-        return {'id':pid,'state':'applied','affected_count':len(affected),'resumed_count':len(resume)}
+        return application
     except Exception:
         for t in affected:
             store.update(t['id'],gate='paused')
@@ -177,7 +187,9 @@ def apply(scope,pid,expected_hash):
             except Exception:pass
         with db.connect() as con:
             con.execute("UPDATE instance_dsl_scopes SET phase='blocked' WHERE scope_id=?",(scope,))
-            con.execute("UPDATE instance_dsl_proposals SET state='failed' WHERE id=?",(pid,))
+            application={'id':pid,'state':'failed','failed_operation':operation,'failed_target':current_target,
+                'targets':[{'id':t['id'],'status':'failed' if t['id']==current_target else 'paused'} for t in affected]}
+            con.execute("UPDATE instance_dsl_proposals SET state='failed',result_json=? WHERE id=?",(json.dumps({**p['result'],'application':application}),pid))
         raise
     finally:APPLYING.value=False
 
@@ -202,7 +214,7 @@ def policy_records(artifact,scope_filter=None,active=False):
             meta=doc.get('metadata',{}).get(rule['rule_name'],{})
             refs=[r for r in artifact.get('compile',{}).get('rules',[]) if r.get('source_ref')==rule['source_ref'] and r.get('name')==rule['compiled_name']]
             # A DSL-derived statement includes the complete conditions verbatim.
-            summary='；'.join(c['effective_clause'].strip() for c in rule['clauses'])
+            summary='；'.join(line.strip() for line in rule.get('original_dsl','').splitlines()[1:] if line.strip()) or '；'.join(c['effective_clause'].strip() for c in rule['clauses'])
             out.append({**rule,'id':doc['scope_id']+':'+doc['id']+':'+rule['rule_name'],'document_id':doc['id'],
                 'document_name':doc['name'],'original_document':doc['original_dsl'],'statement':meta.get('statement') or summary,
                 'statement_origin':'original' if meta.get('statement') else 'dsl_summary','context_requirement':meta.get('context_requirement','self_contained'),
@@ -242,4 +254,4 @@ def detail(scope):
         records.extend({**r,'bundle_hash':saved['bundle_hash'] if saved else None} for r in legacy_records(compat,bool(target.get('active'))) if r['rule_name'] not in user_names)
         attach_hits(records,row,row['generation'])
     for record in records:record['scope_revision']=base['revision'] if record.get('document_id') else None
-    return {**base,'records':records,'proposals':proposals,'targets':[{'id':t['id'],'name':t['name'],'active':t['active']} for t in targets]}
+    return {**base,'records':records,'proposals':proposals,'targets':[{'id':t['id'],'agent_type':t['agent_type'],'active':t['active'],'pid':t.get('pid')} for t in targets]}

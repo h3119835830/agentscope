@@ -86,6 +86,16 @@ except OSError as error:
     outcome={'read_completed':False,'errno':error.errno}
 print(json.dumps(outcome),flush=True)
 """
+DSL_NODE_PROBE = """
+const fs=require('node:fs');
+console.log(JSON.stringify({pid:process.pid}));
+process.stdin.once('data',()=>{
+ let outcome;
+ try {const fd=fs.openSync(process.env.DSL_TARGET,'r');fs.readSync(fd,Buffer.alloc(1),0,1,0);fs.closeSync(fd);outcome={read_completed:true,errno:null};}
+ catch(e){outcome={read_completed:false,errno:Math.abs(e.errno)};}
+ console.log(JSON.stringify(outcome));process.stdin.destroy();
+});
+"""
 def main():
     handoff=Path(sys.argv[1])
     log=os.open(handoff.parent/'native.log',os.O_WRONLY|os.O_CREAT|os.O_APPEND|os.O_NOFOLLOW,0o600)
@@ -111,7 +121,12 @@ def main():
     def demote():
         os.setgroups([]);os.setgid(config['gid']);os.setuid(config['uid'])
     def fixed_program(program,values,hold=False,dsl_effect=False):
-        child=subprocess.Popen([*sandbox(config,probe=True),'/usr/bin/python3','-c',program],env=values,preexec_fn=demote,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+        command=['/usr/bin/python3','-c',program]
+        if dsl_effect:
+            # Exercise the same executable identity as the trusted launch profile.
+            # The command and target stay fixed; native credentials cannot choose code.
+            command=['/opt/agentscope/bin/node','-e',program] if config['agent_type']=='dsh' else [config['hermes_root']+'/venv/bin/python','-c',program]
+        child=subprocess.Popen([*sandbox(config,probe=True),*command],env=values,preexec_fn=demote,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
         line=child.stdout.readline()
         if not line: raise RuntimeError(child.stderr.read()[-1000:])
         result=json.loads(line)
@@ -167,7 +182,8 @@ def main():
                         if effect not in ('block','kill','notify'):raise ValueError('Unknown fixed DSL probe')
                         target=Path(config['resources'][0])/('.agentscope-dsl-'+effect+'.txt')
                         if target.is_symlink() or not target.is_file() or target.stat().st_nlink!=1:raise ValueError('Missing fixed DSL probe fixture')
-                        result=fixed_program(DSL_PROBE,{'DSL_TARGET':translate(str(target),config['resources'])},dsl_effect=True)
+                        program=DSL_NODE_PROBE if config['agent_type']=='dsh' else DSL_PROBE
+                        result=fixed_program(program,{'DSL_TARGET':translate(str(target),config['resources'])},dsl_effect=True)
                         output={'request_id':last,'ok':True,'probe':result}
                         p=Path(config['result_path']);tmp=p.with_suffix('.tmp')
                         tmp.write_text(json.dumps(output));tmp.chmod(0o600);os.replace(tmp,p)

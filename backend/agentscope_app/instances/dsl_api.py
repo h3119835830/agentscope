@@ -6,6 +6,47 @@ from .api import Model,Confirm,invoke
 from . import dsl_policy as dsl,sessions
 
 router=APIRouter()
+class LibrarySave(Model):
+    kind:Literal['structured','dsl']
+    base_revision:int=Field(ge=0)
+    config:dict|None=None
+    document:dict|None=None
+class LibraryVersion(Model):
+    revision:int=Field(ge=1)
+class LibrarySelection(LibraryVersion):
+    id:str=Field(min_length=1,max_length=80)
+class LibraryProposal(Model):
+    selections:list[LibrarySelection]=Field(default_factory=list,max_length=20)
+    removals:list[str]=Field(default_factory=list,max_length=20)
+    base_hash:str=Field(pattern=r'^[a-f0-9]{64}$')
+    base_revision:int=Field(ge=0)
+    request_key:str=Field(min_length=8,max_length=100)
+
+@router.get('/api/security/system/policy-library')
+def library_read():
+    from . import policy_library
+    return invoke(policy_library.directory)
+@router.post('/api/security/system/policy-library')
+def library_create(body:LibrarySave):
+    from . import policy_library
+    return invoke(policy_library.save,body.model_dump())
+@router.post('/api/security/system/policy-library/{ident}/versions')
+def library_save(ident:str,body:LibrarySave):
+    from . import policy_library
+    return invoke(policy_library.save,body.model_dump(),ident)
+@router.post('/api/security/system/policy-library/{ident}/archive')
+def library_archive(ident:str,body:LibraryVersion):
+    from . import policy_library
+    return invoke(policy_library.archive,ident,body.revision)
+@router.post('/api/security/system/policy-library/proposals')
+def library_propose(body:LibraryProposal):
+    from . import policy_library
+    return invoke(policy_library.propose,body.model_dump())
+@router.get('/api/security/system/execution-capabilities')
+def library_capabilities():
+    from ..broker_client import call
+    return invoke(call,{'action':'agent-instance-dsl-capabilities'})
+
 class Candidate(Model):
     documents:list[dict]=Field(max_length=20)
     base_hash:str=Field(pattern=r'^[a-f0-9]{64}$')

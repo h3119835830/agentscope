@@ -8,7 +8,7 @@ import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
 
 const require=createRequire(import.meta.url),Module=require('node:module'),base=dirname(fileURLToPath(import.meta.url));
-const built=await build({entryPoints:[join(base,'SecurityConfiguration.jsx')],bundle:true,platform:'node',format:'cjs',external:['react'],write:false});
+const built=await build({entryPoints:[join(base,'SecurityConfiguration.jsx')],bundle:true,platform:'node',format:'cjs',external:['react'],loader:{'.css':'empty'},write:false});
 const path=join(base,'.security-configuration-test.cjs'),module=new Module(path);
 module.paths=Module._nodeModulePaths(base);module._compile(built.outputFiles[0].text,path);
 const {default:SecurityConfiguration,SystemSecurityConfiguration,SystemSecurityRules}=module.exports;

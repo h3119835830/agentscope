@@ -1,0 +1,35 @@
+{
+  "release": "/opt/agentscope-system-policy-20261011-161643",
+  "backup": "/var/lib/agentscope-scope-demo/release-backups/agentscope-system-policy-20261011-161643",
+  "previous_active": [
+    "instance-1f4469579e8947f4"
+  ],
+  "before_agents": [
+    {
+      "id": "instance-1f4469579e8947f4",
+      "agent_type": "dsh",
+      "pid": 54870,
+      "gate": "open",
+      "active": true,
+      "policy_hash": "9c5fa9fbb63c9bcd71da29007179d6c9fed00b23ac9b9f4e41165a76b92425c1"
+    },
+    {
+      "id": "instance-c0dd272b6a734a34",
+      "agent_type": "hermes",
+      "pid": null,
+      "gate": "closed",
+      "active": false,
+      "policy_hash": "f930aa4e9f224e24588a51a652d773cf022a74fa8be0b379ed4e80023c58ad87"
+    },
+    {
+      "id": "instance-bb171d3176b644a2",
+      "agent_type": "dsh",
+      "pid": null,
+      "gate": "closed",
+      "active": false,
+      "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815"
+    }
+  ],
+  "published": false,
+  "rolled_back": true
+}

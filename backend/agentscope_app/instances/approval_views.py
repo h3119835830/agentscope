@@ -22,6 +22,8 @@ def project(p,names,full=False):
     status=p['state'];reason=''
     if status=='pending':
         try:
+            from .policy_library import verify_proposal
+            verify_proposal(p['id'])
             if p['base_revision']!=base['revision'] or p['base_hash']!=base['document_hash']:
                 raise ValueError('策略配置已经变化，请重新校验')
             if dsl.target_snapshot(p['scope_id'],p['documents'])!=p['targets']:
@@ -32,7 +34,7 @@ def project(p,names,full=False):
             status='stale';reason='Agent 环境或策略配置已经变化，需要重新校验。'
     elif status=='invalid':reason='候选未通过运行环境校验，请调整配置后重新提交。'
     elif status=='failed':reason='上次应用未完成，请检查配置并重新校验。'
-    visible_targets=[t for t in p['targets'] if t['id'] not in hidden('agent')]
+    visible_targets=[t for t in p['targets'] if p['scope_id']=='system' or t['id'] not in hidden('agent')]
     row={'id':p['id'],'scope_id':p['scope_id'],'scope_type':'system' if p['scope_id']=='system' else 'agent',
          'target_name':names[p['scope_id']],'name':'、'.join(d['name'] for d in p['documents']) or '移除本层策略',
          'status':status,'created_at':p['created_at'],'document_count':len(p['documents']),
@@ -41,7 +43,7 @@ def project(p,names,full=False):
     if full:
         compilation=next((c for c in p['result'].get('compilations',[]) if c['instance_id'] in {t['id'] for t in visible_targets}),None)
         records=dsl.policy_records(compilation,p['scope_id']) if compilation else []
-        row.update(documents=p['documents'],records=records,targets=visible_targets,proposal_hash=p['proposal_hash'],
+        row.update(documents=p['documents'],records=records,targets=visible_targets,proposal_hash=p['proposal_hash'],application=p['result'].get('application'),
                    previous_documents=base['documents'] if p['base_hash']==base['document_hash'] else None)
     return row
 

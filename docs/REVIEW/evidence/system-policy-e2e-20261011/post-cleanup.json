@@ -1,0 +1,22 @@
+{
+  "production_active": true,
+  "dsh_pid": 615136,
+  "capabilities": {
+    "verified": true,
+    "file_suffix": true,
+    "max_suffix_bytes": 63,
+    "binary_sha256": "5e8d43c279d88bd4215f654746675debfd976e28426c9fabdabeca408865d6da",
+    "reason": "",
+    "profile": "controlled-suffix-v1",
+    "running": [
+      {
+        "id": "instance-1f4469579e8947f4",
+        "pid": 615136,
+        "loaded_features": 1022
+      }
+    ]
+  },
+  "catalog": 12,
+  "configured": 0,
+  "isolation_stopped": true
+}

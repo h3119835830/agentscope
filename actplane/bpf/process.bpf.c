@@ -17,7 +17,7 @@ char LICENSE[] SEC("license") = "Dual BSD/GPL";
 #ifdef ACTPLANE_LEGACY_KERNEL
 #define TE_PATH_BUFFER_LEN MAX_FILENAME_LEN
 #else
-#define TE_PATH_BUFFER_LEN 256
+#define TE_PATH_BUFFER_LEN 4096
 #endif
 
 
@@ -572,6 +572,14 @@ struct file_scratch {
 	__u32 remember_fd;
 	__u32 access;
 };
+static __always_inline void clear_file_scratch(struct file_scratch *scratch)
+{
+	/* String resolvers overwrite through NUL. Only fixed-width exact/prefix
+	 * matching needs zero padding; suffix matching uses the actual terminator. */
+	__builtin_memset(scratch->path, 0, TAINT_PAT_LEN);
+	__builtin_memset(&scratch->fid, 0,
+			 sizeof(*scratch) - __builtin_offsetof(struct file_scratch, fid));
+}
 struct fd_scratch {
 	struct fd_key key;
 	struct fd_ref ref;
@@ -820,7 +828,7 @@ static __noinline void te_store_current_fd_file(pid_t pid, int fd)
 					      &fpref->ref.fid);
 		return;
 	}
-	__builtin_memset(scratch, 0, sizeof(*scratch));
+	clear_file_scratch(scratch);
 	if (te_resolve_file_id_from_file(file, &scratch->fid) < 0)
 		return;
 	__builtin_memcpy(scratch->path, "fd:scm_rights",
@@ -1184,7 +1192,8 @@ static __always_inline void emit_violation(pid_t pid, unsigned int rule_id,
 
 static __always_inline int file_path(struct file *file, char *path, int path_sz)
 {
-	if (bpf_d_path(&file->f_path, path, path_sz) > 0)
+	int n = bpf_d_path(&file->f_path, path, path_sz);
+	if (n > 0 && n < path_sz)
 		return 0;
 
 #ifdef ACTPLANE_LEGACY_KERNEL
@@ -1420,7 +1429,7 @@ static __noinline int path_to_str(const struct path *src, char *path,
 	/* Move the complete, terminated path to the caller's matching buffer. */
 	if (copy_path_range(path, 0, path, pos, TE_PATH_BUFFER_LEN - pos) < 0)
 		return -1;
-	return TE_PATH_BUFFER_LEN - pos;
+	return pos > 0 ? TE_PATH_BUFFER_LEN - pos : -1;
 }
 
 static __noinline int append_dentry_name(char *path, struct dentry *dentry,
@@ -1479,7 +1488,7 @@ static __noinline void te_store_current_fd_file_path(pid_t pid, int fd)
 	file = te_current_file_from_fd(fd);
 	if (!file)
 		return;
-	__builtin_memset(scratch, 0, sizeof(*scratch));
+	clear_file_scratch(scratch);
 	if (file_basename(file, scratch->path, sizeof(scratch->path)) < 0)
 		return;
 	if (te_resolve_file_id_from_file(file, &scratch->fid) < 0)
@@ -1706,7 +1715,7 @@ static __always_inline void exec_pipe_scan_rules(__u32 complex)
 #else
 	__u32 current_domain_id = cap_domain_for_pid(s->pid);
 #endif
-	__builtin_memset(es, 0, sizeof(*es));
+	clear_eval_scratch(es);
 	eval = &es->eval;
 	eval->pid = s->pid;
 	eval->global_labels = te_labels_for_domain(s->pid, 0);
@@ -1928,7 +1937,7 @@ static __always_inline int te_handle_event(struct te_event *ev, struct file_id *
 
 	if (!scratch)
 		return 0;
-	__builtin_memset(scratch, 0, sizeof(*scratch));
+	clear_eval_scratch(scratch);
 	eval = &scratch->eval;
 
 	if (ev->obj_kind == TE_OBJ_FILE &&
@@ -1960,7 +1969,7 @@ static __always_inline int te_handle_event(struct te_event *ev, struct file_id *
 		eval->effect = TEFFECT_BLOCK;
 		eval->effect_mask = te_supported_effects(ev->mode);
 		eval->op = TOP_EXEC;
-		te_copy_target(eval->target, ev->target);
+		te_copy_match_target(eval->target, ev->target);
 		rid = te_check_labels(eval);
 		effect = eval->effect;
 		matched_labels = eval->matched_labels;
@@ -1973,7 +1982,7 @@ static __always_inline int te_handle_event(struct te_event *ev, struct file_id *
 		eval->current_domain_id = current_domain_id;
 		eval->effect = TEFFECT_BLOCK;
 		eval->effect_mask = te_supported_effects(ev->mode);
-		te_copy_target(eval->target, ev->target);
+		te_copy_match_target(eval->target, ev->target);
 		if (fid) {
 			eval->fid = *fid;
 			eval->has_fid = 1;
@@ -2068,7 +2077,7 @@ static __always_inline int te_handle_file_event(pid_t pid, const char *target,
 		return 0;
 	if (!scratch)
 		return 0;
-	__builtin_memset(scratch, 0, sizeof(*scratch));
+	clear_eval_scratch(scratch);
 	eval = &scratch->eval;
 	__u32 current_domain_id = cap_domain_for_pid(pid);
 	__u64 global_labels = te_labels_for_domain(pid, 0);
@@ -2088,7 +2097,7 @@ static __always_inline int te_handle_file_event(pid_t pid, const char *target,
 	eval->effect_mask = te_supported_effects(mode);
 	eval->event_effect = TEFFECT_NOTIFY;
 	eval->event_rule = -1;
-	te_copy_target(eval->target, target);
+	te_copy_match_target(eval->target, target);
 	if (fid) {
 		eval->fid = *fid;
 		eval->has_fid = 1;
@@ -2222,6 +2231,19 @@ static __always_inline int te_sandbox_scaffold(__u32 ref_kind, const void *a,
 	return inode && BPF_CORE_READ(inode, i_sb, s_magic) == 0x01021994;
 }
 
+/* A sandbox may hold its own proc mountinfo across pivot_root. That detached
+ * mount has no path under the new root. Only this kernel-generated, read-only
+ * mount table is bootstrap metadata; a same-named workspace file is not. */
+static __always_inline int te_detached_mountinfo(struct file *file, __u32 access)
+{
+	if (access != TE_ACCESS_READ || BPF_CORE_READ(file, f_inode, i_sb, s_magic) != 0x9fa0)
+		return 0;
+	char name[10] = {};
+	const unsigned char *src = BPF_CORE_READ(file, f_path.dentry, d_name.name);
+	return bpf_probe_read_kernel_str(name, sizeof(name), src) == 10 &&
+	       !__builtin_memcmp(name, "mountinfo", 10);
+}
+
 static __always_inline int te_handle_file(__u32 ref_kind, const void *a,
 					  const void *b, __u32 access,
 					  __u32 mode)
@@ -2238,9 +2260,12 @@ static __always_inline int te_handle_file(__u32 ref_kind, const void *a,
 	pid = te_current_pid_tgid() >> 32;
 	if (!te_pid_active(pid))
 		return 0;
-	__builtin_memset(scratch, 0, sizeof(*scratch));
+	if (!te_is_regular_or_dir(a, b, ref_kind))
+		return 0;
+	clear_file_scratch(scratch);
 	if (te_resolve_file_ref(ref_kind, a, b, scratch->path, sizeof(scratch->path)) < 0)
-		return mode == TE_MODE_BLOCK && (access & TE_ACCESS_WRITE) &&
+		return mode == TE_MODE_BLOCK && ((access & TE_ACCESS_WRITE) ||
+		       (policy_features & TE_POLICY_PATH_SUFFIX)) &&
 		       !te_pid_protected(pid) ? -EPERM : 0;
 	te_resolve_file_id(ref_kind, a, b, scratch->path, &scratch->fid);
 
@@ -2272,7 +2297,7 @@ static __always_inline int te_stash_rename_user_paths(const void *old_path,
 	if (!te_pid_active(pid))
 		return 0;
 	if (scratch) {
-		__builtin_memset(scratch, 0, sizeof(*scratch));
+		clear_file_scratch(scratch);
 		if (te_resolve_file_ref(TE_REF_USER_PATH, old_path, 0,
 					scratch->path, sizeof(scratch->path)) == 0) {
 			te_copy_target(p.old_path, scratch->path);
@@ -2280,7 +2305,7 @@ static __always_inline int te_stash_rename_user_paths(const void *old_path,
 					   scratch->path, &p.old_fid);
 			p.have_old = 1;
 		}
-		__builtin_memset(scratch, 0, sizeof(*scratch));
+		clear_file_scratch(scratch);
 		if (te_resolve_file_ref(TE_REF_USER_PATH, new_path, 0,
 					scratch->path, sizeof(scratch->path)) == 0) {
 			te_copy_target(p.new_path, scratch->path);
@@ -2305,7 +2330,7 @@ static __noinline int te_handle_rename_exit(long ret, __u32 mode)
 	if (!p)
 		return 0;
 	if (ret == 0 && scratch && te_pid_active(pid)) {
-		__builtin_memset(scratch, 0, sizeof(*scratch));
+		clear_file_scratch(scratch);
 		if (!p->have_old && p->old_path_ptr &&
 		    te_resolve_file_ref(TE_REF_USER_PATH,
 					(const void *)p->old_path_ptr, 0,
@@ -2316,7 +2341,7 @@ static __noinline int te_handle_rename_exit(long ret, __u32 mode)
 					   scratch->path, &p->old_fid);
 			p->have_old = 1;
 		}
-		__builtin_memset(scratch, 0, sizeof(*scratch));
+		clear_file_scratch(scratch);
 		if (!p->have_new && p->new_path_ptr &&
 		    te_resolve_file_ref(TE_REF_USER_PATH,
 					(const void *)p->new_path_ptr, 0,
@@ -2372,7 +2397,7 @@ static __noinline int te_handle_rename_flow_exit(long ret)
 	if (!p)
 		return 0;
 	if (ret == 0 && scratch && te_pid_active(pid)) {
-		__builtin_memset(scratch, 0, sizeof(*scratch));
+		clear_file_scratch(scratch);
 		if (!p->have_old && p->old_path_ptr &&
 		    te_resolve_file_ref(TE_REF_USER_PATH,
 					(const void *)p->old_path_ptr, 0,
@@ -2383,7 +2408,7 @@ static __noinline int te_handle_rename_flow_exit(long ret)
 					   scratch->path, &p->old_fid);
 			p->have_old = 1;
 		}
-		__builtin_memset(scratch, 0, sizeof(*scratch));
+		clear_file_scratch(scratch);
 		if (!p->have_new && p->new_path_ptr &&
 		    te_resolve_file_ref(TE_REF_USER_PATH,
 					(const void *)p->new_path_ptr, 0,
@@ -2434,17 +2459,18 @@ static __always_inline int te_handle_file_permission(struct file *file,
 		return 0;
 	if (!te_is_regular_or_dir(file, 0, TE_REF_FILE))
 		return 0;
-	__builtin_memset(scratch, 0, sizeof(*scratch));
+	clear_file_scratch(scratch);
 #ifdef ACTPLANE_LEGACY_KERNEL
 	if (file_basename(file, scratch->path, sizeof(scratch->path)) < 0)
 		return 0;
 #else
-	/* Permission hooks also run on descriptors opened before a policy delta.
-	 * Match the complete current path so absolute Scope rules remain effective. */
+	/* Permission hooks also run on descriptors opened before a policy delta. */
 	struct path resolved = {};
 	bpf_core_read(&resolved, sizeof(resolved), &file->f_path);
 	if (path_to_str(&resolved, scratch->path, sizeof(scratch->path)) < 0)
-		return mode == TE_MODE_BLOCK && (access & TE_ACCESS_WRITE) &&
+		return mode == TE_MODE_BLOCK && ((access & TE_ACCESS_WRITE) ||
+		       (policy_features & TE_POLICY_PATH_SUFFIX)) &&
+		       !te_detached_mountinfo(file, access) &&
 		       !te_pid_protected(pid) &&
 		       te_is_regular_or_dir(file, 0, TE_REF_FILE) ? -EPERM : 0;
 #endif
@@ -2540,7 +2566,7 @@ static __always_inline int te_handle_channel(int fd, __u32 access, __u32 mode)
 	pid = te_current_pid_tgid() >> 32;
 	if (!te_pid_active(pid))
 		return 0;
-	__builtin_memset(scratch, 0, sizeof(*scratch));
+	clear_file_scratch(scratch);
 	if (!chan_fd_target(fd, access, scratch->path, sizeof(scratch->path)))
 		return 0;
 
@@ -2571,7 +2597,7 @@ static __always_inline int te_handle_exec_event(pid_t pid, const char *target,
 		return 0;
 	if (!scratch)
 		return 0;
-	__builtin_memset(scratch, 0, sizeof(*scratch));
+	clear_eval_scratch(scratch);
 	eval = &scratch->eval;
 
 	current_domain_id = cap_domain_for_pid(pid);
@@ -2636,7 +2662,7 @@ static __always_inline int te_handle_exec_event_with_args(pid_t pid,
 		return 0;
 	if (!scratch)
 		return 0;
-	__builtin_memset(scratch, 0, sizeof(*scratch));
+	clear_eval_scratch(scratch);
 	eval = &scratch->eval;
 
 	current_domain_id = cap_domain_for_pid(pid);
@@ -3112,7 +3138,7 @@ static __noinline int handle_open_exit(long ret)
 
 	if (!p || !scratch)
 		return 0;
-	__builtin_memset(scratch, 0, sizeof(*scratch));
+	clear_file_scratch(scratch);
 	scratch->path_ptr = p->path_ptr;
 	scratch->flags = p->flags;
 	scratch->remember_fd = p->remember_fd;
@@ -3190,7 +3216,7 @@ static __always_inline int handle_pipe_exit(long ret)
 		return 0;
 	if (ret == 0 && scratch && te_pid_active(pid) &&
 	    bpf_probe_read_user(&fds, sizeof(fds), (void *)p->fds_ptr) == 0) {
-		__builtin_memset(scratch, 0, sizeof(*scratch));
+		clear_file_scratch(scratch);
 		__builtin_memcpy(scratch->path, "pipe", sizeof("pipe"));
 		scratch->fid.ino = bpf_ktime_get_ns() ^ ((__u64)pid << 32) ^
 				   ((__u64)(__u32)fds[0] << 16) ^
@@ -3232,7 +3258,7 @@ static __always_inline int handle_socketpair_exit(long ret)
 		return 0;
 	if (ret == 0 && scratch && te_pid_active(pid) &&
 	    bpf_probe_read_user(&fds, sizeof(fds), (void *)p->fds_ptr) == 0) {
-		__builtin_memset(scratch, 0, sizeof(*scratch));
+		clear_file_scratch(scratch);
 		__builtin_memcpy(scratch->path, "socketpair", sizeof("socketpair"));
 		scratch->fid.ino = bpf_ktime_get_ns() ^ ((__u64)pid << 32) ^
 				   ((__u64)(__u32)fds[0] << 16) ^
@@ -3819,7 +3845,7 @@ static __always_inline int handle_io_exit_addr(long ret, __u32 access)
 							 te_tracepoint_mode());
 			} else if (scratch && (access & TE_ACCESS_WRITE) &&
 				   (policy_features & TE_POLICY_FILE_FLOW)) {
-				__builtin_memset(scratch, 0, sizeof(*scratch));
+				clear_file_scratch(scratch);
 				if (te_resolve_io_unix_sockaddr(
 					    addr_kind, addr_ptr, addr_len,
 					    scratch->path, &scratch->fid) == 0)

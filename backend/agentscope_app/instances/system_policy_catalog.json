@@ -1,0 +1,210 @@
+[
+  {
+    "id": "env",
+    "name": "环境凭据文件",
+    "category": "凭据保护",
+    "description": "保护所有以 .env 结尾的文件",
+    "mode": "suffix",
+    "values": ".env",
+    "ops": [
+      "open"
+    ],
+    "effect": "block",
+    "reason": "该文件可能含有凭据。请使用脱敏配置或受控凭据接口。",
+    "origin": "RQ1 · 秘密配置约束提炼",
+    "source": "https://github.com/eunomia-bpf/ActPlane/blob/63db86945c9b8618a46aa68c8de214bc4b8343d9/docs/corpus/candidate_rules.tsv#L80",
+    "configured": false,
+    "recommended": true
+  },
+  {
+    "id": "ssh",
+    "name": "SSH 私钥",
+    "category": "凭据保护",
+    "description": "保护常见 SSH 私钥文件",
+    "mode": "tail",
+    "values": ".ssh/id_rsa\n.ssh/id_ed25519\n.ssh/id_ecdsa",
+    "ops": [
+      "open"
+    ],
+    "effect": "block",
+    "reason": "请通过获准的 SSH 代理使用凭据，勿直接打开私钥。",
+    "origin": "平台扩展 · 私钥访问约束",
+    "source": "https://github.com/eunomia-bpf/ActPlane/blob/master/docs/rule-language.md",
+    "configured": false
+  },
+  {
+    "id": "cloud",
+    "name": "云服务凭据",
+    "category": "凭据保护",
+    "description": "保护 AWS 与 Kubernetes 凭据配置",
+    "mode": "tail",
+    "values": ".aws/credentials\n.kube/config",
+    "ops": [
+      "open"
+    ],
+    "effect": "block",
+    "reason": "请使用受控云服务接口，或申请此凭据的特定访问权限。",
+    "origin": "平台扩展 · 凭据文件约束",
+    "source": "https://github.com/eunomia-bpf/ActPlane/blob/master/docs/rule-language.md",
+    "configured": false
+  },
+  {
+    "id": "system-files",
+    "name": "系统身份与授权文件",
+    "category": "文件保护",
+    "description": "保护系统账号和提权配置",
+    "mode": "exact",
+    "values": "/etc/passwd\n/etc/shadow\n/etc/sudoers",
+    "ops": [
+      "write",
+      "unlink"
+    ],
+    "effect": "block",
+    "reason": "系统账号与授权配置由管理员维护，请提交变更申请。",
+    "origin": "平台扩展 · Linux 主机边界",
+    "source": "https://github.com/eunomia-bpf/ActPlane/blob/master/docs/rule-language.md",
+    "configured": false,
+    "recommended": true
+  },
+  {
+    "id": "policy-store",
+    "name": "安全策略文件",
+    "category": "文件保护",
+    "description": "保护策略源文件与配置目录",
+    "mode": "directory",
+    "values": "",
+    "ops": [
+      "write",
+      "unlink"
+    ],
+    "effect": "block",
+    "reason": "请通过策略配置与人工确认流程变更安全策略。",
+    "origin": "平台设计 · 安全配置保护",
+    "source": "https://github.com/eunomia-bpf/ActPlane/blob/master/docs/rule-language.md",
+    "configured": false,
+    "recommended": true,
+    "placeholder": "/实际策略目录"
+  },
+  {
+    "id": "audit-store",
+    "name": "审计记录",
+    "category": "文件保护",
+    "description": "防止 Agent 修改或删除审计资料",
+    "mode": "directory",
+    "values": "",
+    "ops": [
+      "write",
+      "unlink"
+    ],
+    "effect": "block",
+    "reason": "审计记录由平台维护，Agent 不应修改或删除。",
+    "origin": "平台设计 · 审计完整性",
+    "source": "https://github.com/eunomia-bpf/ActPlane/blob/master/docs/rule-language.md",
+    "configured": false,
+    "recommended": true,
+    "placeholder": "/实际审计目录"
+  },
+  {
+    "id": "privilege",
+    "name": "提权程序",
+    "category": "进程与网络",
+    "description": "限制通过 sudo、su 执行提权",
+    "mode": "exec",
+    "values": "sudo\nsu",
+    "ops": [
+      "exec"
+    ],
+    "effect": "block",
+    "reason": "当前 Agent 不应自行提权，请申请受控的管理员操作。",
+    "origin": "平台扩展 · 最小权限边界",
+    "source": "https://github.com/eunomia-bpf/ActPlane/blob/master/docs/rule-language.md",
+    "configured": false,
+    "recommended": true
+  },
+  {
+    "id": "network-audit",
+    "name": "网络连接审计",
+    "category": "进程与网络",
+    "description": "记录 Agent 及子进程的 IPv4 连接",
+    "mode": "endpoint",
+    "values": "*",
+    "ops": [
+      "connect"
+    ],
+    "effect": "notify",
+    "reason": "检测到网络连接，请确认目标符合任务需要。",
+    "origin": "ActPlane · connect / notify",
+    "source": "https://github.com/eunomia-bpf/ActPlane/blob/master/docs/rule-language.md",
+    "configured": false,
+    "note": "覆盖 IPv4 连接事件；不等同于完整网络流量审计。"
+  },
+  {
+    "id": "process-audit",
+    "name": "程序执行审计",
+    "category": "进程与网络",
+    "description": "记录 Agent 派生的程序执行",
+    "mode": "exec",
+    "values": "*",
+    "ops": [
+      "exec"
+    ],
+    "effect": "notify",
+    "reason": "检测到程序执行，请确认其符合当前任务。",
+    "origin": "ActPlane · exec / notify",
+    "source": "https://github.com/eunomia-bpf/ActPlane/blob/master/docs/rule-language.md",
+    "configured": false,
+    "note": "可能产生较多事件，按需选择。"
+  },
+  {
+    "id": "instructions",
+    "name": "安全约定文件",
+    "category": "文件保护",
+    "description": "保护 AGENTS.md 的写入和删除",
+    "mode": "filename",
+    "values": "AGENTS.md",
+    "ops": [
+      "write",
+      "unlink"
+    ],
+    "effect": "block",
+    "reason": "安全约定由人工维护，请先提交修改说明并取得批准。",
+    "origin": "RQ1 · 契约文件约束提炼",
+    "source": "https://github.com/eunomia-bpf/ActPlane/blob/63db86945c9b8618a46aa68c8de214bc4b8343d9/docs/corpus/candidate_rules.tsv",
+    "configured": false,
+    "note": "这是可选约束；允许 Agent 维护约定文件的环境不应统一启用。"
+  },
+  {
+    "id": "secret-egress",
+    "name": "敏感信息外发",
+    "category": "跨事件保护",
+    "description": "读取敏感文件后限制网络连接",
+    "mode": "flow",
+    "values": ".env",
+    "ops": [
+      "connect"
+    ],
+    "effect": "block",
+    "reason": "此进程已接触敏感文件。请使用已获准的脱敏或凭据处理流程。",
+    "origin": "ActPlane · 标签传播与信息流",
+    "source": "https://github.com/eunomia-bpf/ActPlane/blob/master/docs/rule-language.md",
+    "configured": false,
+    "note": "标签会沿进程与文件传播，可能影响后续模型请求；应先核对来源范围。"
+  },
+  {
+    "id": "remote-exec",
+    "name": "网络输入后的执行",
+    "category": "跨事件保护",
+    "description": "观察接收网络输入后的程序启动",
+    "mode": "remote",
+    "values": "sh\nbash\npython",
+    "ops": [
+      "exec"
+    ],
+    "effect": "notify",
+    "reason": "此进程接触过网络输入，请核对执行内容及来源。",
+    "origin": "RQ1 远程脚本约束 / ActPlane 信息流",
+    "source": "https://github.com/eunomia-bpf/ActPlane/blob/63db86945c9b8618a46aa68c8de214bc4b8343d9/docs/corpus/candidate_rules.tsv#L261",
+    "configured": false,
+    "note": "按网络来源标签匹配，不能精确等同于 shell 管道或脚本签名校验。"
+  }
+]

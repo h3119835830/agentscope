@@ -1,0 +1,735 @@
+{
+  "checks": [
+    {
+      "application": {
+        "id": "1b13cbf149464d1881ec530b93b9ec3a",
+        "state": "applied",
+        "affected_count": 2,
+        "resumed_count": 0,
+        "targets": [
+          {
+            "id": "instance-fda696a0d4714509",
+            "status": "load_on_start"
+          },
+          {
+            "id": "instance-0da9db7e518342b9",
+            "status": "load_on_start"
+          }
+        ]
+      },
+      "proposal_id": "1b13cbf149464d1881ec530b93b9ec3a"
+    },
+    {
+      "application": {
+        "id": "ac9160ad31a44de3aee182d914eecc6a",
+        "state": "applied",
+        "affected_count": 2,
+        "resumed_count": 1,
+        "targets": [
+          {
+            "id": "instance-fda696a0d4714509",
+            "status": "active"
+          },
+          {
+            "id": "instance-0da9db7e518342b9",
+            "status": "load_on_start"
+          }
+        ]
+      },
+      "proposal_id": "ac9160ad31a44de3aee182d914eecc6a"
+    }
+  ],
+  "agents": [
+    {
+      "id": "instance-fda696a0d4714509",
+      "agent_type": "dsh",
+      "pid": 593856,
+      "domain_id": 1771251173,
+      "generation": "2031ee6c58c54fbf90912d1652590620",
+      "active": true,
+      "probes": [
+        {
+          "effect": "block",
+          "probe": {
+            "pid": 593916,
+            "returncode": 0,
+            "outcome": {
+              "read_completed": false,
+              "errno": 1
+            }
+          },
+          "events": [
+            {
+              "action": "block",
+              "blocked": true,
+              "comm": "node-MainThread",
+              "domain_id": 1771251173,
+              "effect": "block",
+              "event": "taint_violation",
+              "killed": false,
+              "matched_label": "0x4",
+              "matched_label_details": [
+                {
+                  "causal_chain": [
+                    {
+                      "label": "da17d9464de6d_AGENT",
+                      "label_mask": "0x4",
+                      "origin_op": "exec",
+                      "origin_pid": 593916,
+                      "origin_target": "node",
+                      "origin_timestamp_ns": 95865470082063
+                    }
+                  ],
+                  "causal_chain_complete": false,
+                  "label": "da17d9464de6d_AGENT",
+                  "label_mask": "0x4",
+                  "provenance": {
+                    "label": "da17d9464de6d_AGENT",
+                    "label_mask": "0x4",
+                    "origin_op": "exec",
+                    "origin_pid": 593916,
+                    "origin_target": "node",
+                    "origin_timestamp_ns": 95865470082063
+                  },
+                  "provenance_status": "reported_first_origin"
+                }
+              ],
+              "matched_label_name": "da17d9464de6d_AGENT",
+              "matched_label_names": [
+                "da17d9464de6d_AGENT"
+              ],
+              "matched_labels": "0x4",
+              "op": "read",
+              "op_code": 1,
+              "pid": 593916,
+              "ppid": 593915,
+              "process_domain_id": 1771251173,
+              "provenance": {
+                "label": "da17d9464de6d_AGENT",
+                "label_mask": "0x4",
+                "origin_op": "exec",
+                "origin_pid": 593916,
+                "origin_target": "node",
+                "origin_timestamp_ns": 95865470082063
+              },
+              "provenance_model": {
+                "causal_chain_scope": "single_hop_origin",
+                "full_causal_chain": false,
+                "matched_labels_enumerated": true,
+                "reported_origin_available": true,
+                "reported_origin_scope": "first_available_matched_label"
+              },
+              "rule": {
+                "binding_mode": "locked",
+                "clause_end_line": 40,
+                "clause_hash": "fnv1a64:1bb2a9c82c2e3110",
+                "clause_op": "open",
+                "clause_source_index": 0,
+                "clause_start_line": 40,
+                "clause_text": "  block open file \"**/*.agentscope-dsl-block.txt\" if da17d9464de6d_AGENT",
+                "effect": "block",
+                "immutable": true,
+                "kernel_op": "read",
+                "name": "da17d9464de6d-system-policy-ac950db0d49548e68ba2618fe94f8455",
+                "ops": [
+                  "open"
+                ],
+                "reason": "Synthetic acceptance",
+                "source_end_line": 41,
+                "source_hash": "fnv1a64:5c945c1942312c86",
+                "source_ref": "da17d9464de6d:0",
+                "source_start_line": 39,
+                "target_arg": null,
+                "target_kind": "file",
+                "target_pattern": "**/*.agentscope-dsl-block.txt"
+              },
+              "rule_id": 7,
+              "schema": "actplane.violation.v1",
+              "session_root": 593711,
+              "taint_label": "0x1f",
+              "target": "/w/0/.agentscope-dsl-block.txt",
+              "timestamp_unix_ns": "1791706064760370139",
+              "tool_call_tag": "0"
+            }
+          ]
+        },
+        {
+          "effect": "notify",
+          "probe": {
+            "pid": 593927,
+            "returncode": 0,
+            "outcome": {
+              "read_completed": true,
+              "errno": null
+            }
+          },
+          "events": [
+            {
+              "action": "report",
+              "blocked": false,
+              "comm": "node-MainThread",
+              "domain_id": 1771251173,
+              "effect": "notify",
+              "event": "taint_violation",
+              "killed": false,
+              "matched_label": "0x10",
+              "matched_label_details": [
+                {
+                  "causal_chain": [
+                    {
+                      "label": "dd11b12a6f9d3_AGENT",
+                      "label_mask": "0x10",
+                      "origin_op": "exec",
+                      "origin_pid": 593927,
+                      "origin_target": "node",
+                      "origin_timestamp_ns": 95865610259233
+                    }
+                  ],
+                  "causal_chain_complete": false,
+                  "label": "dd11b12a6f9d3_AGENT",
+                  "label_mask": "0x10",
+                  "provenance": {
+                    "label": "dd11b12a6f9d3_AGENT",
+                    "label_mask": "0x10",
+                    "origin_op": "exec",
+                    "origin_pid": 593927,
+                    "origin_target": "node",
+                    "origin_timestamp_ns": 95865610259233
+                  },
+                  "provenance_status": "reported_first_origin"
+                }
+              ],
+              "matched_label_name": "dd11b12a6f9d3_AGENT",
+              "matched_label_names": [
+                "dd11b12a6f9d3_AGENT"
+              ],
+              "matched_labels": "0x10",
+              "op": "read",
+              "op_code": 1,
+              "pid": 593927,
+              "ppid": 593926,
+              "process_domain_id": 1771251173,
+              "provenance": {
+                "label": "dd11b12a6f9d3_AGENT",
+                "label_mask": "0x10",
+                "origin_op": "exec",
+                "origin_pid": 593927,
+                "origin_target": "node",
+                "origin_timestamp_ns": 95865610259233
+              },
+              "provenance_model": {
+                "causal_chain_scope": "single_hop_origin",
+                "full_causal_chain": false,
+                "matched_labels_enumerated": true,
+                "reported_origin_available": true,
+                "reported_origin_scope": "first_available_matched_label"
+              },
+              "rule": {
+                "binding_mode": "locked",
+                "clause_end_line": 33,
+                "clause_hash": "fnv1a64:abe447dcec19240b",
+                "clause_op": "open",
+                "clause_source_index": 0,
+                "clause_start_line": 33,
+                "clause_text": "  notify open file \"**/*.agentscope-dsl-notify.txt\" if dd11b12a6f9d3_AGENT",
+                "effect": "notify",
+                "immutable": true,
+                "kernel_op": "read",
+                "name": "dd11b12a6f9d3-system-policy-99e4027861774bfaa785fb594754bc0e",
+                "ops": [
+                  "open"
+                ],
+                "reason": "Synthetic acceptance",
+                "source_end_line": 35,
+                "source_hash": "fnv1a64:cda432410c7efe64",
+                "source_ref": "dd11b12a6f9d3:0",
+                "source_start_line": 32,
+                "target_arg": null,
+                "target_kind": "file",
+                "target_pattern": "**/*.agentscope-dsl-notify.txt"
+              },
+              "rule_id": 6,
+              "schema": "actplane.violation.v1",
+              "session_root": 593711,
+              "taint_label": "0x1f",
+              "target": "/w/0/.agentscope-dsl-notify.txt",
+              "timestamp_unix_ns": "1791706064904918254",
+              "tool_call_tag": "0"
+            }
+          ]
+        },
+        {
+          "effect": "kill",
+          "probe": {
+            "pid": 593938,
+            "returncode": 137,
+            "outcome": null
+          },
+          "events": [
+            {
+              "action": "kill",
+              "blocked": false,
+              "comm": "node-MainThread",
+              "domain_id": 1771251173,
+              "effect": "kill",
+              "event": "taint_violation",
+              "killed": true,
+              "matched_label": "0x8",
+              "matched_label_details": [
+                {
+                  "causal_chain": [
+                    {
+                      "label": "dbbb451d81cd9_AGENT",
+                      "label_mask": "0x8",
+                      "origin_op": "exec",
+                      "origin_pid": 593938,
+                      "origin_target": "node",
+                      "origin_timestamp_ns": 95865758986090
+                    }
+                  ],
+                  "causal_chain_complete": false,
+                  "label": "dbbb451d81cd9_AGENT",
+                  "label_mask": "0x8",
+                  "provenance": {
+                    "label": "dbbb451d81cd9_AGENT",
+                    "label_mask": "0x8",
+                    "origin_op": "exec",
+                    "origin_pid": 593938,
+                    "origin_target": "node",
+                    "origin_timestamp_ns": 95865758986090
+                  },
+                  "provenance_status": "reported_first_origin"
+                }
+              ],
+              "matched_label_name": "dbbb451d81cd9_AGENT",
+              "matched_label_names": [
+                "dbbb451d81cd9_AGENT"
+              ],
+              "matched_labels": "0x8",
+              "op": "read",
+              "op_code": 1,
+              "pid": 593938,
+              "ppid": 593937,
+              "process_domain_id": 1771251173,
+              "provenance": {
+                "label": "dbbb451d81cd9_AGENT",
+                "label_mask": "0x8",
+                "origin_op": "exec",
+                "origin_pid": 593938,
+                "origin_target": "node",
+                "origin_timestamp_ns": 95865758986090
+              },
+              "provenance_model": {
+                "causal_chain_scope": "single_hop_origin",
+                "full_causal_chain": false,
+                "matched_labels_enumerated": true,
+                "reported_origin_available": true,
+                "reported_origin_scope": "first_available_matched_label"
+              },
+              "rule": {
+                "binding_mode": "locked",
+                "clause_end_line": 19,
+                "clause_hash": "fnv1a64:db096070771de7f4",
+                "clause_op": "open",
+                "clause_source_index": 0,
+                "clause_start_line": 19,
+                "clause_text": "  kill open file \"**/*.agentscope-dsl-kill.txt\" if dbbb451d81cd9_AGENT",
+                "effect": "kill",
+                "immutable": true,
+                "kernel_op": "read",
+                "name": "dbbb451d81cd9-system-policy-1d1e1166d54549c3a0aa1798dc3f8824",
+                "ops": [
+                  "open"
+                ],
+                "reason": "Synthetic acceptance",
+                "source_end_line": 21,
+                "source_hash": "fnv1a64:3b04a622ea39e8b1",
+                "source_ref": "dbbb451d81cd9:0",
+                "source_start_line": 18,
+                "target_arg": null,
+                "target_kind": "file",
+                "target_pattern": "**/*.agentscope-dsl-kill.txt"
+              },
+              "rule_id": 4,
+              "schema": "actplane.violation.v1",
+              "session_root": 593711,
+              "taint_label": "0x1f",
+              "target": "/w/0/.agentscope-dsl-kill.txt",
+              "timestamp_unix_ns": "1791706065050526693",
+              "tool_call_tag": "0"
+            }
+          ]
+        }
+      ],
+      "dsl_hash": "37f20a2dc1f1df91da9b2065444c3b45da5b54eb03abb69ad8ab4a3293075dcf",
+      "bundle_hash": "5155a3c16742b8d47810cc11ae87d70868b47eab823f7b1dbcc2738bd4a1c147"
+    },
+    {
+      "id": "instance-0da9db7e518342b9",
+      "agent_type": "hermes",
+      "pid": 594135,
+      "domain_id": 584750679,
+      "generation": "d4907c7e075b47f4aca2884648e07e17",
+      "active": true,
+      "probes": [
+        {
+          "effect": "block",
+          "probe": {
+            "pid": 594213,
+            "returncode": 0,
+            "outcome": {
+              "read_completed": false,
+              "errno": 1
+            }
+          },
+          "events": [
+            {
+              "action": "block",
+              "blocked": true,
+              "comm": "python",
+              "domain_id": 584750679,
+              "effect": "block",
+              "event": "taint_violation",
+              "killed": false,
+              "matched_label": "0x4",
+              "matched_label_details": [
+                {
+                  "causal_chain": [
+                    {
+                      "label": "da17d9464de6d_AGENT",
+                      "label_mask": "0x4",
+                      "origin_op": "exec",
+                      "origin_pid": 594213,
+                      "origin_target": "python",
+                      "origin_timestamp_ns": 95874542447888
+                    }
+                  ],
+                  "causal_chain_complete": false,
+                  "label": "da17d9464de6d_AGENT",
+                  "label_mask": "0x4",
+                  "provenance": {
+                    "label": "da17d9464de6d_AGENT",
+                    "label_mask": "0x4",
+                    "origin_op": "exec",
+                    "origin_pid": 594213,
+                    "origin_target": "python",
+                    "origin_timestamp_ns": 95874542447888
+                  },
+                  "provenance_status": "reported_first_origin"
+                }
+              ],
+              "matched_label_name": "da17d9464de6d_AGENT",
+              "matched_label_names": [
+                "da17d9464de6d_AGENT"
+              ],
+              "matched_labels": "0x4",
+              "op": "read",
+              "op_code": 1,
+              "pid": 594213,
+              "ppid": 594211,
+              "process_domain_id": 584750679,
+              "provenance": {
+                "label": "da17d9464de6d_AGENT",
+                "label_mask": "0x4",
+                "origin_op": "exec",
+                "origin_pid": 594213,
+                "origin_target": "python",
+                "origin_timestamp_ns": 95874542447888
+              },
+              "provenance_model": {
+                "causal_chain_scope": "single_hop_origin",
+                "full_causal_chain": false,
+                "matched_labels_enumerated": true,
+                "reported_origin_available": true,
+                "reported_origin_scope": "first_available_matched_label"
+              },
+              "rule": {
+                "binding_mode": "locked",
+                "clause_end_line": 40,
+                "clause_hash": "fnv1a64:1bb2a9c82c2e3110",
+                "clause_op": "open",
+                "clause_source_index": 0,
+                "clause_start_line": 40,
+                "clause_text": "  block open file \"**/*.agentscope-dsl-block.txt\" if da17d9464de6d_AGENT",
+                "effect": "block",
+                "immutable": true,
+                "kernel_op": "read",
+                "name": "da17d9464de6d-system-policy-ac950db0d49548e68ba2618fe94f8455",
+                "ops": [
+                  "open"
+                ],
+                "reason": "Synthetic acceptance",
+                "source_end_line": 41,
+                "source_hash": "fnv1a64:5c945c1942312c86",
+                "source_ref": "da17d9464de6d:0",
+                "source_start_line": 39,
+                "target_arg": null,
+                "target_kind": "file",
+                "target_pattern": "**/*.agentscope-dsl-block.txt"
+              },
+              "rule_id": 7,
+              "schema": "actplane.violation.v1",
+              "session_root": 593970,
+              "taint_label": "0x1f",
+              "target": "/w/0/.agentscope-dsl-block.txt",
+              "timestamp_unix_ns": "1791706073844403249",
+              "tool_call_tag": "0"
+            }
+          ]
+        },
+        {
+          "effect": "notify",
+          "probe": {
+            "pid": 594219,
+            "returncode": 0,
+            "outcome": {
+              "read_completed": true,
+              "errno": null
+            }
+          },
+          "events": [
+            {
+              "action": "report",
+              "blocked": false,
+              "comm": "python",
+              "domain_id": 584750679,
+              "effect": "notify",
+              "event": "taint_violation",
+              "killed": false,
+              "matched_label": "0x10",
+              "matched_label_details": [
+                {
+                  "causal_chain": [
+                    {
+                      "label": "dd11b12a6f9d3_AGENT",
+                      "label_mask": "0x10",
+                      "origin_op": "exec",
+                      "origin_pid": 594219,
+                      "origin_target": "python",
+                      "origin_timestamp_ns": 95874695292852
+                    }
+                  ],
+                  "causal_chain_complete": false,
+                  "label": "dd11b12a6f9d3_AGENT",
+                  "label_mask": "0x10",
+                  "provenance": {
+                    "label": "dd11b12a6f9d3_AGENT",
+                    "label_mask": "0x10",
+                    "origin_op": "exec",
+                    "origin_pid": 594219,
+                    "origin_target": "python",
+                    "origin_timestamp_ns": 95874695292852
+                  },
+                  "provenance_status": "reported_first_origin"
+                }
+              ],
+              "matched_label_name": "dd11b12a6f9d3_AGENT",
+              "matched_label_names": [
+                "dd11b12a6f9d3_AGENT"
+              ],
+              "matched_labels": "0x10",
+              "op": "read",
+              "op_code": 1,
+              "pid": 594219,
+              "ppid": 594218,
+              "process_domain_id": 584750679,
+              "provenance": {
+                "label": "dd11b12a6f9d3_AGENT",
+                "label_mask": "0x10",
+                "origin_op": "exec",
+                "origin_pid": 594219,
+                "origin_target": "python",
+                "origin_timestamp_ns": 95874695292852
+              },
+              "provenance_model": {
+                "causal_chain_scope": "single_hop_origin",
+                "full_causal_chain": false,
+                "matched_labels_enumerated": true,
+                "reported_origin_available": true,
+                "reported_origin_scope": "first_available_matched_label"
+              },
+              "rule": {
+                "binding_mode": "locked",
+                "clause_end_line": 33,
+                "clause_hash": "fnv1a64:abe447dcec19240b",
+                "clause_op": "open",
+                "clause_source_index": 0,
+                "clause_start_line": 33,
+                "clause_text": "  notify open file \"**/*.agentscope-dsl-notify.txt\" if dd11b12a6f9d3_AGENT",
+                "effect": "notify",
+                "immutable": true,
+                "kernel_op": "read",
+                "name": "dd11b12a6f9d3-system-policy-99e4027861774bfaa785fb594754bc0e",
+                "ops": [
+                  "open"
+                ],
+                "reason": "Synthetic acceptance",
+                "source_end_line": 35,
+                "source_hash": "fnv1a64:cda432410c7efe64",
+                "source_ref": "dd11b12a6f9d3:0",
+                "source_start_line": 32,
+                "target_arg": null,
+                "target_kind": "file",
+                "target_pattern": "**/*.agentscope-dsl-notify.txt"
+              },
+              "rule_id": 6,
+              "schema": "actplane.violation.v1",
+              "session_root": 593970,
+              "taint_label": "0x1f",
+              "target": "/w/0/.agentscope-dsl-notify.txt",
+              "timestamp_unix_ns": "1791706073986167940",
+              "tool_call_tag": "0"
+            }
+          ]
+        },
+        {
+          "effect": "kill",
+          "probe": {
+            "pid": 594224,
+            "returncode": 137,
+            "outcome": null
+          },
+          "events": [
+            {
+              "action": "kill",
+              "blocked": false,
+              "comm": "python",
+              "domain_id": 584750679,
+              "effect": "kill",
+              "event": "taint_violation",
+              "killed": true,
+              "matched_label": "0x8",
+              "matched_label_details": [
+                {
+                  "causal_chain": [
+                    {
+                      "label": "dbbb451d81cd9_AGENT",
+                      "label_mask": "0x8",
+                      "origin_op": "exec",
+                      "origin_pid": 594224,
+                      "origin_target": "python",
+                      "origin_timestamp_ns": 95874839476467
+                    }
+                  ],
+                  "causal_chain_complete": false,
+                  "label": "dbbb451d81cd9_AGENT",
+                  "label_mask": "0x8",
+                  "provenance": {
+                    "label": "dbbb451d81cd9_AGENT",
+                    "label_mask": "0x8",
+                    "origin_op": "exec",
+                    "origin_pid": 594224,
+                    "origin_target": "python",
+                    "origin_timestamp_ns": 95874839476467
+                  },
+                  "provenance_status": "reported_first_origin"
+                }
+              ],
+              "matched_label_name": "dbbb451d81cd9_AGENT",
+              "matched_label_names": [
+                "dbbb451d81cd9_AGENT"
+              ],
+              "matched_labels": "0x8",
+              "op": "read",
+              "op_code": 1,
+              "pid": 594224,
+              "ppid": 594223,
+              "process_domain_id": 584750679,
+              "provenance": {
+                "label": "dbbb451d81cd9_AGENT",
+                "label_mask": "0x8",
+                "origin_op": "exec",
+                "origin_pid": 594224,
+                "origin_target": "python",
+                "origin_timestamp_ns": 95874839476467
+              },
+              "provenance_model": {
+                "causal_chain_scope": "single_hop_origin",
+                "full_causal_chain": false,
+                "matched_labels_enumerated": true,
+                "reported_origin_available": true,
+                "reported_origin_scope": "first_available_matched_label"
+              },
+              "rule": {
+                "binding_mode": "locked",
+                "clause_end_line": 19,
+                "clause_hash": "fnv1a64:db096070771de7f4",
+                "clause_op": "open",
+                "clause_source_index": 0,
+                "clause_start_line": 19,
+                "clause_text": "  kill open file \"**/*.agentscope-dsl-kill.txt\" if dbbb451d81cd9_AGENT",
+                "effect": "kill",
+                "immutable": true,
+                "kernel_op": "read",
+                "name": "dbbb451d81cd9-system-policy-1d1e1166d54549c3a0aa1798dc3f8824",
+                "ops": [
+                  "open"
+                ],
+                "reason": "Synthetic acceptance",
+                "source_end_line": 21,
+                "source_hash": "fnv1a64:3b04a622ea39e8b1",
+                "source_ref": "dbbb451d81cd9:0",
+                "source_start_line": 18,
+                "target_arg": null,
+                "target_kind": "file",
+                "target_pattern": "**/*.agentscope-dsl-kill.txt"
+              },
+              "rule_id": 4,
+              "schema": "actplane.violation.v1",
+              "session_root": 593970,
+              "taint_label": "0x1f",
+              "target": "/w/0/.agentscope-dsl-kill.txt",
+              "timestamp_unix_ns": "1791706074132515621",
+              "tool_call_tag": "0"
+            }
+          ]
+        }
+      ],
+      "dsl_hash": "fcfb58a42195d741974582ea485fb00194617be68cd38db21b406104d1ed819b",
+      "bundle_hash": "a0b1a186846b5cf2537a92ddc8aa78b576cf5d5841cd949d31a90090841e0313"
+    }
+  ],
+  "agent_isolation": {
+    "agent_probe": {
+      "pid": 595442,
+      "returncode": 0,
+      "outcome": {
+        "read_completed": false,
+        "errno": 1
+      }
+    },
+    "other_agent_probe": {
+      "pid": 595453,
+      "returncode": 0,
+      "outcome": {
+        "read_completed": true,
+        "errno": null
+      }
+    },
+    "inherited_probe": {
+      "pid": 595466,
+      "returncode": 0,
+      "outcome": {
+        "read_completed": false,
+        "errno": 1
+      }
+    },
+    "namespaces": [
+      "da17d9464de6d",
+      "d2a43e79993ec"
+    ]
+  },
+  "future_agent": {
+    "id": "instance-8ab6b5caa58f4a04",
+    "dsl_hash": "b07e705ae4c07fc925a74cf681122707bcd5a17cf20123360794979bc6ed090c",
+    "probe": {
+      "pid": 595755,
+      "returncode": 0,
+      "outcome": {
+        "read_completed": false,
+        "errno": 1
+      }
+    }
+  },
+  "passed": true
+}

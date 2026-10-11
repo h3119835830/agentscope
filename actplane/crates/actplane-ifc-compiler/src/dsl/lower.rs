@@ -23,7 +23,7 @@ const M_PREFIX: u8 = 1;
 const M_SUFFIX: u8 = 2;
 const M_ANY: u8 = 3;
 const M_CONTAINS: u8 = 4;
-const MAX_CONTAINS_LITERAL: usize = 16; // mirrors TAINT_SUF_MAX in bpf/taint.h
+const MAX_CONTAINS_LITERAL: usize = 16; // mirrors TAINT_CONTAINS_MAX
 const OP_EXEC: u8 = 0;
 const OP_OPEN: u8 = 1;
 const OP_WRITE: u8 = 2;
@@ -861,10 +861,68 @@ pub fn compile(pol: &Policy) -> Result<Compiled, String> {
     compile_with_labels(pol, &HashMap::new())
 }
 
+// Reject unrepresentable file literals before set_pat can truncate them.
+// Sources, sinks, target exceptions and event gates share the same field ABI.
+fn validate_file_literals(pol: &Policy) -> Result<(), String> {
+    fn check(pattern: &str) -> Result<(), String> {
+        let (_, literal) = lower_path(pattern);
+        if literal.len() >= PAT {
+            return Err(format!("file pattern literal exceeds {} bytes: {pattern}", PAT - 1));
+        }
+        Ok(())
+    }
+    fn file_op(op: Op) -> bool {
+        matches!(op, Op::Read | Op::Write | Op::Unlink | Op::Open)
+    }
+    for source in &pol.sources {
+        if source.kind == Kind::File { check(&source.pattern)?; }
+    }
+    for rule in &pol.rules {
+        for clause in &rule.clauses {
+            if clause.target.kind == Kind::File { check(&clause.target.pattern)?; }
+            match &clause.unless {
+                Some(Cond::Target { pattern, .. }) if clause.target.kind == Kind::File => check(pattern)?,
+                Some(Cond::After { gate_op, gate_pattern, since, .. }) => {
+                    if file_op(*gate_op) { check(gate_pattern)?; }
+                    for (op, pattern, _) in since {
+                        if file_op(*op) { check(pattern)?; }
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
+    Ok(())
+}
+
+#[cfg(test)]
+mod file_literal_limits {
+    use super::*;
+    #[test]
+    fn suffix_63_bytes_is_preserved_and_64_is_rejected_in_every_position() {
+        for n in [63, 64] {
+            let pattern = format!("**/*{}", "e".repeat(n));
+            let cases = [
+                format!("source SECRET = file \"{pattern}\"\nrule r:\n notify connect endpoint \"*\" if SECRET\n because \"source\""),
+                format!("rule r:\n block open file \"{pattern}\" if true\n because \"target\""),
+                format!("rule r:\n block open file \"*\" if true unless target \"{pattern}\"\n because \"exception\""),
+                format!("rule r:\n block exec \"git\" if true unless after read \"{pattern}\"\n because \"gate\""),
+                format!("rule r:\n block exec \"git\" if true unless after exec \"test\" since read \"{pattern}\"\n because \"invalidator\""),
+            ];
+            for source in cases {
+                let policy = crate::parse::parse(&source).unwrap();
+                let result = compile(&policy);
+                assert_eq!(result.is_ok(), n == 63, "{source}: {:?}", result.err());
+            }
+        }
+    }
+}
+
 pub fn compile_with_labels(
     pol: &Policy,
     existing_labels: &HashMap<String, u64>,
 ) -> Result<Compiled, String> {
+    validate_file_literals(pol)?;
     let sorted_labels = collect_label_names(pol);
     let pre_labels = existing_labels.clone();
     let used_labels = validate_label_bindings(&pre_labels)?;

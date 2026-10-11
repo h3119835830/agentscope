@@ -21,7 +21,7 @@ def document(text=TEXT,ident='doc',metadata=None):
 def world(client,tmp_path,monkeypatch):
     def clear():
         with db.connect() as con:
-            for table in ('instance_dsl_scopes','instance_dsl_proposals','instance_policy_receipts','instance_session_cache','instance_kernel_cursors','instance_kernel_events','instance_session_task_bindings','instance_leases','instance_events','instance_proposals','instance_proposal_locals','system_security_proposals','instance_local_policies','agent_instances'):
+            for table in ('system_policy_library_proposals','system_policy_library_versions','system_policy_library','instance_dsl_scopes','instance_dsl_proposals','instance_policy_receipts','instance_session_cache','instance_kernel_cursors','instance_kernel_events','instance_session_task_bindings','instance_leases','instance_events','instance_proposals','instance_proposal_locals','system_security_proposals','instance_local_policies','agent_instances'):
                 con.execute('DELETE FROM '+table)
             con.execute("UPDATE system_security_policy SET policy_json=?,policy_hash=?,revision=0,phase='ready'",(json.dumps(default_policy()),digest(default_policy())))
     clear()
@@ -33,12 +33,13 @@ def world(client,tmp_path,monkeypatch):
     # Use the real compiled clauses, not a regex-based replacement compiler.
     def compile_message(message,timeout=60):
         assert message['action']=='agent-instance-dsl-compile'
-        parsed=prepare(message['dsl_documents'],message['resources'])
+        parsed=prepare(message['dsl_documents'],message['resources'],{'dsh':'**/node','hermes':'**/python'}.get(message.get('agent_type')))
         from broker.instance_runtime import policy_dsl,validate_runtime_capabilities
         validate_runtime_capabilities(parsed)
         text=policy_dsl(message['resources'],message['policy'])+'\n'+'\n'.join(d['effective_dsl'] for d in parsed)
         path=tmp_path/'compile.yaml';path.write_text('version: 1\npolicy: |\n'+''.join('  '+l+'\n' for l in text.splitlines()))
-        result=subprocess.run(['/opt/agentscope/bin/actplane','--policy',str(path),'compile','--json'],capture_output=True,text=True,timeout=15)
+        engine=Path(__file__).resolve().parents[2]/'actplane/target/release/actplane'
+        result=subprocess.run([str(engine),'--policy',str(path),'compile','--json'],capture_output=True,text=True,timeout=15)
         if result.returncode:raise ValueError(result.stderr)
         compiled=json.loads(result.stdout)
         if not all(x['supported'] for x in compiled['backend_support']['clauses']):raise ValueError('Unsupported clause')
@@ -55,7 +56,7 @@ def world(client,tmp_path,monkeypatch):
             calls.append(('start',row['id']))
             if fail['start']:raise RuntimeError('load failed')
             spec=dsl.launch_spec(row)
-            artifact=compile_message(dict(action='agent-instance-dsl-compile',instance_id=row['id'],resources=row['resources'],policy=row['policy'],dsl_documents=spec['dsl_documents']))
+            artifact=compile_message(dict(action='agent-instance-dsl-compile',instance_id=row['id'],agent_type=row['agent_type'],resources=row['resources'],policy=row['policy'],dsl_documents=spec['dsl_documents']))
             runtime=dict(connected=True,verified=True,generation=generation,pid=1234,domain_id=900,dsl_hash=spec['dsl_hash'],policy_artifact={**artifact,'loaded':True})
             live[row['id']]={**runtime,'id':row['id']};return runtime
     monkeypatch.setattr(c,'adapter',lambda row:Adapter())

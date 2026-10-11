@@ -52,10 +52,10 @@
 #endif
 
 #define TAINT_PAT_LEN     64
-#define TAINT_SUF_MAX     16   /* max suffix/contains literal length; keeps path hooks verifier-cheap */
-/* Text/path buffers feeding the matchers are over-allocated by TAINT_SUF_MAX so
- * taint_suffix's constant-size aligned-tail copy at any off < TAINT_PAT_LEN stays
- * in bounds. */
+#define TAINT_SUF_MAX     63   /* literal suffix length, independent of contains */
+#define TAINT_CONTAINS_MAX 16
+/* Exec scratch also feeds the fixed-width public event copy. File path
+ * matching uses its separate PATH_MAX scratch in taint_engine.bpf.h. */
 #define TAINT_TEXT_BUF    (TAINT_PAT_LEN + TAINT_SUF_MAX)
 #define TAINT_ARG_LEN     24   /* max @arg token length / slot width */
 #define TAINT_ARGV_CAP    128  /* bytes of the argv blob tokenized */
@@ -245,7 +245,7 @@ static TAINT_NOINLINE int taint_suffix(const char *text, const char *suf)
 		off = 0;
 	if (off > TAINT_PAT_LEN - 1)
 		off = TAINT_PAT_LEN - 1;
-	TE_COPY(tail, TAINT_SUF_MAX, text + off);
+	TE_COPY(tail, sn, text + off);
 	long diff = 0;
 	TAINT_UNROLL
 	for (int j = 0; j < TAINT_SUF_MAX; j++) {

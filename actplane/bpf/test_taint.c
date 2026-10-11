@@ -59,6 +59,12 @@ static void test_match(void)
 	check(p_match(TAINT_MATCH_SUFFIX, "/home/u/.env", ".env") == 1, "match: suffix hit");
 	check(p_match(TAINT_MATCH_SUFFIX, "/home/u/app.py", ".env") == 0, "match: suffix miss");
 	check(p_match(TAINT_MATCH_SUFFIX, "api.internal", ".internal") == 1, "match: host suffix");
+	char longest[TAINT_PAT_LEN];
+	memset(longest, 'a', sizeof(longest)); longest[0] = '.'; longest[63] = 0;
+	check(p_match(TAINT_MATCH_SUFFIX, longest, longest) == 1, "match: 63-byte suffix");
+	check(p_match(TAINT_MATCH_SUFFIX, "/tmp/production.env", ".env") == 1, "match: extension suffix");
+	check(p_match(TAINT_MATCH_SUFFIX, "/tmp/.env.local", ".env") == 0, "match: trailing extension excluded");
+	check(p_match(TAINT_MATCH_SUFFIX, "/tmp/production.ENV", ".env") == 0, "match: case-sensitive suffix");
 	check(p_match(TAINT_MATCH_ANY, "literally anything", "") == 1, "match: any");
 	check(p_match(TAINT_MATCH_CONTAINS, "/home/u/server/app/f", "/server/") == 1, "match: contains hit");
 	check(p_match(TAINT_MATCH_CONTAINS, "/home/u/client/app/f", "/server/") == 0, "match: contains miss");

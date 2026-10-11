@@ -1,0 +1,2030 @@
+{
+  "schema": "agentscope.execution-capabilities.v1",
+  "binary_sha256": "5e8d43c279d88bd4215f654746675debfd976e28426c9fabdabeca408865d6da",
+  "kernel_release": "6.6.114.1-microsoft-standard-WSL2",
+  "root": "/tmp/asp-kernel-jvyovde7",
+  "cases": [
+    {
+      "name": "suffix-block",
+      "returncode": 0,
+      "stdout": "🚫 BLOCKED: process 'python3' (pid 604217, ppid 604200) — /tmp/asp-kernel-jvyovde7/.env\n   effect: block\n   reason: Synthetic kernel acceptance\n   provenance: pid 604217 exec python3 -> label AGENT\nRESULT={\"pid\": 604217, \"reads\": [[\"/tmp/asp-kernel-jvyovde7/.env\", false], [\"/tmp/asp-kernel-jvyovde7/production.env\", false], [\"/tmp/asp-kernel-jvyovde7/.env.local\", true], [\"/tmp/asp-kernel-jvyovde7/production.ENV\", true], [\"/tmp/asp-kernel-jvyovde7/public.txt\", true], [\"/tmp/asp-kernel-jvyovde7/key.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", true], [\"/tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-3-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-4-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-5-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-6-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-7-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-8-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-9-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/.env\", false], [\"/tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-3-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-4-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-5-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-6-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-7-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-8-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-9-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/production.env\", false], [\"/tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-3-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-4-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-5-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-6-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-7-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-8-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-9-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/.env.local\", true], [\"/tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-3-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-4-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-5-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-6-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-7-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-8-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-9-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/production.ENV\", true], [\"/tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-3-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-4-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-5-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-6-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-7-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-8-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-9-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/public.txt\", true], [\"/tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-3-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-4-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-5-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-6-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-7-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-8-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-9-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/key.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", true], [\"/tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-3-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-4-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-5-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-6-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-7-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-8-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-9-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/alias.txt\", false], [\"/tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-3-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-4-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-5-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-6-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-7-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-8-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-9-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/alias.env\", true]]}\n🚫 BLOCKED: process 'python3' (pid 604217, ppid 604200) — /tmp/asp-kernel-jvyovde7/production.env\n   effect: block\n   reason: Synthetic kernel acceptance\n   provenance: pid 604217 exec python3 -> label AGENT\n🚫 BLOCKED: process 'python3' (pid 604217, ppid 604200) — /tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaa\n   effect: block\n   reason: Synthetic kernel acceptance\n   provenance: pid 604217 exec python3 -> label AGENT\n🚫 BLOCKED: process 'python3' (pid 604217, ppid 604200) — /tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaa\n   effect: block\n   reason: Synthetic kernel acceptance\n   provenance: pid 604217 exec python3 -> label AGENT\n🚫 BLOCKED: process 'python3' (pid 604217, ppid 604200) — /tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaa\n   effect: block\n   reason: Synthetic kernel acceptance\n   provenance: pid 604217 exec python3 -> label AGENT\n",
+      "stderr": "ActPlane: running pid 604217 under COMMAND label 0x1; feedback /tmp/asp-kernel-jvyovde7/case-suffix-block/.actplane/runs/run-604200-1791706281595270648/feedback.txt\n\n",
+      "events": [
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "python3",
+          "domain_id": 748278108,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 604217,
+                  "origin_target": "python3",
+                  "origin_timestamp_ns": 96087583919200
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 604217,
+                "origin_target": "python3",
+                "origin_timestamp_ns": 96087583919200
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "read",
+          "op_code": 1,
+          "pid": 604217,
+          "ppid": 604200,
+          "process_domain_id": 748278108,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 604217,
+            "origin_target": "python3",
+            "origin_timestamp_ns": 96087583919200
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:26dc6ca1c1de6c18",
+            "clause_op": "open",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": " block open file \"**/*.env\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "read",
+            "name": "suffix-block",
+            "ops": [
+              "open"
+            ],
+            "reason": "Synthetic kernel acceptance",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:24c0a634d06c8fe4",
+            "source_ref": "rule:suffix-block",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "**/*.env"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 604217,
+          "taint_label": "0x1",
+          "target": "/tmp/asp-kernel-jvyovde7/.env",
+          "timestamp_unix_ns": "1791706286864539289",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "python3",
+          "domain_id": 748278108,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 604217,
+                  "origin_target": "python3",
+                  "origin_timestamp_ns": 96087583919200
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 604217,
+                "origin_target": "python3",
+                "origin_timestamp_ns": 96087583919200
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "read",
+          "op_code": 1,
+          "pid": 604217,
+          "ppid": 604200,
+          "process_domain_id": 748278108,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 604217,
+            "origin_target": "python3",
+            "origin_timestamp_ns": 96087583919200
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:26dc6ca1c1de6c18",
+            "clause_op": "open",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": " block open file \"**/*.env\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "read",
+            "name": "suffix-block",
+            "ops": [
+              "open"
+            ],
+            "reason": "Synthetic kernel acceptance",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:24c0a634d06c8fe4",
+            "source_ref": "rule:suffix-block",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "**/*.env"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 604217,
+          "taint_label": "0x1",
+          "target": "/tmp/asp-kernel-jvyovde7/production.env",
+          "timestamp_unix_ns": "1791706286864947158",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "python3",
+          "domain_id": 748278108,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 604217,
+                  "origin_target": "python3",
+                  "origin_timestamp_ns": 96087583919200
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 604217,
+                "origin_target": "python3",
+                "origin_timestamp_ns": 96087583919200
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "read",
+          "op_code": 1,
+          "pid": 604217,
+          "ppid": 604200,
+          "process_domain_id": 748278108,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 604217,
+            "origin_target": "python3",
+            "origin_timestamp_ns": 96087583919200
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:26dc6ca1c1de6c18",
+            "clause_op": "open",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": " block open file \"**/*.env\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "read",
+            "name": "suffix-block",
+            "ops": [
+              "open"
+            ],
+            "reason": "Synthetic kernel acceptance",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:24c0a634d06c8fe4",
+            "source_ref": "rule:suffix-block",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "**/*.env"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 604217,
+          "taint_label": "0x1",
+          "target": "/tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaa",
+          "timestamp_unix_ns": "1791706286865307632",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "python3",
+          "domain_id": 748278108,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 604217,
+                  "origin_target": "python3",
+                  "origin_timestamp_ns": 96087583919200
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 604217,
+                "origin_target": "python3",
+                "origin_timestamp_ns": 96087583919200
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "read",
+          "op_code": 1,
+          "pid": 604217,
+          "ppid": 604200,
+          "process_domain_id": 748278108,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 604217,
+            "origin_target": "python3",
+            "origin_timestamp_ns": 96087583919200
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:26dc6ca1c1de6c18",
+            "clause_op": "open",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": " block open file \"**/*.env\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "read",
+            "name": "suffix-block",
+            "ops": [
+              "open"
+            ],
+            "reason": "Synthetic kernel acceptance",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:24c0a634d06c8fe4",
+            "source_ref": "rule:suffix-block",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "**/*.env"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 604217,
+          "taint_label": "0x1",
+          "target": "/tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaa",
+          "timestamp_unix_ns": "1791706286865655470",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "python3",
+          "domain_id": 748278108,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 604217,
+                  "origin_target": "python3",
+                  "origin_timestamp_ns": 96087583919200
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 604217,
+                "origin_target": "python3",
+                "origin_timestamp_ns": 96087583919200
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "read",
+          "op_code": 1,
+          "pid": 604217,
+          "ppid": 604200,
+          "process_domain_id": 748278108,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 604217,
+            "origin_target": "python3",
+            "origin_timestamp_ns": 96087583919200
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:26dc6ca1c1de6c18",
+            "clause_op": "open",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": " block open file \"**/*.env\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "read",
+            "name": "suffix-block",
+            "ops": [
+              "open"
+            ],
+            "reason": "Synthetic kernel acceptance",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:24c0a634d06c8fe4",
+            "source_ref": "rule:suffix-block",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "**/*.env"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 604217,
+          "taint_label": "0x1",
+          "target": "/tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaa",
+          "timestamp_unix_ns": "1791706286866055968",
+          "tool_call_tag": "0"
+        }
+      ],
+      "dsl": "source AGENT = exec \"**/python3\"\n\nrule suffix-block:\n block open file \"**/*.env\" if AGENT\n because \"Synthetic kernel acceptance\"\n"
+    },
+    {
+      "name": "suffix-notify",
+      "returncode": 0,
+      "stdout": "🚫 VIOLATION: process 'python3' (pid 604308, ppid 604291) — /tmp/asp-kernel-jvyovde7/.env\n   effect: notify\n   reason: Synthetic kernel acceptance\n   provenance: pid 604308 exec python3 -> label AGENT\nRESULT={\"pid\": 604308, \"reads\": [[\"/tmp/asp-kernel-jvyovde7/.env\", true], [\"/tmp/asp-kernel-jvyovde7/production.env\", true], [\"/tmp/asp-kernel-jvyovde7/.env.local\", true], [\"/tmp/asp-kernel-jvyovde7/production.ENV\", true], [\"/tmp/asp-kernel-jvyovde7/public.txt\", true], [\"/tmp/asp-kernel-jvyovde7/key.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", true], [\"/tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-3-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-4-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-5-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-6-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-7-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-8-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-9-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/.env\", true], [\"/tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-3-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-4-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-5-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-6-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-7-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-8-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-9-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/production.env\", true], [\"/tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-3-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-4-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-5-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-6-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-7-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-8-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-9-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/.env.local\", true], [\"/tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-3-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-4-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-5-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-6-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-7-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-8-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-9-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/production.ENV\", true], [\"/tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-3-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-4-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-5-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-6-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-7-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-8-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-9-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/public.txt\", true], [\"/tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-3-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-4-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-5-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-6-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-7-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-8-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-9-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/key.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", true], [\"/tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-3-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-4-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-5-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-6-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-7-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-8-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-9-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/alias.txt\", true], [\"/tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-3-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-4-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-5-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-6-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-7-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-8-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-9-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/alias.env\", true]]}\n🚫 VIOLATION: process 'python3' (pid 604308, ppid 604291) — /tmp/asp-kernel-jvyovde7/production.env\n   effect: notify\n   reason: Synthetic kernel acceptance\n   provenance: pid 604308 exec python3 -> label AGENT\n🚫 VIOLATION: process 'python3' (pid 604308, ppid 604291) — /tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaa\n   effect: notify\n   reason: Synthetic kernel acceptance\n   provenance: pid 604308 exec python3 -> label AGENT\n🚫 VIOLATION: process 'python3' (pid 604308, ppid 604291) — /tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaa\n   effect: notify\n   reason: Synthetic kernel acceptance\n   provenance: pid 604308 exec python3 -> label AGENT\n🚫 VIOLATION: process 'python3' (pid 604308, ppid 604291) — /tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaa\n   effect: notify\n   reason: Synthetic kernel acceptance\n   provenance: pid 604308 exec python3 -> label AGENT\n",
+      "stderr": "ActPlane: running pid 604308 under COMMAND label 0x1; feedback /tmp/asp-kernel-jvyovde7/case-suffix-notify/.actplane/runs/run-604291-1791706287174781680/feedback.txt\n\n",
+      "events": [
+        {
+          "action": "report",
+          "blocked": false,
+          "comm": "python3",
+          "domain_id": 262523556,
+          "effect": "notify",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 604308,
+                  "origin_target": "python3",
+                  "origin_timestamp_ns": 96087918817614
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 604308,
+                "origin_target": "python3",
+                "origin_timestamp_ns": 96087918817614
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "read",
+          "op_code": 1,
+          "pid": 604308,
+          "ppid": 604291,
+          "process_domain_id": 262523556,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 604308,
+            "origin_target": "python3",
+            "origin_timestamp_ns": 96087918817614
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:4d9814ccd3e3ba7e",
+            "clause_op": "open",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": " notify open file \"**/*.env\" if AGENT",
+            "effect": "notify",
+            "immutable": false,
+            "kernel_op": "read",
+            "name": "suffix-notify",
+            "ops": [
+              "open"
+            ],
+            "reason": "Synthetic kernel acceptance",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:831775f0246156ae",
+            "source_ref": "rule:suffix-notify",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "**/*.env"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 604308,
+          "taint_label": "0x1",
+          "target": "/tmp/asp-kernel-jvyovde7/.env",
+          "timestamp_unix_ns": "1791706287199542452",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "report",
+          "blocked": false,
+          "comm": "python3",
+          "domain_id": 262523556,
+          "effect": "notify",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 604308,
+                  "origin_target": "python3",
+                  "origin_timestamp_ns": 96087918817614
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 604308,
+                "origin_target": "python3",
+                "origin_timestamp_ns": 96087918817614
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "read",
+          "op_code": 1,
+          "pid": 604308,
+          "ppid": 604291,
+          "process_domain_id": 262523556,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 604308,
+            "origin_target": "python3",
+            "origin_timestamp_ns": 96087918817614
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:4d9814ccd3e3ba7e",
+            "clause_op": "open",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": " notify open file \"**/*.env\" if AGENT",
+            "effect": "notify",
+            "immutable": false,
+            "kernel_op": "read",
+            "name": "suffix-notify",
+            "ops": [
+              "open"
+            ],
+            "reason": "Synthetic kernel acceptance",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:831775f0246156ae",
+            "source_ref": "rule:suffix-notify",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "**/*.env"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 604308,
+          "taint_label": "0x1",
+          "target": "/tmp/asp-kernel-jvyovde7/production.env",
+          "timestamp_unix_ns": "1791706287199863573",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "report",
+          "blocked": false,
+          "comm": "python3",
+          "domain_id": 262523556,
+          "effect": "notify",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 604308,
+                  "origin_target": "python3",
+                  "origin_timestamp_ns": 96087918817614
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 604308,
+                "origin_target": "python3",
+                "origin_timestamp_ns": 96087918817614
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "read",
+          "op_code": 1,
+          "pid": 604308,
+          "ppid": 604291,
+          "process_domain_id": 262523556,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 604308,
+            "origin_target": "python3",
+            "origin_timestamp_ns": 96087918817614
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:4d9814ccd3e3ba7e",
+            "clause_op": "open",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": " notify open file \"**/*.env\" if AGENT",
+            "effect": "notify",
+            "immutable": false,
+            "kernel_op": "read",
+            "name": "suffix-notify",
+            "ops": [
+              "open"
+            ],
+            "reason": "Synthetic kernel acceptance",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:831775f0246156ae",
+            "source_ref": "rule:suffix-notify",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "**/*.env"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 604308,
+          "taint_label": "0x1",
+          "target": "/tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaa",
+          "timestamp_unix_ns": "1791706287200177319",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "report",
+          "blocked": false,
+          "comm": "python3",
+          "domain_id": 262523556,
+          "effect": "notify",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 604308,
+                  "origin_target": "python3",
+                  "origin_timestamp_ns": 96087918817614
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 604308,
+                "origin_target": "python3",
+                "origin_timestamp_ns": 96087918817614
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "read",
+          "op_code": 1,
+          "pid": 604308,
+          "ppid": 604291,
+          "process_domain_id": 262523556,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 604308,
+            "origin_target": "python3",
+            "origin_timestamp_ns": 96087918817614
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:4d9814ccd3e3ba7e",
+            "clause_op": "open",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": " notify open file \"**/*.env\" if AGENT",
+            "effect": "notify",
+            "immutable": false,
+            "kernel_op": "read",
+            "name": "suffix-notify",
+            "ops": [
+              "open"
+            ],
+            "reason": "Synthetic kernel acceptance",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:831775f0246156ae",
+            "source_ref": "rule:suffix-notify",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "**/*.env"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 604308,
+          "taint_label": "0x1",
+          "target": "/tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaa",
+          "timestamp_unix_ns": "1791706287200565762",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "report",
+          "blocked": false,
+          "comm": "python3",
+          "domain_id": 262523556,
+          "effect": "notify",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 604308,
+                  "origin_target": "python3",
+                  "origin_timestamp_ns": 96087918817614
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 604308,
+                "origin_target": "python3",
+                "origin_timestamp_ns": 96087918817614
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "read",
+          "op_code": 1,
+          "pid": 604308,
+          "ppid": 604291,
+          "process_domain_id": 262523556,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 604308,
+            "origin_target": "python3",
+            "origin_timestamp_ns": 96087918817614
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:4d9814ccd3e3ba7e",
+            "clause_op": "open",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": " notify open file \"**/*.env\" if AGENT",
+            "effect": "notify",
+            "immutable": false,
+            "kernel_op": "read",
+            "name": "suffix-notify",
+            "ops": [
+              "open"
+            ],
+            "reason": "Synthetic kernel acceptance",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:831775f0246156ae",
+            "source_ref": "rule:suffix-notify",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "**/*.env"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 604308,
+          "taint_label": "0x1",
+          "target": "/tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaa",
+          "timestamp_unix_ns": "1791706287200877568",
+          "tool_call_tag": "0"
+        }
+      ],
+      "dsl": "source AGENT = exec \"**/python3\"\n\nrule suffix-notify:\n notify open file \"**/*.env\" if AGENT\n because \"Synthetic kernel acceptance\"\n"
+    },
+    {
+      "name": "suffix-kill",
+      "returncode": 137,
+      "stdout": "RESULT={\"pid\": 604329}\n🚫 KILLED: process 'python3' (pid 604329, ppid 604312) — /tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaa\n   effect: kill\n   reason: Synthetic kernel acceptance\n   provenance: pid 604329 exec python3 -> label AGENT\n",
+      "stderr": "ActPlane: running pid 604329 under COMMAND label 0x1; feedback /tmp/asp-kernel-jvyovde7/case-suffix-kill/.actplane/runs/run-604312-1791706287508222889/feedback.txt\n\n",
+      "events": [
+        {
+          "action": "kill",
+          "blocked": false,
+          "comm": "python3",
+          "domain_id": 680126436,
+          "effect": "kill",
+          "event": "taint_violation",
+          "killed": true,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 604329,
+                  "origin_target": "python3",
+                  "origin_timestamp_ns": 96088254570009
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 604329,
+                "origin_target": "python3",
+                "origin_timestamp_ns": 96088254570009
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "read",
+          "op_code": 1,
+          "pid": 604329,
+          "ppid": 604312,
+          "process_domain_id": 680126436,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 604329,
+            "origin_target": "python3",
+            "origin_timestamp_ns": 96088254570009
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:8282e5b787276b07",
+            "clause_op": "open",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": " kill open file \"**/*.env\" if AGENT",
+            "effect": "kill",
+            "immutable": false,
+            "kernel_op": "read",
+            "name": "suffix-kill",
+            "ops": [
+              "open"
+            ],
+            "reason": "Synthetic kernel acceptance",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:74a6e39776c96a98",
+            "source_ref": "rule:suffix-kill",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "**/*.env"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 604329,
+          "taint_label": "0x1",
+          "target": "/tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaa",
+          "timestamp_unix_ns": "1791706287537657566",
+          "tool_call_tag": "0"
+        }
+      ],
+      "dsl": "source AGENT = exec \"**/python3\"\n\nrule suffix-kill:\n kill open file \"**/*.env\" if AGENT\n because \"Synthetic kernel acceptance\"\n"
+    },
+    {
+      "name": "filename",
+      "returncode": 0,
+      "stdout": "🚫 BLOCKED: process 'python3' (pid 604351, ppid 604334) — /tmp/asp-kernel-jvyovde7/.env\nRESULT={\"pid\": 604351, \"reads\": [[\"/tmp/asp-kernel-jvyovde7/.env\", false], [\"/tmp/asp-kernel-jvyovde7/production.env\", true], [\"/tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-3-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-4-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-5-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-6-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-7-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-8-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-9-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/.env\", false], [\"/tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-3-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-4-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-5-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-6-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-7-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-8-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-9-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/production.env\", true]]}\n   effect: block\n   reason: Synthetic kernel acceptance\n   provenance: pid 604351 exec python3 -> label AGENT\n🚫 BLOCKED: process 'python3' (pid 604351, ppid 604334) — /tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaa\n   effect: block\n   reason: Synthetic kernel acceptance\n   provenance: pid 604351 exec python3 -> label AGENT\n",
+      "stderr": "ActPlane: running pid 604351 under COMMAND label 0x1; feedback /tmp/asp-kernel-jvyovde7/case-filename/.actplane/runs/run-604334-1791706287745443631/feedback.txt\n\n",
+      "events": [
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "python3",
+          "domain_id": 1667055332,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 604351,
+                  "origin_target": "python3",
+                  "origin_timestamp_ns": 96088488862104
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 604351,
+                "origin_target": "python3",
+                "origin_timestamp_ns": 96088488862104
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "read",
+          "op_code": 1,
+          "pid": 604351,
+          "ppid": 604334,
+          "process_domain_id": 1667055332,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 604351,
+            "origin_target": "python3",
+            "origin_timestamp_ns": 96088488862104
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:7411b682b9bdfa68",
+            "clause_op": "open",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": " block open file \"**/.env\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "read",
+            "name": "filename",
+            "ops": [
+              "open"
+            ],
+            "reason": "Synthetic kernel acceptance",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:5c737f24d8f85cba",
+            "source_ref": "rule:filename",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "**/.env"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 604351,
+          "taint_label": "0x1",
+          "target": "/tmp/asp-kernel-jvyovde7/.env",
+          "timestamp_unix_ns": "1791706287770379938",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "python3",
+          "domain_id": 1667055332,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 604351,
+                  "origin_target": "python3",
+                  "origin_timestamp_ns": 96088488862104
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 604351,
+                "origin_target": "python3",
+                "origin_timestamp_ns": 96088488862104
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "read",
+          "op_code": 1,
+          "pid": 604351,
+          "ppid": 604334,
+          "process_domain_id": 1667055332,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 604351,
+            "origin_target": "python3",
+            "origin_timestamp_ns": 96088488862104
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:7411b682b9bdfa68",
+            "clause_op": "open",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": " block open file \"**/.env\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "read",
+            "name": "filename",
+            "ops": [
+              "open"
+            ],
+            "reason": "Synthetic kernel acceptance",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:5c737f24d8f85cba",
+            "source_ref": "rule:filename",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "**/.env"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 604351,
+          "taint_label": "0x1",
+          "target": "/tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaa",
+          "timestamp_unix_ns": "1791706287770665512",
+          "tool_call_tag": "0"
+        }
+      ],
+      "dsl": "source AGENT = exec \"**/python3\"\n\nrule filename:\n block open file \"**/.env\" if AGENT\n because \"Synthetic kernel acceptance\"\n"
+    },
+    {
+      "name": "long-suffix",
+      "returncode": 0,
+      "stdout": "RESULT={\"pid\": 604375, \"reads\": [[\"/tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-3-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-4-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-5-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-6-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-7-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-8-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-9-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/key.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", false], [\"/tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-3-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-4-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-5-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-6-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-7-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-8-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-9-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/public.txt\", true]]}\n🚫 BLOCKED: process 'python3' (pid 604375, ppid 604358) — /tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaa\n   effect: block\n   reason: Synthetic kernel acceptance\n   provenance: pid 604375 exec python3 -> label AGENT\n",
+      "stderr": "ActPlane: running pid 604375 under COMMAND label 0x1; feedback /tmp/asp-kernel-jvyovde7/case-long-suffix/.actplane/runs/run-604358-1791706288076365309/feedback.txt\n\n",
+      "events": [
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "python3",
+          "domain_id": 410656738,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 604375,
+                  "origin_target": "python3",
+                  "origin_timestamp_ns": 96088816112427
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 604375,
+                "origin_target": "python3",
+                "origin_timestamp_ns": 96088816112427
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "read",
+          "op_code": 1,
+          "pid": 604375,
+          "ppid": 604358,
+          "process_domain_id": 410656738,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 604375,
+            "origin_target": "python3",
+            "origin_timestamp_ns": 96088816112427
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:154631f4748d631b",
+            "clause_op": "open",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": " block open file \"**/*.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "read",
+            "name": "long-suffix",
+            "ops": [
+              "open"
+            ],
+            "reason": "Synthetic kernel acceptance",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:b16eb69661e9c7b4",
+            "source_ref": "rule:long-suffix",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "**/*.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 604375,
+          "taint_label": "0x1",
+          "target": "/tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaa",
+          "timestamp_unix_ns": "1791706288096225251",
+          "tool_call_tag": "0"
+        }
+      ],
+      "dsl": "source AGENT = exec \"**/python3\"\n\nrule long-suffix:\n block open file \"**/*.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\" if AGENT\n because \"Synthetic kernel acceptance\"\n"
+    },
+    {
+      "name": "suffix-mutations",
+      "returncode": 0,
+      "stdout": "🚫 BLOCKED: process 'python3' (pid 604402, ppid 604385) — /tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaa\n   effect: block\n   reason: Synthetic kernel acceptance\n   provenance: pid 604402 exec python3 -> label AGENT\nRESULT={\"pid\": 604402, \"mutations\": [[\"write\", false], [\"unlink\", false], [\"write\", true], [\"unlink\", true]]}\n🚫 BLOCKED: process 'python3' (pid 604402, ppid 604385) — /tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaa\n   effect: block\n   reason: Synthetic kernel acceptance\n   provenance: pid 604402 exec python3 -> label AGENT\n",
+      "stderr": "ActPlane: running pid 604402 under COMMAND label 0x1; feedback /tmp/asp-kernel-jvyovde7/case-suffix-mutations/.actplane/runs/run-604385-1791706288401696000/feedback.txt\n\n",
+      "events": [
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "python3",
+          "domain_id": 1129757828,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 604402,
+                  "origin_target": "python3",
+                  "origin_timestamp_ns": 96089141530753
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 604402,
+                "origin_target": "python3",
+                "origin_timestamp_ns": 96089141530753
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "write",
+          "op_code": 2,
+          "pid": 604402,
+          "ppid": 604385,
+          "process_domain_id": 1129757828,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 604402,
+            "origin_target": "python3",
+            "origin_timestamp_ns": 96089141530753
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:22b3667ec450a30d",
+            "clause_op": "write",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": " block write file \"**/*.env\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "write",
+            "name": "suffix-mutations",
+            "ops": [
+              "write"
+            ],
+            "reason": "Synthetic kernel acceptance",
+            "source_end_line": 6,
+            "source_hash": "fnv1a64:4f90361316033f78",
+            "source_ref": "rule:suffix-mutations",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "**/*.env"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 604402,
+          "taint_label": "0x1",
+          "target": "/tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaa",
+          "timestamp_unix_ns": "1791706288422335390",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "python3",
+          "domain_id": 1129757828,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 604402,
+                  "origin_target": "python3",
+                  "origin_timestamp_ns": 96089141530753
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 604402,
+                "origin_target": "python3",
+                "origin_timestamp_ns": 96089141530753
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "write",
+          "op_code": 2,
+          "pid": 604402,
+          "ppid": 604385,
+          "process_domain_id": 1129757828,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 604402,
+            "origin_target": "python3",
+            "origin_timestamp_ns": 96089141530753
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:22b3667ec450a30d",
+            "clause_op": "write",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": " block write file \"**/*.env\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "write",
+            "name": "suffix-mutations",
+            "ops": [
+              "write"
+            ],
+            "reason": "Synthetic kernel acceptance",
+            "source_end_line": 6,
+            "source_hash": "fnv1a64:4f90361316033f78",
+            "source_ref": "rule:suffix-mutations",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "**/*.env"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 604402,
+          "taint_label": "0x1",
+          "target": "/tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaa",
+          "timestamp_unix_ns": "1791706288422625143",
+          "tool_call_tag": "0"
+        }
+      ],
+      "dsl": "source AGENT = exec \"**/python3\"\n\nrule suffix-mutations:\n block write file \"**/*.env\" if AGENT\n block unlink file \"**/*.env\" if AGENT\n because \"Synthetic kernel acceptance\"\n"
+    },
+    {
+      "name": "directory",
+      "returncode": 0,
+      "stdout": "RESULT={\"pid\": 604421, \"reads\": [[\"/tmp/asp-kernel-jvyovde7/directory\", false], [\"/tmp/asp-kernel-jvyovde7/directory/plain\", false], [\"/tmp/asp-kernel-jvyovde7/public.txt\", true]]}\n🚫 BLOCKED: process 'python3' (pid 604421, ppid 604404) — /tmp/asp-kernel-jvyovde7/directory\n   effect: block\n   reason: Synthetic kernel acceptance\n   provenance: pid 604421 exec python3 -> label AGENT\n🚫 BLOCKED: process 'python3' (pid 604421, ppid 604404) — /tmp/asp-kernel-jvyovde7/directory/plain\n   effect: block\n   reason: Synthetic kernel acceptance\n   provenance: pid 604421 exec python3 -> label AGENT\n",
+      "stderr": "ActPlane: running pid 604421 under COMMAND label 0x1; feedback /tmp/asp-kernel-jvyovde7/case-directory/.actplane/runs/run-604404-1791706288737597547/feedback.txt\n\n",
+      "events": [
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "python3",
+          "domain_id": 803558942,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 604421,
+                  "origin_target": "python3",
+                  "origin_timestamp_ns": 96089484189756
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 604421,
+                "origin_target": "python3",
+                "origin_timestamp_ns": 96089484189756
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "read",
+          "op_code": 1,
+          "pid": 604421,
+          "ppid": 604404,
+          "process_domain_id": 803558942,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 604421,
+            "origin_target": "python3",
+            "origin_timestamp_ns": 96089484189756
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:194419197802da7a",
+            "clause_op": "open",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": " block open file \"/tmp/asp-kernel-jvyovde7/directory\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "read",
+            "name": "directory",
+            "ops": [
+              "open"
+            ],
+            "reason": "Synthetic kernel acceptance",
+            "source_end_line": 6,
+            "source_hash": "fnv1a64:f63f7c72d8b0d9dc",
+            "source_ref": "rule:directory",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/asp-kernel-jvyovde7/directory"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 604421,
+          "taint_label": "0x1",
+          "target": "/tmp/asp-kernel-jvyovde7/directory",
+          "timestamp_unix_ns": "1791706288765883623",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "python3",
+          "domain_id": 803558942,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 604421,
+                  "origin_target": "python3",
+                  "origin_timestamp_ns": 96089484189756
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 604421,
+                "origin_target": "python3",
+                "origin_timestamp_ns": 96089484189756
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "read",
+          "op_code": 1,
+          "pid": 604421,
+          "ppid": 604404,
+          "process_domain_id": 803558942,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 604421,
+            "origin_target": "python3",
+            "origin_timestamp_ns": 96089484189756
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 5,
+            "clause_hash": "fnv1a64:a9fbb9d5bdb14123",
+            "clause_op": "open",
+            "clause_source_index": 1,
+            "clause_start_line": 5,
+            "clause_text": " block open file \"/tmp/asp-kernel-jvyovde7/directory/**\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "read",
+            "name": "directory",
+            "ops": [
+              "open"
+            ],
+            "reason": "Synthetic kernel acceptance",
+            "source_end_line": 6,
+            "source_hash": "fnv1a64:f63f7c72d8b0d9dc",
+            "source_ref": "rule:directory",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/asp-kernel-jvyovde7/directory/**"
+          },
+          "rule_id": 1,
+          "schema": "actplane.violation.v1",
+          "session_root": 604421,
+          "taint_label": "0x1",
+          "target": "/tmp/asp-kernel-jvyovde7/directory/plain",
+          "timestamp_unix_ns": "1791706288766186165",
+          "tool_call_tag": "0"
+        }
+      ],
+      "dsl": "source AGENT = exec \"**/python3\"\n\nrule directory:\n block open file \"/tmp/asp-kernel-jvyovde7/directory\" if AGENT\n block open file \"/tmp/asp-kernel-jvyovde7/directory/**\" if AGENT\n because \"Synthetic kernel acceptance\"\n"
+    },
+    {
+      "name": "target-exception",
+      "returncode": 0,
+      "stdout": "🚫 BLOCKED: process 'python3' (pid 604445, ppid 604428) — /tmp/asp-kernel-jvyovde7/case-target-exception\n   effect: block\n   reason: Synthetic kernel acceptance\n   provenance: pid 604445 exec python3 -> label AGENT\n🚫 BLOCKED: process 'python3' (pid 604445, ppid 604428) — /tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaa\nRESULT={\"pid\": 604445, \"reads\": [[\"/tmp/asp-kernel-jvyovde7/.env\", true], [\"/tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-3-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-4-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-5-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-6-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-7-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-8-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-9-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/production.env\", true], [\"/tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-3-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-4-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-5-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-6-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-7-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-8-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-9-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/.env.local\", false]]}\n   effect: block\n   reason: Synthetic kernel acceptance\n   provenance: pid 604445 exec python3 -> label AGENT\n",
+      "stderr": "ActPlane: running pid 604445 under COMMAND label 0x1; feedback /tmp/asp-kernel-jvyovde7/case-target-exception/.actplane/runs/run-604428-1791706289071944591/feedback.txt\n\n",
+      "events": [
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "python3",
+          "domain_id": 1233661936,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 604445,
+                  "origin_target": "python3",
+                  "origin_timestamp_ns": 96089813863469
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 604445,
+                "origin_target": "python3",
+                "origin_timestamp_ns": 96089813863469
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "read",
+          "op_code": 1,
+          "pid": 604445,
+          "ppid": 604428,
+          "process_domain_id": 1233661936,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 604445,
+            "origin_target": "python3",
+            "origin_timestamp_ns": 96089813863469
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:0aa7f2d6b3ba61c0",
+            "clause_op": "open",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": " block open file \"/tmp/asp-kernel-jvyovde7/**\" if AGENT unless target \"**/*.env\"",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "read",
+            "name": "target-exception",
+            "ops": [
+              "open"
+            ],
+            "reason": "Synthetic kernel acceptance",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:8725010009585d18",
+            "source_ref": "rule:target-exception",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/asp-kernel-jvyovde7/**"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 604445,
+          "taint_label": "0x1",
+          "target": "/tmp/asp-kernel-jvyovde7/case-target-exception",
+          "timestamp_unix_ns": "1791706289089467876",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "python3",
+          "domain_id": 1233661936,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 604445,
+                  "origin_target": "python3",
+                  "origin_timestamp_ns": 96089813863469
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 604445,
+                "origin_target": "python3",
+                "origin_timestamp_ns": 96089813863469
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "read",
+          "op_code": 1,
+          "pid": 604445,
+          "ppid": 604428,
+          "process_domain_id": 1233661936,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 604445,
+            "origin_target": "python3",
+            "origin_timestamp_ns": 96089813863469
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:0aa7f2d6b3ba61c0",
+            "clause_op": "open",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": " block open file \"/tmp/asp-kernel-jvyovde7/**\" if AGENT unless target \"**/*.env\"",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "read",
+            "name": "target-exception",
+            "ops": [
+              "open"
+            ],
+            "reason": "Synthetic kernel acceptance",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:8725010009585d18",
+            "source_ref": "rule:target-exception",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/asp-kernel-jvyovde7/**"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 604445,
+          "taint_label": "0x1",
+          "target": "/tmp/asp-kernel-jvyovde7/level-0-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/level-2-aaaaa",
+          "timestamp_unix_ns": "1791706289094282521",
+          "tool_call_tag": "0"
+        }
+      ],
+      "dsl": "source AGENT = exec \"**/python3\"\n\nrule target-exception:\n block open file \"/tmp/asp-kernel-jvyovde7/**\" if AGENT unless target \"**/*.env\"\n because \"Synthetic kernel acceptance\"\n"
+    },
+    {
+      "name": "source-propagation",
+      "returncode": 0,
+      "stdout": "🚫 BLOCKED: process 'python3' (pid 604476, ppid 604474) — /usr/bin/true\n   effect: block\n   reason: Synthetic kernel acceptance\n   provenance: pid 604474 exec python3 -> label AGENT\nFLOW_BLOCKED\n",
+      "stderr": "ActPlane: running pid 604474 under COMMAND label 0x1; feedback /tmp/asp-kernel-jvyovde7/case-source-propagation/.actplane/runs/run-604457-1791706289402957596/feedback.txt\n\n",
+      "events": [
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "python3",
+          "domain_id": 1879785510,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 604474,
+                  "origin_target": "python3",
+                  "origin_timestamp_ns": 96090147656265
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 604474,
+                "origin_target": "python3",
+                "origin_timestamp_ns": 96090147656265
+              },
+              "provenance_status": "reported_first_origin"
+            },
+            {
+              "causal_chain": [],
+              "causal_chain_complete": false,
+              "label": "SECRET",
+              "label_mask": "0x2",
+              "provenance": null,
+              "provenance_status": "not_reported"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT",
+            "SECRET"
+          ],
+          "matched_labels": "0x3",
+          "op": "exec",
+          "op_code": 0,
+          "pid": 604476,
+          "ppid": 604474,
+          "process_domain_id": 1879785510,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 604474,
+            "origin_target": "python3",
+            "origin_timestamp_ns": 96090147656265
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:a855ef0d3acafd38",
+            "clause_op": "exec",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": " block exec \"gnutrue\" if AGENT and SECRET",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "exec",
+            "name": "source-propagation",
+            "ops": [
+              "exec"
+            ],
+            "reason": "Synthetic kernel acceptance",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:67f886ef6d209d95",
+            "source_ref": "rule:source-propagation",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "exec",
+            "target_pattern": "**/gnutrue"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 604474,
+          "taint_label": "0x3",
+          "target": "/usr/bin/true",
+          "timestamp_unix_ns": "1791706289432671585",
+          "tool_call_tag": "0"
+        }
+      ],
+      "dsl": "source AGENT = exec \"**/python3\"\nsource SECRET = file \"**/*.env\"\nrule source-propagation:\n block exec \"gnutrue\" if AGENT and SECRET\n because \"Synthetic kernel acceptance\"\n"
+    }
+  ],
+  "file_suffix": true,
+  "max_suffix_bytes": 63,
+  "runtime_verified": true,
+  "loaded_features": {
+    "key": [
+      "0x00",
+      "0x00",
+      "0x00",
+      "0x00"
+    ],
+    "value": [
+      "0xfe",
+      "0x03",
+      "0x00",
+      "0x00"
+    ],
+    "formatted": {
+      "key": 0,
+      "value": 1022
+    }
+  }
+}

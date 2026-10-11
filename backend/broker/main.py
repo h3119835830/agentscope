@@ -36,6 +36,8 @@ def child_env(agent=False,task_id=None):
     if os.getenv("ACTPLANE_BPF_PIN_ROOT"):
         result["ACTPLANE_BPF_PIN_ROOT"]=str(Path(os.environ["ACTPLANE_BPF_PIN_ROOT"])/task_id) if task_id else os.environ["ACTPLANE_BPF_PIN_ROOT"]
         result["ACTPLANE_RESERVE_OPEN_RULES"]="1"
+        from broker.policy_capabilities import installed
+        if installed(ACTPLANE)['file_suffix']:result["ACTPLANE_RESERVE_PATH_SUFFIX"]="1"
     if os.getenv("AGENTSCOPE_DSH_DISABLE_BYTECODE")=="1":result["PYTHONDONTWRITEBYTECODE"]="1"
     return result
 

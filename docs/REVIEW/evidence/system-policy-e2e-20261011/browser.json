@@ -1,0 +1,36 @@
+{
+  "method": "Codex CUA native browser and documented Playwright locators",
+  "environment": "18143 isolated service",
+  "passed": [
+    "server save and reload; no initial selection",
+    "notify configuration and original DSL preview",
+    "multiple rules displayed separately, selecting one selects the complete document",
+    "two configuration documents selected and server merge preserves unselected active documents",
+    "system preview includes all three controlled Agents with no subset selector",
+    "manual approval returns startup loading for stopped targets",
+    "reject leaves policies unchanged",
+    "stale system base rejected and refreshed preview succeeds",
+    "64-byte suffix rejected explicitly",
+    "separate removal preview shows removed document and still requires confirmation",
+    "390px and 720px editor plus list; no document horizontal overflow",
+    "approval and session navigation"
+  ],
+  "viewport_evidence": [
+    "editor-390.jpg",
+    "editor-720.jpg",
+    "list-390.jpg",
+    "removal-review.jpg"
+  ],
+  "production": {
+    "url": "http://127.0.0.1:18003/",
+    "catalog": 12,
+    "configured": 0,
+    "session_count": 7,
+    "dsh_pid": 615136,
+    "approvals_needs_action": 2,
+    "approvals_processed": 6,
+    "assistant_environment_ready": true,
+    "console_errors": [],
+    "policy_mutations": false
+  }
+}

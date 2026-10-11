@@ -129,12 +129,12 @@ static long __taint_contains_cb(__u32 idx, void *_ctx)
 	if (idx > (unsigned int)c->max_pos)
 		return 1;
 
-	char window[TAINT_SUF_MAX] = {};
-	TE_COPY(window, TAINT_SUF_MAX, c->text + idx);
+	char window[TAINT_CONTAINS_MAX] = {};
+	TE_COPY(window, TAINT_CONTAINS_MAX, c->text + idx);
 
 	long diff = 0;
 	TAINT_UNROLL
-	for (int j = 0; j < TAINT_SUF_MAX; j++) {
+	for (int j = 0; j < TAINT_CONTAINS_MAX; j++) {
 		unsigned char pc = 0;
 		TE_COPY(&pc, 1, c->pat + j);
 		long jm = -(long)(j < c->pn);
@@ -157,7 +157,7 @@ static __noinline int taint_contains(const char *text, const char *pat)
 		plive &= te_nzmask((unsigned char)pat[i]) & 1;
 		pn += (int)plive;
 	}
-	if (pn == 0 || pn > tn || pn > TAINT_SUF_MAX)
+	if (pn == 0 || pn > tn || pn > TAINT_CONTAINS_MAX)
 		return 0;
 
 	struct __taint_contains_ctx c = {
@@ -169,8 +169,9 @@ static __noinline int taint_contains(const char *text, const char *pat)
 }
 #endif /* __BPF__ */
 
-#ifdef ACTPLANE_LEGACY_KERNEL
-struct te_path_cmp_scratch { char text[TAINT_PAT_LEN], pat[TAINT_PAT_LEN], tail[TAINT_SUF_MAX]; };
+/* Keep the actual path tail, not the first 64 bytes. A scratch map avoids
+ * adding PATH_MAX bytes to the BPF stack. Pattern ABI stays unchanged. */
+struct te_path_cmp_scratch { char text[TE_PATH_BUFFER_LEN], pat[TAINT_PAT_LEN], tail[TAINT_PAT_LEN]; };
 struct { __uint(type, BPF_MAP_TYPE_PERCPU_ARRAY); __uint(max_entries, 1); __type(key, __u32); __type(value, struct te_path_cmp_scratch); } ts_path_cmp SEC(".maps");
 
 static __always_inline __u64 te_path_mask(int n)
@@ -182,11 +183,36 @@ static __always_inline __u64 te_path_mask(int n)
 	return n >= 8 ? ~0ULL : ~0ULL << ((8 - n) * 8);
 #endif
 }
-#endif
+
+static __noinline int te_path_suffix(const char *text, const char *pat)
+{
+	__u32 key = 0;
+	struct te_path_cmp_scratch *s = bpf_map_lookup_elem(&ts_path_cmp, &key);
+	__u64 diff = 0;
+	if (!s || !(policy_features & TE_POLICY_PATH_SUFFIX)) return 0;
+	unsigned int tn = bpf_probe_read_kernel_str(s->text, sizeof(s->text), text);
+	unsigned int pn = bpf_probe_read_kernel_str(s->pat, sizeof(s->pat), pat);
+	if (tn < 2 || tn >= TE_PATH_BUFFER_LEN || pn < 2 || pn > TAINT_PAT_LEN)
+		return 0;
+	tn--; pn--;
+	if (pn > TAINT_SUF_MAX || pn > tn) return 0;
+	unsigned int off = tn - pn;
+	barrier_var(off);
+	if (off >= TE_PATH_BUFFER_LEN) return 0;
+	/* The terminated suffix is <=64 bytes. Copying from the original object
+	 * with the bounded string helper avoids reading past the path allocation. */
+	if (bpf_probe_read_kernel_str(s->tail, sizeof(s->tail), s->text + off) != pn + 1)
+		return 0;
+#pragma clang loop unroll(full)
+	for (int i = 0; i < TAINT_PAT_LEN / 8; i++)
+		diff |= (((__u64 *)s->tail)[i] ^ ((__u64 *)s->pat)[i]) & te_path_mask(pn - i * 8);
+	return diff == 0;
+}
 
 static __always_inline int te_path_match(unsigned int kind, const char *text,
 					 const char *pat)
 {
+	if (kind == TAINT_MATCH_SUFFIX) return te_path_suffix(text, pat);
 #ifdef ACTPLANE_LEGACY_KERNEL
 	__u32 key = 0;
 	struct te_path_cmp_scratch *s = bpf_map_lookup_elem(&ts_path_cmp, &key);
@@ -194,19 +220,8 @@ static __always_inline int te_path_match(unsigned int kind, const char *text,
 	if (!s) return 0;
 	if (kind == TAINT_MATCH_ANY || kind == TAINT_MATCH_CONTAINS)
 		return kind == TAINT_MATCH_ANY;
-	int tn = bpf_probe_read_kernel_str(s->text, sizeof(s->text), text), pn = bpf_probe_read_kernel_str(s->pat, sizeof(s->pat), pat);
+	int tn = bpf_probe_read_kernel_str(s->text, TAINT_PAT_LEN, text), pn = bpf_probe_read_kernel_str(s->pat, sizeof(s->pat), pat);
 	if (tn <= 0 || pn <= 1 || tn > TAINT_PAT_LEN || pn > TAINT_PAT_LEN) return 0;
-	if (kind == TAINT_MATCH_SUFFIX) {
-		tn--; pn--;
-		if (!(policy_features & TE_POLICY_PATH_SUFFIX) || pn > TAINT_SUF_MAX || pn > tn) return 0;
-		unsigned int off = tn - pn;
-		if (off >= TAINT_PAT_LEN) return 0;
-		TE_COPY(s->tail, sizeof(s->tail), text + off);
-#pragma clang loop unroll(full)
-		for (int i = 0; i < TAINT_SUF_MAX / 8; i++)
-			diff |= (((__u64 *)s->tail)[i] ^ ((__u64 *)s->pat)[i]) & te_path_mask(pn - i * 8);
-		return diff == 0;
-	}
 	if (kind == TAINT_MATCH_EXACT && tn != pn) return 0;
 #pragma clang loop unroll(full)
 	for (int i = 0; i < TAINT_PAT_LEN / 8; i++)
@@ -216,10 +231,6 @@ static __always_inline int te_path_match(unsigned int kind, const char *text,
 	switch (kind) {
 	case TAINT_MATCH_PREFIX:
 		return taint_prefix(text, pat);
-	case TAINT_MATCH_SUFFIX:
-		if (!(policy_features & TE_POLICY_PATH_SUFFIX))
-			return 0;
-		return taint_suffix(text, pat);
 	case TAINT_MATCH_ANY:
 		return 1;
 	case TAINT_MATCH_CONTAINS:
@@ -344,7 +355,7 @@ struct te_rule_eval {
 	__u64 global_labels;
 	__u64 current_labels;
 	unsigned int op;
-	char target[MAX_FILENAME_LEN];
+	char target[TE_PATH_BUFFER_LEN];
 	struct file_id fid;
 	__u32 has_fid;
 	__u32 ip;
@@ -375,6 +386,18 @@ struct te_rule_eval {
 struct eval_scratch {
 	struct te_rule_eval eval;
 };
+static __always_inline void clear_eval_scratch(struct eval_scratch *scratch)
+{
+	struct te_rule_eval *e = &scratch->eval;
+	__builtin_memset(e, 0, __builtin_offsetof(struct te_rule_eval, target));
+	__builtin_memset(e->target, 0, TAINT_PAT_LEN);
+	__builtin_memset(&e->fid, 0, sizeof(*e) - __builtin_offsetof(struct te_rule_eval, fid));
+}
+
+static __always_inline void te_copy_match_target(char *dst, const char *src)
+{
+	if (src) bpf_probe_read_kernel_str(dst, TE_PATH_BUFFER_LEN, src);
+}
 struct {
 	__uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
 	__uint(max_entries, 1);
@@ -1710,12 +1733,31 @@ static __always_inline void te_exec_update_no_args(pid_t pid, const char *comm)
 	}
 }
 
+/* Source-label queries only consume add, not gates/invalidators/exec exits.
+ * Keep this callback context small enough for nested LSM provenance queries. */
+struct te_file_add_ctx {
+	const char *target;
+	__u64 add;
+	__u32 op, domain_id;
+};
+static int te_file_add_cb(__u32 i, void *data)
+{
+	struct te_file_add_ctx *c = data;
+	i += te_update_start(c->op);
+	if (i >= MAX_TAINT_UPDATES) return 1;
+	struct taint_update *u = bpf_map_lookup_elem(&ts_updates, &i);
+	if (!u) return 1;
+	if (u->op == c->op && u->domain_id == c->domain_id &&
+	    te_path_match(u->match, c->target, u->target))
+		c->add |= u->add;
+	return 0;
+}
+
 static __noinline __u64 te_update_add_file_domain(unsigned int op,
 						  const char *target,
 						  pid_t pid, __u32 domain_id)
 {
-	struct te_update_ctx c = {
-		.pid = pid,
+	struct te_file_add_ctx c = {
 		.domain_id = domain_id,
 		.op = op,
 		.target = target,
@@ -1723,7 +1765,7 @@ static __noinline __u64 te_update_add_file_domain(unsigned int op,
 
 	if (!te_pid_active(pid) || !cap_domain_matches_pid(pid, domain_id))
 		return 0;
-	te_collect_file_updates(&c);
+	bpf_loop(te_update_count(c.op), te_file_add_cb, &c, 0);
 	return c.add;
 }
 
@@ -2080,7 +2122,7 @@ static __always_inline void te_recv_flow(__u32 ip, pid_t pid)
 	}
 }
 
-static __always_inline int te_cond_satisfied(const struct taint_rule *r,
+static __noinline int te_cond_satisfied(const struct taint_rule *r,
 					     struct te_rule_eval *e)
 {
 	if (r->cond_kind == TCOND_NONE)

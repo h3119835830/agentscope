@@ -27,7 +27,7 @@ def heartbeat():
     last_api=time.monotonic()
     while not HEARTBEAT_STOP.wait(1):
         try:
-            with urllib.request.urlopen('http://127.0.0.1:18003/api/health',timeout=.7) as response:
+            with urllib.request.urlopen(os.getenv('AGENTSCOPE_PUBLIC_URL','http://127.0.0.1:18003').rstrip('/')+'/api/health',timeout=.7) as response:
                 if response.status==200: last_api=time.monotonic()
         except Exception: pass
         for r in list(RUNS.values()):
@@ -199,9 +199,10 @@ def policy_dsl(resources,policy):
     lines += ['# actplane-rule-source ref=platform.no-publish mode=locked','rule immutable-no-publish:', '  kill exec "git" "push" if AGENT','  because "Publishing is outside the instance execution boundary."']
     return '\n'.join(lines)+'\n'
 
-def compile_documents(value,resources,policy,documents):
+def compile_documents(value,resources,policy,documents,agent_type=None):
     """Compile before loading. User labels never address platform/other documents."""
-    parsed=prepare_documents(documents,resources)
+    source={'dsh':'**/node','hermes':'**/python'}.get(agent_type)
+    parsed=prepare_documents(documents,resources,agent_source=source)
     validate_runtime_capabilities(parsed)
     dsl=policy_dsl(resources,policy)+'\n'+'\n'.join(d['effective_dsl'] for d in parsed)
     yaml='version: 1\npolicy: |\n'+'\n'.join('  '+l for l in dsl.splitlines())+'\n'
@@ -216,15 +217,21 @@ def compile_documents(value,resources,policy,documents):
             refs=[r for r in details.get('rules',[]) if r.get('source_ref')==rule['source_ref'] and r.get('name')==rule['compiled_name']]
             if not refs or any(not r.get('clause_hash') for r in refs):raise ValueError('ActPlane 缺少规则与编译子句映射')
     artifact={'effective_dsl':dsl,'documents':parsed,'compile':compiled['compile'],
-        'bundle_hash':hashlib.sha256(yaml.encode()).hexdigest(),'dsl_hash':dsl_fingerprint(documents,resources),'loaded':False}
+        'bundle_hash':hashlib.sha256(yaml.encode()).hexdigest(),'dsl_hash':dsl_fingerprint(documents,resources),'loaded':False,
+        'execution_capabilities':execution_capabilities()}
     return compiled,artifact
 
 def validate_runtime_capabilities(parsed):
     # Static compile support is broader than the pinned engine used by this
     # launch profile. These requirements come from the compiler's lowered ABI.
+    capability=execution_capabilities()
     for doc in parsed:
-        missing=doc.get('pinned_runtime_unsupported',[])
-        if missing:raise ValueError('当前 ActPlane 受控引擎不支持 '+ '、'.join(missing)+'（文档 '+doc['name']+'）；请使用明确的资源路径或路径前缀。候选未应用。')
+        missing=[m for m in doc.get('pinned_runtime_unsupported',[]) if m!='文件路径后缀匹配' or not capability['file_suffix']]
+        if missing:raise ValueError('当前 ActPlane 受控引擎尚未支持 '+ '、'.join(missing)+'（文档 '+doc['name']+'）；配置已保留，执行环境通过核验后才能载入。')
+
+def execution_capabilities():
+    from broker.policy_capabilities import installed
+    return installed(B.ACTPLANE) if B else {'verified':False,'file_suffix':False,'max_suffix_bytes':0}
 
 def kernel_events(record,cursor=None):
     """Read bounded root-owned NDJSON, never a user-supplied log path."""
@@ -505,7 +512,7 @@ def verify(record,policy):
         for s in listeners: s.close()
 
 def start(message):
-    if B.RUNTIME.name!='agentscope-scope-demo': raise ValueError('受控实例首轮仅部署于独立 18003 Demo')
+    if B.RUNTIME.name!='agentscope-scope-demo' and os.getenv('AGENTSCOPE_CONTROLLED_INSTANCE_PROFILE')!='isolated-acceptance': raise ValueError('当前服务尚未启用受控 Agent 执行')
     value=ident(message['instance_id'])
     with inst_lock(value):
         if value in RUNS: raise ValueError('Instance already started')
@@ -525,7 +532,7 @@ def start(message):
         key=run_id(value)
         documents=message.get('dsl_documents',[])
         if dsl_fingerprint(documents,resources)!=message.get('dsl_hash'):raise ValueError('DSL launch fingerprint mismatch')
-        compiled,artifact=compile_documents(value,resources,policy,documents)
+        compiled,artifact=compile_documents(value,resources,policy,documents,agent_type)
         env=B.child_env(task_id=key)
         env.update(ACTPLANE_ATTACH_PID='0',ACTPLANE_RESERVE_FILE_FLOW='1',ACTPLANE_ENABLE_ADVANCED_HOOKS='1',SUDO_UID='0',SUDO_GID='0',TMPDIR=str(temp))
         anchor=subprocess.Popen(['/usr/bin/sleep','infinity'],start_new_session=True)
@@ -671,10 +678,13 @@ def existing_dsh_url(row,proc):
 def dispatch(message):
     action=message['action'].removeprefix('agent-instance-')
     if action=='inventory': return inventory()
+    if action=='dsl-capabilities':
+        from broker.policy_capabilities import loaded_features
+        return {**execution_capabilities(),'running':[{'id':r['instance_id'],'pid':r.get('agent_pid'),'loaded_features':loaded_features(r)} for r in RUNS.values()]}
     value=message['instance_id']
     if action=='dsl-compile':
         ident(value);resources=clean_resources(message['resources']);policy=canonical(message['policy'],resources)
-        return compile_documents(value,resources,policy,message['dsl_documents'])[1]
+        return compile_documents(value,resources,policy,message['dsl_documents'],message.get('agent_type'))[1]
     if action=='start': return start(message)
     if value in RUNS:
         with inst_lock(value):
