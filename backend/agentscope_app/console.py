@@ -101,6 +101,7 @@ def retained_request(request):
 @router.get('/summary')
 def summary():
     from .history import catalog
+    from .instances.approval_views import pending_count
     rows=agents()
     controlled=[r for r in rows if r['mode']=='controlled']
     with db.connect() as con:
@@ -109,7 +110,7 @@ def summary():
     pending=catalog.page(status='pending_review',limit=1,console=True)
     return {'agents':controlled,'tasks':tasks,'stats':{'agents':len(controlled),
         'verified_agents':sum(bool(r.get('active') and r.get('connected')) for r in controlled),
-        'strategies':records['total'],'pending_strategies':pending['total'],'tasks':len(tasks)}}
+        'strategies':records['total'],'pending_strategies':pending['total'],'pending_approvals':pending_count(),'tasks':len(tasks)}}
 
 @router.get('/sessions')
 def directory(agent_type:str='',instance_id:str='',q:str=Query('',max_length=200),cursor:int=Query(0,ge=0),limit:int=Query(30,ge=1,le=100),workspace:str=Query('',max_length=4096)):
@@ -169,3 +170,13 @@ def agent_policy_candidate(ident:str,artifact_id:str):
     from .history.agent_context import selected_candidate
     require_visible('agent',ident)
     return invoke(selected_candidate,ident,artifact_id)
+
+@router.get('/approvals')
+def approval_directory():
+    from .instances.approval_views import directory
+    return invoke(directory)
+
+@router.get('/approvals/{ident}')
+def approval_detail(ident:str):
+    from .instances.approval_views import detail
+    return invoke(detail,ident)

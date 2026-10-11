@@ -107,6 +107,19 @@ def propose(scope,body):
     return unpack(raw)
 
 @system.lifecycle
+def reject(scope,pid,expected_hash):
+    validate_scope(scope)
+    with db.connect() as con:
+        p=con.execute('SELECT * FROM instance_dsl_proposals WHERE id=? AND scope_id=?',(pid,scope)).fetchone()
+        if not p or p['proposal_hash']!=expected_hash:raise ValueError('审批内容不一致，请刷新后重试')
+        if p['state']=='rejected':return {'id':pid,'state':'rejected','idempotent':True}
+        if p['state'] not in ('pending','invalid','failed'):raise ValueError('此审批已经处理或正在应用')
+        con.execute("UPDATE instance_dsl_proposals SET state='rejected' WHERE id=?",(pid,))
+        db.audit(con,None,'dsl_proposal_rejected','administrator',{'proposal_id':pid,'scope_id':scope})
+    return {'id':pid,'state':'rejected'}
+
+
+@system.lifecycle
 def apply(scope,pid,expected_hash):
     from . import controller as c
     validate_scope(scope)
