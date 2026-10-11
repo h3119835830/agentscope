@@ -1,14 +1,11 @@
-// Mirrors the allowlisted native launch contract in backend/broker/instance_runner.py.
-// ActPlane lower_exec matches the executable basename (comm), not a script's path.
+// Server-owned facts from the exact connected runtime; never infer executors from product names.
 export function agentPolicySource(target){
  if(!target?.id||target.mode!=='controlled')throw Error('请选择受控 Agent。');
- const entry=target.runtime?.executable||target.executable||'';
- const type=target.agent_type||target.product;
- let pattern;
- if(type==='dsh')pattern='**/node';
- else if(type==='hermes')pattern='**/python';
- else {const base=entry.split('/').at(-1);if(!entry.startsWith('/')||!base||/[\u0000-\u001f"\\*]/.test(entry))throw Error('尚未取得此 Agent 的启动程序，请检查连接。');pattern='**/'+base;}
- return {id:target.id,name:type==='dsh'?'DeepSeek Harness':type==='hermes'?'Hermes':target.name||'Agent',pattern,entry, basis:type==='dsh'||type==='hermes'?'controlled-launch-profile':'registered-entry',connected:!!target.connected};
+ const fact=target.policy_source;
+ if(!fact?.ready||fact.instance_id!==target.id||!target.connected)throw Error(fact?.message||'请连接并核验当前 Agent 后再读取启动来源。');
+ if(fact.basis!=='verified-process-executable'||!fact.executable?.startsWith('/')||fact.pattern!=='**/'+fact.executable.split('/').at(-1))throw Error('当前 Agent 的执行程序尚未核验，请刷新连接。');
+ if(['generation','pid','start_ticks','domain_id','host_id','boot_id'].some(k=>!fact[k]||target[k]!==fact[k]))throw Error('当前 Agent 的运行身份已变化，请刷新连接。');
+ return {...fact,id:target.id,name:target.agent_type==='dsh'?'DeepSeek Harness':target.agent_type==='hermes'?'Hermes':target.name||'Agent',connected:true};
 }
 export function policySources(template,target,agents=[]){
  const rows=template.scope_type==='system'?agents.filter(a=>a.mode==='controlled'):[target];

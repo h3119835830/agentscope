@@ -12,8 +12,10 @@ import {assistantInput,generatedHandoff} from './policyAssistant.mjs';
 import {readNavigation,navigationTarget} from './navigation.mjs';
 const require=createRequire(import.meta.url),Module=require('node:module'),base=dirname(fileURLToPath(import.meta.url));
 const configurations=JSON.parse(readFileSync(new URL('./system-policy-configurations.json',import.meta.url)));
+const identity={generation:'gen-a',pid:55,start_ticks:'100',domain_id:99,host_id:'host',boot_id:'boot'};
+const verifiedTarget=(id,type='dsh',executable='/opt/agentscope/bin/node')=>({id,mode:'controlled',agent_type:type,connected:true,...identity,policy_source:{ready:true,instance_id:id,...identity,pattern:'**/'+executable.split('/').at(-1),entry:'/opt/agent/launcher',executable,basis:'verified-process-executable'}});
 const catalogue=JSON.parse(readFileSync(new URL('./rq1-agent-templates.json',import.meta.url)));
-const target={id:'agent-1',mode:'controlled',product:'dsh',resources:['/actual/project']};
+const target={...verifiedTarget('agent-1'),resources:['/actual/project']};
 function elements(tree){if(!tree||typeof tree!=='object')return [];return [tree,...[tree.props?.children].flat(Infinity).flatMap(elements)]}
 async function harness(entry,exported='default'){
  const built=await build({entryPoints:[join(base,entry)],bundle:true,platform:'node',format:'cjs',external:['react'],write:false});
@@ -33,7 +35,7 @@ test('system configurations are explicit system candidates and cannot be importe
  assert.throws(()=>createSystemHandoff(catalogue.templates[0],{}));
 });
 test('detail configuration uses the exact selected Agent resource, resets parameters when target changes and writes only on submit',async()=>{
- const render=await harness('PolicyTemplateDetail.jsx'),other={...target,id:'agent-2',resources:['/other/project']};let candidate=null;
+ const render=await harness('PolicyTemplateDetail.jsx'),other={...verifiedTarget('agent-2'),resources:['/other/project']};let candidate=null;
  const props={template:catalogue.templates[0],agents:[target,other],targetId:target.id,onHandoff:c=>candidate=c};let tree=render(props);
  assert.equal(candidate,null);let nodes=elements(tree);assert.ok(nodes.some(e=>e.type==='input'&&e.props.value==='/actual/project/.env'));
  nodes.find(e=>e.type==='select').props.onChange({target:{value:other.id}});tree=render(props);nodes=elements(tree);assert.ok(nodes.some(e=>e.type==='input'&&e.props.value==='/other/project/.env'));
@@ -138,4 +140,27 @@ test('DSL import uses a real button and reads a file into the local candidate wi
  const text='source AGENT = exec "**/node"\n\nrule toolbar-test:\n  notify open file "/w/0/toolbar-check.txt" if AGENT\n  because "Toolbar acceptance"';const event={target:{files:[{name:'toolbar-check.dsl',size:300,arrayBuffer:async()=>new TextEncoder().encode(text).buffer}],value:'chosen'}};
  await picker.props.onChange(event);tree=render(props);nodes=elements(tree);assert.equal(nodes.find(e=>e.type==='textarea'&&e.props['aria-label']==='原始 DSL 文本').props.value,text);assert.ok(nodes.some(e=>e.type==='input'&&e.props.value==='toolbar-check.dsl'));assert.equal(event.target.value,'');assert.equal(writes,0);
  tree=render({...props,busy:true});assert.ok(elements(tree).find(e=>e.type==='button'&&e.props.children==='导入 .dsl').props.disabled);
+});
+
+
+test('blank DSL drafts use the exact server runtime source and cannot validate a source-only stub',async()=>{
+ const render=await harness('ActPlanePolicies.jsx','DslEditor');let writes=0;
+ const data={scope_id:target.id,documents:[],records:[],source_context:{scope_id:target.id,ready:true,sources:[{...target.policy_source,id:target.id,name:'DeepSeek Harness'}],unavailable:[]}};
+ const tree=render({data,importing:true,onValidate:()=>writes++,onApply:()=>writes++});
+ const nodes=elements(tree);assert.equal(nodes.find(e=>e.type==='textarea').props.value,'source AGENT = exec "**/node"\n\n');
+ assert.ok(nodes.find(e=>e.type==='button'&&e.props.children==='保存并校验').props.disabled);assert.equal(writes,0);
+ assert.match(renderToStaticMarkup(tree),/当前运行来源/);assert.doesNotMatch(renderToStaticMarkup(tree),/exec &quot;\*\*&quot;/);
+});
+test('a generic imported declaration is preserved for review and explicitly rebound without applying',async()=>{
+ const render=await harness('ActPlanePolicies.jsx','DslEditor');let writes=0;
+ const data={scope_id:target.id,documents:[{id:'d',name:'Imported',original_dsl:'source AGENT = exec "**"\nsource SECRET = file "/w/0/secret"\nrule one:\n notify open file "/w/0/.env" if AGENT',metadata:{}}],records:[],source_context:{scope_id:target.id,ready:true,sources:[{...target.policy_source,id:target.id,name:'DeepSeek Harness'}],unavailable:[]}};
+ const props={data,onValidate:()=>writes++,onApply:()=>writes++};let tree=render(props),nodes=elements(tree);
+ assert.match(renderToStaticMarkup(tree),/此文档仍使用通用来源/);assert.ok(nodes.find(e=>e.type==='button'&&e.props.children==='保存并校验').props.disabled);
+ nodes.find(e=>e.type==='button'&&e.props.children==='使用当前运行来源').props.onClick();tree=render(props);const text=elements(tree).find(e=>e.type==='textarea').props.value;
+ assert.ok(text.startsWith('source AGENT = exec "**/node"'));assert.ok(text.includes('source SECRET = file'));assert.equal(writes,0);
+ tree=render({...props,sourceStale:true});assert.ok(elements(tree).find(e=>e.type==='button'&&e.props.children==='保存并校验').props.disabled);
+});
+test('unavailable sources never create a generic executor declaration',async()=>{
+ const render=await harness('ActPlanePolicies.jsx','DslEditor');const tree=render({data:{scope_id:target.id,documents:[],records:[],source_context:{scope_id:target.id,ready:false,sources:[],unavailable:[{id:target.id,name:'DeepSeek Harness',message:'请连接并核验当前 Agent'}]}},importing:true});
+ const textarea=elements(tree).find(e=>e.type==='textarea');assert.equal(textarea.props.value,'');assert.doesNotMatch(textarea.props.placeholder,/\*\*/);assert.match(renderToStaticMarkup(tree),/请连接并核验当前 Agent/);
 });

@@ -39,6 +39,7 @@ def retain(records, reason):
 def agents():
     from .instances import controller
     from .instances.sessions import native_workspace_info
+    from .instances.policy_sources import source_status
     retained=hidden('agent')
     rows=[r for r in controller.listing()['instances'] if r['id'] not in retained]
     # Resource mounts are not automatically native workspaces (e.g. Hermes).
@@ -49,6 +50,7 @@ def agents():
         infos={info['path']:info for ident,s in cached if ident==row['id'] and (info:=native_workspace_info(row,s))}
         row['workspace_records']=[infos[path] for path in sorted(infos)]
         row['workspaces']=sorted(infos)
+        row['policy_source']=source_status(row)
     return rows
 
 @router.get('/agents')
@@ -73,6 +75,9 @@ def dsl_configuration(scope):
     data=invoke(detail,scope)
     retained=hidden('agent')
     data['targets']=[t for t in data.get('targets',[]) if t['id'] not in retained]
+    from .instances import controller
+    from .instances.policy_sources import source_context
+    data['source_context']=source_context(scope,[r for r in controller.listing()['instances'] if r['id'] not in retained])
     data['records']=[r for r in data['records'] if r.get('source_kind')!='legacy_generated']
     for r in data['records']:
         if 'bindings' not in r:continue

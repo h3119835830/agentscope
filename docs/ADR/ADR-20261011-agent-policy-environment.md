@@ -9,3 +9,5 @@
 5. 候选与 Agent/会话/环境绑定持久化在原有不可变语句版本与产物中。无需新并行数据库，不以 sessionStorage 作为权威。会话入口是选用入口；既有 Agent 共享策略的作用范围保持明确，不伪造单会话内核隔离。
 6. 生成/选取/保存校验不是批准。已有 DSL proposal/confirm、CAS、受影响目标预览、Broker 重编译、加载闭环继续作为唯一应用路径。旧历史库的 review_status 不被自动改为 approved。
 7. 18003 API 使用独立 release 目录和 systemd API drop-in。保留旧 release 与静态 UI 备份；只重启 API，不重启 Broker 或原生 Agent，不修改 18000/18004。
+
+2026-10-11 补充：实际进程执行来源、API 账号隔离与只读观察器决策见 ADR-20261011-verified-agent-policy-sources。按产品名推断启动来源的旧实现已被取代，生成/选择/保存校验与最终人工确认的边界不变。

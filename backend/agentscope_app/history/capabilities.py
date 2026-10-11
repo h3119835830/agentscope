@@ -25,7 +25,7 @@ def translation_capabilities(*,agent_source=None):
 
     if agent_source:
         value.update(enforcement_scope='approved registered Agent process domain',
-            agent_source='source AGENT = exec '+repr(agent_source)+' from the Broker admitted launch profile',
+            agent_source='source AGENT = exec '+repr(agent_source)+' from the verified Agent process executable',
             file_events={'open':'BPF-LSM file_open access decision', 'read':'BPF-LSM file_permission read access decision',
                          'write':'BPF-LSM file mutation access decision', 'unlink':'OS removal/rename event'},
             candidate_validation='ActPlane AST and static backend compilation first; Broker pinned-runtime capability validation again before manual application',
