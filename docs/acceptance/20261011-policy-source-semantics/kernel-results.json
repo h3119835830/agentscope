@@ -1,0 +1,4263 @@
+{
+  "scope": "Real ActPlane/BPF isolated domains and child processes; synthetic fixture identity; no product approval, no DSH/RQ5 claim.",
+  "model_results_sha256": "1f334db87cef7a2f505e9afdb3c332e95f1032401d73ab191670fe34dc2e354c",
+  "pin_root": "/sys/fs/bpf/as-sem-accept-978322",
+  "cases": [
+    {
+      "name": "readonly_zh",
+      "passed": true,
+      "exit_code": 0,
+      "baseline_read_write_allowed": true,
+      "mutation_protected_bytes_unchanged": true,
+      "observed": {
+        "pid": 978355,
+        "uid": 1000,
+        "results": [
+          {
+            "name": "sales.csv:read",
+            "actual": "allowed",
+            "errno": null,
+            "passed": true
+          },
+          {
+            "name": "sales.csv:append",
+            "actual": "denied",
+            "errno": 1,
+            "passed": true
+          },
+          {
+            "name": "sales.csv:overwrite",
+            "actual": "denied",
+            "errno": 1,
+            "passed": true
+          },
+          {
+            "name": "sales.csv:read_write_open",
+            "actual": "denied",
+            "errno": 1,
+            "passed": true
+          },
+          {
+            "name": "sales.csv:truncate",
+            "actual": "denied",
+            "errno": 1,
+            "passed": true
+          },
+          {
+            "name": "sales.csv:unlink",
+            "actual": "denied",
+            "errno": 1,
+            "passed": true
+          },
+          {
+            "name": "sales.csv:rename",
+            "actual": "denied",
+            "errno": 1,
+            "passed": true
+          },
+          {
+            "name": "sales.csv:child_read",
+            "actual": "allowed",
+            "passed": true,
+            "exit_code": 0,
+            "stderr": ""
+          },
+          {
+            "name": "sales.csv:child_write",
+            "actual": "denied",
+            "passed": true,
+            "exit_code": 1,
+            "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    import os,sys; fd=os.open(sys.argv[1],os.O_WRONLY|os.O_APPEND); os.write(fd,b\"child\"); os.close(fd)\n                      ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nPermissionError: [Errno 1] Operation not permitted: '/tmp/as-sem-v6hkoltv/project/sales.csv'\n"
+          },
+          {
+            "name": "unrelated:write",
+            "actual": "allowed",
+            "errno": null,
+            "passed": true
+          },
+          {
+            "name": "unrelated:read",
+            "actual": "allowed",
+            "errno": null,
+            "passed": true
+          }
+        ]
+      },
+      "kernel_events": [
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 1375970316,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 978355,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117563493966737
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 978355,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117563493966737
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "write",
+          "op_code": 2,
+          "pid": 978355,
+          "ppid": 978338,
+          "process_domain_id": 1375970316,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 978355,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117563493966737
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:5b886306b3bd04f0",
+            "clause_op": "write",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": "  block write file \"/tmp/as-sem-v6hkoltv/project/sales.csv\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "write",
+            "name": "h_a69945bbff674014_intent_1",
+            "ops": [
+              "write"
+            ],
+            "reason": "不写入、追加或覆盖该文件",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:635a5b1ec172958b",
+            "source_ref": "rule:h_a69945bbff674014_intent_1",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/sales.csv"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 978355,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/sales.csv",
+          "timestamp_unix_ns": "1791727762783498791",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 1375970316,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 978355,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117563493966737
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 978355,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117563493966737
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "write",
+          "op_code": 2,
+          "pid": 978355,
+          "ppid": 978338,
+          "process_domain_id": 1375970316,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 978355,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117563493966737
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:5b886306b3bd04f0",
+            "clause_op": "write",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": "  block write file \"/tmp/as-sem-v6hkoltv/project/sales.csv\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "write",
+            "name": "h_a69945bbff674014_intent_1",
+            "ops": [
+              "write"
+            ],
+            "reason": "不写入、追加或覆盖该文件",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:635a5b1ec172958b",
+            "source_ref": "rule:h_a69945bbff674014_intent_1",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/sales.csv"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 978355,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/sales.csv",
+          "timestamp_unix_ns": "1791727762783865338",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 1375970316,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 978355,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117563493966737
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 978355,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117563493966737
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "write",
+          "op_code": 2,
+          "pid": 978355,
+          "ppid": 978338,
+          "process_domain_id": 1375970316,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 978355,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117563493966737
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:5b886306b3bd04f0",
+            "clause_op": "write",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": "  block write file \"/tmp/as-sem-v6hkoltv/project/sales.csv\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "write",
+            "name": "h_a69945bbff674014_intent_1",
+            "ops": [
+              "write"
+            ],
+            "reason": "不写入、追加或覆盖该文件",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:635a5b1ec172958b",
+            "source_ref": "rule:h_a69945bbff674014_intent_1",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/sales.csv"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 978355,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/sales.csv",
+          "timestamp_unix_ns": "1791727762784226314",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 1375970316,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 978355,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117563493966737
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 978355,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117563493966737
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "write",
+          "op_code": 2,
+          "pid": 978355,
+          "ppid": 978338,
+          "process_domain_id": 1375970316,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 978355,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117563493966737
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:5b886306b3bd04f0",
+            "clause_op": "write",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": "  block write file \"/tmp/as-sem-v6hkoltv/project/sales.csv\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "write",
+            "name": "h_a69945bbff674014_intent_1",
+            "ops": [
+              "write"
+            ],
+            "reason": "不写入、追加或覆盖该文件",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:635a5b1ec172958b",
+            "source_ref": "rule:h_a69945bbff674014_intent_1",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/sales.csv"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 978355,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/sales.csv",
+          "timestamp_unix_ns": "1791727762784619474",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 1375970316,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 978355,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117563493966737
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 978355,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117563493966737
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "write",
+          "op_code": 2,
+          "pid": 978355,
+          "ppid": 978338,
+          "process_domain_id": 1375970316,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 978355,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117563493966737
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:5b886306b3bd04f0",
+            "clause_op": "write",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": "  block write file \"/tmp/as-sem-v6hkoltv/project/sales.csv\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "write",
+            "name": "h_a69945bbff674014_intent_1",
+            "ops": [
+              "write"
+            ],
+            "reason": "不写入、追加或覆盖该文件",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:635a5b1ec172958b",
+            "source_ref": "rule:h_a69945bbff674014_intent_1",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/sales.csv"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 978355,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/sales.csv",
+          "timestamp_unix_ns": "1791727762784997901",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 1375970316,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 978355,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117563493966737
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 978355,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117563493966737
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "write",
+          "op_code": 2,
+          "pid": 978355,
+          "ppid": 978338,
+          "process_domain_id": 1375970316,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 978355,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117563493966737
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:5b886306b3bd04f0",
+            "clause_op": "write",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": "  block write file \"/tmp/as-sem-v6hkoltv/project/sales.csv\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "write",
+            "name": "h_a69945bbff674014_intent_1",
+            "ops": [
+              "write"
+            ],
+            "reason": "不写入、追加或覆盖该文件",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:635a5b1ec172958b",
+            "source_ref": "rule:h_a69945bbff674014_intent_1",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/sales.csv"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 978355,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/sales.csv",
+          "timestamp_unix_ns": "1791727762785368114",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 1375970316,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 978777,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117563533753742
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 978777,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117563533753742
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "write",
+          "op_code": 2,
+          "pid": 978777,
+          "ppid": 978355,
+          "process_domain_id": 1375970316,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 978777,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117563533753742
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:5b886306b3bd04f0",
+            "clause_op": "write",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": "  block write file \"/tmp/as-sem-v6hkoltv/project/sales.csv\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "write",
+            "name": "h_a69945bbff674014_intent_1",
+            "ops": [
+              "write"
+            ],
+            "reason": "不写入、追加或覆盖该文件",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:635a5b1ec172958b",
+            "source_ref": "rule:h_a69945bbff674014_intent_1",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/sales.csv"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 978355,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/sales.csv",
+          "timestamp_unix_ns": "1791727762810556100",
+          "tool_call_tag": "0"
+        }
+      ],
+      "event_file_owners": [
+        1000
+      ],
+      "stderr": "ActPlane: running pid 978355 under COMMAND label 0x1; feedback /tmp/as-sem-v6hkoltv/kernel/readonly_zh/.actplane/runs/run-978338-1791727757114193543/feedback.txt\n\n",
+      "candidate_product_state": "pending_review"
+    },
+    {
+      "name": "readonly_en",
+      "passed": true,
+      "exit_code": 0,
+      "baseline_read_write_allowed": true,
+      "mutation_protected_bytes_unchanged": true,
+      "observed": {
+        "pid": 978864,
+        "uid": 1000,
+        "results": [
+          {
+            "name": "input.json:read",
+            "actual": "allowed",
+            "errno": null,
+            "passed": true
+          },
+          {
+            "name": "input.json:append",
+            "actual": "denied",
+            "errno": 1,
+            "passed": true
+          },
+          {
+            "name": "input.json:overwrite",
+            "actual": "denied",
+            "errno": 1,
+            "passed": true
+          },
+          {
+            "name": "input.json:read_write_open",
+            "actual": "denied",
+            "errno": 1,
+            "passed": true
+          },
+          {
+            "name": "input.json:truncate",
+            "actual": "denied",
+            "errno": 1,
+            "passed": true
+          },
+          {
+            "name": "input.json:unlink",
+            "actual": "denied",
+            "errno": 1,
+            "passed": true
+          },
+          {
+            "name": "input.json:rename",
+            "actual": "denied",
+            "errno": 1,
+            "passed": true
+          },
+          {
+            "name": "input.json:child_read",
+            "actual": "allowed",
+            "passed": true,
+            "exit_code": 0,
+            "stderr": ""
+          },
+          {
+            "name": "input.json:child_write",
+            "actual": "denied",
+            "passed": true,
+            "exit_code": 1,
+            "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    import os,sys; fd=os.open(sys.argv[1],os.O_WRONLY|os.O_APPEND); os.write(fd,b\"child\"); os.close(fd)\n                      ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nPermissionError: [Errno 1] Operation not permitted: '/tmp/as-sem-v6hkoltv/project/input.json'\n"
+          },
+          {
+            "name": "unrelated:write",
+            "actual": "allowed",
+            "errno": null,
+            "passed": true
+          },
+          {
+            "name": "unrelated:read",
+            "actual": "allowed",
+            "errno": null,
+            "passed": true
+          }
+        ]
+      },
+      "kernel_events": [
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 339964266,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 978864,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117563882688680
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 978864,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117563882688680
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "write",
+          "op_code": 2,
+          "pid": 978864,
+          "ppid": 978847,
+          "process_domain_id": 339964266,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 978864,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117563882688680
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:0b05d957df12b2b2",
+            "clause_op": "write",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": "  block write file \"/tmp/as-sem-v6hkoltv/project/input.json\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "write",
+            "name": "h_4cd66833242a4391_intent_1",
+            "ops": [
+              "write"
+            ],
+            "reason": "Read input.json without changing it.",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:2629ede2783a285d",
+            "source_ref": "rule:h_4cd66833242a4391_intent_1",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/input.json"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 978864,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/input.json",
+          "timestamp_unix_ns": "1791727763171300336",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 339964266,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 978864,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117563882688680
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 978864,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117563882688680
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "write",
+          "op_code": 2,
+          "pid": 978864,
+          "ppid": 978847,
+          "process_domain_id": 339964266,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 978864,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117563882688680
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:0b05d957df12b2b2",
+            "clause_op": "write",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": "  block write file \"/tmp/as-sem-v6hkoltv/project/input.json\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "write",
+            "name": "h_4cd66833242a4391_intent_1",
+            "ops": [
+              "write"
+            ],
+            "reason": "Read input.json without changing it.",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:2629ede2783a285d",
+            "source_ref": "rule:h_4cd66833242a4391_intent_1",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/input.json"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 978864,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/input.json",
+          "timestamp_unix_ns": "1791727763171688118",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 339964266,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 978864,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117563882688680
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 978864,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117563882688680
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "write",
+          "op_code": 2,
+          "pid": 978864,
+          "ppid": 978847,
+          "process_domain_id": 339964266,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 978864,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117563882688680
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:0b05d957df12b2b2",
+            "clause_op": "write",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": "  block write file \"/tmp/as-sem-v6hkoltv/project/input.json\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "write",
+            "name": "h_4cd66833242a4391_intent_1",
+            "ops": [
+              "write"
+            ],
+            "reason": "Read input.json without changing it.",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:2629ede2783a285d",
+            "source_ref": "rule:h_4cd66833242a4391_intent_1",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/input.json"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 978864,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/input.json",
+          "timestamp_unix_ns": "1791727763172084673",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 339964266,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 978864,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117563882688680
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 978864,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117563882688680
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "write",
+          "op_code": 2,
+          "pid": 978864,
+          "ppid": 978847,
+          "process_domain_id": 339964266,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 978864,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117563882688680
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:0b05d957df12b2b2",
+            "clause_op": "write",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": "  block write file \"/tmp/as-sem-v6hkoltv/project/input.json\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "write",
+            "name": "h_4cd66833242a4391_intent_1",
+            "ops": [
+              "write"
+            ],
+            "reason": "Read input.json without changing it.",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:2629ede2783a285d",
+            "source_ref": "rule:h_4cd66833242a4391_intent_1",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/input.json"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 978864,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/input.json",
+          "timestamp_unix_ns": "1791727763172497080",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 339964266,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 978864,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117563882688680
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 978864,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117563882688680
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "write",
+          "op_code": 2,
+          "pid": 978864,
+          "ppid": 978847,
+          "process_domain_id": 339964266,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 978864,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117563882688680
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:0b05d957df12b2b2",
+            "clause_op": "write",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": "  block write file \"/tmp/as-sem-v6hkoltv/project/input.json\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "write",
+            "name": "h_4cd66833242a4391_intent_1",
+            "ops": [
+              "write"
+            ],
+            "reason": "Read input.json without changing it.",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:2629ede2783a285d",
+            "source_ref": "rule:h_4cd66833242a4391_intent_1",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/input.json"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 978864,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/input.json",
+          "timestamp_unix_ns": "1791727763172926392",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 339964266,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 978864,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117563882688680
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 978864,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117563882688680
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "write",
+          "op_code": 2,
+          "pid": 978864,
+          "ppid": 978847,
+          "process_domain_id": 339964266,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 978864,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117563882688680
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:0b05d957df12b2b2",
+            "clause_op": "write",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": "  block write file \"/tmp/as-sem-v6hkoltv/project/input.json\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "write",
+            "name": "h_4cd66833242a4391_intent_1",
+            "ops": [
+              "write"
+            ],
+            "reason": "Read input.json without changing it.",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:2629ede2783a285d",
+            "source_ref": "rule:h_4cd66833242a4391_intent_1",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/input.json"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 978864,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/input.json",
+          "timestamp_unix_ns": "1791727763173329642",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 339964266,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 978886,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117563923379190
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 978886,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117563923379190
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "write",
+          "op_code": 2,
+          "pid": 978886,
+          "ppid": 978864,
+          "process_domain_id": 339964266,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 978886,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117563923379190
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:0b05d957df12b2b2",
+            "clause_op": "write",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": "  block write file \"/tmp/as-sem-v6hkoltv/project/input.json\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "write",
+            "name": "h_4cd66833242a4391_intent_1",
+            "ops": [
+              "write"
+            ],
+            "reason": "Read input.json without changing it.",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:2629ede2783a285d",
+            "source_ref": "rule:h_4cd66833242a4391_intent_1",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/input.json"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 978864,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/input.json",
+          "timestamp_unix_ns": "1791727763199573548",
+          "tool_call_tag": "0"
+        }
+      ],
+      "event_file_owners": [
+        1000
+      ],
+      "stderr": "ActPlane: running pid 978864 under COMMAND label 0x1; feedback /tmp/as-sem-v6hkoltv/kernel/readonly_en/.actplane/runs/run-978847-1791727763143557863/feedback.txt\n\n",
+      "candidate_product_state": "pending_review"
+    },
+    {
+      "name": "readonly_paraphrase",
+      "passed": true,
+      "exit_code": 0,
+      "baseline_read_write_allowed": true,
+      "mutation_protected_bytes_unchanged": true,
+      "observed": {
+        "pid": 978912,
+        "uid": 1000,
+        "results": [
+          {
+            "name": "notes.txt:read",
+            "actual": "allowed",
+            "errno": null,
+            "passed": true
+          },
+          {
+            "name": "notes.txt:append",
+            "actual": "denied",
+            "errno": 1,
+            "passed": true
+          },
+          {
+            "name": "notes.txt:overwrite",
+            "actual": "denied",
+            "errno": 1,
+            "passed": true
+          },
+          {
+            "name": "notes.txt:read_write_open",
+            "actual": "denied",
+            "errno": 1,
+            "passed": true
+          },
+          {
+            "name": "notes.txt:truncate",
+            "actual": "denied",
+            "errno": 1,
+            "passed": true
+          },
+          {
+            "name": "notes.txt:unlink",
+            "actual": "denied",
+            "errno": 1,
+            "passed": true
+          },
+          {
+            "name": "notes.txt:rename",
+            "actual": "denied",
+            "errno": 1,
+            "passed": true
+          },
+          {
+            "name": "notes.txt:child_read",
+            "actual": "allowed",
+            "passed": true,
+            "exit_code": 0,
+            "stderr": ""
+          },
+          {
+            "name": "notes.txt:child_write",
+            "actual": "denied",
+            "passed": true,
+            "exit_code": 1,
+            "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    import os,sys; fd=os.open(sys.argv[1],os.O_WRONLY|os.O_APPEND); os.write(fd,b\"child\"); os.close(fd)\n                      ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nPermissionError: [Errno 1] Operation not permitted: '/tmp/as-sem-v6hkoltv/project/notes.txt'\n"
+          },
+          {
+            "name": "unrelated:write",
+            "actual": "allowed",
+            "errno": null,
+            "passed": true
+          },
+          {
+            "name": "unrelated:read",
+            "actual": "allowed",
+            "errno": null,
+            "passed": true
+          }
+        ]
+      },
+      "kernel_events": [
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 582600362,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 978912,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117564263457847
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 978912,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117564263457847
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "write",
+          "op_code": 2,
+          "pid": 978912,
+          "ppid": 978895,
+          "process_domain_id": 582600362,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 978912,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117564263457847
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:e0d82ea8d2650db5",
+            "clause_op": "write",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": "  block write file \"/tmp/as-sem-v6hkoltv/project/notes.txt\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "write",
+            "name": "h_b4c6a5f7c1c049f2_intent_1",
+            "ops": [
+              "write"
+            ],
+            "reason": "保持原始文件不变",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:795cc16b81fe7bcc",
+            "source_ref": "rule:h_b4c6a5f7c1c049f2_intent_1",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/notes.txt"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 978912,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/notes.txt",
+          "timestamp_unix_ns": "1791727763552332658",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 582600362,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 978912,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117564263457847
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 978912,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117564263457847
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "write",
+          "op_code": 2,
+          "pid": 978912,
+          "ppid": 978895,
+          "process_domain_id": 582600362,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 978912,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117564263457847
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:e0d82ea8d2650db5",
+            "clause_op": "write",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": "  block write file \"/tmp/as-sem-v6hkoltv/project/notes.txt\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "write",
+            "name": "h_b4c6a5f7c1c049f2_intent_1",
+            "ops": [
+              "write"
+            ],
+            "reason": "保持原始文件不变",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:795cc16b81fe7bcc",
+            "source_ref": "rule:h_b4c6a5f7c1c049f2_intent_1",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/notes.txt"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 978912,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/notes.txt",
+          "timestamp_unix_ns": "1791727763552747851",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 582600362,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 978912,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117564263457847
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 978912,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117564263457847
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "write",
+          "op_code": 2,
+          "pid": 978912,
+          "ppid": 978895,
+          "process_domain_id": 582600362,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 978912,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117564263457847
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:e0d82ea8d2650db5",
+            "clause_op": "write",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": "  block write file \"/tmp/as-sem-v6hkoltv/project/notes.txt\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "write",
+            "name": "h_b4c6a5f7c1c049f2_intent_1",
+            "ops": [
+              "write"
+            ],
+            "reason": "保持原始文件不变",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:795cc16b81fe7bcc",
+            "source_ref": "rule:h_b4c6a5f7c1c049f2_intent_1",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/notes.txt"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 978912,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/notes.txt",
+          "timestamp_unix_ns": "1791727763553134746",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 582600362,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 978912,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117564263457847
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 978912,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117564263457847
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "write",
+          "op_code": 2,
+          "pid": 978912,
+          "ppid": 978895,
+          "process_domain_id": 582600362,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 978912,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117564263457847
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:e0d82ea8d2650db5",
+            "clause_op": "write",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": "  block write file \"/tmp/as-sem-v6hkoltv/project/notes.txt\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "write",
+            "name": "h_b4c6a5f7c1c049f2_intent_1",
+            "ops": [
+              "write"
+            ],
+            "reason": "保持原始文件不变",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:795cc16b81fe7bcc",
+            "source_ref": "rule:h_b4c6a5f7c1c049f2_intent_1",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/notes.txt"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 978912,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/notes.txt",
+          "timestamp_unix_ns": "1791727763553557477",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 582600362,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 978912,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117564263457847
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 978912,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117564263457847
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "write",
+          "op_code": 2,
+          "pid": 978912,
+          "ppid": 978895,
+          "process_domain_id": 582600362,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 978912,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117564263457847
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:e0d82ea8d2650db5",
+            "clause_op": "write",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": "  block write file \"/tmp/as-sem-v6hkoltv/project/notes.txt\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "write",
+            "name": "h_b4c6a5f7c1c049f2_intent_1",
+            "ops": [
+              "write"
+            ],
+            "reason": "保持原始文件不变",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:795cc16b81fe7bcc",
+            "source_ref": "rule:h_b4c6a5f7c1c049f2_intent_1",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/notes.txt"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 978912,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/notes.txt",
+          "timestamp_unix_ns": "1791727763553920614",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 582600362,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 978912,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117564263457847
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 978912,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117564263457847
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "write",
+          "op_code": 2,
+          "pid": 978912,
+          "ppid": 978895,
+          "process_domain_id": 582600362,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 978912,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117564263457847
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:e0d82ea8d2650db5",
+            "clause_op": "write",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": "  block write file \"/tmp/as-sem-v6hkoltv/project/notes.txt\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "write",
+            "name": "h_b4c6a5f7c1c049f2_intent_1",
+            "ops": [
+              "write"
+            ],
+            "reason": "保持原始文件不变",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:795cc16b81fe7bcc",
+            "source_ref": "rule:h_b4c6a5f7c1c049f2_intent_1",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/notes.txt"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 978912,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/notes.txt",
+          "timestamp_unix_ns": "1791727763554487879",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 582600362,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 978916,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117564306177177
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 978916,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117564306177177
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "write",
+          "op_code": 2,
+          "pid": 978916,
+          "ppid": 978912,
+          "process_domain_id": 582600362,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 978916,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117564306177177
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:e0d82ea8d2650db5",
+            "clause_op": "write",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": "  block write file \"/tmp/as-sem-v6hkoltv/project/notes.txt\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "write",
+            "name": "h_b4c6a5f7c1c049f2_intent_1",
+            "ops": [
+              "write"
+            ],
+            "reason": "保持原始文件不变",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:795cc16b81fe7bcc",
+            "source_ref": "rule:h_b4c6a5f7c1c049f2_intent_1",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/notes.txt"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 978912,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/notes.txt",
+          "timestamp_unix_ns": "1791727763585139589",
+          "tool_call_tag": "0"
+        }
+      ],
+      "event_file_owners": [
+        1000
+      ],
+      "stderr": "ActPlane: running pid 978912 under COMMAND label 0x1; feedback /tmp/as-sem-v6hkoltv/kernel/readonly_paraphrase/.actplane/runs/run-978895-1791727763524606651/feedback.txt\n\n",
+      "candidate_product_state": "pending_review"
+    },
+    {
+      "name": "deny_read",
+      "passed": true,
+      "exit_code": 0,
+      "baseline_read_write_allowed": true,
+      "mutation_protected_bytes_unchanged": true,
+      "observed": {
+        "pid": 978981,
+        "uid": 1000,
+        "results": [
+          {
+            "name": "private.txt:read",
+            "actual": "denied",
+            "errno": 1,
+            "passed": true
+          },
+          {
+            "name": "private.txt:append",
+            "actual": "allowed",
+            "errno": null,
+            "passed": true
+          },
+          {
+            "name": "private.txt:child_read",
+            "actual": "denied",
+            "passed": true,
+            "exit_code": 1,
+            "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    import pathlib,sys; pathlib.Path(sys.argv[1]).read_bytes()\n                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^\n  File \"/usr/lib/python3.14/pathlib/__init__.py\", line 778, in read_bytes\n    with self.open(mode='rb', buffering=0) as f:\n         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.14/pathlib/__init__.py\", line 772, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nPermissionError: [Errno 1] Operation not permitted: '/tmp/as-sem-v6hkoltv/project/private.txt'\n"
+          },
+          {
+            "name": "private.txt:child_write",
+            "actual": "allowed",
+            "passed": true,
+            "exit_code": 0,
+            "stderr": ""
+          },
+          {
+            "name": "unrelated:write",
+            "actual": "allowed",
+            "errno": null,
+            "passed": true
+          },
+          {
+            "name": "unrelated:read",
+            "actual": "allowed",
+            "errno": null,
+            "passed": true
+          }
+        ]
+      },
+      "kernel_events": [
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 110410998,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 978981,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117564649258766
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 978981,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117564649258766
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "read",
+          "op_code": 1,
+          "pid": 978981,
+          "ppid": 978964,
+          "process_domain_id": 110410998,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 978981,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117564649258766
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:339bdffe61668982",
+            "clause_op": "read",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": "  block read file \"/tmp/as-sem-v6hkoltv/project/private.txt\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "read",
+            "name": "h_c3f03060e85a4d98_intent_0",
+            "ops": [
+              "read"
+            ],
+            "reason": "Do not read private.txt.",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:1c862407f66db167",
+            "source_ref": "rule:h_c3f03060e85a4d98_intent_0",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/private.txt"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 978981,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/private.txt",
+          "timestamp_unix_ns": "1791727763940882545",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 110410998,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 978988,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117564672852879
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 978988,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117564672852879
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "read",
+          "op_code": 1,
+          "pid": 978988,
+          "ppid": 978981,
+          "process_domain_id": 110410998,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 978988,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117564672852879
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:339bdffe61668982",
+            "clause_op": "read",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": "  block read file \"/tmp/as-sem-v6hkoltv/project/private.txt\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "read",
+            "name": "h_c3f03060e85a4d98_intent_0",
+            "ops": [
+              "read"
+            ],
+            "reason": "Do not read private.txt.",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:1c862407f66db167",
+            "source_ref": "rule:h_c3f03060e85a4d98_intent_0",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/private.txt"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 978981,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/private.txt",
+          "timestamp_unix_ns": "1791727763956421294",
+          "tool_call_tag": "0"
+        }
+      ],
+      "event_file_owners": [
+        1000
+      ],
+      "stderr": "ActPlane: running pid 978981 under COMMAND label 0x1; feedback /tmp/as-sem-v6hkoltv/kernel/deny_read/.actplane/runs/run-978964-1791727763910346719/feedback.txt\n\n",
+      "candidate_product_state": "pending_review"
+    },
+    {
+      "name": "deny_access",
+      "passed": true,
+      "exit_code": 0,
+      "baseline_read_write_allowed": true,
+      "mutation_protected_bytes_unchanged": true,
+      "observed": {
+        "pid": 979012,
+        "uid": 1000,
+        "results": [
+          {
+            "name": "archive.txt:read",
+            "actual": "denied",
+            "errno": 1,
+            "passed": true
+          },
+          {
+            "name": "archive.txt:append",
+            "actual": "denied",
+            "errno": 1,
+            "passed": true
+          },
+          {
+            "name": "archive.txt:overwrite",
+            "actual": "denied",
+            "errno": 1,
+            "passed": true
+          },
+          {
+            "name": "archive.txt:read_write_open",
+            "actual": "denied",
+            "errno": 1,
+            "passed": true
+          },
+          {
+            "name": "archive.txt:truncate",
+            "actual": "denied",
+            "errno": 1,
+            "passed": true
+          },
+          {
+            "name": "archive.txt:unlink",
+            "actual": "denied",
+            "errno": 1,
+            "passed": true
+          },
+          {
+            "name": "archive.txt:rename",
+            "actual": "denied",
+            "errno": 1,
+            "passed": true
+          },
+          {
+            "name": "archive.txt:child_read",
+            "actual": "denied",
+            "passed": true,
+            "exit_code": 1,
+            "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    import pathlib,sys; pathlib.Path(sys.argv[1]).read_bytes()\n                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^\n  File \"/usr/lib/python3.14/pathlib/__init__.py\", line 778, in read_bytes\n    with self.open(mode='rb', buffering=0) as f:\n         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.14/pathlib/__init__.py\", line 772, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nPermissionError: [Errno 1] Operation not permitted: '/tmp/as-sem-v6hkoltv/project/archive.txt'\n"
+          },
+          {
+            "name": "archive.txt:child_write",
+            "actual": "denied",
+            "passed": true,
+            "exit_code": 1,
+            "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    import os,sys; fd=os.open(sys.argv[1],os.O_WRONLY|os.O_APPEND); os.write(fd,b\"child\"); os.close(fd)\n                      ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nPermissionError: [Errno 1] Operation not permitted: '/tmp/as-sem-v6hkoltv/project/archive.txt'\n"
+          },
+          {
+            "name": "unrelated:write",
+            "actual": "allowed",
+            "errno": null,
+            "passed": true
+          },
+          {
+            "name": "unrelated:read",
+            "actual": "allowed",
+            "errno": null,
+            "passed": true
+          }
+        ]
+      },
+      "kernel_events": [
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 1517669380,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 979012,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117565018332453
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 979012,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117565018332453
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "read",
+          "op_code": 1,
+          "pid": 979012,
+          "ppid": 978995,
+          "process_domain_id": 1517669380,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 979012,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117565018332453
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:b978d8486f575b7f",
+            "clause_op": "read",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": "  block read file \"/tmp/as-sem-v6hkoltv/project/archive.txt\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "read",
+            "name": "h_4fedd4ff008e49cb_intent_0",
+            "ops": [
+              "read"
+            ],
+            "reason": "不允许访问 archive.txt。",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:05bb34a37c98ecac",
+            "source_ref": "rule:h_4fedd4ff008e49cb_intent_0",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/archive.txt"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 979012,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/archive.txt",
+          "timestamp_unix_ns": "1791727764306229496",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 1517669380,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 979012,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117565018332453
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 979012,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117565018332453
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "write",
+          "op_code": 2,
+          "pid": 979012,
+          "ppid": 978995,
+          "process_domain_id": 1517669380,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 979012,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117565018332453
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 7,
+            "clause_hash": "fnv1a64:ef45d1e0d1abe36e",
+            "clause_op": "write",
+            "clause_source_index": 0,
+            "clause_start_line": 7,
+            "clause_text": "  block write file \"/tmp/as-sem-v6hkoltv/project/archive.txt\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "write",
+            "name": "h_4fedd4ff008e49cb_intent_1",
+            "ops": [
+              "write"
+            ],
+            "reason": "不允许访问 archive.txt。",
+            "source_end_line": 8,
+            "source_hash": "fnv1a64:9ed9d05de3e7d02c",
+            "source_ref": "rule:h_4fedd4ff008e49cb_intent_1",
+            "source_start_line": 6,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/archive.txt"
+          },
+          "rule_id": 1,
+          "schema": "actplane.violation.v1",
+          "session_root": 979012,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/archive.txt",
+          "timestamp_unix_ns": "1791727764306562777",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 1517669380,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 979012,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117565018332453
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 979012,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117565018332453
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "write",
+          "op_code": 2,
+          "pid": 979012,
+          "ppid": 978995,
+          "process_domain_id": 1517669380,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 979012,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117565018332453
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 7,
+            "clause_hash": "fnv1a64:ef45d1e0d1abe36e",
+            "clause_op": "write",
+            "clause_source_index": 0,
+            "clause_start_line": 7,
+            "clause_text": "  block write file \"/tmp/as-sem-v6hkoltv/project/archive.txt\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "write",
+            "name": "h_4fedd4ff008e49cb_intent_1",
+            "ops": [
+              "write"
+            ],
+            "reason": "不允许访问 archive.txt。",
+            "source_end_line": 8,
+            "source_hash": "fnv1a64:9ed9d05de3e7d02c",
+            "source_ref": "rule:h_4fedd4ff008e49cb_intent_1",
+            "source_start_line": 6,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/archive.txt"
+          },
+          "rule_id": 1,
+          "schema": "actplane.violation.v1",
+          "session_root": 979012,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/archive.txt",
+          "timestamp_unix_ns": "1791727764306882703",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 1517669380,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 979012,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117565018332453
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 979012,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117565018332453
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "read",
+          "op_code": 1,
+          "pid": 979012,
+          "ppid": 978995,
+          "process_domain_id": 1517669380,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 979012,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117565018332453
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:b978d8486f575b7f",
+            "clause_op": "read",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": "  block read file \"/tmp/as-sem-v6hkoltv/project/archive.txt\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "read",
+            "name": "h_4fedd4ff008e49cb_intent_0",
+            "ops": [
+              "read"
+            ],
+            "reason": "不允许访问 archive.txt。",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:05bb34a37c98ecac",
+            "source_ref": "rule:h_4fedd4ff008e49cb_intent_0",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/archive.txt"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 979012,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/archive.txt",
+          "timestamp_unix_ns": "1791727764307203122",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 1517669380,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 979012,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117565018332453
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 979012,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117565018332453
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "write",
+          "op_code": 2,
+          "pid": 979012,
+          "ppid": 978995,
+          "process_domain_id": 1517669380,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 979012,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117565018332453
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 7,
+            "clause_hash": "fnv1a64:ef45d1e0d1abe36e",
+            "clause_op": "write",
+            "clause_source_index": 0,
+            "clause_start_line": 7,
+            "clause_text": "  block write file \"/tmp/as-sem-v6hkoltv/project/archive.txt\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "write",
+            "name": "h_4fedd4ff008e49cb_intent_1",
+            "ops": [
+              "write"
+            ],
+            "reason": "不允许访问 archive.txt。",
+            "source_end_line": 8,
+            "source_hash": "fnv1a64:9ed9d05de3e7d02c",
+            "source_ref": "rule:h_4fedd4ff008e49cb_intent_1",
+            "source_start_line": 6,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/archive.txt"
+          },
+          "rule_id": 1,
+          "schema": "actplane.violation.v1",
+          "session_root": 979012,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/archive.txt",
+          "timestamp_unix_ns": "1791727764307520331",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 1517669380,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 979012,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117565018332453
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 979012,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117565018332453
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "write",
+          "op_code": 2,
+          "pid": 979012,
+          "ppid": 978995,
+          "process_domain_id": 1517669380,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 979012,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117565018332453
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 7,
+            "clause_hash": "fnv1a64:ef45d1e0d1abe36e",
+            "clause_op": "write",
+            "clause_source_index": 0,
+            "clause_start_line": 7,
+            "clause_text": "  block write file \"/tmp/as-sem-v6hkoltv/project/archive.txt\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "write",
+            "name": "h_4fedd4ff008e49cb_intent_1",
+            "ops": [
+              "write"
+            ],
+            "reason": "不允许访问 archive.txt。",
+            "source_end_line": 8,
+            "source_hash": "fnv1a64:9ed9d05de3e7d02c",
+            "source_ref": "rule:h_4fedd4ff008e49cb_intent_1",
+            "source_start_line": 6,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/archive.txt"
+          },
+          "rule_id": 1,
+          "schema": "actplane.violation.v1",
+          "session_root": 979012,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/archive.txt",
+          "timestamp_unix_ns": "1791727764307872761",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 1517669380,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 979012,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117565018332453
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 979012,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117565018332453
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "write",
+          "op_code": 2,
+          "pid": 979012,
+          "ppid": 978995,
+          "process_domain_id": 1517669380,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 979012,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117565018332453
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 7,
+            "clause_hash": "fnv1a64:ef45d1e0d1abe36e",
+            "clause_op": "write",
+            "clause_source_index": 0,
+            "clause_start_line": 7,
+            "clause_text": "  block write file \"/tmp/as-sem-v6hkoltv/project/archive.txt\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "write",
+            "name": "h_4fedd4ff008e49cb_intent_1",
+            "ops": [
+              "write"
+            ],
+            "reason": "不允许访问 archive.txt。",
+            "source_end_line": 8,
+            "source_hash": "fnv1a64:9ed9d05de3e7d02c",
+            "source_ref": "rule:h_4fedd4ff008e49cb_intent_1",
+            "source_start_line": 6,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/archive.txt"
+          },
+          "rule_id": 1,
+          "schema": "actplane.violation.v1",
+          "session_root": 979012,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/archive.txt",
+          "timestamp_unix_ns": "1791727764308195564",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 1517669380,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 979014,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117565038072571
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 979014,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117565038072571
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "read",
+          "op_code": 1,
+          "pid": 979014,
+          "ppid": 979012,
+          "process_domain_id": 1517669380,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 979014,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117565038072571
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:b978d8486f575b7f",
+            "clause_op": "read",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": "  block read file \"/tmp/as-sem-v6hkoltv/project/archive.txt\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "read",
+            "name": "h_4fedd4ff008e49cb_intent_0",
+            "ops": [
+              "read"
+            ],
+            "reason": "不允许访问 archive.txt。",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:05bb34a37c98ecac",
+            "source_ref": "rule:h_4fedd4ff008e49cb_intent_0",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/archive.txt"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 979012,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/archive.txt",
+          "timestamp_unix_ns": "1791727764322610070",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 1517669380,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 979046,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117565130817137
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 979046,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117565130817137
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "write",
+          "op_code": 2,
+          "pid": 979046,
+          "ppid": 979012,
+          "process_domain_id": 1517669380,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 979046,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117565130817137
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 7,
+            "clause_hash": "fnv1a64:ef45d1e0d1abe36e",
+            "clause_op": "write",
+            "clause_source_index": 0,
+            "clause_start_line": 7,
+            "clause_text": "  block write file \"/tmp/as-sem-v6hkoltv/project/archive.txt\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "write",
+            "name": "h_4fedd4ff008e49cb_intent_1",
+            "ops": [
+              "write"
+            ],
+            "reason": "不允许访问 archive.txt。",
+            "source_end_line": 8,
+            "source_hash": "fnv1a64:9ed9d05de3e7d02c",
+            "source_ref": "rule:h_4fedd4ff008e49cb_intent_1",
+            "source_start_line": 6,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/archive.txt"
+          },
+          "rule_id": 1,
+          "schema": "actplane.violation.v1",
+          "session_root": 979012,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/archive.txt",
+          "timestamp_unix_ns": "1791727764407827374",
+          "tool_call_tag": "0"
+        }
+      ],
+      "event_file_owners": [
+        1000
+      ],
+      "stderr": "ActPlane: running pid 979012 under COMMAND label 0x1; feedback /tmp/as-sem-v6hkoltv/kernel/deny_access/.actplane/runs/run-978995-1791727764279341383/feedback.txt\n\n",
+      "candidate_product_state": "pending_review"
+    },
+    {
+      "name": "two_files",
+      "passed": true,
+      "exit_code": 0,
+      "baseline_read_write_allowed": true,
+      "mutation_protected_bytes_unchanged": true,
+      "observed": {
+        "pid": 979148,
+        "uid": 1000,
+        "results": [
+          {
+            "name": "a.txt:read",
+            "actual": "allowed",
+            "errno": null,
+            "passed": true
+          },
+          {
+            "name": "a.txt:append",
+            "actual": "denied",
+            "errno": 1,
+            "passed": true
+          },
+          {
+            "name": "a.txt:overwrite",
+            "actual": "denied",
+            "errno": 1,
+            "passed": true
+          },
+          {
+            "name": "a.txt:read_write_open",
+            "actual": "denied",
+            "errno": 1,
+            "passed": true
+          },
+          {
+            "name": "a.txt:truncate",
+            "actual": "denied",
+            "errno": 1,
+            "passed": true
+          },
+          {
+            "name": "a.txt:unlink",
+            "actual": "denied",
+            "errno": 1,
+            "passed": true
+          },
+          {
+            "name": "a.txt:rename",
+            "actual": "denied",
+            "errno": 1,
+            "passed": true
+          },
+          {
+            "name": "a.txt:child_read",
+            "actual": "allowed",
+            "passed": true,
+            "exit_code": 0,
+            "stderr": ""
+          },
+          {
+            "name": "a.txt:child_write",
+            "actual": "denied",
+            "passed": true,
+            "exit_code": 1,
+            "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    import os,sys; fd=os.open(sys.argv[1],os.O_WRONLY|os.O_APPEND); os.write(fd,b\"child\"); os.close(fd)\n                      ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nPermissionError: [Errno 1] Operation not permitted: '/tmp/as-sem-v6hkoltv/project/a.txt'\n"
+          },
+          {
+            "name": "b.txt:read",
+            "actual": "denied",
+            "errno": 1,
+            "passed": true
+          },
+          {
+            "name": "b.txt:append",
+            "actual": "allowed",
+            "errno": null,
+            "passed": true
+          },
+          {
+            "name": "b.txt:child_read",
+            "actual": "denied",
+            "passed": true,
+            "exit_code": 1,
+            "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    import pathlib,sys; pathlib.Path(sys.argv[1]).read_bytes()\n                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^\n  File \"/usr/lib/python3.14/pathlib/__init__.py\", line 778, in read_bytes\n    with self.open(mode='rb', buffering=0) as f:\n         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.14/pathlib/__init__.py\", line 772, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nPermissionError: [Errno 1] Operation not permitted: '/tmp/as-sem-v6hkoltv/project/b.txt'\n"
+          },
+          {
+            "name": "b.txt:child_write",
+            "actual": "allowed",
+            "passed": true,
+            "exit_code": 0,
+            "stderr": ""
+          },
+          {
+            "name": "unrelated:write",
+            "actual": "allowed",
+            "errno": null,
+            "passed": true
+          },
+          {
+            "name": "unrelated:read",
+            "actual": "allowed",
+            "errno": null,
+            "passed": true
+          }
+        ]
+      },
+      "kernel_events": [
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 1455417618,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 979148,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117565476865061
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 979148,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117565476865061
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "write",
+          "op_code": 2,
+          "pid": 979148,
+          "ppid": 979131,
+          "process_domain_id": 1455417618,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 979148,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117565476865061
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:7a09156e55c8dbdb",
+            "clause_op": "write",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": "  block write file \"/tmp/as-sem-v6hkoltv/project/a.txt\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "write",
+            "name": "h_5eb97dba217f44dd_intent_1",
+            "ops": [
+              "write"
+            ],
+            "reason": "a.txt 可读不可改",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:83942904f1309f61",
+            "source_ref": "rule:h_5eb97dba217f44dd_intent_1",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/a.txt"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 979148,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/a.txt",
+          "timestamp_unix_ns": "1791727764766736289",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 1455417618,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 979148,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117565476865061
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 979148,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117565476865061
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "write",
+          "op_code": 2,
+          "pid": 979148,
+          "ppid": 979131,
+          "process_domain_id": 1455417618,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 979148,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117565476865061
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:7a09156e55c8dbdb",
+            "clause_op": "write",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": "  block write file \"/tmp/as-sem-v6hkoltv/project/a.txt\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "write",
+            "name": "h_5eb97dba217f44dd_intent_1",
+            "ops": [
+              "write"
+            ],
+            "reason": "a.txt 可读不可改",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:83942904f1309f61",
+            "source_ref": "rule:h_5eb97dba217f44dd_intent_1",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/a.txt"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 979148,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/a.txt",
+          "timestamp_unix_ns": "1791727764767153370",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 1455417618,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 979148,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117565476865061
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 979148,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117565476865061
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "write",
+          "op_code": 2,
+          "pid": 979148,
+          "ppid": 979131,
+          "process_domain_id": 1455417618,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 979148,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117565476865061
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:7a09156e55c8dbdb",
+            "clause_op": "write",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": "  block write file \"/tmp/as-sem-v6hkoltv/project/a.txt\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "write",
+            "name": "h_5eb97dba217f44dd_intent_1",
+            "ops": [
+              "write"
+            ],
+            "reason": "a.txt 可读不可改",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:83942904f1309f61",
+            "source_ref": "rule:h_5eb97dba217f44dd_intent_1",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/a.txt"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 979148,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/a.txt",
+          "timestamp_unix_ns": "1791727764767537780",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 1455417618,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 979148,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117565476865061
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 979148,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117565476865061
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "write",
+          "op_code": 2,
+          "pid": 979148,
+          "ppid": 979131,
+          "process_domain_id": 1455417618,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 979148,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117565476865061
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:7a09156e55c8dbdb",
+            "clause_op": "write",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": "  block write file \"/tmp/as-sem-v6hkoltv/project/a.txt\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "write",
+            "name": "h_5eb97dba217f44dd_intent_1",
+            "ops": [
+              "write"
+            ],
+            "reason": "a.txt 可读不可改",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:83942904f1309f61",
+            "source_ref": "rule:h_5eb97dba217f44dd_intent_1",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/a.txt"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 979148,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/a.txt",
+          "timestamp_unix_ns": "1791727764767924939",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 1455417618,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 979148,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117565476865061
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 979148,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117565476865061
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "write",
+          "op_code": 2,
+          "pid": 979148,
+          "ppid": 979131,
+          "process_domain_id": 1455417618,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 979148,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117565476865061
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:7a09156e55c8dbdb",
+            "clause_op": "write",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": "  block write file \"/tmp/as-sem-v6hkoltv/project/a.txt\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "write",
+            "name": "h_5eb97dba217f44dd_intent_1",
+            "ops": [
+              "write"
+            ],
+            "reason": "a.txt 可读不可改",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:83942904f1309f61",
+            "source_ref": "rule:h_5eb97dba217f44dd_intent_1",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/a.txt"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 979148,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/a.txt",
+          "timestamp_unix_ns": "1791727764768486812",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 1455417618,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 979148,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117565476865061
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 979148,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117565476865061
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "write",
+          "op_code": 2,
+          "pid": 979148,
+          "ppid": 979131,
+          "process_domain_id": 1455417618,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 979148,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117565476865061
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:7a09156e55c8dbdb",
+            "clause_op": "write",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": "  block write file \"/tmp/as-sem-v6hkoltv/project/a.txt\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "write",
+            "name": "h_5eb97dba217f44dd_intent_1",
+            "ops": [
+              "write"
+            ],
+            "reason": "a.txt 可读不可改",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:83942904f1309f61",
+            "source_ref": "rule:h_5eb97dba217f44dd_intent_1",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/a.txt"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 979148,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/a.txt",
+          "timestamp_unix_ns": "1791727764768936703",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 1455417618,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 979159,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117565518969895
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 979159,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117565518969895
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "write",
+          "op_code": 2,
+          "pid": 979159,
+          "ppid": 979148,
+          "process_domain_id": 1455417618,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 979159,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117565518969895
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 4,
+            "clause_hash": "fnv1a64:7a09156e55c8dbdb",
+            "clause_op": "write",
+            "clause_source_index": 0,
+            "clause_start_line": 4,
+            "clause_text": "  block write file \"/tmp/as-sem-v6hkoltv/project/a.txt\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "write",
+            "name": "h_5eb97dba217f44dd_intent_1",
+            "ops": [
+              "write"
+            ],
+            "reason": "a.txt 可读不可改",
+            "source_end_line": 5,
+            "source_hash": "fnv1a64:83942904f1309f61",
+            "source_ref": "rule:h_5eb97dba217f44dd_intent_1",
+            "source_start_line": 3,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/a.txt"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 979148,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/a.txt",
+          "timestamp_unix_ns": "1791727764795802414",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 1455417618,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 979148,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117565476865061
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 979148,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117565476865061
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "read",
+          "op_code": 1,
+          "pid": 979148,
+          "ppid": 979131,
+          "process_domain_id": 1455417618,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 979148,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117565476865061
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 7,
+            "clause_hash": "fnv1a64:156b8f7fdc63cd0f",
+            "clause_op": "read",
+            "clause_source_index": 0,
+            "clause_start_line": 7,
+            "clause_text": "  block read file \"/tmp/as-sem-v6hkoltv/project/b.txt\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "read",
+            "name": "h_5eb97dba217f44dd_intent_2",
+            "ops": [
+              "read"
+            ],
+            "reason": "不要读取 b.txt",
+            "source_end_line": 8,
+            "source_hash": "fnv1a64:93f472019d0812a3",
+            "source_ref": "rule:h_5eb97dba217f44dd_intent_2",
+            "source_start_line": 6,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/b.txt"
+          },
+          "rule_id": 1,
+          "schema": "actplane.violation.v1",
+          "session_root": 979148,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/b.txt",
+          "timestamp_unix_ns": "1791727764887123779",
+          "tool_call_tag": "0"
+        },
+        {
+          "action": "block",
+          "blocked": true,
+          "comm": "semprobe",
+          "domain_id": 1455417618,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 979178,
+                  "origin_target": "semprobe",
+                  "origin_timestamp_ns": 117565619343576
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 979178,
+                "origin_target": "semprobe",
+                "origin_timestamp_ns": 117565619343576
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "read",
+          "op_code": 1,
+          "pid": 979178,
+          "ppid": 979148,
+          "process_domain_id": 1455417618,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 979178,
+            "origin_target": "semprobe",
+            "origin_timestamp_ns": 117565619343576
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 7,
+            "clause_hash": "fnv1a64:156b8f7fdc63cd0f",
+            "clause_op": "read",
+            "clause_source_index": 0,
+            "clause_start_line": 7,
+            "clause_text": "  block read file \"/tmp/as-sem-v6hkoltv/project/b.txt\" if AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "read",
+            "name": "h_5eb97dba217f44dd_intent_2",
+            "ops": [
+              "read"
+            ],
+            "reason": "不要读取 b.txt",
+            "source_end_line": 8,
+            "source_hash": "fnv1a64:93f472019d0812a3",
+            "source_ref": "rule:h_5eb97dba217f44dd_intent_2",
+            "source_start_line": 6,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/tmp/as-sem-v6hkoltv/project/b.txt"
+          },
+          "rule_id": 1,
+          "schema": "actplane.violation.v1",
+          "session_root": 979148,
+          "taint_label": "0x1",
+          "target": "/tmp/as-sem-v6hkoltv/project/b.txt",
+          "timestamp_unix_ns": "1791727764902883575",
+          "tool_call_tag": "0"
+        }
+      ],
+      "event_file_owners": [
+        1000
+      ],
+      "stderr": "ActPlane: running pid 979148 under COMMAND label 0x1; feedback /tmp/as-sem-v6hkoltv/kernel/two_files/.actplane/runs/run-979131-1791727764736733409/feedback.txt\n\n",
+      "candidate_product_state": "pending_review"
+    }
+  ],
+  "test_pin_root_removed": true
+}

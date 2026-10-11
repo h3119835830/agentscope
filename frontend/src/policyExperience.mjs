@@ -5,7 +5,8 @@ export const disposition=e=>({block:'阻止',notify:'记录并提醒',kill:'终�
 export function candidateView(result){
  const clauses=(result.artifact?.policy_ir?.rules||[]).flatMap(r=>r.clauses||[]),targets=[...new Set(clauses.map(c=>c.pattern).filter(Boolean))],operations=[...new Set(clauses.map(c=>operationLabel(c.operation)))],effects=[...new Set(clauses.map(c=>disposition(c.effect)))];
  const first=targets[0]?.split('/').filter(Boolean).at(-1),text=result.record?.statement?.text_zh||result.record?.statement?.text_original||'策略候选';
- return {text,targets,operations,effects,title:first?first+' · '+operations.join('、'):'待完善的策略',ready:!!result.artifact?.actplane_dsl,clauses};
+ const stale=!!result.artifact?.actplane_dsl&&!!result.submission_blockers?.length;
+ return {text,targets,operations,effects,title:first?first+' · '+operations.join('、'):'待完善的策略',ready:!!result.artifact?.actplane_dsl&&!stale&&(!result.compile_state||result.compile_state==='compiled'),stale,clauses};
 }
 const sorted=v=>Array.isArray(v)?v.map(sorted):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,sorted(v[k])])):v;
 export const sameDocuments=(a,b)=>JSON.stringify(sorted([...a].sort((x,y)=>x.id.localeCompare(y.id))))===JSON.stringify(sorted([...b].sort((x,y)=>x.id.localeCompare(y.id))));

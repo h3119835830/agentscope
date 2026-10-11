@@ -47,6 +47,12 @@ class Provider:
             s=payload['first_pass'][0];s['completeness']='complete';s['uncertainties']=['Speculation about restrictions not requested by the user'];return {'statements':[s]},{'model':'fixture'}
         if version=='agent-environment-targets-v1':
             return {'targets':[{'path':'.env','evidence':'.env'}],'questions':[]},{'model':'fixture'}
+        if version=='source-access-intent-v1':
+            if self.mutate:self.mutate()
+            return {'permissions':[{'action':'read','pattern':'/w/0/.env','decision':'forbid',
+                'evidence':payload['SOURCE']['selected_quote']}]},{'model':'fixture'}
+        if version=='source-access-review-v1':
+            return payload['first_pass'],{'model':'fixture'}
         assert 'uncertainties' not in payload['statement']['statement']
         assert 'review_issues' not in payload['statement']['statement']
         assert payload['VERIFIED_CONTEXT']['workspace']=='/w/0'

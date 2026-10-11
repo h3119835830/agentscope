@@ -254,6 +254,8 @@ def selected_candidate(ident, artifact_id):
     data = json.loads(artifact['artifact_json'])
     if digest(data) != artifact['content_sha256'] or not data.get('actplane_dsl'):
         raise ValueError('策略候选内容校验失败')
+    from .intent import check_artifact
+    check_artifact(data, version)
     from .eligibility import blockers
     issues=blockers(data,version.model_dump())
     if issues:raise ValueError('策略候选仍需补充或重新适配')

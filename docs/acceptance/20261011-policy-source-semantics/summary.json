@@ -1,0 +1,25 @@
+{
+  "backend": {
+    "passed": 1092,
+    "skipped": 11
+  },
+  "frontend": {
+    "passed": 236,
+    "build": "passed"
+  },
+  "actual_model": {
+    "rounds": 2,
+    "cases_per_round": 6,
+    "passed": 12
+  },
+  "kernel": {
+    "cases": 6,
+    "operations": 65,
+    "denial_events": 41,
+    "pin_root_removed": true
+  },
+  "product_approved": false,
+  "product_loaded": false,
+  "deployed_18003": false,
+  "pushed": false
+}

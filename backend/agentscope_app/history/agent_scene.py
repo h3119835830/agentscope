@@ -203,7 +203,8 @@ def run(read_id, provider=None):
         context = json.loads(row['context_json'])
         result, _ = (provider or DeepSeekProvider()).generate(PROMPT,{
             'workspace':context['workspace'],
-            'ENFORCEMENT_CAPABILITIES':context['environment_binding']['values']['capabilities'],
+            # Scene recommendations describe project intent. Backend hook/ABI
+            # details belong to the later deterministic conversion stage.
             'UNTRUSTED_PROJECT_EVIDENCE':sources},'agent-policy-scene-v1')
         result = checked_result(result,sources)
         verify(row)

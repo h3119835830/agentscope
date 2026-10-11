@@ -185,13 +185,15 @@ def review_single(version,provider):
     return {"statement_version_ids":[new.id],"llm_runs":[meta]}
 
 
-def compile_candidate(version,provider):
+def compile_candidate(version,provider,source_intent=None):
     from ..main import compile_policy
     from .agent_context import revalidate
     revalidate(version.resolved_context)
     attempts=[]; diagnostic=None
-    for attempt in range(2):
-        candidate=generate_policy_artifact(version,provider=provider,compiler_diagnostic=diagnostic,structured=True,allow_unreviewed=True)
+    # A deterministic lowering cannot repair itself by repeating compilation.
+    # Reuse its frozen source contract; source/context changes require a new run.
+    for attempt in range(1 if source_intent else 2):
+        candidate=generate_policy_artifact(version,provider=provider,compiler_diagnostic=diagnostic,structured=True,allow_unreviewed=True,source_intent=source_intent)
         revalidate(version.resolved_context)
         state=candidate.state; info={}
         if candidate.actplane_dsl:
@@ -245,7 +247,11 @@ def execute(run_id,provider=None):
                 if version.statement.completeness not in ("complete","description"):
                     with db.connect() as con: con.execute("UPDATE history_generation_results SET status='needs_clarification',error='完整性二审未通过' WHERE run_id=? AND statement_version_id=?",(run_id,sid))
                     continue
-                value=step(run_id,"artifact:"+sid,"ir_and_compile",lambda:compile_candidate(version,provider))
+                source_intent = None
+                if version.resolved_context.get('kind') == 'agent' and version.statement.enforcement_level in ('per_event','cross_event'):
+                    from .intent import extract
+                    source_intent=step(run_id,'source-intent:'+sid,'source_permission_intent',lambda:extract(version,provider))
+                value=step(run_id,"artifact:"+sid,"ir_and_compile",lambda:compile_candidate(version,provider,source_intent))
                 state=value["compile_state"]
                 status={"compiled":"ready","unsupported":"ready","requires_context":"needs_adaptation","needs_clarification":"needs_clarification"}.get(state,"failed")
                 if status=="failed": failures+=1
@@ -282,6 +288,9 @@ def results(ident,limit=20,offset=0,**filters):
         if item["status"] in ("failed","pending","needs_clarification"):item["review_blockers"].append("候选生成或校验未完成，请修订或重试")
         item["adaptation"]=(a or {}).get("policy_record",{}).get("metadata",{}).get("adaptation",{"state":"not_required"})
         item["load_blockers"]=blockers(a,item["record"]) if a else ["尚无产物"]
+        # Submission precedes human approval; all source/environment/semantic
+        # guards still apply. Keep this separate from final load eligibility.
+        item['submission_blockers'] = list(dict.fromkeys(item['review_blockers'] + item['load_blockers']))
         if item["review_status"]!="approved" or item["artifact_review_status"]!="approved": item["load_blockers"].append("尚未最终人工审核")
         if not a or not a.get("actplane_dsl"): item["load_blockers"].append("没有执行 DSL")
         elif item["compile_state"]!="compiled": item["load_blockers"].append("尚未编译通过")
@@ -318,6 +327,9 @@ def final_review(ident,items,decision,actor):
                 data=json.loads(row["artifact_json"])
                 if digest(data)!=row["artifact_hash"]: raise ValueError("候选内容 hash 不一致")
                 if data.get("actplane_dsl") and row["compile_state"]!="compiled": raise ValueError("执行 DSL 未编译通过")
+                if data.get('actplane_dsl'):
+                    from .intent import check_artifact
+                    check_artifact(data,version)
             validated.append((version,row["artifact_id"]))
         status="approved" if decision=="approve" else "rejected"
         for version,aid in validated:

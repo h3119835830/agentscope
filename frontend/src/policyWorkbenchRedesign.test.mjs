@@ -10,12 +10,25 @@ import {renderToStaticMarkup} from 'react-dom/server';
 import {createHandoff,createSystemHandoff,appendHandoff} from './agentPolicyHandoff.mjs';
 import {assistantInput,generatedHandoff} from './policyAssistant.mjs';
 import {readNavigation,navigationTarget} from './navigation.mjs';
+import {candidateView} from './policyExperience.mjs';
 const require=createRequire(import.meta.url),Module=require('node:module'),base=dirname(fileURLToPath(import.meta.url));
 const configurations=JSON.parse(readFileSync(new URL('./system-policy-configurations.json',import.meta.url)));
 const identity={generation:'gen-a',pid:55,start_ticks:'100',domain_id:99,host_id:'host',boot_id:'boot'};
 const verifiedTarget=(id,type='dsh',executable='/opt/agentscope/bin/node')=>({id,mode:'controlled',agent_type:type,connected:true,...identity,policy_source:{ready:true,instance_id:id,...identity,pattern:'**/'+executable.split('/').at(-1),entry:'/opt/agent/launcher',executable,basis:'verified-process-executable'}});
 const catalogue=JSON.parse(readFileSync(new URL('./rq1-agent-templates.json',import.meta.url)));
 const target={...verifiedTarget('agent-1'),resources:['/actual/project']};
+
+test('compiled candidates blocked by server validation require regeneration and have no submit action',async()=>{
+ const result={compile_state:'compiled',submission_blockers:['原文权限校验未通过，请重新生成'],
+  artifact:{actplane_dsl:'rule old:\n  block read file "/actual/project/input.csv" if AGENT',policy_ir:{rules:[{clauses:[{operation:'read',pattern:'/actual/project/input.csv',effect:'block'}]}]}},
+  record:{statement:{text_original:'Read input.csv without changing it.'}}};
+ assert.equal(candidateView(result).ready,false);assert.equal(candidateView(result).stale,true);
+ const render=await harness('PolicyCandidateDetail.jsx'),tree=render({result,agentName:'Test Agent',onClose(){},onRevise(){}}),html=renderToStaticMarkup(tree);
+ assert.match(html,/待重新生成/);assert.doesNotMatch(html,/role="tab"[^>]*>DSL 配置|class="button primary"/);
+ assert.equal(elements(tree).some(e=>e.type==='button'&&e.props.onClick===tree.props.onSubmit),false);
+ const pending={...result,submission_blockers:[],load_blockers:['尚未最终人工审核'],review_status:'pending_review'};
+ assert.equal(candidateView(pending).ready,true);assert.equal(candidateView(pending).stale,false);
+});
 function elements(tree){if(!tree||typeof tree!=='object')return [];return [tree,...[tree.props?.children].flat(Infinity).flatMap(elements)]}
 async function harness(entry,exported='default'){
  const built=await build({entryPoints:[join(base,entry)],bundle:true,platform:'node',format:'cjs',external:['react'],write:false});

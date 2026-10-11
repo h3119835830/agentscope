@@ -52,6 +52,9 @@ def blockers(data, statement, *, task=None):
         if data.get("actplane_dsl"):
             if ctx.get("kind")=="agent":
                 from .agent_context import revalidate
+                from .intent import check_artifact
+                try: check_artifact(data,StrategyStatementVersion.model_validate(statement))
+                except (ValueError,RuntimeError,OSError): reasons.append('原文权限校验未通过，请重新生成')
                 try: revalidate(ctx)
                 except (ValueError,RuntimeError,OSError): reasons.append("Agent 或会话环境已变化，请重新生成")
                 if env!=ctx.get("environment_binding"):reasons.append("没有服务端适配凭据")

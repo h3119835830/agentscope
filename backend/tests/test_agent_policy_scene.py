@@ -45,6 +45,7 @@ def test_read_is_bounded_sanitized_and_never_creates_policy_or_task(world):
     (world.root/'utils').mkdir();(world.root/'utils/evaluator.py').write_text('DO_NOT_SEND_ORACLE')
     (world.root/'config.py').write_text('password=DO_NOT_SEND_PASSWORD\n<reasoning>PRIVATE_MODEL_CONTENT</reasoning>')
     reader=Reader();page=complete(world,reader)
+    assert set(reader.calls[0])=={'workspace','UNTRUSTED_PROJECT_EVIDENCE'}
     payload=json.dumps(reader.calls)
     assert 'DO_NOT_SEND' not in payload and 'PRIVATE_MODEL_CONTENT' not in payload
     assert page['current'] and page['read_only'] and page['file_count']==2
