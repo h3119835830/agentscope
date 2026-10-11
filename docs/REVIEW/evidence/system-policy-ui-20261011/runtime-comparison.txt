@@ -1,0 +1,1 @@
+PASS: controlled Agent PID/generation/gate/policy hashes, DSL revisions and API service unchanged. Snapshot comparison completed 2026-10-11. No production load was requested by this preview.

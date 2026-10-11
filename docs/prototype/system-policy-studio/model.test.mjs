@@ -1,0 +1,16 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {catalog,patterns,matches,validate,ruleDsl,selectionReview,runtimeRequirement} from './model.mjs';
+test('suffix policy covers bare and named env files without widening to env.local',()=>{
+ const p=catalog[0];assert.deepEqual(patterns(p),['**/*.env']);
+ for(const path of ['/.env','/srv/app/.env','/srv/app/production.env'])assert.equal(matches(p,path),true,path);
+ for(const path of ['/srv/app/.env.local','/srv/app/.env.example','/srv/env/config.json'])assert.equal(matches(p,path),false,path);
+ for(const path of ['relative.env','/srv/app/../.env'])assert.equal(matches(p,path),null,path);
+});
+test('filename and suffix are separate choices',()=>{const p={...catalog[0],mode:'filename'};assert.deepEqual(patterns(p),['**/.env']);assert.equal(matches(p,'/srv/app/prod.env'),false);assert.equal(matches(p,'/srv/app/.env'),true);});
+test('directory rules include directory node and all descendants but not sibling prefixes',()=>{const p={...catalog[4],values:'/var/policy/'};assert.deepEqual(patterns(p),['/var/policy','/var/policy/**']);assert.equal(matches(p,'/var/policy'),true);assert.equal(matches(p,'/var/policy/sub/rules.dsl'),true);assert.equal(matches(p,'/var/policy-old/rules.dsl'),false);assert.deepEqual(patterns({...p,values:'/'}),['/','/**']);});
+test('block notify and kill preserve every target and operation',()=>{for(const effect of ['block','notify','kill']){const p={...catalog[3],effect},dsl=ruleDsl(p);assert.equal((dsl.match(new RegExp('  '+effect+' ','g'))||[]).length,6);assert.match(dsl,/unlink file "\/etc\/shadow" if AGENT/);assert.match(dsl,/because/);}});
+test('flow policies retain label sources and conditions rather than flattening to file access',()=>{const dsl=ruleDsl(catalog.find(p=>p.mode==='flow'));assert.match(dsl,/source SENSITIVE = file "\*\*\/\*\.env"/);assert.match(dsl,/block connect endpoint "\*" if AGENT and SENSITIVE/);assert.match(ruleDsl(catalog.find(p=>p.mode==='remote')),/if AGENT and REMOTE/);});
+test('invalid fields cannot produce a candidate',()=>{for(const patch of [{values:''},{values:'*.env'},{effect:'allow'},{ops:['connect']},{reason:'bad"quote'},{reason:'two\nlines'}])assert.ok(validate({...catalog[0],...patch}));assert.ok(validate({...catalog[3],values:'/etc/../passwd'}));assert.ok(validate({...catalog[7],values:'300.0.0.1'}));assert.ok(validate({...catalog[7],values:'*.example.com'}));assert.equal(validate({...catalog[7],values:'10.0.0.'}),'');});
+test('system selection is universal and does not manufacture an applied state',()=>{const records=[{...catalog[0],configured:true},catalog[1]];const r=selectionReview(records,new Set(['env','ssh']));assert.equal(r.scope,'all-controlled-agents');assert.equal(r.chosen.length,2);assert.equal(r.invalid.length,1);assert.equal(r.pending.length,2);assert.equal(selectionReview(records,new Set()).chosen.length,0);assert.equal(records[0].active,undefined);});
+test('pinned runtime suffix limitation remains explicit for all relevant objects',()=>{for(const mode of ['suffix','filename','tail','flow'])assert.ok(runtimeRequirement({...catalog[0],mode}));for(const mode of ['exact','directory','exec','endpoint'])assert.equal(runtimeRequirement({...catalog[0],mode}),'');});

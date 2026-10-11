@@ -1,0 +1,15 @@
+{
+  "captured_at": "2026-10-11T15:07:49.1940628+08:00",
+  "agents": [
+    {
+      "name": "DeepSeek Harness",
+      "active": true,
+      "pid": 54870
+    },
+    {
+      "name": "Hermes",
+      "active": false,
+      "pid": null
+    }
+  ]
+}

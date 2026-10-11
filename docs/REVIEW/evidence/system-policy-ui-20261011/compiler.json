@@ -1,0 +1,258 @@
+{
+  "compiler": "/opt/agentscope/actplane/target/release/actplane",
+  "checks": [
+    {
+      "id": "env",
+      "effect": "block",
+      "compiler_ok": true,
+      "clauses": 1,
+      "static_supported": true
+    },
+    {
+      "id": "env",
+      "effect": "notify",
+      "compiler_ok": true,
+      "clauses": 1,
+      "static_supported": true
+    },
+    {
+      "id": "env",
+      "effect": "kill",
+      "compiler_ok": true,
+      "clauses": 1,
+      "static_supported": true
+    },
+    {
+      "id": "ssh",
+      "effect": "block",
+      "compiler_ok": true,
+      "clauses": 3,
+      "static_supported": true
+    },
+    {
+      "id": "ssh",
+      "effect": "notify",
+      "compiler_ok": true,
+      "clauses": 3,
+      "static_supported": true
+    },
+    {
+      "id": "ssh",
+      "effect": "kill",
+      "compiler_ok": true,
+      "clauses": 3,
+      "static_supported": true
+    },
+    {
+      "id": "cloud",
+      "effect": "block",
+      "compiler_ok": true,
+      "clauses": 2,
+      "static_supported": true
+    },
+    {
+      "id": "cloud",
+      "effect": "notify",
+      "compiler_ok": true,
+      "clauses": 2,
+      "static_supported": true
+    },
+    {
+      "id": "cloud",
+      "effect": "kill",
+      "compiler_ok": true,
+      "clauses": 2,
+      "static_supported": true
+    },
+    {
+      "id": "system-files",
+      "effect": "block",
+      "compiler_ok": true,
+      "clauses": 6,
+      "static_supported": true
+    },
+    {
+      "id": "system-files",
+      "effect": "notify",
+      "compiler_ok": true,
+      "clauses": 6,
+      "static_supported": true
+    },
+    {
+      "id": "system-files",
+      "effect": "kill",
+      "compiler_ok": true,
+      "clauses": 6,
+      "static_supported": true
+    },
+    {
+      "id": "policy-store",
+      "effect": "block",
+      "compiler_ok": true,
+      "clauses": 4,
+      "static_supported": true
+    },
+    {
+      "id": "policy-store",
+      "effect": "notify",
+      "compiler_ok": true,
+      "clauses": 4,
+      "static_supported": true
+    },
+    {
+      "id": "policy-store",
+      "effect": "kill",
+      "compiler_ok": true,
+      "clauses": 4,
+      "static_supported": true
+    },
+    {
+      "id": "audit-store",
+      "effect": "block",
+      "compiler_ok": true,
+      "clauses": 4,
+      "static_supported": true
+    },
+    {
+      "id": "audit-store",
+      "effect": "notify",
+      "compiler_ok": true,
+      "clauses": 4,
+      "static_supported": true
+    },
+    {
+      "id": "audit-store",
+      "effect": "kill",
+      "compiler_ok": true,
+      "clauses": 4,
+      "static_supported": true
+    },
+    {
+      "id": "privilege",
+      "effect": "block",
+      "compiler_ok": true,
+      "clauses": 2,
+      "static_supported": true
+    },
+    {
+      "id": "privilege",
+      "effect": "notify",
+      "compiler_ok": true,
+      "clauses": 2,
+      "static_supported": true
+    },
+    {
+      "id": "privilege",
+      "effect": "kill",
+      "compiler_ok": true,
+      "clauses": 2,
+      "static_supported": true
+    },
+    {
+      "id": "network-audit",
+      "effect": "block",
+      "compiler_ok": true,
+      "clauses": 1,
+      "static_supported": true
+    },
+    {
+      "id": "network-audit",
+      "effect": "notify",
+      "compiler_ok": true,
+      "clauses": 1,
+      "static_supported": true
+    },
+    {
+      "id": "network-audit",
+      "effect": "kill",
+      "compiler_ok": true,
+      "clauses": 1,
+      "static_supported": true
+    },
+    {
+      "id": "process-audit",
+      "effect": "block",
+      "compiler_ok": true,
+      "clauses": 1,
+      "static_supported": true
+    },
+    {
+      "id": "process-audit",
+      "effect": "notify",
+      "compiler_ok": true,
+      "clauses": 1,
+      "static_supported": true
+    },
+    {
+      "id": "process-audit",
+      "effect": "kill",
+      "compiler_ok": true,
+      "clauses": 1,
+      "static_supported": true
+    },
+    {
+      "id": "instructions",
+      "effect": "block",
+      "compiler_ok": true,
+      "clauses": 2,
+      "static_supported": true
+    },
+    {
+      "id": "instructions",
+      "effect": "notify",
+      "compiler_ok": true,
+      "clauses": 2,
+      "static_supported": true
+    },
+    {
+      "id": "instructions",
+      "effect": "kill",
+      "compiler_ok": true,
+      "clauses": 2,
+      "static_supported": true
+    },
+    {
+      "id": "secret-egress",
+      "effect": "block",
+      "compiler_ok": true,
+      "clauses": 1,
+      "static_supported": true
+    },
+    {
+      "id": "secret-egress",
+      "effect": "notify",
+      "compiler_ok": true,
+      "clauses": 1,
+      "static_supported": true
+    },
+    {
+      "id": "secret-egress",
+      "effect": "kill",
+      "compiler_ok": true,
+      "clauses": 1,
+      "static_supported": true
+    },
+    {
+      "id": "remote-exec",
+      "effect": "block",
+      "compiler_ok": true,
+      "clauses": 3,
+      "static_supported": true
+    },
+    {
+      "id": "remote-exec",
+      "effect": "notify",
+      "compiler_ok": true,
+      "clauses": 3,
+      "static_supported": true
+    },
+    {
+      "id": "remote-exec",
+      "effect": "kill",
+      "compiler_ok": true,
+      "clauses": 3,
+      "static_supported": true
+    }
+  ],
+  "loaded": false
+}
