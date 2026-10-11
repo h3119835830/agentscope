@@ -6,6 +6,7 @@ class Atom(BaseModel):
     model_config = ConfigDict(extra="forbid")
     decision: Literal["reuse", "parameterize", "new_candidate"]
     statement: str = Field(min_length=3, max_length=2000)
+    feedback: str | None = Field(default=None, min_length=3, max_length=600, description="Public because: protection purpose, evidence-bound next steps and escalation; no new permission. Optional for legacy drafts.")
     evidence_ids: list[str] = Field(min_length=1, max_length=20, description="Actual opaque source IDs returned by list/read tools; never role names or invented IDs")
     history_id: str | None = None
     history_hash: str | None = None

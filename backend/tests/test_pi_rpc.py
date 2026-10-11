@@ -58,3 +58,34 @@ def test_settled_failure_retains_last_server_business_diagnostic(tmp_path):
     with pytest.raises(ValueError,match='server-validated submission: exact source was unread'):
         drive([sys.executable,str(script)],os.environ.copy(),'submit',
               lambda:{'submitted':False,'last_diagnostic':'exact source was unread'},lambda _:None,seconds=3,repairs=0)
+
+
+def skill_process(tmp_path,mode):
+    script=tmp_path/'skill-rpc.py'
+    script.write_text("""import sys,json
+mode=sys.argv[1]
+for line in sys.stdin:
+ v=json.loads(line);data={}
+ if v['type']=='get_commands':
+  data={'commands':([] if mode=='missing' else [{'name':'skill:policy-feedback','source':'skill'}])}
+ elif v['type']=='prompt':
+  assert v['message'].startswith('/skill:policy-feedback ')
+  print(json.dumps({'type':'agent_settled'}),flush=True);continue
+ elif v['type']=='get_messages':
+  text='<skill name="policy-feedback" location="/pi/skills/policy-feedback/SKILL.md">\\nPUBLIC SKILL BODY\\n</skill>' if mode=='ok' else '/skill:policy-feedback unexpanded'
+  data={'messages':[{'role':'user','content':[{'type':'text','text':text}]},{'role':'assistant','content':[{'type':'thinking','thinking':'PRIVATE'}]}]}
+ print(json.dumps({'type':'response','id':v['id'],'success':True,'data':data}),flush=True)
+""")
+    return [sys.executable,str(script),mode]
+
+
+def test_required_skill_needs_discovery_and_native_body_before_success(tmp_path):
+    import pytest
+    contract={'name':'policy-feedback','body':'PUBLIC SKILL BODY','metadata':{'mount':'/pi/skills/policy-feedback/SKILL.md'}}
+    traces=[]
+    for mode,error in [('missing','exclusively discovered'),('unexpanded','body was not admitted')]:
+        with pytest.raises(ValueError,match=error):
+            drive(skill_process(tmp_path,mode),os.environ.copy(),'submit',lambda:{'submitted':True},traces.append,seconds=3,required_skill=contract)
+    result=drive(skill_process(tmp_path,'ok'),os.environ.copy(),'submit',lambda:{'submitted':True},traces.append,seconds=3,required_skill=contract)
+    assert result['skill']['context_verified'] and result['skill']['discovery_verified']
+    assert 'PRIVATE' not in json.dumps([traces,result])

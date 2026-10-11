@@ -32,3 +32,5 @@
 后台迟到探针由已鉴权的 `/api/managed/tasks/{id}/verify-deferred-operation` 触发，只允许登记保护对象的固定 `write_open` deny 检查；必须独立标记 native SDK probe。`scripts/because_evidence.py` 只导出允许字段和哈希，并核对 10 个关键运行文件；不会导出原生私有流。API 重启记录与关闭证据由实验编排器另行保留，不能伪造成每次复跑都自动执行过。
 
 测试日志和历史设计基线保存在 evidence，设计阶段失败结果保留原样。验收结束应通过该独立实例的任务 close API 停止执行域，不手工删除共享运行资源。
+
+2026-10-11 增量：系统默认反馈与 Pi 原生 Skill 已同步四类文档，证据位于 default-feedback-evidence/。Pi Skill 正本位于 ../../integrations/pi-policy-tools/skills/policy-feedback/SKILL.md。本轮未切换共享 18003，未推送。

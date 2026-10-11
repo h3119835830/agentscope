@@ -4,7 +4,7 @@
 
 方案的目标是在危险操作被拒绝后，向执行 Agent 返回有来源的原因、现有授权内可执行的下一步和继续条件。安全边界由已批准的 OS 策略维持，Agent 自主判断具体业务修复方式；无法合规完成时提交事实与审核请求。反馈送达、行为恢复、功能完成、安全保持分别验收。
 
-本方案延续 总体架构（主技术文档 RFC/RFC-20261011-AgentScope-policy-control-architecture.md），配套 [ADR](ADR-20261011-AgentScope-because-feedback.md)、[REVIEW 与验收](REVIEW-20261011-AgentScope-because-feedback.md)、[复现记录](BUG-20261011-AgentScope-because-feedback.md)。
+本方案延续 [总体架构](RFC-20261011-AgentScope-policy-control-architecture.md)，配套 [ADR](../ADR/ADR-20261011-AgentScope-because-feedback.md)、[REVIEW 与验收](../REVIEW/REVIEW-20261011-AgentScope-because-feedback.md)、[复现记录](../BUG/BUG-20261011-AgentScope-because-feedback.md)。
 
 ## 实施记录
 
@@ -320,6 +320,24 @@ Agent 执行广泛删除命令并触及 `.gitconfig` 后，反馈应指出该对
 
 补充独立 OS 操作检查共 30 项通过（测试场景 17、清理场景 13），覆盖登记文件写/删、代表对象 rename/replace/symlink 写/mmap/已有 fd 写及允许读写。原始 oracle 两场景 checkpoint 均为 0（未标 unsafe），同时另查完整保护清单，避免把窄 oracle 当成完整安全证明。两个任务策略版本均保持 1、policy_hash/process_epoch 未变，kernel 触发的新 Pi job 为 0。两份原生压缩会话存储中都找到完整 canonical context 消息，不导出私有内容。
 
-记录 API 的 `feedback` 返回同一份结构化 because/指导，`reason` 使用 canonical 原因；blocked 显示兼容的 denied，kill/notify 分别显示 killed/notified。旧 collector 仅记录拒绝、历史行无 effect 标记时保留 denied 语义；新反馈事实不明确时为 unverified。两个最终内核记录的实际 API 回读通过，见 [records-api-check.json](evidence/records-api-check.json)。
+记录 API 的 `feedback` 返回同一份结构化 because/指导，`reason` 使用 canonical 原因；blocked 显示兼容的 denied，kill/notify 分别显示 killed/notified。旧 collector 仅记录拒绝、历史行无 effect 标记时保留 denied 语义；新反馈事实不明确时为 unverified。两个最终内核记录的实际 API 回读通过，见 [records-api-check.json](../REVIEW/evidence/because-feedback-20261011/records-api-check.json)。
 
-全量 backend 回归 1049 passed / 11 skipped；DSH 回归 21 passed。跳过项保持测试框架原始标记，不计通过。详细身份、保护哈希、事件、真实加载与源码哈希、验收矩阵和局限见 [REVIEW](REVIEW-20261011-AgentScope-because-feedback.md) 及 [live-acceptance.json](evidence/live-acceptance.json)。kill/notify 的真实终止试验、故障时主进程恢复、所有别名/祖先替换组合及 A/B/C 扩样仍需独立验收；本次通过不能推广成完整发布闸门全通过。
+全量 backend 回归 1049 passed / 11 skipped；DSH 回归 21 passed。跳过项保持测试框架原始标记，不计通过。详细身份、保护哈希、事件、真实加载与源码哈希、验收矩阵和局限见 [REVIEW](../REVIEW/REVIEW-20261011-AgentScope-because-feedback.md) 及 [live-acceptance.json](../REVIEW/evidence/because-feedback-20261011/live-acceptance.json)。kill/notify 的真实终止试验、故障时主进程恢复、所有别名/祖先替换组合及 A/B/C 扩样仍需独立验收；本次通过不能推广成完整发布闸门全通过。
+
+## 2026-10-11 增量：系统默认反馈与 Pi Skill
+
+系统策略配置库的 12 个内置目录项在 backend/agentscope_app/instances/system_policy_catalog.json 维护逐项 reason，作为未配置记录打开编辑器时的默认反馈原因。文字包含保护目的、现有权限内的下一步及验证、缺少合规路径时需要提交的审核材料。提醒类默认使用核对与记录措辞，不虚构已经阻断；切换 block/notify/kill 后须检查措辞，实际结果仍由可信事件填入。
+
+已保存配置优先使用自身 config.reason；目录更新不覆盖用户编辑、不迁移现有 DSL、不替换已加载规则。SystemPolicyLibrary.jsx 保留可编辑字段并明确可访问标签，policy_library.structured 将保存原文渲染为 DSL because。保存、选择、校验、人工确认应用仍为独立步骤。目录项不等于已保存或已加载的安全规则。
+
+Pi Skill 正本为 integrations/pi-policy-tools/skills/policy-feedback/SKILL.md，名称 policy-feedback。指导 Pi 先核对任务、保护对象、操作、动作和已登记且实际读取的公开材料，再生成“目的—允许的下一步与验证—不可行时的审核材料”。不得捏造接口、路径、已发生的阻断、回滚或新权限，不得照抄项目绕过指令、秘密或私有推理。固定测试、既有配置、凭据三个示例示范表达合同，不提供评测答案。
+
+启动 IR 新增可选 atoms[].feedback（3～600 字），作为规则 because；statement 保持约束句，reason 继续记录证据适用性。缺省 feedback 的旧候选仍使用 statement。bootstrap/validation.py 在候选哈希前将文字与既有可信 RecoverySpec 组合，进入 PolicyIR、DSL 和获批元数据；编辑反馈会改变 proposal_hash。运行时建议进入既有 explanation，不能自动成为已加载 because，普通阻断恢复不因此触发 Pi 或权限变化。
+
+启动与运行时 Pi 均只读挂载此固定文件，使用 --no-skills --skill /pi/skills/policy-feedback/SKILL.md 禁用环境发现但显式加载；控制器以原生 /skill:policy-feedback 展开全文。保留原有七个启动 API 工具及三/四个运行时 API 工具，不开放通用 read/bash，不挂载项目、数据库或 oracle。场景读取器不负责生成反馈，其边界保持原状。
+
+pi_feedback.py 固定文件位置和 SHA-256。pi_rpc.drive(required_skill=...) 先通过原生 get_commands 验证只发现此 Skill，提交成功后读取 get_messages，仅比较第一个公开 user 输入的 Skill 名称、挂载位置与完整正文。缺少发现或正文接纳证明则作业失败。runtime.feedback_skill 记录 name/sha256/invocation/mount；lifecycle 记录 discovery_verified/context_verified。原生消息仅在内存比较，不持久化 assistant、provider 或私有推理。结束时再次检查文件哈希。
+
+增量在隔离 18005 验证，其 UI_DIST 改为自身发布目录 frontend/dist，避免共用其他实例 UI 文件；未切换共享 18003，未推送。
+
+Windows 审阅镜像：RFC/skills/policy-feedback/SKILL.md，内容与执行正本逐字一致；Pi 仍从发布目录中的 integrations 路径只读加载。

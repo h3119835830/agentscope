@@ -153,7 +153,7 @@ def validate(task_id, draft, compile_bundle=True):
     recovery = recovery_spec(ctx)
     ir_rules = []
     for number, atom in enumerate(draft.atoms):
-        ir_rules.append(Rule(name=f"bootstrap-{number + 1}",reason=candidate_reason(atom.statement, atom.paths, recovery),
+        ir_rules.append(Rule(name=f"bootstrap-{number + 1}",reason=candidate_reason(atom.feedback or atom.statement, atom.paths, recovery),
             clauses=[Clause(operation=operation,pattern=target) for operation in dict.fromkeys(atom.operations) for target in dict.fromkeys(atom.paths)]))
     ir = PolicyIR(rules=ir_rules,guidance=draft.guidance)
     dsl = render(ir, "") or ""

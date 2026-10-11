@@ -1,6 +1,6 @@
 # AgentScope because 反馈方案评审与验收记录
 
-日期：2026-10-11。状态：本次反馈链路与两个真实 DSH 场景验收通过；扩展故障与统计实验未全部执行。未切换共享实例、未推送。关联 [RFC](RFC-20261011-AgentScope-because-feedback.md)、[ADR](ADR-20261011-AgentScope-because-feedback.md)、[复现记录](BUG-20261011-AgentScope-because-feedback.md)。
+日期：2026-10-11。状态：本次反馈链路与两个真实 DSH 场景验收通过；扩展故障与统计实验未全部执行。未切换共享实例、未推送。关联 [RFC](../RFC/RFC-20261011-AgentScope-because-feedback.md)、[ADR](../ADR/ADR-20261011-AgentScope-because-feedback.md)、[复现记录](../BUG/BUG-20261011-AgentScope-because-feedback.md)。
 
 设计阶段通过只读源码核对和隔离离线检查，确定旧反馈链路缺少规则专属原因与合规下一步。当时的 API 服务目录 `/opt/agentscope-system-policy-20261011-161846` 没有 Git 元信息，相关文件以内容哈希固定。实施与最终验收使用独立 18005，以下区分历史基线与本次真实结果。
 
@@ -20,7 +20,7 @@
 
 ## 2 历史设计基线
 
-保留 [design-checks.json](evidence/design-checks.json) 和 [design-checks.py](evidence/design-checks.py)，不覆盖成新结果。设计阶段验证三个冻结场景 28 个 manifest 文件、两套示例 DSL 和只改 because 时内核配置字节一致；复现旧 formatter 丢失原因。系统 Python 缺 `toml` 的预检为零用例环境失败。随后用已安装的公开实验解释器在非特权临时副本中实际运行原始 13 项测试、5 项失败，原件不变。该历史基线不证明任务不可解，不能包装为功能验收通过。
+保留 [design-checks.json](evidence/because-feedback-20261011/design-checks.json) 和 [design-checks.py](evidence/because-feedback-20261011/design-checks.py)，不覆盖成新结果。设计阶段验证三个冻结场景 28 个 manifest 文件、两套示例 DSL 和只改 because 时内核配置字节一致；复现旧 formatter 丢失原因。系统 Python 缺 `toml` 的预检为零用例环境失败。随后用已安装的公开实验解释器在非特权临时副本中实际运行原始 13 项测试、5 项失败，原件不变。该历史基线不证明任务不可解，不能包装为功能验收通过。
 
 ## 3 实施与真实闭环签收
 
@@ -41,11 +41,11 @@
 
 独立功能运行使用原任务 namespace，项目和 output 只读、非特权 UID、可信 unittest 在导入项目代码前装载；控制面与 oracle 不可见。原始测试真实计数 13，exit 0；不信任 Agent 自报或可编辑测试入口的 exit 0。这个结果仅覆盖原始测试集，不证明该业务实现的全部生产语义。
 
-API-only 重启曾从 PID 704623 到 733196，Broker 704622 和两个任务 process_epoch 保持，持久游标继续工作；这不是“反馈投递中途杀死进程”的故障注入。验收结束两个任务均已正常 close，执行进程终止并撤销写 fd/mapping，详见 [quiescence.json](evidence/quiescence.json)。
+API-only 重启曾从 PID 704623 到 733196，Broker 704622 和两个任务 process_epoch 保持，持久游标继续工作；这不是“反馈投递中途杀死进程”的故障注入。验收结束两个任务均已正常 close，执行进程终止并撤销写 fd/mapping，详见 [quiescence.json](evidence/because-feedback-20261011/quiescence.json)。
 
-记录 API 已补齐 canonical feedback 和真实 effect，兼容旧的无 effect 历史拒绝记录。会话关闭后，独立 API 再次回读两个内核记录 551/587，确认 because、指导、legacy delivery 链接均一致；只重启自身 API，Broker 未变。见 [records-api-check.json](evidence/records-api-check.json)。
+记录 API 已补齐 canonical feedback 和真实 effect，兼容旧的无 effect 历史拒绝记录。会话关闭后，独立 API 再次回读两个内核记录 551/587，确认 because、指导、legacy delivery 链接均一致；只重启自身 API，Broker 未变。见 [records-api-check.json](evidence/because-feedback-20261011/records-api-check.json)。
 
-证据：[live-acceptance.json](evidence/live-acceptance.json)、[原始 13 项测试](evidence/functional-tests.txt)、[backend 回归](evidence/backend-tests.txt)、[DSH 回归](evidence/dsh-tests.txt)。backend：1049 passed、11 skipped、5 warnings；DSH：21 passed。跳过项和警告保留原始日志，不计通过。
+证据：[live-acceptance.json](evidence/because-feedback-20261011/live-acceptance.json)、[原始 13 项测试](evidence/because-feedback-20261011/functional-tests.txt)、[backend 回归](evidence/because-feedback-20261011/backend-tests.txt)、[DSH 回归](evidence/because-feedback-20261011/dsh-tests.txt)。backend：1049 passed、11 skipped、5 warnings；DSH：21 passed。跳过项和警告保留原始日志，不计通过。
 
 ## 4 T01–T19 覆盖审计
 
@@ -76,3 +76,28 @@ API-only 重启曾从 PID 704623 到 733196，Broker 704622 和两个任务 proc
 本次用户要求的因为说明、具体指导、原生反馈上下文、两个真实场景合规继续与独立验收已签收。理由丢失 BUG 关闭。宽泛发布闸门尚不能全部签收：剩余真实 kill/notify、主进程故障恢复、复杂别名/祖先组合、大批量反馈分页和 A/B/C 扩样须继续独立验证。本轮未改前端、未推送、未把本修改部署到共享 18003。
 
 末次共享服务只读观察中，18003 API 已为 `/opt/agentscope-approval-locations-20261011`、PID 771196，Broker PID 614944 active；这是相对设计基线的运行状态变化，不归因于本实验，也不能宣称共享 API 全程未变化。本任务所有生命周期操作仅针对自身 18005 和两个隔离任务。
+
+## 2026-10-11 增量验收：默认反馈与 Pi Skill
+
+本轮基于完成 because 链路的 bfd93de，使用同一独立源码分支及 18005 隔离实例。证据：REVIEW/evidence/feedback-defaults-skill-20261011/；源码镜像：docs/because-feedback/default-feedback-evidence/。未切换共享 18003，未推送。
+
+| 验收项 | 结果 |
+|---|---|
+| 后端全量回归 | 1052 passed，11 skipped，5 个既有弃用警告 |
+| 前端回归 / 构建 | 220 passed；Vite 构建成功，保留既有 bundle 大小提示 |
+| Skill 格式 | skill-creator quick_validate.py 通过 |
+| 原生 Pi SDK | 显式加载及 /skill 正文展开通过；临时项目的其他 Skill 未被发现 |
+| 真实页面 | 12 项默认原因可见可编辑；自定义保存刷新保留；because 预览等于保存原文；423 宽度无横向溢出，无 pageerror |
+| 保存边界 | base_revision/base_hash 不变，未应用；验收草稿已通过 UI 归档 |
+| 真实 Pi：固定测试 | 任务 33af92a816574df1，作业 756ba2f66dd348ba90ca74836faeeadd，19 次 API 工具调用 |
+| 真实 Pi：既有配置 | 任务 944c0844a97a4336，作业 2fa59b1525bb45f187247a48e1effe3a，14 次 API 工具调用 |
+| 两个真实作业 | 原生 Skill 发现/正文接纳均为 true，生成反馈进入校验后的 because，候选 validated |
+| 生成权限边界 | active_version=0，无 policy_versions、受管执行会话或加载动作 |
+
+固定测试的实际生成反馈要求读取失败断言、在获准实现内修复并运行原始测试；清理反馈分别解释配置和源码的作用，要求仅处理确认可丢弃的对象，再检查原件和项目可用性。pi-live-acceptance.json 保存公开文字、编译 because、Skill 哈希和接纳布尔值，不包含凭证、私有推理或 provider 流。
+
+页面初次复现包裹 textarea 的 label 名称混入正文，精确定位失败；补 aria-label 后逐项编辑、保存刷新、预览与窄屏通过。ui-failure.txt 保留公开页面复现，三个最终 PNG 经人工查看；反馈字段可滚动查看全文。
+
+本轮只验收默认值、Pi Skill 及生成至候选 because，没有重新运行 DSH 任务、内核故障或 kill/notify。前文真实 DSH 恢复是 bfd93de 阶段的历史证据，不计作新 Skill 的执行验收。运行时 Pi 使用同一加载校验路径，已覆盖 SDK 合同与回归；本轮真实模型调用仅覆盖两个启动场景，不声明运行时新候选已在真实 DSH 加载。
+
+自然语言建议仍须人工评审；结构化校验约束证据、路径和操作，不保证建议正确或任务必然完成。修改已加载原因仍须候选审批，无独立文字热更新。共享 18003 未切换，不能声称该实例新默认和 Skill 已上线。

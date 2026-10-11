@@ -58,8 +58,10 @@ def run(task_id,job_id):
 def _run(task_id, job_id):
     root = STATE_DIR / "pi-jobs"
     root.mkdir(mode=0o700, exist_ok=True)
+    from ..pi_feedback import skill, MOUNT
+    feedback_skill = skill(INTEGRATION)
     token = issue(task_id, job_id)
-    runtime={"package":"@earendil-works/pi-coding-agent","version":"1.0.1","model":"deepseek-flash","thinking":"off",
+    runtime={"feedback_skill":feedback_skill["metadata"],"package":"@earendil-works/pi-coding-agent","version":"1.0.1","model":"deepseek-flash","thinking":"off",
              "extension_hash":digest((INTEGRATION/"extension.ts").read_text()),"skill_hash":digest((INTEGRATION/"bootstrap-system.md").read_text()),
              "workflow_version":"task-scope-bootstrap/1.0.1",
              "lock_hash":digest((INTEGRATION/"package-lock.json").read_text()),"allowed_tools":TOOLS,"sandbox":"bwrap; no project, oracle, database or task filesystem mount"}
@@ -87,12 +89,13 @@ def _run(task_id, job_id):
             cli = ["/runtime/node", "/pi/node_modules/@earendil-works/pi-coding-agent/dist/cli.js", "--mode", "rpc", "--no-session",
                    "--provider", "agentscope-deepseek", "--model", "deepseek-flash", "--thinking", "off", "--no-builtin-tools",
                    "--tools", ",".join(TOOLS), "--no-extensions", "--extension", "/pi/extension.ts", "--no-skills",
-                   "--no-context-files", "--no-prompt-templates", "--no-themes", "--no-approve", "--offline", "--system-prompt", "/pi/bootstrap-system.md"]
+                   "--skill", MOUNT, "--no-context-files", "--no-prompt-templates", "--no-themes", "--no-approve", "--offline", "--system-prompt", "/pi/bootstrap-system.md"]
             command = ["/usr/bin/bwrap", "--die-with-parent", "--unshare-pid", "--unshare-ipc", "--unshare-uts",
                        "--ro-bind", "/usr", "/usr", "--ro-bind", "/lib", "/lib", "--ro-bind", "/lib64", "/lib64",
                        "--ro-bind", "/etc/ssl", "/etc/ssl", "--ro-bind", "/etc/resolv.conf", "/etc/resolv.conf",
                        "--ro-bind", "/etc/hosts", "/etc/hosts", "--ro-bind", "/opt/agentscope/bin/node", "/runtime/node",
                        "--dir", "/pi",
+                       "--ro-bind", str(feedback_skill["path"]), MOUNT,
                        "--ro-bind", str(INTEGRATION/"extension.ts"), "/pi/extension.ts",
                        "--ro-bind", str(INTEGRATION/"bootstrap-system.md"), "/pi/bootstrap-system.md",
                        "--ro-bind", str((INTEGRATION/"node_modules").resolve(strict=True)), "/pi/node_modules",
@@ -104,13 +107,14 @@ def _run(task_id, job_id):
             def trace(value):
                 with db.connect() as con:
                     con.execute("INSERT INTO bootstrap_tool_events(id,job_id,tool,input_json,output_json,occurred_at) VALUES(?,?,?,?,?,?)",(__import__('uuid').uuid4().hex,job_id,'rpc_lifecycle','{}',json.dumps(value),db.now()))
-            runtime['lifecycle']=drive(command,environment,'Generate the startup policy for the task bound to your tools. Complete the evidence/retrieval/validation/submission workflow. Do not execute the task.',status,trace)
+            runtime['lifecycle']=drive(command,environment,'Generate the startup policy for the task bound to your tools. Complete the evidence/retrieval/validation/submission workflow. Do not execute the task.',status,trace,required_skill=feedback_skill)
             # Neither reasoning streams nor ambient credential-bearing process output are persisted.
             with db.connect() as con:
                 proposal = con.execute("SELECT id,content_hash,state FROM bootstrap_proposals WHERE job_id=?", (job_id,)).fetchone()
                 calls = con.execute("SELECT calls FROM bootstrap_credentials WHERE job_id=?", (job_id,)).fetchone()[0]
             if not proposal: raise ValueError("Pi exited without a validated submitted proposal")
             if digest((INTEGRATION/"extension.ts").read_text())!=runtime["extension_hash"] or digest((INTEGRATION/"bootstrap-system.md").read_text())!=runtime["skill_hash"]:raise ValueError("Pi integration changed during generation")
+            if skill(INTEGRATION)["metadata"]!=runtime["feedback_skill"]:raise ValueError("Pi feedback skill changed during generation")
             return {"proposal_id": proposal["id"], "proposal_hash": proposal["content_hash"], "proposal_state":proposal['state'], "tool_calls": calls,"runtime":runtime}
     finally:
         revoke(job_id)

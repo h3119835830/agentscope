@@ -29,7 +29,7 @@ def environment():
                 'AGENTSCOPE_APP_USER': 'agentscope-api', 'AGENTSCOPE_SCOPE_WORKER': '1',
                 'AGENTSCOPE_HISTORY_WORKER': '1', 'AGENTSCOPE_INSTANCE_WORKER': '0',
                 'AGENTSCOPE_POLICY_NORMALIZATION': 'legacy', 'AGENTSCOPE_DEV_NO_AUTH': '0',
-                'AGENTSCOPE_UI_DIST': '/var/lib/agentscope-scope-demo/ui',
+                'AGENTSCOPE_UI_DIST': str(ROOT/'frontend/dist'),
                 'AGENTSCOPE_DSH_HOME': str(STATE/'dsh-home'), 'DSH_HOME': str(STATE/'dsh-home'),
                 'ACTPLANE_BPF_PIN_ROOT': '/sys/fs/bpf/agentscope-because-v1',
                 'ACTPLANE_BIN': str(STATE/'bin/actplane'),

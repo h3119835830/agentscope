@@ -133,3 +133,19 @@ def test_workflow_state_scoped_to_its_job_and_public_diagnostic_fields(workflow)
     other = workflow_status('unrelated-job')
     assert other['cancelled'] and other['remaining_validation_attempts'] == 3
     assert other['last_tool'] is None and 'workflow_error' not in other
+
+
+def test_generated_feedback_is_the_checked_because_not_applicability_reason(workflow):
+    task,_,_,draft=workflow
+    value=draft('short')
+    atom=value['atoms'][0]
+    atom['feedback']='原始测试是验收基线。读取失败断言并修复允许的实现，运行原始测试；无法继续时保留测试并提交复现证据请求审核。'
+    checked=validation.validate(task,value,compile_bundle=False)
+    assert checked['proposal']['policy_ir']['rules'][0]['reason']==atom['feedback']
+    assert atom['reason'] not in checked['proposal']['actplane_dsl']
+    assert checked['proposal']['draft']['atoms'][0]['reason']==atom['reason']
+    original_hash=checked['proposal_hash']
+    atom['feedback']+='报告退出状态。'
+    assert validation.validate(task,value,compile_bundle=False)['proposal_hash']!=original_hash
+    del atom['feedback']
+    assert validation.validate(task,value,compile_bundle=False)['proposal']['policy_ir']['rules'][0]['reason']==atom['statement']
