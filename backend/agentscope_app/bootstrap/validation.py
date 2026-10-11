@@ -134,6 +134,14 @@ def validate(task_id, draft, compile_bundle=True):
     overlong = [{"path": target, "utf8_bytes": len(target.encode("utf-8"))}
                 for target in dict.fromkeys(target for atom in draft.atoms for target in atom.paths)
                 if len(target.encode("utf-8")) > PATTERN_MAX_UTF8_BYTES]
+    contract=ctx.get('startup_enforcement_contract')
+    if contract:
+        allowed=set(contract['automatic_protection_targets'])
+        additional=sorted({p for atom in draft.atoms for p in atom.paths if p not in allowed})
+        if additional:
+            raise DraftDiagnostic('候选超出当前冻结场景的预授权保护范围；额外保护需要单独评审，不能自动加载。',
+                {'code':'startup_contract_scope_conflict','additional_targets':additional,
+                 'automatic_protection_targets':sorted(allowed),'read_tool':'get_task_context'})
     if overlong:
         raise DraftDiagnostic(
             f"策略目标超过 ActPlane 的 {PATTERN_MAX_UTF8_BYTES} UTF-8 字节上限；请使用任务上下文登记的短路径映射，不能扩大保护范围规避限制。超限目标："
@@ -141,9 +149,11 @@ def validate(task_id, draft, compile_bundle=True):
             {"code": "engine_pattern_limit_exceeded", "max_utf8_bytes": PATTERN_MAX_UTF8_BYTES,
              "targets": overlong, "read_tool": "get_task_context"})
     from ..policy_ir import PolicyIR, Rule, Clause, render
+    from ..managed.recovery import recovery_spec, candidate_reason
+    recovery = recovery_spec(ctx)
     ir_rules = []
     for number, atom in enumerate(draft.atoms):
-        ir_rules.append(Rule(name=f"bootstrap-{number + 1}",reason=atom.statement,
+        ir_rules.append(Rule(name=f"bootstrap-{number + 1}",reason=candidate_reason(atom.statement, atom.paths, recovery),
             clauses=[Clause(operation=operation,pattern=target) for operation in dict.fromkeys(atom.operations) for target in dict.fromkeys(atom.paths)]))
     ir = PolicyIR(rules=ir_rules,guidance=draft.guidance)
     dsl = render(ir, "") or ""
@@ -167,7 +177,7 @@ def validate(task_id, draft, compile_bundle=True):
     if not valid and not diagnostic: diagnostic = "Blocking execution gaps: " + "; ".join(draft.unresolved) if draft.unresolved else "Backend clauses are not fully supported"
     proposal = {"schema": "TaskPolicyProposal/1", "draft": draft.model_dump(), "scenario_hash": ctx["scenario_hash"],
                 "history_bindings": bindings, "policy_ir": ir.model_dump(),
-                "actplane_dsl": dsl, "raw_actplane_dsl":raw_dsl, "normalization":report,"guidance": draft.guidance, "gaps": draft.unresolved,
+                "actplane_dsl": dsl, "raw_actplane_dsl":raw_dsl, "normalization":report,"guidance": draft.guidance, "gaps": draft.unresolved, "recovery_spec": recovery,
                 "metadata_pseudocode": [f"IF AGENT {','.join(a.operations)} {','.join(a.paths)} THEN deny BECAUSE {a.statement}" for a in draft.atoms],
                 "scope_diff": {"base": ctx["base_settings"], "additional_blocks": [a.model_dump() for a in draft.atoms]},
                 "context_hash": ctx["context_hash"]}

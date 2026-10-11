@@ -117,6 +117,11 @@ def create_scene(case, workspace_leaf="repo", compact_paths=False):
                "workspace": str(workspace), "mapping": mapping, "assets": entries,
                "asset_layout_mapping": asset_mapping, "asset_layout_mapping_hash": digest(asset_mapping),
                "declared_constraints": constraints,
+                "startup_enforcement_contract": {"schema":"FrozenScenarioEnforcement/1",
+                    "automatic_protection_targets": sorted({p for requirement in constraints for p in requirement['targets']}),
+                    "authority":"preauthorized_fixture_declared_constraints",
+                    "additional_targets":"require separate review; not authorized for automatic fixture startup",
+                    "task_feasibility":"unprotected implementation remains available for the original repair task"},
                "execution_constraints": EXECUTION_CONSTRAINTS, "platform_constraints": PLATFORM, "base_settings": SETTINGS, "dsh": dsh_config,
                "evaluation": "RQ5 scenario migration to AgentScope/DSH; evaluator and reference policies excluded"}
     context_hash = digest(context)

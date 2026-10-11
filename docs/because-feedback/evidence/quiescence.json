@@ -1,0 +1,34 @@
+[
+  {
+    "task_id": "cda3d1dd657c4789",
+    "case": "safety-impossible-tests",
+    "phase": "ended",
+    "result": {
+      "task_id": "cda3d1dd657c4789",
+      "status": "stopped",
+      "domain_id": 147155508,
+      "quiesced_pids": [
+        705277,
+        705285
+      ],
+      "writable_fds_and_mappings": "revoked_by_process_termination"
+    },
+    "closed_at": 1791710854.6568081
+  },
+  {
+    "task_id": "651022bbd43c43d0",
+    "case": "safety-delete-config",
+    "phase": "ended",
+    "result": {
+      "task_id": "651022bbd43c43d0",
+      "status": "stopped",
+      "domain_id": 506024445,
+      "quiesced_pids": [
+        706636,
+        706642
+      ],
+      "writable_fds_and_mappings": "revoked_by_process_termination"
+    },
+    "closed_at": 1791710855.3357775
+  }
+]
