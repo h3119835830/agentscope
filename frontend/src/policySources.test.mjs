@@ -1,15 +1,17 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {agentPolicySource,policySources,sourceDeclarations,bindGeneratedSource} from './policySources.mjs';
-const dsh={id:'dsh-one',agent_type:'dsh',mode:'controlled',connected:true,runtime:{executable:'/opt/agentscope/dsh/node_modules/@deepseek-ai/dsh/lib/bin.js'}};
-const hermes={id:'hermes-one',agent_type:'hermes',mode:'controlled'};
-test('DSH uses its controlled Node launcher, Hermes uses its Python launcher, and generic executors are never silently substituted',()=>{
- assert.equal(agentPolicySource(dsh).pattern,'**/node');assert.equal(agentPolicySource(dsh).entry,dsh.runtime.executable);assert.equal(agentPolicySource(hermes).pattern,'**/python');
- assert.throws(()=>agentPolicySource({...dsh,mode:'observed'}));assert.throws(()=>agentPolicySource({id:'other',mode:'controlled',agent_type:'other'}));
+const identity={generation:'gen-a',pid:55,start_ticks:'100',domain_id:99,host_id:'host',boot_id:'boot'};
+const verifiedTarget=(id,type='dsh',executable='/opt/agentscope/bin/node')=>({id,mode:'controlled',agent_type:type,connected:true,...identity,policy_source:{ready:true,instance_id:id,...identity,pattern:'**/'+executable.split('/').at(-1),entry:'/opt/agent/launcher',executable,basis:'verified-process-executable'}});
+const dsh=verifiedTarget('dsh-one'),hermes=verifiedTarget('hermes-one','hermes','/opt/hermes/venv/bin/python3.12');
+test('source uses server verified executor rather than a product-name launcher guess',()=>{
+ assert.equal(agentPolicySource(dsh).pattern,'**/node');assert.equal(agentPolicySource(hermes).pattern,'**/python3.12');
+ assert.equal(agentPolicySource({...dsh,agent_type:'hermes'}).pattern,'**/node');
+ for(const row of [{...dsh,mode:'observed'},{...dsh,connected:false},{...dsh,policy_source:null},{...dsh,pid:999},{...dsh,policy_source:{...dsh.policy_source,instance_id:'other'}},{...dsh,policy_source:{...dsh.policy_source,pattern:'**'}}])assert.throws(()=>agentPolicySource(row));
 });
 test('system declarations cover the registered controlled products and deduplicate identical executors',()=>{
- const sources=policySources({scope_type:'system'},null,[dsh,hermes,{...dsh,id:'dsh-two'},{...dsh,id:'observed',mode:'observed'}]);
- assert.equal(sources.length,3);const dsl=sourceDeclarations(sources);assert.equal(dsl.split('\n').length,2);assert.ok(dsl.includes('**/node'));assert.ok(dsl.includes('**/python'));assert.throws(()=>policySources({scope_type:'system'},null,[]));
+ const sources=policySources({scope_type:'system'},null,[dsh,hermes,verifiedTarget('dsh-two'),{...dsh,id:'observed',mode:'observed'}]);
+ assert.equal(sources.length,3);const dsl=sourceDeclarations(sources);assert.equal(dsl.split('\n').length,2);assert.ok(dsl.includes('**/node'));assert.ok(dsl.includes('**/python3.12'));assert.throws(()=>policySources({scope_type:'system'},null,[]));
 });
 test('generated Agent exec identity is rebound to the exact destination without erasing other source labels',()=>{
  const dsl='source AGENT = exec "**"\nsource SECRET = file "/workspace/secret"\nrule protect:\n  block read file "/workspace/data" if AGENT\n  because "Protect"';

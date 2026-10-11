@@ -22,7 +22,7 @@
 
 环境绑定记录精确实例、原生会话、执行目录与宿主映射、目录 inode/device、资源集、Broker 代次/PID/start_ticks/domain/host/boot、实际准入启动配置、权限 hash、系统与 Agent DSL 修订/hash，以及该后端能力事实。文件适配另外固定对象存在性和 inode/device。生成前后、选择、保存校验和最终确认前均检查环境变化。所有接口沿用现有管理员/本地开发认证，不扩权、不增加 Agent 自我批准能力。
 
-DSH 与 Hermes 使用 Broker 固定准入启动配置中的 Node/Python 启动身份，DSL source 采用 **/node 或 **/python；进程域仍由 Broker/ActPlane 保证，exec 字符串不是独占实例证明。实例后端的 open/read/write/unlink 能力与旧任务说明分开。静态编译、运行后端校验、加载、活跃绑定、内核命中、反馈送达分别陈述。
+2026-10-11 来源读取修订：DSL source 现由实际已核验进程执行程序产生，不再按 DSH/Hermes 产品名称推断 Node/Python。当前 DSH 的 /proc/PID/exe 为 /opt/agentscope/bin/node，故 source 为 **/node；离线连接等待核验，不猜测 **/python。进程域仍由 Broker/ActPlane 保证，exec 字符串不是独占实例证明。读取权限与只读观察器合同见 RFC-20261011-verified-agent-policy-sources。实例后端的 open/read/write/unlink 能力与旧任务说明分开。静态编译、运行后端校验、加载、活跃绑定、内核命中、反馈送达分别陈述。
 
 ## 会话与应用范围
 

@@ -11,15 +11,7 @@ from .. import db
 from .pipeline import digest
 
 
-def source_for(row):
-    runtime = row.get('runtime', {})
-    entry = runtime.get('executable', '')
-    # These are the Broker's fixed, admitted launch profiles (instance_runner.py).
-    patterns = {'dsh': '**/node', 'hermes': '**/python'}
-    pattern = patterns.get(row.get('agent_type'))
-    if not pattern or not entry or not entry.startswith('/'):
-        raise ValueError('当前 Agent 的启动身份尚未核验')
-    return {'pattern': pattern, 'entry': entry, 'basis': 'controlled-launch-profile'}
+from ..instances.policy_sources import source_for
 
 
 def live_row(ident):

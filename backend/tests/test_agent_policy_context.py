@@ -7,7 +7,7 @@ from types import SimpleNamespace
 import pytest
 from agentscope_app import db, main
 from agentscope_app.history import agent_context as ctx, inputs, registry, generations, sources
-from agentscope_app.instances import controller, sessions, dsl_policy, system_policy
+from agentscope_app.instances import controller, sessions, dsl_policy, system_policy, policy_sources
 from agentscope_app.policy_ir import PolicyIR
 from agentscope_app.history.pipeline import validate_ir_scope
 
@@ -23,6 +23,7 @@ def world(client,tmp_path,monkeypatch):
     runtime=dict(generation='gen-a',pid=55,start_ticks='100',domain_id=99,host_id='host',boot_id='boot',verified=True,executable='/opt/dsh/bin.js')
     row=dict(id='agent-a',mode='controlled',connected=True,agent_type='dsh',resources=[str(root)],runtime=runtime,**runtime)
     native=[dict(id='session-a',name='One',mapping='native_registry',resource=str(root),execution_resource='/w/0',process_ids=[55],historical=False)]
+    monkeypatch.setattr(policy_sources,'process_executable',lambda *args:'/opt/agentscope/bin/node')
     monkeypatch.setattr(controller,'detail',lambda ident: copy.deepcopy(row) if ident==row['id'] else (_ for _ in ()).throw(ValueError('未知 Agent')))
     monkeypatch.setattr(sessions,'native_sessions',lambda _:dict(mapping_available=True,sessions=copy.deepcopy(native)))
     monkeypatch.setattr(system_policy,'current',lambda:dict(phase='ready',revision=1))
