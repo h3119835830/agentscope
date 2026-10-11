@@ -1,7 +1,8 @@
 """Read-only, server-owned Agent environment snapshots for policy generation.
 
-A native conversation identifies a workspace, not an isolated executor. No file
-contents, environment variables, command arguments or credentials enter the LLM.
+A native conversation identifies a workspace, not an isolated executor. Optional
+scene evidence uses a separate bounded reader; credentials and process arguments
+never enter the generation context.
 """
 import json
 import re
@@ -103,14 +104,18 @@ def snapshot(ident, session_id=None):
 
 
 def resolve(selection):
-    if not isinstance(selection, dict) or set(selection) - {'instance_id', 'session_id', 'context_hash'}:
+    if not isinstance(selection, dict) or set(selection) - {'instance_id', 'session_id', 'context_hash', 'scene_id'}:
         raise ValueError('Agent 环境只能通过连接和会话选择')
     result = snapshot(selection.get('instance_id'), selection.get('session_id'))
     if not result['ready']:
         raise ValueError(result['message'])
     if selection.get('context_hash') != result['context_hash']:
         raise ValueError('Agent 或会话环境已变化，请刷新后重新生成')
-    return result['resolved_context']
+    context=result['resolved_context']
+    if selection.get('scene_id'):
+        from .agent_scene import bind
+        context=bind(context, selection['scene_id'])
+    return context
 
 
 def revalidate(ctx):
@@ -118,6 +123,10 @@ def revalidate(ctx):
         return
     result = snapshot(ctx['instance_id'], ctx['session_id'])
     current=result.get('resolved_context')
+    scene=ctx.get('scene_binding')
+    if scene:
+        from .agent_scene import bind
+        current=bind(current,scene['id'])
     if ctx.get('target_requests') is not None:
         current=bind_targets(current,ctx['target_requests'])
     if current != ctx:
@@ -221,7 +230,9 @@ def conversation(ident, session_id):
           ORDER BY g.created_at DESC, g.id DESC LIMIT 12""", (ident, current['session_id'])).fetchall()
     return {'context': current, 'turns': [
         {'runId': r['id'], 'text': json.loads(r['record_json'])['statement']['text_original'].split('\n\n此前需求')[0],
-         'targetId': ident, 'sessionId': current['session_id'], 'createdAt': r['created_at']}
+         'targetId': ident, 'sessionId': current['session_id'],
+         'sceneId': json.loads(r['record_json']).get('resolved_context',{}).get('scene_binding',{}).get('id'),
+         'createdAt': r['created_at']}
         for r in reversed(runs)]}
 
 

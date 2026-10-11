@@ -231,15 +231,26 @@ def excluded_scene_source(relative_path):
 
 def scan(path, with_bytes=False):
     root = canonical(path)
+    anchor = next(p for p in roots() if p == root or p in root.parents)
+    return scan_tree(root, anchor, with_bytes=with_bytes)
+
+
+def scan_tree(root, anchor, *, with_bytes=False, include=None, limits=None):
+    """Internal descriptor-relative reader; callers must independently authorize root."""
+    max_files, max_file_bytes, max_total_bytes = limits or (MAX_FILES, MAX_FILE_BYTES, MAX_TOTAL_BYTES)
     entries, payloads, total = [], {}, 0
+    visited = 0
 
     def visit(fd, relative):
-        nonlocal total
+        nonlocal total, visited
         for item in sorted(os.scandir(fd), key=lambda i: i.name):
             if item.name in EXCLUDED or item.name == '.env' or item.name.startswith('.env.'):
                 continue
+            visited += 1
+            if visited > 20000 or len(relative.parts) > 40:
+                raise ValueError('工作区目录过大，请缩小场景读取范围')
             rel = relative / item.name
-            if excluded_scene_source(rel):
+            if excluded_scene_source(rel) or include and not include(rel, item.is_dir(follow_symlinks=False)):
                 continue
             info = item.stat(follow_symlinks=False)
             if stat.S_ISLNK(info.st_mode):
@@ -251,15 +262,15 @@ def scan(path, with_bytes=False):
                 finally:
                     os.close(child)
             elif stat.S_ISREG(info.st_mode):
-                if info.st_size > MAX_FILE_BYTES or len(entries) >= MAX_FILES:
+                if info.st_size > max_file_bytes or len(entries) >= max_files:
                     raise ValueError('工作区超过文件数量或单文件读取上限')
                 child = os.open(item.name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=fd)
                 with os.fdopen(child, 'rb') as stream:
                     if not stat.S_ISREG(os.fstat(stream.fileno()).st_mode):
                         raise ValueError('工作区文件类型在读取时发生变化')
-                    raw = stream.read(MAX_FILE_BYTES + 1)
+                    raw = stream.read(max_file_bytes + 1)
                 total += len(raw)
-                if len(raw) > MAX_FILE_BYTES or total > MAX_TOTAL_BYTES:
+                if len(raw) > max_file_bytes or total > max_total_bytes:
                     raise ValueError('工作区超过读取容量上限')
                 try:
                     raw.decode('utf-8')
@@ -270,7 +281,6 @@ def scan(path, with_bytes=False):
                 if with_bytes:
                     payloads[str(rel)] = raw
 
-    anchor = next(p for p in roots() if p == root or p in root.parents)
     fd = os.open(anchor, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
     try:
         for part in root.relative_to(anchor).parts:

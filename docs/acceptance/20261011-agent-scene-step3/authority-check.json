@@ -1,0 +1,35 @@
+{
+  "unchanged": true,
+  "changed_tables": [],
+  "snapshot": {
+    "agent_instances": {
+      "count": 2,
+      "hash": "f26ca486ee195cc29b90f6255fb14a5cd296162a1a79b461baef53a9f99d5876"
+    },
+    "instance_local_policies": {
+      "count": 2,
+      "hash": "df15e8207fbcd543cc7b6117934e9de9d3c8db6f03e1b07aa8ee022d8c3498fe"
+    },
+    "system_security_policy": {
+      "count": 1,
+      "hash": "ea6bc15d6a7d39adeddd992bb5c993a3a7695366207f2926785ba8ea68080e5f"
+    },
+    "instance_dsl_scopes": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "instance_policy_receipts": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "tasks": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "history_deployments": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  },
+  "comparison_window": "after generation, before approval submission -> after approval submission; no approve or load"
+}

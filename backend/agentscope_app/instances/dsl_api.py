@@ -85,6 +85,26 @@ def policy_context(ident:str,session_id:str|None=Query(None,max_length=200)):
     from ..history.agent_context import snapshot
     return invoke(snapshot,ident,session_id)
 
+class SceneSelection(Model):
+    session_id:str=Field(min_length=1,max_length=200)
+    context_hash:str=Field(pattern=r'^[a-f0-9]{64}$')
+    request_key:str=Field(min_length=8,max_length=100)
+
+@router.post('/api/agent-instances/{ident}/policy-scenes')
+def policy_scene_create(ident:str,body:SceneSelection):
+    from ..history.agent_scene import create
+    return invoke(create,ident,body.session_id,body.context_hash,body.request_key)
+
+@router.get('/api/agent-instances/{ident}/policy-scenes')
+def policy_scene_latest(ident:str,session_id:str=Query(min_length=1,max_length=200)):
+    from ..history.agent_scene import latest
+    return invoke(latest,ident,session_id)
+
+@router.get('/api/agent-instances/{ident}/policy-scenes/{read_id}')
+def policy_scene_get(ident:str,read_id:str):
+    from ..history.agent_scene import get
+    return invoke(get,ident,read_id)
+
 @router.get('/api/agent-instances/{ident}/policy-conversation')
 def policy_conversation(ident:str,session_id:str|None=Query(None,max_length=200)):
     from ..history.agent_context import conversation

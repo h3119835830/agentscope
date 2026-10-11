@@ -33,8 +33,8 @@ def project(p,names,full=False):
                 raise ValueError('Agent 连接或运行环境已经变化，请重新校验')
             from ..history.agent_context import validate_documents
             validate_documents(p['scope_id'],p['documents'],base['documents'])
-        except (ValueError,RuntimeError,OSError):
-            status='stale';reason='Agent 环境或策略配置已经变化，需要重新校验。'
+        except (ValueError,RuntimeError,OSError) as error:
+            status='stale';reason='场景依据已变化，请回到策略助手重新读取并生成候选。' if '场景' in str(error) or '项目文件' in str(error) else 'Agent 环境或策略配置已经变化，需要重新校验。'
     elif status=='invalid':reason='候选未通过运行环境校验，请调整配置后重新提交。'
     elif status=='failed':reason='上次应用未完成，请检查配置并重新校验。'
     visible_targets=[t for t in p['targets'] if p['scope_id']=='system' or t['id'] not in hidden('agent')]

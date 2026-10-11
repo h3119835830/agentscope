@@ -44,6 +44,7 @@ class AgentContextSelection(BaseModel):
     instance_id:str=Field(min_length=1,max_length=100)
     session_id:str|None=Field(default=None,max_length=200)
     context_hash:str=Field(pattern=r"^[a-f0-9]{64}$")
+    scene_id:str|None=Field(default=None,pattern=r"^[a-f0-9]{32}$")
 
 class PolicyInput(InputLabels):
     agent_context:AgentContextSelection|None=None

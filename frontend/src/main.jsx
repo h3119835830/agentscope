@@ -20,6 +20,7 @@ import './agentPolicyWorkbench.css';
 import {productReadUrl,unknownAgentSummary} from './productConsole.mjs';
 import './productConsole.css';
 import './policyExperience.css';
+import './policyScene.css';
 
 const api = async (url, options = {}) => {
   const response = await fetch(productReadUrl(url,options.method||'GET'), {...options, credentials:'omit', headers:{'Content-Type':'application/json','X-AgentScope-Surface':'product', ...options.headers}});

@@ -8,7 +8,7 @@ from .registry import load_statement,save_artifact,save_extraction
 from .sources import collect_documents,read_document
 
 def enqueue(kind,payload,retry_of=None):
-    if kind not in ("collect","extract","translate","compile","rq1_import","task_bootstrap","history_generation","workspace_scene_read"): raise ValueError("作业类型不支持")
+    if kind not in ("collect","extract","translate","compile","rq1_import","task_bootstrap","history_generation","workspace_scene_read","agent_policy_scene"): raise ValueError("作业类型不支持")
     ident=uuid.uuid4().hex
     if kind=="task_bootstrap": payload={**payload,"job_id":ident}
     with db.connect() as con:
@@ -18,6 +18,9 @@ def enqueue(kind,payload,retry_of=None):
     return {"id":ident,"status":"queued"}
 
 def execute(kind,payload):
+    if kind=="agent_policy_scene":
+        from .agent_scene import run
+        return run(payload["read_id"])
     if kind=="workspace_scene_read":
         from ..workspaces.scene_read import run
         return run(payload["read_id"])

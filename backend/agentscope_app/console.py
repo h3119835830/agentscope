@@ -183,6 +183,18 @@ def agent_policy_conversation(ident:str,session_id:str|None=Query(None,max_lengt
     require_visible('agent',ident)
     return invoke(conversation,ident,session_id)
 
+@router.get('/agents/{ident}/policy-scenes')
+def agent_policy_scene_latest(ident:str,session_id:str=Query(min_length=1,max_length=200)):
+    from .history.agent_scene import latest
+    require_visible('agent',ident)
+    return invoke(latest,ident,session_id)
+
+@router.get('/agents/{ident}/policy-scenes/{read_id}')
+def agent_policy_scene_get(ident:str,read_id:str):
+    from .history.agent_scene import get
+    require_visible('agent',ident)
+    return invoke(get,ident,read_id)
+
 @router.get('/agents/{ident}/policy-candidates/{artifact_id}')
 def agent_policy_candidate(ident:str,artifact_id:str):
     from .history.agent_context import selected_candidate

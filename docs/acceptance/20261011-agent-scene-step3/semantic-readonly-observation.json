@@ -1,0 +1,65 @@
+{
+  "request": "只读取 sales.csv 以获取报告数据，不写入、追加或覆盖该文件。",
+  "policy_ir": {
+    "version": "PolicyIR/v1",
+    "sources": [],
+    "rules": [
+      {
+        "name": "sales_csv_read_only",
+        "reason": "只读取 sales.csv 以获取报告数据，不写入、追加或覆盖该文件。",
+        "clauses": [
+          {
+            "operation": "write",
+            "pattern": "/w/0/sales.csv",
+            "argument": null,
+            "effect": "block",
+            "when": {
+              "kind": "label",
+              "label": "AGENT",
+              "operands": []
+            },
+            "unless": null
+          },
+          {
+            "operation": "open",
+            "pattern": "/w/0/sales.csv",
+            "argument": null,
+            "effect": "block",
+            "when": {
+              "kind": "label",
+              "label": "AGENT",
+              "operands": []
+            },
+            "unless": null
+          },
+          {
+            "operation": "unlink",
+            "pattern": "/w/0/sales.csv",
+            "argument": null,
+            "effect": "block",
+            "when": {
+              "kind": "label",
+              "label": "AGENT",
+              "operands": []
+            },
+            "unless": null
+          }
+        ]
+      }
+    ],
+    "guidance": [
+      "sales.csv 仅可作为报告数据来源被读取；不得写入、追加或覆盖其内容。",
+      "写拒绝可能留下空目录项（file_creation_directory_entry）；文件内容写入与删除限制不代表所有文件系统元数据变更都被阻止。",
+      "读取 sales.csv 不设限制；仅约束写入、追加（open 写语义）与删除/重命名。",
+      "策略仅覆盖已注册 Agent 进程域（含子进程与脚本解释器）；域外普通人类进程不受影响。"
+    ],
+    "required_context": [],
+    "unresolved": []
+  },
+  "dsl": "rule h_23b9de32b20641cb_sales_csv_read_only:\n  block write file \"/w/0/sales.csv\" if AGENT\n  block open file \"/w/0/sales.csv\" if AGENT\n  block unlink file \"/w/0/sales.csv\" if AGENT\n  because \"只读取 sales.csv 以获取报告数据，不写入、追加或覆盖该文件。\"",
+  "compile_state": "compiled",
+  "submitted_to_approval": false,
+  "approved": false,
+  "loaded": false,
+  "issue": "GEN-SEMANTICS-001"
+}

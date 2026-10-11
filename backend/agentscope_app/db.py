@@ -111,6 +111,8 @@ def init_db():
         for name,definition in additions.items():
             if columns and name not in columns: con.execute(f"ALTER TABLE strategies ADD COLUMN {name} {definition}")
         con.execute("CREATE INDEX IF NOT EXISTS idx_strategies_archived ON strategies(is_archived,status)")
+        from .history.agent_scene import SCHEMA as AGENT_SCENE_SCHEMA
+        con.executescript(AGENT_SCENE_SCHEMA)
         from .history.schema import SCHEMA as HISTORY_SCHEMA
         con.executescript(HISTORY_SCHEMA)
         from .bootstrap.schema import SCHEMA as BOOTSTRAP_SCHEMA

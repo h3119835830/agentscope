@@ -30,3 +30,6 @@ description: Design, implement, and review AgentScope customer-facing interfaces
 
 ## 交付
 核对真实页面、交互、加载/错误状态、目标隔离和手动确认边界。运行与改动相称的测试及构建，保留截图。同步 RFC/ADR/REVIEW/BUG；文档根目录为 `C:\Users\happy\Desktop\归纳梳理\技术文档`。本地提交可在验收后进行，远端推送需用户明确许可。
+
+
+2026-10-11 第三步：策略助手可显式读取受限项目场景，按需展开文件依据，采用建议只填入需求；重新读取隔离旧场景，文件变化后回到助手重读，不把编译当成批准或语义正确。

@@ -1,0 +1,28 @@
+{
+  "backend_full": {
+    "passed": 1073,
+    "skipped": 11
+  },
+  "approval_scene_final": {
+    "passed": 51
+  },
+  "frontend": {
+    "passed": 235
+  },
+  "build": "passed",
+  "real_model": true,
+  "real_project_bytes": true,
+  "agent_identity": "synthetic",
+  "kernel_io": false,
+  "approved": false,
+  "loaded": false,
+  "approval_authority_unchanged": true,
+  "live_18003_deployed": false,
+  "remote_pushed": false,
+  "viewports": [
+    "1280x720",
+    "390x844"
+  ],
+  "open_issue": "GEN-SEMANTICS-001",
+  "screenshots": 9
+}
