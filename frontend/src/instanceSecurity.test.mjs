@@ -78,6 +78,7 @@ test('permission expansion review shows the exact deletion and requires explicit
 
 test('rule editor restricts invalid action decisions and stale drafts cannot submit',()=>{
  const html=render(RuleForm,{initial:deny,stale:true,onCancel:()=>{},onSubmit:()=>{}});
+ assert.match(html,/收紧和放宽都需确认/);assert.doesNotMatch(html,/收紧自动应用/);
  assert.doesNotMatch(html,/<option value="confirm"/);
  assert.match(html,/<button[^>]*disabled[^>]*>提交更改/);
  assert.match(html,/配置已有更新/);

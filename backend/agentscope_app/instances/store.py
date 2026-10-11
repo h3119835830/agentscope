@@ -18,6 +18,10 @@ CREATE TABLE IF NOT EXISTS instance_events (
  seq INTEGER PRIMARY KEY AUTOINCREMENT, instance_id TEXT NOT NULL, generation TEXT,
  kind TEXT NOT NULL, session_id TEXT, call_id TEXT, tool TEXT, detail_json TEXT NOT NULL,
  created_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS instance_proposal_contexts (
+ proposal_id TEXT PRIMARY KEY, context_json TEXT NOT NULL, request_hash TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS policy_approval_baselines (
+ approval_id TEXT PRIMARY KEY, policy_json TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS instance_leases (
  instance_id TEXT NOT NULL, generation TEXT NOT NULL, call_id TEXT NOT NULL,
  session_id TEXT NOT NULL, tool TEXT NOT NULL, started_at TEXT NOT NULL,

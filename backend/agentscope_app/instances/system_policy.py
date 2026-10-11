@@ -135,6 +135,7 @@ def propose(body):
     with db.connect() as con:
         con.execute('INSERT INTO system_security_proposals VALUES(?,?,?,?,?,?,?,?,?,?)',
             (pid,body['request_key'],request_hash,shared['policy_hash'],shared['revision'],json.dumps(candidate),json.dumps(targets),proposal_hash,'pending',db.now()))
+        con.execute('INSERT INTO policy_approval_baselines VALUES(?,?)',('system:'+pid,json.dumps(shared['policy'])))
         row=con.execute('SELECT * FROM system_security_proposals WHERE id=?',(pid,)).fetchone()
     return unpack_proposal(row)
 
@@ -207,3 +208,13 @@ def apply(pid, expected_hash):
         raise
     finally:
         CONTEXT.applying=False
+
+@lifecycle
+def reject(pid,expected_hash):
+    with db.connect() as con:
+        row=con.execute('SELECT * FROM system_security_proposals WHERE id=?',(pid,)).fetchone()
+        if not row or row['proposal_hash']!=expected_hash:raise ValueError('系统候选确认内容不一致')
+        if row['state']=='rejected':return {'id':pid,'state':'rejected','idempotent':True}
+        if row['state']!='pending':raise ValueError('系统候选已处理，不能拒绝')
+        con.execute("UPDATE system_security_proposals SET state='rejected' WHERE id=?",(pid,))
+    return {'id':pid,'state':'rejected'}

@@ -90,6 +90,8 @@ def test_global_tool_denial_inherited_by_all_sessions_and_future_agents(world):
 def test_agent_local_edit_cannot_remove_shared_denial_or_network_limit(world):
     apply(policy(rule(),network='disabled'))
     result=local(world.dsh,policy(rule('tool','read')))
+    assert result['state']=='pending'
+    result=c.apply(world.dsh['id'],result['id'],result['proposal_hash'])
     assert result['state']=='applied'
     row=store.get(world.dsh['id'])
     assert row['local_policy']==policy(rule('tool','read'))

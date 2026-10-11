@@ -46,14 +46,16 @@ def test_idempotency_key_is_bound_to_candidate(instance):
     assert c.proposals(row['id'],proposal(row,policy,key))['id']==first['id']
     with pytest.raises(ValueError,match='幂等'): c.proposals(row['id'],proposal(row,default_policy(),key))
 
-def test_automatic_restriction_is_instance_local_and_has_quiescence(instance,monkeypatch,tmp_path):
+def test_restriction_waits_for_human_confirmation_and_is_instance_local(instance,monkeypatch,tmp_path):
     first=instance; other=store.create('other','dsh',[str(tmp_path)])
     calls=[]
     class Adapter:
         def stop(self,row): calls.append((row['id'],store.get(row['id'])['gate'])); return {'status':'stopped'}
     monkeypatch.setattr(c,'adapter',lambda row:Adapter())
     result=c.proposals(first['id'],proposal(first,{'rules':[],'network':'disabled'}),'agent')
-    assert result['state']=='applied'
+    assert result['state']=='pending' and not calls
+    assert store.get(first['id'])['policy']['network']=='model_only'
+    assert c.apply(first['id'],result['id'],result['proposal_hash'])['state']=='applied'
     assert calls==[(first['id'],'updating')]
     assert store.get(first['id'])['policy']['network']=='disabled'
     assert store.get(other['id'])['policy']['network']=='model_only'
@@ -62,7 +64,8 @@ def test_failed_quiescence_never_opens_gate_or_accepts_proposal(instance,monkeyp
     class Adapter:
         def stop(self,row): raise RuntimeError('cannot quiesce')
     monkeypatch.setattr(c,'adapter',lambda row:Adapter())
-    with pytest.raises(RuntimeError): c.proposals(instance['id'],proposal(instance,{'rules':[],'network':'disabled'}))
+    p=c.proposals(instance['id'],proposal(instance,{'rules':[],'network':'disabled'}))
+    with pytest.raises(RuntimeError): c.apply(instance['id'],p['id'],p['proposal_hash'])
     row=store.get(instance['id'])
     assert row['gate']=='paused' and row['policy']==default_policy()
     assert store.events(row['id'])[0]['kind']=='policy_apply_failed'
@@ -105,6 +108,7 @@ def test_successful_proposal_retry_remains_idempotent_after_policy_changes(insta
     monkeypatch.setattr(c,'adapter',lambda row:Adapter())
     body=proposal(instance,{'rules':[],'network':'disabled'})
     first=c.proposals(instance['id'],body)
+    assert c.apply(instance['id'],first['id'],first['proposal_hash'])['state']=='applied'
     assert c.proposals(instance['id'],body)['id']==first['id']
     assert len([e for e in store.events(instance['id']) if e['kind']=='policy_applied'])==1
 
@@ -114,7 +118,8 @@ def test_two_sessions_read_one_tool_policy_and_other_instance_is_unaffected(inst
     monkeypatch.setattr(c,'adapter',lambda row:Adapter())
     other=store.create('independent','hermes',[str(tmp_path)])
     deny={'rules':[{'action':'tool','target':'bash','effect':'deny','text':''}],'network':'model_only'}
-    c.proposals(instance['id'],proposal(instance,deny))
+    p=c.proposals(instance['id'],proposal(instance,deny))
+    c.apply(instance['id'],p['id'],p['proposal_hash'])
     for row in (instance,other):store.update(row['id'],gate='open',generation='a'*32)
     for sid in ('session-a','session-b'):
         b={'generation':'a'*32,'session_id':sid,'call_id':sid,'tool':'bash'}
@@ -127,10 +132,11 @@ def test_concurrent_candidates_cannot_apply_against_a_changed_base(instance,monk
         def stop(self,row):return {'status':'stopped'}
     monkeypatch.setattr(c,'adapter',lambda row:Adapter())
     bodies=[proposal(instance,{'rules':[],'network':'disabled'}) for _ in range(2)]
-    def run(body):
-        try:return c.proposals(instance['id'],body)['state']
+    candidates=[c.proposals(instance['id'],body) for body in bodies]
+    def run(p):
+        try:return c.apply(instance['id'],p['id'],p['proposal_hash'])['state']
         except ValueError:return 'stale'
-    with ThreadPoolExecutor(2) as pool:assert sorted(pool.map(run,bodies))==['applied','stale']
+    with ThreadPoolExecutor(2) as pool:assert sorted(pool.map(run,candidates))==['applied','stale']
 
 def test_manual_connection_rejects_shell_and_only_opens_registered_local_url(instance,client):
     body={'name':'Other','agent_type':'other','mode':'observed','environment':'windows','resources':[],'open_url':'http://127.0.0.1:19000/'}

@@ -1,0 +1,182 @@
+{
+  "date": "2026-10-11",
+  "branch": "codex/policy-approval-unification-20261011",
+  "base_commit": "b6b6fa2",
+  "environment": "isolated loopback 18114; synthetic state; privileged IO mocked; no kernel enforcement claim",
+  "tests": {
+    "backend": {
+      "passed": 991,
+      "skipped": 52,
+      "failed": 0
+    },
+    "frontend": {
+      "passed": 220,
+      "failed": 0
+    },
+    "build": "passed"
+  },
+  "live_18003_published": false,
+  "remote_pushed": false,
+  "browser_stages": {
+    "before": {
+      "agents": [
+        {
+          "name": "Agent A",
+          "policy": {
+            "rules": [],
+            "network": "model_only"
+          },
+          "gate": "closed"
+        },
+        {
+          "name": "Agent B",
+          "policy": {
+            "rules": [],
+            "network": "model_only"
+          },
+          "gate": "closed"
+        }
+      ],
+      "runtime": {
+        "gate": "waiting_confirmation",
+        "version": 3,
+        "policy_hash": "fixture-loaded-hash",
+        "baseline_hash": "fixture-baseline",
+        "allowed_write_dirs": [
+          "."
+        ],
+        "allow_output": false,
+        "session_id": "fixture-session",
+        "binding": {
+          "domain_id": 77,
+          "runner_pid": 101
+        }
+      },
+      "proposal_states": [
+        "pending",
+        "pending"
+      ],
+      "request_resolved": 0
+    },
+    "runtime-approved": {
+      "agents": [
+        {
+          "name": "Agent A",
+          "policy": {
+            "rules": [],
+            "network": "model_only"
+          },
+          "gate": "closed"
+        },
+        {
+          "name": "Agent B",
+          "policy": {
+            "rules": [],
+            "network": "model_only"
+          },
+          "gate": "closed"
+        }
+      ],
+      "runtime": {
+        "gate": "open",
+        "version": 4,
+        "policy_hash": "fixture-installed-hash",
+        "baseline_hash": "fixture-baseline",
+        "allowed_write_dirs": [
+          "src"
+        ],
+        "allow_output": false,
+        "session_id": "fixture-session",
+        "binding": {
+          "domain_id": 77,
+          "runner_pid": 101
+        }
+      },
+      "proposal_states": [
+        "pending",
+        "pending"
+      ],
+      "request_resolved": 1
+    },
+    "agent-rejected": {
+      "agents": [
+        {
+          "name": "Agent A",
+          "policy": {
+            "rules": [],
+            "network": "model_only"
+          },
+          "gate": "closed"
+        },
+        {
+          "name": "Agent B",
+          "policy": {
+            "rules": [],
+            "network": "model_only"
+          },
+          "gate": "closed"
+        }
+      ],
+      "runtime": {
+        "gate": "open",
+        "version": 4,
+        "policy_hash": "fixture-installed-hash",
+        "baseline_hash": "fixture-baseline",
+        "allowed_write_dirs": [
+          "src"
+        ],
+        "allow_output": false,
+        "session_id": "fixture-session",
+        "binding": {
+          "domain_id": 77,
+          "runner_pid": 101
+        }
+      },
+      "proposal_states": [
+        "rejected",
+        "pending"
+      ],
+      "request_resolved": 1
+    },
+    "agent-approved": {
+      "agents": [
+        {
+          "name": "Agent A",
+          "policy": {
+            "rules": [],
+            "network": "model_only"
+          },
+          "gate": "closed"
+        },
+        {
+          "name": "Agent B",
+          "policy": {
+            "rules": [],
+            "network": "disabled"
+          },
+          "gate": "closed"
+        }
+      ],
+      "runtime": {
+        "gate": "open",
+        "version": 4,
+        "policy_hash": "fixture-installed-hash",
+        "baseline_hash": "fixture-baseline",
+        "allowed_write_dirs": [
+          "src"
+        ],
+        "allow_output": false,
+        "session_id": "fixture-session",
+        "binding": {
+          "domain_id": 77,
+          "runner_pid": 101
+        }
+      },
+      "proposal_states": [
+        "rejected",
+        "applied"
+      ],
+      "request_resolved": 1
+    }
+  }
+}

@@ -5,6 +5,8 @@ operations client. Visibility is explicit per record, never inferred from names.
 """
 import json
 from fastapi import APIRouter, HTTPException, Query
+from pydantic import BaseModel,ConfigDict,Field
+from typing import Literal
 from . import db
 
 def invoke(fn,*args,**kwargs):
@@ -185,3 +187,12 @@ def approval_directory():
 def approval_detail(ident:str):
     from .instances.approval_views import detail
     return invoke(detail,ident)
+
+class ApprovalDecision(BaseModel):
+    model_config=ConfigDict(extra='forbid')
+    proposal_hash:str=Field(min_length=1,max_length=128)
+
+@router.post('/approvals/{ident}/{decision}')
+def approval_decision(ident:str,decision:Literal['confirm','reject'],body:ApprovalDecision):
+    from .instances.approval_views import decide
+    return invoke(decide,ident,decision,body.proposal_hash)

@@ -670,7 +670,7 @@ def project_source(task,path):
     return {'id':str(path.relative_to(Path(task['workspace']))),'path':str(path),'hash':value['hash'],'content':value['content'],'authority':'untrusted_project_context'}
 
 def restriction_authorizations(requests,unassessed,files,directories,workspace):
-    """Bind automatic restrictions to explicit authenticated OS-target clauses.
+    """Bind proposed restrictions to explicit authenticated OS-target clauses.
 
     Project reads resolve identities, but never authorize a new restriction.
     Semantic-only requests may remain guidance; necessary unresolved OS constraints hold tools.
@@ -990,11 +990,14 @@ def review_change(task_id,job_id,decision,expected_hash,text=''):
                 raise ValueError('stale: 审核依据的上下文或 Scope 已变化')
             expected_binding=ctx.get('current_binding',{})
             if expected_binding and any(expected_binding.get(k)!=s.get('binding',{}).get(k) for k in ('domain_id','runner_pid') if k in expected_binding):raise ValueError('stale: 执行进程代次已变化')
+            if ctx.get('session_id',expected_binding.get('session_id',s.get('session_id')))!=s.get('session_id'):raise ValueError('stale: 原生会话已变化')
+            if any(pending.get('binding',{}).get(k)!=s.get('binding',{}).get(k) for k in ('domain_id','runner_pid','watch_pid','process_cgroup') if k in pending.get('binding',{})):raise ValueError('stale: 执行域绑定已变化')
             if decision=='approve':
                 if p.get('normalization') and p['normalization']['engine_hash']!=normalization.engine_digest():raise ValueError('候选已过期: 编译器已变化')
                 for source in ctx.get('project_sources',[]):
                     actual=read_project_content(task_row(con,task_id),source['path'])['hash'] if Path(source['path']).is_file() else None
                     if actual!=source['hash']:raise ValueError('候选已过期: 项目证据改变')
+                if not ctx.get('session_id',expected_binding.get('session_id')):raise ValueError('stale: 候选缺少会话快照，请重新生成')
                 live=broker({'action':'status','task_id':task_id})
                 binding=s.get('binding',{})
                 if live.get('status')!='running' or live.get('domain_verified') is not True or live.get('domain_id')!=binding.get('domain_id') or binding.get('runner_pid') is not None and live.get('runner_pid')!=binding['runner_pid'] or binding.get('process_cgroup') and live.get('cgroup_verified') is not True:

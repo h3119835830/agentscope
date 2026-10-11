@@ -15,7 +15,7 @@ export function RuleForm({initial,network,title,busy,stale,onSubmit,onCancel,sco
    {!behavior&&<label>{rule.action==='network'?'IPv4 地址':rule.action==='tool'?'工具名称':'目标文件或目录'}<input required disabled={busy} value={rule.target} onChange={e=>setRule({...rule,target:e.target.value})} placeholder={rule.action==='network'?'例如 203.0.113.8':rule.action==='tool'?'原生工具名称':'已登记资源内的绝对路径'}/></label>}
    <label>{behavior?'行为约定':'补充说明'}<textarea required={behavior} disabled={busy} maxLength={2000} rows={3} value={rule.text||''} onChange={e=>setRule({...rule,text:e.target.value})}/></label>
   </>}
-  <p className="field-note">{system?'系统规则限制所有受控 Agent；按目标路径匹配文件。提交后预览影响范围，确认后应用。':'修改影响当前 Agent 受控连接的所有工作区、会话和子进程。收紧自动应用，放宽权限需确认；运行中的实例会暂停并重建执行进程。'}</p>
+  <p className="field-note">{system?'系统规则限制所有受控 Agent；按目标路径匹配文件。提交后预览影响范围，确认后应用。':'修改影响当前 Agent 受控连接的所有工作区、会话和子进程。收紧和放宽都需确认；运行中的实例在批准后暂停并重建执行进程。'}</p>
   {stale&&<p role="alert">配置已有更新，请返回列表后重新编辑。</p>}
   <div className="actions"><button className="button primary" disabled={busy||stale}>{system?'提交并预览':'提交更改'}</button><button type="button" className="button ghost" disabled={busy} onClick={onCancel}>取消</button></div>
  </form>;
@@ -23,7 +23,7 @@ export function RuleForm({initial,network,title,busy,stale,onSubmit,onCancel,sco
 export function PendingChange({proposal,current,busy,onConfirm,scope='agent'}){
  return <section className="security-pending" aria-label="待确认的权限变更">
   <div className="security-pending-head"><h3>{scope==='system'?'待确认的系统规则变更':'待确认的权限变更'}</h3><span>{scope==='system'?'所有受控 Agent 共用':'影响当前 Agent 的所有工作区与会话'}</span></div>
-  <p>{scope==='system'?'当前规则尚未被替换。确认后暂停并重新核验受影响的运行连接；未运行的连接在下次启动时应用。':'这项变更会放宽权限，当前规则尚未被替换。'}</p>
+  <p>{scope==='system'?'当前规则尚未被替换。确认后暂停并重新核验受影响的运行连接；未运行的连接在下次启动时应用。':'当前规则尚未被替换。请核对变更内容，确认后才会应用。'}</p>
   {scope==='system'&&<p className="field-note">受影响连接：{proposal.targets?.filter(t=>t.affected).map(t=>t.name).join('、')||'没有执行配置变化'}</p>}
   <dl className="security-change-list">{policyChanges(current,proposal.policy).map((change,i)=><React.Fragment key={i}><dt>{change.operation}</dt><dd>{change.sentence}</dd></React.Fragment>)}</dl>
   <details><summary>查看变更后的完整配置</summary><ul className="security-exact-rules"><li>{networkSentence(proposal.policy.network)}</li>{proposal.policy.rules.map((rule,i)=><li key={i}>{ruleSentence(rule)}</li>)}</ul></details>

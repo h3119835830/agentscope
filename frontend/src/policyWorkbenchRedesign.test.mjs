@@ -21,7 +21,7 @@ async function harness(entry,exported='default'){
  const built=await build({entryPoints:[join(base,entry)],bundle:true,platform:'node',format:'cjs',external:['react'],write:false});
  const states=[],refs=[];let index=0,refIndex=0;const react={...React,useState:init=>{const i=index++;if(!(i in states))states[i]=typeof init==='function'?init():init;return [states[i],v=>states[i]=typeof v==='function'?v(states[i]):v]},useRef:init=>{const i=refIndex++;return refs[i]||={current:init}},useEffect:()=>{}};
  const name=join(base,'.policy-redesign-test.cjs'),mod=new Module(name);mod.paths=Module._nodeModulePaths(base);const original=mod.require.bind(mod);mod.require=id=>id==='react'?react:original(id);mod._compile(built.outputFiles[0].text,name);
- return props=>{globalThis.document={activeElement:null};index=0;refIndex=0;return mod.exports[exported](props)};
+ return (...props)=>{globalThis.document={activeElement:null};index=0;refIndex=0;return mod.exports[exported](...props)};
 }
 test('templates open as a structured record table, with configuration deferred until a record is selected',async()=>{
  const render=await harness('AgentPolicyTemplates.jsx');let writes=0;const props={agents:[target],onHandoff:()=>writes++};let tree=render(props),nodes=elements(tree);
@@ -118,6 +118,17 @@ test('approval details expose change, targets and explicit decisions without wri
 });
 test('approval deep links retain only the record identity',()=>{
  const url=navigationTarget('http://localhost/?view=workbench',{page:'approvals',approvalId:'approval-one'}),n=readNavigation('http://localhost'+url);assert.equal(n.page,'approvals');assert.equal(n.approvalId,'approval-one');assert.doesNotMatch(url,/proposal_hash|documents/);
+});
+test('runtime approval shows an exact task scope and readable before/after without applying on view',async()=>{
+ const render=await harness('PolicyApprovals.jsx','ApprovalDetail');let decisions=[];
+ const data={id:'runtime:job',kind:'runtime',scope_type:'session',target_name:'Task A',status:'pending',can_apply:true,can_reject:true,created_at:'2026-10-11T01:00:00Z',documents:[],records:[],change_items:[{label:'可写目录',before:'.',after:'src'}],targets:[{id:'task-a',name:'Task A',scope_label:'当前任务会话',application_label:'确认后重建当前任务执行域'}],total_affected_count:1};
+ const tree=render({data,onClose(){},onDecision:async(...args)=>decisions.push(args)}),html=renderToStaticMarkup(tree);
+ assert.match(html,/权限变更对照/);assert.match(html,/当前任务会话/);assert.match(html,/Task A/);assert.doesNotMatch(html,/全部工作区与会话|完整 DSL|PolicyIR|原始 JSON/);assert.equal(decisions.length,0);
+ await elements(tree).find(e=>e.type==='button'&&e.props.children==='批准并应用').props.onClick();assert.equal(decisions[0][0].id,'runtime:job');assert.equal(decisions[0][1],'confirm');
+});
+test('all approval origins use the same explicit decision endpoint',async()=>{
+ const url=await harness('PolicyApprovals.jsx','approvalDecisionUrl');
+ for(const id of ['dsl-one','instance:one','system:one','runtime:job'])assert.equal(url(id,'confirm'),'/api/console/approvals/'+encodeURIComponent(id)+'/confirm');
 });
 
 test('restored approvals based on old configuration cannot confirm until revalidated',async()=>{

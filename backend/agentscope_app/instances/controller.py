@@ -162,14 +162,44 @@ def stop(ident):
         observer.collect()
         return result
 
+def proposal_context(row):
+    """Authority and execution identity frozen separately from candidate origin."""
+    return {'instance_id':row['id'],'resources':row['resources'],'generation':row['generation'],
+        'system_revision':system.current()['revision'],
+        'local_hash':digest(row['local_policy']),
+        'binding':{k:row['runtime'].get(k) for k in ('pid','start_ticks','domain_id','host_id','boot_id')},
+        'dsl':{scope:{k:dsl_policy.current(scope)[k] for k in ('revision','document_hash')} for scope in ('system',row['id'])}}
+
+def validate_proposal(row,p):
+    if p['state']!='pending' or p['base_hash']!=row['policy_hash'] or p['generation']!=row['generation']:
+        raise ValueError('候选已经过期')
+    with db.connect() as con:
+        context=con.execute('SELECT context_json FROM instance_proposal_contexts WHERE proposal_id=?',(p['id'],)).fetchone()
+        local_record=con.execute('SELECT * FROM instance_proposal_locals WHERE proposal_id=?',(p['id'],)).fetchone()
+    # Older, unsnapshotted candidates remain visible but must be resubmitted.
+    if not context or json.loads(context[0])!=proposal_context(row):raise ValueError('候选环境已经变化或缺少目标快照，请重新提交')
+    if local_record and local_record['system_revision']!=system.current()['revision']:raise ValueError('系统规则已更新，候选已经过期')
+    local=json.loads(local_record['policy_json']) if local_record else json.loads(p['policy_json'])
+    if system.compose(local,row['resources'])!=json.loads(p['policy_json']):raise ValueError('系统规则已更新，候选已经过期')
+    return local
+
 @system.lifecycle
 def proposals(ident,body,actor='user'):
     system.ensure_ready(ident)
     with lock(ident):
         row=store.get(ident)
+        if row['mode']!='controlled':raise ValueError('仅受控实例可提交执行策略')
+        request_hash=digest({'body':body,'actor':actor})
+        with db.connect() as con:
+            old=con.execute('SELECT * FROM instance_proposals WHERE instance_id=? AND request_key=?',(ident,body['request_key'])).fetchone()
+            frozen=con.execute('SELECT request_hash FROM instance_proposal_contexts WHERE proposal_id=?',(old['id'],)).fetchone() if old else None
+        if old and frozen:
+            if frozen[0]!=request_hash:raise ValueError('幂等键已用于其他候选')
+            return dict(old)
         local=system.local_candidate(row,body['policy'],actor)
         candidate=system.compose(local,row['resources'])
-        proposal_hash=digest({'policy':candidate,'local_policy':local,'system_revision':system.current()['revision'],'generation':body['generation'],'base_hash':body['base_hash']})
+        context=proposal_context(row)
+        proposal_hash=digest({'policy':candidate,'local_policy':local,'target':context,'generation':body['generation'],'base_hash':body['base_hash']})
         with db.connect() as con:
             old=con.execute('SELECT * FROM instance_proposals WHERE instance_id=? AND request_key=?',(ident,body['request_key'])).fetchone()
             if old:
@@ -181,17 +211,11 @@ def proposals(ident,body,actor='user'):
             pid=uuid.uuid4().hex
             con.execute('INSERT INTO instance_proposals VALUES(?,?,?,?,?,?,?,?,?,?,?)',(pid,ident,body['request_key'],row['generation'],row['policy_hash'],json.dumps(candidate),proposal_hash,actor,classification,'pending',db.now()))
             con.execute('INSERT INTO instance_proposal_locals VALUES(?,?,?)',(pid,json.dumps(local),system.current()['revision']))
+            con.execute('INSERT INTO instance_proposal_contexts VALUES(?,?,?)',(pid,json.dumps(context),request_hash))
+            con.execute('INSERT INTO policy_approval_baselines VALUES(?,?)',('instance:'+pid,json.dumps(row['policy'])))
         store.event(ident,'policy_proposed',{'proposal_id':pid,'classification':classification},row['generation'])
-        if classification=='restrict':
-            if actor=='agent' and row['gate']=='open':
-                # Return the typed receipt so the proposing tool can release
-                # its lease before rebuilding the executor that called us.
-                def queued():
-                    try: apply(ident,pid,proposal_hash)
-                    except Exception: pass # apply records failure and keeps the gate paused
-                threading.Thread(target=queued,name='instance-policy-update',daemon=True).start()
-                return {'id':pid,'proposal_hash':proposal_hash,'classification':classification,'state':'queued','affected_sessions':'全部会话'}
-            return apply(ident,pid,proposal_hash)
+        # Restriction is a classification, never application authority. In
+        # particular an Agent tool must return without replacing its executor.
         return {'id':pid,'proposal_hash':proposal_hash,'classification':classification,'state':'pending','affected_sessions':'全部会话'}
 
 @system.lifecycle
@@ -202,11 +226,7 @@ def apply(ident,pid,expected_hash):
         with db.connect() as con: p=con.execute('SELECT * FROM instance_proposals WHERE id=? AND instance_id=?',(pid,ident)).fetchone()
         if not p or p['proposal_hash']!=expected_hash: raise ValueError('候选确认内容不一致')
         if p['state']=='applied': return {'id':pid,'state':'applied','idempotent':True}
-        if p['state']!='pending' or p['base_hash']!=row['policy_hash'] or p['generation']!=row['generation']: raise ValueError('候选已经过期')
-        with db.connect() as con: local_record=con.execute('SELECT * FROM instance_proposal_locals WHERE proposal_id=?',(pid,)).fetchone()
-        if local_record and local_record['system_revision']!=system.current()['revision']: raise ValueError('系统规则已更新，候选已经过期')
-        local=json.loads(local_record['policy_json']) if local_record else json.loads(p['policy_json'])
-        if system.compose(local,row['resources'])!=json.loads(p['policy_json']): raise ValueError('系统规则已更新，候选已经过期')
+        local=validate_proposal(row,p)
         was_running=row['gate'] in ('open','paused')
         store.update(ident,gate='updating')
         store.event(ident,'gate_closed',{'proposal_id':pid,'scope':'全部会话'},row['generation'])
@@ -234,6 +254,17 @@ def apply(ident,pid,expected_hash):
             with db.connect() as con: con.execute("UPDATE instance_proposals SET state='failed' WHERE id=?",(pid,))
             store.event(ident,'policy_apply_failed',{'proposal_id':pid})
             raise
+
+@system.lifecycle
+def reject(ident,pid,expected_hash):
+    with lock(ident),db.connect() as con:
+        p=con.execute('SELECT * FROM instance_proposals WHERE id=? AND instance_id=?',(pid,ident)).fetchone()
+        if not p or p['proposal_hash']!=expected_hash:raise ValueError('候选确认内容不一致')
+        if p['state']=='rejected':return {'id':pid,'state':'rejected','idempotent':True}
+        if p['state']!='pending':raise ValueError('候选已处理，不能拒绝')
+        con.execute("UPDATE instance_proposals SET state='rejected' WHERE id=?",(pid,))
+    store.event(ident,'policy_rejected',{'proposal_id':pid,'proposal_hash':expected_hash})
+    return {'id':pid,'state':'rejected'}
 
 def agent_auth(ident,token,generation):
     with db.connect() as con: r=con.execute('SELECT token_hash,generation FROM agent_instances WHERE id=?',(ident,)).fetchone()

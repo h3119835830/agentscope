@@ -12,7 +12,7 @@ def pending(seed_task, monkeypatch):
     db.init_db()
     task=uuid.uuid4().hex[:16];seed_task(task)
     state={'phase':'running','gate':'waiting_policy','revision':2,'version':3,'policy_hash':'loaded-hash','baseline_hash':'baseline','baseline_extra':'','protected':[],'runtime_protected':[],'allowed_write_dirs':['.'],'allow_output':False,'binding':{'domain_id':77,'runner_pid':101},'session_id':'native-a','turn':1,'normalization_mode':'legacy'}
-    ctx={'revision':2,'policy_hash':'loaded-hash','request_evidence_id':'req1','current_binding':{'domain_id':77,'runner_pid':101},'project_sources':[],'base_snapshot':{'payload':{'allowed_write_dirs':['.'],'allow_output':False,'protected_paths':[]}}}
+    ctx={'revision':2,'policy_hash':'loaded-hash','session_id':'native-a','request_evidence_id':'req1','current_binding':{'version':3,'domain_id':77,'runner_pid':101,'session_id':'native-a'},'project_sources':[],'base_snapshot':{'payload':{'allowed_write_dirs':['.'],'allow_output':False,'protected_paths':[]}}}
     job={'id':uuid.uuid4().hex,'task_id':task,'revision':2,'policy_hash':'loaded-hash','context_json':json.dumps(ctx)}
     def put(decision='restrict'):
         proposal={'decision':decision,'allowed_write_dirs':['src'] if decision=='restrict' else ['.'],'allow_output':decision=='expand','protected_paths':[],'evidence_ids':['req1'],'explanation':'Explicit user request and project evidence','hash':'candidate-'+decision}
