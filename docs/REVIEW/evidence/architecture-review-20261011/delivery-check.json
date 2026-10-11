@@ -1,0 +1,83 @@
+{
+  "checked_at": "2026-10-11T15:51:00.311263+08:00",
+  "relative_links_checked": 29,
+  "broken_links": [],
+  "balanced_code_fences": true,
+  "central_mirror_matches": true,
+  "sensitive_patterns_found": 0,
+  "git_diff_check": "passed",
+  "scope": "documentation and filtered evidence only",
+  "documents": [
+    "docs/RFC/RFC-20261011-AgentScope-policy-control-architecture.md",
+    "docs/ADR/ADR-20261011-AgentScope-policy-control-decisions.md",
+    "docs/REVIEW/REVIEW-20261011-AgentScope-architecture-audit.md",
+    "docs/BUG/BUG-20261011-AgentScope-policy-ui-gaps.md",
+    "docs/releases/20261011-architecture-review-pr.md",
+    "docs/README.md"
+  ],
+  "files": [
+    {
+      "path": "docs/RFC/RFC-20261011-AgentScope-policy-control-architecture.md",
+      "sha256": "aa9337726fe2511933b49043c0f633573c288ab74afc1763d0b17fb8a07198a0"
+    },
+    {
+      "path": "docs/ADR/ADR-20261011-AgentScope-policy-control-decisions.md",
+      "sha256": "36757d2eec5a6eaf03723d08156c1d49afc7df530b4a883d1c5da7d80bb41415"
+    },
+    {
+      "path": "docs/REVIEW/REVIEW-20261011-AgentScope-architecture-audit.md",
+      "sha256": "d058b3fcd1a035f5d4299d54926918fbf35b924f93198e85c49b1c44b057fb3b"
+    },
+    {
+      "path": "docs/BUG/BUG-20261011-AgentScope-policy-ui-gaps.md",
+      "sha256": "ffc9e6c67ab429e8d127a3094fff6ea5bf889369813d09f32f8e99fbf63f1184"
+    },
+    {
+      "path": "docs/releases/20261011-architecture-review-pr.md",
+      "sha256": "bb9fd1b1e70364d714255d43c798b4abb6093a2d1c17caf56e3399bb58049e78"
+    },
+    {
+      "path": "docs/README.md",
+      "sha256": "d65cd3579e9dd0b34e6436d51c24a2dabaea1b842d07c086a5f05eee84987e2a"
+    },
+    {
+      "path": "docs/REVIEW/evidence/architecture-review-20261011/approval-detail.jpg",
+      "sha256": "e90801f059badbb753d101ca3c7a3da2cb9f82e55ce84dd39f2e7dc02ac22a8f"
+    },
+    {
+      "path": "docs/REVIEW/evidence/architecture-review-20261011/architecture-evidence.json",
+      "sha256": "ebd09148d68cb44e8690370b71a8d06809d21679b1086c263279262082009d48"
+    },
+    {
+      "path": "docs/REVIEW/evidence/architecture-review-20261011/connection-policy-duplicate-and-stale.jpg",
+      "sha256": "2c2c60e1f633b56c693347b411850ec3a3825eaf663338542ed7e3c5c7f2529f"
+    },
+    {
+      "path": "docs/REVIEW/evidence/architecture-review-20261011/generation-internal-diagnostics.jpg",
+      "sha256": "b9e0ffcf1806b70810e257b331e8a796d4f05af127a778a86dba7407204526a9"
+    },
+    {
+      "path": "docs/REVIEW/evidence/architecture-review-20261011/generation-legacy-overlap.jpg",
+      "sha256": "89498715192ce104d4fcdf919c7c4464776e78b674f27a0d13ed71a4f59b4efb"
+    },
+    {
+      "path": "docs/REVIEW/evidence/architecture-review-20261011/reproduce_event_attribution.py",
+      "sha256": "906a8eeab9fc866e461a005a2e1064c3f09c0b17cc677a163fd61e2c5448d117"
+    },
+    {
+      "path": "docs/REVIEW/evidence/architecture-review-20261011/session-domain-configuration-chain.jpg",
+      "sha256": "1634b6de5d68e4d543125175e67d7b3b1f1407574c07170712cb822a180f43c0"
+    },
+    {
+      "path": "docs/REVIEW/evidence/architecture-review-20261011/session-policy-empty.jpg",
+      "sha256": "1be76fdd89f1b3466a08be6168f246983b3d2196dc714871ddb5e595c69863c4"
+    },
+    {
+      "path": "docs/REVIEW/evidence/architecture-review-20261011/validation.json",
+      "sha256": "111d2f8accc42087d9c4fda91a8da84afdc16b2c317fe3de929d8a439c6025f1"
+    }
+  ],
+  "runtime_mutations_performed": false,
+  "remote_push_performed": false,
+  "github_pr_created": false
+}

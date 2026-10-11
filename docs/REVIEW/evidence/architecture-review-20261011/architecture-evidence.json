@@ -1,0 +1,286 @@
+{
+  "captured_at": "2026-10-11T15:41:12.153434+08:00",
+  "scope": "read-only UI/API and isolated contract tests; no fresh kernel attack probes",
+  "paths": {
+    "api": "/opt/agentscope-agent-sources-20261011",
+    "broker": "/opt/agentscope-task-archive-20261007",
+    "reviewed_frontend": "/home/happy/projects/agentscope-agent-policy-20261010",
+    "live_ui": "/var/lib/agentscope-scope-demo/ui"
+  },
+  "instances": [
+    {
+      "id": "instance-1f4469579e8947f4",
+      "agent_type": "dsh",
+      "mode": "controlled",
+      "connected": true,
+      "active": true,
+      "pid": 54870,
+      "generation": "356dd3d4f7fe434db00e3c10e4ed407c",
+      "domain_id": 310407274,
+      "policy_hash": "9c5fa9fbb63c9bcd71da29007179d6c9fed00b23ac9b9f4e41165a76b92425c1"
+    },
+    {
+      "id": "instance-c0dd272b6a734a34",
+      "agent_type": "hermes",
+      "mode": "controlled",
+      "connected": false,
+      "active": false,
+      "pid": null,
+      "generation": "aa21e3eb0c214e56baf639bd05b35ddc",
+      "domain_id": null,
+      "policy_hash": "f930aa4e9f224e24588a51a652d773cf022a74fa8be0b379ed4e80023c58ad87"
+    },
+    {
+      "id": "native-dsh",
+      "agent_type": "dsh",
+      "mode": "observed",
+      "connected": false,
+      "active": false,
+      "pid": null,
+      "generation": null,
+      "domain_id": null,
+      "policy_hash": null
+    },
+    {
+      "id": "installed-wsl-hermes",
+      "agent_type": "hermes",
+      "mode": "observed",
+      "connected": false,
+      "active": false,
+      "pid": null,
+      "generation": null,
+      "domain_id": null,
+      "policy_hash": null
+    }
+  ],
+  "health_http_200": true,
+  "system_dsl": {
+    "revision": 6,
+    "document_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "phase": "ready",
+    "document_count": 0,
+    "record_count": 0
+  },
+  "approvals": {
+    "projected_pending_count": 1,
+    "statuses": {
+      "applied": 6,
+      "pending": 1,
+      "stale": 1
+    },
+    "scope_types": [
+      "agent",
+      "system"
+    ]
+  },
+  "session_directory": {
+    "records": 7,
+    "count_complete": false,
+    "mapping_error_count": 1
+  },
+  "sample_session": {
+    "instance_id": "instance-1f4469579e8947f4",
+    "session_id": "session-74fe57c1-fe55-4bd4-9db8-5e624d3c5702",
+    "active": true,
+    "executor_shared": true,
+    "task_binding_available": false,
+    "bundle_hash": "d948d9ce3c3db1854ab8182d164aa20991f6645295e2c488e017cda7c1304f34",
+    "policy_record_count": 0,
+    "policy_types": [],
+    "domain_notice_present": false,
+    "diagnostic_policy_record_count": 8,
+    "diagnostic_executor_shared": true
+  },
+  "product_summary": {
+    "agents": 2,
+    "verified_agents": 1,
+    "pending_approvals": 2,
+    "strategies": 7
+  },
+  "source_files": [
+    {
+      "component": "api",
+      "path": "backend/agentscope_app/instances/controller.py",
+      "sha256": "f143c1cb93a2a589a8810406d1be085222b21b1d46ac61d79b997e64319d3d0c"
+    },
+    {
+      "component": "api",
+      "path": "backend/agentscope_app/instances/dsl_policy.py",
+      "sha256": "b4d0efa8085e29000aa0a86fbd97727c40ce4c5ff4fd5bab705cbc2f8eb1ba76"
+    },
+    {
+      "component": "api",
+      "path": "backend/agentscope_app/instances/approval_views.py",
+      "sha256": "52591816de74b4ac66912a8db5553236542edb11b8d535a45801cefbfb9a2fe3"
+    },
+    {
+      "component": "api",
+      "path": "backend/agentscope_app/instances/system_policy.py",
+      "sha256": "e8dabe46100e5a66e210f970f4333f78ed8165eb494d00857a1a89829c557efd"
+    },
+    {
+      "component": "api",
+      "path": "backend/agentscope_app/instances/sessions.py",
+      "sha256": "663f35d46c31c92716fc1f2f41ebac0f2d5579cc7954f1b4ca49727d4be01efa"
+    },
+    {
+      "component": "api",
+      "path": "backend/agentscope_app/history/agent_context.py",
+      "sha256": "7efc925be4af4fd5ae15e50237357b0ca63c45b880fdb9b4947f08762bd43e0c"
+    },
+    {
+      "component": "api",
+      "path": "backend/agentscope_app/instances/policy_sources.py",
+      "sha256": "e7bd9bb1f47467be3d57b2ecb1a551e99965e6ae4ecb2de3f9c557a55770f062"
+    },
+    {
+      "component": "api",
+      "path": "backend/agentscope_app/managed/controller.py",
+      "sha256": "235901f95320a33324afcce4e4822cdc72421c2dcfca4f40fa8a4d300f4e3035"
+    },
+    {
+      "component": "api",
+      "path": "backend/agentscope_app/workspaces/scene_read.py",
+      "sha256": "46c6eb3aefe8e14f1636c4c238831518f208f964d86e58d27643b5a75d5ad682"
+    },
+    {
+      "component": "broker",
+      "path": "backend/broker/instance_runtime.py",
+      "sha256": "b3a54719b0f3de3bb9f4c6b63ef88d11f1030add51e6423addbcbf2256e41c1e"
+    },
+    {
+      "component": "broker",
+      "path": "actplane/docs/security_model.md",
+      "sha256": "c75ef0e297350e34629864c311e89f5ca796c08820ca97e67aa0af6005ff9510"
+    },
+    {
+      "component": "broker",
+      "path": "actplane/docs/rule-language.md",
+      "sha256": "497d717a33d1343338984cd3c80c769d42fb0d5001881768b1ef1a7aec694e95"
+    },
+    {
+      "component": "frontend",
+      "path": "frontend/src/SystemWorkbench.jsx",
+      "sha256": "48802465fb4ab216c388043ae0675255ec9416f4729962b009bd61945a5e9107"
+    },
+    {
+      "component": "frontend",
+      "path": "frontend/src/HistoryLibrary.jsx",
+      "sha256": "5fc2d5fc66615ca76ca018b98d1c7167cffe470517a1a6549817474c9fe09421"
+    },
+    {
+      "component": "frontend",
+      "path": "frontend/src/PolicyApprovals.jsx",
+      "sha256": "2adcb6ad9bc43ad1eaae2eb6ba0f9329432ccc885e9d09f4d88b35a0df7bed85"
+    },
+    {
+      "component": "frontend",
+      "path": "frontend/src/AgentPolicyAssistant.jsx",
+      "sha256": "eecb3f2f76bea382865a0f6433e28636406cc754e9117f6e66621a42aa25624a"
+    },
+    {
+      "component": "frontend",
+      "path": "frontend/src/AgentSessions.jsx",
+      "sha256": "a62e19c101bd2e386f95e774f61373bf9ba88fad2ffeaa814bff6ec8e71ef994"
+    },
+    {
+      "component": "frontend",
+      "path": "frontend/src/productConsole.mjs",
+      "sha256": "7035fa7a243766518919b633f87d0288ddf2b978c3090812de2d24519a3ee6de"
+    }
+  ],
+  "latest_api_overlay_manifest_matches": true,
+  "live_assets": [
+    {
+      "path": "/assets/index-DgtigaPK.js",
+      "sha256": "a61301d010934ce1ce00da1f41a124f6eed2b2fe4ec168d35b683b8f44594917"
+    },
+    {
+      "path": "/assets/index-CRCHNy-x.css",
+      "sha256": "10d1cc21edc62d389a79e1b74184690647316277ddd36dcb651f929f56db6bb4"
+    }
+  ],
+  "validation": {
+    "backend_contracts": {
+      "passed": 108,
+      "failed": 0,
+      "privileged_io": "mocked",
+      "parser_compiler": "real installed ActPlane"
+    },
+    "frontend_source_tests": {
+      "passed": 218,
+      "failed": 0
+    },
+    "event_attribution_reproductions": {
+      "diagnostic_scope_reproduced": 2,
+      "product_isolation_verified": true
+    },
+    "kernel_acceptance": "not run in this audit",
+    "existing_product_projection_tests": {
+      "passed": 9,
+      "failed": 0
+    }
+  },
+  "tested_implementation_comparison": [
+    {
+      "component": "api",
+      "path": "backend/agentscope_app/instances/controller.py",
+      "matches_live_source": true
+    },
+    {
+      "component": "api",
+      "path": "backend/agentscope_app/instances/dsl_policy.py",
+      "matches_live_source": true
+    },
+    {
+      "component": "api",
+      "path": "backend/agentscope_app/instances/approval_views.py",
+      "matches_live_source": true
+    },
+    {
+      "component": "api",
+      "path": "backend/agentscope_app/instances/system_policy.py",
+      "matches_live_source": true
+    },
+    {
+      "component": "api",
+      "path": "backend/agentscope_app/instances/sessions.py",
+      "matches_live_source": true
+    },
+    {
+      "component": "api",
+      "path": "backend/agentscope_app/history/agent_context.py",
+      "matches_live_source": true
+    },
+    {
+      "component": "api",
+      "path": "backend/agentscope_app/instances/policy_sources.py",
+      "matches_live_source": true
+    },
+    {
+      "component": "api",
+      "path": "backend/agentscope_app/managed/controller.py",
+      "matches_live_source": true
+    },
+    {
+      "component": "api",
+      "path": "backend/agentscope_app/workspaces/scene_read.py",
+      "matches_live_source": true
+    },
+    {
+      "component": "broker",
+      "path": "backend/broker/instance_runtime.py",
+      "matches_live_source": true
+    },
+    {
+      "component": "broker",
+      "path": "actplane/docs/security_model.md",
+      "matches_live_source": true
+    },
+    {
+      "component": "broker",
+      "path": "actplane/docs/rule-language.md",
+      "matches_live_source": true
+    }
+  ]
+}
