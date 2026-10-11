@@ -55,13 +55,13 @@ test('conversation template selection creates a local exact-Agent candidate, can
  const render=await harness('AgentPolicyAssistant.jsx');let writes=0,imported=null;
  const props={target,post:async()=>writes++,onHandoff:c=>imported=c};
  let tree=render(props),nodes=elements(tree);
- nodes.find(e=>e.type==='select'&&e.props['aria-label']==='选择策略').props.onChange({target:{value:'RQ1-ENV'}});
+ nodes.find(e=>e.type==='button'&&e.props['aria-label']==='选择策略').props.onClick();tree=render(props);elements(tree).find(e=>e.props?.onTemplate).props.onTemplate('RQ1-ENV');
  tree=render(props);const panel=elements(tree).find(e=>e.props?.conversation===true);assert.ok(panel);assert.equal(panel.props.targetId,target.id);assert.equal(writes,0);
  const candidate=createHandoff(catalogue.templates[0],{target:'/actual/project/.env'},'',target,'chat-draft');candidate.presentation={name:candidate.document.name,template:catalogue.templates[0],values:{target:'/actual/project/.env'},operation:'open',effect:'block',reason:'Use sample'};
  panel.props.onHandoff(candidate);tree=render(props);nodes=elements(tree);
  assert.ok(nodes.some(e=>e.type==='strong'&&e.props.children===candidate.document.name));assert.equal(writes,0);assert.equal(imported,null);
- nodes.find(e=>e.type==='button'&&e.props.children==='检查并导入 →').props.onClick();assert.equal(imported.targetId,target.id);assert.match(imported.document.original_dsl,/source AGENT = exec "\*\*\/node"/);assert.equal(writes,0);
- nodes.find(e=>e.type==='button'&&e.props.children==='调整配置').props.onClick();tree=render(props);assert.equal(elements(tree).find(e=>e.props?.conversation===true).props.initialCandidate.id,'chat-draft');
+ assert.ok(nodes.some(e=>e.type==='button'&&e.props.children==='提交审批'));assert.equal(imported,null);assert.equal(writes,0);
+ nodes.find(e=>e.type==='button'&&[e.props.children].flat(Infinity).join('')==='查看详情 ↗').props.onClick();tree=render(props);assert.equal(elements(tree).find(e=>e.props?.conversation===true).props.initialCandidate.id,'chat-draft');
 });
 
 test('follow-up generation receives the selected candidate configuration as context, without pretending it is approved or verified',()=>{
@@ -71,8 +71,60 @@ test('follow-up generation receives the selected candidate configuration as cont
 
 
 test('an unverified environment disables free-form generation and cannot write even on manual form submission',async()=>{
- const render=await harness('AgentPolicyAssistant.jsx');let writes=0;const props={target,post:async()=>writes++};let tree=render(props);elements(tree).find(e=>e.type==='textarea').props.onChange({target:{value:'保护当前工作目录的文件'}});tree=render(props);assert.ok(elements(tree).find(e=>e.type==='button'&&e.props.children==='发送 ↑').props.disabled);await elements(tree).find(e=>e.type==='form').props.onSubmit({preventDefault(){}});assert.equal(writes,0);
+ const render=await harness('AgentPolicyAssistant.jsx');let writes=0;const props={target,post:async()=>writes++};let tree=render(props);elements(tree).find(e=>e.type==='textarea').props.onChange({target:{value:'保护当前工作目录的文件'}});tree=render(props);assert.ok(elements(tree).find(e=>e.type==='button'&&e.props['aria-label']==='生成策略').props.disabled);await elements(tree).find(e=>e.type==='form').props.onSubmit({preventDefault(){}});assert.equal(writes,0);
 });
 test('Agent/session selection round-trips without putting DSL or environment data into the URL',()=>{
  const n=readNavigation('http://localhost'+navigationTarget('http://localhost/?view=workbench',{policyAgent:'agent-a',policySession:'native-session'}));assert.equal(n.policyAgent,'agent-a');assert.equal(n.policySession,'native-session');
+});
+
+
+test('strategy selection is a searchable record dialog and never a native template option menu',async()=>{
+ const render=await harness('AssistantPolicyLibrary.jsx');let selected='',writes=0;
+ const tree=render({templates:catalogue.templates,generated:[],drafts:[],onTemplate:id=>selected=id,onClose:()=>writes++});
+ assert.equal(elements(tree).filter(e=>e.type==='select').length,0);assert.equal(elements(tree).filter(e=>e.type==='table').length,1);
+ assert.ok(elements(tree).some(e=>e.type==='input'&&e.props.type==='search'));
+ elements(tree).find(e=>e.type==='button'&&[e.props.children].flat(Infinity).join('')==='配置并使用 ↗').props.onClick();assert.equal(selected,'RQ1-ENV');assert.equal(writes,0);
+});
+test('incomplete generated candidates remain readable but cannot submit or pretend to have executable DSL',async()=>{
+ const render=await harness('PolicyCandidateDetail.jsx');const tree=render({result:{record:{statement:{text_zh:'明确需要保护的文件'}}},agentName:'Target',sessionName:'Session'});
+ assert.match(renderToStaticMarkup(tree),/明确需要保护的文件/);assert.ok(!elements(tree).some(e=>e.type==='button'&&e.props.children==='提交审批'));
+});
+test('reopening a validated draft preserves its preview and explicit confirmation action',async()=>{
+ const render=await harness('ActPlanePolicies.jsx','DslEditor'),doc={id:'d',name:'Existing draft',original_dsl:'rule r:\n notify read file "/w/0/a" if AGENT\n because "reason"',metadata:{}},proposal={id:'p',state:'pending',documents:[doc],result:{compilations:[],error:null},targets:[]};
+ const tree=render({data:{scope_id:'agent',documents:[doc],records:[]},scopeLabel:'Target',proposal});
+ assert.ok(elements(tree).some(e=>e.type==='button'&&e.props.children==='确认并应用到当前 Agent'&&!e.props.disabled));
+});
+
+test('submitting a candidate only proposes validated changes, reuses a live matching approval, and never applies',async()=>{
+ const {submitCandidate}=await import('./policyExperience.mjs');
+ const c=createHandoff(catalogue.templates[0],{target:'/actual/project/.env'},'',target,'new-document');
+ const current={scope_id:target.id,documents:[],revision:1,document_hash:'base',proposals:[]};let calls=[];
+ const api=async path=>{calls.push(['GET',path]);return current;},post=async(path,body)=>{calls.push(['POST',path,body]);return {id:'new-approval',state:'pending'};};
+ const result=await submitCandidate(c,api,post);assert.equal(result.state,'pending');assert.equal(calls.length,2);assert.ok(calls[1][1].endsWith('/dsl/proposals'));assert.equal(calls[1][2].base_revision,1);assert.deepEqual(calls[1][2].documents,[c.document]);
+ const existing={id:'already-pending',state:'pending',base_revision:1,base_hash:'base',documents:[c.document]};current.proposals=[existing];calls=[];
+ const reused=await submitCandidate(c,async path=>{calls.push(['GET',path]);return path.includes('/approvals/')?{can_apply:true}:current;},post);assert.equal(reused.id,existing.id);assert.ok(calls.every(c=>c[0]==='GET'));
+ calls=[];await submitCandidate(c,async path=>path.includes('/approvals/')?{can_apply:false}:current,post);assert.equal(calls.length,1);assert.ok(calls[0][1].endsWith('/dsl/proposals'));
+ await assert.rejects(()=>submitCandidate({...c,targetId:'wrong-agent'},api,post));assert.ok(calls.every(c=>!c[1].includes('/confirm')&&!c[1].includes('/apply')));
+});
+test('approval details expose change, targets and explicit decisions without writing on viewing or switching tabs',async()=>{
+ const render=await harness('PolicyApprovals.jsx','ApprovalDetail');let decisions=[];
+ const data={id:'proposal',scope_type:'agent',target_name:'DeepSeek Harness',status:'pending',can_apply:true,created_at:'2026-10-11T01:00:00Z',documents:[{id:'d',name:'Protect secret',original_dsl:'source AGENT = exec "**/node"'}],previous_documents:[],records:[{id:'r',document_id:'d',statement:'Protect secret',clauses:[{effect:'block',operation:'open',target:'/w/0/.env'}]}],targets:[{id:'agent',name:'DeepSeek Harness',active:true}],total_affected_count:1};
+ const props={data,onClose(){},onDecision:async(...args)=>decisions.push(args)};let tree=render(props);assert.equal(decisions.length,0);assert.match(renderToStaticMarkup(tree),/全部工作区与会话/);assert.match(renderToStaticMarkup(tree),/新增/);
+ elements(tree).find(e=>e.type==='button'&&e.props.children==='完整 DSL').props.onClick();tree=render(props);assert.equal(decisions.length,0);assert.match(renderToStaticMarkup(tree),/node/);
+ await elements(tree).find(e=>e.type==='button'&&e.props.children==='批准并应用').props.onClick();assert.equal(decisions[0][1],'confirm');
+ tree=render({...props,data:{...data,status:'stale',can_apply:false}});assert.ok(!elements(tree).some(e=>e.props?.children==='批准并应用'));
+});
+test('approval deep links retain only the record identity',()=>{
+ const url=navigationTarget('http://localhost/?view=workbench',{page:'approvals',approvalId:'approval-one'}),n=readNavigation('http://localhost'+url);assert.equal(n.page,'approvals');assert.equal(n.approvalId,'approval-one');assert.doesNotMatch(url,/proposal_hash|documents/);
+});
+
+test('restored approvals based on old configuration cannot confirm until revalidated',async()=>{
+ const render=await harness('ActPlanePolicies.jsx','DslEditor'),doc={id:'d',name:'Old draft',original_dsl:'rule r:\n notify read file "/w/0/a" if AGENT\n because "reason"',metadata:{}},proposal={id:'p',state:'pending',base_revision:1,base_hash:'old',documents:[doc],result:{compilations:[],error:null},targets:[]};
+ const tree=render({data:{scope_id:'agent',revision:2,document_hash:'current',documents:[doc],records:[]},scopeLabel:'Target',proposal});
+ assert.ok(elements(tree).find(e=>e.type==='button'&&e.props.children==='确认并应用到当前 Agent').props.disabled);assert.match(renderToStaticMarkup(tree),/草案基于旧的策略配置/);
+});
+test('a restored removal proposal remains empty and clearly discloses removal',async()=>{
+ const render=await harness('ActPlanePolicies.jsx','DslEditor'),proposal={id:'p',state:'pending',documents:[],result:{compilations:[],error:null},targets:[]};
+ const tree=render({data:{scope_id:'agent',documents:[],records:[]},scopeLabel:'Target',proposal});
+ assert.equal(elements(tree).filter(e=>e.type==='textarea').length,0);assert.match(renderToStaticMarkup(tree),/候选不包含任何用户 DSL/);
 });

@@ -53,3 +53,9 @@ def policy_conversation(ident:str,session_id:str|None=Query(None,max_length=200)
 def policy_candidate(ident:str,artifact_id:str):
     from ..history.agent_context import selected_candidate
     return invoke(selected_candidate,ident,artifact_id)
+
+@router.post('/api/security/system/dsl/proposals/{pid}/reject')
+def system_reject(pid:str,body:Confirm):return invoke(dsl.reject,'system',pid,body.proposal_hash)
+
+@router.post('/api/agent-instances/{ident}/dsl/proposals/{pid}/reject')
+def agent_reject(ident:str,pid:str,body:Confirm):return invoke(dsl.reject,ident,pid,body.proposal_hash)

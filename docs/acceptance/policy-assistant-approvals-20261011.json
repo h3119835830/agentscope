@@ -1,0 +1,36 @@
+{
+  "date": "2026-10-11",
+  "frontend_tests": {
+    "passed": 214
+  },
+  "backend_tests": {
+    "passed": 945,
+    "skipped": 52
+  },
+  "build": "passed",
+  "live_ui": "http://127.0.0.1:18003",
+  "api_restart_seconds": 1.227,
+  "browser_widths": [
+    1280,
+    900,
+    650
+  ],
+  "browser_height": 720,
+  "visible_approvals": 8,
+  "pending_approvals": 2,
+  "policy_application_performed": false,
+  "agent_identity_and_status_unchanged": true,
+  "all_scope_revisions_and_hashes_unchanged": true,
+  "all_12_proposal_states_unchanged": true,
+  "before_sha256": "1dc9b2e544ff3faf0f01a6e9a0594bc1c46e3e08878af3381e3a28ac0c9f94de",
+  "after_sha256": "1dc9b2e544ff3faf0f01a6e9a0594bc1c46e3e08878af3381e3a28ac0c9f94de",
+  "checks": [
+    "ready candidate readable details and actual source",
+    "incomplete candidate readable with no submit",
+    "record selector search and empty result",
+    "submit reused matching existing pending approval",
+    "approval deep link restored after refresh",
+    "offline Hermes isolation and generation disabled",
+    "no horizontal page overflow; composer and decision footer visible"
+  ]
+}
