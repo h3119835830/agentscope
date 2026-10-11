@@ -17,3 +17,7 @@
 当前 DSH 实际程序 /opt/agentscope/bin/node，编辑器和模板为 source AGENT = exec "**/node"；未连接 Hermes、身份变化和过期事实均阻止猜测。前端 218 项、后端 964 项通过，52 项按既有条件跳过，构建成功。真实页面已保存截图与只读 API 事实；发布前后 Agent、策略、proposal 与 Broker 状态未变。没有策略应用授权操作。
 
 详见同名 RFC/ADR/REVIEW，以及 evidence/runtime-sources-20261011。
+
+## 2026-10-11 关联隔离复核
+
+用户追问 **/node 会否影响其他 Node。复核确认 basename 会重合，实例隔离来自连接 ID 编排及非零进程域绑定；未复现独立连接串用问题。新增同名/同程序/同工作区跨 DSH 与 Hermes、跨连接 confirm、实际 BPF C 域判定测试，69 项通过；真实两个域外 Node 不在 DSH 绑定内，现有草案目标仅为当前 DSH。详见 REVIEW-20261011-agent-node-isolation。未应用策略。

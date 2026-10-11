@@ -36,3 +36,7 @@ API 独立发布 /opt/agentscope-agent-sources-20261011，前一版本 /opt/agen
 观察器限制文件系统写入为固定 /run 目录，禁用网络，仅保留所需 capabilities。没有提高控制台 API 权限，没有重启 Broker 或原生 Agent。回退时移除新增 API drop-in 后重启 API；确认已回退到旧 reader 后可 disable --now 新 observer。UI 使用已保存备份恢复。不会操作 18000/18004。
 
 验收及证据见 REVIEW-20261011-verified-agent-policy-sources。
+
+## 2026-10-11 作用范围复核
+
+source 的 basename 条件本身不能隔离实例。Agent scope 仅向对应连接编排，规则/标签由 ActPlane 绑定非零运行域；同连接受控子进程继承，独立连接属于其他域。系统 scope 仍明确覆盖全部受控连接。真实 cap_task/cap_policy/ts_rules 只读核验、两个域外 Node 对照及 69 项测试见 REVIEW-20261011-agent-node-isolation；未应用新策略。

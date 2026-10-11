@@ -277,3 +277,49 @@ def test_generated_candidate_context_is_rechecked_before_confirm_and_no_process_
     monkeypatch.setattr(agent_context,'selected_candidate',stale)
     with pytest.raises(ValueError,match='环境已变化'):dsl.apply(world.a['id'],p['id'],p['proposal_hash'])
     assert not world.calls and dsl.current(world.a['id'])['revision']==0
+
+
+# Same executor/product/name/resource does not define an instance security scope.
+def test_node_agent_candidate_and_application_never_select_other_dsh_or_hermes(world):
+    other=store.create(world.a['name'],'dsh',world.a['resources'])
+    for row in (world.a,other,world.b):world.run(row)
+    foreign_before={r['id']:store.get(r['id']) for r in (other,world.b)}
+    source=TEXT.replace('exec "**"','exec "**/node"')
+    p=candidate(world.a['id'],[document(source)])
+    assert p['state']=='pending',p['result']['error']
+    assert [t['id'] for t in p['targets']]==[world.a['id']]
+    assert [r['instance_id'] for r in p['result']['compilations']]==[world.a['id']]
+    assert not world.calls
+    assert all(d['scope_id']==world.a['id'] for d in p['result']['compilations'][0]['documents'])
+    # This apply executes only the existing fixture Adapter against the test DB.
+    result=dsl.apply(world.a['id'],p['id'],p['proposal_hash'])
+    assert result['affected_count']==result['resumed_count']==1
+    assert world.calls==[('stop',world.a['id']),('stop',world.a['id']),('start',world.a['id'])]
+    for ident,before in foreign_before.items():
+        assert store.get(ident)==before
+        assert dsl.current(ident)['documents']==[]
+        assert dsl.launch_spec(store.get(ident))['dsl_documents']==[]
+        assert ident in world.live
+
+
+def test_node_candidate_cannot_be_confirmed_through_a_different_agent(world):
+    source=TEXT.replace('exec "**"','exec "**/node"')
+    p=candidate(world.a['id'],[document(source)])
+    assert p['state']=='pending'
+    before={r['id']:store.get(r['id']) for r in (world.a,world.b)}
+    with pytest.raises(ValueError,match='确认内容不一致'):
+        dsl.apply(world.b['id'],p['id'],p['proposal_hash'])
+    assert not world.calls
+    assert all(store.get(ident)==r for ident,r in before.items())
+    assert dsl.current(world.a['id'])['documents']==[]
+    assert dsl.current(world.b['id'])['documents']==[]
+
+
+def test_system_node_scope_and_agent_node_scope_are_explicitly_different(world):
+    source=TEXT.replace('exec "**"','exec "**/node"')
+    agent=candidate(world.a['id'],[document(source)])
+    shared=candidate('system',[document(source)])
+    assert [t['id'] for t in agent['targets']]==[world.a['id']]
+    assert {t['id'] for t in shared['targets']}=={world.a['id'],world.b['id']}
+    assert not world.calls
+    assert dsl.current('system')['documents']==[]
