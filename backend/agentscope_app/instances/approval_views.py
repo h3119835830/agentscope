@@ -2,12 +2,13 @@
 from fastapi import HTTPException
 from .. import db
 from . import dsl_policy as dsl, store
+from .approval_locations import Locations, product
 
 
 def scopes():
     from ..console import hidden
     retained=hidden('agent')
-    return {'system':'全部受控 Agent',**{r['id']:r['name'] for r in store.rows() if r['mode']=='controlled' and r['id'] not in retained}}
+    return {'system':'全部受控 Agent',**{r['id']:product(r) for r in store.rows() if r['mode']=='controlled' and r['id'] not in retained}}
 
 
 def pending_count():
@@ -16,7 +17,7 @@ def pending_count():
         return sum(r[1] for r in con.execute("SELECT scope_id,COUNT(*) FROM instance_dsl_proposals WHERE state='pending' GROUP BY scope_id") if r[0] in visible)
 
 
-def project(p,names,full=False):
+def project(p,names,full=False,locations=None):
     from ..console import hidden
     base=dsl.current(p['scope_id'])
     status=p['state'];reason=''
@@ -40,6 +41,7 @@ def project(p,names,full=False):
          'status':status,'created_at':p['created_at'],'document_count':len(p['documents']),
          'can_apply':status=='pending','reason':reason,
          'affected_count':len(visible_targets),'total_affected_count':len(p['targets'])}
+    row.update((locations or Locations()).project(p,visible_targets))
     if full:
         compilation=next((c for c in p['result'].get('compilations',[]) if c['instance_id'] in {t['id'] for t in visible_targets}),None)
         records=dsl.policy_records(compilation,p['scope_id']) if compilation else []
@@ -52,7 +54,8 @@ def directory():
     names=scopes()
     with db.connect() as con:
         rows=[dsl.unpack(p) for p in con.execute("SELECT * FROM instance_dsl_proposals ORDER BY created_at DESC,id DESC") if p['scope_id'] in names]
-    records=[project(p,names) for p in rows]
+    locations=Locations()
+    records=[project(p,names,locations=locations) for p in rows]
     return {'records':records,'pending_count':sum(r['status']=='pending' for r in records)}
 
 
