@@ -8,7 +8,7 @@ from .models import Statement, ExtractionResult, StrategyStatementVersion
 from .pipeline import (digest, extract_strategy_statements, generate_policy_artifact,
     verify_evidence, SINGLE_COMPLETENESS_PROMPT)
 from .llm import DeepSeekProvider
-from .capabilities import translation_capabilities
+from .capabilities import translation_capabilities, generation_capabilities
 
 
 class Cancelled(Exception):
@@ -37,7 +37,10 @@ def create(payload):
         from ..services.github import parse_github_url
         parse_github_url(payload["repo_url"])
         for path in payload.get("additional_paths",[]): sources.relative_path(path)
-    else: registry.load_statement(payload["statement_version_id"])
+    else:
+        version=registry.load_statement(payload["statement_version_id"])
+        from .agent_context import revalidate
+        revalidate(version.resolved_context)
     public = {k:v for k,v in payload.items() if k != "request_key"}
     key = payload.get("request_key") or (digest(public) if re.fullmatch(r"[0-9a-f]{40}",payload.get("ref","")) else uuid.uuid4().hex)
     with db.connect() as con:
@@ -157,12 +160,14 @@ def step(ident,key,stage,fn):
 
 
 def review_single(version,provider):
+    from .agent_context import revalidate
+    revalidate(version.resolved_context)
     document=sources.read_document(version.origin.document_id)
     lines=document.text.splitlines()
     if len(document.text.encode()) > 80000: raise ValueError("原文完整上下文超限，需人工拆分")
     result,meta=provider.generate(SINGLE_COMPLETENESS_PROMPT,
         {"first_line":1,"last_line":len(lines),"lines":[{"line":i+1,"text":t} for i,t in enumerate(lines)],
-         "statement_schema":Statement.model_json_schema(),"ENFORCEMENT_CAPABILITIES":translation_capabilities(),
+         "statement_schema":Statement.model_json_schema(),"ENFORCEMENT_CAPABILITIES":generation_capabilities(version.resolved_context),
          "VERIFIED_CONTEXT":version.resolved_context,
          "heading_context":[],"adjacent_context":[],"first_pass":[version.statement.model_dump()],
          "review":"Review ONLY the selected candidate. Preserve its intent; no unrelated candidates."},"history-completeness-v2")
@@ -182,12 +187,16 @@ def review_single(version,provider):
 
 def compile_candidate(version,provider):
     from ..main import compile_policy
+    from .agent_context import revalidate
+    revalidate(version.resolved_context)
     attempts=[]; diagnostic=None
     for attempt in range(2):
         candidate=generate_policy_artifact(version,provider=provider,compiler_diagnostic=diagnostic,structured=True,allow_unreviewed=True)
+        revalidate(version.resolved_context)
         state=candidate.state; info={}
         if candidate.actplane_dsl:
-            dsl='source AGENT = exec "**"\n'+candidate.actplane_dsl
+            pattern=version.resolved_context.get('environment_binding',{}).get('values',{}).get('source',{}).get('pattern','**')
+            dsl='source AGENT = exec '+json.dumps(pattern)+'\n'+candidate.actplane_dsl
             yaml="version: 1\npolicy: |\n"+"\n".join("  "+line for line in dsl.splitlines())+"\n"
             state,info,diagnostic=compile_policy(yaml,uuid.uuid4().hex,attempt+1)
         elif state=="invalid_candidate": diagnostic="; ".join(candidate.policy_record["compile_check"]["diagnostics"])
@@ -226,6 +235,10 @@ def execute(run_id,provider=None):
                 except Exception: failures+=1
         for sid in ids:
             version=registry.load_statement(sid)
+            if version.resolved_context.get('kind')=='agent' and version.statement.completeness=='complete':
+                from .agent_context import adapt_version
+                adapted=step(run_id,'agent-context:'+sid,'agent_environment_adaptation',lambda:adapt_version(version,provider))
+                sid=adapted['statement_version_id'];version=registry.load_statement(sid)
             with db.connect() as con:
                 con.execute("INSERT OR IGNORE INTO history_generation_results(run_id,statement_version_id,status) VALUES(?,?,?)",(run_id,sid,"pending"))
             try:

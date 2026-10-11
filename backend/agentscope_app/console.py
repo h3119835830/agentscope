@@ -151,3 +151,21 @@ def task_directory(q:str='',status:str='all',page:int=Query(0,ge=0),limit:int=Qu
     from .archive.projection import archive_index
     if status not in ('all','active','ended'):raise HTTPException(422,'状态筛选无效')
     return archive_index(q,status,page,limit,console=True)
+
+@router.get('/agents/{ident}/policy-context')
+def agent_policy_context(ident:str,session_id:str|None=Query(None,max_length=200)):
+    from .history.agent_context import snapshot
+    require_visible('agent',ident)
+    return invoke(snapshot,ident,session_id)
+
+@router.get('/agents/{ident}/policy-conversation')
+def agent_policy_conversation(ident:str,session_id:str|None=Query(None,max_length=200)):
+    from .history.agent_context import conversation
+    require_visible('agent',ident)
+    return invoke(conversation,ident,session_id)
+
+@router.get('/agents/{ident}/policy-candidates/{artifact_id}')
+def agent_policy_candidate(ident:str,artifact_id:str):
+    from .history.agent_context import selected_candidate
+    require_visible('agent',ident)
+    return invoke(selected_candidate,ident,artifact_id)

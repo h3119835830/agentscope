@@ -50,7 +50,13 @@ def blockers(data, statement, *, task=None):
         except ValueError as e: reasons.append("IR 无效："+str(e))
         env = metadata.get("environment")
         if data.get("actplane_dsl"):
-            if not env or not ctx.get("task_id"): reasons.append("没有服务端适配凭据")
+            if ctx.get("kind")=="agent":
+                from .agent_context import revalidate
+                try: revalidate(ctx)
+                except (ValueError,RuntimeError,OSError): reasons.append("Agent 或会话环境已变化，请重新生成")
+                if env!=ctx.get("environment_binding"):reasons.append("没有服务端适配凭据")
+                if task is not None:reasons.append("Agent 候选不能作为旧任务策略加载")
+            elif not env or not ctx.get("task_id"): reasons.append("没有服务端适配凭据")
             else:
                 try: current = environment_binding(ctx)
                 except (ValueError,RuntimeError,OSError): reasons.append("无法核验适配任务环境");return reasons

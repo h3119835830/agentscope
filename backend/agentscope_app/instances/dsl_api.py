@@ -38,3 +38,18 @@ def kernel(ident:str,sid:str,generation:str|None=None,before:int|None=Query(None
 @router.get('/api/agent-instances/{ident}/sessions/{sid}/tool-traces')
 def traces(ident:str,sid:str,generation:str|None=None,before:int|None=Query(None,ge=1),limit:int=Query(30,ge=1,le=100)):
     return invoke(sessions.traces,ident,sid,generation,before,limit)
+
+@router.get('/api/agent-instances/{ident}/policy-context')
+def policy_context(ident:str,session_id:str|None=Query(None,max_length=200)):
+    from ..history.agent_context import snapshot
+    return invoke(snapshot,ident,session_id)
+
+@router.get('/api/agent-instances/{ident}/policy-conversation')
+def policy_conversation(ident:str,session_id:str|None=Query(None,max_length=200)):
+    from ..history.agent_context import conversation
+    return invoke(conversation,ident,session_id)
+
+@router.get('/api/agent-instances/{ident}/policy-candidates/{artifact_id}')
+def policy_candidate(ident:str,artifact_id:str):
+    from ..history.agent_context import selected_candidate
+    return invoke(selected_candidate,ident,artifact_id)

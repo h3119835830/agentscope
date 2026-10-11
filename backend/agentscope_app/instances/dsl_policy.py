@@ -86,6 +86,8 @@ def propose(scope,body):
         if old['request_hash']!=request_hash:raise ValueError('幂等键已用于其他 DSL 候选')
         return unpack(old)
     if body['base_hash']!=base['document_hash'] or body['base_revision']!=base['revision']:raise ValueError('DSL 版本已经变化，请刷新后编辑')
+    from ..history.agent_context import validate_documents
+    validate_documents(scope,docs,base['documents'])
     targets=target_snapshot(scope,docs);results=[];error=None
     if not targets and docs:error='尚无受控连接，无法验证实际资源与运行后端；可保存草案，接入后重新校验'
     for target in targets:
@@ -116,6 +118,8 @@ def apply(scope,pid,expected_hash):
     base=current(scope)
     if p['state']!='pending' or p['base_hash']!=base['document_hash'] or p['base_revision']!=base['revision']:raise ValueError('DSL 候选已过期或尚未通过编译')
     if target_snapshot(scope,p['documents'])!=p['targets']:raise ValueError('连接、资源、运行代次或继承策略已经变化，请重新校验')
+    from ..history.agent_context import validate_documents
+    validate_documents(scope,p['documents'],base['documents'])
     # Recompile the same frozen effective policy before any process is stopped.
     for target,previous in zip(p['targets'],p['result']['compilations']):
         row=store.get(target['id'])

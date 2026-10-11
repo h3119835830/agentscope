@@ -124,7 +124,7 @@ function App() {
       <div hidden={page!=='history'}><TaskArchive api={api} navigation={navigation} navigate={navigate}/></div>
       {page==='strategies'&&<SystemWorkbench api={api} post={post} navigation={navigation} navigate={navigate} onHandoff={handoffCandidate} tasks={tasks} busy={busy} action={withBusy} notify={notify} selectTask={openTask}/> }
       {page!=='history'&&<div hidden={page!=='connections'}><AgentWorkspaces api={api} post={post} notify={notify} onCreateTask={createTask} onOpenTask={openTask} tasks={tasks} active={page==='connections'} agentSeed={navigation.connectionAgent} workspaceSeed={navigation.connectionWorkspace} configurationId={navigation.connectionInstance} configurationTab={navigation.connectionTab} policyScope={navigation.policyScope} onSessions={id=>navigate({page:'sessions',sessionAgent:'',sessionFilterInstance:id,sessionWorkspace:'',sessionQuery:'',sessionCursor:0,sessionInstance:'',sessionId:''})} pane={navigation.connectionsPane} historySeed={navigation.connectionHistory} onContext={context=>navigate(context)} /></div>}
-      {page==='sessions'&&<AgentSessions api={api} navigation={navigation} navigate={navigate} onConfigure={(scope,id)=>navigate(scope==='system'?{page:'strategies',systemTab:'policies'}:{page:'workbench',policyAgent:id,agentPolicyTab:'policies'})}/>}
+      {page==='sessions'&&<AgentSessions onHandoff={handoffCandidate} api={api} navigation={navigation} navigate={navigate} onConfigure={(scope,id)=>navigate(scope==='system'?{page:'strategies',systemTab:'policies'}:{page:'workbench',policyAgent:id,agentPolicyTab:'policies'})}/>}
 
     </main>
     {toast && <div className="toast">{toast}</div>}

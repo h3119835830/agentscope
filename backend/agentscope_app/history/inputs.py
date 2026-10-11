@@ -38,7 +38,7 @@ def snapshot(document,scope_path='',requested_ref='manual-input'):
             (origin.repository,origin.commit,origin.path,origin.content_hash)).fetchone()[0]
     return document.model_copy(update={'origin':origin.model_copy(update={'document_id':ident})})
 
-def store_version(strategy_id,document,statement,scope_path='',actor='研究者'):
+def store_version(strategy_id,document,statement,scope_path='',actor='研究者',resolved_context=None):
     with db.connect() as con:
         from .catalog import mutable_strategy
         mutable_strategy(con,strategy_id)
@@ -48,7 +48,7 @@ def store_version(strategy_id,document,statement,scope_path='',actor='研究者'
             return {'id':latest['id'],'strategy_id':strategy_id,'status':latest['review_status'],'reused':True}
         version=(latest['version']+1) if latest else 1
         record=StrategyStatementVersion(id=uuid.uuid4().hex,strategy_id=strategy_id,version=version,
-            origin=document.origin,statement=statement,scope_path=scope_path)
+            origin=document.origin,statement=statement,scope_path=scope_path,resolved_context=resolved_context or {})
         data=record.model_dump(exclude={'review_status'})
         con.execute('INSERT INTO strategy_statement_versions(id,strategy_id,version,document_id,record_json,content_sha256,review_status,created_at) VALUES(?,?,?,?,?,?,?,?)',
             (record.id,strategy_id,version,document.origin.document_id,json.dumps(data,ensure_ascii=False),digest(data),'pending_review',db.now()))
@@ -114,9 +114,14 @@ def manual_document(text,values):
 def create_input(values,actor):
     from .catalog import create
     text=values['text'].strip()
+    context={}
+    if values.get('agent_context'):
+        if values.get('task_id'):raise ValueError('Agent 和旧任务上下文不能同时绑定')
+        from .agent_context import resolve
+        context=resolve(values['agent_context'])
     document,statement=manual_document(text,values)
     document=snapshot(document)
     level=values['enforcement_level'].replace('_','-')
     row=create({'text':text,'category':level,'context_scope':values['context_requirement'].replace('_','-'),
         'execution_layer':'manual_instruction'},actor)
-    return store_version(row['id'],document,statement,actor=actor)
+    return store_version(row['id'],document,statement,actor=actor,resolved_context=context)

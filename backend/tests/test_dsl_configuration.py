@@ -260,3 +260,20 @@ console.log(JSON.stringify(createSystemHandoff(t,Object.fromEntries(t.parameters
     proposal=candidate('system',[json.loads(result.stdout)])
     assert proposal['state']=='pending',proposal['result']['error']
     assert dsl.current('system')['documents']==[] and not world.calls
+
+
+def test_generated_candidate_context_is_rechecked_before_confirm_and_no_process_is_stopped(world,monkeypatch):
+    from agentscope_app.history import agent_context
+    doc=document(TEXT,'generated')
+    doc['generation_binding']={'artifact_id':'a'*32,'context_hash':'b'*64}
+    checks=[]
+    def selected(scope,artifact):
+        checks.append((scope,artifact))
+        return {'document':doc}
+    monkeypatch.setattr(agent_context,'selected_candidate',selected)
+    p=candidate(world.a['id'],[doc])
+    assert p['state']=='pending' and len(checks)==1 and not world.calls
+    def stale(*args):raise ValueError('Agent 或会话环境已变化')
+    monkeypatch.setattr(agent_context,'selected_candidate',stale)
+    with pytest.raises(ValueError,match='环境已变化'):dsl.apply(world.a['id'],p['id'],p['proposal_hash'])
+    assert not world.calls and dsl.current(world.a['id'])['revision']==0

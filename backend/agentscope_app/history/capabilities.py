@@ -6,9 +6,9 @@ def runtime_limits_for(dsl):
         return []
     return [{"code":"file_creation_directory_entry",
         "detail":"写入被拒绝时，新建文件可能已留下空目录项。文件内容写入与删除限制不代表所有文件系统元数据变更都已被阻止；完整目录不变性未验收。"}]
-def translation_capabilities():
+def translation_capabilities(*,agent_source=None):
     """Contract of the existing task-domain provider, separate from task intent."""
-    return {'backend':'ActPlane','enforcement_scope':'approved task process domain',
+    value = {'backend':'ActPlane','enforcement_scope':'approved task process domain',
         'agent_source':'source AGENT = exec "**" supplied by the task bundle',
         'descendant_domain_inheritance':True,
         'file_events':{'write':'OS file mutation event','unlink':'OS removal/rename event'},
@@ -22,3 +22,19 @@ def translation_capabilities():
             'cross_event':'An execution constraint gated by prior events or lineage, where the supplied compiler grammar supports that gate.',
             'not_applicable':'Description or reference rather than an instruction for the current agent.'},
         'limits':runtime_limits_for('block write file "/example/**" if AGENT')}
+
+    if agent_source:
+        value.update(enforcement_scope='approved registered Agent process domain',
+            agent_source='source AGENT = exec '+repr(agent_source)+' from the Broker admitted launch profile',
+            file_events={'open':'BPF-LSM file_open access decision', 'read':'BPF-LSM file_permission read access decision',
+                         'write':'BPF-LSM file mutation access decision', 'unlink':'OS removal/rename event'},
+            candidate_validation='ActPlane AST and static backend compilation first; Broker pinned-runtime capability validation again before manual application',
+            feedback={'policy_reason':'The DSL because clause records the policy explanation.',
+                      'delivery':'User-facing feedback delivery is a separate tool/runtime receipt, not guaranteed by static compilation.'})
+    return value
+
+
+def generation_capabilities(context):
+    if context.get('kind')=='agent':
+        return context['environment_binding']['values']['capabilities']
+    return translation_capabilities()

@@ -3,7 +3,7 @@ import json
 import re
 from dataclasses import dataclass
 from .llm import DeepSeekProvider
-from .capabilities import runtime_limits_for, translation_capabilities
+from .capabilities import runtime_limits_for, translation_capabilities, generation_capabilities
 from .models import (CandidateRule, EvidenceSpan, Statement, ExtractionResult, MarkdownDocument,
                      PolicyArtifactCandidate, Statement, StrategyStatementVersion, Translation)
 
@@ -315,8 +315,14 @@ def generate_ir_artifact(statement, *, provider=None, compiler_diagnostic=None):
     if guidance_only:
         ir = PolicyIR(guidance=[s.text_original] if is_policy else [])
     else:
-        payload = {"statement": statement.model_dump(), "VERIFIED_CONTEXT": statement.resolved_context,
-            "ENFORCEMENT_CAPABILITIES": translation_capabilities(), "grammar": DSL_REFERENCE,
+        source_view=statement.model_dump()
+        if statement.resolved_context.get("kind")=="agent":
+            # Review annotations are retained in the record/audit, but are not
+            # additional user requirements for the independent IR translation.
+            source_view["statement"].pop("uncertainties",None)
+            source_view["statement"].pop("review_issues",None)
+        payload = {"statement": source_view, "VERIFIED_CONTEXT": statement.resolved_context,
+            "ENFORCEMENT_CAPABILITIES": generation_capabilities(statement.resolved_context), "grammar": DSL_REFERENCE,
             "output_schema": PolicyIR.model_json_schema(), "compiler_diagnostic": compiler_diagnostic}
         value, meta = provider.generate(
             "Translate source-backed policy into the supplied PolicyIR/v1 JSON schema, never DSL text. "
@@ -356,7 +362,7 @@ def generate_ir_artifact(statement, *, provider=None, compiler_diagnostic=None):
             "applicability":statement.resolved_context, "evidence":{"source_quote":s.source_quote,
                 "lines":[s.line_start,s.line_end],"spans":[x.model_dump() for x in s.evidence_spans],"unresolved":ir.unresolved + reasons},
             "completeness":{"status":s.completeness,"issues":s.review_issues}, "adaptation":adaptation,
-            "environment": environment_binding(statement.resolved_context) if statement.resolved_context.get("task_id") else None},
+            "environment": statement.resolved_context["environment_binding"] if statement.resolved_context.get("kind")=="agent" else environment_binding(statement.resolved_context) if statement.resolved_context.get("task_id") else None},
         "candidate_rule":{"source":"AGENT","target":"verified_task" if dsl else "unbound",
             "effect":"block" if dsl else "none","gate":"structured","reason":s.text_original},
         "compile_check":{"state":state,"diagnostics":diagnostics,"runtime_limits":runtime_limits_for(dsl), "semantic_notes":ir.guidance},
@@ -375,6 +381,9 @@ def validate_ir_scope(ir,statement):
     if ctx.get("modification_scope"):anchors.append(workspace)
     if not anchors:anchors=[scope]
     def checked(pattern):
+        if ctx.get("kind")=="agent":
+            from .agent_context import check_pattern
+            check_pattern(pattern,ctx)
         if not pattern.startswith(scope+"/") and pattern!=scope:
             raise ValueError("IR 文件对象超出核验工作区或指令范围")
         if not any(pattern==a or pattern.startswith(a+"/") for a in anchors):

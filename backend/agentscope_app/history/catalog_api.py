@@ -39,7 +39,14 @@ class InputLabels(AuditModel):
     actor:str='未识别操作者'
     task_id:str|None=None
 
+class AgentContextSelection(BaseModel):
+    model_config=ConfigDict(extra="forbid")
+    instance_id:str=Field(min_length=1,max_length=100)
+    session_id:str|None=Field(default=None,max_length=200)
+    context_hash:str=Field(pattern=r"^[a-f0-9]{64}$")
+
 class PolicyInput(InputLabels):
+    agent_context:AgentContextSelection|None=None
     text:str=Field(min_length=5,max_length=12000)
 
 @router.post('/api/history/inputs')
