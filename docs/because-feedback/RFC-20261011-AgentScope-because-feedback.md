@@ -341,3 +341,13 @@ pi_feedback.py 固定文件位置和 SHA-256。pi_rpc.drive(required_skill=...) 
 增量在隔离 18005 验证，其 UI_DIST 改为自身发布目录 frontend/dist，避免共用其他实例 UI 文件；未切换共享 18003，未推送。
 
 Windows 审阅镜像：RFC/skills/policy-feedback/SKILL.md，内容与执行正本逐字一致；Pi 仍从发布目录中的 integrations 路径只读加载。
+
+## 2026-10-11：整合至共享 18003 与产品展示合同
+
+共享实例已切换为 /opt/agentscope-system-policy-20261011-220127-because。整合以原共享版本 12c7646、已发布的审批来源定位 b2a62d8，以及 because 核心 bfd93de / 默认反馈与 Pi Skill 17688b4 为依据。通过真实 UI 构建产物哈希定位另一任务的版本，再合并其完整提交；未纳入其他任务尚未发布的策略语义分支。API、Broker、UI 使用同一个整合发布；服务切换前核对进程、源码、静态产物与策略快照，并保留原发布、私有回退快照和旧哈希静态资源。不回退共享数据库，不更改系统/Agent 策略内容、版本或其他控制台监听状态。
+
+12 项系统策略的反馈原因默认值说明保护目的、当前允许的下一步、验证与升级处理；已有 config.reason 原样保留，新默认值不会自动写入既有策略或加载执行。Pi 的 policy-feedback Skill 通过只读显式挂载、原生 Skill 发现及 /skill 正文展开进入启动与运行时生成上下文；生成的 atom.feedback 进入实际编译 because，阻断回执由已加载规则元数据与批准恢复规范生成。反馈提供操作建议，不授予权限；普通反馈恢复不触发 kernel 类型 Pi 重生成。
+
+客户模板列表、详情、补充说明与新生成的 DSL 不展示研究编号。保留内部 RQ1 模板 ID 与来源证据，新增面向用途的规则名；实际路径及用户既有 DSL 保持真实原文。研究来源从可见 origin 中移入 research_origin 保留追溯。此合同已写入 docs/design/agentscope-ui-design.md，并通过真实浏览器逐一打开 6 个模板详情和 DSL 预览验收。
+
+发布包需要显式保留 Pi 1.0.1 依赖与配置中 DSH 可执行文件对应的包元数据。首轮场景创建暴露旧发布脚本未提供 dsh/node_modules 元数据路径的问题；通过核对现有发布全部文件哈希，补齐指向实际配置 DSH 包的只读来源链接恢复，未更换运行时二进制或重启现有执行器。后续部署脚本在 staging 阶段生成并记录此依赖。运行证据见 REVIEW/evidence/because-18003-20261011/。

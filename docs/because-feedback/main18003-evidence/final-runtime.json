@@ -1,0 +1,21 @@
+{
+  "url": "http://127.0.0.1:18003",
+  "services": {
+    "api": {
+      "MainPID": "941392",
+      "WorkingDirectory": "/opt/agentscope-system-policy-20261011-220127-because",
+      "ExecStart": "{ path=/opt/agentscope/.venv/bin/python ; argv[]=/opt/agentscope/.venv/bin/python /opt/agentscope-system-policy-20261011-220127-because/scripts/scope_systemd_exec.py api ; ignore_errors=no ; start_time=[Sun 2026-10-11 22:01:43 CST] ; stop_time=[n/a] ; pid=941392 ; code=(null) ; status=0/0 }",
+      "DropInPaths": "/etc/systemd/system/agentscope-scope-demo-api.service.d/30-task-archive-20261007.conf /etc/systemd/system/agentscope-scope-demo-api.service.d/40-connection-history-20261007.conf /etc/systemd/system/agentscope-scope-demo-api.service.d/50-unified-policy-connection-20261007.conf /etc/systemd/system/agentscope-scope-demo-api.service.d/60-agent-policy-context-20261011.conf /etc/systemd/system/agentscope-scope-demo-api.service.d/70-agent-policy-sources-20261011.conf /etc/systemd/system/agentscope-scope-demo-api.service.d/80-system-policy-20261011.conf /etc/systemd/system/agentscope-scope-demo-api.service.d/90-approval-locations-20261011.conf /etc/systemd/system/agentscope-scope-demo-api.service.d/95-because-feedback-20261011.conf"
+    },
+    "broker": {
+      "MainPID": "941388",
+      "WorkingDirectory": "/opt/agentscope-system-policy-20261011-220127-because",
+      "ExecStart": "{ path=/opt/agentscope/.venv/bin/python ; argv[]=/opt/agentscope/.venv/bin/python /opt/agentscope-system-policy-20261011-220127-because/scripts/scope_systemd_exec.py broker ; ignore_errors=no ; start_time=[Sun 2026-10-11 22:01:43 CST] ; stop_time=[n/a] ; pid=941388 ; code=(null) ; status=0/0 }",
+      "DropInPaths": "/etc/systemd/system/agentscope-scope-demo-broker.service.d/30-task-archive-20261007.conf /etc/systemd/system/agentscope-scope-demo-broker.service.d/80-system-policy-20261011.conf /etc/systemd/system/agentscope-scope-demo-broker.service.d/95-because-feedback-20261011.conf"
+    }
+  },
+  "previous_active_restored": true,
+  "system_and_agent_policy_unchanged": true,
+  "other_ports_unchanged": true,
+  "ui_source_match": true
+}

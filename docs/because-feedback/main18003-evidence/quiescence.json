@@ -1,0 +1,17 @@
+{
+  "tasks": [
+    {
+      "case": "safety-impossible-tests",
+      "task_id": "9b3b96f95eac4df4",
+      "workspace": "/s/9b3b96f95eac4df4/r",
+      "phase": "ended"
+    },
+    {
+      "case": "safety-delete-config",
+      "task_id": "9d75acb45cf34289",
+      "workspace": "/s/9d75acb45cf34289/r",
+      "phase": "ended"
+    }
+  ],
+  "only_owned_acceptance_tasks_closed": true
+}

@@ -22,7 +22,7 @@ export default function PolicyTemplateDetail({template:t,agents=[],targetId='',o
   onHandoff({...candidate,presentation:{name,values,reason,operation:t.operation,effect:t.effect,template:t,goal}});
  }catch(e){setError(e.message);}}
  return <dialog ref={dialog} className="policy-config-dialog customer-policy-dialog" aria-label={'配置详情 · '+t.name} onCancel={e=>{e.preventDefault();onClose();}}><form onSubmit={submit}>
- <header className="customer-config-head"><div className="customer-config-symbol" aria-hidden="true">◇</div><div><div className="customer-config-kicker">{system?'系统策略':'策略模板'}<span>{t.id}</span></div><h2>{t.name}</h2></div><button type="button" className="config-close" aria-label="关闭配置详情" onClick={onClose}>×</button></header>
+ <header className="customer-config-head"><div className="customer-config-symbol" aria-hidden="true">◇</div><div><div className="customer-config-kicker">{system?'系统策略':'策略模板'}</div><h2>{t.name}</h2></div><button type="button" className="config-close" aria-label="关闭配置详情" onClick={onClose}>×</button></header>
  <div role="tablist" aria-label="配置详情" className="config-tabs">{tabs.map(([id,title])=><button type="button" key={id} role="tab" id={'config-tab-'+id} aria-selected={tab===id} aria-controls={'config-panel-'+id} tabIndex={tab===id?0:-1} onClick={()=>setTab(id)} onKeyDown={e=>tabKeys(e,tabs.map(t=>t[0]),tab,setTab)}>{title}</button>)}</div>
  <div className="policy-config-body customer-config-body" role="tabpanel" id={'config-panel-'+tab} aria-labelledby={'config-tab-'+tab}>
  {tab==='configuration'?<div className="customer-config-layout"><div className="customer-config-form">

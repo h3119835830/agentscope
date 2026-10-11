@@ -1,0 +1,49 @@
+✔ parallel preflight and post batch completes with serialized bodies (18.73233ms)
+✔ cancelling queued call settles before running body finishes (0.493788ms)
+✔ failure releases body lane for later calls (0.386926ms)
+✔ denial cancels queued batch bodies and reaches post processing without deadlock (1.466094ms)
+✔ persistence, malformed receipts and partial admission cannot open the barrier (1.525377ms)
+✔ domain replacement restores public turns without private streams or hidden context (0.988911ms)
+✔ native question answers enter public context; pending/timeouts do not invent answers (0.256338ms)
+✔ admitted queue messages cross the seam before turn dispatch (0.683606ms)
+✔ feedback offers count only after actual native context admission (1.001256ms)
+✔ several feedback contexts in one native event keep distinct receipt identities (0.389229ms)
+✔ private reasoning, attempt streams and raw compaction output are excluded (1.216908ms)
+✔ prompt projection uses current surface including cleared prompts (0.287773ms)
+✔ tool observations have no model connection secrets (0.178776ms)
+✔ kernel feedback echo does not retrigger Pi (0.09125ms)
+node:fs:3600
+  return binding.mkdtemp(prefix, options.encoding);
+                 ^
+
+Error: EACCES: permission denied, mkdtemp '/s/task-sandbox-test-XXXXXX'
+    at mkdtempSync (node:fs:3600:18)
+    at file:///home/happy/projects/agentscope-because-feedback-20261011/integrations/dsh-managed-web/test/task-sandbox-live.test.js:9:12
+    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)
+    at async node:internal/modules/esm/loader:650:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  errno: -13,
+  code: 'EACCES',
+  syscall: 'mkdtemp',
+  path: '/s/task-sandbox-test-XXXXXX'
+}
+
+Node.js v26.5.0
+✖ test/task-sandbox-live.test.js (83.75346ms)
+✔ accepted event waits through an outage and retains the same idempotency key (2.092596ms)
+✔ authentication failure is never retried or treated as success (0.491034ms)
+✔ unrecovered outage reaches a bounded failed-closed deadline (4.968879ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 17
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 109.280163
+
+✖ failing tests:
+
+test at test/task-sandbox-live.test.js:1:1
+✖ test/task-sandbox-live.test.js (83.75346ms)
+  'test failed'

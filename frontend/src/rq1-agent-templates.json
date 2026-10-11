@@ -3,7 +3,7 @@
   "artifact_commit": "63db86945c9b8618a46aa68c8de214bc4b8343d9",
   "export_sha256": "7e91b63ca74544823e067b58bbc746060cd0ba57a0ceb4e68c0e49b9b8b8b81d",
   "verified_records": 607,
-  "note": "RQ1 原始样例的历史编译状态不传递给参数化候选；所有模板仅供第二层 Agent 策略使用。",
+  "note": "固定来源样例的历史编译状态不传递给参数化候选；所有模板仅供第二层 Agent 策略使用。",
   "templates": [
     {
       "id": "RQ1-ENV",
@@ -36,7 +36,8 @@
         "policy_yaml": "version: 1\npolicy: |\n  source AGENT = exec \"**/*\"\n  \n  rule gitnexus-scope:\n    block open file \"**/.env\" if AGENT\n    block open file \"**/secrets/**\" if AGENT\n    notify exec \"npm\" if AGENT\n    notify exec \"npx\" if AGENT\n    notify exec \"node\" if AGENT\n    notify exec \"uv\" if AGENT\n    because \"Stay within the documented read, write, and execution scope; real env files and secrets are off limits.\"\n",
         "enforceability": "per_event",
         "compile_status": "compiled"
-      }
+      },
+      "rule_id": "sensitive-config-access"
     },
     {
       "id": "RQ1-CONTRACT",
@@ -69,7 +70,8 @@
         "policy_yaml": "version: 1\npolicy: |\n  source AGENT = exec \"**\"\n  \n  rule protected-dev-contract-files:\n    block unlink file \"docs/book/src/contributing/pr-review-protocol.md\" if AGENT\n    block unlink file \"docs/book/src/maintainers/changelog-generation.md\" if AGENT\n    block unlink file \"docs/book/src/maintainers/reviewer-playbook.md\" if AGENT\n    block unlink file \"docs/book/src/maintainers/pr-workflow.md\" if AGENT\n    block unlink file \"docs/book/src/contributing/privacy.md\" if AGENT\n    block unlink file \"docs/book/src/foundations/fnd-00*.md\" if AGENT\n    because \"Do not move or delete dev-operational contract files without updating consuming skills and AGENTS.md.\"\n",
         "enforceability": "per_event",
         "compile_status": "compiled"
-      }
+      },
+      "rule_id": "development-contract-protection"
     },
     {
       "id": "RQ1-GENERATED",
@@ -107,7 +109,8 @@
         "policy_yaml": "version: 1\npolicy: |\n  source AGENT = exec \"**\"\n  \n  rule regen-hf-models:\n    block write file \"data/hf_models.json\" if AGENT unless lineage-includes exec \"python*\"\n    because \"Do not manually edit data/hf_models.json; run python3 scripts/scrape_hf_models.py.\"\n",
         "enforceability": "per_event",
         "compile_status": "compiled"
-      }
+      },
+      "rule_id": "generated-file-writes"
     },
     {
       "id": "RQ1-CHECK",
@@ -137,7 +140,7 @@
         "block exec \"git\" \"commit\" if CODE unless after exec {{checker}} since write {{target}}"
       ],
       "reason": "代码变更后请先执行项目检查，再提交。",
-      "caveat": "RQ1 原例只关联 uv 执行顺序，不证明运行了正确子命令或测试成功；不能标为“测试通过才允许提交”。",
+      "caveat": "固定来源样例只关联 uv 执行顺序，不证明运行了正确子命令或测试成功；不能标为“测试通过才允许提交”。",
       "scope_type": "agent",
       "adapted_compile_status": "not_run",
       "evidence": {
@@ -149,7 +152,8 @@
         "enforceability": "cross_event",
         "compile_status": "compiled"
       },
-      "runtime_note": "当前运行时不支持按命令参数预先 block；此模板可用于起草与查看校验反馈，校验失败时不能应用。"
+      "runtime_note": "当前运行时不支持按命令参数预先 block；此模板可用于起草与查看校验反馈，校验失败时不能应用。",
+      "rule_id": "checks-before-commit"
     },
     {
       "id": "RQ1-DELETE",
@@ -182,7 +186,8 @@
         "policy_yaml": "version: 1\npolicy: |\n  source AGENT = exec \"**\"\n\n  rule no-unexpected-delete:\n    notify unlink file \"**\" if AGENT\n    because \"do not delete or rename unexpected files; ask if blocking, else ignore\"\n",
         "enforceability": "per_event",
         "compile_status": "compiled"
-      }
+      },
+      "rule_id": "file-deletion-notice"
     },
     {
       "id": "RQ1-GIT",
@@ -212,7 +217,8 @@
         "policy_yaml": "version: 1\npolicy: |\n  source AGENT = exec \"**/*\"\n  \n  rule no-destructive-git:\n    kill exec \"git\" \"reset\" if AGENT\n    kill exec \"git\" \"clean\" if AGENT\n    kill exec \"git\" \"stash\" if AGENT\n    kill exec \"git\" \"-A\" if AGENT\n    kill exec \"git\" \".\" if AGENT\n    kill exec \"git\" \"--no-verify\" if AGENT\n    because \"Never run destructive git operations or bypass checks: reset hard, checkout dot, clean, stash, bulk add, or commit no-verify.\"\n",
         "enforceability": "per_event",
         "compile_status": "compiled"
-      }
+      },
+      "rule_id": "high-risk-git-operations"
     }
   ]
 }

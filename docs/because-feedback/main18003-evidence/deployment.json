@@ -1,0 +1,60 @@
+{
+  "release": "/opt/agentscope-system-policy-20261011-220127-because",
+  "previous_active": [
+    "instance-1f4469579e8947f4"
+  ],
+  "policy_scopes": {
+    "system": {
+      "revision": 6,
+      "document_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "phase": "ready",
+      "document_count": 0
+    },
+    "instance-1f4469579e8947f4": {
+      "revision": 0,
+      "document_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "phase": "ready",
+      "document_count": 0
+    },
+    "instance-c0dd272b6a734a34": {
+      "revision": 0,
+      "document_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "phase": "ready",
+      "document_count": 0
+    },
+    "instance-bb171d3176b644a2": {
+      "revision": 3,
+      "document_hash": "71c7dcce2e8f6cdaba1a3d48962b0eb9182e11dd5149ac267e78299ff52974e2",
+      "phase": "ready",
+      "document_count": 2
+    }
+  },
+  "other_ports": [
+    {
+      "endpoint": "127.0.0.1:18000",
+      "pid": 403,
+      "start_ticks": "7520"
+    }
+  ],
+  "preserved_approval_commit": "b2a62d8",
+  "database_rewind": false,
+  "private_backup": "/var/lib/agentscope-scope-demo/release-backups/agentscope-system-policy-20261011-220127-because",
+  "published": true,
+  "policy_scopes_unchanged": true,
+  "other_ports_unchanged": true,
+  "services": {
+    "api": {
+      "MainPID": "941392",
+      "WorkingDirectory": "/opt/agentscope-system-policy-20261011-220127-because",
+      "ExecStart": "{ path=/opt/agentscope/.venv/bin/python ; argv[]=/opt/agentscope/.venv/bin/python /opt/agentscope-system-policy-20261011-220127-because/scripts/scope_systemd_exec.py api ; ignore_errors=no ; start_time=[Sun 2026-10-11 22:01:43 CST] ; stop_time=[n/a] ; pid=941392 ; code=(null) ; status=0/0 }",
+      "DropInPaths": "/etc/systemd/system/agentscope-scope-demo-api.service.d/30-task-archive-20261007.conf /etc/systemd/system/agentscope-scope-demo-api.service.d/40-connection-history-20261007.conf /etc/systemd/system/agentscope-scope-demo-api.service.d/50-unified-policy-connection-20261007.conf /etc/systemd/system/agentscope-scope-demo-api.service.d/60-agent-policy-context-20261011.conf /etc/systemd/system/agentscope-scope-demo-api.service.d/70-agent-policy-sources-20261011.conf /etc/systemd/system/agentscope-scope-demo-api.service.d/80-system-policy-20261011.conf /etc/systemd/system/agentscope-scope-demo-api.service.d/90-approval-locations-20261011.conf /etc/systemd/system/agentscope-scope-demo-api.service.d/95-because-feedback-20261011.conf"
+    },
+    "broker": {
+      "MainPID": "941388",
+      "WorkingDirectory": "/opt/agentscope-system-policy-20261011-220127-because",
+      "ExecStart": "{ path=/opt/agentscope/.venv/bin/python ; argv[]=/opt/agentscope/.venv/bin/python /opt/agentscope-system-policy-20261011-220127-because/scripts/scope_systemd_exec.py broker ; ignore_errors=no ; start_time=[Sun 2026-10-11 22:01:43 CST] ; stop_time=[n/a] ; pid=941388 ; code=(null) ; status=0/0 }",
+      "DropInPaths": "/etc/systemd/system/agentscope-scope-demo-broker.service.d/30-task-archive-20261007.conf /etc/systemd/system/agentscope-scope-demo-broker.service.d/80-system-policy-20261011.conf /etc/systemd/system/agentscope-scope-demo-broker.service.d/95-because-feedback-20261011.conf"
+    }
+  },
+  "ui_index_sha256": "fa23a81cd92338809bd4c2a1cd6a32a9d00a706014dc3cc67f7d4e3306d9e70a"
+}

@@ -1,0 +1,10 @@
+{
+  "release": "/opt/agentscope-system-policy-20261011-220127-because",
+  "files_unchanged": true,
+  "configured_dsh_metadata": {
+    "package": "/var/lib/agentscope-agent/.dsh/profiles/headless/node_modules/@deepseek-ai/dsh",
+    "version": "0.2.0-rc.2",
+    "package_sha256": "0a85203e3e907dd2e3bec34324a2494758ca6cdee234b07090a7c8df0b11acac"
+  },
+  "service_restart": false
+}

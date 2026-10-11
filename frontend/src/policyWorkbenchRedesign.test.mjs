@@ -26,7 +26,7 @@ async function harness(entry,exported='default'){
 test('templates open as a structured record table, with configuration deferred until a record is selected',async()=>{
  const render=await harness('AgentPolicyTemplates.jsx');let writes=0;const props={agents:[target],onHandoff:()=>writes++};let tree=render(props),nodes=elements(tree);
  assert.equal(nodes.filter(e=>e.type==='table').length,1);assert.equal(nodes.filter(e=>e.type==='tr').length,7);assert.equal(nodes.filter(e=>e.type==='form').length,0);
- const html=renderToStaticMarkup(tree);for(const field of ['策略名称 / 编号','匹配对象 / 操作','处置方式','适用范围'])assert.ok(html.includes(field));assert.doesNotMatch(html,/template-card/);
+ const html=renderToStaticMarkup(tree);for(const field of ['策略名称','匹配对象 / 操作','处置方式','适用范围'])assert.ok(html.includes(field));assert.doesNotMatch(html,/template-card|RQ\d/i);
  nodes.find(e=>e.type==='button'&&e.props['aria-label']==='配置 敏感配置访问限制').props.onClick();tree=render(props);assert.ok(elements(tree).some(e=>e.props?.template?.id==='RQ1-ENV'));assert.equal(writes,0);
 });
 test('system configurations are explicit system candidates and cannot be imported as Agent templates',()=>{
