@@ -7,6 +7,8 @@ import {dirname,join} from 'node:path';
 import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
 import {productReadUrl,unknownAgentSummary} from './productConsole.mjs';
+import {readNavigation,navigationTarget} from './navigation.mjs';
+import {generationState,generationHint} from './generationHistory.mjs';
 const require=createRequire(import.meta.url),Module=require('node:module'),base=dirname(fileURLToPath(import.meta.url));
 async function render(file,props,states=[]){
  const built=await build({entryPoints:[join(base,file)],bundle:true,platform:'node',format:'cjs',external:['react','react-dom'],loader:{'.css':'empty'},write:false});
@@ -52,4 +54,27 @@ test('failed live refresh withdraws historical PID and verification without inve
  const stale=unknownAgentSummary(prior);assert.equal(stale.agents[0].pid,null);assert.equal(stale.stats.verified_agents,0);assert.equal(prior.agents[0].pid,42);
  const html=await render('ProductOverview.jsx',{dash:stale,status:{error:'read failed'},onNav:()=>{},onSessions:()=>{}});
  assert.match(html,/状态未知|状态读取失败/);assert.doesNotMatch(html,/PID 42|策略绑定已核验|<td>未运行/);
+});
+
+test('legacy system generation links converge on one read-only history tab',()=>{
+ for(const link of ['systemTab=generate','systemTab=records','systemTab=audit','section=generate','section=records','section=audit']){
+  const href='http://localhost/?view=strategies&'+link,n=readNavigation(href);
+  assert.equal(n.systemTab,'generations');
+  assert.equal(new URL('http://localhost'+navigationTarget(href,n)).searchParams.get('systemTab'),'generations');
+ }
+});
+test('generation history shows readable records with no diagnostic identifiers or review actions',async()=>{
+ const row={id:'PRIVATE-GENERATION-ID',source_label:'策略需求',created_at:'2026-10-11T01:00:00Z',status:'failed',candidate_count:0,error:'PRIVATE-COMPILER-ERROR'};
+ const html=await render('ProductGenerationHistory.jsx',{api:()=>{}},[{items:[row],total:1},0,'']);
+ assert.match(html,/生成失败/);assert.match(html,/查看详情/);
+ assert.doesNotMatch(html,/PRIVATE|新建生成|查看并审核|最终审核|JSON|PolicyIR|<h[12]/);
+});
+test('history failure is actionable and unknown status never exposes an internal code',()=>{
+ assert.equal(generationState('INTERNAL_CODE'),'状态待核验');
+ assert.match(generationHint('failed'),/策略助手/);assert.match(generationHint('completed'),/不代表已经审批或应用/);
+});
+test('overview and archive module names remain in navigation without repeated page headings',async()=>{
+ const overview=await render('ProductOverview.jsx',{dash:null});assert.doesNotMatch(overview,/<h1/);
+ const archive=await render('TaskArchive.jsx',{api:()=>{},navigation:{page:'history',filter:'history',query:'',listPage:0},navigate:()=>{}});
+ assert.doesNotMatch(archive,/<h1/);assert.match(archive,/搜索历史任务/);
 });

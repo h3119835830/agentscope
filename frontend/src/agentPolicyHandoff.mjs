@@ -37,4 +37,4 @@ export function appendHandoff(data,candidate,scopeId){
  if(new TextEncoder().encode(documents.map(d=>d.original_dsl).join('')).length>50000)throw Error('全部 DSL 合计不能超过 50000 字节。');
  return documents;
 }
-export const previewMatches=(preview,checked,documents,stale=false)=>!stale&&preview?.state==='pending'&&checked===JSON.stringify(documents);
+export const previewMatches=(preview,checked,documents,stale=false)=>!stale&&preview?.state==='pending'&&(!preview.approval||preview.approval.can_apply)&&checked===JSON.stringify(documents);

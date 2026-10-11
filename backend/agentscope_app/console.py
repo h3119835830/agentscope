@@ -81,6 +81,11 @@ def dsl_configuration(scope):
     from .instances.policy_sources import source_context
     data['source_context']=source_context(scope,[r for r in controller.listing()['instances'] if r['id'] not in retained])
     data['records']=[r for r in data['records'] if r.get('source_kind')!='legacy_generated']
+    from .instances.approval_views import project,scopes
+    names=scopes()
+    for proposal in data.get('proposals',[]):
+        approval=project(proposal,names)
+        proposal['approval']={k:approval[k] for k in ('id','status','can_apply','reason')}
     for r in data['records']:
         if 'bindings' not in r:continue
         r['bindings']=[b for b in r['bindings'] if b['instance_id'] not in retained]
@@ -151,8 +156,14 @@ def policy_directory(q:str='',status:str='',category:str='',context_scope:str=''
 
 @router.get('/history/generations/page')
 def generation_directory(q:str='',status:str='',limit:int=Query(20,ge=1,le=100),offset:int=Query(0,ge=0)):
-    from .history.generations import page_runs
-    return invoke(page_runs,q,status,limit,offset,console=True)
+    from .history.product_generation import page
+    return invoke(page,q,status,limit,offset)
+
+@router.get('/history/generations/{ident}')
+def generation_detail(ident:str,limit:int=Query(20,ge=1,le=100),offset:int=Query(0,ge=0)):
+    from .history.product_generation import detail
+    require_visible('generation',ident)
+    return invoke(detail,ident,limit,offset)
 
 @router.get('/task-archives')
 def task_directory(q:str='',status:str='all',page:int=Query(0,ge=0),limit:int=Query(12,ge=1,le=50)):

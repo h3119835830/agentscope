@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
-import HistoryLibrary from './HistoryLibrary.jsx';
 import TaskHub from './TaskHub.jsx';
 import AgentWorkspaces from './AgentInstances.jsx';
 import ManagedWorkbench from './ManagedWorkbench.jsx';
@@ -116,12 +115,12 @@ function App() {
         <div className="nav-connection-children" aria-label="Agent连接下的模块"><NavItem active={page === 'sessions'} icon="▤" label="会话" onClick={() => navigate({page:'sessions',sessionInstance:'',sessionId:'',sessionFilterInstance:'',sessionWorkspace:'',sessionCursor:0})} /></div>
         <NavItem active={page === 'approvals'} icon="✓" label="审批" count={dash?.stats?.pending_approvals} onClick={() => navigate({page:'approvals',approvalId:''})} />
         <NavItem active={page === 'workbench'} icon="◈" label="Agent" onClick={() => setPage('workbench')} />
-        <NavItem active={page === 'strategies'} icon="▤" label="系统" count={dash?.stats?.pending_strategies} onClick={() => navigate({page:'strategies',systemTab:'policies'})} />
+        <NavItem active={page === 'strategies'} icon="▤" label="系统" onClick={() => navigate({page:'strategies',systemTab:'policies'})} />
         <NavItem active={page === 'history'} icon="▤" label="任务历史" onClick={() => setPage('history')} />
       </nav>
     </aside>
     <main className="main" data-page={page}>
-      {page!=='connections'&&<header className="topbar"><div><span className="crumb">AgentScope</span><span className="slash">/</span><b>{pageTitle(page)}</b></div>{status&&(!status.broker?.available||!status.bpf_lsm)&&<span role="status" className="status-pill warn">{status.error?'状态读取失败':'保护服务暂不可用'}</span>}</header>}
+      {<header className="topbar"><div><span className="crumb">AgentScope</span><span className="slash">/</span><b>{pageTitle(page)}</b></div>{status&&(!status.broker?.available||!status.bpf_lsm)&&<span role="status" className="status-pill warn">{status.error?'状态读取失败':'保护服务暂不可用'}</span>}</header>}
       {page==='overview'&&<ProductOverview dash={dash} status={status} onNav={setPage} onSessions={id=>navigate({page:'sessions',sessionAgent:'',sessionFilterInstance:id,sessionInstance:'',sessionId:''})}/> }
       {page==='workbench'&&<AgentPolicyWorkbench api={api} post={post} navigation={navigation} navigate={navigate} candidate={candidate} onConsumed={{handoff:handoffCandidate,consume:consumeCandidate}}/>}
       <div hidden={page!=='history'}><TaskArchive api={api} navigation={navigation} navigate={navigate}/></div>

@@ -52,7 +52,7 @@ test('history without a replay task keeps native history search and has no fixed
  const {default:TaskArchive}=await loadComponent('TaskArchive.jsx');
  const navigation={page:'history',archiveTask:'',archivePane:'domains',query:'',filter:'history',listPage:0};
  const html=renderToStaticMarkup(React.createElement(TaskArchive,{navigation,navigate:()=>{},api:()=>{throw new Error('server render must not fetch live task');}}));
- assert.match(html,/任务回放/);assert.match(html,/搜索历史任务/);assert.doesNotMatch(html,/查看全部旧任务|OpenAgentSafety 场景/);assert.match(html,/运行前策略、运行时策略、执行审计和进程与域图/);assert.doesNotMatch(html,/<dialog|新建任务|当前工作台任务/);
+ assert.match(html,/任务回放/);assert.match(html,/搜索历史任务/);assert.doesNotMatch(html,/查看全部旧任务|OpenAgentSafety 场景/);assert.match(html,/策略、审批与执行记录/);assert.doesNotMatch(html,/<dialog|新建任务|当前工作台任务/);
  const all=renderToStaticMarkup(React.createElement(TaskArchive,{navigation:{...navigation,filter:'all'},navigate:()=>{},api:()=>{}}));assert.doesNotMatch(all,/查看全部旧任务/);
 });
 

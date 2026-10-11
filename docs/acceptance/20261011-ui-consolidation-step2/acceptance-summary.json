@@ -1,0 +1,56 @@
+{
+  "date": "2026-10-11",
+  "stage": 2,
+  "branch": "codex/ui-consolidation-step2-20261011",
+  "base": "12c7646",
+  "integrated_step1": "eec9aee",
+  "backend": {
+    "passed": 1050,
+    "skipped": 11,
+    "failed": 0
+  },
+  "frontend": {
+    "passed": 228,
+    "failed": 0
+  },
+  "build": "passed",
+  "preview": "http://127.0.0.1:18115",
+  "preview_data": "synthetic-read-only",
+  "shared_18003_deployed": false,
+  "kernel_enforcement_claim": false,
+  "screenshots": [
+    "step2-generation-list.png",
+    "step2-agent-drafts.png",
+    "step2-generation-mobile.png",
+    "step2-generation-tablet.png",
+    "step2-generation-detail.png",
+    "step2-generation-dsl.png",
+    "step2-stale-editor.png",
+    "step2-generation-error.png",
+    "step2-generation-detail-mobile.png"
+  ],
+  "authority_snapshot": {
+    "authority_unchanged": true,
+    "changed_tables": [],
+    "loaded_receipts": 0,
+    "dsl_scopes": 0
+  },
+  "preview_write_status": 409,
+  "browser_checks": {
+    "old_links_canonicalized": true,
+    "legacy_nested_navigation_removed": true,
+    "diagnostics_hidden": true,
+    "search_empty_and_recovery": true,
+    "pagination_20_plus_3": true,
+    "failed_generation_hint": true,
+    "unavailable_record_hint": true,
+    "dsl_disclosure": true,
+    "module_headings_removed": true,
+    "stale_draft_review_disabled": true,
+    "stale_approval_consistent": true,
+    "desktop": true,
+    "viewport_720x900": true,
+    "viewport_390x844": true,
+    "viewport_reset": true
+  }
+}

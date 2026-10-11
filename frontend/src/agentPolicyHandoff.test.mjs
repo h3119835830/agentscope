@@ -56,14 +56,14 @@ function editorHarness(){
 }
 function elements(tree){if(!tree||typeof tree!=='object')return [];return [tree,...[tree.props?.children].flat(Infinity).flatMap(elements)]}
 function button(tree,label){return elements(tree).find(e=>e.type==='button'&&[e.props.children].flat(Infinity).filter(x=>typeof x==='string').join('').includes(label))}
-test('real DSL editor opens a candidate without writes, only validates on click and applies on separate explicit click',async()=>{
+test('real DSL editor opens a candidate without writes, only validates on click and hands off to approval on separate explicit click',async()=>{
  const render=editorHarness(),data={scope_id:target.id,documents:[{id:'old',name:'Old',original_dsl:'old',metadata:{}}],records:[]};let validates=0,applies=0;
- const props={data,seed:handoff(),onClose:()=>{},onValidate:async docs=>{validates++;assert.equal(docs.length,2);return {state:'pending',documents:docs,result:{},targets:[]}},onApply:async()=>{applies++}};
- let tree=render(props);assert.equal(validates,0);assert.equal(applies,0);assert.equal(elements(tree).find(e=>e.type==='textarea').props.value,handoff().document.original_dsl);assert.equal(button(tree,'确认并应用'),undefined);
- await button(tree,'保存并校验').props.onClick();tree=render(props);assert.equal(validates,1);assert.equal(applies,0);assert.equal(button(tree,'确认并应用').props.disabled,false);
- tree=render({...props,baseStale:true});assert.equal(button(tree,'确认并应用').props.disabled,true);
- tree=render(props);elements(tree).find(e=>e.type==='textarea').props.onChange({target:{value:'edited'}});tree=render(props);assert.equal(button(tree,'确认并应用').props.disabled,true);assert.equal(applies,0);
- await button(tree,'保存并校验').props.onClick();tree=render(props);await button(tree,'确认并应用').props.onClick();assert.equal(validates,2);assert.equal(applies,1);
+ const props={data,seed:handoff(),onClose:()=>{},onValidate:async docs=>{validates++;assert.equal(docs.length,2);return {state:'pending',documents:docs,result:{},targets:[]}},onReview:async()=>{applies++}};
+ let tree=render(props);assert.equal(validates,0);assert.equal(applies,0);assert.equal(elements(tree).find(e=>e.type==='textarea').props.value,handoff().document.original_dsl);assert.equal(button(tree,'前往审批'),undefined);
+ await button(tree,'保存并校验').props.onClick();tree=render(props);assert.equal(validates,1);assert.equal(applies,0);assert.equal(button(tree,'前往审批').props.disabled,false);
+ tree=render({...props,baseStale:true});assert.equal(button(tree,'前往审批').props.disabled,true);
+ tree=render(props);elements(tree).find(e=>e.type==='textarea').props.onChange({target:{value:'edited'}});tree=render(props);assert.equal(button(tree,'前往审批').props.disabled,true);assert.equal(applies,0);
+ await button(tree,'保存并校验').props.onClick();tree=render(props);await button(tree,'前往审批').props.onClick();assert.equal(validates,2);assert.equal(applies,1);
 });
 
 test('template defaults use the selected Agent real resource and reset when the target changes',()=>{

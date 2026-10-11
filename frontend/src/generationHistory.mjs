@@ -1,0 +1,2 @@
+export const generationState=s=>({queued:'排队中',running:'生成中',completed:'生成完成',partial:'部分完成',failed:'生成失败',cancelled:'已取消',interrupted:'已中断'})[s]||'状态待核验';
+export const generationHint=s=>({failed:'本次未完成生成。请回到对应 Agent 的策略助手，检查需求后重新生成。',partial:'部分候选未完成，请在策略助手中补充需求。',cancelled:'本次生成已取消。',interrupted:'本次生成已中断，请在策略助手中重新生成。',queued:'本次生成正在排队，稍后刷新查看。',running:'本次生成仍在进行，稍后刷新查看。'})[s]||'历史结果仅供查看；生成完成不代表已经审批或应用。';

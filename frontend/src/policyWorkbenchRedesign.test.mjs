@@ -93,8 +93,11 @@ test('incomplete generated candidates remain readable but cannot submit or prete
 });
 test('reopening a validated draft preserves its preview and explicit confirmation action',async()=>{
  const render=await harness('ActPlanePolicies.jsx','DslEditor'),doc={id:'d',name:'Existing draft',original_dsl:'rule r:\n notify read file "/w/0/a" if AGENT\n because "reason"',metadata:{}},proposal={id:'p',state:'pending',documents:[doc],result:{compilations:[],error:null},targets:[]};
- const tree=render({data:{scope_id:'agent',documents:[doc],records:[]},scopeLabel:'Target',proposal});
- assert.ok(elements(tree).some(e=>e.type==='button'&&e.props.children==='确认并应用到当前 Agent'&&!e.props.disabled));
+ const installed={...doc,original_dsl:'rule old:\n notify read file "/w/0/previous" if AGENT\n because "previous configuration"'};
+ const tree=render({data:{scope_id:'agent',documents:[installed],records:[]},scopeLabel:'Target',proposal,onReview:()=>{}});
+ assert.equal(elements(tree).find(e=>e.type==='textarea'&&e.props['aria-label']==='原始 DSL 文本').props.value,doc.original_dsl);
+ assert.match(renderToStaticMarkup(tree),/previous configuration/);
+ assert.ok(elements(tree).some(e=>e.type==='button'&&e.props.children==='前往审批'&&!e.props.disabled));
 });
 
 test('submitting a candidate only proposes validated changes, reuses a live matching approval, and never applies',async()=>{
@@ -133,12 +136,12 @@ test('all approval origins use the same explicit decision endpoint',async()=>{
 
 test('restored approvals based on old configuration cannot confirm until revalidated',async()=>{
  const render=await harness('ActPlanePolicies.jsx','DslEditor'),doc={id:'d',name:'Old draft',original_dsl:'rule r:\n notify read file "/w/0/a" if AGENT\n because "reason"',metadata:{}},proposal={id:'p',state:'pending',base_revision:1,base_hash:'old',documents:[doc],result:{compilations:[],error:null},targets:[]};
- const tree=render({data:{scope_id:'agent',revision:2,document_hash:'current',documents:[doc],records:[]},scopeLabel:'Target',proposal});
- assert.ok(elements(tree).find(e=>e.type==='button'&&e.props.children==='确认并应用到当前 Agent').props.disabled);assert.match(renderToStaticMarkup(tree),/草案基于旧的策略配置/);
+ const tree=render({data:{scope_id:'agent',revision:2,document_hash:'current',documents:[doc],records:[]},scopeLabel:'Target',proposal,onReview:()=>{}});
+ assert.ok(elements(tree).find(e=>e.type==='button'&&e.props.children==='前往审批').props.disabled);assert.match(renderToStaticMarkup(tree),/草案基于旧的策略配置/);
 });
 test('a restored removal proposal remains empty and clearly discloses removal',async()=>{
  const render=await harness('ActPlanePolicies.jsx','DslEditor'),proposal={id:'p',state:'pending',documents:[],result:{compilations:[],error:null},targets:[]};
- const tree=render({data:{scope_id:'agent',documents:[],records:[]},scopeLabel:'Target',proposal});
+ const tree=render({data:{scope_id:'agent',documents:[],records:[]},scopeLabel:'Target',proposal,onReview:()=>{}});
  assert.equal(elements(tree).filter(e=>e.type==='textarea').length,0);assert.match(renderToStaticMarkup(tree),/候选不包含任何用户 DSL/);
 });
 
@@ -174,4 +177,21 @@ test('a generic imported declaration is preserved for review and explicitly rebo
 test('unavailable sources never create a generic executor declaration',async()=>{
  const render=await harness('ActPlanePolicies.jsx','DslEditor');const tree=render({data:{scope_id:target.id,documents:[],records:[],source_context:{scope_id:target.id,ready:false,sources:[],unavailable:[{id:target.id,name:'DeepSeek Harness',message:'请连接并核验当前 Agent'}]}},importing:true});
  const textarea=elements(tree).find(e=>e.type==='textarea');assert.equal(textarea.props.value,'');assert.doesNotMatch(textarea.props.placeholder,/\*\*/);assert.match(renderToStaticMarkup(tree),/请连接并核验当前 Agent/);
+});
+test('a projected stale draft blocks approval handoff even when its raw state is pending',async()=>{
+ const render=await harness('ActPlanePolicies.jsx','DslEditor');let handoffs=0;
+ const proposal={id:'p',state:'pending',documents:[],result:{compilations:[]},targets:[],approval:{status:'stale',can_apply:false,reason:'Agent 环境已经变化，需要重新校验。'}};
+ const tree=render({data:{scope_id:'agent',documents:[],records:[]},proposal,onReview:()=>handoffs++});
+ assert.match(renderToStaticMarkup(tree),/需重新校验/);
+ const button=elements(tree).find(e=>e.type==='button'&&e.props.children==='前往审批');assert.ok(button.props.disabled);
+ await button.props.onClick();assert.equal(handoffs,0);
+});
+test('revalidating a stale draft uses the new proposal status and hands off only that proposal',async()=>{
+ const render=await harness('ActPlanePolicies.jsx','DslEditor');let handedOff='';
+ const old={id:'old',state:'pending',documents:[],base_hash:'old-base',base_revision:1,result:{},targets:[],approval:{status:'stale',can_apply:false}};
+ const fresh={...old,id:'fresh',base_hash:'current',base_revision:2,approval:{status:'pending',can_apply:true}};
+ const props={data:{scope_id:'agent',revision:2,document_hash:'current',documents:[],records:[]},proposal:old,approval:old.approval,onValidate:async()=>fresh,onReview:p=>{handedOff=p.id;},onClose:()=>{}};
+ let tree=render(props);await elements(tree).find(e=>e.type==='button'&&e.props.children==='保存并校验').props.onClick();tree=render(props);
+ const handoff=elements(tree).find(e=>e.type==='button'&&e.props.children==='前往审批');assert.equal(handoff.props.disabled,false);
+ await handoff.props.onClick();assert.equal(handedOff,'fresh');
 });

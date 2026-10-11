@@ -80,7 +80,7 @@ export default function AgentInstances(props){
  const open=(row,start)=>openAgentPage({id:row.id,start,post});
  const openInstance=row=>{const action=entryAction(row).action;if(action==='instructions'){configure(row.id);return;}if(action==='processes'){props.onSessions?.(row.id);return;}return act(row.id,'打开',()=>open(row,action==='start'));};
 
- return <div className="content task-console agent-connections agent-instance-console"><h1 className="connection-screen-reader-heading">Agent连接</h1>
+ return <div className="content task-console agent-connections agent-instance-console">
  <div className="connection-toolbar"><h2 className="connection-current-title">当前连接</h2><div className="actions"><button type="button" className="button ghost" disabled={!!busy} onClick={()=>act('discover','发现 Agent',async()=>{const r=await post('/api/agent-instances/discover');await refresh();})}>发现 Agent</button><button type="button" className="button primary" onClick={()=>setAdding(true)}>添加连接</button></div></div>
  {error&&<p role="alert" className="inline-notice warning">{error}</p>}
  <Records labels={['Agent',...(hasWorkspaces?['工作区']:[]),'运行状态','保护状态','操作']} rows={visibleRows.map(row=>[
