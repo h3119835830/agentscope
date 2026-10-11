@@ -1,0 +1,44 @@
+{
+  "backend": {
+    "passed": 1029,
+    "skipped": 11
+  },
+  "frontend": {
+    "passed": 222
+  },
+  "build": "passed",
+  "compiler_sha256": "5e8d43c279d88bd4215f654746675debfd976e28426c9fabdabeca408865d6da",
+  "runtime": {
+    "agent_pid": 615136,
+    "generation_pid": 54870,
+    "broker_pid": 614944,
+    "policies_unchanged": true,
+    "agent_processes_unchanged": true
+  },
+  "browser": {
+    "list_1029": {
+      "width": 1029,
+      "document_scroll_width": 1029,
+      "table_client_width": 759,
+      "table_scroll_width": 759
+    },
+    "list_650": {
+      "width": 650,
+      "table_client_width": 547,
+      "table_scroll_width": 547
+    },
+    "session_navigation": "exact instance + native session",
+    "agent_navigation": "exact instance policy tab",
+    "search_session_rows": 1,
+    "search_current_pid_rows": 2,
+    "browser_errors": [],
+    "viewport_restored": true
+  },
+  "screenshots": {
+    "list-1029.png": "e50f4fcf7ba8f67fea93f9d78dfeb46bc6dc538c1e449a1d99a1942fb479d9fc",
+    "list-650.png": "bf95362a7b4d261232ea83fbf1dc1ef006f5e3f33fd32d701beb22165ffa40b1",
+    "detail-current-and-generation-pid.png": "6226bcca594babd47aa8accc28ee218676a04bf0478fbffd2c1510225bc432bd"
+  },
+  "application_performed": false,
+  "remote_push": false
+}

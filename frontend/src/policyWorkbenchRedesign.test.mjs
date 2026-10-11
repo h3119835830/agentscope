@@ -164,3 +164,25 @@ test('unavailable sources never create a generic executor declaration',async()=>
  const render=await harness('ActPlanePolicies.jsx','DslEditor');const tree=render({data:{scope_id:target.id,documents:[],records:[],source_context:{scope_id:target.id,ready:false,sources:[],unavailable:[{id:target.id,name:'DeepSeek Harness',message:'请连接并核验当前 Agent'}]}},importing:true});
  const textarea=elements(tree).find(e=>e.type==='textarea');assert.equal(textarea.props.value,'');assert.doesNotMatch(textarea.props.placeholder,/\*\*/);assert.match(renderToStaticMarkup(tree),/请连接并核验当前 Agent/);
 });
+
+
+test('approval records show product, PID and native session with exact read navigation',async()=>{
+ const render=await harness('PolicyApprovals.jsx','ApprovalRecords'),paths=[];
+ const row={id:'proposal-a',name:'Protect secret',scope_type:'agent',document_count:1,status:'stale',created_at:'2026-10-11T01:00:00Z',target_name:'DeepSeek Harness',agents:[{id:'agent-a',name:'DeepSeek Harness',pid:54870}],origin_sessions:[{instance_id:'agent-a',session_id:'session-one',name:'Run native tests',available:true,generation_pid:54870}]};
+ const tree=render({rows:[row],navigate:p=>paths.push(p)}),html=renderToStaticMarkup(tree);
+ for(const value of ['Agent / PID','生成会话','DeepSeek Harness','54870','Run native tests','状态 / 提交时间'])assert.ok(html.includes(value));
+ assert.doesNotMatch(html,/RQ5|受控实例|批准并应用/);assert.equal(paths.length,0);
+ // Render the nested location components independently to exercise their buttons.
+ const agentNode=elements(tree).find(e=>e.type?.name==='AgentLocation');
+ elements(agentNode.type(agentNode.props)).find(e=>e.type==='button').props.onClick();
+ const sessionNode=elements(tree).find(e=>e.type?.name==='SessionLocations');
+ elements(sessionNode.type(sessionNode.props)).find(e=>e.type==='button').props.onClick();
+ assert.deepEqual(paths,[{page:'connections',connectionInstance:'agent-a',connectionTab:'policy',approvalId:''},{page:'sessions',sessionInstance:'agent-a',sessionId:'session-one',sessionTab:'policies',approvalId:''}]);
+});
+test('approval search finds native session and both current and historical PID',async()=>{
+ const {matchesApproval,processLabel,originLabel}=await import('./approvalPresentation.mjs');
+ const r={name:'Protect',agents:[{name:'DeepSeek Harness',pid:77,submitted_pid:55}],origin_sessions:[{session_id:'session-one',name:'Native task',generation_pid:33}]};
+ for(const q of ['PID 77','55','33','native task','session-one','DeepSeek','protect'])assert.ok(matchesApproval(r,q));
+ assert.ok(!matchesApproval(r,'Hermes'));assert.equal(processLabel({pid:null,process_state:'offline'}),'未运行');
+ assert.equal(originLabel({scope_type:'agent',origin_state:'unrecorded'}),'未关联会话');
+});

@@ -21,8 +21,8 @@ export default function BootstrapPanel({ task, api, post, action, busy, selectTa
   const link = state?.versions?.[0];
   const run = fn => action(async () => { await fn(); await load(); await refresh(); });
   return <section className="panel bootstrap-panel">
-    <div className="panel-head"><div><h2>Pi 启动前策略生成 · RQ5 扩展验收</h2><p>场景证据与已审历史共同生成候选，审批后加载到 DSH 进程域。</p></div></div>
-    {!task ? <div className="bootstrap-controls"><select aria-label="RQ5 场景" value={scene} onChange={e => setScene(e.target.value)}>{cases.map(c => <option key={c}>{c}</option>)}</select><button className="button primary" disabled={busy} onClick={() => run(async () => { const created = await post(`/api/rq5/scenarios/${scene}/tasks`); selectTask(created.id); })}>创建固定场景任务</button><small>独立工作区；历史测试样例仅在验收实例中启用。</small></div> : <>
+    <div className="panel-head"><div><h2>启动前策略生成</h2><p>场景证据与已审历史共同生成候选，审批后加载到 DSH 进程域。</p></div></div>
+    {!task ? <div className="bootstrap-controls"><select aria-label="预设场景" value={scene} onChange={e => setScene(e.target.value)}>{cases.map(c => <option key={c}>{c}</option>)}</select><button className="button primary" disabled={busy} onClick={() => run(async () => { const created = await post(`/api/rq5/scenarios/${scene}/tasks`); selectTask(created.id); })}>创建固定场景任务</button><small>独立工作区；历史测试样例仅在验收实例中启用。</small></div> : <>
       <p>场景 hash：<code>{state?.context?.scenario_hash}</code><br/>上下文 hash：<code>{state?.context?.context_hash}</code></p>
       <div className="bootstrap-controls"><button className="button primary" disabled={busy || !['prepared','policy_review','approved'].includes(task.status)} onClick={() => run(() => post(`/api/tasks/${task.id}/bootstrap`))}>启动 Pi 生成</button><span>作业：{job?.status || '尚未生成'} · {state?.tool_events?.length || 0} 次工具记录</span>{['queued','running'].includes(job?.status) && <button className="button ghost" onClick={() => run(() => post(`/api/tasks/${task.id}/bootstrap/jobs/${job.id}/cancel`))}>中断生成</button>}</div>
       {(error || job?.error) && <div className="inline-notice warning">{error || job.error}</div>}
