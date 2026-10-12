@@ -114,7 +114,8 @@ def main():
         env['DSH_HOME']=config['home']
         argv=[config['dsh'],'web','--host','127.0.0.1','--port',str(config['web_port']),'--no-open']
     else:
-        env.update(HERMES_HOME=config['home'],HERMES_WEB_DIST=config['hermes_dist'],PYTHONPATH=config['hermes_root'],HERMES_ENABLE_PROJECT_PLUGINS='0')
+        # The read-only native checkout ships its TUI; runtime must not npm-install or rebuild it.
+        env.update(HERMES_HOME=config['home'],HERMES_WEB_DIST=config['hermes_dist'],HERMES_TUI_DIR=config['hermes_root']+'/ui-tui',HERMES_SKIP_NODE_BOOTSTRAP='1',PYTHONPATH=config['hermes_root'],HERMES_ENABLE_PROJECT_PLUGINS='0')
         # Native plugin loader and CLI, without core/prompt modifications.
         code='from hermes_cli.plugins import discover_plugins; discover_plugins(); from hermes_cli.main import main; main()'
         argv=[config['hermes_root']+'/venv/bin/python','-c',code,'dashboard','--isolated','--no-open','--skip-build','--host','127.0.0.1','--port',str(config['web_port'])]

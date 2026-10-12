@@ -5,6 +5,12 @@ const deferred=()=>{let resolve,reject;const promise=new Promise((yes,no)=>{reso
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
 const ok=value=>({ok:true,json:async()=>value});
 
+test('runtime reads bypass cached observations while write transport options are preserved',async()=>{
+ const fetcher=async(_url,options)=>options.cache==='no-store'?ok({live:true}):new Promise(()=>{});
+ for(const method of ['GET','HEAD'])assert.deepEqual(await requestJSON(fetcher,'/api/status',{method,cache:'force-cache'},20),{live:true});
+ await requestJSON(async(_url,options)=>{assert.equal(options.cache,'default');return ok({saved:true});},'/write',{method:'POST',cache:'default'});
+});
+
 test('a hung read leaves loading within its deadline and aborts the transport',async()=>{
  let signal;
  await assert.rejects(requestJSON((_url,options)=>{signal=options.signal;return new Promise(()=>{});},'/read',{},15),/读取超时/);

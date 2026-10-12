@@ -6,7 +6,8 @@ export async function requestJSON(fetcher,url,options={},timeoutMs=10000){
  if(read&&options.signal){if(options.signal.aborted)abort();else options.signal.addEventListener('abort',abort,{once:true});}
  let timer;
  const request=async()=>{
-  const response=await fetcher(url,{...options,...(read?{signal:controller.signal}:{})});
+  // Runtime and policy reads must bypass stale browser cache entries.
+  const response=await fetcher(url,{...options,...(read?{signal:controller.signal,cache:'no-store'}:{})});
   let data;
   try{data=await response.json();}catch{if(response.ok)throw new Error('返回的数据无法读取，请重试。');data={};}
   if(!response.ok)throw new Error(data.detail||`请求失败 (${response.status})`);

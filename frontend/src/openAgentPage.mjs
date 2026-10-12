@@ -10,6 +10,8 @@ export async function openAgentPage({id,start=false,post,browser=window}){
   let url;
   try{url=new URL(result.url);}catch{throw Error('原生页面地址未通过本机核验');}
   if(url.protocol!=='http:'||url.hostname!=='127.0.0.1'||url.username||url.password)throw Error('原生页面地址未通过本机核验');
+  // Keep the native launch on the console's loopback hostname, preserving auth and port.
+  if(browser.location?.hostname==='localhost')url.hostname='localhost';
   if(target.closed)throw Error('新标签页已关闭，请重新点击打开');
   target.location.replace(url.href);
  }catch(error){target.close();throw error;}

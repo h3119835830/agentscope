@@ -53,3 +53,34 @@ test('a user-closed popup reports failure instead of silently claiming an open',
  await assert.rejects(openAgentPage({id:'instance-a',browser:b,post:async()=>{b.tab.closed=true;return {url:'http://127.0.0.1:18020/'};}}),/标签页已关闭/);
  assert.equal(b.calls.some(call=>call[0]==='navigate'),false);
 });
+
+test('localhost console preserves the native port and fresh launch authentication on the same loopback hostname',async()=>{
+ const b=browser();b.location={hostname:'localhost'};
+ const entries=['http://127.0.0.1:18021/?token=first-test-token#native','http://127.0.0.1:18022/?token=second-test-token'];
+ let reads=0;
+ for(let n=0;n<entries.length;n++){
+  await openAgentPage({id:'instance-'+n,browser:b,post:async path=>{assert.equal(path,'/api/agent-instances/instance-'+n+'/open');return {url:entries[reads++]};}});
+ }
+ assert.equal(reads,2);
+ assert.deepEqual(b.calls.filter(call=>call[0]==='navigate'),[
+  ['navigate','http://localhost:18021/?token=first-test-token#native'],
+  ['navigate','http://localhost:18022/?token=second-test-token'],
+ ]);
+});
+
+test('loopback alias selection cannot turn an untrusted native address into an allowed one',async()=>{
+ for(const url of ['http://localhost:18021/?token=test','http://127.0.0.1.example.com:18021/?token=test','http://example.com:18021/?token=test','https://127.0.0.1:18021/?token=test','http://user:pass@127.0.0.1:18021/?token=test']){
+  const b=browser();b.location={hostname:'localhost'};
+  await assert.rejects(openAgentPage({id:'instance-a',browser:b,post:async()=>({url})}),/本机核验/);
+  assert.equal(b.calls.some(call=>call[0]==='navigate'),false);
+  assert.deepEqual(b.calls.at(-1),['close']);
+ }
+});
+
+test('numeric and lookalike console hosts do not rewrite the trusted native address',async()=>{
+ for(const hostname of ['127.0.0.1','localhost.example.com']){
+  const b=browser();b.location={hostname};const url='http://127.0.0.1:18021/?token=test';
+  await openAgentPage({id:'instance-a',browser:b,post:async()=>({url})});
+  assert.deepEqual(b.calls.at(-1),['navigate',url]);
+ }
+});
