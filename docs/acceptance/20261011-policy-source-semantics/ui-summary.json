@@ -1,0 +1,38 @@
+{
+  "url": "http://127.0.0.1:18116/?view=workbench&policyAgent=instance-0452a8e6340b4dfd",
+  "request": "只读取 sales.csv 以获取报告数据，不写入、追加或覆盖该文件。",
+  "run_id": "4db19ee69f444bb4a4cdd291fa352aba",
+  "artifact_id": "4dc6d7e04fac4d6eab324a97ce5c36c6",
+  "compile_state": "compiled",
+  "review_status": "pending_review",
+  "dsl": "rule h_6a2e2e85884a4c85_intent_1:\n  block write file \"/w/0/sales.csv\" if AGENT\n  because \"不写入、追加或覆盖该文件\"",
+  "proposal_id": "3f950a5b3acb40b294b69b7c47b1f0d2",
+  "proposal_state": "pending",
+  "original_and_reviewed_request_unchanged": true,
+  "old_candidate_regeneration_required": true,
+  "new_candidate_write_only": true,
+  "scene_recommendations_no_backend_access_names": true,
+  "authority_unchanged": true,
+  "authority_before": {
+    "agent_instances": "d9c41524604751099a392259f94e57e9be1e2113ec946767051eb38a06b9e6e1",
+    "instance_local_policies": "df15e8207fbcd543cc7b6117934e9de9d3c8db6f03e1b07aa8ee022d8c3498fe",
+    "system_security_policy": "ea6bc15d6a7d39adeddd992bb5c993a3a7695366207f2926785ba8ea68080e5f",
+    "instance_dsl_scopes": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "instance_policy_receipts": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "tasks": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "history_deployments": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "authority_after": {
+    "agent_instances": "d9c41524604751099a392259f94e57e9be1e2113ec946767051eb38a06b9e6e1",
+    "instance_local_policies": "df15e8207fbcd543cc7b6117934e9de9d3c8db6f03e1b07aa8ee022d8c3498fe",
+    "system_security_policy": "ea6bc15d6a7d39adeddd992bb5c993a3a7695366207f2926785ba8ea68080e5f",
+    "instance_dsl_scopes": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "instance_policy_receipts": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "tasks": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "history_deployments": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "product_approved": false,
+  "product_loaded": false,
+  "deployed_18003": false,
+  "synthetic_identity": true
+}

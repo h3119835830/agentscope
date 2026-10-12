@@ -1,0 +1,508 @@
+{
+  "instance_id": "instance-cc444fe38c094cbb",
+  "session_id": "session-71c5083e-23a1-4963-916b-33c6ebbf8868",
+  "fixture": "/s/instance-resources/policy-semantics-e37f1aea",
+  "baseline": {
+    "instance_id": "instance-cc444fe38c094cbb",
+    "generation": "58ba8c866e4b4b58ab5449f711a6b3e8",
+    "pid": 1040734,
+    "domain_id": 1610571334,
+    "policy_hash": "c3371a12d813cbf8c4e13bfc39ac8caa8868b6d394f8a7dbebcd74afa15b2cfe",
+    "active": true,
+    "dsl_revision": 0,
+    "dsl_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "before_generation": {
+    "instance_id": "instance-cc444fe38c094cbb",
+    "generation": "58ba8c866e4b4b58ab5449f711a6b3e8",
+    "pid": 1040734,
+    "domain_id": 1610571334,
+    "policy_hash": "c3371a12d813cbf8c4e13bfc39ac8caa8868b6d394f8a7dbebcd74afa15b2cfe",
+    "active": true,
+    "dsl_revision": 0,
+    "dsl_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "after_generation": {
+    "instance_id": "instance-cc444fe38c094cbb",
+    "generation": "58ba8c866e4b4b58ab5449f711a6b3e8",
+    "pid": 1040734,
+    "domain_id": 1610571334,
+    "policy_hash": "c3371a12d813cbf8c4e13bfc39ac8caa8868b6d394f8a7dbebcd74afa15b2cfe",
+    "active": true,
+    "dsl_revision": 0,
+    "dsl_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "after_submission": {
+    "instance_id": "instance-cc444fe38c094cbb",
+    "generation": "58ba8c866e4b4b58ab5449f711a6b3e8",
+    "pid": 1040734,
+    "domain_id": 1610571334,
+    "policy_hash": "c3371a12d813cbf8c4e13bfc39ac8caa8868b6d394f8a7dbebcd74afa15b2cfe",
+    "active": true,
+    "dsl_revision": 0,
+    "dsl_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "pending_before": {
+    "instance_id": "instance-cc444fe38c094cbb",
+    "generation": "58ba8c866e4b4b58ab5449f711a6b3e8",
+    "pid": 1040734,
+    "domain_id": 1610571334,
+    "policy_hash": "c3371a12d813cbf8c4e13bfc39ac8caa8868b6d394f8a7dbebcd74afa15b2cfe",
+    "active": true,
+    "dsl_revision": 0,
+    "dsl_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "pending_after": {
+    "instance_id": "instance-cc444fe38c094cbb",
+    "generation": "58ba8c866e4b4b58ab5449f711a6b3e8",
+    "pid": 1040734,
+    "domain_id": 1610571334,
+    "policy_hash": "c3371a12d813cbf8c4e13bfc39ac8caa8868b6d394f8a7dbebcd74afa15b2cfe",
+    "active": true,
+    "dsl_revision": 0,
+    "dsl_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "after_application": {
+    "instance_id": "instance-cc444fe38c094cbb",
+    "generation": "b31b6ccb79774e25b87116ef512d6f8a",
+    "pid": 1044878,
+    "domain_id": 648544754,
+    "policy_hash": "c3371a12d813cbf8c4e13bfc39ac8caa8868b6d394f8a7dbebcd74afa15b2cfe",
+    "active": true,
+    "dsl_revision": 1,
+    "dsl_hash": "c38f0ad8b80dbf9fa9a8c80c8b22b9e8821ecd237585f7a5f639d903e5370e29"
+  },
+  "applied_after": {
+    "instance_id": "instance-cc444fe38c094cbb",
+    "generation": "b31b6ccb79774e25b87116ef512d6f8a",
+    "pid": 1044878,
+    "domain_id": 648544754,
+    "policy_hash": "c3371a12d813cbf8c4e13bfc39ac8caa8868b6d394f8a7dbebcd74afa15b2cfe",
+    "active": true,
+    "dsl_revision": 1,
+    "dsl_hash": "c38f0ad8b80dbf9fa9a8c80c8b22b9e8821ecd237585f7a5f639d903e5370e29"
+  },
+  "generated_dsl": "rule h_a557fe9061c847b9_intent_1:\n  block write file \"/w/0/sales.csv\" if AGENT\n  because \"不写入、追加或覆盖该文件\"",
+  "semantic_check": {
+    "version": "source-access-intent-v1",
+    "state": "verified",
+    "contract": {
+      "permissions": [
+        {
+          "pattern": "/w/0/sales.csv",
+          "decision": "preserve",
+          "effect": "block",
+          "when": {
+            "kind": "label",
+            "label": "AGENT",
+            "operands": []
+          },
+          "unless": null,
+          "argument": null,
+          "evidence": "只读取 sales.csv 以获取报告数据",
+          "access": "file_read"
+        },
+        {
+          "pattern": "/w/0/sales.csv",
+          "decision": "restrict",
+          "effect": "block",
+          "when": {
+            "kind": "label",
+            "label": "AGENT",
+            "operands": []
+          },
+          "unless": null,
+          "argument": null,
+          "evidence": "不写入、追加或覆盖该文件",
+          "access": "file_mutate"
+        },
+        {
+          "pattern": "/w/0/sales.csv",
+          "decision": "restrict",
+          "effect": "block",
+          "when": {
+            "kind": "label",
+            "label": "AGENT",
+            "operands": []
+          },
+          "unless": null,
+          "argument": null,
+          "evidence": "不写入、追加或覆盖该文件",
+          "access": "file_mutate"
+        },
+        {
+          "pattern": "/w/0/sales.csv",
+          "decision": "restrict",
+          "effect": "block",
+          "when": {
+            "kind": "label",
+            "label": "AGENT",
+            "operands": []
+          },
+          "unless": null,
+          "argument": null,
+          "evidence": "不写入、追加或覆盖该文件",
+          "access": "file_mutate"
+        }
+      ],
+      "unresolved": []
+    },
+    "source_permissions": {
+      "permissions": [
+        {
+          "pattern": "sales.csv",
+          "decision": "permit",
+          "effect": "block",
+          "when": {
+            "kind": "label",
+            "label": "AGENT",
+            "operands": []
+          },
+          "unless": null,
+          "argument": null,
+          "evidence": "只读取 sales.csv 以获取报告数据",
+          "action": "read"
+        },
+        {
+          "pattern": "sales.csv",
+          "decision": "forbid",
+          "effect": "block",
+          "when": {
+            "kind": "label",
+            "label": "AGENT",
+            "operands": []
+          },
+          "unless": null,
+          "argument": null,
+          "evidence": "不写入、追加或覆盖该文件",
+          "action": "write"
+        },
+        {
+          "pattern": "sales.csv",
+          "decision": "forbid",
+          "effect": "block",
+          "when": {
+            "kind": "label",
+            "label": "AGENT",
+            "operands": []
+          },
+          "unless": null,
+          "argument": null,
+          "evidence": "不写入、追加或覆盖该文件",
+          "action": "append"
+        },
+        {
+          "pattern": "sales.csv",
+          "decision": "forbid",
+          "effect": "block",
+          "when": {
+            "kind": "label",
+            "label": "AGENT",
+            "operands": []
+          },
+          "unless": null,
+          "argument": null,
+          "evidence": "不写入、追加或覆盖该文件",
+          "action": "overwrite"
+        }
+      ],
+      "unresolved": []
+    },
+    "source_hash": "3ccff35a5a4c191469aa0fbeb20f119e160541961bbf3c426b8703bf38296479",
+    "context_hash": "bfe3e458bc13e3af5d6da54346724385ee644cffd40ef089ecfbe7bc072fed15",
+    "llm_run": {
+      "provider": "deepseek",
+      "model": "deepseek-flash",
+      "response_model": "deepseek-flash",
+      "prompt_version": "source-access-review-v1",
+      "input_hash": "9e92b52824a6fd887ed52df3ecfa1c6a257e23190ab1d18350f56fdffd100bf4",
+      "output_hash": "11d877c33e4dd7c5209bcd29685d862df4e99425fac299f45017a13d9a79dca5",
+      "usage": {
+        "prompt_tokens": 1587,
+        "completion_tokens": 233,
+        "total_tokens": 1820,
+        "prompt_tokens_details": {
+          "cached_tokens": 128
+        },
+        "prompt_cache_hit_tokens": 128,
+        "prompt_cache_miss_tokens": 1459
+      },
+      "duration_ms": 1483
+    },
+    "extraction_run": {
+      "provider": "deepseek",
+      "model": "deepseek-flash",
+      "response_model": "deepseek-flash",
+      "prompt_version": "source-access-intent-v1",
+      "input_hash": "06601ed89f3e40a7ebb7b0e7afb2fe271689a6a7650b3132f100676f359d8139",
+      "output_hash": "6801d39353f2dbaf91d7f94281e0d7c967d485baa9043b0f63cbc3636143bef7",
+      "usage": {
+        "prompt_tokens": 1285,
+        "completion_tokens": 117,
+        "total_tokens": 1402,
+        "prompt_tokens_details": {
+          "cached_tokens": 128
+        },
+        "prompt_cache_hit_tokens": 128,
+        "prompt_cache_miss_tokens": 1157
+      },
+      "duration_ms": 953
+    },
+    "contract_hash": "988fe653fa4887b2c3f3dfc98007a27a61eb6a48e35b66bb16be7e5164d56e0c"
+  },
+  "generation_run": "a326e7c44e194ed593baf077e82d081c",
+  "artifact_id": "12a440f2afb547b5bc2707a13ca17148",
+  "readonly_proposal": "6ccdbda0250d4cd3acac31a5a96c4d92",
+  "phases": {
+    "baseline": {
+      "phase": "baseline",
+      "pid": 23,
+      "ppid": 2,
+      "uid": 1000,
+      "cgroup": "0::/agentscope-scope-demo/ba174cc5f39e4b6c-1610571334",
+      "results": [
+        {
+          "name": "read",
+          "actual": "allowed",
+          "errno": null,
+          "passed": true
+        },
+        {
+          "name": "append",
+          "actual": "allowed",
+          "errno": null,
+          "passed": true
+        },
+        {
+          "name": "child_read",
+          "actual": "allowed",
+          "passed": true
+        },
+        {
+          "name": "child_write",
+          "actual": "allowed",
+          "passed": true
+        },
+        {
+          "name": "unrelated_write",
+          "actual": "allowed",
+          "errno": null,
+          "passed": true
+        },
+        {
+          "name": "unrelated_read",
+          "actual": "allowed",
+          "errno": null,
+          "passed": true
+        }
+      ],
+      "before": "1e1e1fb2273770f5fa4e9f34a3e28fe96a7df56821a2f31e0ec56454db01f84d",
+      "after": "0b5a5300ef22c213ee93da376c618d1d24bbb5bcc17187dfa18399ebaf7eb4b0"
+    },
+    "pending": {
+      "phase": "pending",
+      "pid": 29,
+      "ppid": 2,
+      "uid": 1000,
+      "cgroup": "0::/agentscope-scope-demo/ba174cc5f39e4b6c-1610571334",
+      "results": [
+        {
+          "name": "read",
+          "actual": "allowed",
+          "errno": null,
+          "passed": true
+        },
+        {
+          "name": "append",
+          "actual": "allowed",
+          "errno": null,
+          "passed": true
+        },
+        {
+          "name": "child_read",
+          "actual": "allowed",
+          "passed": true
+        },
+        {
+          "name": "child_write",
+          "actual": "allowed",
+          "passed": true
+        },
+        {
+          "name": "unrelated_write",
+          "actual": "allowed",
+          "errno": null,
+          "passed": true
+        },
+        {
+          "name": "unrelated_read",
+          "actual": "allowed",
+          "errno": null,
+          "passed": true
+        }
+      ],
+      "before": "0b5a5300ef22c213ee93da376c618d1d24bbb5bcc17187dfa18399ebaf7eb4b0",
+      "after": "05ce6e57b658cf1bf233d908fff4a39644b2251d8f9ef02617f7671d539155cd"
+    },
+    "applied": {
+      "phase": "applied",
+      "pid": 17,
+      "ppid": 2,
+      "uid": 1000,
+      "cgroup": "0::/agentscope-scope-demo/ba174cc5f39e4b6c-648544754",
+      "results": [
+        {
+          "name": "read",
+          "actual": "allowed",
+          "errno": null,
+          "passed": true
+        },
+        {
+          "name": "append",
+          "actual": "denied",
+          "errno": 1,
+          "passed": true
+        },
+        {
+          "name": "overwrite",
+          "actual": "denied",
+          "errno": 1,
+          "passed": true
+        },
+        {
+          "name": "read_write_open",
+          "actual": "denied",
+          "errno": 1,
+          "passed": true
+        },
+        {
+          "name": "truncate",
+          "actual": "denied",
+          "errno": 1,
+          "passed": true
+        },
+        {
+          "name": "unlink",
+          "actual": "denied",
+          "errno": 1,
+          "passed": true
+        },
+        {
+          "name": "rename",
+          "actual": "denied",
+          "errno": 1,
+          "passed": true
+        },
+        {
+          "name": "child_read",
+          "actual": "allowed",
+          "passed": true
+        },
+        {
+          "name": "child_write",
+          "actual": "denied",
+          "passed": true
+        },
+        {
+          "name": "unrelated_write",
+          "actual": "allowed",
+          "errno": null,
+          "passed": true
+        },
+        {
+          "name": "unrelated_read",
+          "actual": "allowed",
+          "errno": null,
+          "passed": true
+        }
+      ],
+      "before": "05ce6e57b658cf1bf233d908fff4a39644b2251d8f9ef02617f7671d539155cd",
+      "after": "05ce6e57b658cf1bf233d908fff4a39644b2251d8f9ef02617f7671d539155cd"
+    }
+  },
+  "existing_before": {
+    "instance-1f4469579e8947f4": {
+      "instance_id": "instance-1f4469579e8947f4",
+      "generation": "2a08d9631cb04674a36c213d0308a3e2",
+      "pid": 941542,
+      "domain_id": 870554921,
+      "policy_hash": "9c5fa9fbb63c9bcd71da29007179d6c9fed00b23ac9b9f4e41165a76b92425c1",
+      "active": true,
+      "dsl_revision": 0,
+      "dsl_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "instance-c0dd272b6a734a34": {
+      "instance_id": "instance-c0dd272b6a734a34",
+      "generation": "aa21e3eb0c214e56baf639bd05b35ddc",
+      "pid": null,
+      "domain_id": null,
+      "policy_hash": "f930aa4e9f224e24588a51a652d773cf022a74fa8be0b379ed4e80023c58ad87",
+      "active": false,
+      "dsl_revision": 0,
+      "dsl_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "instance-bb171d3176b644a2": {
+      "instance_id": "instance-bb171d3176b644a2",
+      "generation": "566ddd5edaad438f9473d4ea08ec1cc1",
+      "pid": null,
+      "domain_id": null,
+      "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+      "active": false,
+      "dsl_revision": 3,
+      "dsl_hash": "71c7dcce2e8f6cdaba1a3d48962b0eb9182e11dd5149ac267e78299ff52974e2"
+    }
+  },
+  "existing_final": {
+    "instance-1f4469579e8947f4": {
+      "instance_id": "instance-1f4469579e8947f4",
+      "generation": "2a08d9631cb04674a36c213d0308a3e2",
+      "pid": 941542,
+      "domain_id": 870554921,
+      "policy_hash": "9c5fa9fbb63c9bcd71da29007179d6c9fed00b23ac9b9f4e41165a76b92425c1",
+      "active": true,
+      "dsl_revision": 0,
+      "dsl_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "instance-c0dd272b6a734a34": {
+      "instance_id": "instance-c0dd272b6a734a34",
+      "generation": "aa21e3eb0c214e56baf639bd05b35ddc",
+      "pid": null,
+      "domain_id": null,
+      "policy_hash": "f930aa4e9f224e24588a51a652d773cf022a74fa8be0b379ed4e80023c58ad87",
+      "active": false,
+      "dsl_revision": 0,
+      "dsl_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "instance-bb171d3176b644a2": {
+      "instance_id": "instance-bb171d3176b644a2",
+      "generation": "566ddd5edaad438f9473d4ea08ec1cc1",
+      "pid": null,
+      "domain_id": null,
+      "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+      "active": false,
+      "dsl_revision": 3,
+      "dsl_hash": "71c7dcce2e8f6cdaba1a3d48962b0eb9182e11dd5149ac267e78299ff52974e2"
+    }
+  },
+  "kernel": {
+    "root_owned": true,
+    "file": "/s/instances/instance-cc444fe38c094cbb/control/b31b6ccb79774e25b87116ef512d6f8a/.actplane/events.jsonl",
+    "mode": "0o640",
+    "sha256": "85d17f3b8a96058959f675ba1836b90795ecfe307257feacce4d2ca20bdbd2f2",
+    "matched_write_denials": 7,
+    "domain_id": 648544754,
+    "bundle_hash": "7850c4611f6ede7a56ba3e29695dceefa960ded7c99c8d6c4f2192f400d3e3d7",
+    "source_refs_verified": true,
+    "origin_pid_verified": true,
+    "tool_attribution": "shared_executor_unattributed",
+    "tool_call_tag": "0"
+  },
+  "native": {
+    "file": "/s/instances/instance-cc444fe38c094cbb/state/.dsh/sessions/--w-0--/session-71c5083e-23a1-4963-916b-33c6ebbf8868/session.v4.jsonl.zstd",
+    "sha256": "db112f1d33d411338544e57674bda1eb5a3b9a18602de591ed3dbb017efa15d7",
+    "filtered_tool_records": 8,
+    "private_reasoning_exported": false
+  },
+  "approval_state": "applied",
+  "passed": true
+}

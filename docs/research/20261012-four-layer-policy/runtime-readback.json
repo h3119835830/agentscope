@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-12",
+  "snapshot_scope": "documentation-write interval; controlled instance policy/binding and DSL scopes only",
+  "before_sha256": "0fbcef34e76578e889101a536b24abbc3408a72b856cc7ba0d3c0ce8f0771cb6",
+  "after_sha256": "0fbcef34e76578e889101a536b24abbc3408a72b856cc7ba0d3c0ce8f0771cb6",
+  "observed_authority_equal": true,
+  "api_service_unchanged": true,
+  "broker_service_unchanged": true,
+  "api_release": "/opt/agentscope-policy-semantics-20261011-222957",
+  "critical_backend_matches": true,
+  "controlled_instances": 4,
+  "dsl_scopes": 3,
+  "runtime_tasks_started": false,
+  "policy_write_calls": 0
+}

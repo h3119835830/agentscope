@@ -1,16 +1,32 @@
 # AgentScope 技术文档
 
-整理日期：2026-10-07。分支：`技术文档`；仓库：`h3119835830/agentscope`。
+首次整理：2026-10-07；最新同步：2026-10-12。分支：`技术文档`；仓库：`h3119835830/agentscope`。
 
-本目录统一归档 AgentScope / ActPlane 的架构、决策、评审、问题闭环和原始规划。当前阅读顺序为：三层职责与 Scope 流程 → 受管 DSH 与隔离 → 工作区/逐句记录 → 本机入口与托管 → 未完成事项。按下表进入专题，不以文件日期单独判断有效合同。
+本目录统一归档 AgentScope / ActPlane 的架构、决策、评审、问题闭环和原始规划。先阅读下列最新合同与实施记录，再查阅历史专题。文档分支内的历史实现源码不代表 18003 当前发布版本；实现基点、发布与验收边界以对应记录和来源提交为准。
+
+## 最新合同与实施记录
+
+| 专题 | 架构合同 | 决策 | 评审与问题 | 验收边界 |
+|---|---|---|---|---|
+| 四层策略第一步：目标与审批范围 | [RFC](RFC/RFC-20261012-AgentScope-policy-targets-step1.md) | [ADR](ADR/ADR-20261012-AgentScope-local-policy-fail-closed.md) | [REVIEW](REVIEW/REVIEW-20261012-AgentScope-policy-targets-step1.md) · [BUG](BUG/BUG-20261012-AgentScope-policy-targets-step1.md) | [18003 验收](acceptance/AgentScope-policy-targets-step1-20261012.md)：仓库场景默认工作区，运行时默认来源会话；不支持局部绑定时拒绝应用 |
+| 四层架构与 ActPlane 调研 | [RFC](RFC/RFC-20261012-AgentScope-four-layer-policy.md) | [ADR](ADR/ADR-20261012-AgentScope-four-layer-policy.md) | [REVIEW](REVIEW/REVIEW-20261012-AgentScope-four-layer-audit.md) · [BUG](BUG/BUG-20261012-AgentScope-policy-scope-and-evidence.md) | [调研导读](AgentScope-四层策略架构与ActPlane调研-20261012.md) · [固定版本、案例及生成器附件](research/20261012-four-layer-policy/README.md)：静态审计，不等于 DSH/内核复现 |
+| 只读语义与确定性权限映射 | [RFC](RFC/RFC-20261011-AgentScope-policy-source-semantics.md) | [ADR](ADR/ADR-20261011-AgentScope-policy-source-semantics.md) | [REVIEW](REVIEW/REVIEW-20261011-AgentScope-policy-source-semantics.md) · [BUG](BUG/BUG-20261011-AgentScope-policy-source-semantics.md) | [真实 DSH 验收](acceptance/20261011-policy-source-semantics-dsh/README.md)采用 Agent 级策略，证明读写效果与审批边界，未证明会话隔离；第一步额外生成的澄清异常仍开放 |
+| 仓库场景读取与人工采用 | [RFC](RFC/RFC-20261011-AgentScope-agent-scene-step3.md) | [ADR](ADR/ADR-20261011-AgentScope-agent-scene-step3.md) | [REVIEW](REVIEW/REVIEW-20261011-AgentScope-agent-scene-step3.md) · [BUG](BUG/BUG-20261011-AgentScope-agent-scene-step3.md) | [当次验收](acceptance/20261011-agent-scene-step3/README.md)；生成目标已由四层第一步更新，旧 Agent 默认范围不再作为新合同 |
+| 界面收敛 | [RFC](RFC/RFC-20261011-AgentScope-ui-consolidation-step2.md) | [ADR](ADR/ADR-20261011-AgentScope-ui-consolidation-step2.md) | [REVIEW](REVIEW/REVIEW-20261011-AgentScope-ui-consolidation-step2.md) · [BUG](BUG/BUG-20261011-AgentScope-ui-consolidation-step2.md) | [当次验收](acceptance/20261011-ui-consolidation-step2/README.md)；客户界面遵循[设计约定](design/agentscope-ui-design.md) |
+| 统一策略对象与人工审批 | [RFC](RFC/RFC-20261011-AgentScope-unified-policy-approval.md) | [ADR](ADR/ADR-20261011-AgentScope-unified-policy-approval.md) | [REVIEW](REVIEW/REVIEW-20261011-AgentScope-unified-policy-approval.md) · [BUG](BUG/BUG-20261011-AgentScope-unified-policy-approval.md) | [当次验收](acceptance/20261011-unified-policy-approval/README.md)；收紧也需人工确认，原生局部应用另受四层第一步限制 |
+| 策略治理总体设计与历史 UI 审计 | [RFC](RFC/RFC-20261011-AgentScope-policy-control-architecture.md) | [ADR](ADR/ADR-20261011-AgentScope-policy-control-decisions.md) | [REVIEW](REVIEW/REVIEW-20261011-AgentScope-architecture-audit.md) · [BUG](BUG/BUG-20261011-AgentScope-policy-ui-gaps.md) | 保留当时问题与证据；[Agent/工作区合同复核](REVIEW/REVIEW-20261011-AgentScope-agent-workspace-policy.md)与上列实现记录共同解释后续进展 |
+
+共享原生 DSH 的工作区／会话独立加载器仍待实现和验收。当前局部候选可以生成、提交、查看和拒绝；不能批准应用，也不能扩大为整个 Agent。HTTP 409、目标字段或审批截图均不代替内核隔离验收。后续门槛见四层 RFC A01–A12。
+
+本次同步的来源提交、源文件及归档 SHA256 见[同步清单](sync-source-20261012.json)，文档范围和检查结果见[同步评审](REVIEW/REVIEW-20261012-AgentScope-technical-docs-sync.md)。历史验收按各次时间和环境保留；本次没有重新运行 Agent、应用策略或重启服务。
 
 ## 当前职责和证据口径
 
-外部 Agent / DSH 执行用户任务，AgentScope 负责观察、候选审核与治理，Pi 提出策略候选，可信 Broker / ActPlane 编译、加载和执行受支持规则。同域增量只追加限制；扩权重建完整策略包并更换执行域。
+外部 Agent / DSH 执行用户任务，AgentScope 负责观察、候选审核与治理，策略生成 Agent 提出候选，可信 Broker / ActPlane 编译、加载和执行受支持规则。收紧和扩权都须人工确认。历史受管任务的同域增量与扩权迁移合同按其 RFC 阅读；不能据此推断共享原生 DSH 已支持工作区或会话独立加载。
 
 `compile`、`approved`、`loaded`、`active`、真实 OS 允许/拒绝、DSH 当前进程存活分别核验。历史测试通过不证明当前服务或任务仍有效；代码发布不等于重启部署，通信适配不等于通用运行时闭环。上述合同见对应 RFC，实际结果见 REVIEW 与 BUG。
 
-## 专题索引
+## 历史专题索引（2026-10-07 归档）
 
 | 专题 | 架构合同 | 决策 | 评审验收 | 问题闭环 | 状态与范围 |
 |---|---|---|---|---|---|
@@ -34,7 +50,7 @@
 | WINDOWS 发布阶段 | [RFC](RFC/RFC-20261007-AgentScope-WINDOWS发布范围.md) | [ADR](ADR/ADR-20261007-AgentScope-WINDOWS发布范围.md) | [REVIEW](REVIEW/REVIEW-20261007-AgentScope-WINDOWS发布范围.md) | [BUG](BUG/BUG-20261007-AgentScope-WINDOWS发布范围.md) | 历史发布范围；被后续 main 阶段更新 |
 | 本机新版发布 main | [RFC](RFC/RFC-20261007-AgentScope本机新版合入main.md) | [ADR](ADR/ADR-20261007-AgentScope本机新版合入main.md) | [REVIEW](REVIEW/REVIEW-20261007-AgentScope本机新版合入main.md) | [BUG](BUG/BUG-20261007-AgentScope本机新版合入main.md) | 固定源码发布验收；保留运行时和归一化未闭环项 |
 
-## 当前未完成事项
+## 2026-10-07 归档时的未完成事项
 
 - DSL 归一化的六会话最终验收及完整页面回归尚未通过，默认仍为 observe；误拦截、漏拦截、反馈关联及进程域清退按该模块 REVIEW/BUG 记录，不能宣布功能完成。
 - 受管 DSH 的安全专项结果不等于完整支付任务修复通过；RQ5 固定场景、素材预览和公开 benchmark 复现分别统计。

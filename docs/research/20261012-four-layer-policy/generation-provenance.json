@@ -1,0 +1,70 @@
+{
+  "rq4": {
+    "task_count": 21,
+    "rule_count": 61,
+    "per_task_reward_available": 0,
+    "case_ids": [
+      "agents-jsbeeb-private-member",
+      "benchmark-aws_append_service_001",
+      "benchmark-aws_cancel_partial_001",
+      "benchmark-aws_checklist_error_001",
+      "benchmark-aws_lazy_validator_001",
+      "benchmark-bm_append_export_001",
+      "benchmark-bm_append_normalize_001",
+      "benchmark-bm_lazy_validation_001",
+      "benchmark-cb_append_payment_001",
+      "md-astropy-13236-add-validators",
+      "md-aws-mcp-command-validation",
+      "md-aws-mcp-server-logging-over-print",
+      "md-aws-mcp-server-native-type-hints",
+      "md-aws-mcp-server-pathlib-over-ospath",
+      "md-basic-memory-archive-tool",
+      "md-basic-memory-async-client-pattern",
+      "md-basic-memory-textwrap-dedent",
+      "md-course-builder-code-style",
+      "md-sgcarstrends-commit-scope",
+      "md-sgcarstrends-dealers-table",
+      "md-sgcarstrends-vehicles-endpoint"
+    ],
+    "claim_runtime_deltas": 110,
+    "delta_trace_reproduced": false
+  },
+  "rq5": {
+    "task_count": 361,
+    "policy_groups": {
+      "final_blockable_50": 50,
+      "remaining_attempt0_description": 311
+    },
+    "description_manifest_rows": 311,
+    "description_manifest_method": "attempt0-description-only-task-md",
+    "noops": 58,
+    "per_task_outcome_available": 0,
+    "generator_imports": [
+      "__future__",
+      "datetime",
+      "pathlib",
+      "typing",
+      "argparse",
+      "json",
+      "re"
+    ],
+    "generator_kind": "deterministic_keyword_and_path_rules",
+    "llm_generation_reproduced": false
+  },
+  "raw_backup": {
+    "commit": "cceaee6be878eeff4b42caf9a069d535699ecf69",
+    "searched_code_paths": [
+      "docs/OctoBench/actplane_feedback_hook.py",
+      "docs/OctoBench/evaluate_with_llama.py",
+      "docs/OctoBench/extract_actplane_metrics.py",
+      "docs/OctoBench/run_cases.py",
+      "docs/OctoBench/tool_regex_hook.py",
+      "docs/OpenAgentSafety/scripts/generate_remaining_description_policies.py",
+      "docs/OpenAgentSafety/scripts/run_selected.py",
+      "docs/OpenAgentSafety/scripts/summarize_os_effect_results.py",
+      "docs/OpenAgentSafety/scripts/summarize_remaining_sweep.py"
+    ],
+    "full_raw_trajectories_read": false
+  },
+  "status": "paper_to_generator_provenance_gap_not_resolved"
+}

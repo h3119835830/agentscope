@@ -1,5 +1,7 @@
 # AgentScope
 
+本分支 `技术文档` 维护 AgentScope 的 RFC、ADR、REVIEW、BUG、调研及验收证据。请从[技术文档索引](docs/README.md)阅读最新四层合同与实施状态。分支内的历史实现源码不代表当前服务发布版本；实现来源提交和验收边界分别记录在文档中。
+
 AgentScope is a Linux-hosted policy control plane. External task agents such as
 DSH execute the user's task. AgentScope manages reviewed policies, task Scope,
 and execution evidence; Pi assesses and generates policy candidates internally.

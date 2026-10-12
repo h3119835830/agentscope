@@ -1,9 +1,9 @@
 {
   "schema": "agentscope.documentation-catalog.v1",
-  "date": "2026-10-07",
+  "date": "2026-10-12",
   "branch": "技术文档",
   "base_commit": "c0457842e74389918083e05254cf7733892064c4",
-  "source_document_count": 85,
+  "source_document_count": 129,
   "excluded_unrelated_documents": [
     "BUG/BUG-20260915-Dsh实验适配入口未发现.md"
   ],
@@ -17,6 +17,16 @@
         "portable-relative-links-and-lf"
       ],
       "archived_sha256": "109937cc8d841f146a042a1e0b92f0662bd91ae45e48a832f4835cd57f854fab"
+    },
+    {
+      "path": "ADR/ADR-20261002-AgentScope历史策略库.md",
+      "source_group": "central-technical-records",
+      "source_path": "ADR-AgentScope-历史策略库-20261002.md",
+      "source_sha256": "627c2ee6756ef8f9048cd3ac0151f575af7ef62393513e13a4bcbff46c4abe90",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "627c2ee6756ef8f9048cd3ac0151f575af7ef62393513e13a4bcbff46c4abe90"
     },
     {
       "path": "ADR/ADR-20261002-AgentScope隔离安装决策.md",
@@ -192,14 +202,94 @@
       "archived_sha256": "d7c192caf752a3bcb94f0c465843e95f4e314411b20f6ff691acadf6c54bf372"
     },
     {
-      "path": "ADR/ADR-20261002-AgentScope历史策略库.md",
+      "path": "ADR/ADR-20261011-AgentScope-agent-scene-step3.md",
       "source_group": "central-technical-records",
-      "source_path": "ADR-AgentScope-历史策略库-20261002.md",
-      "source_sha256": "627c2ee6756ef8f9048cd3ac0151f575af7ef62393513e13a4bcbff46c4abe90",
+      "source_path": "ADR/ADR-20261011-AgentScope-agent-scene-step3.md",
+      "source_commit": "b280b6d7c5ec10f0bff7bae739e59c37726ed4a4",
+      "git_source_sha256": "1ed726435760e7d662aee2111f2185021f6f85c8bceab511ab99d37d0184ede7",
+      "source_sha256": "1ed726435760e7d662aee2111f2185021f6f85c8bceab511ab99d37d0184ede7",
+      "transformations": [],
+      "archived_sha256": "1ed726435760e7d662aee2111f2185021f6f85c8bceab511ab99d37d0184ede7"
+    },
+    {
+      "path": "ADR/ADR-20261011-AgentScope-policy-control-decisions.md",
+      "source_group": "central-technical-records",
+      "source_path": "ADR/ADR-20261011-AgentScope-policy-control-decisions.md",
+      "source_commit": "a5de0ba10ab9bc540746737804df9b0dfaed97aa",
+      "git_source_sha256": "36757d2eec5a6eaf03723d08156c1d49afc7df530b4a883d1c5da7d80bb41415",
+      "source_sha256": "24f7d82225a67411de74007cbe8e24c02ef6122659745a1b086e70a01d9cc642",
+      "transformations": [],
+      "archived_sha256": "24f7d82225a67411de74007cbe8e24c02ef6122659745a1b086e70a01d9cc642"
+    },
+    {
+      "path": "ADR/ADR-20261011-AgentScope-policy-source-semantics.md",
+      "source_group": "central-technical-records",
+      "source_path": "ADR/ADR-20261011-AgentScope-policy-source-semantics.md",
+      "source_commit": "db870f6c2e3e42f4d921ea44b5c5c3e48136510e",
+      "git_source_sha256": "57bee43de0b42ccf268121cbf5048da27f066b6439603adb1adccb2b5a472f96",
+      "source_sha256": "57bee43de0b42ccf268121cbf5048da27f066b6439603adb1adccb2b5a472f96",
+      "transformations": [],
+      "archived_sha256": "57bee43de0b42ccf268121cbf5048da27f066b6439603adb1adccb2b5a472f96"
+    },
+    {
+      "path": "ADR/ADR-20261011-AgentScope-ui-consolidation-step2.md",
+      "source_group": "central-technical-records",
+      "source_path": "ADR/ADR-20261011-AgentScope-ui-consolidation-step2.md",
+      "source_commit": "5e91372c1d7a306ccb312dbc033f10db6d67c2e3",
+      "git_source_sha256": "6e5a845e087d84b7f117a9ac4bcd0f4288664921ba5ebca2a1a184907efb6b61",
+      "source_sha256": "6e5a845e087d84b7f117a9ac4bcd0f4288664921ba5ebca2a1a184907efb6b61",
+      "transformations": [],
+      "archived_sha256": "6e5a845e087d84b7f117a9ac4bcd0f4288664921ba5ebca2a1a184907efb6b61"
+    },
+    {
+      "path": "ADR/ADR-20261011-AgentScope-unified-policy-approval.md",
+      "source_group": "central-technical-records",
+      "source_path": "ADR/ADR-20261011-AgentScope-unified-policy-approval.md",
+      "source_commit": "7ce54b678d4543bef15a2d957a2719470c835094",
+      "git_source_sha256": "ef8b8ae5db1e7e8994e3916fbd9a655b82b75177c54c0d80ecbc785053991da6",
+      "source_sha256": "ef8b8ae5db1e7e8994e3916fbd9a655b82b75177c54c0d80ecbc785053991da6",
+      "transformations": [],
+      "archived_sha256": "ef8b8ae5db1e7e8994e3916fbd9a655b82b75177c54c0d80ecbc785053991da6"
+    },
+    {
+      "path": "ADR/ADR-20261012-AgentScope-four-layer-policy.md",
+      "source_group": "central-technical-records",
+      "source_path": "ADR/ADR-20261012-AgentScope-four-layer-policy.md",
+      "source_commit": "e4e56adeee0f3b14bd977bdc69d616282a3da89b",
+      "git_source_sha256": "d8b1a94404d945d9ee47cbb0ebde61a48311f126ce86e6dd2f4ecbfc79a00188",
+      "source_sha256": "d8b1a94404d945d9ee47cbb0ebde61a48311f126ce86e6dd2f4ecbfc79a00188",
+      "transformations": [],
+      "archived_sha256": "d8b1a94404d945d9ee47cbb0ebde61a48311f126ce86e6dd2f4ecbfc79a00188"
+    },
+    {
+      "path": "ADR/ADR-20261012-AgentScope-local-policy-fail-closed.md",
+      "source_group": "central-technical-records",
+      "source_path": "ADR/ADR-20261012-AgentScope-local-policy-fail-closed.md",
+      "source_commit": "db870f6c2e3e42f4d921ea44b5c5c3e48136510e",
+      "git_source_sha256": "2fb671514cee5e50b06f8233b3f7758d172ef5a34d146f41f9a1cb7f401648cd",
+      "source_sha256": "2fb671514cee5e50b06f8233b3f7758d172ef5a34d146f41f9a1cb7f401648cd",
+      "transformations": [],
+      "archived_sha256": "2fb671514cee5e50b06f8233b3f7758d172ef5a34d146f41f9a1cb7f401648cd"
+    },
+    {
+      "path": "AgentScope-四层策略架构与ActPlane调研-20261012.md",
+      "source_group": "central-technical-records",
+      "source_path": "AgentScope-四层策略架构与ActPlane调研-20261012.md",
+      "source_commit": "e4e56adeee0f3b14bd977bdc69d616282a3da89b",
+      "git_source_sha256": "0dbe994e968733eabd7b5825913693903afae8429b0857b8dd63ffd844535c5c",
+      "source_sha256": "0dbe994e968733eabd7b5825913693903afae8429b0857b8dd63ffd844535c5c",
+      "transformations": [],
+      "archived_sha256": "0dbe994e968733eabd7b5825913693903afae8429b0857b8dd63ffd844535c5c"
+    },
+    {
+      "path": "BUG/BUG-20261002-AgentScope历史策略库.md",
+      "source_group": "central-technical-records",
+      "source_path": "BUG-AgentScope-历史策略库-20261002.md",
+      "source_sha256": "a1a5b6b2be208b31790ca8f0bf262a462e6e1bcfa108b0f0c188084ac775070d",
       "transformations": [
         "portable-relative-links-and-lf"
       ],
-      "archived_sha256": "627c2ee6756ef8f9048cd3ac0151f575af7ef62393513e13a4bcbff46c4abe90"
+      "archived_sha256": "a1a5b6b2be208b31790ca8f0bf262a462e6e1bcfa108b0f0c188084ac775070d"
     },
     {
       "path": "BUG/BUG-20261002-AgentScope本机运行兼容性.md",
@@ -374,14 +464,74 @@
       "archived_sha256": "4839151c43da1020691db77e16e39457fb11e6b84ba4cb67deecb554cba0db3c"
     },
     {
-      "path": "BUG/BUG-20261002-AgentScope历史策略库.md",
+      "path": "BUG/BUG-20261011-AgentScope-agent-scene-step3.md",
       "source_group": "central-technical-records",
-      "source_path": "BUG-AgentScope-历史策略库-20261002.md",
-      "source_sha256": "a1a5b6b2be208b31790ca8f0bf262a462e6e1bcfa108b0f0c188084ac775070d",
-      "transformations": [
-        "portable-relative-links-and-lf"
-      ],
-      "archived_sha256": "a1a5b6b2be208b31790ca8f0bf262a462e6e1bcfa108b0f0c188084ac775070d"
+      "source_path": "BUG/BUG-20261011-AgentScope-agent-scene-step3.md",
+      "source_commit": "b280b6d7c5ec10f0bff7bae739e59c37726ed4a4",
+      "git_source_sha256": "2fa0bc8b37f43bef7dbf96faa8678f8392ee69cc89d4f9e0e657f2610ca2fc61",
+      "source_sha256": "a33b94b9fab119acf421bbe9fcac4e753f3c43ece975f6c0762c0889d0974e68",
+      "transformations": [],
+      "archived_sha256": "a33b94b9fab119acf421bbe9fcac4e753f3c43ece975f6c0762c0889d0974e68"
+    },
+    {
+      "path": "BUG/BUG-20261011-AgentScope-policy-source-semantics.md",
+      "source_group": "central-technical-records",
+      "source_path": "BUG/BUG-20261011-AgentScope-policy-source-semantics.md",
+      "source_commit": "e4e56adeee0f3b14bd977bdc69d616282a3da89b",
+      "git_source_sha256": "09739a674a2b90ae2d852821c99815fbf372d72f4ef49df32eafc965289c007d",
+      "source_sha256": "09739a674a2b90ae2d852821c99815fbf372d72f4ef49df32eafc965289c007d",
+      "transformations": [],
+      "archived_sha256": "09739a674a2b90ae2d852821c99815fbf372d72f4ef49df32eafc965289c007d"
+    },
+    {
+      "path": "BUG/BUG-20261011-AgentScope-policy-ui-gaps.md",
+      "source_group": "central-technical-records",
+      "source_path": "BUG/BUG-20261011-AgentScope-policy-ui-gaps.md",
+      "source_commit": "a5de0ba10ab9bc540746737804df9b0dfaed97aa",
+      "git_source_sha256": "ffc9e6c67ab429e8d127a3094fff6ea5bf889369813d09f32f8e99fbf63f1184",
+      "source_sha256": "07bfc35d07b1dd0503451ac2269004f1b32e5130f9b702f68f3c7baaba9b0816",
+      "transformations": [],
+      "archived_sha256": "07bfc35d07b1dd0503451ac2269004f1b32e5130f9b702f68f3c7baaba9b0816"
+    },
+    {
+      "path": "BUG/BUG-20261011-AgentScope-ui-consolidation-step2.md",
+      "source_group": "central-technical-records",
+      "source_path": "BUG/BUG-20261011-AgentScope-ui-consolidation-step2.md",
+      "source_commit": "5e91372c1d7a306ccb312dbc033f10db6d67c2e3",
+      "git_source_sha256": "17275cf38cfc857225d20ebd11b775e29fd36be6d1c6d36a30aa6ddb771732fa",
+      "source_sha256": "17275cf38cfc857225d20ebd11b775e29fd36be6d1c6d36a30aa6ddb771732fa",
+      "transformations": [],
+      "archived_sha256": "17275cf38cfc857225d20ebd11b775e29fd36be6d1c6d36a30aa6ddb771732fa"
+    },
+    {
+      "path": "BUG/BUG-20261011-AgentScope-unified-policy-approval.md",
+      "source_group": "central-technical-records",
+      "source_path": "BUG/BUG-20261011-AgentScope-unified-policy-approval.md",
+      "source_commit": "7ce54b678d4543bef15a2d957a2719470c835094",
+      "git_source_sha256": "2480b5787ffbcf50087e546f2186adf37b441a11eb7b56e88c7f4775e0b07b13",
+      "source_sha256": "2480b5787ffbcf50087e546f2186adf37b441a11eb7b56e88c7f4775e0b07b13",
+      "transformations": [],
+      "archived_sha256": "2480b5787ffbcf50087e546f2186adf37b441a11eb7b56e88c7f4775e0b07b13"
+    },
+    {
+      "path": "BUG/BUG-20261012-AgentScope-policy-scope-and-evidence.md",
+      "source_group": "central-technical-records",
+      "source_path": "BUG/BUG-20261012-AgentScope-policy-scope-and-evidence.md",
+      "source_commit": "e4e56adeee0f3b14bd977bdc69d616282a3da89b",
+      "git_source_sha256": "ab12754c499db08200fb9d3cf32cb4bd949feb0a6abccf95369564775431119e",
+      "source_sha256": "ab12754c499db08200fb9d3cf32cb4bd949feb0a6abccf95369564775431119e",
+      "transformations": [],
+      "archived_sha256": "ab12754c499db08200fb9d3cf32cb4bd949feb0a6abccf95369564775431119e"
+    },
+    {
+      "path": "BUG/BUG-20261012-AgentScope-policy-targets-step1.md",
+      "source_group": "central-technical-records",
+      "source_path": "BUG/BUG-20261012-AgentScope-policy-targets-step1.md",
+      "source_commit": "db870f6c2e3e42f4d921ea44b5c5c3e48136510e",
+      "git_source_sha256": "92cc07cf6a5de9f808235f2e4019db87da7e7983a0ccfa8d608de84d7aff90f1",
+      "source_sha256": "92cc07cf6a5de9f808235f2e4019db87da7e7983a0ccfa8d608de84d7aff90f1",
+      "transformations": [],
+      "archived_sha256": "92cc07cf6a5de9f808235f2e4019db87da7e7983a0ccfa8d608de84d7aff90f1"
     },
     {
       "path": "REVIEW/BENCHMARKS-20261005-AgentScope数据集选择与真实验收.md",
@@ -412,6 +562,16 @@
         "portable-relative-links-and-lf"
       ],
       "archived_sha256": "a2d88287590c683fa9bf77137cac96a4d531f2c2abdbf236dfa3a4f16de38bbd"
+    },
+    {
+      "path": "REVIEW/REVIEW-20261002-AgentScope历史策略库.md",
+      "source_group": "agentscope-working-documents",
+      "source_path": "history-library/REVIEW.md",
+      "source_sha256": "c483320b68cfbfb36b9c44d4a44c55c9a016def340f50ade8d4a67a9f82ce337",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "c483320b68cfbfb36b9c44d4a44c55c9a016def340f50ade8d4a67a9f82ce337"
     },
     {
       "path": "REVIEW/REVIEW-20261002-AgentScope安装验收.md",
@@ -626,14 +786,83 @@
       "archived_sha256": "670127720a154d33d93d9d9fd4d0e5e7f3f9d06086a828f18c85957098a0eca3"
     },
     {
-      "path": "REVIEW/REVIEW-20261002-AgentScope历史策略库.md",
-      "source_group": "agentscope-working-documents",
-      "source_path": "history-library/REVIEW.md",
-      "source_sha256": "c483320b68cfbfb36b9c44d4a44c55c9a016def340f50ade8d4a67a9f82ce337",
-      "transformations": [
-        "portable-relative-links-and-lf"
-      ],
-      "archived_sha256": "c483320b68cfbfb36b9c44d4a44c55c9a016def340f50ade8d4a67a9f82ce337"
+      "path": "REVIEW/REVIEW-20261011-AgentScope-agent-scene-step3.md",
+      "source_group": "central-technical-records",
+      "source_path": "REVIEW/REVIEW-20261011-AgentScope-agent-scene-step3.md",
+      "source_commit": "b280b6d7c5ec10f0bff7bae739e59c37726ed4a4",
+      "git_source_sha256": "ffc0e94a64b4a2c54766cb5405adfcdbf79d31a7aec3e2bb182dc97d6e163f6e",
+      "source_sha256": "ffc0e94a64b4a2c54766cb5405adfcdbf79d31a7aec3e2bb182dc97d6e163f6e",
+      "transformations": [],
+      "archived_sha256": "ffc0e94a64b4a2c54766cb5405adfcdbf79d31a7aec3e2bb182dc97d6e163f6e"
+    },
+    {
+      "path": "REVIEW/REVIEW-20261011-AgentScope-agent-workspace-policy.md",
+      "source_group": "central-technical-records",
+      "source_path": "REVIEW/REVIEW-20261011-AgentScope-agent-workspace-policy.md",
+      "source_commit": null,
+      "source_sha256": "50aa8b835baeac8370ca81f50a58cbeb9a78d36dcbe1309b62acfea47706ff5e",
+      "transformations": [],
+      "archived_sha256": "50aa8b835baeac8370ca81f50a58cbeb9a78d36dcbe1309b62acfea47706ff5e"
+    },
+    {
+      "path": "REVIEW/REVIEW-20261011-AgentScope-architecture-audit.md",
+      "source_group": "central-technical-records",
+      "source_path": "REVIEW/REVIEW-20261011-AgentScope-architecture-audit.md",
+      "source_commit": "a5de0ba10ab9bc540746737804df9b0dfaed97aa",
+      "git_source_sha256": "d058b3fcd1a035f5d4299d54926918fbf35b924f93198e85c49b1c44b057fb3b",
+      "source_sha256": "2f8fad4048c1c5caad7cecd13b536984f518b81e0fe16794a1fd6adbcb196aa6",
+      "transformations": [],
+      "archived_sha256": "2f8fad4048c1c5caad7cecd13b536984f518b81e0fe16794a1fd6adbcb196aa6"
+    },
+    {
+      "path": "REVIEW/REVIEW-20261011-AgentScope-policy-source-semantics.md",
+      "source_group": "central-technical-records",
+      "source_path": "REVIEW/REVIEW-20261011-AgentScope-policy-source-semantics.md",
+      "source_commit": "e4e56adeee0f3b14bd977bdc69d616282a3da89b",
+      "git_source_sha256": "f0795de9bc19f25a08600d941cec452325b7de509ae65f06e3e28a281bd89e4a",
+      "source_sha256": "f0795de9bc19f25a08600d941cec452325b7de509ae65f06e3e28a281bd89e4a",
+      "transformations": [],
+      "archived_sha256": "f0795de9bc19f25a08600d941cec452325b7de509ae65f06e3e28a281bd89e4a"
+    },
+    {
+      "path": "REVIEW/REVIEW-20261011-AgentScope-ui-consolidation-step2.md",
+      "source_group": "central-technical-records",
+      "source_path": "REVIEW/REVIEW-20261011-AgentScope-ui-consolidation-step2.md",
+      "source_commit": "5e91372c1d7a306ccb312dbc033f10db6d67c2e3",
+      "git_source_sha256": "f20f7ed16c535128fb51c0f0c7a86589f10bb4a2a8837ccab70cb5f36f4ca40d",
+      "source_sha256": "f20f7ed16c535128fb51c0f0c7a86589f10bb4a2a8837ccab70cb5f36f4ca40d",
+      "transformations": [],
+      "archived_sha256": "f20f7ed16c535128fb51c0f0c7a86589f10bb4a2a8837ccab70cb5f36f4ca40d"
+    },
+    {
+      "path": "REVIEW/REVIEW-20261011-AgentScope-unified-policy-approval.md",
+      "source_group": "central-technical-records",
+      "source_path": "REVIEW/REVIEW-20261011-AgentScope-unified-policy-approval.md",
+      "source_commit": "7ce54b678d4543bef15a2d957a2719470c835094",
+      "git_source_sha256": "2581649d9e0526dbcc0fe0597414a90f2cda0502556ece9bc4a5e434fef179f0",
+      "source_sha256": "2581649d9e0526dbcc0fe0597414a90f2cda0502556ece9bc4a5e434fef179f0",
+      "transformations": [],
+      "archived_sha256": "2581649d9e0526dbcc0fe0597414a90f2cda0502556ece9bc4a5e434fef179f0"
+    },
+    {
+      "path": "REVIEW/REVIEW-20261012-AgentScope-four-layer-audit.md",
+      "source_group": "central-technical-records",
+      "source_path": "REVIEW/REVIEW-20261012-AgentScope-four-layer-audit.md",
+      "source_commit": "e4e56adeee0f3b14bd977bdc69d616282a3da89b",
+      "git_source_sha256": "27e390f8fe791a64267712bf83cd7a12b336eae7a7eccb4f3d8c64ca392baf2a",
+      "source_sha256": "27e390f8fe791a64267712bf83cd7a12b336eae7a7eccb4f3d8c64ca392baf2a",
+      "transformations": [],
+      "archived_sha256": "27e390f8fe791a64267712bf83cd7a12b336eae7a7eccb4f3d8c64ca392baf2a"
+    },
+    {
+      "path": "REVIEW/REVIEW-20261012-AgentScope-policy-targets-step1.md",
+      "source_group": "central-technical-records",
+      "source_path": "REVIEW/REVIEW-20261012-AgentScope-policy-targets-step1.md",
+      "source_commit": "db870f6c2e3e42f4d921ea44b5c5c3e48136510e",
+      "git_source_sha256": "8879e39f070cc511bbbfd02ffc33e6832df0eebf860d959edd08dc95b5dd035f",
+      "source_sha256": "8879e39f070cc511bbbfd02ffc33e6832df0eebf860d959edd08dc95b5dd035f",
+      "transformations": [],
+      "archived_sha256": "8879e39f070cc511bbbfd02ffc33e6832df0eebf860d959edd08dc95b5dd035f"
     },
     {
       "path": "RFC/RFC-20260923-ActPlane本机eBPF研究环境.md",
@@ -644,6 +873,16 @@
         "portable-relative-links-and-lf"
       ],
       "archived_sha256": "3dcc690acd15efa9dadebcab8734ed11c88267ab22ad3745303bee281b54594c"
+    },
+    {
+      "path": "RFC/RFC-20261002-AgentScope历史策略库.md",
+      "source_group": "central-technical-records",
+      "source_path": "RFC-AgentScope-历史策略库-20261002.md",
+      "source_sha256": "864916a13395a0582d3056bbb114efd39d46536b196ec70ecf7766634a2b1bdc",
+      "transformations": [
+        "portable-relative-links-and-lf"
+      ],
+      "archived_sha256": "864916a13395a0582d3056bbb114efd39d46536b196ec70ecf7766634a2b1bdc"
     },
     {
       "path": "RFC/RFC-20261002-AgentScope本机Linux部署.md",
@@ -819,25 +1058,166 @@
       "archived_sha256": "b8236572c7fcf1cf9c3cc635d26561666afaa4e617cb7a91df0e498f6a2e10b5"
     },
     {
-      "path": "RFC/RFC-20261002-AgentScope历史策略库.md",
+      "path": "RFC/RFC-20261011-AgentScope-agent-scene-step3.md",
       "source_group": "central-technical-records",
-      "source_path": "RFC-AgentScope-历史策略库-20261002.md",
-      "source_sha256": "864916a13395a0582d3056bbb114efd39d46536b196ec70ecf7766634a2b1bdc",
-      "transformations": [
-        "portable-relative-links-and-lf"
-      ],
-      "archived_sha256": "864916a13395a0582d3056bbb114efd39d46536b196ec70ecf7766634a2b1bdc"
+      "source_path": "RFC/RFC-20261011-AgentScope-agent-scene-step3.md",
+      "source_commit": "b280b6d7c5ec10f0bff7bae739e59c37726ed4a4",
+      "git_source_sha256": "6f3f56c829d2c3d222211f39bbc0c30201bed26e0be9483b211c3eb6aec64b70",
+      "source_sha256": "dbd9f52b9219948f4301e6b286b9d41e8f03fc48fd53d181a268f08df31806c7",
+      "transformations": [],
+      "archived_sha256": "dbd9f52b9219948f4301e6b286b9d41e8f03fc48fd53d181a268f08df31806c7"
     },
     {
-      "path": "plans/AgentScope_历史策略库模块技术规划.md",
+      "path": "RFC/RFC-20261011-AgentScope-policy-control-architecture.md",
+      "source_group": "central-technical-records",
+      "source_path": "RFC/RFC-20261011-AgentScope-policy-control-architecture.md",
+      "source_commit": "a5de0ba10ab9bc540746737804df9b0dfaed97aa",
+      "git_source_sha256": "aa9337726fe2511933b49043c0f633573c288ab74afc1763d0b17fb8a07198a0",
+      "source_sha256": "f43ceac8fce44d844ac063833404a7191c2dd00caa5c7b0b790859d89211a8d7",
+      "transformations": [],
+      "archived_sha256": "f43ceac8fce44d844ac063833404a7191c2dd00caa5c7b0b790859d89211a8d7"
+    },
+    {
+      "path": "RFC/RFC-20261011-AgentScope-policy-source-semantics.md",
+      "source_group": "central-technical-records",
+      "source_path": "RFC/RFC-20261011-AgentScope-policy-source-semantics.md",
+      "source_commit": "db870f6c2e3e42f4d921ea44b5c5c3e48136510e",
+      "git_source_sha256": "67491a5f64df6f5acb24ef5cf4cbb5917c9c4be43787aed9017fee0aa027b2c8",
+      "source_sha256": "67491a5f64df6f5acb24ef5cf4cbb5917c9c4be43787aed9017fee0aa027b2c8",
+      "transformations": [],
+      "archived_sha256": "67491a5f64df6f5acb24ef5cf4cbb5917c9c4be43787aed9017fee0aa027b2c8"
+    },
+    {
+      "path": "RFC/RFC-20261011-AgentScope-ui-consolidation-step2.md",
+      "source_group": "central-technical-records",
+      "source_path": "RFC/RFC-20261011-AgentScope-ui-consolidation-step2.md",
+      "source_commit": "5e91372c1d7a306ccb312dbc033f10db6d67c2e3",
+      "git_source_sha256": "fefbf6a2520c51fbfa2519afc126a389875251b26c3e340e4330b9182695f143",
+      "source_sha256": "fefbf6a2520c51fbfa2519afc126a389875251b26c3e340e4330b9182695f143",
+      "transformations": [],
+      "archived_sha256": "fefbf6a2520c51fbfa2519afc126a389875251b26c3e340e4330b9182695f143"
+    },
+    {
+      "path": "RFC/RFC-20261011-AgentScope-unified-policy-approval.md",
+      "source_group": "central-technical-records",
+      "source_path": "RFC/RFC-20261011-AgentScope-unified-policy-approval.md",
+      "source_commit": "7ce54b678d4543bef15a2d957a2719470c835094",
+      "git_source_sha256": "0796ab1a66c379fc8db1c081e25da87a957010c0e746eeeeab85693be9e81660",
+      "source_sha256": "0796ab1a66c379fc8db1c081e25da87a957010c0e746eeeeab85693be9e81660",
+      "transformations": [],
+      "archived_sha256": "0796ab1a66c379fc8db1c081e25da87a957010c0e746eeeeab85693be9e81660"
+    },
+    {
+      "path": "RFC/RFC-20261011-agent-policy-environment.md",
+      "source_group": "central-technical-records",
+      "source_path": "RFC/RFC-20261011-agent-policy-environment.md",
+      "source_commit": "b280b6d7c5ec10f0bff7bae739e59c37726ed4a4",
+      "git_source_sha256": "96319405ba8e5a19fff26166e176e5212289ba6942c9c0e833af7e80efd92c36",
+      "source_sha256": "96319405ba8e5a19fff26166e176e5212289ba6942c9c0e833af7e80efd92c36",
+      "transformations": [],
+      "archived_sha256": "96319405ba8e5a19fff26166e176e5212289ba6942c9c0e833af7e80efd92c36"
+    },
+    {
+      "path": "RFC/RFC-20261012-AgentScope-four-layer-policy.md",
+      "source_group": "central-technical-records",
+      "source_path": "RFC/RFC-20261012-AgentScope-four-layer-policy.md",
+      "source_commit": "e4e56adeee0f3b14bd977bdc69d616282a3da89b",
+      "git_source_sha256": "958e817d9a57d0b09a2ddb77762041156ac46e71a33a81cc5c0c8f16e30a63f2",
+      "source_sha256": "99802cd6cebf363de478a4b58ac1b3276a2340ce8f9f506410d7a6d3677ca4e7",
+      "transformations": [],
+      "archived_sha256": "99802cd6cebf363de478a4b58ac1b3276a2340ce8f9f506410d7a6d3677ca4e7"
+    },
+    {
+      "path": "RFC/RFC-20261012-AgentScope-policy-targets-step1.md",
+      "source_group": "central-technical-records",
+      "source_path": "RFC/RFC-20261012-AgentScope-policy-targets-step1.md",
+      "source_commit": "db870f6c2e3e42f4d921ea44b5c5c3e48136510e",
+      "git_source_sha256": "6cdc213091af6603bbd54a4b2733966bfa40a27eb3951840efef0ffabf71823d",
+      "source_sha256": "6cdc213091af6603bbd54a4b2733966bfa40a27eb3951840efef0ffabf71823d",
+      "transformations": [],
+      "archived_sha256": "6cdc213091af6603bbd54a4b2733966bfa40a27eb3951840efef0ffabf71823d"
+    },
+    {
+      "path": "acceptance/20261011-agent-scene-step3/README.md",
+      "source_group": "central-technical-records",
+      "source_path": "acceptance/20261011-agent-scene-step3/README.md",
+      "source_commit": "b280b6d7c5ec10f0bff7bae739e59c37726ed4a4",
+      "git_source_sha256": "95d70e3614db1a9df68a65d0a49faa5369bc6aef255ef6dcff8bb8b7a80fee1e",
+      "source_sha256": "95d70e3614db1a9df68a65d0a49faa5369bc6aef255ef6dcff8bb8b7a80fee1e",
+      "transformations": [],
+      "archived_sha256": "95d70e3614db1a9df68a65d0a49faa5369bc6aef255ef6dcff8bb8b7a80fee1e"
+    },
+    {
+      "path": "acceptance/20261011-policy-source-semantics-dsh/README.md",
+      "source_group": "central-technical-records",
+      "source_path": "acceptance/20261011-policy-source-semantics-dsh/README.md",
+      "source_commit": "e4e56adeee0f3b14bd977bdc69d616282a3da89b",
+      "git_source_sha256": "a2bf5d5898f13d3d367b5cd494f9737c682c6d0fdaa4b23aab51774c0d93fc8b",
+      "source_sha256": "a2bf5d5898f13d3d367b5cd494f9737c682c6d0fdaa4b23aab51774c0d93fc8b",
+      "transformations": [],
+      "archived_sha256": "a2bf5d5898f13d3d367b5cd494f9737c682c6d0fdaa4b23aab51774c0d93fc8b"
+    },
+    {
+      "path": "acceptance/20261011-policy-source-semantics/README.md",
+      "source_group": "central-technical-records",
+      "source_path": "acceptance/20261011-policy-source-semantics/README.md",
+      "source_commit": "db870f6c2e3e42f4d921ea44b5c5c3e48136510e",
+      "git_source_sha256": "34cc3693d2cc3db37eeb0efffddcaa58333ce74371dc71b8707a15ea4a7c3b85",
+      "source_sha256": "34cc3693d2cc3db37eeb0efffddcaa58333ce74371dc71b8707a15ea4a7c3b85",
+      "transformations": [],
+      "archived_sha256": "34cc3693d2cc3db37eeb0efffddcaa58333ce74371dc71b8707a15ea4a7c3b85"
+    },
+    {
+      "path": "acceptance/20261011-ui-consolidation-step2/README.md",
+      "source_group": "central-technical-records",
+      "source_path": "acceptance/20261011-ui-consolidation-step2/README.md",
+      "source_commit": "5e91372c1d7a306ccb312dbc033f10db6d67c2e3",
+      "git_source_sha256": "babf201c13b99f4c681f221fadd4677a050dd41364d1d91fef81c7b57a0d5341",
+      "source_sha256": "babf201c13b99f4c681f221fadd4677a050dd41364d1d91fef81c7b57a0d5341",
+      "transformations": [],
+      "archived_sha256": "babf201c13b99f4c681f221fadd4677a050dd41364d1d91fef81c7b57a0d5341"
+    },
+    {
+      "path": "acceptance/20261011-unified-policy-approval/README.md",
+      "source_group": "central-technical-records",
+      "source_path": "acceptance/20261011-unified-policy-approval/README.md",
+      "source_commit": "7ce54b678d4543bef15a2d957a2719470c835094",
+      "git_source_sha256": "169f9f492a98b42107a1157cceff8148d2c85d26410deb0aac99d4aeb0fe9cfc",
+      "source_sha256": "169f9f492a98b42107a1157cceff8148d2c85d26410deb0aac99d4aeb0fe9cfc",
+      "transformations": [],
+      "archived_sha256": "169f9f492a98b42107a1157cceff8148d2c85d26410deb0aac99d4aeb0fe9cfc"
+    },
+    {
+      "path": "acceptance/AgentScope-policy-targets-step1-20261012.md",
+      "source_group": "central-technical-records",
+      "source_path": "acceptance/AgentScope-policy-targets-step1-20261012.md",
+      "source_commit": "db870f6c2e3e42f4d921ea44b5c5c3e48136510e",
+      "git_source_sha256": "5805c1f695c25d59798eeae6199b0dce35ef29c9cb52350fbf8724af67788330",
+      "source_sha256": "5805c1f695c25d59798eeae6199b0dce35ef29c9cb52350fbf8724af67788330",
+      "transformations": [],
+      "archived_sha256": "5805c1f695c25d59798eeae6199b0dce35ef29c9cb52350fbf8724af67788330"
+    },
+    {
+      "path": "design/agentscope-ui-design.md",
+      "source_group": "agentscope-git-documentation",
+      "source_path": "design/agentscope-ui-design.md",
+      "source_commit": "b280b6d7c5ec10f0bff7bae739e59c37726ed4a4",
+      "git_source_sha256": "61a4242d4c9f8c1c60913b8c9a2c729e1ff0747ac4f154e163150b0ce389954e",
+      "source_sha256": "61a4242d4c9f8c1c60913b8c9a2c729e1ff0747ac4f154e163150b0ce389954e",
+      "transformations": [],
+      "archived_sha256": "61a4242d4c9f8c1c60913b8c9a2c729e1ff0747ac4f154e163150b0ce389954e"
+    },
+    {
+      "path": "plans/AgentScope_Linux_VM实施与运行说明.md",
       "source_group": "desktop-original-plans",
-      "source_path": "AgentScope_历史策略库模块技术规划.md",
-      "source_sha256": "af4e83cbeb550283a5b9910428a7eef599728cc45ef6ab27ba32fe33304ca616",
+      "source_path": "AgentScope_Linux_VM实施与运行说明.md",
+      "source_sha256": "3f2c437a1626dfccaa120288ca7deb3739e1d742346368d3312639925a0f7275",
       "transformations": [
         "portable-relative-links-and-lf",
-        "historical-plan-banner"
+        "historical-plan-banner",
+        "markdown-hard-break-spaces-to-explicit-br"
       ],
-      "archived_sha256": "6f4cd7779459bada0053068dd748e1b5c2bfa44ce86ea986625df82ca5bcf760"
+      "archived_sha256": "5d8b6cae722d1ec50acf25496a1e59fde724187d31b15cd8f99bca0ce5983ee9"
     },
     {
       "path": "plans/AgentScope_Pi任务启动前策略生成与DSH实验验收技术方案.md",
@@ -852,6 +1232,17 @@
       "archived_sha256": "6e26625cf84775f6c8743681eeeb1dfdd5b870ccb26c9ee9973cb78514e8ae95"
     },
     {
+      "path": "plans/AgentScope_历史策略库模块技术规划.md",
+      "source_group": "desktop-original-plans",
+      "source_path": "AgentScope_历史策略库模块技术规划.md",
+      "source_sha256": "af4e83cbeb550283a5b9910428a7eef599728cc45ef6ab27ba32fe33304ca616",
+      "transformations": [
+        "portable-relative-links-and-lf",
+        "historical-plan-banner"
+      ],
+      "archived_sha256": "6f4cd7779459bada0053068dd748e1b5c2bfa44ce86ea986625df82ca5bcf760"
+    },
+    {
       "path": "plans/AgentScope_运行时Scope增量与策略生成技术方案.md",
       "source_group": "desktop-original-plans",
       "source_path": "AgentScope_运行时Scope增量与策略生成技术方案.md",
@@ -864,16 +1255,64 @@
       "archived_sha256": "2c6332ae033c476f6a27644e122c32f69c0793a055f0ba7958bf795b284ffd17"
     },
     {
-      "path": "plans/AgentScope_Linux_VM实施与运行说明.md",
-      "source_group": "desktop-original-plans",
-      "source_path": "AgentScope_Linux_VM实施与运行说明.md",
-      "source_sha256": "3f2c437a1626dfccaa120288ca7deb3739e1d742346368d3312639925a0f7275",
-      "transformations": [
-        "portable-relative-links-and-lf",
-        "historical-plan-banner",
-        "markdown-hard-break-spaces-to-explicit-br"
-      ],
-      "archived_sha256": "5d8b6cae722d1ec50acf25496a1e59fde724187d31b15cd8f99bca0ce5983ee9"
+      "path": "releases/20261011-architecture-review-pr.md",
+      "source_group": "central-technical-records",
+      "source_path": "releases/20261011-architecture-review-pr.md",
+      "source_commit": "a5de0ba10ab9bc540746737804df9b0dfaed97aa",
+      "git_source_sha256": "bb9fd1b1e70364d714255d43c798b4abb6093a2d1c17caf56e3399bb58049e78",
+      "source_sha256": "bb9fd1b1e70364d714255d43c798b4abb6093a2d1c17caf56e3399bb58049e78",
+      "transformations": [],
+      "archived_sha256": "bb9fd1b1e70364d714255d43c798b4abb6093a2d1c17caf56e3399bb58049e78"
+    },
+    {
+      "path": "research/20261012-four-layer-policy/README.md",
+      "source_group": "central-technical-records",
+      "source_path": "research/20261012-four-layer-policy/README.md",
+      "source_commit": "e4e56adeee0f3b14bd977bdc69d616282a3da89b",
+      "git_source_sha256": "f706a3e62961d529097dc19ba40c30f0edbc545fc0eb56860b2c5319cdbd9883",
+      "source_sha256": "f706a3e62961d529097dc19ba40c30f0edbc545fc0eb56860b2c5319cdbd9883",
+      "transformations": [],
+      "archived_sha256": "f706a3e62961d529097dc19ba40c30f0edbc545fc0eb56860b2c5319cdbd9883"
+    },
+    {
+      "path": "research/20261012-four-layer-policy/case-catalog.md",
+      "source_group": "central-technical-records",
+      "source_path": "research/20261012-four-layer-policy/case-catalog.md",
+      "source_commit": "e4e56adeee0f3b14bd977bdc69d616282a3da89b",
+      "git_source_sha256": "c78667b4718fa6487efd816b8f62b0b7cfa36d93f301d2729119a4e997976d53",
+      "source_sha256": "c78667b4718fa6487efd816b8f62b0b7cfa36d93f301d2729119a4e997976d53",
+      "transformations": [],
+      "archived_sha256": "c78667b4718fa6487efd816b8f62b0b7cfa36d93f301d2729119a4e997976d53"
+    },
+    {
+      "path": "research/20261012-four-layer-policy/generator-audit.md",
+      "source_group": "central-technical-records",
+      "source_path": "research/20261012-four-layer-policy/generator-audit.md",
+      "source_commit": "e4e56adeee0f3b14bd977bdc69d616282a3da89b",
+      "git_source_sha256": "86630f58aece9c2e4c8509bde97d6045b12977d1634e6c88e2293d40ebe540d9",
+      "source_sha256": "86630f58aece9c2e4c8509bde97d6045b12977d1634e6c88e2293d40ebe540d9",
+      "transformations": [],
+      "archived_sha256": "86630f58aece9c2e4c8509bde97d6045b12977d1634e6c88e2293d40ebe540d9"
+    },
+    {
+      "path": "research/20261012-four-layer-policy/reproduction-plan.md",
+      "source_group": "central-technical-records",
+      "source_path": "research/20261012-four-layer-policy/reproduction-plan.md",
+      "source_commit": "e4e56adeee0f3b14bd977bdc69d616282a3da89b",
+      "git_source_sha256": "b865e8b18cadbb00bae548c5167f4c63f9e96d2f6f504cab4e8632c822028c8d",
+      "source_sha256": "b865e8b18cadbb00bae548c5167f4c63f9e96d2f6f504cab4e8632c822028c8d",
+      "transformations": [],
+      "archived_sha256": "b865e8b18cadbb00bae548c5167f4c63f9e96d2f6f504cab4e8632c822028c8d"
+    },
+    {
+      "path": "research/20261012-four-layer-policy/source-audit.md",
+      "source_group": "central-technical-records",
+      "source_path": "research/20261012-four-layer-policy/source-audit.md",
+      "source_commit": "e4e56adeee0f3b14bd977bdc69d616282a3da89b",
+      "git_source_sha256": "f5d3301f9ac228f676d680c264006a9f4b64696db9ca4a46b30b451752103977",
+      "source_sha256": "f5d3301f9ac228f676d680c264006a9f4b64696db9ca4a46b30b451752103977",
+      "transformations": [],
+      "archived_sha256": "f5d3301f9ac228f676d680c264006a9f4b64696db9ca4a46b30b451752103977"
     }
   ],
   "legacy_redirects": [
@@ -1140,5 +1579,394 @@
       "reason": "local-only-format"
     }
   ],
-  "source_precedence": "Central records, except updated working Scope Demo quartet and portable original history-library review. Originals are unchanged."
+  "source_precedence": "Central records, except updated working Scope Demo quartet and portable original history-library review. Originals are unchanged.",
+  "initial_archive_date": "2026-10-07",
+  "supplemental_files": [
+    {
+      "path": "REVIEW/evidence/architecture-review-20261011/approval-detail.jpg",
+      "sha256": "e90801f059badbb753d101ca3c7a3da2cb9f82e55ce84dd39f2e7dc02ac22a8f",
+      "bytes": 39733
+    },
+    {
+      "path": "REVIEW/evidence/architecture-review-20261011/architecture-evidence.json",
+      "sha256": "ebd09148d68cb44e8690370b71a8d06809d21679b1086c263279262082009d48",
+      "bytes": 8572
+    },
+    {
+      "path": "REVIEW/evidence/architecture-review-20261011/connection-policy-duplicate-and-stale.jpg",
+      "sha256": "2c2c60e1f633b56c693347b411850ec3a3825eaf663338542ed7e3c5c7f2529f",
+      "bytes": 50197
+    },
+    {
+      "path": "REVIEW/evidence/architecture-review-20261011/delivery-check.json",
+      "sha256": "08b3f0555307d677fd92a1a4da7bb1fd2baed5c8c6da0ffbf5565f351f37f96c",
+      "bytes": 3490
+    },
+    {
+      "path": "REVIEW/evidence/architecture-review-20261011/generation-internal-diagnostics.jpg",
+      "sha256": "b9e0ffcf1806b70810e257b331e8a796d4f05af127a778a86dba7407204526a9",
+      "bytes": 69816
+    },
+    {
+      "path": "REVIEW/evidence/architecture-review-20261011/generation-legacy-overlap.jpg",
+      "sha256": "89498715192ce104d4fcdf919c7c4464776e78b674f27a0d13ed71a4f59b4efb",
+      "bytes": 67866
+    },
+    {
+      "path": "REVIEW/evidence/architecture-review-20261011/reproduce_event_attribution.py",
+      "sha256": "906a8eeab9fc866e461a005a2e1064c3f09c0b17cc677a163fd61e2c5448d117",
+      "bytes": 2348
+    },
+    {
+      "path": "REVIEW/evidence/architecture-review-20261011/session-domain-configuration-chain.jpg",
+      "sha256": "1634b6de5d68e4d543125175e67d7b3b1f1407574c07170712cb822a180f43c0",
+      "bytes": 47907
+    },
+    {
+      "path": "REVIEW/evidence/architecture-review-20261011/session-policy-empty.jpg",
+      "sha256": "1be76fdd89f1b3466a08be6168f246983b3d2196dc714871ddb5e595c69863c4",
+      "bytes": 37961
+    },
+    {
+      "path": "REVIEW/evidence/architecture-review-20261011/validation.json",
+      "sha256": "111d2f8accc42087d9c4fda91a8da84afdc16b2c317fe3de929d8a439c6025f1",
+      "bytes": 2268
+    },
+    {
+      "path": "acceptance/20261011-agent-scene-step3/acceptance-summary.json",
+      "sha256": "f3e2f64369f447eb21f41417be872c81561c7eb76c5462d0b9cd6ce2572935e1",
+      "bytes": 529
+    },
+    {
+      "path": "acceptance/20261011-agent-scene-step3/authority-check.json",
+      "sha256": "7dbf12e0a6627622feb45466d8bdf7ec9d8eba5652a4c5179b27fba0da9d0f4f",
+      "bytes": 1126
+    },
+    {
+      "path": "acceptance/20261011-agent-scene-step3/semantic-readonly-observation.json",
+      "sha256": "6ffb83ebf74264e93071e2e2106046551acf8178148c1caec728ce845c32ee97",
+      "bytes": 2357
+    },
+    {
+      "path": "acceptance/20261011-agent-scene-step3/step3-adopted-desktop.png",
+      "sha256": "265f3b23ff35734bdf9427eb679595c970be19c8c4210efcacadaec6220a11a9",
+      "bytes": 43747
+    },
+    {
+      "path": "acceptance/20261011-agent-scene-step3/step3-candidate-desktop.png",
+      "sha256": "fb3170de481b5b8089afbb1bb158b584db8187ba6b79599fc7381ea719e301ef",
+      "bytes": 54539
+    },
+    {
+      "path": "acceptance/20261011-agent-scene-step3/step3-empty-desktop.png",
+      "sha256": "050a8fbd11ec253b80ace2f680c0c673bb429121c430a904a48df7e6acb28033",
+      "bytes": 50744
+    },
+    {
+      "path": "acceptance/20261011-agent-scene-step3/step3-final-desktop.png",
+      "sha256": "2b4449cda7ddc1cbee8ea31e691f1d7ac522f1e7cba43d2523b83d1e27b13104",
+      "bytes": 63896
+    },
+    {
+      "path": "acceptance/20261011-agent-scene-step3/step3-mobile.png",
+      "sha256": "47ff59b96b2f02a2629664426ad2a24e3ba15411142ec83df21ad939eecbf750",
+      "bytes": 38268
+    },
+    {
+      "path": "acceptance/20261011-agent-scene-step3/step3-pending-approval.png",
+      "sha256": "47d796547413cc95916f93fe28367a22fc97a91990937ec17c9a662eb245ab4f",
+      "bytes": 45051
+    },
+    {
+      "path": "acceptance/20261011-agent-scene-step3/step3-reading-desktop.png",
+      "sha256": "e670b7ff7f928a378d2c6d1d41682f1fbf2ea71d066449ca3091d088f3dffb4e",
+      "bytes": 43746
+    },
+    {
+      "path": "acceptance/20261011-agent-scene-step3/step3-stale-approval.png",
+      "sha256": "b14e6f5747fc210cb7bd6f2b9bb7b46f29978587c31091238e683398f34fc8a2",
+      "bytes": 41221
+    },
+    {
+      "path": "acceptance/20261011-agent-scene-step3/step3-suggestions-desktop.png",
+      "sha256": "96f349c6a7df0f28b2931e2dead6b9bba6fd435d7825077c75fccad838e4f87e",
+      "bytes": 62129
+    },
+    {
+      "path": "acceptance/20261011-policy-source-semantics-dsh/acceptance.json",
+      "sha256": "4207bb085e8afe2767f7a2c08b6e3efd692e86c73757af7ad9b6f6cc4dffd6f8",
+      "bytes": 16086
+    },
+    {
+      "path": "acceptance/20261011-policy-source-semantics-dsh/approval.jpg",
+      "sha256": "3e20256f67967bea48f133213e17b8a082f44a5e39b9c9893b5945955c6a4651",
+      "bytes": 43316
+    },
+    {
+      "path": "acceptance/20261011-policy-source-semantics-dsh/checks.json",
+      "sha256": "913ecbe70baeb9cc04bfddd1b20bf78fc8a2b4734ddc0a70665b36dfcf7f83c6",
+      "bytes": 803
+    },
+    {
+      "path": "acceptance/20261011-policy-source-semantics-dsh/deployment.json",
+      "sha256": "e1bce7e390e61366b9a5a3b097c54d40f619b1df4e9b9bf445d9c5a226e9d7ba",
+      "bytes": 833
+    },
+    {
+      "path": "acceptance/20261011-policy-source-semantics-dsh/kernel-events.json",
+      "sha256": "690573b508eb930dfbf7add0e4348613cf4ffc2a8b9ae614dc7142be489ab425",
+      "bytes": 18798
+    },
+    {
+      "path": "acceptance/20261011-policy-source-semantics-dsh/kernel-projection.json",
+      "sha256": "962727b884e530eda706faa0713e5e49207d364585737ba312efc268c7056957",
+      "bytes": 9336
+    },
+    {
+      "path": "acceptance/20261011-policy-source-semantics-dsh/native-tools.json",
+      "sha256": "4407a2767623a5280d594725df36f7f0970b02851c812bb0431bcdae41bc3a29",
+      "bytes": 4506
+    },
+    {
+      "path": "acceptance/20261011-policy-source-semantics-dsh/session.jpg",
+      "sha256": "b918a4890de8e74325f2d48eb03fd6fcc2f713eb3497b2531fa59096f0d9a668",
+      "bytes": 55336
+    },
+    {
+      "path": "acceptance/20261011-policy-source-semantics/kernel-results.json",
+      "sha256": "e94f229658167cc2cb17d7a58f2d730bf9a0b7654c6b216139ead60ce9f834a7",
+      "bytes": 149271
+    },
+    {
+      "path": "acceptance/20261011-policy-source-semantics/model-round-1.json",
+      "sha256": "1f334db87cef7a2f505e9afdb3c332e95f1032401d73ab191670fe34dc2e354c",
+      "bytes": 300292
+    },
+    {
+      "path": "acceptance/20261011-policy-source-semantics/model-round-2.json",
+      "sha256": "31c8fc954ae34b508ea26eb08015a6e4b745fbd5ac0dd5bcffc000361d9499c5",
+      "bytes": 301983
+    },
+    {
+      "path": "acceptance/20261011-policy-source-semantics/policy-semantics-detail.png",
+      "sha256": "51ef4352d9aa8f766b4e7ef13f95ceb26cce7f33644312197194aeb439112f6d",
+      "bytes": 43684
+    },
+    {
+      "path": "acceptance/20261011-policy-source-semantics/policy-semantics-dsl.png",
+      "sha256": "25e0538d006016398d7683f9b2cb7cb52a63ceecf38fcb4d21bc705fd992521a",
+      "bytes": 36737
+    },
+    {
+      "path": "acceptance/20261011-policy-source-semantics/policy-semantics-old-stale.png",
+      "sha256": "67e78233ce0824a8fa6b3cde65a3695085f947846730881b70827eac2ec9972c",
+      "bytes": 56799
+    },
+    {
+      "path": "acceptance/20261011-policy-source-semantics/policy-semantics-pending.png",
+      "sha256": "45b72b5bdc5945295901586a00641b1e717158a70f1d087bd87c3834133fcd3e",
+      "bytes": 44235
+    },
+    {
+      "path": "acceptance/20261011-policy-source-semantics/summary.json",
+      "sha256": "37747a03d1a46d054877fdc44c3e9a626aad14e5d2b0903858ef4c2fba928ec8",
+      "bytes": 420
+    },
+    {
+      "path": "acceptance/20261011-policy-source-semantics/ui-summary.json",
+      "sha256": "8d43f4bcf0b3293cf43bd822f0b07e67fe7656497328c7ae8c1c0c70b51711f1",
+      "bytes": 2298
+    },
+    {
+      "path": "acceptance/20261011-ui-consolidation-step2/acceptance-summary.json",
+      "sha256": "0f4aaa7fca0307f9979e4b1e417171279233b0a77f77f25589e5aea9b1d35849",
+      "bytes": 1487
+    },
+    {
+      "path": "acceptance/20261011-ui-consolidation-step2/step2-agent-drafts.png",
+      "sha256": "a6c0ddd33c38cc446af479978ffb2c361d49bc8a20dd5d1233811b0b2a283654",
+      "bytes": 45730
+    },
+    {
+      "path": "acceptance/20261011-ui-consolidation-step2/step2-generation-detail-mobile.png",
+      "sha256": "9b851b6250afdc04db52ae4103cc4fbe85b8b73590960589560a13e7143fc38c",
+      "bytes": 21146
+    },
+    {
+      "path": "acceptance/20261011-ui-consolidation-step2/step2-generation-detail.png",
+      "sha256": "e70f9549a3d4b35a39b9627b6ca336437fa2ea761fa3e36626c5e93f0f55e4a6",
+      "bytes": 35968
+    },
+    {
+      "path": "acceptance/20261011-ui-consolidation-step2/step2-generation-dsl.png",
+      "sha256": "f082460103d0d6eba60afaacb4c07f068c385150b2f0d86a3e0a370c3c857cb0",
+      "bytes": 42583
+    },
+    {
+      "path": "acceptance/20261011-ui-consolidation-step2/step2-generation-error.png",
+      "sha256": "0f8058765083a6cc0e55472ee3ab9f395f1a3b54018d02c99082d175dccf3020",
+      "bytes": 26966
+    },
+    {
+      "path": "acceptance/20261011-ui-consolidation-step2/step2-generation-list.png",
+      "sha256": "8af4efc8fd2243dcfe95e773fc0519e51d61a6734f60dcd93d840b4a8ab513c0",
+      "bytes": 55573
+    },
+    {
+      "path": "acceptance/20261011-ui-consolidation-step2/step2-generation-mobile.png",
+      "sha256": "1dca1c315cd25a6ce09cde0213ab001da12cf9e41df7f256d68c61c82d9aca81",
+      "bytes": 33214
+    },
+    {
+      "path": "acceptance/20261011-ui-consolidation-step2/step2-generation-tablet.png",
+      "sha256": "2cf90c54a57555f2730a65ad0793fdf225ee4aa5276e131cbdfad17294193628",
+      "bytes": 42423
+    },
+    {
+      "path": "acceptance/20261011-ui-consolidation-step2/step2-stale-editor.png",
+      "sha256": "4f69593567978d49677384e2c6ca89e72fd53784c9ba569f96d86b94251cf7df",
+      "bytes": 57236
+    },
+    {
+      "path": "acceptance/20261011-unified-policy-approval/acceptance-summary.json",
+      "sha256": "67026fb62060f9ecc66f372a3f0a1b13496ecab816157a759385944b22fa63df",
+      "bytes": 4059
+    },
+    {
+      "path": "acceptance/20261011-unified-policy-approval/approval-agent-applied.png",
+      "sha256": "cd71501feac325388cf0f9faeff736a836100d5c16bef06a72b94ff90ec9030e",
+      "bytes": 37173
+    },
+    {
+      "path": "acceptance/20261011-unified-policy-approval/approval-agent-rejected.png",
+      "sha256": "076649bdc9aa6721a040b09f870264e114e2c0bd1a2129461325d581fd62ff45",
+      "bytes": 37872
+    },
+    {
+      "path": "acceptance/20261011-unified-policy-approval/approval-center-processed.png",
+      "sha256": "fd69977e63ac25b46ade2047d61d07058e29d48ab946d793d2e36c9d5699b6f0",
+      "bytes": 50666
+    },
+    {
+      "path": "acceptance/20261011-unified-policy-approval/approval-runtime-applied.png",
+      "sha256": "31e8777a61ad32c0c1cf3b75dc65995e7110121fc6ab752621950bd558031946",
+      "bytes": 37168
+    },
+    {
+      "path": "acceptance/20261011-unified-policy-approval/approval-runtime-pending.png",
+      "sha256": "772968be1cb9673325611049d19d845ef8b957f66d5cda1a09be108d24dea0e5",
+      "bytes": 43773
+    },
+    {
+      "path": "evidence/policy-targets-step1-20261012/approvals-local-targets.jpg",
+      "sha256": "5eaf3ee6824a1433c3e8899364f06651d4efe1c600096cf8c318a398f352d719",
+      "bytes": 48464
+    },
+    {
+      "path": "evidence/policy-targets-step1-20261012/assistant-local-targets.jpg",
+      "sha256": "3c0dd85cd07441e429379366b400494a802c77a8e4ff0d47ffcbe1cf1dfd8185",
+      "bytes": 51841
+    },
+    {
+      "path": "evidence/policy-targets-step1-20261012/live-api.json",
+      "sha256": "d8199344d1369b950d2e01b3be760e25dfa38ff6ca93cd9bba3fa71e874456d0",
+      "bytes": 4807
+    },
+    {
+      "path": "evidence/policy-targets-step1-20261012/release.json",
+      "sha256": "08a33a901e7163d2bd714a8789518c3c9cf57497fe59bbe3ce18166c31870efa",
+      "bytes": 7109
+    },
+    {
+      "path": "evidence/policy-targets-step1-20261012/session-approval-blocked.jpg",
+      "sha256": "fda68f885cf927f16e2f745360da2150a28a07aed9b9e2987010cb8992a5f036",
+      "bytes": 53591
+    },
+    {
+      "path": "evidence/policy-targets-step1-20261012/workspace-approval-blocked.jpg",
+      "sha256": "eca084f18d4d5ba36c5c7de3214e1f29a9eedea4f1753d2e85bf9af6c8d9a5b0",
+      "bytes": 52757
+    },
+    {
+      "path": "research/20261012-four-layer-policy/artifact-check.json",
+      "sha256": "9007c54c242936c727f7548fdce9c5023fbf17b8d2975e30fc81254951d3a29e",
+      "bytes": 330
+    },
+    {
+      "path": "research/20261012-four-layer-policy/benchmark-catalog.json",
+      "sha256": "baf5414b9e7934a4feb93f371c49ba723e867908b03885c0cfc231985e0ae14f",
+      "bytes": 4519
+    },
+    {
+      "path": "research/20261012-four-layer-policy/case-catalog.json",
+      "sha256": "d5fd0eb516ef724929cebe556fd954f95ff0f606ebd3e57c5804e49c3e7140ff",
+      "bytes": 15800
+    },
+    {
+      "path": "research/20261012-four-layer-policy/case-notes.json",
+      "sha256": "c7f28e1d827928aab040e61bb5c4e9ce5df15677dd635bd01bbacd82dc4e37c9",
+      "bytes": 10823
+    },
+    {
+      "path": "research/20261012-four-layer-policy/central-index-updates.json",
+      "sha256": "f3d80e9cfb5e5d02089a7895378cd90a37a0b67791f39435fb6e0e7437e473f1",
+      "bytes": 1102
+    },
+    {
+      "path": "research/20261012-four-layer-policy/collect.py",
+      "sha256": "5b8ed2382d1998feb0c0b9cc837e79342fb63f1e79b50151cb62804f9a1781b7",
+      "bytes": 8659
+    },
+    {
+      "path": "research/20261012-four-layer-policy/example-source-index.json",
+      "sha256": "f15868249692b586abbf08d172741b13e121a0f3ddbb5161303a63a80b9d6c39",
+      "bytes": 5329
+    },
+    {
+      "path": "research/20261012-four-layer-policy/generation-provenance.json",
+      "sha256": "db62b552cd2d1c452994a5a67d69fa0cc3e37c602efae7b420bb3047643b10df",
+      "bytes": 2342
+    },
+    {
+      "path": "research/20261012-four-layer-policy/render_catalog.py",
+      "sha256": "fd2f30f10fcbfc27079c65de898b4aa4e0d263559351e5c7ffb05d6b0470aafe",
+      "bytes": 3920
+    },
+    {
+      "path": "research/20261012-four-layer-policy/runtime-readback.json",
+      "sha256": "da3c28b8fdcd0256f0184a5ffa95c2b06f3f6d87828efd899d7e0381a41ac6fd",
+      "bytes": 627
+    },
+    {
+      "path": "research/20261012-four-layer-policy/source-evidence.json",
+      "sha256": "043e1dd517b90270f4e5c135ef201af81ee611c7ffd8cdfec46dc7779fbf3081",
+      "bytes": 115617
+    },
+    {
+      "path": "research/20261012-four-layer-policy/source-lock.json",
+      "sha256": "54138348620590f41ce97bceadc31fe84acbc8f8cb886823060d920de3bb4355",
+      "bytes": 2320
+    },
+    {
+      "path": "research/20261012-four-layer-policy/upstream-artifact-check.txt",
+      "sha256": "8897f3bdc564e1149ca2f23be10c3a2b24e1e817507338cedf3afd751b028b8f",
+      "bytes": 2187
+    },
+    {
+      "path": "research/20261012-four-layer-policy/validate.py",
+      "sha256": "aae79b6601a896648b1792b84a5af77679f6c286607b8881a189a370c2e1d15a",
+      "bytes": 11373
+    },
+    {
+      "path": "research/20261012-four-layer-policy/validation.json",
+      "sha256": "82c077dc2d4d11a8be700cf10c8ba67d99f9ebb591798fda86113ca47f941972",
+      "bytes": 4424
+    },
+    {
+      "path": "REVIEW/evidence/agent-workspace-policy-20261011/validation.json",
+      "sha256": "371b3b3be1debf952a4532599158926e32ebb65b9d464d20caff8836557583e4",
+      "bytes": 14205
+    }
+  ],
+  "latest_sync_manifest": "sync-source-20261012.json"
 }

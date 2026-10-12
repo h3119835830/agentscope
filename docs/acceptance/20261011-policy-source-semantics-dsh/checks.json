@@ -1,0 +1,18 @@
+{
+  "backend": {"passed": 1125, "skipped": 11, "failed": 0},
+  "frontend": {"passed": 238, "failed": 0, "runner": "node --test --test-reporter=dot src/*.test.mjs"},
+  "build": {"passed": true, "modules": 111, "existing_large_bundle_warning": true},
+  "native_dsh": {"baseline": 6, "pending": 6, "applied": 11, "failed": 0, "root_owned_kernel_denials": 7},
+  "ui": {
+    "live_port": 18003,
+    "approval_applied": true,
+    "only_write_blocked_in_change": true,
+    "submitted_and_current_pid_visible": true,
+    "session_binding_verified": true,
+    "detail_dsl_has_write_only": true,
+    "session_scoped_kernel_attribution_claimed": false,
+    "screenshots": ["approval.jpg", "session.jpg"]
+  },
+  "scripts": {"syntax_passed": true, "read_only_evidence_export_passed": true},
+  "remote_push": false
+}

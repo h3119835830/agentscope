@@ -1,0 +1,71 @@
+{
+  "date": "2026-10-12",
+  "repositories": [
+    {
+      "id": "actplane-master",
+      "repository": "https://github.com/eunomia-bpf/ActPlane",
+      "commit": "404542899a2153af0952cbf0dc52aeab0b7c5034",
+      "license": "MIT; BPF per-file GPL-2.0 OR BSD-3-Clause"
+    },
+    {
+      "id": "actplane-artifact",
+      "repository": "https://github.com/eunomia-bpf/ActPlane",
+      "commit": "63db86945c9b8618a46aa68c8de214bc4b8343d9",
+      "license": "MIT; benchmark assets retain their own provenance"
+    },
+    {
+      "id": "progent",
+      "repository": "https://github.com/sunblaze-ucb/progent",
+      "commit": "5be7b63fa96f70bc19b72fbcee81f1c0bcc1a565",
+      "license": "MIT"
+    },
+    {
+      "id": "fides",
+      "repository": "https://github.com/microsoft/fides",
+      "commit": "669c046c4adbc56ee49c9672fdd30c54937ea062",
+      "license": "MIT"
+    },
+    {
+      "id": "camel",
+      "repository": "https://github.com/google-research/camel-prompt-injection",
+      "commit": "f083b6b396399d3b3c7f2ddaf613a5945eaf32d8",
+      "license": "Apache-2.0"
+    }
+  ],
+  "papers": [
+    {
+      "name": "actplane",
+      "url": "https://arxiv.org/html/2606.25189v2",
+      "sha256": "2f9e05b76662fc6bb2a3d55e4460cc60421666e23cb6f44b71eb3c675c0fab10",
+      "bytes": 222373
+    },
+    {
+      "name": "progent",
+      "url": "https://arxiv.org/html/2504.11703v3",
+      "sha256": "0cf3f66defbe6910837c6b3fc30022b3ee5ec3912ecffc1af0155232e7a7886d",
+      "bytes": 448646
+    },
+    {
+      "name": "pcas",
+      "url": "https://arxiv.org/html/2602.16708v2",
+      "sha256": "14508d3277b57137aff1c0f0411aec875324ee07816cefd29e506746cfd36c82",
+      "bytes": 705789
+    },
+    {
+      "name": "fides",
+      "url": "https://arxiv.org/html/2505.23643v1",
+      "sha256": "b64bc18c76afcde7e9c933bfc20578f9af5f16e25fc1e02cf34ca7e855e47f7f",
+      "bytes": 790234
+    },
+    {
+      "name": "camel",
+      "url": "https://arxiv.org/html/2503.18813v1",
+      "sha256": "9a9a0fa5c83f16f62fd9d86daa85a5c2d654969bd8f085c2092542f9d5a841a9",
+      "bytes": 2573374
+    }
+  ],
+  "agentscope_commit": "fc4e9d5368fecc713830738a7ad5896dcfd00fd8",
+  "agentscope_commit_published": false,
+  "agentscope_vendored_base": "4c36aa54da2daf2b64de8782a38f77d5b76ec75a",
+  "raw_backup_commit": "cceaee6be878eeff4b42caf9a069d535699ecf69"
+}

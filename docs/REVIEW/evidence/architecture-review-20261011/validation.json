@@ -1,0 +1,43 @@
+{
+  "backend_existing_contracts": {
+    "result": "108 passed",
+    "source": "/home/happy/projects/agentscope-agent-policy-20261010",
+    "tests": [
+      "test_agent_instance_policy.py",
+      "test_system_security_policy.py",
+      "test_dsl_configuration.py",
+      "test_policy_approvals.py",
+      "test_agent_policy_context.py",
+      "test_policy_sources.py"
+    ],
+    "command": "AGENTSCOPE_DSL_ADAPTER=/opt/agentscope-task-archive-20261007/backend/dsl-adapter/target/release/agentscope-dsl-adapter /opt/agentscope/.venv/bin/python -m pytest -q backend/tests/<six listed test files>",
+    "isolation": "conftest temporary database and unavailable Broker socket; workers disabled; privileged IO mocked; real parser/compiler"
+  },
+  "product_projection_and_reproduction": {
+    "result": "11 passed",
+    "existing_product_tests": 9,
+    "synthetic_reproductions": 2,
+    "command": "PYTHONPATH=<reviewed-source>/backend:<reviewed-source>/backend/tests AGENTSCOPE_DSL_ADAPTER=<installed adapter> python -m pytest -q <temporary reproductions> backend/tests/test_product_console.py",
+    "reproduction_setup": "copy reviewed backend/tests/conftest.py to a temporary directory; copy reproduce_event_attribution.py as test_event_attribution.py; no live state"
+  },
+  "frontend": {
+    "result": "218 passed",
+    "command": "/home/happy/.local/bin/node --test frontend/src/*.test.mjs",
+    "scope": "source tests, not browser end-to-end"
+  },
+  "browser": {
+    "result": "read-only walkthrough completed",
+    "policy_actions": 0,
+    "screenshots": 6
+  },
+  "live_kernel_attack_acceptance": {
+    "result": "not run",
+    "claim": "no new allow/block, old-handle, feedback-delivery or RQ5 completion claim"
+  },
+  "source_release_limit": "reviewed source has uncommitted overlays; evidence hashes identify the files; no implementation changes included in this documentation PR",
+  "test_log_sha256": {
+    "agentscope-architecture-backend-20261011.log": "cd760d82feec56e216380ea835eddd27b5cf21527fca0952f9ee73376d05f768",
+    "agentscope-architecture-projection.log": "e1807e8c5ae1db7362e209f077854a2c121a35272e87c0c0cdf3723d2c6cb977",
+    "agentscope-architecture-frontend-20261011.log": "8a4e0989d75aab9dc166a4930e216e32fc8a835f14cbd549f4386f0aa3a564be"
+  }
+}
