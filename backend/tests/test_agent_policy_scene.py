@@ -146,18 +146,16 @@ def test_scene_candidate_revalidates_through_dsl_and_approval_without_applying(w
     result=generations.results(run['id'])['items'][0]
     assert result['compile_state']=='compiled'
     candidate=ctx.selected_candidate('agent-a',result['artifact_id'])
-    ctx.validate_documents('agent-a',[candidate['document']],[])
-    from agentscope_app.instances import approval_views,dsl_policy,policy_library
-    with db.connect() as con:con.executescript(policy_library.SCHEMA)
-    world.scope['documents']=[]
-    monkeypatch.setattr(dsl_policy,'target_snapshot',lambda *args:[])
-    proposal={'id':'scene-approval','scope_id':'agent-a','state':'pending','base_revision':0,
-        'base_hash':world.scope['document_hash'],'documents':[candidate['document']],'targets':[],
-        'created_at':db.now(),'proposal_hash':'c'*64}
-    assert approval_views.project(proposal,{'agent-a':'Agent A'})['can_apply']
+    assert candidate['scopeType']=='workspace'
+    from agentscope_app.instances import local_policy_proposals as local
+    with pytest.raises(ValueError,match='局部审批'):ctx.validate_documents('agent-a',[candidate['document']],[])
+    proposal=local.submit('agent-a',result['artifact_id'],{'candidate_hash':candidate['candidate_hash'],'request_key':uuid.uuid4().hex})
+    key=proposal['id'].split(':',1)[1]
+    projected=local.project(local.load(key),{'agent-a':'Agent A'})
+    assert projected['status']=='blocked' and not projected['can_apply']
     (world.root/'task.md').write_text('A different task.')
-    projected=approval_views.project(proposal,{'agent-a':'Agent A'})
-    assert projected['status']=='stale' and not projected['can_apply'] and '重新读取' in projected['reason']
+    projected=local.project(local.load(key),{'agent-a':'Agent A'})
+    assert projected['status']=='blocked' and not projected['can_apply']
     with pytest.raises(ValueError):ctx.selected_candidate('agent-a',result['artifact_id'])
     with pytest.raises(ValueError):ctx.validate_documents('agent-a',[candidate['document']],[])
     with db.connect() as con:

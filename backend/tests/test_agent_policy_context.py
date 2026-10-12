@@ -140,14 +140,15 @@ def test_generation_compiles_actual_source_persists_session_and_never_approves_o
     assert candidate['document']['generation_binding']['context_hash']==result['record']['resolved_context']['environment_binding']['hash']
     assert result['record']['resolved_context']['verified_targets']==[{'absolute_path':'/w/0/.env','kind':'future_path','exists':False}]
     assert '/w/0/.env' in candidate['document']['original_dsl']
-    assert candidate['scopeType']=='agent' and '所有会话' in candidate['caveat']
+    assert candidate['scopeType']=='session' and candidate['target']['session_id']=='session-a'
+    assert not candidate['application_capability']['supported']
     with db.connect() as con:
         assert con.execute('SELECT COUNT(*) FROM instance_dsl_proposals').fetchone()[0]==0
         assert con.execute('SELECT COUNT(*) FROM instance_policy_receipts').fetchone()[0]==0
     with pytest.raises(ValueError,match='不属于'):ctx.selected_candidate('agent-b',result['artifact_id'])
-    ctx.validate_documents('agent-a',[candidate['document']],[])
+    with pytest.raises(ValueError,match='局部审批'):ctx.validate_documents('agent-a',[candidate['document']],[])
     modified=copy.deepcopy(candidate['document']);modified['original_dsl']+='\n# changed'
-    with pytest.raises(ValueError,match='内容已变化'):ctx.validate_documents('agent-a',[modified],[])
+    with pytest.raises(ValueError,match='局部审批'):ctx.validate_documents('agent-a',[modified],[])
     world.scope.update(revision=1)
     with pytest.raises(ValueError):ctx.selected_candidate('agent-a',result['artifact_id'])
     with pytest.raises(ValueError):ctx.validate_documents('agent-a',[candidate['document']],[])

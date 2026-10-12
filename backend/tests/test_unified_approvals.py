@@ -12,7 +12,7 @@ def propose(row,actor='user'):
 def decide(client,ident,p,decision='confirm',headers=ADMIN):
     return client.post('/api/console/approvals/'+ident+'/'+decision,json={'proposal_hash':p['proposal_hash']},headers=headers)
 
-@pytest.mark.parametrize('actor',['user','agent'])
+@pytest.mark.parametrize('actor',['user'])
 @pytest.mark.parametrize('running',[False,True])
 def test_native_restriction_is_pending_even_for_an_open_agent_tool(world,actor,running):
     if running:world.run(world.a)
@@ -92,8 +92,22 @@ def test_system_approval_retains_original_before_after_once_applied(world):
 def test_task_or_generator_credential_cannot_decide_an_approval(world):
     token=uuid.uuid4().hex;generation='a'*32
     store.update(world.a['id'],generation=generation,gate='open',token_hash=hashlib.sha256(token.encode()).hexdigest())
-    before=store.get(world.a['id']);p=propose(before,'agent')
+    before=store.get(world.a['id']);p=propose(before,'user')
     assert decide(world.client,'instance:'+p['id'],p,headers={'Authorization':'Bearer '+token}).status_code==401
+    assert store.get(world.a['id'])==before and not world.calls
+
+def test_runtime_instance_tool_cannot_request_an_agent_wide_change(world):
+    before=store.get(world.a['id'])
+    with pytest.raises(ValueError,match='可信当前会话'):propose(before,'agent')
+    assert store.get(world.a['id'])==before and not world.calls
+
+def test_historical_agent_runtime_proposal_cannot_apply_to_whole_agent(world):
+    before=store.get(world.a['id']);p=propose(before)
+    with db.connect() as con:con.execute('UPDATE instance_proposals SET actor=? WHERE id=?',('agent',p['id']))
+    ident='instance:'+p['id'];row=approvals.detail(ident)
+    assert row['scope_type']=='session' and row['status']=='blocked' and not row['can_apply']
+    assert decide(world.client,ident,p).status_code==409
+    with pytest.raises(ValueError,match='可信会话目标'):c.apply(world.a['id'],p['id'],p['proposal_hash'])
     assert store.get(world.a['id'])==before and not world.calls
 
 @pytest.mark.parametrize('kind',['restrict','expand'])

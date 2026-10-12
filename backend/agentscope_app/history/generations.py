@@ -291,6 +291,13 @@ def results(ident,limit=20,offset=0,**filters):
         # Submission precedes human approval; all source/environment/semantic
         # guards still apply. Keep this separate from final load eligibility.
         item['submission_blockers'] = list(dict.fromkeys(item['review_blockers'] + item['load_blockers']))
+        target = item['record'].get('resolved_context', {}).get('policy_target')
+        if target:
+            from ..instances.policy_targets import capability, label
+            item['application_capability'] = capability(target)
+            item['scope_label'] = label(target, item['record']['resolved_context'])
+            if not item['application_capability']['supported']:
+                item['load_blockers'].append(item['application_capability']['reason'])
         if item["review_status"]!="approved" or item["artifact_review_status"]!="approved": item["load_blockers"].append("尚未最终人工审核")
         if not a or not a.get("actplane_dsl"): item["load_blockers"].append("没有执行 DSL")
         elif item["compile_state"]!="compiled": item["load_blockers"].append("尚未编译通过")

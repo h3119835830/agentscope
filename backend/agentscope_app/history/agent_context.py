@@ -44,6 +44,7 @@ def choices(row):
 
 def workspace_fact(row, session):
     from ..instances.mapping import translate
+    from ..instances.sessions import native_workspace_info
     cwd = session['cwd']
     source = translate(cwd, row['resources'], reverse=True)
     if source != session.get('resource'):
@@ -57,9 +58,10 @@ def workspace_fact(row, session):
     if not path.is_dir() or str(path.resolve(strict=True)) != source:
         raise ValueError('会话工作目录不存在或路径映射发生变化')
     stat = path.stat()
+    native = native_workspace_info(row, session) or {}
     return {'execution': cwd, 'host': source, 'resource': root,
             'device': stat.st_dev, 'inode': stat.st_ino,
-            'native_workspace_id': (session.get('native_workspace') or {}).get('id')}
+            'native_workspace_id': native.get('id'), 'name': native.get('name')}
 
 
 def snapshot(ident, session_id=None):
@@ -96,6 +98,9 @@ def snapshot(ident, session_id=None):
            'workspace': work['execution'], 'allowed_paths': [work['execution']],
            'verified_targets': [{'absolute_path': work['execution'], 'kind': 'directory'}],
            'environment_binding': binding}
+    from ..instances.policy_targets import generated_target
+    ctx['policy_target'] = generated_target(ctx)
+    ctx['session_name'] = selected.get('name') or '未命名会话'
     return {'ready': True, 'sessions': public, 'session_id': selected['id'],
             'session_name': selected.get('name') or '未命名会话', 'context_hash': binding['hash'],
             'environment': {'workspace': work['execution'], 'product': row['agent_type'],
@@ -129,6 +134,11 @@ def revalidate(ctx):
         current=bind(current,scene['id'])
     if ctx.get('target_requests') is not None:
         current=bind_targets(current,ctx['target_requests'])
+    # Historical records retain their original contract. They are inspectable,
+    # but cannot be newly imported as a wider Agent approval (see below).
+    if 'policy_target' not in ctx:
+        current.pop('policy_target', None)
+        current.pop('session_name', None)
     if current != ctx:
         raise ValueError('Agent 或会话环境已变化，请重新生成策略')
 
@@ -250,6 +260,8 @@ def selected_candidate(ident, artifact_id):
     ctx = version.resolved_context
     if ctx.get('kind') != 'agent' or ctx.get('instance_id') != ident:
         raise ValueError('此候选不属于当前 Agent')
+    if not ctx.get('policy_target'):
+        raise ValueError('旧候选未绑定工作区或会话目标，请重新生成；不能扩大为 Agent 策略')
     revalidate(ctx)
     data = json.loads(artifact['artifact_json'])
     if digest(data) != artifact['content_sha256'] or not data.get('actplane_dsl'):
@@ -265,12 +277,21 @@ def selected_candidate(ident, artifact_id):
     metadata = {m.group(1): {'statement': version.statement.text_zh or version.statement.text_original,
                 'context_requirement': 'project', 'context_reason': '服务端已核验当前 Agent 和原生会话工作目录'}
                 for m in re.finditer(r'^rule ([\w-]+):', text, re.M)}
+    from ..instances.policy_targets import generated_target, label, capability
+    target = generated_target(ctx, bool(ctx.get('scene_binding')))
+    if ctx.get('policy_target') != target:
+        raise ValueError('旧候选未绑定工作区或会话目标，请按当前需求重新生成；不能扩大为 Agent 策略')
+    document = {'id': 'g_' + artifact_id, 'name': (version.statement.text_zh or version.statement.text_original)[:80],
+                'original_dsl': text, 'metadata': metadata,
+                'generation_binding': {'artifact_id': artifact_id, 'context_hash': ctx['environment_binding']['hash']}}
     return {'id': 'generated-' + artifact_id, 'targetId': ident, 'sessionId': ctx['session_id'],
-            'scopeType': 'agent', 'templateId': '策略助手',
-            'caveat': '此会话提供工作区上下文；应用将更新该 Agent 的共享策略，影响其所有会话，须由你确认。',
-            'document': {'id': 'g_' + artifact_id, 'name': (version.statement.text_zh or version.statement.text_original)[:80],
-                         'original_dsl': text, 'metadata': metadata,
-                         'generation_binding': {'artifact_id': artifact_id, 'context_hash': ctx['environment_binding']['hash']}}}
+            'session_name': ctx.get('session_name') or '生成会话',
+            'scopeType': target['scope'], 'target': target, 'templateId': '策略助手',
+            'origin': 'scene' if ctx.get('scene_binding') else 'runtime',
+            'scope_label': label(target, ctx), 'application_capability': capability(target),
+            'candidate_hash': digest({'document': document, 'target': target}),
+            'caveat': '候选只提交至上述目标；人工确认和独立执行绑定核验完成前不改变权限。',
+            'document': document}
 
 
 def validate_documents(scope, documents, previous):
@@ -279,6 +300,9 @@ def validate_documents(scope, documents, previous):
         if not doc.get('generation_binding') or old.get(doc['id']) == doc:
             continue
         binding = doc['generation_binding']
-        candidate = selected_candidate(scope, binding['artifact_id'])['document']
+        selected = selected_candidate(scope, binding['artifact_id'])
+        if selected['scopeType'] != ('system' if scope == 'system' else 'agent'):
+            raise ValueError('候选目标是工作区或会话，不能提交到 Agent 或系统策略；请使用对应的局部审批')
+        candidate = selected['document']
         if binding != candidate['generation_binding'] or doc['original_dsl'] != candidate['original_dsl']:
             raise ValueError('生成候选内容已变化，请重新选择；手工编辑请作为独立 DSL 草案')

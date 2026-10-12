@@ -52,7 +52,7 @@ def test_restriction_waits_for_human_confirmation_and_is_instance_local(instance
     class Adapter:
         def stop(self,row): calls.append((row['id'],store.get(row['id'])['gate'])); return {'status':'stopped'}
     monkeypatch.setattr(c,'adapter',lambda row:Adapter())
-    result=c.proposals(first['id'],proposal(first,{'rules':[],'network':'disabled'}),'agent')
+    result=c.proposals(first['id'],proposal(first,{'rules':[],'network':'disabled'}),'user')
     assert result['state']=='pending' and not calls
     assert store.get(first['id'])['policy']['network']=='model_only'
     assert c.apply(first['id'],result['id'],result['proposal_hash'])['state']=='applied'

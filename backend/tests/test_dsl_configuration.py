@@ -270,7 +270,7 @@ def test_generated_candidate_context_is_rechecked_before_confirm_and_no_process_
     checks=[]
     def selected(scope,artifact):
         checks.append((scope,artifact))
-        return {'document':doc}
+        return {'document':doc,'scopeType':'agent'}
     monkeypatch.setattr(agent_context,'selected_candidate',selected)
     p=candidate(world.a['id'],[doc])
     assert p['state']=='pending' and len(checks)==1 and not world.calls

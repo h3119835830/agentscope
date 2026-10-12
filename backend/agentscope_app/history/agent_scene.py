@@ -233,4 +233,6 @@ def bind(context, read_id):
     values = out['environment_binding']['values']
     values['scene'] = binding
     out['environment_binding']['hash'] = digest(values)
+    from ..instances.policy_targets import generated_target
+    out['policy_target'] = generated_target(out, scene=True)
     return out

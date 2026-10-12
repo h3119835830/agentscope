@@ -115,6 +115,15 @@ def policy_candidate(ident:str,artifact_id:str):
     from ..history.agent_context import selected_candidate
     return invoke(selected_candidate,ident,artifact_id)
 
+class LocalCandidate(Model):
+    candidate_hash:str=Field(pattern=r'^[a-f0-9]{64}$')
+    request_key:str=Field(min_length=8,max_length=100)
+
+@router.post('/api/agent-instances/{ident}/policy-candidates/{artifact_id}/proposals')
+def local_candidate(ident:str,artifact_id:str,body:LocalCandidate):
+    from .local_policy_proposals import submit
+    return invoke(submit,ident,artifact_id,body.model_dump())
+
 @router.post('/api/security/system/dsl/proposals/{pid}/reject')
 def system_reject(pid:str,body:Confirm):return invoke(dsl.reject,'system',pid,body.proposal_hash)
 

@@ -1,5 +1,7 @@
 """One approval object over authoritative DSL, typed-policy and runtime stores."""
 import json
+import threading
+from concurrent.futures import Future
 from fastapi import HTTPException
 from .. import db
 from . import dsl_policy as dsl, store
@@ -7,6 +9,9 @@ from .approval_locations import Locations, product
 
 
 def envelope(row,baseline):
+    target = row['target']
+    row['target'] = {'instance_id': row['scope_id'] if target['scope'] == 'agent' else None,
+                     'workspace_id': None, 'session_id': None, **target}
     return {**row,'schema':'PolicyApproval/1','baseline':baseline}
 
 
@@ -101,6 +106,14 @@ def typed_project(p,names,full=False,shared=False):
         elif p['base_hash']!=controller.digest(base):base=None
         visible=[{**t,'active':t.get('active',t.get('gate') in ('open','paused'))} for t in targets if t['id'] not in hidden('agent')]
         row.update(documents=[],records=[],targets=visible,change_items=typed_changes(base,candidate) if base else [],baseline_available=base is not None)
+    if not shared and p['actor']=='agent' and p['state'] not in ('applied','rejected'):
+        # Old runtime tools had only instance identity. Preserve historical
+        # applied scope, but never approve a pending runtime rule globally.
+        row.update(scope_type='session', target={'scope':'session','instance_id':scope,'workspace_id':None,'session_id':None},
+                   scope_label='会话目标待核验',status='blocked',can_apply=False,
+                   reason='旧运行时提案缺少可信会话目标，请在当前会话重新生成；不能更新整个 Agent。')
+        if full:
+            row['targets']=[{**t,'scope_label':'会话目标待核验','application_label':'未应用，权限保持不变'} for t in row['targets']]
     return envelope(row,{'policy_hash':p['base_hash'],**({'revision':p['revision']} if shared else {'generation':p['generation']})})
 
 
@@ -152,16 +165,50 @@ def runtime_project(job,task,state,full=False):
     return envelope(row,{'policy_hash':job['policy_hash'],'revision':job['revision'],'version':binding.get('version')})
 
 
+_directory_lock = threading.Lock()
+_directory_inflight = None
+
+
 def directory():
+    """Coalesce concurrent reads only; sequential reads always get fresh state."""
+    global _directory_inflight
+    with _directory_lock:
+        leader = _directory_inflight is None
+        if leader: _directory_inflight = Future()
+        pending = _directory_inflight
+    if not leader: return pending.result()
+    try:
+        value = _read_directory()
+        pending.set_result(value)
+        return value
+    except BaseException as error:
+        pending.set_exception(error)
+        raise
+    finally:
+        with _directory_lock:
+            if _directory_inflight is pending: _directory_inflight = None
+
+
+def _read_directory():
     names=scopes()
     with db.connect() as con:
         rows=[dsl.unpack(p) for p in con.execute("SELECT * FROM instance_dsl_proposals ORDER BY created_at DESC,id DESC") if p['scope_id'] in names]
     locations=Locations()
     records=[project(p,names,locations=locations) for p in rows]
+    from . import local_policy_proposals as local
+    with db.connect() as con:
+        records.extend(local.project(dict(p), names, locations=locations) for p in con.execute('SELECT * FROM local_policy_proposals') if p['instance_id'] in names)
     with db.connect() as con:
         native=[dict(r) for r in con.execute('SELECT * FROM instance_proposals') if r['instance_id'] in names]
         shared=[dict(r) for r in con.execute('SELECT * FROM system_security_proposals')]
-        jobs=[dict(r) for r in con.execute("SELECT * FROM managed_jobs WHERE proposal_json IS NOT NULL AND json_extract(proposal_json,'$.decision') IN ('restrict','expand')")]
+        # Filter retained/removed tasks before projecting history. Otherwise
+        # every overview poll opens several connections per hidden job, even
+        # though none can appear in the customer approval directory.
+        jobs=[dict(r) for r in con.execute("""SELECT j.* FROM managed_jobs j
+            JOIN tasks t ON t.id=j.task_id JOIN managed_tasks m ON m.task_id=j.task_id
+            WHERE j.proposal_json IS NOT NULL
+            AND json_extract(j.proposal_json,'$.decision') IN ('restrict','expand')
+            AND j.task_id NOT IN (SELECT record_id FROM console_retained_records WHERE kind='task')""")]
     records.extend(typed_project(p,names) for p in native)
     records.extend(typed_project(p,names,shared=True) for p in shared)
     for job in jobs:
@@ -172,6 +219,11 @@ def directory():
 
 
 def detail(ident):
+    if ident.startswith('local:'):
+        from . import local_policy_proposals as local
+        p = local.load(ident.split(':', 1)[1]); names = scopes()
+        if p['instance_id'] not in names: raise HTTPException(404, '审批记录不存在')
+        return local.project(p, names, full=True)
     if ident.startswith(('instance:','system:')):
         kind,key=ident.split(':',1);names=scopes();table='instance_proposals' if kind=='instance' else 'system_security_proposals'
         with db.connect() as con:p=con.execute('SELECT * FROM '+table+' WHERE id=?',(key,)).fetchone()
@@ -208,7 +260,10 @@ def decide(ident,decision,expected_hash):
     if row['candidate_hash']!=expected_hash:raise ValueError('候选确认内容不一致')
     if decision=='confirm' and not row['can_apply'] and row['status']!='applied':raise ValueError('候选需要重新校验或已处理')
     if decision=='reject' and not row['can_reject'] and row['status']!='rejected':raise ValueError('候选已变化或已处理')
-    if row['kind']=='dsl':result=(dsl.apply if decision=='confirm' else dsl.reject)(row['scope_id'],ident,expected_hash)
+    if row['kind']=='local_dsl':
+        from . import local_policy_proposals as local
+        result=local.decide(ident.split(':',1)[1],decision,expected_hash)
+    elif row['kind']=='dsl':result=(dsl.apply if decision=='confirm' else dsl.reject)(row['scope_id'],ident,expected_hash)
     elif row['kind']=='instance_policy':result=(controller.apply if decision=='confirm' else controller.reject)(row['scope_id'],ident.split(':',1)[1],expected_hash)
     elif row['kind']=='system_policy':result=(system_policy.apply if decision=='confirm' else system_policy.reject)(ident.split(':',1)[1],expected_hash)
     elif row['status'] in ('applied','rejected'):result={'id':ident,'state':row['status'],'idempotent':True}

@@ -9,6 +9,7 @@ export function assistantInput(text,target,previous=[],context=null,sceneId=null
  return {text:[text.trim(),prior?'此前需求（本次需求为最新补充）：\n'+prior:''].filter(Boolean).join('\n\n'),enforcement_level:'per_event',context_requirement:context?'project':'self_contained',...(context?{agent_context:{instance_id:target.id,session_id:context.session_id,context_hash:context.context_hash,...(sceneId?{scene_id:sceneId}:{})}}:{})};
 }
 export function generatedHandoff(result,target,id=crypto.randomUUID()){
+ if(result.record?.resolved_context?.kind==='agent')throw Error('生成候选须通过服务端固定工作区或会话目标后提交审批。');
  if(!target?.id||target.id==='system'||target.mode!=='controlled')throw Error('请选择具体的受控 Agent。');
  const dsl=result.artifact?.actplane_dsl;
  if(!dsl?.trim())throw Error('此生成结果没有可导入的 DSL，请先补充需求。');
