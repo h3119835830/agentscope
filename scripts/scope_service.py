@@ -16,7 +16,7 @@ NORMALIZATION_PROFILE = os.getenv("AGENTSCOPE_SERVICE_PROFILE") == "normalizatio
 STATE = Path("/var/lib/agentscope-normalization-v1" if NORMALIZATION_PROFILE else "/var/lib/agentscope-scope-demo")
 TASKS = Path("/n" if NORMALIZATION_PROFILE else "/s")
 PORT = 18004 if NORMALIZATION_PROFILE else 18003
-URL = f"http://127.0.0.1:{PORT}"
+URL = f"http://localhost:{PORT}"
 
 
 def environment():

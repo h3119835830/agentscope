@@ -1,0 +1,137 @@
+{
+  "schema": "agentscope.execution-independence.v1",
+  "started_at": 1791814515.2693133,
+  "instance_id": "instance-4dabece2b2634d85",
+  "before": {
+    "pid": 1807152,
+    "start_ticks": "20431287",
+    "state": "S",
+    "generation": "dd1c8560855042b8908b70827dc8041e",
+    "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815"
+  },
+  "checks": {
+    "console_outage": {
+      "seconds": 45.19,
+      "same_pid_generation_policy": true,
+      "queued_events": 16,
+      "approval_failed_closed": true,
+      "canary_before": "8d0e0409f8d17dbd54b28f33fa8d07e5621da3e9a1cdbf66eb1a97e8268715ec",
+      "canary_after": "8d0e0409f8d17dbd54b28f33fa8d07e5621da3e9a1cdbf66eb1a97e8268715ec",
+      "native_session_id": "session-16c9ebbd-43f8-46a4-8dca-64606273ab68",
+      "native_state": {
+        "session_id": "session-16c9ebbd-43f8-46a4-8dca-64606273ab68",
+        "status": "idle"
+      },
+      "kernel_events": [
+        {
+          "offset": 0,
+          "event": {
+            "action": "block",
+            "blocked": true,
+            "comm": "python3",
+            "domain_id": 1432725289,
+            "effect": "block",
+            "event": "taint_violation",
+            "killed": false,
+            "matched_label": "0x1",
+            "matched_label_details": [
+              {
+                "causal_chain": [
+                  {
+                    "label": "AGENT",
+                    "label_mask": "0x1",
+                    "origin_op": "exec",
+                    "origin_pid": 1807199,
+                    "origin_target": "python3",
+                    "origin_timestamp_ns": 204314487797327
+                  }
+                ],
+                "causal_chain_complete": false,
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "provenance": {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 1807199,
+                  "origin_target": "python3",
+                  "origin_timestamp_ns": 204314487797327
+                },
+                "provenance_status": "reported_first_origin"
+              }
+            ],
+            "matched_label_name": "AGENT",
+            "matched_label_names": [
+              "AGENT"
+            ],
+            "matched_labels": "0x1",
+            "op": "write",
+            "op_code": 2,
+            "pid": 1807199,
+            "ppid": 1807197,
+            "process_domain_id": 1432725289,
+            "provenance": {
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "origin_op": "exec",
+              "origin_pid": 1807199,
+              "origin_target": "python3",
+              "origin_timestamp_ns": 204314487797327
+            },
+            "provenance_model": {
+              "causal_chain_scope": "single_hop_origin",
+              "full_causal_chain": false,
+              "matched_labels_enumerated": true,
+              "reported_origin_available": true,
+              "reported_origin_scope": "first_available_matched_label"
+            },
+            "rule": {
+              "clause_end_line": 6,
+              "clause_hash": "fnv1a64:329b0066f31642ff",
+              "clause_op": "write",
+              "clause_source_index": 0,
+              "clause_start_line": 6,
+              "clause_text": "  block write file \"/w/0/**\" if AGENT",
+              "effect": "block",
+              "immutable": false,
+              "kernel_op": "write",
+              "name": "instance-readonly-1",
+              "ops": [
+                "write"
+              ],
+              "reason": "Instance resource is read-only or explicitly protected.",
+              "source_end_line": 9,
+              "source_hash": "fnv1a64:6768d64cd7099af1",
+              "source_ref": "rule:instance-readonly-1",
+              "source_start_line": 5,
+              "target_arg": null,
+              "target_kind": "file",
+              "target_pattern": "/w/0/**"
+            },
+            "rule_id": 1,
+            "schema": "actplane.violation.v1",
+            "session_root": 1806892,
+            "taint_label": "0x1",
+            "target": "/w/0/.agentscope-permission-probe",
+            "timestamp_unix_ns": "1791814513775988248",
+            "tool_call_tag": "0"
+          }
+        }
+      ]
+    },
+    "recovery": {
+      "queue_drained": true,
+      "old_call_cannot_execute": true,
+      "identity_preserved": true
+    },
+    "watch_loss": {
+      "terminated_seconds": 0.903
+    },
+    "broker_stall": {
+      "terminated_seconds": 7.424,
+      "deadline_seconds": 8
+    }
+  },
+  "passed": true,
+  "finished_at": 1791814589.3199577
+}

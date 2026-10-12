@@ -1,81 +1,37 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React,{useRef,useState} from 'react';
 import {createPortal} from 'react-dom';
-import {noticeCases, noticeGroups} from './securityNoticeCases.mjs';
+import {valueCases,evidenceFor} from './securityValueCases.mjs';
+import evidence from './valueEvidence.json';
 import './securityNotice.css';
 
-// This version is independent of the design preview and of task/security state.
-const seenKey = 'agentscope-security-notice-v2-seen';
-function hasSeenNotice() {
-  try { return localStorage.getItem(seenKey) === 'true'; } catch { return false; }
-}
-
-export default function SecurityNotice() {
-  const dialog = useRef(null);
-  const trigger = useRef(null);
-  const [seen, setSeen] = useState(hasSeenNotice);
-  const [group, setGroup] = useState('execution');
-  const [selection, setSelection] = useState({execution:'plugin', governance:'isolation'});
-  const scene = noticeCases.find(item=>item.id===selection[group]);
-
-  useEffect(()=>{
-    if (!hasSeenNotice() && !dialog.current.open) dialog.current.showModal();
-  }, []);
-
-  const openNotice = () => { if (!dialog.current.open) dialog.current.showModal(); };
-  const closeNotice = () => {
-    try { localStorage.setItem(seenKey, 'true'); } catch { /* Still usable when storage is unavailable. */ }
-    setSeen(true);
-    dialog.current.close();
-    trigger.current?.focus();
-  };
-  const selectScene = id => {
-    setSelection(current=>({...current,[group]:id}));
-    dialog.current.scrollTop=0;
-  };
-  const selectGroup = id => { setGroup(id); dialog.current.scrollTop=0; };
-  const trapFocus = event => {
-    if (event.key!=='Tab') return;
-    const controls = [...dialog.current.querySelectorAll('button, summary')].filter(element=>!element.disabled && element.getClientRects().length);
-    const first=controls[0], last=controls[controls.length-1];
-    if (event.shiftKey && document.activeElement===first) { event.preventDefault(); last.focus(); }
-    else if (!event.shiftKey && document.activeElement===last) { event.preventDefault(); first.focus(); }
-  };
-
-  return <>
-    <button ref={trigger} type="button" className="security-notice-trigger" aria-haspopup="dialog" aria-controls="security-notice" onClick={openNotice}>
-      <span aria-hidden="true">◈</span>安全亮点{!seen&&<span className="sn-unread-dot" aria-label="新公告"/>}
-    </button>
-    {createPortal(<dialog ref={dialog} id="security-notice" className="security-notice-dialog" aria-labelledby="security-notice-heading" onCancel={event=>{event.preventDefault();closeNotice();}} onKeyDown={trapFocus}>
-      <header className="sn-notice-header">
-        <div className="sn-notice-title"><span className="sn-notice-mark" aria-hidden="true">◈</span><h2 id="security-notice-heading">安全亮点</h2><span className="sn-case-count">{noticeCases.length} 个案例</span></div>
-        <button type="button" className="sn-close-button" aria-label="关闭公告" onClick={closeNotice}>×</button>
-      </header>
-      <div className="sn-notice-layout">
-        <nav className="sn-scenario-nav" aria-label="选择安全场景">
-          <div className="sn-scenario-groups" aria-label="场景分类">{noticeGroups.map(item=><button key={item.id} type="button" data-group={item.id} aria-pressed={group===item.id} aria-controls="security-notice-buttons" onClick={()=>selectGroup(item.id)}>{item.label}</button>)}</div>
-          <div id="security-notice-buttons" className="sn-scenario-buttons">{noticeCases.filter(item=>item.group===group).map((item,index)=><button type="button" className="sn-scenario-button" key={item.id} data-case={item.id} aria-current={scene.id===item.id} aria-controls="security-notice-content" onClick={()=>selectScene(item.id)}><span className="sn-scenario-number">{String(index+1).padStart(2,'0')}</span><span>{item.label}</span></button>)}</div>
-          <div className="sn-sample-note">从用户任务到系统行为，<br/>看清每一步如何受约束。</div>
-        </nav>
-        <article id="security-notice-content" className="sn-scenario-content" aria-live="polite">
-          <h3 className="sn-scene-heading">{scene.title}</h3>
-          <p className="sn-scene-task"><strong>{scene.actor}</strong>　{scene.task}</p>
-          <div className="sn-trace-grid">
-            <section className="sn-trace-panel" aria-label={scene.leftTitle}>
-              <header className="sn-trace-header"><h3>{scene.leftTitle}</h3><span>{scene.leftKind}</span></header>
-              <div className="sn-tool-trace">{scene.leftSteps.map((step,index)=><div className="sn-trace-step" key={index}><span className="sn-time">{step[0]}</span><div><div className="sn-step-title"><span className={scene.isToolTrace&&index===0?'sn-tool-name':''}>{step[1]}</span>{scene.isToolTrace&&index===0&&<span>call_a12</span>}</div><pre className={'sn-code-box'+(index===1?' sn-output':'')}>{step[2]}</pre></div></div>)}</div>
-              <p className="sn-tool-insight">{scene.toolNote}</p>
-            </section>
-            <section className="sn-trace-panel" aria-label={scene.rightTitle}>
-              <header className="sn-trace-header"><h3>{scene.rightTitle}</h3><span>{scene.rightKind}</span></header>
-              <div className="sn-system-trace">{scene.events.map((event,index)=><div className={'sn-system-event'+(event[5]?' sn-'+event[5]:'')} key={index}><span className="sn-time">+{Number(event[0])}ms</span><div><div className="sn-event-source"><span>{event[1]}</span><strong>{event[2]}</strong>{event[5]&&<span className="sn-verdict">{event[6]||(scene.id==='approval'?'未批准':'拒绝')}</span>}</div><pre className="sn-event-code">{event[3]}</pre>{event[5]&&<div className="sn-event-detail">{event[4]}</div>}</div></div>)}</div>
-            </section>
-          </div>
-          <div className="sn-correlation" aria-label="行为关联">{scene.relation.map((item,index)=><React.Fragment key={index}>{index>0&&<span className="sn-link-arrow">→</span>}<code>{item}</code></React.Fragment>)}</div>
-          <div className="sn-value-line"><strong>新增价值</strong><span>{scene.value}</span></div>
-          <details className="sn-evidence-details" key={scene.id}><summary>案例过程</summary><div className="sn-case-objects"><span>涉及对象</span>{scene.files.map(file=><code key={file}>{file}</code>)}</div><ol className="sn-case-story">{scene.story.map((step,index)=><li key={index}>{step}</li>)}</ol><p className="sn-case-result"><strong>结果</strong>　{scene.result}</p></details>
-        </article>
-      </div>
-      <footer className="sn-notice-footer"><span>可随时从首页「安全亮点」再次打开。</span><button type="button" className="sn-primary-button" onClick={closeNotice}>知道了</button></footer>
-    </dialog>, document.body)}
-  </>;
+export default function SecurityNotice(){
+ const dialog=useRef(null),trigger=useRef(null),heading=useRef(null);
+ const [selected,setSelected]=useState(null);
+ const scene=valueCases.find(item=>item.id===selected),state=scene&&evidenceFor(scene,evidence);
+ const open=()=>{if(!dialog.current.open)dialog.current.showModal();};
+ const close=()=>{dialog.current.close();trigger.current?.focus();};
+ const select=id=>{setSelected(id);requestAnimationFrame(()=>heading.current?.focus());};
+ return <>
+ <button ref={trigger} type="button" className="security-notice-trigger" aria-haspopup="dialog" aria-controls="security-notice" onClick={open}><span aria-hidden="true">◈</span>安全亮点 · 12 类场景</button>
+ {createPortal(<dialog ref={dialog} id="security-notice" className="security-notice-dialog sn-value-dialog" aria-labelledby="security-notice-heading" onCancel={event=>{event.preventDefault();close();}}>
+  <header className="sn-notice-header"><div className="sn-notice-title"><span className="sn-notice-mark" aria-hidden="true">◈</span><h2 id="security-notice-heading">安全亮点</h2></div><button type="button" className="sn-close-button" aria-label="关闭安全亮点" onClick={close}>×</button></header>
+  <div className="sn-value-body">
+   {!scene?<>
+    <p className="sn-intro">允许一个工具，不代表允许它产生的全部效果。这里用具体任务说明 OS 策略能增加什么，以及仍需哪些防护。</p>
+    <p className="sn-history-note">实验是历史验证，不能证明当前 Agent 正受保护；当前状态请查看总览中的核验时间。</p>
+    <div className="sn-catalog-scroll"><table className="sn-catalog"><caption className="sr-only">保护对象、攻击路径与验证结论</caption><thead><tr><th>场景与保护对象</th><th>攻击路径</th><th>验证结论</th><th><span className="sr-only">操作</span></th></tr></thead><tbody>{valueCases.map(item=>{const itemState=evidenceFor(item,evidence);return <tr key={item.id}><td><b>{item.label}</b><small>{item.object}</small></td><td>{item.path}</td><td><span className={'sn-proof '+itemState.tone}>{itemState.label}</span></td><td><button type="button" className="sn-detail-button" onClick={()=>select(item.id)} aria-label={'查看'+item.label}>查看</button></td></tr>;})}</tbody></table></div>
+   </>:<>
+    <button type="button" className="sn-back" onClick={()=>setSelected(null)}>← 返回场景目录</button>
+    <div className="sn-detail-title"><h3 ref={heading} tabIndex={-1}>{scene.label}</h3><span className={'sn-proof '+state.tone}>{state.label}</span></div>
+    <dl className="sn-facts"><dt>合法任务</dt><dd>{scene.task}</dd><dt>攻击者能力</dt><dd>{scene.attacker}</dd></dl>
+    <div className="sn-attack-chain" aria-label="攻击过程">{scene.chain.map((step,index)=><p key={step}><span aria-hidden="true">{index+1}</span>{step}</p>)}</div>
+    <div className="sn-comparison"><section><h4>已有防护能做什么</h4><p>{scene.before}</p></section><section><h4>ActPlane 与 AgentScope 增加什么</h4><p>{scene.mechanism}</p><p className="sn-value-conclusion">{scene.value}</p></section></div>
+    <section className="sn-result"><h4>本轮结果</h4>{state.proof?<><p>{state.proof.result}</p><p>{state.proof.control}</p><small>验证日期：{evidence.date} · {evidence.environment} · {state.proof.repetitions} 次重复</small></>:<p>尚无本轮完整实证。这里展示机制依据、攻击配方或延伸方案；未用示意记录冒充实际拦截。</p>}</section>
+    <section className="sn-boundary"><h4>适用条件与边界</h4><p>{scene.boundary}</p></section>
+    <details className="sn-references"><summary>查看依据</summary><p>机制来源：<a href="https://arxiv.org/html/2606.25189v2" target="_blank" rel="noreferrer">ActPlane 论文 v2</a>；<a href="https://github.com/eunomia-bpf/ActPlane/tree/404542899a2153af0952cbf0dc52aeab0b7c5034" target="_blank" rel="noreferrer">固定提交源码</a>。</p>{state.proof&&<p>本机实验分别核验执行效果、文件完整性与内核拒绝。{evidence.reportUrl?<a href={evidence.reportUrl} target="_blank" rel="noreferrer">查看可复现实验报告</a>:'实验报告尚未随当前版本发布。'}</p>}<p>传统沙箱也能阻止多种文件越界。本轮没有复现 CaMeL、Progent、FIDES 的完整系统。</p></details>
+   </>}
+  </div>
+  <footer className="sn-notice-footer"><span>阅读案例不改变策略。配置与扩权仍需人工确认。</span><button type="button" className="sn-primary-button" onClick={close}>关闭</button></footer>
+ </dialog>,document.body)}
+ </>;
 }

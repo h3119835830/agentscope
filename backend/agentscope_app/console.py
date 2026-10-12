@@ -112,17 +112,24 @@ def retained_request(request):
 
 @router.get('/summary')
 def summary():
-    from .history import catalog
     from .instances.approval_views import pending_count
     rows=agents()
     controlled=[r for r in rows if r['mode']=='controlled']
     with db.connect() as con:
         tasks=[db.row_dict(r) for r in con.execute("SELECT * FROM tasks WHERE id NOT IN (SELECT record_id FROM console_retained_records WHERE kind='task') ORDER BY updated_at DESC")]
-    records=catalog.page(limit=1,console=True)
-    pending=catalog.page(status='pending_review',limit=1,console=True)
+        # Counts are facts about stored records, not permission revalidation.
+        # The catalog's detailed row projection reads native contexts and must
+        # never run as a side effect of a periodically polled overview.
+        counts=con.execute("""SELECT COUNT(*) AS total,
+            COALESCE(SUM(COALESCE(v.review_status,s.status)='pending_review'),0) AS pending
+            FROM strategies s LEFT JOIN strategy_statement_versions v ON v.id=(
+              SELECT id FROM strategy_statement_versions WHERE strategy_id=s.id ORDER BY version DESC LIMIT 1)
+            WHERE s.is_archived=0
+              AND COALESCE(json_extract(v.record_json,'$.statement.content_type'),'policy')!='description'
+              AND s.id NOT IN (SELECT record_id FROM console_retained_records WHERE kind='strategy')""").fetchone()
     return {'agents':controlled,'tasks':tasks,'stats':{'agents':len(controlled),
         'verified_agents':sum(bool(r.get('active') and r.get('connected')) for r in controlled),
-        'strategies':records['total'],'pending_strategies':pending['total'],'pending_approvals':pending_count(),'tasks':len(tasks)}}
+        'strategies':counts['total'],'pending_strategies':counts['pending'],'pending_approvals':pending_count(),'tasks':len(tasks)}}
 
 @router.get('/sessions')
 def directory(agent_type:str='',instance_id:str='',q:str=Query('',max_length=200),cursor:int=Query(0,ge=0),limit:int=Query(30,ge=1,le=100),workspace:str=Query('',max_length=4096)):

@@ -1,5 +1,6 @@
 """Trusted, instance-wide policy lifecycle and atomic execution leases."""
 import hashlib, hmac, json, os, secrets, threading, time, uuid
+from datetime import datetime, timezone
 from .. import db
 from ..broker_client import call as broker
 from . import store, discovery, system_policy as system
@@ -16,8 +17,9 @@ class Observer:
     def collect(self):
         try:
             result=broker({'action':'agent-instance-inventory'},timeout=2)
-            observed=time.monotonic()
-            with self.lock: self.rows={r['id']:{**r,'_observed':observed} for r in result['instances']}
+            observed=time.monotonic(); checked_at=db.now()
+            with self.lock: self.rows={r['id']:{**r,'_observed':observed,'last_checked_at':checked_at,
+                'last_verified_at':checked_at if r.get('verified') else self.rows.get(r['id'],{}).get('last_verified_at')} for r in result['instances']}
         except Exception:
             with self.lock:
                 self.rows={k:{**v,'connected':False,'status':'unknown'} for k,v in self.rows.items()}
@@ -34,6 +36,8 @@ class Observer:
             from .sessions import collect_kernel
             for row in store.rows():
                 if row['mode']=='controlled' and row.get('generation'):
+                    try: collect_runtime_events(row)
+                    except Exception: pass # Failure preserves the root-owned queue for retry.
                     try:collect_kernel(row)
                     except Exception:pass # read APIs expose the collection failure separately
             self.stop_event.wait(3)
@@ -46,6 +50,57 @@ class Observer:
         if self.thread: self.thread.join(3)
 observer=Observer()
 
+def runtime_call(row, operation, **fields):
+    return broker({'action':'agent-instance-execution-'+operation,'instance_id':row['id'],
+        'generation':row['generation'],'policy_hash':row['policy_hash'],**fields},timeout=3)
+
+def independent(row):
+    return row.get('runtime',{}).get('supervision')=='broker-admission-v1'
+
+def close_runtime_gates(rows):
+    # Close at the actual lease issuer before changing any control-plane state.
+    for row in rows:
+        if independent(row):runtime_call(row,'gate',open=False)
+
+def open_runtime_gate(row):
+    if not independent(row):return
+    if row['gate']!='open' or system.current()['phase']!='ready':return
+    if any(dsl_policy.current(scope)['phase']!='ready' for scope in ('system',row['id'])):return
+    runtime_call(row,'gate',open=True)
+
+def collect_runtime_events(row):
+    if not independent(row):return
+    events=runtime_call(row,'events')['events']
+    if not events:return
+    with db.connect() as con:
+        con.execute('BEGIN IMMEDIATE')
+        current=con.execute('SELECT generation,policy_hash FROM agent_instances WHERE id=?',(row['id'],)).fetchone()
+        if not current or current['generation']!=row['generation'] or current['policy_hash']!=row['policy_hash']:
+            raise ValueError('运行代次已变化，不能合并旧执行记录')
+        for event in events:
+            payload=event['payload']; sequence=event['sequence']
+            if payload['generation']!=row['generation'] or event['kind'] not in ('tool_start','tool_result'):
+                raise ValueError('执行记录身份不一致')
+            fingerprint=hashlib.sha256(json.dumps(event,sort_keys=True).encode()).hexdigest()
+            old=con.execute('SELECT payload_hash FROM instance_runtime_receipts WHERE instance_id=? AND generation=? AND sequence=?',
+                (row['id'],row['generation'],sequence)).fetchone()
+            if old:
+                if old[0]!=fingerprint:raise ValueError('执行回执内容变化')
+                continue
+            con.execute('INSERT INTO instance_runtime_receipts VALUES(?,?,?,?)',(row['id'],row['generation'],sequence,fingerprint))
+            if event['kind']=='tool_start':
+                con.execute('INSERT OR IGNORE INTO instance_leases VALUES(?,?,?,?,?,?)',
+                    (row['id'],row['generation'],payload['call_id'],payload['session_id'],payload['tool'],db.now()))
+            else:
+                con.execute('DELETE FROM instance_leases WHERE instance_id=? AND generation=? AND call_id=?',
+                    (row['id'],row['generation'],payload['call_id']))
+            con.execute('INSERT INTO instance_events(instance_id,generation,kind,session_id,call_id,tool,detail_json,created_at) VALUES(?,?,?,?,?,?,?,?)',
+                (row['id'],row['generation'],event['kind'],payload['session_id'],payload['call_id'],payload['tool'],
+                 json.dumps({'source':'broker_execution_queue','sequence':sequence,**({'succeeded':payload['succeeded']} if event['kind']=='tool_result' else {})}),
+                 datetime.fromtimestamp(event['created_at'],timezone.utc).isoformat()))
+    # Acknowledgement follows the durable transaction, never precedes it.
+    runtime_call(row,'ack',sequence=events[-1]['sequence'])
+
 def listing(discover=False):
     if discover: observer.collect()
     observed={r['id']:r for r in observer.snapshot()}
@@ -55,7 +110,9 @@ def listing(discover=False):
         current=live.get('generation')==row['generation']
         try: inherited=row['policy_hash']==digest(system.compose(row['local_policy'],row['resources'])) if row['mode']=='controlled' else True
         except (OSError,ValueError): inherited=False
-        active=bool(current and live.get('verified') and row['gate']=='open' and live.get('connected') and inherited and system.current()['phase']=='ready' and dsl_policy.live_matches(row,live))
+        execution=live.get('execution_status',{})
+        gate_verified=live.get('supervision')!='broker-admission-v1' or execution.get('gate')=='open' and execution.get('protection_fresh')
+        active=bool(current and live.get('verified') and gate_verified and row['gate']=='open' and live.get('connected') and inherited and system.current()['phase']=='ready' and dsl_policy.live_matches(row,live))
         result.append({**row, **live, 'policy':row['policy'], 'policy_hash':row['policy_hash'], 'gate':row['gate'],
                        'security': '执行受控' if active else '已加载，执行暂停' if row['gate'] in ('paused','open') else '正在加载与核验' if row['gate'] in ('starting','updating') else '未运行',
                        'active':active,'connected':bool(current and live.get('connected')),'mode':row['mode']})
@@ -141,6 +198,7 @@ def start(ident):
             if runtime.get('dsl_hash')!=dsl_policy.launch_spec(row)['dsl_hash']:raise ValueError('运行 DSL 指纹与确认策略不一致')
             dsl_policy.record_receipt(ident,generation,runtime)
             store.update(ident,runtime=runtime,gate='open' if runtime.get('verified') else 'paused')
+            open_runtime_gate(store.get(ident))
             store.event(ident,'verified' if runtime.get('verified') else 'verification_failed',runtime.get('verification',{}),generation)
             observer.collect()
             return detail(ident)
@@ -152,9 +210,15 @@ def start(ident):
 @system.lifecycle
 def stop(ident):
     with lock(ident):
-        row=store.get(ident); store.update(ident,gate='paused')
+        row=store.get(ident)
+        try: close_runtime_gates([row])
+        except Exception: pass # Broker stop below independently closes and terminates.
+        store.update(ident,gate='paused')
+        try: collect_runtime_events(row)
+        except Exception: pass # A reporting fault must never prevent revocation.
         from .sessions import collect_kernel
-        collect_kernel(row)
+        try: collect_kernel(row)
+        except Exception: pass
         result=adapter(row).stop(row)
         store.update(ident,gate='closed',token_hash=None,runtime={})
         with db.connect() as con: con.execute('DELETE FROM instance_leases WHERE instance_id=?',(ident,))
@@ -232,6 +296,7 @@ def apply(ident,pid,expected_hash):
         if p['state']=='applied': return {'id':pid,'state':'applied','idempotent':True}
         local=validate_proposal(row,p)
         was_running=row['gate'] in ('open','paused')
+        close_runtime_gates([row])
         store.update(ident,gate='updating')
         store.event(ident,'gate_closed',{'proposal_id':pid,'scope':'全部会话'},row['generation'])
         # Lease completion does not take the lifecycle lock: drains can finish.
@@ -277,6 +342,8 @@ def agent_auth(ident,token,generation):
     return store.get(ident)
 
 def lease(ident,body):
+    current=store.get(ident)
+    if independent(current):return runtime_call(current,'lease',body=body)
     # BEGIN IMMEDIATE orders admission against gate changes in the same database.
     denial=None
     with db.connect() as con:
@@ -298,6 +365,8 @@ def lease(ident,body):
     return {'allowed':True}
 
 def result(ident,body):
+    current=store.get(ident)
+    if independent(current):return runtime_call(current,'result',body=body)
     with db.connect() as con: con.execute('DELETE FROM instance_leases WHERE instance_id=? AND generation=? AND call_id=?',(ident,body['generation'],body['call_id']))
     store.event(ident,'tool_result',{'succeeded':body['succeeded']},body['generation'],body['session_id'],body['call_id'],body['tool'])
     return {'ok':True}

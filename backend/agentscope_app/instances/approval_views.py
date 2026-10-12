@@ -22,7 +22,9 @@ def scopes():
 
 
 def pending_count():
-    return directory()['pending_count']
+    # Keep the same freshness validation for eligible candidates, but do not
+    # project every applied/failed historical approval just to count pending.
+    return _read_directory(pending_only=True)['pending_count']
 
 
 def project(p,names,full=False,locations=None):
@@ -189,18 +191,18 @@ def directory():
             if _directory_inflight is pending: _directory_inflight = None
 
 
-def _read_directory():
+def _read_directory(pending_only=False):
     names=scopes()
     with db.connect() as con:
-        rows=[dsl.unpack(p) for p in con.execute("SELECT * FROM instance_dsl_proposals ORDER BY created_at DESC,id DESC") if p['scope_id'] in names]
+        rows=[dsl.unpack(p) for p in con.execute("SELECT * FROM instance_dsl_proposals "+("WHERE state='pending' " if pending_only else '')+"ORDER BY created_at DESC,id DESC") if p['scope_id'] in names]
     locations=Locations()
     records=[project(p,names,locations=locations) for p in rows]
     from . import local_policy_proposals as local
     with db.connect() as con:
-        records.extend(local.project(dict(p), names, locations=locations) for p in con.execute('SELECT * FROM local_policy_proposals') if p['instance_id'] in names)
+        records.extend(local.project(dict(p), names, locations=locations) for p in con.execute('SELECT * FROM local_policy_proposals'+(" WHERE state='pending'" if pending_only else '')) if p['instance_id'] in names)
     with db.connect() as con:
-        native=[dict(r) for r in con.execute('SELECT * FROM instance_proposals') if r['instance_id'] in names]
-        shared=[dict(r) for r in con.execute('SELECT * FROM system_security_proposals')]
+        native=[dict(r) for r in con.execute('SELECT * FROM instance_proposals'+(" WHERE state='pending'" if pending_only else '')) if r['instance_id'] in names]
+        shared=[dict(r) for r in con.execute('SELECT * FROM system_security_proposals'+(" WHERE state='pending'" if pending_only else ''))]
         # Filter retained/removed tasks before projecting history. Otherwise
         # every overview poll opens several connections per hidden job, even
         # though none can appear in the customer approval directory.
@@ -208,7 +210,7 @@ def _read_directory():
             JOIN tasks t ON t.id=j.task_id JOIN managed_tasks m ON m.task_id=j.task_id
             WHERE j.proposal_json IS NOT NULL
             AND json_extract(j.proposal_json,'$.decision') IN ('restrict','expand')
-            AND j.task_id NOT IN (SELECT record_id FROM console_retained_records WHERE kind='task')""")]
+            AND j.task_id NOT IN (SELECT record_id FROM console_retained_records WHERE kind='task')"""+(" AND j.status='completed' AND json_extract(m.state_json,'$.phase')='running'" if pending_only else ''))]
     records.extend(typed_project(p,names) for p in native)
     records.extend(typed_project(p,names,shared=True) for p in shared)
     for job in jobs:

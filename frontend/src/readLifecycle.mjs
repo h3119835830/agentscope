@@ -29,7 +29,7 @@ export function singleFlight(load){
 
 export function agentSummary(data){
  const agents=(data.instances||[]).filter(row=>row.mode==='controlled');
- return {agents,stats:{agents:agents.length,verified_agents:agents.filter(row=>row.active&&row.connected).length}};
+ return {agents,observedAt:new Date().toISOString(),stats:{agents:agents.length,verified_agents:agents.filter(row=>row.active&&row.connected).length}};
 }
 
 export async function readOverview({api,onAgents,onStatus,onCounts,onError}){

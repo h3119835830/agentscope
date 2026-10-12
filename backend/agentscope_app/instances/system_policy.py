@@ -158,6 +158,7 @@ def apply(pid, expected_hash):
         live=c.adapter(row).observe(row) if row['gate']=='open' else {}
         if row['gate']=='open' and live.get('connected') and live.get('verified') and live.get('generation')==row['generation']:
             resume.append(row['id'])
+    c.close_runtime_gates([store.get(t['id']) for t in affected])
     with db.connect() as con:
         con.execute("UPDATE system_security_policy SET phase='updating',updated_at=? WHERE singleton=1",(db.now(),))
         con.execute("UPDATE system_security_proposals SET state='applying' WHERE id=?",(pid,))
@@ -193,6 +194,7 @@ def apply(pid, expected_hash):
         with db.connect() as con:
             con.execute("UPDATE system_security_policy SET phase='ready' WHERE singleton=1")
             con.execute("UPDATE system_security_proposals SET state='applied' WHERE id=?",(pid,))
+        for ident in resume:c.open_runtime_gate(store.get(ident))
         for target in affected: store.event(target['id'],'system_policy_applied',{'proposal_id':pid,'system_revision':current()['revision']})
         c.observer.collect()
         return {'id':pid,'state':'applied','affected_count':len(affected),'resumed_count':len(resume)}

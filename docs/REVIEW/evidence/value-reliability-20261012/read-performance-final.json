@@ -1,0 +1,59 @@
+{
+  "recorded_at": 1791816461.2614229,
+  "api_pid": 1853243,
+  "requests": [
+    {
+      "path": "/api/health",
+      "samples_ms": [
+        8.49,
+        1.85,
+        1.36,
+        1.53,
+        0.96,
+        0.93,
+        0.73,
+        0.63,
+        0.57,
+        0.75
+      ],
+      "median_ms": 0.9450000000000001,
+      "max_ms": 8.49
+    },
+    {
+      "path": "/api/console/agents",
+      "samples_ms": [
+        71.83,
+        26.1,
+        24.06,
+        22.14,
+        22.52,
+        21.1,
+        21.96,
+        22.26,
+        35.58,
+        22.33
+      ],
+      "median_ms": 22.424999999999997,
+      "max_ms": 71.83
+    },
+    {
+      "path": "/api/console/summary",
+      "samples_ms": [
+        281.04,
+        118.49,
+        102.59,
+        401.52,
+        527.92,
+        444.63,
+        105.54,
+        219.45,
+        524.36,
+        519.05
+      ],
+      "median_ms": 341.28,
+      "max_ms": 527.92
+    }
+  ],
+  "sampled_api_cpu_percent": 77.39,
+  "note": "Short controlled localhost sample; no saturated-load or 24h percentile claim."
+}

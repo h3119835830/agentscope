@@ -145,6 +145,7 @@ def apply(scope,pid,expected_hash):
         if check.get('execution_capabilities')!=previous.get('execution_capabilities'):raise ValueError('执行能力已经变化，请重新校验')
     if target_snapshot(scope,p['documents'])!=p['targets']:raise ValueError('校验期间应用目标已经变化，请重新校验')
     affected=p['targets'];resume=[t['id'] for t in affected if t['active']]
+    c.close_runtime_gates([store.get(t['id']) for t in affected])
     with db.connect() as con:
         con.execute("INSERT INTO instance_dsl_scopes VALUES(?,?,?,?,?,?) ON CONFLICT(scope_id) DO UPDATE SET phase='updating'",(scope,base['revision'],json.dumps(base['documents']),base['document_hash'],'updating',db.now()))
         con.execute("UPDATE instance_dsl_proposals SET state='applying' WHERE id=?",(pid,))
@@ -179,6 +180,7 @@ def apply(scope,pid,expected_hash):
         with db.connect() as con:
             con.execute("UPDATE instance_dsl_scopes SET phase='ready' WHERE scope_id=?",(scope,))
             con.execute("UPDATE instance_dsl_proposals SET state='applied',result_json=? WHERE id=?",(json.dumps({**p['result'],'application':application}),pid))
+        for ident in resume:c.open_runtime_gate(store.get(ident))
         for t in affected:store.event(t['id'],'dsl_applied',{'proposal_id':pid,'scope_id':scope},store.get(t['id'])['generation'])
         c.observer.collect()
         return application

@@ -245,14 +245,13 @@ async def startup():
 
 @app.on_event("shutdown")
 async def shutdown():
-    history_jobs.worker.stop()
-    scope_worker.stop()
-    managed_worker.stop()
-    workspace_observer.stop()
-    instance_observer.stop()
+    # Each worker signals its own halt before joining. Stop concurrently so the
+    # service deadline is shared instead of adding five independent join budgets.
+    await asyncio.gather(*(asyncio.to_thread(worker.stop) for worker in (
+        history_jobs.worker,scope_worker,managed_worker,workspace_observer,instance_observer)))
 
 @app.get("/api/health")
-def health(): return {"ok":True,"service":"AgentScope","version":"0.2.0"}
+async def health(): return {"ok":True,"service":"AgentScope","version":"0.2.0"}
 
 @app.get("/api/auth/check")
 def auth_check(): return {"ok":True}

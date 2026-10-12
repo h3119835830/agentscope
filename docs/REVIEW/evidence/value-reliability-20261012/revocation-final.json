@@ -1,0 +1,25 @@
+{
+  "schema": "agentscope.value-revocation.v1",
+  "verified_at": 1791815864.2168026,
+  "instance_a": "instance-4dabece2b2634d85",
+  "instance_b": "instance-ee2849de6d044bb2",
+  "old_generation": "2948f46ea5004453a5a9fdf8c23bae8d",
+  "new_generation": "a59b59b8afd54a36a1ae76fac98950a0",
+  "held_handles": {
+    "pid": 1841072,
+    "child_pid": 1841073,
+    "fd": true,
+    "writable_mapping": true,
+    "mapping_errno": null
+  },
+  "old_holder_and_child_terminated": true,
+  "canary_unchanged": true,
+  "sibling_unchanged": {
+    "pid": 1838905,
+    "generation": "8d223489f6d64aba8e5bc494344f3ecb",
+    "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+    "domain_id": 1273230671
+  },
+  "passed": true,
+  "limit": "Platform revocation by generation replacement, not in-place mmap revocation. Different cgroups/domains and unmounted resources do not prove native sessions are individually isolated."
+}

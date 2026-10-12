@@ -38,7 +38,7 @@ class Worker:
                 c.event(con,task_id,'failure',__import__('uuid').uuid4().hex,{'error':str(error)[:1500]})
     def run(self):
         while not self.halt.is_set():
-            with db.connect() as con:tasks=[(r['task_id'],json.loads(r['state_json'])) for r in con.execute('SELECT * FROM managed_tasks')]
+            with db.connect() as con:tasks=[(r['task_id'],json.loads(r['state_json'])) for r in con.execute("SELECT * FROM managed_tasks WHERE json_extract(state_json,'$.phase') IN ('recovering','generating')")]
             for task_id,state in tasks:
                 if state['phase']=='recovering':
                     try:c.recover(task_id)
@@ -65,20 +65,34 @@ class Worker:
             self.halt.wait(.4)
     def collect(self):
         while not self.halt.is_set():
-            with db.connect() as con:tasks=[(r['task_id'],json.loads(r['state_json'])) for r in con.execute('SELECT * FROM managed_tasks')]
-            for task_id,state in tasks:
-                try:
-                    # Collect before liveness checks: a killed main process cannot
-                    # return a hook. Its last kernel fact belongs to the supervisor.
-                    self.collect_task(task_id)
-                    if state['phase']=='running' and state['gate']!='applying' and time.monotonic()-self.binding_checks.get(task_id,0)>3:
-                        self.binding_checks[task_id]=time.monotonic()
-                        binding=c.broker({'action':'status','task_id':task_id},timeout=10)
-                        if binding.get('status')!='running' or binding.get('domain_verified') is False:
-                            self.fail(task_id,'Native DSH process/domain binding lost; supervisor retained kernel evidence',state['revision'],state['policy_hash'])
-                except Exception as e:
-                    if state['phase']=='running':self.fail(task_id,e,state['revision'],state['policy_hash'])
+            self.collect_once()
             self.halt.wait(.2)
+
+    def collect_once(self):
+        with db.connect() as con:
+            active={r['task_id']:json.loads(r['state_json']) for r in con.execute("SELECT * FROM managed_tasks WHERE json_extract(state_json,'$.phase')='running'")}
+            logs=con.execute('SELECT m.task_id,t.workspace FROM managed_tasks m JOIN tasks t ON t.id=m.task_id').fetchall()
+        for row in logs:
+            if self.halt.is_set():return
+            task_id=row['task_id'];state=active.get(task_id)
+            try:
+                path=Path(row['workspace'])/'.actplane/events.jsonl'
+                try:
+                    info=path.lstat();signature=(info.st_ino,info.st_size,info.st_mtime_ns,info.st_uid,info.st_mode)
+                except FileNotFoundError:signature=None
+                # Closed archives still get a final drain, and another drain if
+                # their root log changes. Do not decode MB-sized historical state
+                # on every 200ms tick after its log is unchanged.
+                if task_id not in self.log_signatures or self.log_signatures[task_id]!=signature:
+                    self.collect_task(task_id)
+                    self.log_signatures[task_id]=signature
+                if state and state['gate']!='applying' and time.monotonic()-self.binding_checks.get(task_id,0)>3:
+                    self.binding_checks[task_id]=time.monotonic()
+                    binding=c.broker({'action':'status','task_id':task_id},timeout=10)
+                    if binding.get('status')!='running' or binding.get('domain_verified') is False:
+                        self.fail(task_id,'Native DSH process/domain binding lost; supervisor retained kernel evidence',state['revision'],state['policy_hash'])
+            except Exception as error:
+                if state:self.fail(task_id,error,state['revision'],state['policy_hash'])
 
     def collect_task(self,task_id):
         from .feedback import operation_feedback
@@ -169,7 +183,7 @@ class Worker:
 
     def deliver_feedback(self):
         while not self.halt.is_set():
-            with db.connect() as con:tasks=[r[0] for r in con.execute('SELECT task_id FROM managed_tasks')]
+            with db.connect() as con:tasks=[r[0] for r in con.execute("SELECT task_id FROM managed_tasks WHERE json_extract(state_json,'$.phase')='running' AND json_extract(state_json,'$.gate')!='applying'")]
             for task_id in tasks:
                 try:self.deliver_task_feedback(task_id)
                 except Exception:

@@ -26,6 +26,9 @@ CREATE TABLE IF NOT EXISTS instance_leases (
  instance_id TEXT NOT NULL, generation TEXT NOT NULL, call_id TEXT NOT NULL,
  session_id TEXT NOT NULL, tool TEXT NOT NULL, started_at TEXT NOT NULL,
  PRIMARY KEY(instance_id,generation,call_id));
+CREATE TABLE IF NOT EXISTS instance_runtime_receipts (
+ instance_id TEXT NOT NULL, generation TEXT NOT NULL, sequence INTEGER NOT NULL,
+ payload_hash TEXT NOT NULL, PRIMARY KEY(instance_id,generation,sequence));
 """
 def init():
     with db.connect() as con:

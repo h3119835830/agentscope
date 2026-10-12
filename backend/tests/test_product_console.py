@@ -6,6 +6,21 @@ from agentscope_app.instances import store,sessions,controller
 ADMIN={'Authorization':'Bearer test-admin-token-not-for-production'}
 PRODUCT={**ADMIN,'X-AgentScope-Surface':'product'}
 
+def test_overview_counts_do_not_revalidate_catalog_or_native_context(client,monkeypatch):
+    from agentscope_app.history import catalog,eligibility
+    monkeypatch.setattr(controller,'listing',lambda:{'instances':[]})
+    def forbidden(*a,**k):raise AssertionError('Overview may not perform detailed policy revalidation')
+    monkeypatch.setattr(catalog,'page',forbidden)
+    monkeypatch.setattr(eligibility,'blockers',forbidden)
+    from agentscope_app.instances import approval_views
+    monkeypatch.setattr(approval_views,'directory',forbidden)
+    created=catalog.create({'text':'count-only summary policy','category':'semantic','context_scope':'self-contained','execution_layer':'repository_instruction'},'test')
+    response=client.get('/api/console/summary',headers=ADMIN)
+    assert response.status_code==200,response.text
+    assert response.json()['stats']['pending_strategies']>=1
+    console.retain([('strategy',created['id'])],'summary test')
+    assert client.get('/api/console/summary',headers=ADMIN).json()['stats']['strategies']==response.json()['stats']['strategies']-1
+
 def test_explicit_retention_is_reversible_and_not_a_name_filter(client,monkeypatch):
     rows=[{'id':'retain-exact','name':'普通 Agent','mode':'controlled'},
           {'id':'keep-native','name':'RQ5 fixture','mode':'controlled'}]

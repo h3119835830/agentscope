@@ -1,0 +1,279 @@
+{
+  "release": "/opt/agentscope-value-startup-20261012-225631",
+  "started_at": 1791816991.2220767,
+  "previous_broker": {
+    "MainPID": "1880361",
+    "WorkingDirectory": "/opt/agentscope-value-20261012-223824",
+    "argv": [
+      "/opt/agentscope/.venv/bin/python",
+      "/opt/agentscope-value-20261012-223824/backend/broker/main.py"
+    ],
+    "start_ticks": "20672846"
+  },
+  "api_before": {
+    "MainPID": "1880406",
+    "WorkingDirectory": "/opt/agentscope-value-read-20261012-224541",
+    "argv": [
+      "/opt/agentscope/.venv/bin/python",
+      "-m",
+      "uvicorn",
+      "agentscope_app.main:app",
+      "--host",
+      "127.0.0.1",
+      "--port",
+      "18003",
+      "--timeout-graceful-shutdown",
+      "3"
+    ],
+    "start_ticks": "20675242"
+  },
+  "authority_before": {
+    "agents": {
+      "instance-1f4469579e8947f4": {
+        "policy_hash": "9c5fa9fbb63c9bcd71da29007179d6c9fed00b23ac9b9f4e41165a76b92425c1",
+        "generation": "8f728bcca3c34799aff2224cc5b66344",
+        "pid": 1880550,
+        "domain_id": 1133900403,
+        "active": true
+      },
+      "instance-c0dd272b6a734a34": {
+        "policy_hash": "f930aa4e9f224e24588a51a652d773cf022a74fa8be0b379ed4e80023c58ad87",
+        "generation": "f730210aa1b244eebf4009401b3ea020",
+        "pid": 1880726,
+        "domain_id": 688606658,
+        "active": true
+      },
+      "instance-bb171d3176b644a2": {
+        "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+        "generation": "566ddd5edaad438f9473d4ea08ec1cc1",
+        "pid": null,
+        "domain_id": null,
+        "active": false
+      },
+      "instance-cc444fe38c094cbb": {
+        "policy_hash": "c3371a12d813cbf8c4e13bfc39ac8caa8868b6d394f8a7dbebcd74afa15b2cfe",
+        "generation": "9b65ce1fdd224052951059a7537f5ecd",
+        "pid": 1880916,
+        "domain_id": 617921296,
+        "active": true
+      }
+    },
+    "dsl_scopes": {
+      "system": {
+        "revision": 6,
+        "document_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "documents": [],
+        "phase": "ready"
+      },
+      "instance-1f4469579e8947f4": {
+        "revision": 0,
+        "document_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "documents": [],
+        "phase": "ready"
+      },
+      "instance-c0dd272b6a734a34": {
+        "revision": 0,
+        "document_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "documents": [],
+        "phase": "ready"
+      },
+      "instance-bb171d3176b644a2": {
+        "revision": 3,
+        "document_hash": "71c7dcce2e8f6cdaba1a3d48962b0eb9182e11dd5149ac267e78299ff52974e2",
+        "documents": [
+          {
+            "id": "96e44c04-3a24-4347-9d01-af43c8b10bae",
+            "name": "agentscope-browser-acceptance.dsl",
+            "original_dsl": "source CODING_AGENT = exec \"**\"\nsource REVIEWED_CONTEXT = file \"/w/0/.agentscope-context-canary\"\n\nrule tests-before-commit:\n  kill exec \"git\" \"commit\" if CODING_AGENT unless after exec \"pytest\" exits 0 since write \"/w/0/src/**\" or write \"/w/0/tests/**\"\n  because \"\u63d0\u4ea4\u524d\u5fc5\u987b\u6709\u6700\u8fd1\u4e00\u6b21\u6e90\u7801\u53d8\u66f4\u4e4b\u540e\u7684\u6210\u529f\u6d4b\u8bd5\u3002\"\n\nrule context-notice:\n  notify read file \"/w/0/.agentscope-dsl-notify.txt\" if REVIEWED_CONTEXT\n  because \"\u643a\u5e26\u5df2\u8bfb\u53d6\u4e0a\u4e0b\u6587\u6807\u7b7e\u7684\u8fdb\u7a0b\u8bfb\u53d6\u6d4b\u8bd5\u6587\u4ef6\u65f6\u4e0a\u62a5\u3002\"\n",
+            "metadata": {}
+          },
+          {
+            "id": "canary",
+            "name": "canary.dsl",
+            "original_dsl": "source AGENT = exec \"**\"\n\nrule canary:\n  block read file \"/s/instance-resources/dsl-acceptance-201658fa/a/.agentscope-dsl-block.txt\" if AGENT\n  notify read file \"/s/instance-resources/dsl-acceptance-201658fa/a/.agentscope-dsl-notify.txt\" if AGENT\n  kill read file \"/s/instance-resources/dsl-acceptance-201658fa/a/.agentscope-dsl-kill.txt\" if AGENT\n  because \"Synthetic DSL acceptance\"\n",
+            "metadata": {
+              "canary": {
+                "statement": "\u8bfb\u53d6\u6d4b\u8bd5\u6587\u4ef6\u65f6\u5206\u522b\u963b\u6b62\u3001\u4e0a\u62a5\u548c\u7ec8\u6b62\u5b50\u8fdb\u7a0b\u3002",
+                "context_requirement": "project",
+                "context_reason": "\u5df2\u7ed1\u5b9a\u672c\u9a8c\u6536\u8fde\u63a5\u767b\u8bb0\u7684\u6d4b\u8bd5\u76ee\u5f55\uff0c\u4e09\u4e2a\u76ee\u6807\u5747\u4e3a\u65e0\u654f\u611f\u6570\u636e\u7684\u56fa\u5b9a\u6d4b\u8bd5\u6587\u4ef6\u3002"
+              }
+            }
+          }
+        ],
+        "phase": "ready"
+      },
+      "instance-cc444fe38c094cbb": {
+        "revision": 1,
+        "document_hash": "c38f0ad8b80dbf9fa9a8c80c8b22b9e8821ecd237585f7a5f639d903e5370e29",
+        "documents": [
+          {
+            "id": "g_12a440f2afb547b5bc2707a13ca17148",
+            "name": "\u53ea\u8bfb\u53d6 sales.csv \u4ee5\u83b7\u53d6\u62a5\u544a\u6570\u636e\uff0c\u4e0d\u5199\u5165\u3001\u8ffd\u52a0\u6216\u8986\u76d6\u8be5\u6587\u4ef6\u3002",
+            "original_dsl": "source AGENT = exec \"**/node\"\n\nrule h_a557fe9061c847b9_intent_1:\n  block write file \"/w/0/sales.csv\" if AGENT\n  because \"\u4e0d\u5199\u5165\u3001\u8ffd\u52a0\u6216\u8986\u76d6\u8be5\u6587\u4ef6\"",
+            "metadata": {
+              "h_a557fe9061c847b9_intent_1": {
+                "statement": "\u53ea\u8bfb\u53d6 sales.csv \u4ee5\u83b7\u53d6\u62a5\u544a\u6570\u636e\uff0c\u4e0d\u5199\u5165\u3001\u8ffd\u52a0\u6216\u8986\u76d6\u8be5\u6587\u4ef6\u3002",
+                "context_requirement": "project",
+                "context_reason": "\u670d\u52a1\u7aef\u5df2\u6838\u9a8c\u5f53\u524d Agent \u548c\u539f\u751f\u4f1a\u8bdd\u5de5\u4f5c\u76ee\u5f55"
+              }
+            },
+            "generation_binding": {
+              "artifact_id": "12a440f2afb547b5bc2707a13ca17148",
+              "context_hash": "bfe3e458bc13e3af5d6da54346724385ee644cffd40ef089ecfbe7bc072fed15"
+            }
+          }
+        ],
+        "phase": "ready"
+      }
+    },
+    "system": {
+      "revision": 0,
+      "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815"
+    }
+  },
+  "restart_targets": [
+    "instance-1f4469579e8947f4",
+    "instance-c0dd272b6a734a34",
+    "instance-cc444fe38c094cbb"
+  ],
+  "source_hash": "1ce8afc5a7274a6c840f0c80c2c8a90cb80725c9da38ad19231f7650dcabe854",
+  "change": "Publish agent_identity before ready; no other live code differences",
+  "previous_drop": "[Service]\nWorkingDirectory=/opt/agentscope-value-20261012-223824\nExecStart=\nExecStart=/opt/agentscope/.venv/bin/python /opt/agentscope-value-20261012-223824/scripts/scope_systemd_exec.py broker\nExecStartPost=\nExecStartPost=/opt/agentscope/.venv/bin/python /opt/agentscope-value-20261012-223824/scripts/scope_systemd_exec.py broker-ready\n",
+  "published": true,
+  "authority_after": {
+    "agents": {
+      "instance-1f4469579e8947f4": {
+        "policy_hash": "9c5fa9fbb63c9bcd71da29007179d6c9fed00b23ac9b9f4e41165a76b92425c1",
+        "generation": "a8ee7f9c5ad64e0a9bf543e3929255ed",
+        "pid": 1881572,
+        "domain_id": 133859788,
+        "active": true
+      },
+      "instance-c0dd272b6a734a34": {
+        "policy_hash": "f930aa4e9f224e24588a51a652d773cf022a74fa8be0b379ed4e80023c58ad87",
+        "generation": "947b1b6dd3334b3c9a2a250bd3705832",
+        "pid": 1881769,
+        "domain_id": 1819175395,
+        "active": true
+      },
+      "instance-bb171d3176b644a2": {
+        "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+        "generation": "566ddd5edaad438f9473d4ea08ec1cc1",
+        "pid": null,
+        "domain_id": null,
+        "active": false
+      },
+      "instance-cc444fe38c094cbb": {
+        "policy_hash": "c3371a12d813cbf8c4e13bfc39ac8caa8868b6d394f8a7dbebcd74afa15b2cfe",
+        "generation": "3028d67dd05a4be2ac4944b26e278a6d",
+        "pid": 1881965,
+        "domain_id": 766367180,
+        "active": true
+      }
+    },
+    "dsl_scopes": {
+      "system": {
+        "revision": 6,
+        "document_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "documents": [],
+        "phase": "ready"
+      },
+      "instance-1f4469579e8947f4": {
+        "revision": 0,
+        "document_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "documents": [],
+        "phase": "ready"
+      },
+      "instance-c0dd272b6a734a34": {
+        "revision": 0,
+        "document_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "documents": [],
+        "phase": "ready"
+      },
+      "instance-bb171d3176b644a2": {
+        "revision": 3,
+        "document_hash": "71c7dcce2e8f6cdaba1a3d48962b0eb9182e11dd5149ac267e78299ff52974e2",
+        "documents": [
+          {
+            "id": "96e44c04-3a24-4347-9d01-af43c8b10bae",
+            "name": "agentscope-browser-acceptance.dsl",
+            "original_dsl": "source CODING_AGENT = exec \"**\"\nsource REVIEWED_CONTEXT = file \"/w/0/.agentscope-context-canary\"\n\nrule tests-before-commit:\n  kill exec \"git\" \"commit\" if CODING_AGENT unless after exec \"pytest\" exits 0 since write \"/w/0/src/**\" or write \"/w/0/tests/**\"\n  because \"\u63d0\u4ea4\u524d\u5fc5\u987b\u6709\u6700\u8fd1\u4e00\u6b21\u6e90\u7801\u53d8\u66f4\u4e4b\u540e\u7684\u6210\u529f\u6d4b\u8bd5\u3002\"\n\nrule context-notice:\n  notify read file \"/w/0/.agentscope-dsl-notify.txt\" if REVIEWED_CONTEXT\n  because \"\u643a\u5e26\u5df2\u8bfb\u53d6\u4e0a\u4e0b\u6587\u6807\u7b7e\u7684\u8fdb\u7a0b\u8bfb\u53d6\u6d4b\u8bd5\u6587\u4ef6\u65f6\u4e0a\u62a5\u3002\"\n",
+            "metadata": {}
+          },
+          {
+            "id": "canary",
+            "name": "canary.dsl",
+            "original_dsl": "source AGENT = exec \"**\"\n\nrule canary:\n  block read file \"/s/instance-resources/dsl-acceptance-201658fa/a/.agentscope-dsl-block.txt\" if AGENT\n  notify read file \"/s/instance-resources/dsl-acceptance-201658fa/a/.agentscope-dsl-notify.txt\" if AGENT\n  kill read file \"/s/instance-resources/dsl-acceptance-201658fa/a/.agentscope-dsl-kill.txt\" if AGENT\n  because \"Synthetic DSL acceptance\"\n",
+            "metadata": {
+              "canary": {
+                "statement": "\u8bfb\u53d6\u6d4b\u8bd5\u6587\u4ef6\u65f6\u5206\u522b\u963b\u6b62\u3001\u4e0a\u62a5\u548c\u7ec8\u6b62\u5b50\u8fdb\u7a0b\u3002",
+                "context_requirement": "project",
+                "context_reason": "\u5df2\u7ed1\u5b9a\u672c\u9a8c\u6536\u8fde\u63a5\u767b\u8bb0\u7684\u6d4b\u8bd5\u76ee\u5f55\uff0c\u4e09\u4e2a\u76ee\u6807\u5747\u4e3a\u65e0\u654f\u611f\u6570\u636e\u7684\u56fa\u5b9a\u6d4b\u8bd5\u6587\u4ef6\u3002"
+              }
+            }
+          }
+        ],
+        "phase": "ready"
+      },
+      "instance-cc444fe38c094cbb": {
+        "revision": 1,
+        "document_hash": "c38f0ad8b80dbf9fa9a8c80c8b22b9e8821ecd237585f7a5f639d903e5370e29",
+        "documents": [
+          {
+            "id": "g_12a440f2afb547b5bc2707a13ca17148",
+            "name": "\u53ea\u8bfb\u53d6 sales.csv \u4ee5\u83b7\u53d6\u62a5\u544a\u6570\u636e\uff0c\u4e0d\u5199\u5165\u3001\u8ffd\u52a0\u6216\u8986\u76d6\u8be5\u6587\u4ef6\u3002",
+            "original_dsl": "source AGENT = exec \"**/node\"\n\nrule h_a557fe9061c847b9_intent_1:\n  block write file \"/w/0/sales.csv\" if AGENT\n  because \"\u4e0d\u5199\u5165\u3001\u8ffd\u52a0\u6216\u8986\u76d6\u8be5\u6587\u4ef6\"",
+            "metadata": {
+              "h_a557fe9061c847b9_intent_1": {
+                "statement": "\u53ea\u8bfb\u53d6 sales.csv \u4ee5\u83b7\u53d6\u62a5\u544a\u6570\u636e\uff0c\u4e0d\u5199\u5165\u3001\u8ffd\u52a0\u6216\u8986\u76d6\u8be5\u6587\u4ef6\u3002",
+                "context_requirement": "project",
+                "context_reason": "\u670d\u52a1\u7aef\u5df2\u6838\u9a8c\u5f53\u524d Agent \u548c\u539f\u751f\u4f1a\u8bdd\u5de5\u4f5c\u76ee\u5f55"
+              }
+            },
+            "generation_binding": {
+              "artifact_id": "12a440f2afb547b5bc2707a13ca17148",
+              "context_hash": "bfe3e458bc13e3af5d6da54346724385ee644cffd40ef089ecfbe7bc072fed15"
+            }
+          }
+        ],
+        "phase": "ready"
+      }
+    },
+    "system": {
+      "revision": 0,
+      "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815"
+    }
+  },
+  "services": {
+    "api": {
+      "MainPID": "1882321",
+      "WorkingDirectory": "/opt/agentscope-value-read-20261012-224541",
+      "argv": [
+        "/opt/agentscope/.venv/bin/python",
+        "-m",
+        "uvicorn",
+        "agentscope_app.main:app",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "18003",
+        "--timeout-graceful-shutdown",
+        "3"
+      ],
+      "start_ticks": "20684936"
+    },
+    "broker": {
+      "MainPID": "1881389",
+      "WorkingDirectory": "/opt/agentscope-value-startup-20261012-225631",
+      "argv": [
+        "/opt/agentscope/.venv/bin/python",
+        "/opt/agentscope-value-startup-20261012-225631/backend/broker/main.py"
+      ],
+      "start_ticks": "20679589"
+    }
+  },
+  "api_restarted_by_systemd_dependency": true,
+  "finished_at": 1791817030.2632077,
+  "final_api_restart_seconds": 1.862,
+  "final_api_restart_preserved_identity": true
+}

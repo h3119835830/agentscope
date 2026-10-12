@@ -81,7 +81,7 @@ def main():
         os.initgroups(user.pw_name, user.pw_gid)
         os.setgid(user.pw_gid)
         os.setuid(user.pw_uid)
-        command = [python, "-m", "uvicorn", "agentscope_app.main:app", "--host", "127.0.0.1", "--port", "18003"]
+        command = [python, "-m", "uvicorn", "agentscope_app.main:app", "--host", "127.0.0.1", "--port", "18003", "--timeout-graceful-shutdown", "3"]
     os.chdir(ROOT)
     os.execve(python, command, env)
 

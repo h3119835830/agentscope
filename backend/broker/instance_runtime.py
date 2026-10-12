@@ -1,11 +1,13 @@
 """Allowlisted controlled DSH/Hermes lifecycle. Imported only by the root Broker."""
 import hashlib, hmac, http.server, ipaddress, json, os, pwd, re, secrets, shutil, signal, socket, subprocess, threading, time, urllib.request
 import stat
+import logging
 from pathlib import Path
 from agentscope_app.instances.policy import canonical, clean_resources, digest
 from agentscope_app.instances.mapping import translate,resource_records
 from agentscope_app.workspaces import broker_instances as legacy
 from dsl_documents import prepare as prepare_documents, fingerprint as dsl_fingerprint
+from broker.instance_supervision import Admission, SCHEMA as SUPERVISION_SCHEMA
 
 HERMES_ENTRY=Path('/home/happy/.local/bin/hermes')
 HERMES_ROOT=Path('/home/happy/.hermes/hermes-agent-v020')
@@ -24,20 +26,54 @@ def initialize(b):
     threading.Thread(target=heartbeat,daemon=True,name='instance-liveness').start()
 
 def heartbeat():
-    last_api=time.monotonic()
     while not HEARTBEAT_STOP.wait(1):
-        try:
-            with urllib.request.urlopen(os.getenv('AGENTSCOPE_PUBLIC_URL','http://127.0.0.1:18003').rstrip('/')+'/api/health',timeout=.7) as response:
-                if response.status==200: last_api=time.monotonic()
-        except Exception: pass
         for r in list(RUNS.values()):
             try:
-                if not r.get('heartbeat_path'): continue
-                if time.monotonic()-last_api>=8:
-                    r['paused']=True
+                if not r.get('heartbeat_path') or r.get('paused'): continue
+                protection_check(r)
+                if r.get('admission'): r['admission'].verified()
+                B.write_file(r['heartbeat_path'],json.dumps({'generation':r['generation'],'at':time.monotonic()}),0o600)
+            except Exception as error:
+                # Known protection loss closes immediately. A dead/stuck Broker
+                # cannot renew the independent runner's existing eight-second lease.
+                r['paused']=True
+                r['last_state_reason']='执行保护核验失败，实例已停止'
+                logging.getLogger(__name__).warning('Protection check failed instance=%s generation=%s reason=%s',r['instance_id'],r['generation'],str(error)[:200])
+                try:
+                    if r.get('admission'): r['admission'].set_gate(False,'执行保护核验失败，实例已停止')
                     B.kill_task_cgroup(r)
-                else: B.write_file(r['heartbeat_path'],json.dumps({'generation':r['generation'],'at':time.monotonic()}),0o600)
-            except (OSError,RuntimeError): pass
+                except (OSError,RuntimeError,ValueError): pass
+
+def protection_fingerprint(record):
+    group=B.task_cgroup(record)
+    pin=Path(record['pin_root'])
+    entries=[]
+    for path in sorted(pin.rglob('*')):
+        info=path.lstat()
+        if path.is_symlink() or info.st_uid!=0 or info.st_mode&0o022:
+            raise ValueError('Untrusted enforcement object')
+        entries.append((str(path.relative_to(pin)),info.st_dev,info.st_ino,info.st_mode))
+    if not entries or not (pin/'maps/engine_features').exists():raise ValueError('Enforcement pins missing')
+    return {'generation':record['generation'],'domain_id':record['domain_id'],
+        'policy_hash':record['policy_hash'],'dsl_hash':record['dsl_hash'],
+        'watch':identity(record['watch'].pid),'anchor':identity(record['anchor'].pid),
+        'cgroup_inode':group.stat().st_ino,'pins':entries,
+        'watch_sha256':hashlib.sha256(Path(record['watch_policy']).read_bytes()).hexdigest()}
+
+def protection_check(record):
+    if record.get('paused') or record['watch'].poll() is not None or record['anchor'].poll() is not None:
+        raise ValueError('Execution monitor ended')
+    if protection_fingerprint(record)!=record['protection_fingerprint']:
+        raise ValueError('Execution protection identity changed')
+    if not record.get('ready'):
+        if time.monotonic()>record['startup_deadline']:raise ValueError('Protected startup expired')
+        return
+    expected=record['agent_identity']
+    if identity(expected['pid'])!=expected:raise ValueError('Agent process identity changed')
+    group=B.task_cgroup(record)
+    if expected['pid'] not in {int(p) for p in (group/'cgroup.procs').read_text().split()}:
+        raise ValueError('Agent left its execution cgroup')
+    if expected['pid'] not in B.domain_members(record):raise ValueError('Agent policy domain changed')
 
 def manifest(value): return B.RUNTIME/'instances'/ident(value)/'manifest.json'
 
@@ -365,12 +401,23 @@ def gateway(record,token):
                 size=int(self.headers.get('content-length','0'))
                 if not 0<size<32000: raise ValueError('Invalid payload size')
                 raw=self.rfile.read(size)
+                body=json.loads(raw)
+                if body.get('generation')!=record['generation']:raise ValueError('Stale native generation')
+                if self.path in ('/lease','/result'):
+                    admission=record.get('admission')
+                    if not admission:raise ValueError('Execution admission not initialized')
+                    data=json.dumps(admission.lease(body) if self.path=='/lease' else admission.result(body)).encode()
+                    self.send_response(200);self.send_header('Content-Type','application/json');self.end_headers();self.wfile.write(data)
+                    return
                 url=os.getenv('AGENTSCOPE_PUBLIC_URL','http://127.0.0.1:18003')+'/api/agent/instances/'+record['instance_id']+self.path
                 req=urllib.request.Request(url,data=raw,headers={'Content-Type':'application/json','Authorization':'Bearer '+token})
                 with urllib.request.urlopen(req,timeout=90) as response: data=response.read(200000)
                 self.send_response(200); self.end_headers(); self.wfile.write(data)
             except Exception:
-                self.send_response(409); self.end_headers(); self.wfile.write(b'{"allowed":false,"reason":"Instance control unavailable"}')
+                waiting=self.path in ('/scope','/policy/proposals')
+                data={'allowed':False,'reason':'控制台暂不可用，策略申请尚未登记，请恢复后重试' if waiting else '执行保护或调用身份核验失败',
+                      'status':'waiting_console' if waiting else 'denied','retryable':waiting}
+                self.send_response(503 if waiting else 409);self.send_header('Content-Type','application/json');self.end_headers();self.wfile.write(json.dumps(data).encode())
     server=http.server.ThreadingHTTPServer(('127.0.0.1',record['web_port']+200),Handler)
     record['gateway']=server
     threading.Thread(target=server.serve_forever,daemon=True).start()
@@ -394,10 +441,13 @@ def session_records(record):
     return [{**r,'execution_resource':r.get('resource'),'resource':translate(r['resource'],record['resources'],reverse=True) if r.get('resource') else None,'process_ids':[pid] if r.get('process_ids') else []} for r in result.get('sessions',[])]
 
 def observe(value):
+    with inst_lock(value): return _observe(value)
+
+def _observe(value):
     record=RUNS.get(value)
     if not record: return {'id':value,'status':'offline','connected':False,'verified':False}
     if not record.get('ready') or record.get('paused'):
-        return {'id':value,'status':'paused' if record.get('paused') else 'starting','connected':False,'verified':False,'generation':record['generation']}
+        return {'id':value,'status':'paused' if record.get('paused') else 'starting','connected':False,'verified':False,'generation':record['generation'],'last_state_reason':record.get('last_state_reason','正在启动与核验')}
     try:
         if record['watch'].poll() is not None: raise ValueError('watch ended')
         result=native(record,'observe')
@@ -409,12 +459,15 @@ def observe(value):
         group=B.task_cgroup(record)
         cgpids={int(p) for p in (group/'cgroup.procs').read_text().split()}
         if pid not in members or pid not in cgpids or identity(pid)!=before: raise ValueError('agent binding changed')
-        return {'id':value,'status':'running','connected':True,'verified':bool(record.get('verification',{}).get('passed')),'pid':pid,'dsl_hash':record.get('dsl_hash'),'start_ticks':before['start_ticks'],'generation':record['generation'],'domain_id':record['domain_id'],'process_cgroup':record['process_cgroup'],'resources':record['resources'],'resource_records':resource_records(record['resources']),'agent_type':record['agent_type'],'environment':'wsl','sessions':result.get('sessions',[]),'session_count':len(result.get('sessions',[])),'executor_shared':True,**host_identity()}
-    except Exception:
+        protection_check(record)
+        return {'id':value,'status':'running','connected':True,'verified':bool(record.get('verification',{}).get('passed')),'pid':pid,'dsl_hash':record.get('dsl_hash'),'start_ticks':before['start_ticks'],'generation':record['generation'],'domain_id':record['domain_id'],'process_cgroup':record['process_cgroup'],'resources':record['resources'],'resource_records':resource_records(record['resources']),'agent_type':record['agent_type'],'environment':'wsl','sessions':result.get('sessions',[]),'session_count':len(result.get('sessions',[])),'executor_shared':True,'supervision':SUPERVISION_SCHEMA,'execution_status':record['admission'].status(),**host_identity()}
+    except Exception as error:
+        logging.getLogger(__name__).warning('Binding observation failed instance=%s generation=%s reason=%s',value,record['generation'],str(error)[:200])
         # Freeze the whole scope on lost native/control/binding evidence.
         try: (B.task_cgroup(record)/'cgroup.freeze').write_text('1')
         except Exception: pass
         record['paused']=True
+        record['last_state_reason']='执行身份核验失败，实例已暂停'
         return {'id':value,'status':'unknown','connected':False,'verified':False,'generation':record['generation']}
 
 def request_relay(record,payload,timeout=20):
@@ -542,6 +595,7 @@ def start(message):
         watch=subprocess.Popen([str(B.ACTPLANE),'--policy',compiled['watch_path'],'watch'],cwd=control,env=env,stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
         record={'instance_id':value,'task_id':key,'workspace':str(control),'agent_type':agent_type,'resources':resources,'generation':message['generation'],'policy_hash':message['policy_hash'],'watch':watch,'watch_pid':watch.pid,'anchor':anchor,'watch_policy':compiled['watch_path'],'watch_log':str(logfile),'pin_root':env.get('ACTPLANE_BPF_PIN_ROOT'),'web_port':port,'native_token':secrets.token_urlsafe(36),'domain_id':secrets.randbelow(1800000000)+100000000}
         record.update(policy_artifact={**artifact,'loaded':True},dsl_hash=artifact['dsl_hash'])
+        record['startup_deadline']=time.monotonic()+90
         record['event_start']=0
         RUNS[value]=record
         try:
@@ -554,9 +608,13 @@ def start(message):
             B.grant_agent_control_access(record['watch_policy'],True); B.grant_api_event_access(control,True)
             record.update(B.create_task_cgroup(key,record['domain_id']))
             network(record,policy,model_hosts(agent_type))
+            record['protection_fingerprint']=protection_fingerprint(record)
             persist(record)
             gateway(record,message['token'])
             commanddir=B.RUNTIME/'instances'/value;commanddir.mkdir(parents=True,exist_ok=True);commanddir.chmod(0o700)
+            # The heartbeat is ephemeral, but results must survive a host restart.
+            # Stored records are audit facts only and never resurrect authority.
+            record['admission']=Admission(B.LOG_DIR.parent/'execution-queues'/value,message['generation'],policy,message['policy_hash'])
             record.update(request_path=str(commanddir/'request.json'),result_path=str(commanddir/'result.json'))
             record['heartbeat_path']=str(commanddir/'heartbeat.json')
             B.write_file(record['heartbeat_path'],json.dumps({'generation':record['generation'],'at':time.monotonic()}),0o600)
@@ -585,7 +643,10 @@ def start(message):
             if agent_type=='dsh': seal_dsh(home)
             record['verification']=verify(record,policy)
             if not record['verification']['passed']: raise RuntimeError('实际权限拦截未通过，实例已暂停')
+            record['agent_identity']=identity(record['agent_pid'])
             record['ready']=True
+            protection_check(record)
+            record['admission'].verified()
             return {**observe(value),'compile':compiled['compile'],'policy_artifact':record['policy_artifact'],'dsl_hash':record['dsl_hash'],'verification':record['verification'],'launch_source':'WSL independent native Hermes' if agent_type=='hermes' else 'native DSH','executable':str(HERMES_ENTRY) if agent_type=='hermes' else str(B.DSH_WEB)}
         except Exception:
             stop(value)
@@ -595,10 +656,14 @@ def start(message):
 def stop(value):
     record=RUNS.get(value)
     if not record: return {'status':'stopped'}
+    if record.get('admission'):
+        try: record['admission'].set_gate(False,'实例正在停止')
+        except Exception: record['admission'].gate=False
     persisted=False
     if record.get('ready') and not record.get('paused'):
         try: persisted=bool(native(record,'flush').get('ok'))
         except Exception: pass
+    record['paused']=True
     killed=B.quiesce_domain(record) if record.get('runner_pid') else []
     try:
         if record['watch'].poll() is None: record['watch'].send_signal(signal.SIGINT);record['watch'].wait(timeout=5)
@@ -689,6 +754,19 @@ def dispatch(message):
     if value in RUNS:
         with inst_lock(value):
             record=RUNS[value]
+            if action in ('execution-gate','execution-events','execution-ack','execution-lease','execution-result','execution-status'):
+                if message.get('generation')!=record['generation'] or message.get('policy_hash')!=record['policy_hash']:
+                    raise ValueError('Execution authority identity changed')
+                admission=record['admission']
+                if action=='execution-gate':
+                    if type(message.get('open')) is not bool:raise ValueError('Invalid execution gate')
+                    if message['open']:protection_check(record);admission.verified()
+                    return admission.set_gate(message['open'], '已批准策略保持执行' if message['open'] else '策略变更期间暂停新工具')
+                if action=='execution-events':return {'events':admission.events(message.get('after',0))}
+                if action=='execution-ack':return admission.acknowledge(message['sequence'])
+                if action=='execution-lease':return admission.lease(message['body'])
+                if action=='execution-result':return admission.result(message['body'])
+                return admission.status()
             if action=='stop': return stop(value)
             if action=='observe': return observe(value)
             if action=='kernel-events':
