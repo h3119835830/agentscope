@@ -14,7 +14,7 @@ test('history route preserves selected task but cannot mount live workbench or g
  assert.match(main,/page==='workbench'&&<AgentPolicyWorkbench/);
  assert.doesNotMatch(main,/<TaskHub|<ManagedWorkbench|<Overview /);
  assert.match(main,/const refresh = useCallback\(async \(\) => \{\s*if\(page==='history'\)return/);
- assert.match(main,/useEffect\(\(\) => \{ if\(page==='history'\)return; refresh\(\)/);
+ assert.match(main,/useEffect\(\(\) => \{ if\(page==='history'\)return;/);
  assert.match(main,/<ProductOverview /);
  assert.doesNotMatch(main,/page==='history'.*navigate\(\{task:''/);
  assert.doesNotMatch(main,/archiveTask:selected&&isTaskEnded/);

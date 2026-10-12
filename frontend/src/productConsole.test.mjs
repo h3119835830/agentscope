@@ -78,3 +78,8 @@ test('overview and archive module names remain in navigation without repeated pa
  const archive=await render('TaskArchive.jsx',{api:()=>{},navigation:{page:'history',filter:'history',query:'',listPage:0},navigate:()=>{}});
  assert.doesNotMatch(archive,/<h1/);assert.match(archive,/搜索历史任务/);
 });
+
+test('overview first-load failure exits loading and provides a manual retry',async()=>{
+ const html=await render('ProductOverview.jsx',{dash:null,error:'读取超时，请重试。',onRetry:()=>{}});
+ assert.match(html,/role="alert"/);assert.match(html,/重新读取/);assert.doesNotMatch(html,/正在读取 Agent/);
+});

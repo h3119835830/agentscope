@@ -70,11 +70,11 @@ function Add({api,post,onClose,onCreated}){
 export default function AgentInstances(props){
  const {api,post,notify,active,workspaceSeed}=props;
  const [rows,setRows]=useState([]),[loaded,setLoaded]=useState(false),[error,setError]=useState(''),[busy,setBusy]=useState(''),[selected,setSelected]=useState(''),[detailTab,setDetailTab]=useState('connection'),[adding,setAdding]=useState(false);
- const seq=useRef(0);
+ const seq=useRef(0),inFlight=useRef(null);
  const visibleRows=visibleAgentInstances(rows),hasWorkspaces=visibleRows.some(r=>r.workspace_records?.length);
  useEffect(()=>{if(props.configurationId){setSelected(props.configurationId);setDetailTab(['policy','events'].includes(props.configurationTab)?props.configurationTab:'connection');}},[props.configurationId,props.configurationTab,props.policyScope]);
  function configure(id,tab='connection'){setDetailTab(tab);setSelected(id);}
- async function refresh(){const n=++seq.current;try{const r=await api('/api/agent-instances');if(n===seq.current){setRows(r.instances||[]);setLoaded(true);setError('');}}catch(e){if(n===seq.current){setLoaded(true);setError(e.message);setRows(old=>old.map(r=>({...r,connected:false,active:false,status:'unknown',security:'当前未核验',can_open:false})));}}}
+ function refresh(){if(inFlight.current)return inFlight.current;const n=++seq.current;inFlight.current=(async()=>{try{const r=await api('/api/agent-instances');if(n===seq.current){setRows(r.instances||[]);setLoaded(true);setError('');}}catch(e){if(n===seq.current){setLoaded(true);setError(e.message);setRows(old=>old.map(r=>({...r,connected:false,active:false,status:'unknown',security:'当前未核验',can_open:false})));}}finally{inFlight.current=null;}})();return inFlight.current;}
  useEffect(()=>{if(!active)return;refresh();const t=setInterval(refresh,5000);return()=>{seq.current++;clearInterval(t);};},[active,api]);
  async function act(id,label,fn){setBusy(id);try{await fn();await refresh();}catch(e){notify(e.message);setError(e.message);}finally{setBusy('');}}
  const open=(row,start)=>openAgentPage({id:row.id,start,post});

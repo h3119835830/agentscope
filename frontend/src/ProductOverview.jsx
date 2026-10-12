@@ -2,10 +2,11 @@ import React from 'react';
 import SecurityNotice from './SecurityNotice.jsx';
 import RecordBadge from './RecordBadge.jsx';
 import {agentName} from './agentInstancePresentation.mjs';
-export default function ProductOverview({dash,status,onNav,onSessions}){
+export default function ProductOverview({dash,status,error,onRetry,onNav,onSessions}){
  const agents=dash?.agents||[],stats=dash?.stats;
  return <div className="content product-overview"><div className="page-head"><div><p>查看 Agent 的连接、保护状态和待处理策略。</p></div><SecurityNotice/></div>
- {!dash?<p role="status">正在读取 Agent…</p>:<>
+ {error&&<div role="alert" className="inline-notice warning">Agent 读取失败：{error} <button className="button tiny ghost" onClick={onRetry}>重新读取</button></div>}
+ {!dash?!error&&<p role="status">正在读取 Agent…</p>:<>
  <section className="metric-grid product-metrics">{[['Agent',stats.agents],['保护已核验',stats.verified_agents],...(stats.strategies?[['历史策略',stats.strategies]]:[]),...(stats.pending_approvals?[['待审批',stats.pending_approvals]]:[])].map(([name,count])=><div className="metric" key={name}><span>{name}</span><strong>{count}</strong></div>)}</section>
  <section className="panel table-panel"><div className="panel-head"><h2>Agent 状态</h2><button className="button ghost" onClick={()=>onNav('connections')}>管理 Agent</button></div>{agents.length?<div className="table-scroll"><table><thead><tr><th>Agent</th><th>运行状态</th><th>保护状态</th><th/></tr></thead><tbody>{agents.map(a=><tr key={a.id}><td><b>{agentName(a)}</b>{a.connected&&a.pid&&<small>PID {a.pid}</small>}</td><td><RecordBadge tone={a.connected?'good':'neutral'}>{a.status==='unknown'?'状态未知':a.connected?'已连接':'未运行'}</RecordBadge></td><td><RecordBadge tone={a.active?'good':a.connected?'warn':'neutral'}>{a.status==='unknown'?'当前未核验':a.active?'策略绑定已核验':a.connected?'保护未核验':'未运行'}</RecordBadge></td><td><button className="button tiny ghost" onClick={()=>onSessions(a.id)}>查看会话</button></td></tr>)}</tbody></table></div>:<p className="task-empty">添加 Agent 后可查看连接与保护状态。</p>}</section>
  </>}

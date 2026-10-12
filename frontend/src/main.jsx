@@ -18,16 +18,12 @@ import PolicyApprovals from './PolicyApprovals.jsx';
 import SystemWorkbench from './SystemWorkbench.jsx';
 import './agentPolicyWorkbench.css';
 import {productReadUrl,unknownAgentSummary} from './productConsole.mjs';
+import {requestJSON,singleFlight,readOverview} from './readLifecycle.mjs';
 import './productConsole.css';
 import './policyExperience.css';
 import './policyScene.css';
 
-const api = async (url, options = {}) => {
-  const response = await fetch(productReadUrl(url,options.method||'GET'), {...options, credentials:'omit', headers:{'Content-Type':'application/json','X-AgentScope-Surface':'product', ...options.headers}});
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.detail || `请求失败 (${response.status})`);
-  return data;
-};
+const api = (url, options = {}) => requestJSON(fetch,productReadUrl(url,options.method||'GET'), {...options, credentials:'omit', headers:{'Content-Type':'application/json','X-AgentScope-Surface':'product', ...options.headers}});
 const post = (url, body = {}) => api(url, { method: 'POST', body: JSON.stringify(body) });
 const short = (value, n = 12) => value ? `${value.slice(0, n)}…` : '—';
 const HISTORY_MODULES = [
@@ -73,6 +69,7 @@ function App() {
   },[]);
   const [status, setStatus] = useState(null);
   const [dash, setDash] = useState(null);
+  const [overviewError,setOverviewError] = useState('');
   const [strategies, setStrategies] = useState([]);
   const [strategyQuery, setStrategyQuery] = useState('');
   const [strategyStatus, setStrategyStatus] = useState('');
@@ -86,14 +83,17 @@ function App() {
   const handoffCandidate=useCallback(value=>{setCandidate(value);navigate({page:'workbench',policyAgent:value.targetId,agentPolicyTab:'policies',connectionInstance:'',connectionTab:''});},[navigate]);
 
   const notify = useCallback(message => { setToast(message); setTimeout(() => setToast(''), 4200); }, []);
+  const refreshOverview = useMemo(()=>singleFlight(()=>readOverview({api,
+    onAgents:data=>{setDash(previous=>({...data,stats:{...previous?.stats,...data.stats}}));setOverviewError('');},
+    onStatus:setStatus,
+    onCounts:data=>{setDash(previous=>previous?{...previous,stats:{...data.stats,agents:previous.stats.agents,verified_agents:previous.stats.verified_agents}}:previous);setTasks(data.tasks||[]);},
+    onError:(kind,error)=>{if(kind==='agents'){setDash(unknownAgentSummary);setOverviewError(error.message);}else if(kind==='status')setStatus({error:error.message});},
+  })),[]);
   const refresh = useCallback(async () => {
     if(page==='history')return;
-    try {
-      const [s,d]=await Promise.all([api('/api/status'),api('/api/console/summary')]);
-      setStatus(s);setDash(d);setTasks(d.tasks||[]);
-    } catch (e) { setDash(unknownAgentSummary);setStatus({error:e.message});notify(e.message); }
-  }, [selected, page, notify]);
-  useEffect(() => { if(page==='history')return; refresh(); const timer = setInterval(refresh, 7000); return () => clearInterval(timer); }, [refresh,page]);
+    await refreshOverview();
+  },[page,refreshOverview]);
+  useEffect(() => { if(page==='history')return;let stopped=false,timer;const poll=async()=>{await refresh();if(!stopped)timer=setTimeout(poll,7000);};poll();return()=>{stopped=true;clearTimeout(timer);}; }, [refresh,page]);
 
 
   const withBusy = async fn => {
@@ -122,7 +122,7 @@ function App() {
     </aside>
     <main className="main" data-page={page}>
       {<header className="topbar"><div><span className="crumb">AgentScope</span><span className="slash">/</span><b>{pageTitle(page)}</b></div>{status&&(!status.broker?.available||!status.bpf_lsm)&&<span role="status" className="status-pill warn">{status.error?'状态读取失败':'保护服务暂不可用'}</span>}</header>}
-      {page==='overview'&&<ProductOverview dash={dash} status={status} onNav={setPage} onSessions={id=>navigate({page:'sessions',sessionAgent:'',sessionFilterInstance:id,sessionInstance:'',sessionId:''})}/> }
+      {page==='overview'&&<ProductOverview dash={dash} status={status} error={overviewError} onRetry={refresh} onNav={setPage} onSessions={id=>navigate({page:'sessions',sessionAgent:'',sessionFilterInstance:id,sessionInstance:'',sessionId:''})}/> }
       {page==='workbench'&&<AgentPolicyWorkbench api={api} post={post} navigation={navigation} navigate={navigate} candidate={candidate} onConsumed={{handoff:handoffCandidate,consume:consumeCandidate}}/>}
       <div hidden={page!=='history'}><TaskArchive api={api} navigation={navigation} navigate={navigate}/></div>
       {page==='strategies'&&<SystemWorkbench api={api} post={post} navigation={navigation} navigate={navigate} onHandoff={handoffCandidate} tasks={tasks} busy={busy} action={withBusy} notify={notify} selectTask={openTask}/> }
