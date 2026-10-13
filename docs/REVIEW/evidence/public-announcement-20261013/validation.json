@@ -1,0 +1,15 @@
+{
+  "checked_at_utc": "2026-10-13T04:13:20.711346+00:00",
+  "python_syntax_compile": "passed",
+  "generated_html_reproducible": true,
+  "markdown_source_meta_matches": true,
+  "escaping_and_unsafe_scheme_checks": "passed",
+  "overview_files_equal_to_baseline": {
+    "frontend/src/SecurityNotice.jsx": "913964358213c326777199e30af495916982d994ddf8a558a12501d1db7da3cd",
+    "frontend/src/securityNotice.css": "ca8017600246fe2afc19c6d1d2d23ef1e06fbee8946ab6465ddf0607aeaba169",
+    "frontend/src/ProductOverview.jsx": "dfb99cbf53885d3092ce4f5e74117b53bf688291f34130d2f1f5667ea6e11a05",
+    "frontend/src/securityNoticeCases.mjs": "acbb44b19c46daaff2983a2c84ed1aa0e2c35632b226bbe873df9788ef8a1635"
+  },
+  "diff_whitespace_check": "passed",
+  "full_frontend_backend_suites": "not rerun; application source unchanged"
+}

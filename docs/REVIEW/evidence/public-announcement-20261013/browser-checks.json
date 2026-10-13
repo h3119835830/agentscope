@@ -1,0 +1,44 @@
+{
+  "checkedAt": "2026-10-13T04:10:49.160Z",
+  "formal": {
+    "emphasis": [
+      "可审计。",
+      "可反馈。",
+      "可监控。"
+    ],
+    "figures": 1,
+    "forbidden": [],
+    "headings": [
+      "场景一：测试照常启动，插件却在读取凭证",
+      "场景二：脚本启动了后台进程，约束也要跟过去",
+      "场景三：写的是项目路径，碰到的却是受保护文件",
+      "场景四：报告换了名字、换了进程，仍带着秘密来源",
+      "场景五：允许修复源码，验收依据仍要保留",
+      "内核侧执行，可以审计、反馈和监控",
+      "从任务授权，走向真实行为的安全控制"
+    ],
+    "missingAnchors": [],
+    "scrollWidth": 1086,
+    "sourceSha": "34d61b417769ab0e45ca929c9d2c97211bf859c238249d42955d13ee714d6bbf",
+    "title": "应用日志之外：AgentScope 如何追踪并约束 Agent 的真实行为 · AgentScope",
+    "url": "http://localhost:18003/value-announcement.html#section-3",
+    "width": 1101
+  },
+  "mobile": {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "contentScrollWidth": 375,
+    "horizontalOverflow": false,
+    "figureWidth": 331,
+    "visualPassed": true
+  },
+  "keyboardAnchorPassed": true,
+  "screenshots": [
+    "announcement-capabilities-desktop.jpg",
+    "announcement-mobile.jpg",
+    "announcement-mobile-scenario.jpg",
+    "announcement-hero-desktop.jpg"
+  ]
+}
