@@ -37,7 +37,7 @@ See [contract](docs/RFC/RFC-20261013-AgentScope-agent-policy-flow.md),
 [decisions](docs/ADR/ADR-20261013-AgentScope-agent-policy-flow.md),
 [acceptance](docs/REVIEW/REVIEW-20261013-AgentScope-agent-policy-flow.md), and
 [fixed issues](docs/BUG/BUG-20261013-AgentScope-agent-policy-flow.md).
-The isolated 18173 laboratory is separate from the existing 18003 deployment.
+The accepted Agent baseline draft and two-phase approval flow is published at the existing local 18003 console. The isolated 18173 laboratory retains its separate acceptance data.
 
 - [GitHub submission scope and checks](docs/releases/20261004-history-and-task-agent.md)
 - [Prepared pull request description](docs/releases/20261004-pr.md)

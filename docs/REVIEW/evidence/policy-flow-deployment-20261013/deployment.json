@@ -1,0 +1,108 @@
+{
+  "release": "/opt/agentscope-policy-flow-20261013-200758",
+  "source_base_commit": "a8d6330f22094879cdfd837b39daa64c6e1504f8",
+  "api": {
+    "MainPID": "3051254",
+    "WorkingDirectory": "/opt/agentscope-policy-flow-20261013-200758",
+    "argv": [
+      "/opt/agentscope/.venv/bin/python",
+      "-m",
+      "uvicorn",
+      "agentscope_app.main:app",
+      "--host",
+      "127.0.0.1",
+      "--port",
+      "18003",
+      "--timeout-graceful-shutdown",
+      "3"
+    ],
+    "start_ticks": "28310103"
+  },
+  "restart_seconds": 2.723,
+  "ui_sha256": "53c3958793ef25ec91720504740f69fe2764e4f0e21f59cfb01bf80a629211c1",
+  "published": true,
+  "other_ports_unchanged": true,
+  "checks": {
+    "health": 200,
+    "instance-1f4469579e8947f4": {
+      "context_http": 200,
+      "scope": "agent",
+      "ready": true,
+      "drafts_http": 200
+    },
+    "instance-c0dd272b6a734a34": {
+      "context_http": 200,
+      "scope": "agent",
+      "ready": true,
+      "drafts_http": 200
+    },
+    "instance-bb171d3176b644a2": {
+      "context_http": 200,
+      "scope": "agent",
+      "ready": false,
+      "drafts_http": 200
+    },
+    "instance-cc444fe38c094cbb": {
+      "context_http": 200,
+      "scope": "agent",
+      "ready": true,
+      "drafts_http": 200
+    },
+    "approvals_http": 200,
+    "existing_pending": {
+      "status": "pending",
+      "can_approve": true,
+      "can_apply": false,
+      "approval_status": "unrecorded",
+      "application_status": "pending"
+    },
+    "incremental_tables": {
+      "policy_drafts": 0,
+      "policy_draft_versions": 0,
+      "policy_draft_creations": 0,
+      "policy_approval_decisions": 0,
+      "policy_application_requests": 0
+    },
+    "authority_and_processes_unchanged": true,
+    "broker_unchanged": true,
+    "browser": {
+      "desktop": true,
+      "narrow_viewport": 390,
+      "narrow_page_width": 390,
+      "impact_internal_aliases_visible": false,
+      "session_inheritance_collapsed": true,
+      "console_errors": 0
+    }
+  },
+  "controlled_agents": {
+    "instance-1f4469579e8947f4": {
+      "policy_hash": "9c5fa9fbb63c9bcd71da29007179d6c9fed00b23ac9b9f4e41165a76b92425c1",
+      "generation": "a8ee7f9c5ad64e0a9bf543e3929255ed",
+      "pid": 1881572,
+      "domain_id": 133859788,
+      "active": true
+    },
+    "instance-c0dd272b6a734a34": {
+      "policy_hash": "f930aa4e9f224e24588a51a652d773cf022a74fa8be0b379ed4e80023c58ad87",
+      "generation": "947b1b6dd3334b3c9a2a250bd3705832",
+      "pid": 1881769,
+      "domain_id": 1819175395,
+      "active": true
+    },
+    "instance-bb171d3176b644a2": {
+      "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+      "generation": "566ddd5edaad438f9473d4ea08ec1cc1",
+      "pid": null,
+      "domain_id": null,
+      "active": false
+    },
+    "instance-cc444fe38c094cbb": {
+      "policy_hash": "c3371a12d813cbf8c4e13bfc39ac8caa8868b6d394f8a7dbebcd74afa15b2cfe",
+      "generation": "3028d67dd05a4be2ac4944b26e278a6d",
+      "pid": 1881965,
+      "domain_id": 766367180,
+      "active": true
+    }
+  },
+  "browser": "18003 Agent assistant and existing system approval were inspected; no approve/apply operations"
+}

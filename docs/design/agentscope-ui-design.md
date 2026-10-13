@@ -48,3 +48,5 @@ description: Design, implement, and review AgentScope customer-facing interfaces
 客户界面的列表、配置详情、补充说明和新生成的 DSL 预览不展示 RQ1–RQ5 等研究编号。模板名称和保护用途是产品标识；内部模板 ID、研究来源和证据仍保留用于兼容与追溯，不改写用户既有 DSL。验收必须打开每个模板详情与 DSL 预览检查可见文本，不能仅以截图或源码检索代替浏览器行为验收。
 
 2026-10-11 后续发布补充：上述第二步、第三步及源权限语义修复已与当前 because/Pi Skill、审批定位版本合并发布至 18003。真实 DSH 23 项操作检查与审批/会话详情浏览器复验通过，详见 `docs/acceptance/20261011-policy-source-semantics-dsh/README.md`。未关联的执行域内核事件保持原有过滤规则，不伪造会话归因。
+
+2026-10-13 发布补充：Agent 长期基线草案、独立批准/应用与会话继承展示已发布到 18003。审批的对应 Agent 与影响范围均按准确目标 ID 使用产品名和核验 PID，禁止影响范围回退到 RQ5 等内部测试别名；历史目标快照与授权身份保持原义。
