@@ -1,0 +1,78 @@
+{
+  "date": "2026-10-13T03:30:40.357Z",
+  "scenes": [
+    {
+      "label": "测试插件偷读凭证",
+      "measured": true,
+      "heading": "  - heading \"测试照常运行，插件偷读凭证被拦下\" [active] [level=3]"
+    },
+    {
+      "label": "脚本篡改验收测试",
+      "measured": true,
+      "heading": "  - heading \"源码可以修，验收测试不能被偷偷改掉\" [active] [level=3]"
+    },
+    {
+      "label": "链接越界写文件",
+      "measured": true,
+      "heading": "  - heading \"路径看着在项目里，真正写入的对象仍要检查\" [active] [level=3]"
+    },
+    {
+      "label": "后台脚本继续越界",
+      "measured": true,
+      "heading": "  - heading \"切换到 shell 和后台进程，读取边界继续有效\" [active] [level=3]"
+    },
+    {
+      "label": "报告带走了秘密",
+      "measured": true,
+      "heading": "  - heading \"报告换了名字、换了进程，秘密来源仍需受约束\" [active] [level=3]"
+    },
+    {
+      "label": "同一地址的两种数据",
+      "measured": true,
+      "heading": "  - heading \"地址相同，普通上报与秘密外发可以区别处理\" [active] [level=3]"
+    },
+    {
+      "label": "借用其他 Agent 权限",
+      "measured": true,
+      "heading": "  - heading \"自己的资源能读，其他资源对象仍受保护\" [active] [level=3]"
+    },
+    {
+      "label": "恶意文档诱导命令",
+      "measured": false,
+      "heading": "  - heading \"恶意文档诱导命令\" [active] [level=3]"
+    },
+    {
+      "label": "伪造批准或错误目标",
+      "measured": false,
+      "heading": "  - heading \"伪造批准或错误目标\" [active] [level=3]"
+    },
+    {
+      "label": "撤权前的 FD 与 mmap",
+      "measured": false,
+      "heading": "  - heading \"撤权前的 FD 与 mmap\" [active] [level=3]"
+    },
+    {
+      "label": "复用过期测试记录",
+      "measured": false,
+      "heading": "  - heading \"复用过期测试记录\" [active] [level=3]"
+    },
+    {
+      "label": "合法 HTTPS 的错误交易",
+      "measured": false,
+      "heading": "  - heading \"合法 HTTPS 的错误交易\" [active] [level=3]"
+    }
+  ],
+  "mobile": {
+    "width": 390,
+    "flowBodyWidth": 357,
+    "flowScrollWidth": 357,
+    "catalogRows": 12,
+    "catalogBodyWidth": 357,
+    "catalogScrollWidth": 357
+  },
+  "keyboard": {
+    "escapeClosed": true,
+    "focusReturnedTo": "安全总览"
+  },
+  "articleOpenedFromLink": true
+}

@@ -7,7 +7,7 @@ export default function ProductOverview({dash,status,error,onRetry,onNav,onSessi
  const checked=value=>value?new Date(value).toLocaleString('zh-CN',{hour12:false}):'暂无核验记录';
  const formalEntry=typeof location!=='undefined'&&location.hostname==='127.0.0.1'?location.href.replace('127.0.0.1','localhost'):null;
  return <div className="content product-overview"><div className="page-head"><div><p>查看 Agent 的连接、保护状态和待处理策略。</p></div><SecurityNotice/></div>
- <section className="overview-value" aria-label="系统行为保护的价值"><p>即使 Agent 换了工具、启动后台脚本或忘记任务约束，已批准的策略仍应约束它实际访问的文件与网络。</p><div className="overview-value-points"><span><b>工具没显示的行为</b> · 测试插件偷读凭证</span><span><b>多个操作组合的风险</b> · 秘密经派生文件外发</span><span><b>需要持续维持的约束</b> · 后代进程仍受保护</span></div></section>
+ <section className="overview-value" aria-label="系统行为保护的价值"><p className="overview-value-lead">让授权管到脚本真正做的事。</p><p>测试脚本读了什么、后台进程做了什么、报告把什么发了出去，都需要执行时检查。</p><div className="overview-value-points"><span><b>凭证仍受保护</b> · 插件偷读会被检查</span><span><b>验收依据保持不变</b> · 源码可改，测试受保护</span><span><b>数据来源参与判断</b> · 同一地址也可区别处理</span></div></section>
  {error&&<div role="alert" className="inline-notice warning">控制台数据不可达，当前运行与保护状态未知：{error} <button className="button tiny ghost" onClick={onRetry}>重新读取</button>{formalEntry&&<a className="button tiny ghost" href={formalEntry}>打开正式入口</a>}</div>}
  {dash&&<p className="overview-control-state">{error?'等待控制台恢复；上次成功读取':'控制台可达 · 最近读取'}：{checked(dash.observedAt)}。执行保护以各实例的当前核验为准。</p>}
  {!dash?!error&&<p role="status">正在读取 Agent…</p>:<>
