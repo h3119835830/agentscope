@@ -1,0 +1,30 @@
+2a49d53aaa7b27f392eb271a524626b9ceb71814 fix: replace public experiment page with value announcement
+2f37afff002783576820273447a1bbe4989a03df docs: explain kernel security value for external readers
+9934dc353c90be3342fe83b3d695f18626b7aa3f fix(ui): restore the original security overview at user request
+ac53bfc13a04ff3214eb56f21038cb6b65ea5687 fix(ui): restore security scene walkthroughs and expose the announcement
+e1af002c0c2ee41439f3b9a0763309aef530aba2 feat: decouple Agent execution liveness and publish measured security evidence
+db870f6c2e3e42f4d921ea44b5c5c3e48136510e fix: preserve workspace and session targets in policy approvals
+9968d083e4545ee507883777aa60583f3ddf181a fix(native-open): restore authenticated pages and packaged Hermes chat
+b98a5e19f263b69cfa3e360872ddb406ab872778 fix(console): bound and coalesce Agent directory reads
+fc4e9d5368fecc713830738a7ad5896dcfd00fd8 merge: publish policy semantics to 18003 with real DSH acceptance
+ef6fbb2b7b4af2564e453e344ee891a9699c5e29 fix(policy): preserve source permissions in deterministic lowering
+b4f77ba2365485aaee0605e669aad5487547cb86 feat: integrate because feedback and Pi Skill into shared console
+3526484d6483b13983b7647f73ff5e5b2ff38896 Merge commit 'b2a62d8' into codex/because-feedback-20261011
+17688b4cad81482c1ee4e991506caa9d88d920f8 feat: add guided system feedback defaults and native Pi skill
+b280b6d7c5ec10f0bff7bae739e59c37726ed4a4 feat(policy): bind workspace scene suggestions to human approval
+bfd93de17481be386da3ecc57380ca18b6a488b2 feat: 接入可信 because 指导与 DSH 反馈屏障
+b2a62d8077439fde4e215c12b34ce42a2d10cb67 fix: locate approvals by Agent process and originating session
+5e91372c1d7a306ccb312dbc033f10db6d67c2e3 refactor(ui): separate generation history from policy approval
+eec9aeeee6c4f2464711fb22376f920a11b5c01a fix(policy): unify human approval for instance and runtime candidates
+12c76464ee000bbae32346d8f3d74caca180e5ea feat: persist system policy configurations and enforce file suffix rules
+15702dc20d71a8ed841f2fd5163fbc4bfac542fb Merge commit 'b6b6fa2' into codex/system-policy-ui-20261011
+b6b6fa2f70f71269a2781e7d66d35556b3e581a2 test: verify Agent policy isolation for shared Node executors
+9e49e8a8767e7628e19653b94969b3d7981fb15a fix: bind policy sources to verified Agent executables
+2272f399b2996de794360aaa0a63727e0b0c671b Merge commit '3ba0cb5' into codex/system-policy-ui-20261011
+3ba0cb536aeec293ba3886c8f24aa3c707496062 fix: align DSL document toolbar and restore Agent scope label
+422f92ccadbe9edeb22288a95cd6f865b892ed99 design: preview configurable system policies and universal root inheritance
+06d23505334c708c8d1b7704ff51e98dbaaed511 feat: make Agent policy candidates readable with explicit approval inbox
+9a2a2918f4b91c1dc38511570f0a01b0afa9f19a feat: bind free-form Agent policies to verified session environments
+db8a0f124fa8ce25453f6e954a78ce810429627d fix: refine policy assistant conversation and customer configuration
+ec50d411b8fe039601019a7fa3f067a0990f7ab4 fix: redesign policy records and simplify Agent assistant
+cc6c4af73ef9338972eaa4c87b8b95d719016762 feat: integrate Agent policy templates with scoped DSL drafts

@@ -1,6 +1,6 @@
 import {operationLabel} from './policyRecordPresentation.mjs';
 import {appendHandoff} from './agentPolicyHandoff.mjs';
-export const approvalLabel=s=>({pending:'待审批',blocked:'暂不能应用',stale:'需重新校验',invalid:'校验未通过',failed:'应用未完成',applying:'应用中',applied:'已应用',rejected:'已拒绝'})[s]||'状态待核验';
+export const approvalLabel=s=>({pending:'待审批',approved:'已批准 · 待应用',blocked:'暂不能应用',stale:'需重新校验',invalid:'校验未通过',failed:'应用未完成',applying:'应用中',applied:'已应用',rejected:'已拒绝'})[s]||'状态待核验';
 export const disposition=e=>({block:'阻止',notify:'记录并提醒',kill:'终止违规进程'})[e]||e;
 export function candidateView(result){
  const clauses=(result.artifact?.policy_ir?.rules||[]).flatMap(r=>r.clauses||[]),targets=[...new Set(clauses.map(c=>c.pattern).filter(Boolean))],operations=[...new Set(clauses.map(c=>operationLabel(c.operation)))],effects=[...new Set(clauses.map(c=>disposition(c.effect)))];
@@ -21,7 +21,7 @@ export async function submitCandidate(candidate,api,post){
  if(candidate.scopeType!=='agent')throw Error('未知策略范围，请重新选择。');
  const base='/api/agent-instances/'+encodeURIComponent(candidate.targetId)+'/dsl',current=await api(base),documents=appendHandoff(current,candidate,candidate.targetId);
  const existing=(current.proposals||[]).find(p=>p.state==='pending'&&p.base_hash===current.document_hash&&p.base_revision===current.revision&&sameDocuments(p.documents,documents));
- if(existing){const checked=await api('/api/console/approvals/'+encodeURIComponent(existing.id));if(checked.can_apply)return existing;}
+  if(existing){const checked=await api('/api/console/approvals/'+encodeURIComponent(existing.id));if(checked.can_approve||checked.can_apply)return existing;}
  return post(base+'/proposals',{documents,base_hash:current.document_hash,base_revision:current.revision,request_key:crypto.randomUUID()});
 }
 

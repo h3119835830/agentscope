@@ -11,7 +11,7 @@ import {agentProcessLabel} from './agentInstancePresentation.mjs';
 
 export const scopeName=r=>({system:'系统策略',agent:'Agent 策略',session:'会话策略'})[r.scope_type]||r.scope_type;
 export const typeName=t=>({per_event:'单事件',cross_event:'跨事件',semantic_only:'语义指导'})[t]||t;
-export function PolicyRecords({records=[],onDetail,onEdit,compact=false,empty='尚无已配置的 ActPlane 策略。'}){
+export function PolicyRecords({records=[],onDetail,onEdit,compact=false,editLabel='编辑 DSL',empty='尚无已配置的 ActPlane 策略。'}){
  return <div className="table-scroll policy-records-wrap"><table className={"policy-records"+(compact?" compact":"")}><thead><tr>{['策略语句','动作','事件类型',...(compact?[]:['上下文需求']), '策略类型','状态','操作'].map(x=><th key={x}>{x}</th>)}</tr></thead><tbody>{records.map((r,i)=><tr key={r.id||i}>
   <td><strong>{r.statement}</strong>{r.statement_origin==='dsl_summary'&&<small>DSL 摘要</small>}</td>
   <td><div className="policy-badges">{(r.effects||[r.effect]).filter(Boolean).map(e=><span key={e} className={'effect-pill effect-'+e}>{e}</span>)}</div></td>
@@ -19,18 +19,18 @@ export function PolicyRecords({records=[],onDetail,onEdit,compact=false,empty='�
   {!compact&&<td><RecordBadge tone={r.context_requirement==='self_contained'?'neutral':'purple'} dot={false}>{r.context_requirement||'未记录'}</RecordBadge></td>}
   <td><RecordBadge tone={r.scope_type==='system'?'purple':r.scope_type==='session'?'good':'info'} dot={false}>{scopeName(r)}</RecordBadge></td>
   <td><RecordBadge tone={r.active?'good':r.loaded?'info':'neutral'}>{r.active?'当前绑定已核验':r.application_state==='blocked'?'应用失败 · 已暂停':r.coverage?.verified_count?'当前核验 '+r.coverage.verified_count+' / '+r.coverage.total_count+' 个连接':r.loaded?'历史已加载':r.application_state==='applied'?'已确认 · 待加载':r.compile_status==='compiled'?'编译通过 · 未加载':'未取得编译映射'}</RecordBadge></td>
-  <td><div className="policy-row-actions"><button className="button tiny ghost" onClick={()=>onDetail?.(r)}>详情</button>{onEdit&&r.document_id&&r.editable!==false&&<button className="button tiny ghost" onClick={()=>onEdit(r)}>编辑 DSL</button>}</div></td>
+  <td><div className="policy-row-actions"><button className="button tiny ghost" onClick={()=>onDetail?.(r)}>详情</button>{onEdit&&r.document_id&&r.editable!==false&&<button className="button tiny ghost" onClick={()=>onEdit(r)}>{editLabel}</button>}</div></td>
  </tr>)}{!records.length&&<tr><td colSpan={compact?6:7} className="task-empty">{empty}</td></tr>}</tbody></table></div>;
 }
-export function PolicyDetail({record:r,onClose,onEdit}){
+export function PolicyDetail({record:r,onClose,onEdit,editLabel='编辑所属 DSL 文档'}){
  const dialog=useRef(null),origin=useRef(document.activeElement),[copy,setCopy]=useState('');
  useEffect(()=>{dialog.current?.showModal();return()=>{dialog.current?.close();origin.current?.isConnected&&origin.current.focus();};},[]);
- return <dialog ref={dialog} className="record-drawer dsl-detail" aria-label="ActPlane 策略详情" onCancel={e=>{e.preventDefault();onClose();}}><div className="record-drawer-head"><h2>策略详情 · {r.rule_name||r.id}</h2><button className="button tiny ghost" onClick={onClose}>关闭</button></div><div className="record-drawer-body">
+ return <dialog ref={dialog} className="record-drawer dsl-detail" aria-label="ActPlane 策略详情" onCancel={e=>{e.preventDefault();onClose();}}><div className="record-drawer-head"><h2>策略详情</h2><button className="button tiny ghost" onClick={onClose}>关闭</button></div><div className="record-drawer-body">
  <p className="policy-statement">{r.statement}</p><div className="policy-badges">{(r.effects||[]).map(e=><span key={e} className={'effect-pill effect-'+e}>{e}</span>)}{(r.event_types||[]).map(t=><RecordBadge key={t} tone="purple" dot={false}>{typeName(t)}</RecordBadge>)}{r.context_requirement&&<RecordBadge dot={false}>{r.context_requirement}</RecordBadge>}<RecordBadge tone="info" dot={false}>{scopeName(r)}</RecordBadge></div>
  <dl className="security-facts">{r.context_reason&&<><dt>上下文依据</dt><dd>{r.context_reason}</dd></>}<dt>策略来源</dt><dd>{scopeName(r)}</dd><dt>编译状态</dt><dd>{r.compile_status==='compiled'?'编译通过':'未取得编译映射'}</dd><dt>加载与运行</dt><dd>{r.active?'当前运行绑定已核验':r.loaded?'存在历史加载记录；当前运行未核验':'尚未加载'}</dd></dl>
  {r.original_dsl&&<section className="dsl-section"><div className="dsl-section-heading"><h3>原始 DSL</h3>{r.original_dsl&&<button className="button tiny ghost" onClick={async()=>{try{await navigator.clipboard.writeText(r.original_dsl);setCopy('已复制');}catch{setCopy('复制不可用，请选中文本复制');}}}>{copy||'复制'}</button>}</div>{r.original_dsl?<DslCode text={r.original_dsl} firstLine={r.source_start_line||1}/>:<p className="field-note">用户原始 DSL 未记录。以下加载材料来自既有编译回执。</p>}{r.original_document&&<details><summary>完整原始文档 · {r.document_name}</summary><DslCode text={r.original_document}/></details>}</section>}
    {r.hits?.length>0&&<section className="dsl-section"><h3>本会话命中记录</h3>{r.hits.map(h=><article key={h.id} className="dsl-target"><b>{h.operation} · {h.effect}</b><code>{h.target}</code><small>{h.pid?'PID '+h.pid+' · ':''}{h.killed?'进程已终止':h.blocked?'操作已阻止':['notify','report'].includes(h.actual_action)?'已上报':'处置未记录'}</small></article>)}</section>}
-{onEdit&&r.document_id&&r.editable!==false&&<button className="button primary" onClick={()=>onEdit(r)}>编辑所属 DSL 文档</button>}
+{onEdit&&r.document_id&&r.editable!==false&&<button className="button primary" onClick={()=>onEdit(r)}>{editLabel}</button>}
  </div></dialog>;
 }
 
@@ -48,7 +48,7 @@ export function DslEditor({data,record,importing,seed,onClose,onValidate,onRevie
  function metadata(rule,patch){change({metadata:{...doc.metadata,[rule]:{...doc.metadata?.[rule],...patch}}});}
  const previewBaseStale=!!preview&&(preview.base_hash!==data.document_hash||preview.base_revision!==data.revision);
  const projected=preview?.id===proposal?.id?approval||preview?.approval:preview?.approval;
- const current=JSON.stringify(docs),valid=(!projected||projected.can_apply)&&previewMatches(preview,checked,docs,baseStale||previewBaseStale||sourceStale)&&!docs.some(d=>/^\s*source\s+AGENT\s*=\s*exec\s+"(?:\*|\*\*|\*\*\/\*)"\s*$/m.test(d.original_dsl));
+ const current=JSON.stringify(docs),valid=(!projected||projected.can_approve||projected.can_apply)&&previewMatches(preview,checked,docs,baseStale||previewBaseStale||sourceStale)&&!docs.some(d=>/^\s*source\s+AGENT\s*=\s*exec\s+"(?:\*|\*\*|\*\*\/\*)"\s*$/m.test(d.original_dsl));
  const broadSource=/^\s*source\s+AGENT\s*=\s*exec\s+"(?:\*|\*\*|\*\*\/\*)"\s*$/m.test(doc?.original_dsl||'');
  return <dialog ref={dialog} className="record-drawer dsl-editor" aria-label="编辑或导入 DSL" onCancel={e=>{e.preventDefault();if(!busy)onClose();}}><div className="record-drawer-head"><h2>{importing?'导入 DSL':'编辑 DSL'} · {data.scope_id==='system'?'系统策略':scopeLabel||'当前 Agent 策略'}</h2><button className="button tiny ghost" disabled={busy} onClick={onClose}>关闭</button></div><div className="record-drawer-body">
  {seed&&<div className="policy-handoff-banner" role="status"><b>{seed.templateId} · 候选已带入{data.scope_id==='system'?'系统策略':'当前 Agent'}</b><p>保留 {data.documents.length} 个已有文档，追加 1 个策略候选。{preview?'草案已保存；运行策略未改变。':'尚未保存、编译或应用。'}</p><p>{seed.caveat}</p></div>}
@@ -68,7 +68,7 @@ export function DslEditor({data,record,importing,seed,onClose,onValidate,onRevie
  </div></dialog>;
 }
 
-export default function ActPlanePolicies({configurationTemplates=[],configurationAgents=[],scopeId,scopeLabel='',api,post,onChanged,onApprovals,candidate,onCandidateConsumed}){
+export default function ActPlanePolicies({configurationTemplates=[],configurationAgents=[],scopeId,scopeLabel='',api,post,onChanged,onApprovals,candidate,onCandidateConsumed,ownedOnly=false,onInherited}){
  const base=scopeId==='system'?'/api/security/system/dsl':'/api/agent-instances/'+encodeURIComponent(scopeId)+'/dsl';
  const [data,setData]=useState(null),[error,setError]=useState(''),[busy,setBusy]=useState(false),[detail,setDetail]=useState(null),[editor,setEditor]=useState(null),[query,setQuery]=useState('');
  const [configuration,setConfiguration]=useState(null);
@@ -84,17 +84,19 @@ export default function ActPlanePolicies({configurationTemplates=[],configuratio
   return()=>{alive=false;};
  },[candidate,base,scopeId,api,onCandidateConsumed]);
  async function run(fn){setBusy(true);try{return await fn();}finally{setBusy(false);}}
- const records=(data?.records||[]).filter(r=>(r.statement+' '+r.rule_name+' '+r.document_name+' '+r.original_dsl).toLowerCase().includes(query.toLowerCase()));
+ const records=(data?.records||[]).filter(r=>!ownedOnly||r.scope_id===scopeId&&!!r.document_id).filter(r=>(r.statement+' '+r.rule_name+' '+r.document_name+' '+r.original_dsl).toLowerCase().includes(query.toLowerCase()));
  const visibleTemplates=configurationTemplates.filter(t=>(t.name+' '+t.id+' '+t.parameters[0].value).toLowerCase().includes(query.toLowerCase()));
  return <section className="actplane-policies" aria-label={scopeId==='system'?'系统 ActPlane 策略':'Agent ActPlane 策略'}><div className="dsl-scope-header"><div className="policy-scope-caption">{scopeId==='system'?'适用于所有受控 Agent':'适用于此 Agent 的全部会话'}</div><div className="actions"><button className="button ghost" disabled={!data||busy} onClick={()=>edit({importing:true})}>导入 DSL</button><button className="button primary" disabled={!data||busy} onClick={()=>edit()}>编辑 DSL</button></div></div>
  {error&&<p role="alert" className="inline-notice warning">{error} <button className="button tiny ghost" onClick={refresh}>重新读取</button></p>}
  {data?.phase!=='ready'&&data&&<p role="alert" className="inline-notice warning">上次 DSL 应用未完成，执行保持暂停。请打开编辑器，重新校验并确认恢复。</p>}
  {(configurationTemplates.length>0||data?.records?.length>0||query)&&<div className="dsl-list-toolbar"><input type="search" aria-label="搜索策略语句" placeholder="搜索策略语句或规则名" value={query} onChange={e=>setQuery(e.target.value)}/><span>{data?records.length+' 条策略 · v'+data.revision:'正在读取策略…'}</span></div>}
  {data&&query&&!records.length&&!visibleTemplates.length&&<p role="status" className="task-empty">没有匹配的策略，请修改搜索条件。</p>}
- {(!data||!query||records.length>0||visibleTemplates.length>0)&&<ConfiguredPolicyRecords records={records} templates={visibleTemplates} ready={!!data} onDetail={setDetail} onEdit={r=>edit({record:r})} onConfigure={setConfiguration}/>}
- {data?.proposals?.filter(p=>!['applied','rejected'].includes(p.state)).length>0&&<section className="policy-draft-records"><h3>待处理草案</h3><div className="policy-table-shell"><div className="table-scroll"><table className="policy-structured-table" aria-label="策略草案记录"><thead><tr><th>草案名称</th><th>文档数</th><th>校验状态</th><th>操作</th></tr></thead><tbody>{data.proposals.filter(p=>!['applied','rejected'].includes(p.state)).map(p=><tr key={p.id}><td><strong>{p.documents?.map(d=>d.name).join('、')||'策略变更草案'}</strong></td><td>{p.documents?.length||0}</td><td><RecordBadge dot={false}>{approvalLabel(p.approval?.status||p.state)}</RecordBadge></td><td><button className="button tiny ghost" onClick={()=>edit({draft:p})}>查看 / 继续配置</button></td></tr>)}</tbody></table></div></div></section>}
+ {(!data||!query||records.length>0||visibleTemplates.length>0)&&<ConfiguredPolicyRecords hideRuleIds={ownedOnly} records={records} templates={visibleTemplates} ready={!!data} onDetail={setDetail} onEdit={r=>edit({record:r})} onConfigure={setConfiguration}/>}
+ {!ownedOnly&&data?.proposals?.filter(p=>!['applied','rejected'].includes(p.state)).length>0&&<section className="policy-draft-records"><h3>待处理草案</h3><div className="policy-table-shell"><div className="table-scroll"><table className="policy-structured-table" aria-label="策略草案记录"><thead><tr><th>草案名称</th><th>文档数</th><th>校验状态</th><th>操作</th></tr></thead><tbody>{data.proposals.filter(p=>!['applied','rejected'].includes(p.state)).map(p=><tr key={p.id}><td><strong>{p.documents?.map(d=>d.name).join('、')||'策略变更草案'}</strong></td><td>{p.documents?.length||0}</td><td><RecordBadge dot={false}>{approvalLabel(p.approval?.status||p.state)}</RecordBadge></td><td><button className="button tiny ghost" onClick={()=>edit({draft:p})}>查看 / 继续配置</button></td></tr>)}</tbody></table></div></div></section>}
+ {ownedOnly&&(data?.proposals||[]).filter(p=>p.approval?.status==='approved').map(p=><div className="flow-approved-records" key={p.id}><strong>已批准 · 待应用</strong> · {p.documents?.map(d=>d.name).join('、')||'移除本层配置'}<button className="assistant-text-button" onClick={()=>onApprovals?.(p.id)}>查看变更并应用 ↗</button><p>当前执行仍使用原配置，应用成功后才更新运行视图。</p></div>)}
+ {ownedOnly&&<details className="policy-inheritance"><summary>继承与启动约束 · 只读查看</summary><div><PolicyRecords compact records={(data?.records||[]).filter(r=>r.scope_id!==scopeId||!r.document_id)} onDetail={setDetail} empty="没有已记录的继承规则。"/><p className="experience-note">系统约束由系统配置维护，启动规则由登记权限生成。</p><button className="button tiny ghost" onClick={onInherited}>前往系统配置 ↗</button></div></details>}
  {configuration&&<PolicyTemplateDetail template={configuration} agents={configurationAgents} onClose={()=>setConfiguration(null)} onHandoff={async seed=>{try{const fresh=await api(base);appendHandoff(fresh,seed,scopeId);setData(fresh);setConfiguration(null);setEditor({seed,importing:true,base:structuredClone(fresh)});}catch(e){setError(e.message);setConfiguration(null);}}}/>}
- {detail&&<PolicyDetail record={detail} onClose={()=>setDetail(null)} onEdit={r=>{setDetail(null);edit({record:r});}}/>}
+ {detail&&<PolicyDetail record={detail} onClose={()=>setDetail(null)} onEdit={ownedOnly&&detail.scope_id!==scopeId?undefined:r=>{setDetail(null);edit({record:r});}}/>}
  {editor&&editor.base&&<DslEditor data={editor.base} proposal={editor.draft} approval={data?.proposals?.find(p=>p.id===editor.draft?.id)?.approval} record={editor.record} importing={editor.importing} seed={editor.seed} scopeLabel={scopeLabel} sourceStale={!!data&&JSON.stringify(editor.base.source_context)!==JSON.stringify(data.source_context)} baseStale={!!data&&(editor.base.document_hash!==data.document_hash||editor.base.revision!==data.revision)} busy={busy} onClose={()=>setEditor(null)} onValidate={docs=>run(async()=>{const p=await post(base+'/proposals',{documents:docs,base_hash:editor.base.document_hash,base_revision:editor.base.revision,request_key:crypto.randomUUID()});const fresh=await refresh(),next=fresh?.proposals?.find(item=>item.id===p.id)||p;setEditor(value=>value?{...value,draft:next}:value);return next;})} onReview={p=>{if(onApprovals)return onApprovals(p.id);window.location.assign('/?view=approvals&approvalId='+encodeURIComponent(p.id));}}/>}
  </section>;
 }

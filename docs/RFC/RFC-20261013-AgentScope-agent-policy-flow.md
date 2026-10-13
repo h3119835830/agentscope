@@ -1,0 +1,50 @@
+# Agent 长期基线与两步应用合同（2026-10-13）
+
+状态：本地整合版实现，隔离环境验收；未推送、未发布到 18003。实现从 `2a49d53aaa7b27f392eb271a524626b9ceb71814` 建立独立分支，不改写原型或既有历史验收结论。
+
+## 所有权与生成环境
+
+Agent 长期基线属于精确实例，其全部工作区和会话继承。生成无需原生会话，但仍须存在已核验的受控运行来源、登记资源及就绪的系统/实例配置。未运行或来源待核验时可以保存需求，不能产生可应用候选。模型不能提交 executable、PID、cwd 或执行能力作为权威事实。
+
+`policy-context?scope=agent` 由服务端构造登记资源到 `/w/0`、`/w/1` 的映射和来源身份。多个资源下的相对对象有歧义时进入待补充，不借用某个会话 cwd。对象路径、继承基线、运行代次、资源映射、材料和草案版本在生成/提交/审批/应用时重新核验。来源采样缓存允许可信部署通过 `AGENTSCOPE_POLICY_SOURCE_CACHE` 指定，默认值保留旧部署；独立环境使用独立数据库、root 采样器和缓存，不能读取生产来源缓存冒充核验。
+
+显式工作区使用原生登记 ID，只在选定工作区内读取受限场景。场景引用随草案冻结，文件或环境漂移使生成和提交失效。工作区和原生会话仍没有独立加载器，允许保存、生成、审查、拒绝，禁止进入实例级加载器。旧的无 scope 调用继续保持会话选择语义，不把历史候选重新解释为长期基线。
+
+## 持久化与接口
+
+管理员接口：
+
+| 操作 | 接口及合同 |
+| --- | --- |
+| 环境 | `GET /api/agent-instances/{instance}/policy-context?scope=agent\|workspace&workspace_id=...`；显式范围不能同时传 session_id |
+| 草案 | `GET/POST /api/agent-instances/{instance}/policy-drafts`；按实例、范围、工作区隔离 |
+| 版本 | `GET/PATCH .../policy-drafts/{draft}`；PATCH 带 base_revision，新版本保留不可变旧输入 |
+| 生成 | `POST .../policy-drafts/{draft}/generate`；服务端重新解析环境，保存 run 引用 |
+| 提交 | `POST .../policy-drafts/{draft}/submit`；revision 和 artifact 必须属于同一输入摘要，固定审批快照 |
+| 批准 | `POST /api/console/approvals/{id}/approve`；proposal_hash、request_key |
+| 应用 | `POST /api/console/approvals/{id}/apply`；另需 approval_hash，幂等键不得复用到另一内容 |
+| 拒绝 | 保留统一 reject；已批准待应用可以撤回，正在/已经应用不能撤回 |
+
+增量表为 policy_drafts、policy_draft_versions、policy_draft_creations、policy_approval_decisions、policy_application_requests。旧库仅新增表、索引及 evidence_json、input_version_id、submission_json 字段，保留旧策略、候选和加载回执。草案保存需求、材料名称/正文、文档或场景引用及生成引用。生成输入先持久化，提交选择先固定，产物/提案已提交但引用写入中断时按版本幂等恢复。已提交版本不原地编辑；新输入生成新版本，旧提交仍可追溯。保存的模板同样需要核验来源，不能绕过助手资格校验。
+
+批准记录固定候选摘要、目标、父策略、决定时间和审批证据。单一配置所有者由 SQLite 部分唯一索引限制一个 approved/applying 版本；线程锁与数据库 CAS 保护重复/并发调用。批准只写决定，不调用加载器、停止进程、改变执行门或正式配置。
+
+应用复核候选、目标和批准回执后，调用已有 DSL、系统、实例、受管任务控制器。编译、门控、停止、重建、核验继续由原权威链执行，不重写 Broker/ActPlane。应用失败暂停并停止受影响执行；启动时仅补齐中断应用的暂停，不重新加载、自动重试或恢复授权。暂停未核验会明确报错，不能宣称已保护。
+
+旧管理员 confirm 保持批准并应用含义，内部记入当前批准回执；旧受管 review approve 使用同一兼容适配。历史已应用记录没有回执时标注 legacy_unrecorded，不补造过去批准证据。内部权威加载函数仍供可信控制器使用，不成为 Agent 的批准入口。
+
+## 展示合同
+
+服务端分别返回 status、approval_status、application_status、execution_results、can_approve、can_apply。前端不从“已批准”推导生效。Agent 页在助手中保存草案，正式表只列本范围配置；继承规则折叠只读，并跳到所属配置。助手简化为需求、按需材料/模板、候选核对。
+
+审批中心单列待应用；批准后须再次显式核对并点击应用。详情展示目标、前后变更、材料快照、影响成员及加载事实。离线目标显示启动时加载，历史加载核验不等于当前运行受控。
+
+会话默认显示本会话新增约束，继承规则折叠只读。实际规则来自选定运行代次的加载回执。工具 Trace 与内核匹配分别展示；共享执行器里没有可信工具标签的事件不计作本会话命中，包括策略详情内的 hits。切换目标取消旧请求投影；失败显示错误和重试，不沿用旧目标状态。
+
+## 源动作与执行语义
+
+源意图先独立记录需要保留的读取和禁止的修改，再由代码映射执行组。新增的 truncate 是源动作 schema 的完整性修复，映射到已有 file_mutate/write 组；不增加针对特定中文句子的提示词、关键词补丁或新 Broker 钩子。证据不能定位、条件不明确或路径歧义时不能提交可执行候选。
+
+## 本轮边界
+
+不新增会话 worker、cgroup、工作区加载域，不改普通业务代码。独立测试环境为 18173，18003 及既有实例不参与试改。真实结果和限制以同名 REVIEW、BUG 与 acceptance/20261013-agent-policy-flow 为准。

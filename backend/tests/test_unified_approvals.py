@@ -19,7 +19,7 @@ def test_native_restriction_is_pending_even_for_an_open_agent_tool(world,actor,r
     before=store.get(world.a['id']);p=propose(before,actor)
     assert p['state']=='pending' and not world.calls
     ident='instance:'+p['id'];page=approvals.directory();row=next(r for r in page['records'] if r['id']==ident)
-    assert row['scope_type']=='agent' and row['can_apply'] and row['origin']==('runtime' if actor=='agent' else 'manual')
+    assert row['scope_type']=='agent' and row['can_approve'] and not row['can_apply'] and row['origin']==('runtime' if actor=='agent' else 'manual')
     detail=world.client.get('/api/console/approvals/'+ident,headers=ADMIN).json()
     assert detail['change_items'][0]['after'].startswith('禁止模型')
     assert store.get(world.a['id'])==before and not world.calls
@@ -117,7 +117,7 @@ def test_runtime_candidate_is_visible_read_only_then_human_confirmed_once(pendin
     ident='runtime:'+job['id'];body={'proposal_hash':p['hash']}
     with db.connect() as con:before=managed.load(con,task)
     row=next(r for r in approvals.directory()['records'] if r['id']==ident)
-    assert row['scope_type']=='session' and row['origin']=='runtime' and row['can_apply']
+    assert row['scope_type']=='session' and row['origin']=='runtime' and row['can_approve'] and not row['can_apply']
     detail=client.get('/api/console/approvals/'+ident,headers=ADMIN).json()
     assert detail['change_items'] and detail['targets'][0]['scope_label']=='当前任务会话'
     assert 'context_json' not in detail and 'proposal_json' not in detail
@@ -184,3 +184,11 @@ def test_runtime_without_frozen_session_cannot_use_current_session_as_authority(
     assert approvals.detail('runtime:'+job['id'])['status']=='stale'
     with pytest.raises(ValueError,match='会话快照'):managed.review_change(task,job['id'],'approve',p['hash'])
     assert not calls
+
+
+def test_legacy_expansion_confirmation_records_the_same_approval_receipt(pending,client,monkeypatch):
+    from agentscope_app.instances.approval_decisions import receipts
+    task,_,job,put=pending;p=put('expand');calls=[];install_mock(monkeypatch,calls)
+    response=client.post('/api/managed/tasks/'+task+'/expansion/confirm',headers=ADMIN,json={'expected_hash':p['hash']})
+    assert response.status_code==200,response.text
+    assert calls==[task] and receipts()['runtime:'+job['id']]['state']=='applied'

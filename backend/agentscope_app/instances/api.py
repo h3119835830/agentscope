@@ -67,7 +67,9 @@ def system_rules(): return invoke(system_policy.detail)
 @router.post('/api/security/system/proposals')
 def propose_system_rules(body:SystemProposal): return invoke(system_policy.propose,body.model_dump())
 @router.post('/api/security/system/proposals/{pid}/confirm')
-def confirm_system_rules(pid:str,body:Confirm): return invoke(system_policy.apply,pid,body.proposal_hash)
+def confirm_system_rules(pid:str,body:Confirm):
+    from .approval_decisions import confirm
+    return invoke(confirm,'system:'+pid,body.proposal_hash)
 
 @router.get('/api/agent-instances')
 def instances(): return invoke(c.listing)
@@ -102,7 +104,9 @@ def policy(ident:str):
 @router.post('/api/agent-instances/{ident}/policy/proposals')
 def proposal(ident:str,body:Proposal): return invoke(c.proposals,ident,body.model_dump())
 @router.post('/api/agent-instances/{ident}/policy/proposals/{pid}/confirm')
-def confirm(ident:str,pid:str,body:Confirm): return invoke(c.apply,ident,pid,body.proposal_hash)
+def confirm(ident:str,pid:str,body:Confirm):
+    from .approval_decisions import confirm_scoped
+    return invoke(confirm_scoped,ident,'instance:'+pid,body.proposal_hash)
 @router.get('/api/agent-instances/{ident}/sessions')
 def sessions(ident:str):
     row=invoke(c.detail,ident)

@@ -49,9 +49,20 @@ def audit(task_id:str,category:Literal['all','kernel','agent_refusal','control_p
 @router.post('/api/managed/tasks/{task_id}/changes')
 def changes(task_id:str,body:Message):return run(c.change,task_id,body.text,body.request_key,body.kind)
 @router.post('/api/managed/tasks/{task_id}/changes/{job_id}/review')
-def review_change(task_id:str,job_id:str,body:ChangeReview):return run(c.review_change,task_id,job_id,body.decision,body.expected_hash,body.text)
+def review_change(task_id:str,job_id:str,body:ChangeReview):
+    if body.decision in ('approve','reject'):
+        from ..instances.approval_decisions import confirm_scoped,reject_scoped
+        return run(confirm_scoped if body.decision=='approve' else reject_scoped,task_id,'runtime:'+job_id,body.expected_hash)
+    return run(c.review_change,task_id,job_id,body.decision,body.expected_hash,body.text)
 @router.post('/api/managed/tasks/{task_id}/expansion/confirm')
-def confirm(task_id:str,body:Confirmation):return run(c.confirm_expansion,task_id,body.expected_hash)
+def confirm(task_id:str,body:Confirmation):return run(confirm_expansion_compat,task_id,body.expected_hash)
+
+def confirm_expansion_compat(task_id,expected_hash):
+    from ..instances.approval_decisions import confirm_scoped
+    with db.connect() as con:state=c.load(con,task_id)
+    pending=state.get('pending_expansion')
+    if not pending or pending['hash']!=expected_hash:raise ValueError('扩权候选已变化')
+    return confirm_scoped(task_id,'runtime:'+pending['job_id'],expected_hash)
 @router.post('/api/managed/tasks/{task_id}/close')
 def close(task_id:str):return run(c.close,task_id)
 @router.post('/api/managed/tasks/{task_id}/prompt')

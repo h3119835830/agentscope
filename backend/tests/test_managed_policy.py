@@ -417,6 +417,7 @@ def test_outbox_retries_until_native_session_persists_feedback(bound,monkeypatch
         con.execute("UPDATE managed_events SET occurred_at='2000-01-01T00:00:00+00:00' WHERE task_id=? AND kind='kernel'",(task,))
     calls=[]
     def broker(req,**kwargs):
+        if req.get('task_id')!=task:return {'accepted':False,'persisted':False}
         calls.append(req);return {'accepted':True,'persisted':len(calls)>1}
     monkeypatch.setattr(c,'broker',broker);worker=Worker()
     class TwoPasses:

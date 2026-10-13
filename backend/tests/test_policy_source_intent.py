@@ -99,6 +99,15 @@ def test_multiple_objects_cannot_exchange_permissions_or_expand_scope(world):
     assert not compiled and row['artifact']['actplane_dsl'] is None
 
 
+def test_explicit_truncation_is_a_source_action_in_the_existing_mutation_group(world):
+    context=agent_context.snapshot('agent-a')['resolved_context']
+    source=intent.SourceDescription(permissions=[intent.SourcePermission(
+        action='truncate',decision='forbid',pattern='/w/0/sales.csv',evidence='禁止截断 sales.csv')])
+    normalized=intent.normalize(source,context)
+    assert normalized.permissions[0].access=='file_mutate'
+    assert normalized.permissions[0].decision=='restrict' and not normalized.unresolved
+
+
 @pytest.mark.parametrize('op',['read','open'])
 def test_deny_read_uses_read_access_group_without_inventing_mutation_restriction(world,op):
     p=SemanticProvider(['secret.txt'],[('secret.txt','file_read','restrict')],[('secret.txt',op)])

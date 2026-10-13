@@ -162,7 +162,7 @@ def policies(ident,sid,generation=None):
         compat={**row,'runtime':{'compile':saved['artifact']['compile']}}
         user_names={r['compiled_name'] for d in saved['artifact'].get('documents',[]) for r in d['rules']}
         records.extend(r for r in legacy_records(compat,active) if r['rule_name'] not in user_names)
-    attach_hits(records,row,gen)
+    attach_hits(records,row,gen,session_id=sid)
     with db.connect() as con:
         binding=con.execute('SELECT * FROM instance_session_task_bindings WHERE instance_id=? AND generation=? AND session_id=?',(ident,gen,sid)).fetchone()
         generations=[dict(r) for r in con.execute('SELECT generation,created_at FROM instance_policy_receipts WHERE instance_id=? ORDER BY created_at DESC',(ident,))]
@@ -181,17 +181,19 @@ def policies(ident,sid,generation=None):
         'domain_id':row.get('domain_id') if active else None,'records':records,'bundle_hash':saved['bundle_hash'] if saved else None,
         'effective_dsl':saved['artifact']['effective_dsl'] if saved else None,'task_binding_available':bool(binding)}
 
-def attach_hits(records,row,generation):
+def attach_hits(records,row,generation,session_id=None):
     saved=dsl_policy.receipt(row['id'],generation)
     with db.connect() as con:raws=con.execute('SELECT * FROM instance_kernel_events WHERE instance_id=? AND generation=? ORDER BY id DESC LIMIT 300',(row['id'],generation)).fetchall()
     events=[project_kernel(row,saved,r) for r in raws]
+    if session_id is not None:
+        events=[e for e in events if e['session_id']==session_id and e['attribution']=='trusted_tool_tag']
     for record in records:
         if saved and record.get('bundle_hash') and record['bundle_hash']!=saved['bundle_hash']:
             record['hits']=[]
             continue
         refs={(r.get('source_ref'),r.get('clause_hash')) for r in record.get('compiled_refs',[])}
         record['hits']=[e for e in events if any((r['source_ref'],r['clause_hash']) in refs for r in e['source_refs'])][:20]
-        record['hit_coverage']='当前 Agent 运行期间最近 300 条已采集事件中，最多展示本策略 20 条命中。'
+        record['hit_coverage']='最近 300 条已采集事件中，仅展示可信关联到本会话的命中，最多 20 条。' if session_id else '当前 Agent 运行期间最近 300 条已采集事件中，最多展示本策略 20 条命中。'
         record['generation']=generation
         if saved:
             record['loaded_document']=saved['artifact']['effective_dsl']

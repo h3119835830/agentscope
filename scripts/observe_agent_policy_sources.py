@@ -52,8 +52,11 @@ def publish(snapshot):
 
 
 if __name__=='__main__':
-    parser=argparse.ArgumentParser();parser.add_argument('--once',action='store_true');args=parser.parse_args()
+    parser=argparse.ArgumentParser();parser.add_argument('--once',action='store_true')
+    parser.add_argument('--database',type=Path,default=DATABASE)
+    parser.add_argument('--output',type=Path,default=OUTPUT)
+    args=parser.parse_args();OUTPUT=args.output
     while True:
-        publish(collect())
+        publish(collect(args.database))
         if args.once:break
         time.sleep(2)

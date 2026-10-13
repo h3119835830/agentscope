@@ -8,11 +8,14 @@ LOCAL_BLOCK = '当前连接尚不支持独立工作区或会话执行绑定；�
 
 
 def generated_target(context, scene=False):
+    if context.get('policy_scope') == 'agent':
+        return {'scope':'agent','instance_id':context['instance_id'],'workspace_id':None,'session_id':None}
     work = context['environment_binding']['values']['workspace']
-    return {'scope': 'workspace' if scene else 'session',
+    workspace = scene or context.get('policy_scope') == 'workspace'
+    return {'scope': 'workspace' if workspace else 'session',
             'instance_id': context['instance_id'],
             'workspace_id': work.get('native_workspace_id'),
-            'session_id': None if scene else context['session_id']}
+            'session_id': None if workspace else context['session_id']}
 
 
 def label(target, context=None):

@@ -30,6 +30,15 @@ promotion remain outside this implementation.
 
 ## Documentation and acceptance
 
+Agent baseline generation now uses registered resources without selecting a native
+session. Versioned drafts, durable approval receipts, explicit application and
+read-only session inheritance are implemented on the local policy-flow branch.
+See [contract](docs/RFC/RFC-20261013-AgentScope-agent-policy-flow.md),
+[decisions](docs/ADR/ADR-20261013-AgentScope-agent-policy-flow.md),
+[acceptance](docs/REVIEW/REVIEW-20261013-AgentScope-agent-policy-flow.md), and
+[fixed issues](docs/BUG/BUG-20261013-AgentScope-agent-policy-flow.md).
+The isolated 18173 laboratory is separate from the existing 18003 deployment.
+
 - [GitHub submission scope and checks](docs/releases/20261004-history-and-task-agent.md)
 - [Prepared pull request description](docs/releases/20261004-pr.md)
 - [History generation contract](docs/history-generation-v1/RFC.md) and

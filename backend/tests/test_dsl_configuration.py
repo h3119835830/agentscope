@@ -21,7 +21,7 @@ def document(text=TEXT,ident='doc',metadata=None):
 def world(client,tmp_path,monkeypatch):
     def clear():
         with db.connect() as con:
-            for table in ('system_policy_library_proposals','system_policy_library_versions','system_policy_library','instance_dsl_scopes','instance_dsl_proposals','instance_policy_receipts','instance_session_cache','instance_kernel_cursors','instance_kernel_events','instance_session_task_bindings','instance_leases','instance_events','instance_proposals','instance_proposal_locals','system_security_proposals','instance_local_policies','agent_instances'):
+            for table in ('policy_application_requests','policy_approval_decisions','policy_draft_creations','policy_draft_versions','policy_drafts','system_policy_library_proposals','system_policy_library_versions','system_policy_library','instance_dsl_scopes','instance_dsl_proposals','instance_policy_receipts','instance_session_cache','instance_kernel_cursors','instance_kernel_events','instance_session_task_bindings','instance_leases','instance_events','instance_proposals','instance_proposal_locals','system_security_proposals','instance_local_policies','agent_instances'):
                 con.execute('DELETE FROM '+table)
             con.execute("UPDATE system_security_policy SET policy_json=?,policy_hash=?,revision=0,phase='ready'",(json.dumps(default_policy()),digest(default_policy())))
     clear()
@@ -220,6 +220,14 @@ def test_kernel_requires_exact_generation_domain_hash_clause_and_trusted_tool_ta
         assert not sessions.project_kernel(row,saved,{**raw,field:value})['source_refs']
     store.event(row['id'],'tool_start',{'kernel_call_tag':91,'domain_id':900},row['generation'],'same','call1','read')
     linked=sessions.project_kernel(row,saved,raw);assert linked['session_id']=='same' and linked['call_id']=='call1'
+    with db.connect() as con:
+        con.execute('INSERT INTO instance_kernel_events(instance_id,generation,source_key,bundle_hash,domain_id,event_json,created_at) VALUES(?,?,?,?,?,?,?)',
+                    (row['id'],row['generation'],'test-hit',saved['bundle_hash'],900,json.dumps(event),db.now()))
+    records=dsl.policy_records(saved['artifact'])
+    sessions.attach_hits(records,row,row['generation'],session_id='other-session')
+    assert all(not r['hits'] for r in records)
+    sessions.attach_hits(records,row,row['generation'],session_id='same')
+    assert any(r['hits'] for r in records)
     wrong={**event,'process_domain_id':901};assert sessions.project_kernel(row,saved,{**raw,'event_json':json.dumps(wrong)})['session_id'] is None
 
 def test_tool_admission_denial_does_not_fabricate_kernel_event(world,monkeypatch):

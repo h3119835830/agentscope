@@ -46,7 +46,7 @@ def test_demo_control_operations_need_no_admin_token_or_browser_session(monkeypa
     monkeypatch.setattr(main, 'ADMIN_TOKEN', '')
     monkeypatch.setattr(scope_api.demo, 'create', lambda: {'created':True})
     monkeypatch.setattr(scope_api.manager, 'review_and_apply', lambda *args: {'applied':True})
-    monkeypatch.setattr(managed_api.c, 'confirm_expansion', lambda *args: {'confirmed':True})
+    monkeypatch.setattr(managed_api, 'confirm_expansion_compat', lambda *args: {'confirmed':True})
     with TestClient(app, base_url='http://127.0.0.1:18003', client=('127.0.0.1', 52000)) as client:
         headers={'Origin':'http://127.0.0.1:18003'}
         assert client.get('/api/tasks').status_code == 200

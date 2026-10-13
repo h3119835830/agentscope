@@ -18,6 +18,32 @@ const verifiedTarget=(id,type='dsh',executable='/opt/agentscope/bin/node')=>({id
 const catalogue=JSON.parse(readFileSync(new URL('./rq1-agent-templates.json',import.meta.url)));
 const target={...verifiedTarget('agent-1'),resources:['/actual/project']};
 
+test('baseline draft generation persists exact scope without any selected native session or application',async()=>{
+ const render=await harness('AgentPolicyDrafts.jsx'),calls=[];
+ const props={target,scope:'agent',workspaceId:null,context:{ready:true},api:async()=>({records:[]}),post:async(path,body)=>{calls.push({path,body});return path.endsWith('/generate')?{id:'run'}:{id:'draft',revision:1,latest_revision:1};}};
+ let tree=render(props);elements(tree).find(e=>e.type==='textarea').props.onChange({target:{value:'只读取明确的文件，不修改'}});tree=render(props);
+ await elements(tree).find(e=>e.type==='form').props.onSubmit({preventDefault(){}});
+ assert.equal(calls.length,2);assert.equal(calls[0].body.scope,'agent');assert.equal(calls[0].body.workspace_id,null);assert.equal(calls[0].body.session_id,undefined);
+ assert.ok(calls[1].path.endsWith('/draft/generate'));assert.ok(calls.every(c=>!c.path.includes('/apply')&&!c.path.includes('/approve')));
+});
+
+test('unverified baseline permits explicit saving but blocks generation even through form submission',async()=>{
+ const render=await harness('AgentPolicyDrafts.jsx'),calls=[];
+ const props={target,scope:'agent',context:{ready:false},api:async()=>({records:[]}),post:async(path,body)=>{calls.push({path,body});return {id:'saved',revision:1};}};
+ let tree=render(props);elements(tree).find(e=>e.type==='textarea').props.onChange({target:{value:'保存长期约束需求'}});tree=render(props);
+ await elements(tree).find(e=>e.type==='form').props.onSubmit({preventDefault(){}});assert.equal(calls.length,0);
+ await elements(tree).find(e=>e.type==='button'&&e.props.children==='保存草案').props.onClick();assert.equal(calls.length,1);assert.ok(calls[0].path.endsWith('/policy-drafts'));
+});
+
+test('approved detail offers only explicit application and session inheritance stays collapsed',async()=>{
+ const render=await harness('PolicyApprovals.jsx','ApprovalDetail');const tree=render({data:{id:'p',scope_type:'agent',status:'approved',can_approve:false,can_apply:true,documents:[],records:[],targets:[]},onClose(){},onDecision(){}});
+ assert.ok(!elements(tree).some(e=>e.type==='button'&&e.props.children==='批准变更'));
+ assert.ok(elements(tree).find(e=>e.type==='button'&&e.props.children==='应用策略').props.disabled);
+ const groups=await harness('SessionPolicyGroups.jsx');const session=groups({records:[{id:'inherited',scope_type:'agent'}],onDetail(){},onConfigure(){}});
+ assert.match(renderToStaticMarkup(session),/本会话没有独立新增约束/);
+ const details=elements(session).find(e=>e.type==='details');assert.equal(details.props.open,undefined);
+});
+
 test('compiled candidates blocked by server validation require regeneration and have no submit action',async()=>{
  const result={compile_state:'compiled',submission_blockers:['原文权限校验未通过，请重新生成'],
   artifact:{actplane_dsl:'rule old:\n  block read file "/actual/project/input.csv" if AGENT',policy_ir:{rules:[{clauses:[{operation:'read',pattern:'/actual/project/input.csv',effect:'block'}]}]}},
@@ -126,21 +152,21 @@ test('submitting a candidate only proposes validated changes, reuses a live matc
 });
 test('approval details expose change, targets and explicit decisions without writing on viewing or switching tabs',async()=>{
  const render=await harness('PolicyApprovals.jsx','ApprovalDetail');let decisions=[];
- const data={id:'proposal',scope_type:'agent',target_name:'DeepSeek Harness',status:'pending',can_apply:true,created_at:'2026-10-11T01:00:00Z',documents:[{id:'d',name:'Protect secret',original_dsl:'source AGENT = exec "**/node"'}],previous_documents:[],records:[{id:'r',document_id:'d',statement:'Protect secret',clauses:[{effect:'block',operation:'open',target:'/w/0/.env'}]}],targets:[{id:'agent',name:'DeepSeek Harness',active:true}],total_affected_count:1};
+ const data={id:'proposal',scope_type:'agent',target_name:'DeepSeek Harness',status:'pending',can_approve:true,can_apply:false,created_at:'2026-10-11T01:00:00Z',documents:[{id:'d',name:'Protect secret',original_dsl:'source AGENT = exec "**/node"'}],previous_documents:[],records:[{id:'r',document_id:'d',statement:'Protect secret',clauses:[{effect:'block',operation:'open',target:'/w/0/.env'}]}],targets:[{id:'agent',name:'DeepSeek Harness',active:true}],total_affected_count:1};
  const props={data,onClose(){},onDecision:async(...args)=>decisions.push(args)};let tree=render(props);assert.equal(decisions.length,0);assert.match(renderToStaticMarkup(tree),/全部工作区与会话/);assert.match(renderToStaticMarkup(tree),/新增/);
  elements(tree).find(e=>e.type==='button'&&e.props.children==='完整 DSL').props.onClick();tree=render(props);assert.equal(decisions.length,0);assert.match(renderToStaticMarkup(tree),/node/);
- await elements(tree).find(e=>e.type==='button'&&e.props.children==='批准并应用').props.onClick();assert.equal(decisions[0][1],'confirm');
- tree=render({...props,data:{...data,status:'stale',can_apply:false}});assert.ok(!elements(tree).some(e=>e.props?.children==='批准并应用'));
+ assert.ok(elements(tree).find(e=>e.type==='button'&&e.props.children==='批准变更').props.disabled);elements(tree).find(e=>e.type==='input'&&e.props.type==='checkbox').props.onChange({target:{checked:true}});tree=render(props);await elements(tree).find(e=>e.type==='button'&&e.props.children==='批准变更').props.onClick();assert.equal(decisions[0][1],'approve');
+ tree=render({...props,data:{...data,status:'stale',can_approve:false,can_apply:false}});assert.ok(!elements(tree).some(e=>e.props?.children==='批准变更'||e.props?.children==='应用策略'));
 });
 test('approval deep links retain only the record identity',()=>{
  const url=navigationTarget('http://localhost/?view=workbench',{page:'approvals',approvalId:'approval-one'}),n=readNavigation('http://localhost'+url);assert.equal(n.page,'approvals');assert.equal(n.approvalId,'approval-one');assert.doesNotMatch(url,/proposal_hash|documents/);
 });
 test('runtime approval shows an exact task scope and readable before/after without applying on view',async()=>{
  const render=await harness('PolicyApprovals.jsx','ApprovalDetail');let decisions=[];
- const data={id:'runtime:job',kind:'runtime',scope_type:'session',target_name:'Task A',status:'pending',can_apply:true,can_reject:true,created_at:'2026-10-11T01:00:00Z',documents:[],records:[],change_items:[{label:'可写目录',before:'.',after:'src'}],targets:[{id:'task-a',name:'Task A',scope_label:'当前任务会话',application_label:'确认后重建当前任务执行域'}],total_affected_count:1};
+ const data={id:'runtime:job',kind:'runtime',scope_type:'session',target_name:'Task A',status:'pending',can_approve:true,can_apply:false,can_reject:true,created_at:'2026-10-11T01:00:00Z',documents:[],records:[],change_items:[{label:'可写目录',before:'.',after:'src'}],targets:[{id:'task-a',name:'Task A',scope_label:'当前任务会话',application_label:'确认后重建当前任务执行域'}],total_affected_count:1};
  const tree=render({data,onClose(){},onDecision:async(...args)=>decisions.push(args)}),html=renderToStaticMarkup(tree);
  assert.match(html,/权限变更对照/);assert.match(html,/当前任务会话/);assert.match(html,/Task A/);assert.doesNotMatch(html,/全部工作区与会话|完整 DSL|PolicyIR|原始 JSON/);assert.equal(decisions.length,0);
- await elements(tree).find(e=>e.type==='button'&&e.props.children==='批准并应用').props.onClick();assert.equal(decisions[0][0].id,'runtime:job');assert.equal(decisions[0][1],'confirm');
+ assert.ok(elements(tree).find(e=>e.type==='button'&&e.props.children==='批准变更').props.disabled);assert.equal(elements(tree).some(e=>e.props?.children==='应用策略'),false);await elements(tree).find(e=>e.type==='button'&&e.props.children==='批准变更').props.onClick();assert.equal(decisions[0][0].id,'runtime:job');assert.equal(decisions[0][1],'approve');
 });
 test('all approval origins use the same explicit decision endpoint',async()=>{
  const url=await harness('PolicyApprovals.jsx','approvalDecisionUrl');
@@ -193,7 +219,7 @@ test('unavailable sources never create a generic executor declaration',async()=>
 });
 test('a projected stale draft blocks approval handoff even when its raw state is pending',async()=>{
  const render=await harness('ActPlanePolicies.jsx','DslEditor');let handoffs=0;
- const proposal={id:'p',state:'pending',documents:[],result:{compilations:[]},targets:[],approval:{status:'stale',can_apply:false,reason:'Agent 环境已经变化，需要重新校验。'}};
+ const proposal={id:'p',state:'pending',documents:[],result:{compilations:[]},targets:[],approval:{status:'stale',can_approve:false,can_apply:false,reason:'Agent 环境已经变化，需要重新校验。'}};
  const tree=render({data:{scope_id:'agent',documents:[],records:[]},proposal,onReview:()=>handoffs++});
  assert.match(renderToStaticMarkup(tree),/需重新校验/);
  const button=elements(tree).find(e=>e.type==='button'&&e.props.children==='前往审批');assert.ok(button.props.disabled);
@@ -201,7 +227,7 @@ test('a projected stale draft blocks approval handoff even when its raw state is
 });
 test('revalidating a stale draft uses the new proposal status and hands off only that proposal',async()=>{
  const render=await harness('ActPlanePolicies.jsx','DslEditor');let handedOff='';
- const old={id:'old',state:'pending',documents:[],base_hash:'old-base',base_revision:1,result:{},targets:[],approval:{status:'stale',can_apply:false}};
+ const old={id:'old',state:'pending',documents:[],base_hash:'old-base',base_revision:1,result:{},targets:[],approval:{status:'stale',can_approve:false,can_apply:false}};
  const fresh={...old,id:'fresh',base_hash:'current',base_revision:2,approval:{status:'pending',can_apply:true}};
  const props={data:{scope_id:'agent',revision:2,document_hash:'current',documents:[],records:[]},proposal:old,approval:old.approval,onValidate:async()=>fresh,onReview:p=>{handedOff=p.id;},onClose:()=>{}};
  let tree=render(props);await elements(tree).find(e=>e.type==='button'&&e.props.children==='保存并校验').props.onClick();tree=render(props);

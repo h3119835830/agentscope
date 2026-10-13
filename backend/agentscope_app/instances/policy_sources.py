@@ -70,7 +70,7 @@ def source_context(scope, rows):
             'message': '请先连接并核验受控 Agent' if not selected else '部分 Agent 尚未连接或运行身份待核验' if unavailable else ''}
 
 
-CACHE = Path('/run/agentscope-scope-demo/policy-source-facts.json')
+CACHE = Path(os.getenv('AGENTSCOPE_POLICY_SOURCE_CACHE','/run/agentscope-scope-demo/policy-source-facts.json'))
 
 
 def cached_fact(snapshot, row, now):

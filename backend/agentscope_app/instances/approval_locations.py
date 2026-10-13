@@ -51,6 +51,10 @@ class Locations:
             env = ctx.get('environment_binding', {})
             values = env.get('values', {})
             sid = ctx.get('session_id')
+            if (ctx.get('policy_scope')=='agent' and sid is None and ctx.get('instance_id')==scope
+                    and values.get('instance_id')==scope and env.get('hash')==key[2] and digest(values)==key[2]):
+                self.origins[key]={'baseline':True}
+                return self.origins[key]
             if (ctx.get('kind') != 'agent' or ctx.get('instance_id') != scope or not isinstance(sid, str) or not sid
                     or values.get('instance_id') != scope or values.get('session_id') != sid
                     or env.get('hash') != key[2] or digest(values) != key[2]):
@@ -68,10 +72,13 @@ class Locations:
     def project(self, p, visible_targets):
         targets = [self.target(t) for t in visible_targets]
         origins = {}
+        baseline=False
         for doc in p['documents']:
             binding = doc.get('generation_binding')
             origin = self.origin(p['scope_id'], binding) if binding else None
-            if origin:
+            if origin and origin.get('baseline'):
+                baseline=True
+            elif origin:
                 origins[(origin['instance_id'], origin['session_id'])] = origin
         return {'agents': targets, 'origin_sessions': list(origins.values()),
-                'origin_state': 'linked' if origins else 'unavailable' if any(d.get('generation_binding') for d in p['documents']) else 'unrecorded'}
+                'origin_state': 'linked' if origins else 'agent_baseline' if baseline else 'unavailable' if any(d.get('generation_binding') for d in p['documents']) else 'unrecorded'}

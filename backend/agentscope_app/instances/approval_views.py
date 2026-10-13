@@ -217,10 +217,12 @@ def _read_directory(pending_only=False):
         row=runtime_detail(job['id'])
         if row:records.append(row)
     records.sort(key=lambda r:(r['created_at'],r['id']),reverse=True)
+    from .approval_decisions import project_many
+    records=project_many(records)
     return {'records':records,'pending_count':sum(r['status']=='pending' for r in records)}
 
 
-def detail(ident):
+def raw_detail(ident):
     if ident.startswith('local:'):
         from . import local_policy_proposals as local
         p = local.load(ident.split(':', 1)[1]); names = scopes()
@@ -254,11 +256,11 @@ def runtime_detail(key,full=False):
     return runtime_project(dict(job),dict(task),state,full)
 
 
-def decide(ident,decision,expected_hash):
+def execute_decision(ident,decision,expected_hash):
     """Administrator router only. Reuse authoritative loaders and their locks."""
     from . import controller,system_policy
     from ..managed import controller as managed
-    row=detail(ident)
+    row=raw_detail(ident)
     if row['candidate_hash']!=expected_hash:raise ValueError('候选确认内容不一致')
     if decision=='confirm' and not row['can_apply'] and row['status']!='applied':raise ValueError('候选需要重新校验或已处理')
     if decision=='reject' and not row['can_reject'] and row['status']!='rejected':raise ValueError('候选已变化或已处理')
@@ -273,3 +275,13 @@ def decide(ident,decision,expected_hash):
     with db.connect() as con:
         db.audit(con,None,'policy_approval_decision','authenticated_operator',{'approval_id':ident,'candidate_hash':expected_hash,'scope_id':row['scope_id'],'kind':row['kind'],'decision':decision})
     return result
+
+
+def detail(ident):
+    from .approval_decisions import project
+    return project(raw_detail(ident))
+
+
+def decide(ident,decision,expected_hash):
+    from . import approval_decisions
+    return (approval_decisions.confirm if decision=='confirm' else approval_decisions.reject)(ident,expected_hash)

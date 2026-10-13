@@ -10,7 +10,7 @@ def test_approval_records_and_readable_compiled_details_are_read_only(world):
     page=world.client.get('/api/console/approvals',headers=ADMIN)
     assert page.status_code==200
     row=next(r for r in page.json()['records'] if r['id']==p['id'])
-    assert row['scope_id']==world.a['id'] and row['can_apply'] and row['status']=='pending'
+    assert row['scope_id']==world.a['id'] and row['can_approve'] and not row['can_apply'] and row['status']=='pending'
     detail=world.client.get('/api/console/approvals/'+p['id'],headers=ADMIN).json()
     assert detail['records'][0]['clauses'][0]['target']=='/w/0/block.txt'
     assert detail['records'][0]['compile_status']=='compiled'

@@ -23,6 +23,10 @@ def init(con):
     con.executescript(SCHEMA)
     from .local_policy_proposals import init as init_local
     init_local(con)
+    from .approval_decisions import init as init_decisions
+    from .policy_drafts import init as init_drafts
+    init_decisions(con)
+    init_drafts(con)
     con.execute("UPDATE instance_dsl_scopes SET phase='blocked' WHERE phase='updating'")
 
 def current(scope_id,con=None):

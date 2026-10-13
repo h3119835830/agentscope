@@ -1,0 +1,9 @@
+import React,{useEffect,useRef,useState} from 'react';
+import {DslCode} from './DslCode.jsx';
+import {submitCandidate} from './policyExperience.mjs';
+export default function SessionCandidateReview({candidate,api,post,onClose,onSubmitted}){
+ const dialog=useRef(null),alive=useRef(true),[ack,setAck]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState('');
+ useEffect(()=>{alive.current=true;dialog.current?.showModal();return()=>{alive.current=false;dialog.current?.close();};},[]);
+ async function submit(){setBusy(true);setError('');try{const p=await submitCandidate(candidate,api,post);if(alive.current)onSubmitted(p.id);}catch(e){if(alive.current)setError(e.message);}finally{if(alive.current)setBusy(false);}}
+ return <dialog ref={dialog} className="policy-review-dialog flow-dialog" aria-label="会话候选审查" onCancel={e=>{e.preventDefault();if(!busy)onClose();}}><header className="experience-detail-head"><h2>会话候选审查</h2><button className="experience-close" aria-label="关闭候选审查" disabled={busy} onClick={onClose}>×</button></header><div className="experience-detail-body"><p>{candidate.document.name}</p><dl className="flow-submit-details"><dt>影响范围</dt><dd>{candidate.scope_label}</dd><dt>应用能力</dt><dd>{candidate.application_capability?.reason||'应用前仍需核验执行能力'}</dd></dl><p className="experience-callout">提交仅保存此精确目标的候选，当前不支持的局部绑定不会转为 Agent 基线。</p>{error&&<p role="alert">{error}</p>}<details><summary>查看 DSL</summary><DslCode text={candidate.document.original_dsl}/></details><label className="flow-ack"><input type="checkbox" checked={ack} onChange={e=>setAck(e.target.checked)}/>已核对候选内容和作用范围</label></div><footer className="experience-detail-footer"><button className="button ghost" disabled={busy} onClick={onClose}>返回</button><button className="button primary" disabled={!ack||busy} onClick={submit}>{busy?'正在提交…':'提交审查'}</button></footer></dialog>;
+}

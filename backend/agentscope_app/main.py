@@ -43,6 +43,8 @@ from .instances.controller import observer as instance_observer
 app.include_router(instance_router)
 from .instances.dsl_api import router as instance_dsl_router
 app.include_router(instance_dsl_router)
+from .instances.drafts_api import router as policy_drafts_router
+app.include_router(policy_drafts_router)
 from .console import router as console_router
 from .audit_identity import principal, AuditModel
 app.include_router(console_router)
@@ -233,6 +235,8 @@ async def startup():
     init_workspaces()
     init_scene_reads()
     init_instances()
+    from .instances.approval_decisions import reconcile_interrupted
+    reconcile_interrupted()
     reconciliation=reconcile_startup_regenerations()
     if reconciliation["count"] or reconciliation["error_count"]:
         logging.getLogger(__name__).warning("Startup review reconciliation: %s",reconciliation)

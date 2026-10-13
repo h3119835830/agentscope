@@ -1,4 +1,4 @@
-export const originLabel = row => row.origin_state === 'unavailable' ? '会话关联暂不可用' : row.scope_type === 'system' ? '系统配置' : '未关联会话';
+export const originLabel = row => row.origin_state === 'agent_baseline' ? '长期基线 · 无需会话' : row.origin_state === 'unavailable' ? '会话关联暂不可用' : row.scope_type === 'system' ? '系统配置' : '未关联会话';
 export const processLabel = agent => agent.pid ? `PID ${agent.pid}` : agent.process_state === 'offline' ? '未运行' : '当前 PID 待核验';
 export const sessionReference = session => session.session_id.replace(/^session-/, '').slice(0, 8);
 export const sessionTarget = session => ({page:'sessions',sessionInstance:session.instance_id,sessionId:session.session_id,sessionTab:'policies',approvalId:''});

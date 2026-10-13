@@ -82,10 +82,12 @@ def dsl_configuration(scope):
     data['source_context']=source_context(scope,[r for r in controller.listing()['instances'] if r['id'] not in retained])
     data['records']=[r for r in data['records'] if r.get('source_kind')!='legacy_generated']
     from .instances.approval_views import project,scopes
+    from .instances.approval_decisions import project as decision_project,receipts
+    saved_decisions=receipts()
     names=scopes()
     for proposal in data.get('proposals',[]):
-        approval=project(proposal,names)
-        proposal['approval']={k:approval[k] for k in ('id','status','can_apply','reason')}
+        approval=decision_project(project(proposal,names),saved_decisions)
+        proposal['approval']={k:approval.get(k) for k in ('id','status','can_approve','can_apply','reason','approval_status','application_status','approval_hash')}
     for r in data['records']:
         if 'bindings' not in r:continue
         r['bindings']=[b for b in r['bindings'] if b['instance_id'] not in retained]
@@ -179,9 +181,12 @@ def task_directory(q:str='',status:str='all',page:int=Query(0,ge=0),limit:int=Qu
     return archive_index(q,status,page,limit,console=True)
 
 @router.get('/agents/{ident}/policy-context')
-def agent_policy_context(ident:str,session_id:str|None=Query(None,max_length=200)):
-    from .history.agent_context import snapshot
+def agent_policy_context(ident:str,session_id:str|None=Query(None,max_length=200),scope:Literal['agent','workspace']|None=None,workspace_id:str|None=Query(None,max_length=200)):
+    from .history.agent_context import snapshot,scoped_snapshot
     require_visible('agent',ident)
+    if scope:
+        if session_id:raise HTTPException(422,'显式范围不能由会话覆盖')
+        return invoke(scoped_snapshot,ident,scope,workspace_id)
     return invoke(snapshot,ident,session_id)
 
 @router.get('/agents/{ident}/policy-conversation')
@@ -221,6 +226,22 @@ def approval_detail(ident:str):
 class ApprovalDecision(BaseModel):
     model_config=ConfigDict(extra='forbid')
     proposal_hash:str=Field(min_length=1,max_length=128)
+
+class ApprovalRequest(ApprovalDecision):
+    request_key:str=Field(min_length=8,max_length=100)
+
+class ApplicationRequest(ApprovalRequest):
+    approval_hash:str=Field(pattern=r'^[a-f0-9]{64}$')
+
+@router.post('/approvals/{ident}/approve')
+def approve_policy(ident:str,body:ApprovalRequest):
+    from .instances.approval_decisions import approve
+    return invoke(approve,ident,body.proposal_hash,body.request_key)
+
+@router.post('/approvals/{ident}/apply')
+def apply_policy(ident:str,body:ApplicationRequest):
+    from .instances.approval_decisions import apply
+    return invoke(apply,ident,body.proposal_hash,body.approval_hash,body.request_key)
 
 @router.post('/approvals/{ident}/{decision}')
 def approval_decision(ident:str,decision:Literal['confirm','reject'],body:ApprovalDecision):

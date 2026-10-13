@@ -1,0 +1,68 @@
+{
+  "generated_at": "2026-10-13T07:26:57.590656+00:00",
+  "baseline": "2a49d53aaa7b27f392eb271a524626b9ceb71814",
+  "branch": "codex/agent-policy-flow-20261013",
+  "remote_heads": {
+    "refs/heads/WINDOWS": "90af640fb748216fec23fb1fbaf1a80b9b355ea0",
+    "refs/heads/main": "90af640fb748216fec23fb1fbaf1a80b9b355ea0"
+  },
+  "lab": {
+    "source": "/opt/asflow-accept-20261013",
+    "database": "/var/lib/asflow-accept-20261013/demo.sqlite3",
+    "port": 18173,
+    "tasks": "/aft",
+    "runtime": "/run/asflow-accept-20261013"
+  },
+  "backend_source_hashes": {
+    "backend/agentscope_app/history/product_generation.py": "b69600cb623a545412415a6cd2ab21bccf620fa77c78496322a457a5097947f8",
+    "backend/agentscope_app/instances/policy_drafts.py": "ba48fc739cf96a4ae9775591b8bd1cf7753a46e7b17bfecfa950e8094e6a1f40",
+    "backend/agentscope_app/history/policy_context.py": "51c58fd484c6a957deb35d5f362fca033d562f856d600b5cc9949247933b3044",
+    "backend/agentscope_app/main.py": "240e710273d0fcb879ca12c62f3400faab678d403272fac350e8996cca3b1510",
+    "backend/agentscope_app/history/intent.py": "50175f4ca721c737848120a06181a2392b2797b0a5982c36c52bcf7365988303",
+    "backend/agentscope_app/instances/api.py": "9f414f9f2d5c5e3dda25a89fb4e5b8212f16102a814de591a1a518208948525f",
+    "backend/agentscope_app/instances/policy_targets.py": "4123f22c757a71667f5d9a8394c19e3bd4cb9e0572113813a6b727345c291340",
+    "backend/agentscope_app/managed/api.py": "9190e5a9332e7384240842abda6c48ed295ba7ee08c9d9bc7fa27e961924f504",
+    "backend/agentscope_app/history/catalog_api.py": "804015d2fb7bdbfea6103750d672356345d1121bd0568b6bed7937a71664f61c",
+    "backend/agentscope_app/history/agent_context.py": "18d53416e7a652ab66139fdbcdfa35c0985a9e5d9295d50aa484916b003194c5",
+    "backend/agentscope_app/instances/drafts_api.py": "e65f9ad11122e72433bc8aad39210215740faa4d8f6c40812c7e45fa60a97b90",
+    "backend/agentscope_app/instances/dsl_api.py": "c8b746b1ae5a20a1f28c3637a62631dbd4bc329cf7ed4c842099533641039c31",
+    "backend/agentscope_app/instances/approval_views.py": "d4711edb2a2b6de01343f71f47ec31e9c4ef5f54897a88603e92958cecee70a7",
+    "backend/agentscope_app/instances/approval_decisions.py": "0e71173fcca003396bece0de84f4f6b52973fc5b74e2c76e73cc201902c67e27",
+    "backend/agentscope_app/instances/policy_sources.py": "fca7e465d90a8006f40de9fd3f933ae62b92a9a5bba0101e88bd68912077e30f",
+    "backend/agentscope_app/instances/sessions.py": "7d516fd3afc799879b290d4c72375021943edb9f17e240a245783d75a98f2a30",
+    "backend/agentscope_app/instances/approval_locations.py": "7a2bac8107b1f09ced2c2ea35a000b1ce3b33f6e92deaa99a08ce83801d79470",
+    "backend/agentscope_app/instances/dsl_policy.py": "b635b433e3a13a47a95ee5072c02a5ed6f2f4dcf9fbbc0592a23e903622618af",
+    "backend/agentscope_app/console.py": "4848a46b68eeafe65be9e70472b439e76354c834c0e916d6aefcadec6af4f16d"
+  },
+  "ui_index_sha256": "e9a09019c55339114fdc4894aef94d97a89f9ec3417f5907c60271209c5a66d2",
+  "binaries": {
+    "actplane": "5e8d43c279d88bd4215f654746675debfd976e28426c9fabdabeca408865d6da",
+    "dsl_adapter": "3584ac67b105d23b437a591854a92462a80388d490b11910cd2fbf3cac9b97ac"
+  },
+  "existing_service_observation": {
+    "agentscope-scope-demo-api.service": {
+      "ActiveState": "active",
+      "MainPID": "1882321",
+      "NRestarts": "0",
+      "WorkingDirectory": "/opt/agentscope-value-read-20261012-224541"
+    },
+    "agentscope-scope-demo-broker.service": {
+      "ActiveState": "active",
+      "MainPID": "1881389",
+      "NRestarts": "0",
+      "WorkingDirectory": "/opt/agentscope-value-startup-20261012-225631"
+    }
+  },
+  "broker_source_modified": false,
+  "ordinary_business_code_modified": false,
+  "evidence_log_normalization": {
+    "method": "removed trailing whitespace only; facts and results preserved",
+    "original_sha256": {
+      "backend-regression.txt": "b066e3178d9e5ffac3ee8e33c9770e9188115cd5b0b4b8d47089037298224f21",
+      "frontend-build.txt": "f6d7eda09aa6d39e542716453b9bae5bf8ea6c44937de63c3a0f08646e56d1c8",
+      "backend-focused.txt": "8e9924eede009156d71747b00e85f6e0c9bcd182b91115680f0ec479bc7273c6",
+      "frontend-regression.txt": "5687006dcf1ab7086e8e2a25882d8b3f2bb66f02a6b34642771788ff803cb9e7",
+      "integrated-baseline-30-commits.txt": "43c2162a73e2fb3d45dbc3eefccc4b1950001fb1937e1b9a60644ad4a8e9599a"
+    }
+  }
+}

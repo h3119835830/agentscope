@@ -1,0 +1,51 @@
+{
+  "method": "durable crash-window injection; no loader invoked",
+  "before": {
+    "instance-2a90b4a7e84f4241": {
+      "id": "instance-2a90b4a7e84f4241",
+      "pid": 2617269,
+      "generation": "297dabb780de44009e86b439da10e462",
+      "gate": "open",
+      "active": true,
+      "connected": true,
+      "revision": 1,
+      "document_hash": "f534e88642643a4cba3e722e91d5b07ee18de870ea07930f4172aa92d2a8c928"
+    },
+    "instance-89a9bf5d48a04c73": {
+      "id": "instance-89a9bf5d48a04c73",
+      "pid": 2646388,
+      "generation": "d82f082071724d9a9e87481f9a960d56",
+      "gate": "open",
+      "active": true,
+      "connected": true,
+      "revision": 0,
+      "document_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  },
+  "after": {
+    "instance-2a90b4a7e84f4241": {
+      "id": "instance-2a90b4a7e84f4241",
+      "pid": 2617269,
+      "generation": "297dabb780de44009e86b439da10e462",
+      "gate": "open",
+      "active": true,
+      "connected": true,
+      "revision": 1,
+      "document_hash": "f534e88642643a4cba3e722e91d5b07ee18de870ea07930f4172aa92d2a8c928"
+    },
+    "instance-89a9bf5d48a04c73": {
+      "id": "instance-89a9bf5d48a04c73",
+      "pid": null,
+      "generation": "d82f082071724d9a9e87481f9a960d56",
+      "gate": "paused",
+      "active": false,
+      "connected": false,
+      "revision": 0,
+      "document_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  },
+  "approval_id": "acfa8768feb24db6b214e0e266c15dd8",
+  "candidate_not_applied": true,
+  "auto_retry": false,
+  "passed": true
+}

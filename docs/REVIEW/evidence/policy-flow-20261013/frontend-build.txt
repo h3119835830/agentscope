@@ -1,0 +1,18 @@
+
+> agentscope-ui@0.1.0 build
+> vite build
+
+vite v6.4.3 building for production...
+transforming...
+✓ 113 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.46 kB │ gzip:   0.32 kB
+dist/assets/index-BCoKvzB8.css  220.76 kB │ gzip:  40.76 kB
+dist/assets/index-IBhPjbX_.js   534.86 kB │ gzip: 161.92 kB
+✓ built in 1.25s
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.

@@ -34,11 +34,17 @@ def detail(ident,limit=20,offset=0):
     for row in rows:
         record=json.loads(row['record_json']); statement=record['statement']; context=record.get('resolved_context',{})
         artifact=json.loads(row['artifact_json'] or '{}')
+        target=context.get('policy_target') or {}
+        if target.get('scope'):
+            from ..instances.policy_targets import label
+            scope_label=label(target,context)
+        else:
+            scope_label='历史记录：未冻结范围' if context.get('kind')=='agent' else '未指定应用范围'
         clauses=[c for rule in artifact.get('policy_ir',{}).get('rules',[]) for c in rule.get('clauses',[])]
         ready=bool(artifact.get('actplane_dsl')) and row['compile_state']=='compiled'
         items.append({'text':statement.get('text_zh') or statement.get('text_original') or '策略候选',
             'target_name':names.get(context.get('instance_id'),'历史 Agent（当前不可用）') if context.get('kind')=='agent' else '通用候选（未绑定 Agent）',
-            'scope_label':'此 Agent 的全部会话' if context.get('kind')=='agent' else '未指定应用范围',
+            'scope_label':scope_label,
             'targets':list(dict.fromkeys(c['pattern'] for c in clauses if c.get('pattern'))),
             'operations':list(dict.fromkeys(c['operation'] for c in clauses if c.get('operation'))),
             'effects':list(dict.fromkeys(c['effect'] for c in clauses if c.get('effect'))),

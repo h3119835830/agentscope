@@ -58,13 +58,17 @@ def system_read():return invoke(dsl.detail,'system')
 @router.post('/api/security/system/dsl/proposals')
 def system_propose(body:Candidate):return invoke(dsl.propose,'system',body.model_dump())
 @router.post('/api/security/system/dsl/proposals/{pid}/confirm')
-def system_confirm(pid:str,body:Confirm):return invoke(dsl.apply,'system',pid,body.proposal_hash)
+def system_confirm(pid:str,body:Confirm):
+    from .approval_decisions import confirm_scoped
+    return invoke(confirm_scoped,'system',pid,body.proposal_hash)
 @router.get('/api/agent-instances/{ident}/dsl')
 def agent_read(ident:str):return invoke(dsl.detail,ident)
 @router.post('/api/agent-instances/{ident}/dsl/proposals')
 def agent_propose(ident:str,body:Candidate):return invoke(dsl.propose,ident,body.model_dump())
 @router.post('/api/agent-instances/{ident}/dsl/proposals/{pid}/confirm')
-def agent_confirm(ident:str,pid:str,body:Confirm):return invoke(dsl.apply,ident,pid,body.proposal_hash)
+def agent_confirm(ident:str,pid:str,body:Confirm):
+    from .approval_decisions import confirm_scoped
+    return invoke(confirm_scoped,ident,pid,body.proposal_hash)
 
 @router.get('/api/sessions')
 def directory(agent_type:str='',instance_id:str='',q:str=Query('',max_length=200),cursor:int=Query(0,ge=0),limit:int=Query(30,ge=1,le=100),workspace:str=Query('',max_length=4096)):
@@ -81,8 +85,13 @@ def traces(ident:str,sid:str,generation:str|None=None,before:int|None=Query(None
     return invoke(sessions.traces,ident,sid,generation,before,limit)
 
 @router.get('/api/agent-instances/{ident}/policy-context')
-def policy_context(ident:str,session_id:str|None=Query(None,max_length=200)):
-    from ..history.agent_context import snapshot
+def policy_context(ident:str,session_id:str|None=Query(None,max_length=200),scope:Literal['agent','workspace']|None=None,workspace_id:str|None=Query(None,max_length=200)):
+    from ..history.agent_context import snapshot,scoped_snapshot
+    if scope:
+        if session_id:
+            from fastapi import HTTPException
+            raise HTTPException(422,'显式范围不能由会话覆盖')
+        return invoke(scoped_snapshot,ident,scope,workspace_id)
     return invoke(snapshot,ident,session_id)
 
 class SceneSelection(Model):
@@ -125,7 +134,11 @@ def local_candidate(ident:str,artifact_id:str,body:LocalCandidate):
     return invoke(submit,ident,artifact_id,body.model_dump())
 
 @router.post('/api/security/system/dsl/proposals/{pid}/reject')
-def system_reject(pid:str,body:Confirm):return invoke(dsl.reject,'system',pid,body.proposal_hash)
+def system_reject(pid:str,body:Confirm):
+    from .approval_decisions import reject_scoped
+    return invoke(reject_scoped,'system',pid,body.proposal_hash)
 
 @router.post('/api/agent-instances/{ident}/dsl/proposals/{pid}/reject')
-def agent_reject(ident:str,pid:str,body:Confirm):return invoke(dsl.reject,ident,pid,body.proposal_hash)
+def agent_reject(ident:str,pid:str,body:Confirm):
+    from .approval_decisions import reject_scoped
+    return invoke(reject_scoped,ident,pid,body.proposal_hash)

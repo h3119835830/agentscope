@@ -25,7 +25,7 @@ def test_generation_history_is_read_only_and_retains_operations_records(isolated
     response=client.get('/api/console/history/generations/'+ident,headers=ADMIN)
     assert response.status_code==200
     detail=response.json();assert detail['items'] and detail['source_label']=='example/repo'
-    assert all(item['target_name']=='历史目标 Agent' and item['scope_label']=='此 Agent 的全部会话' for item in detail['items'])
+    assert all(item['target_name']=='历史目标 Agent' and item['scope_label']=='历史记录：未冻结范围' for item in detail['items'])
     assert set(detail)=={'id','status','created_at','finished_at','source_label','candidate_count','items','total','limit','offset'}
     text=json.dumps(detail)
     for internal in ('compile_check','compilation','policy_ir','llm_runs','artifact_hash','statement_version_id','review_blockers','load_blockers','input_json'):
@@ -53,7 +53,7 @@ def test_draft_and_approval_status_agree_after_target_drift_without_writes(world
     route='/api/console/agents/'+world.a['id']+'/dsl'
     fresh=world.client.get(route,headers=ADMIN).json()
     draft=next(d for d in fresh['proposals'] if d['id']==p['id'])
-    assert draft['approval']['status']=='pending' and draft['approval']['can_apply']
+    assert draft['approval']['status']=='pending' and draft['approval']['can_approve'] and not draft['approval']['can_apply']
     store.update(world.a['id'],resources=world.b['resources'])
     with db.connect() as con:before='\n'.join(con.iterdump())
     changed=world.client.get(route,headers=ADMIN).json()

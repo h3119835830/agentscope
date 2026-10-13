@@ -32,7 +32,7 @@ class Permission(PermissionFields):
 
 class SourcePermission(PermissionFields):
     decision: Literal['forbid', 'permit'] = Field(description='Whether the reviewed source prohibits this action or requires this action to remain available.')
-    action: Literal['read', 'open', 'modify', 'write', 'append', 'overwrite', 'create', 'delete', 'rename', 'access', 'execute', 'connect'] = Field(description='Source operation: read obtains file contents; access means all file access; modify means any change to the file. Do not choose OS hook names or backend access groups.')
+    action: Literal['read', 'open', 'modify', 'write', 'append', 'overwrite', 'truncate', 'create', 'delete', 'rename', 'access', 'execute', 'connect'] = Field(description='Source operation: read obtains file contents; access means all file access; modify means any change to the file. Do not choose OS hook names or backend access groups.')
 
 
 class SourceDescription(Strict):
@@ -51,7 +51,8 @@ def source_material(version):
     return {'original_document': document.text,
             'selected_quote': version.statement.source_quote,
             'reviewed_policy': version.statement.model_dump(include={'text_original','text_en','text_zh','content_type','policy_kind','enforcement_level','completeness'}),
-            'supporting_quotes': [s.source_quote for s in version.statement.evidence_spans]}
+            'supporting_quotes': [s.source_quote for s in version.statement.evidence_spans],
+            'untrusted_reference_materials':version.resolved_context.get('material_evidence',[])}
 
 
 def extract(version, provider):

@@ -45,6 +45,10 @@ class AgentContextSelection(BaseModel):
     session_id:str|None=Field(default=None,max_length=200)
     context_hash:str=Field(pattern=r"^[a-f0-9]{64}$")
     scene_id:str|None=Field(default=None,pattern=r"^[a-f0-9]{32}$")
+    scope:Literal['agent','workspace']|None=None
+    workspace_id:str|None=Field(default=None,max_length=200)
+    draft_id:str|None=Field(default=None,pattern=r'^[a-f0-9]{32}$')
+    draft_revision:int|None=Field(default=None,ge=1)
 
 class PolicyInput(InputLabels):
     agent_context:AgentContextSelection|None=None
