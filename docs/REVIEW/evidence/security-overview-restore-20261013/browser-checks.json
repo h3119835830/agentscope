@@ -1,0 +1,124 @@
+{
+  "baseline": "db870f6",
+  "cases": [
+    {
+      "group": "execution",
+      "id": "script",
+      "headings": [
+        "    - heading \"一条测试命令，也可能触发凭证读取\" [level=3]",
+        "      - heading \"工具调用 trace\" [level=3]",
+        "      - heading \"系统侧 trace\" [level=3]"
+      ]
+    },
+    {
+      "group": "execution",
+      "id": "link",
+      "headings": [
+        "    - heading \"写入工作区文件，实际目标却在工作区外\" [level=3]",
+        "      - heading \"工具调用 trace\" [level=3]",
+        "      - heading \"系统侧 trace\" [level=3]"
+      ]
+    },
+    {
+      "group": "execution",
+      "id": "integrity",
+      "headings": [
+        "    - heading \"“修复测试”的脚本，可能先改掉测试本身\" [level=3]",
+        "      - heading \"工具调用 trace\" [level=3]",
+        "      - heading \"系统侧 trace\" [level=3]"
+      ]
+    },
+    {
+      "group": "execution",
+      "id": "revoke",
+      "headings": [
+        "    - heading \"工具调用已返回，后台进程还在继续写\" [level=3]",
+        "      - heading \"工具调用 trace\" [level=3]",
+        "      - heading \"系统侧 trace\" [level=3]"
+      ]
+    },
+    {
+      "group": "execution",
+      "id": "plugin",
+      "headings": [
+        "    - heading \"没有工具调用，插件也在尝试外联\" [level=3]",
+        "      - heading \"用户与应用事件\" [level=3]",
+        "      - heading \"系统侧 trace\" [level=3]"
+      ]
+    },
+    {
+      "group": "execution",
+      "id": "dataflow",
+      "headings": [
+        "    - heading \"读取和上传都正常，数据组合起来却越界\" [level=3]",
+        "      - heading \"任务与文件流转\" [level=3]",
+        "      - heading \"系统侧 trace\" [level=3]"
+      ]
+    },
+    {
+      "group": "governance",
+      "id": "isolation",
+      "headings": [
+        "    - heading \"同一台机器，也不能借另一个任务的权限\" [level=3]",
+        "      - heading \"工具调用 trace\" [level=3]",
+        "      - heading \"系统侧 trace\" [level=3]"
+      ]
+    },
+    {
+      "group": "governance",
+      "id": "approval",
+      "headings": [
+        "    - heading \"“用户已经同意”不能替代可信审批记录\" [level=3]",
+        "      - heading \"工具调用 trace\" [level=3]",
+        "      - heading \"控制面 trace\" [level=3]"
+      ]
+    },
+    {
+      "group": "governance",
+      "id": "context",
+      "headings": [
+        "    - heading \"摘要忘了限制，执行规则仍然记得\" [level=3]",
+        "      - heading \"用户与会话上下文\" [level=3]",
+        "      - heading \"系统侧 trace\" [level=3]"
+      ]
+    },
+    {
+      "group": "governance",
+      "id": "stale-receipt",
+      "headings": [
+        "    - heading \"测试通过后又改了代码，旧结果不能放行\" [level=3]",
+        "      - heading \"验收与发布过程\" [level=3]",
+        "      - heading \"流程门禁 trace\" [level=3]"
+      ]
+    },
+    {
+      "group": "governance",
+      "id": "snapshot",
+      "headings": [
+        "    - heading \"审批的是快照 A，启动时却换成了 B\" [level=3]",
+        "      - heading \"审批与工作区过程\" [level=3]",
+        "      - heading \"控制面 trace\" [level=3]"
+      ]
+    },
+    {
+      "group": "governance",
+      "id": "inactive",
+      "headings": [
+        "    - heading \"策略编译通过，也要确认保护真正就位\" [level=3]",
+        "      - heading \"用户与策略操作\" [level=3]",
+        "      - heading \"控制面 trace\" [level=3]"
+      ]
+    }
+  ],
+  "mobile": {
+    "width": 390,
+    "pageWidth": 390,
+    "dialogWidth": 339,
+    "dialogScrollWidth": 339
+  },
+  "keyboard": {
+    "escapeClosed": true,
+    "focusReturned": "安全亮点"
+  },
+  "announcementPreserved": true
+}

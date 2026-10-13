@@ -1,0 +1,602 @@
+{
+  "release": "/opt/agentscope-value-guide-ui-20261013-113721",
+  "started_at": 1791862641.4239128,
+  "before": {
+    "services": {
+      "agentscope-scope-demo-api.service": {
+        "MainPID": "1882321",
+        "WorkingDirectory": "/opt/agentscope-value-read-20261012-224541",
+        "argv": [
+          "/opt/agentscope/.venv/bin/python",
+          "-m",
+          "uvicorn",
+          "agentscope_app.main:app",
+          "--host",
+          "127.0.0.1",
+          "--port",
+          "18003",
+          "--timeout-graceful-shutdown",
+          "3"
+        ],
+        "start_ticks": "20684936"
+      },
+      "agentscope-scope-demo-broker.service": {
+        "MainPID": "1881389",
+        "WorkingDirectory": "/opt/agentscope-value-startup-20261012-225631",
+        "argv": [
+          "/opt/agentscope/.venv/bin/python",
+          "/opt/agentscope-value-startup-20261012-225631/backend/broker/main.py"
+        ],
+        "start_ticks": "20679589"
+      }
+    },
+    "authority": {
+      "agents": {
+        "instance-1f4469579e8947f4": {
+          "policy_hash": "9c5fa9fbb63c9bcd71da29007179d6c9fed00b23ac9b9f4e41165a76b92425c1",
+          "generation": "a8ee7f9c5ad64e0a9bf543e3929255ed",
+          "pid": 1881572,
+          "domain_id": 133859788,
+          "active": true
+        },
+        "instance-c0dd272b6a734a34": {
+          "policy_hash": "f930aa4e9f224e24588a51a652d773cf022a74fa8be0b379ed4e80023c58ad87",
+          "generation": "947b1b6dd3334b3c9a2a250bd3705832",
+          "pid": 1881769,
+          "domain_id": 1819175395,
+          "active": true
+        },
+        "instance-bb171d3176b644a2": {
+          "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+          "generation": "566ddd5edaad438f9473d4ea08ec1cc1",
+          "pid": null,
+          "domain_id": null,
+          "active": false
+        },
+        "instance-cc444fe38c094cbb": {
+          "policy_hash": "c3371a12d813cbf8c4e13bfc39ac8caa8868b6d394f8a7dbebcd74afa15b2cfe",
+          "generation": "3028d67dd05a4be2ac4944b26e278a6d",
+          "pid": 1881965,
+          "domain_id": 766367180,
+          "active": true
+        }
+      },
+      "dsl_scopes": {
+        "system": {
+          "revision": 6,
+          "document_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "documents": [],
+          "phase": "ready"
+        },
+        "instance-1f4469579e8947f4": {
+          "revision": 0,
+          "document_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "documents": [],
+          "phase": "ready"
+        },
+        "instance-c0dd272b6a734a34": {
+          "revision": 0,
+          "document_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "documents": [],
+          "phase": "ready"
+        },
+        "instance-bb171d3176b644a2": {
+          "revision": 3,
+          "document_hash": "71c7dcce2e8f6cdaba1a3d48962b0eb9182e11dd5149ac267e78299ff52974e2",
+          "documents": [
+            {
+              "id": "96e44c04-3a24-4347-9d01-af43c8b10bae",
+              "name": "agentscope-browser-acceptance.dsl",
+              "original_dsl": "source CODING_AGENT = exec \"**\"\nsource REVIEWED_CONTEXT = file \"/w/0/.agentscope-context-canary\"\n\nrule tests-before-commit:\n  kill exec \"git\" \"commit\" if CODING_AGENT unless after exec \"pytest\" exits 0 since write \"/w/0/src/**\" or write \"/w/0/tests/**\"\n  because \"\u63d0\u4ea4\u524d\u5fc5\u987b\u6709\u6700\u8fd1\u4e00\u6b21\u6e90\u7801\u53d8\u66f4\u4e4b\u540e\u7684\u6210\u529f\u6d4b\u8bd5\u3002\"\n\nrule context-notice:\n  notify read file \"/w/0/.agentscope-dsl-notify.txt\" if REVIEWED_CONTEXT\n  because \"\u643a\u5e26\u5df2\u8bfb\u53d6\u4e0a\u4e0b\u6587\u6807\u7b7e\u7684\u8fdb\u7a0b\u8bfb\u53d6\u6d4b\u8bd5\u6587\u4ef6\u65f6\u4e0a\u62a5\u3002\"\n",
+              "metadata": {}
+            },
+            {
+              "id": "canary",
+              "name": "canary.dsl",
+              "original_dsl": "source AGENT = exec \"**\"\n\nrule canary:\n  block read file \"/s/instance-resources/dsl-acceptance-201658fa/a/.agentscope-dsl-block.txt\" if AGENT\n  notify read file \"/s/instance-resources/dsl-acceptance-201658fa/a/.agentscope-dsl-notify.txt\" if AGENT\n  kill read file \"/s/instance-resources/dsl-acceptance-201658fa/a/.agentscope-dsl-kill.txt\" if AGENT\n  because \"Synthetic DSL acceptance\"\n",
+              "metadata": {
+                "canary": {
+                  "statement": "\u8bfb\u53d6\u6d4b\u8bd5\u6587\u4ef6\u65f6\u5206\u522b\u963b\u6b62\u3001\u4e0a\u62a5\u548c\u7ec8\u6b62\u5b50\u8fdb\u7a0b\u3002",
+                  "context_requirement": "project",
+                  "context_reason": "\u5df2\u7ed1\u5b9a\u672c\u9a8c\u6536\u8fde\u63a5\u767b\u8bb0\u7684\u6d4b\u8bd5\u76ee\u5f55\uff0c\u4e09\u4e2a\u76ee\u6807\u5747\u4e3a\u65e0\u654f\u611f\u6570\u636e\u7684\u56fa\u5b9a\u6d4b\u8bd5\u6587\u4ef6\u3002"
+                }
+              }
+            }
+          ],
+          "phase": "ready"
+        },
+        "instance-cc444fe38c094cbb": {
+          "revision": 1,
+          "document_hash": "c38f0ad8b80dbf9fa9a8c80c8b22b9e8821ecd237585f7a5f639d903e5370e29",
+          "documents": [
+            {
+              "id": "g_12a440f2afb547b5bc2707a13ca17148",
+              "name": "\u53ea\u8bfb\u53d6 sales.csv \u4ee5\u83b7\u53d6\u62a5\u544a\u6570\u636e\uff0c\u4e0d\u5199\u5165\u3001\u8ffd\u52a0\u6216\u8986\u76d6\u8be5\u6587\u4ef6\u3002",
+              "original_dsl": "source AGENT = exec \"**/node\"\n\nrule h_a557fe9061c847b9_intent_1:\n  block write file \"/w/0/sales.csv\" if AGENT\n  because \"\u4e0d\u5199\u5165\u3001\u8ffd\u52a0\u6216\u8986\u76d6\u8be5\u6587\u4ef6\"",
+              "metadata": {
+                "h_a557fe9061c847b9_intent_1": {
+                  "statement": "\u53ea\u8bfb\u53d6 sales.csv \u4ee5\u83b7\u53d6\u62a5\u544a\u6570\u636e\uff0c\u4e0d\u5199\u5165\u3001\u8ffd\u52a0\u6216\u8986\u76d6\u8be5\u6587\u4ef6\u3002",
+                  "context_requirement": "project",
+                  "context_reason": "\u670d\u52a1\u7aef\u5df2\u6838\u9a8c\u5f53\u524d Agent \u548c\u539f\u751f\u4f1a\u8bdd\u5de5\u4f5c\u76ee\u5f55"
+                }
+              },
+              "generation_binding": {
+                "artifact_id": "12a440f2afb547b5bc2707a13ca17148",
+                "context_hash": "bfe3e458bc13e3af5d6da54346724385ee644cffd40ef089ecfbe7bc072fed15"
+              }
+            }
+          ],
+          "phase": "ready"
+        }
+      },
+      "system": {
+        "revision": 0,
+        "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815"
+      }
+    },
+    "other_listeners": [
+      "LISTEN 0      2048        127.0.0.1:18000 0.0.0.0:* users:((\"uvicorn\",pid=403,fd=12))"
+    ],
+    "ui_files": {
+      "value-evidence.html": "a177d5c9d69262ed30c3ef0e3590a75a34383a52f7c122592ccea10394894db0",
+      "value-announcement.html": "6395d4223d1772714d5c0a97263fdb43b4a15965900eed2bc055ea1512ed5c27",
+      "index.html": "121f1cf906e49dc6feb5b220aa935d8b26e23cd76485c63a07c1f300309997ed",
+      "assets/index-CgFMsS71.js": "9dd4d76f90d5f9e381a85a9227aacb413047ef53a5fd9ea2fc6dc77809d57dad",
+      "assets/index-ClHeuuoB.js": "eec78cde73a2f0608b74de09dc1390ee58079b7de8e9f47463dcb8e7696d6e96",
+      "assets/index-BoqHUsBI.css": "11d362eaa36603091b1a03891feb2f46d2c98b8721be0a84af6db9ad7d9edd4b",
+      "assets/index-DR0w9Roo.js": "ecddff13be27b437662a56d7fc04d96ebbe69f3412028a17bfcd12fc36d5d359",
+      "assets/index-DEW7DpLz.js": "d4e75a341a26173061fabf1364651676f72eb271f123e5e577a85ab175c9c6c5",
+      "assets/index-CsddAwd2.js": "d85b8a01be8ca9ecbfcc2ad80fe3c083a8614b40b013d0138d43bdec5f267d7c",
+      "assets/index-Bvbqkq7-.js": "23ebf329506e23838b39611e9f70eb320886ed815fc934a59744b8589e5adfc0",
+      "assets/index-CtOhT_-e.js": "30a063b5314c6b841e316f83abc6a99cca6c1084a9043fdd9c327622682241c0",
+      "assets/index-BQC_VOnL.js": "0481cfbb8bc957980fc01f44307d9750771808f93aeef9de290718e7ef087af8",
+      "assets/index-CjHDw2j5.js": "9e7d6ff5636bb66eb7f44701abfed37f21301401e4fdb7f0a4d32060dc11ab7a",
+      "assets/index-dwIkRxwz.js": "09689ea9c3f134f4fc452fe249a62b35c13578f93d99400855707b2abbb7a05b",
+      "assets/index-D_7g-Bql.js": "3a23fea51f13e955b2f37d3ad964382d6e275ef012de0c0c50ea287917132c3e",
+      "assets/index-PF0MGCfE.js": "9dca980f85f12db0eaf4eab24fd791471bb20538a85d2e40561e076bd53b573f",
+      "assets/index-9_PY20W5.js": "91f07be241e9794ccec0bbda2266ba48d5b53848a9dac1002c0e0b66b9f614a4",
+      "assets/index-DtEsCKQg.js": "9b53716c9cc56a3abc5c0f063e81697bf016e52d6c77c279bffc11d4756674ef",
+      "assets/index-BqDS-Klq.css": "f72fbdc3d19bcd682c92f641a2167b002e76dbf9113f15e49392895fdafd9f4a",
+      "assets/index-BjHa3GSU.css": "ec3fe15c0eb962fed42d061715b8a8d277f2532e805e90e4db446745f4f20daf",
+      "assets/index-DqNILJ_n.js": "5355998b9890add79533183565812095cef33d3462ccaf4e2272d5afe606b49c",
+      "assets/index-DwfuMNXm.js": "577f503f22c19a58a7fa6286b7ef6e96139ef0778d57915a82e59c2ca680f162",
+      "assets/index-5W4KcMyX.js": "9efc4b1c9cea1e4c633229c757e83c937fae0a1efa4841e5f33d61935ef25ee6",
+      "assets/index-DZw3GZjX.js": "e2ed0b09e89d1e88f80b24e8e0122b7f0c08994b9cec063010041900038bef17",
+      "assets/index-ETGrXQvL.css": "ecdac0432df0cd59358b23640875e3604f596a86ab156d55d4500749defe90e5",
+      "assets/index-BKtjY65z.js": "dc197f30f58ab13c614e893fda83edf9aac0c97fbfca2f5d79b6e3f56ed209c1",
+      "assets/index-BgLLt9Hv.js": "8aa2821dffd7faad64b7b4c3359158ed39c722a33a1c1a20c966dd01f3f6998e",
+      "assets/index-DO4IW703.js": "09fa1d043ff8f201c2d3dda9ad2bf162c8e520d5e82bcde69912b6665897d5e0",
+      "assets/index-szNcO6nP.js": "4f993dce421dcda2445e525c88b21c7bbbe0f794463a8729133d2597e2849436",
+      "assets/index-CmW2RWfR.js": "06de7bf6eda2083ab0db46070052441cab3ef0152ad949ef523c6683c85b2fbf",
+      "assets/index-MBxO0vXE.js": "0b9bc4ef82e2c5b8cbe124e441ac87a007bb85a835368a87165f423679cebe87",
+      "assets/index-CD3ByccV.js": "4b101197de2e62d2efccfdcd252585d7c1387e2dbb88994ee6114d914d88978b",
+      "assets/index-BvAzyK9n.js": "608d49c6ced3d51d29a26e30798354c59cea81fd4fd04e8a575e731962d9533b",
+      "assets/index-ColWKsBk.js": "eb197c2ce1cdf18bf086092c48934d73c4ae6c0e8746c15b402f0091a142eac5",
+      "assets/index-C-mSkKb8.css": "3911b4505d8b01d6660f5408721ca14e1be0e029b4e48d8e48527dc48228dcbb",
+      "assets/index-BPBDmBkO.js": "9eaeb23c6af3f1782175936504845dc6538308507e4e2a82a384e7b09cbd7358",
+      "assets/index-BQlypGmi.css": "2fd71c61dca6161e22bcc51298f9730db9eeb21a679d393c7f33348e6be5f498",
+      "assets/index-CMpD32Dc.css": "ebb4a62d9b44418213d1721820dce6242f7381c1d307b6b7580bd089d1c78690",
+      "assets/index-DAdogWN2.css": "95b1446f55f8ebe016d0ca90b1622f75787cbf73bde13fca7af3e5ab017c637f",
+      "assets/index-Hom-mc8I.js": "a323e0be29be260f63799b1aff3e48ba09a1c74698fb80cdc87d5f5eff90c9a7",
+      "assets/index-CBG9n2NT.js": "b922a4d1fe36c1dff887062d61b468e850a003281f509476a3d647ebae60fd0a",
+      "assets/index-DzXWVV_R.js": "ab46625dc3c66f7a0ca6c5c0f9f05470afda3fca3557ae052c341d4f3d984572",
+      "assets/index-BJQxj19I.js": "9f54fe26c79e22e0e99791a88332d28c869de120f2285a4035b4257ff04607d3",
+      "assets/index-DBdHNbLN.js": "88cdc90f1209133d094a16c1dbc4a1c685e7df97a48f299d72b92cdc3ac893ac",
+      "assets/index-pSiH761U.css": "2009d5631474d27c7c39d069601464fd954c616b1e9fcb15ac77d4ddfaf1296a",
+      "assets/index-928KMTZy.js": "1b5a95b03c0179f6a7683ded244fb473326d54e4be083d99696b0938b35a6508",
+      "assets/index-DLfgMmWB.css": "6feae0f2eed06c278a64205a5dbd6d45a4fd672e8cd6c55488f898a30e2fd5da",
+      "assets/index-Y_5x-wWv.js": "90f97072a01bef05838f632d06803f282fe40d4437f699bd63dacb9c22ef86dc",
+      "assets/index-DWcoht-T.js": "ad53e854af6899ca1f34eb36471659d3195c4cae72e08840c482ad30af55ae36",
+      "assets/index-C6n-uKRs.css": "897e3e20e845a03a84848bbc91fae041ac5bfbaad08eacbd8ff5bdd732c8ae31",
+      "assets/index-DVPhj7iG.css": "4eacbbb5cd0130d98ed96842f0793a0ab06d8e00955114da37a74acf596ba3a8",
+      "assets/index-uxxIxQfN.js": "054a7474b486526507ff85c84e04ea8180b528b0eefd8859372f319a0466b792",
+      "assets/index-DaTUWY3p.js": "4d37315dae1d6f895bc14e2867b3f61225dd921ad28830af2902f61a8959e328",
+      "assets/index-BExtUFwx.css": "7ba086f08d4268fd18ca4d9f2991455f18b08e4118f7e0932fcb74e86a34c9af",
+      "assets/index-ChZc6HKc.js": "696091db118c0d87762dcbcced52c3ae8395130ee2e7cef16a07b97e74f6e093",
+      "assets/index-DuCw52e6.js": "21d43ad7f4ab5c43e0df51b9cd311912e1d02ff816eb17d8ad5617a67acf2d41",
+      "assets/index-DalRznUj.js": "6be393e8cbd09989f7de4198c0aba7d55539a1cd946864bf1c3752c09c68f12e",
+      "assets/index-XVifP3gR.js": "b742d847c662ee0edca3c3743013f9dc06a6837acd87b710fe29f775b8f78cf5",
+      "assets/index-DYORZ1Xk.css": "3be3a7ab8e4b73d6ec0205d8f775590390c8c095f83b5d34917edcf58333b649",
+      "assets/index-NkjJ3ib2.css": "f6333fe32f342641f1b450e948accdfd96d092313f727a3c400690489a6aedfc",
+      "assets/index-Bfo012_n.js": "a7d5dd2a9043009687433c7f7463ced33d381b8a5b992d3842c85441db2b0af7",
+      "assets/index-CYCZaQCP.js": "375668cde07e7c61343c7a7b477392936844be655418cf56c372b6efd75f6867",
+      "assets/index-7qbqAPSp.js": "77e6d6407f3ecb3a334709edf86a875c94a76e0047932d658240517d73bf64e0",
+      "assets/index-BcoTNSsQ.css": "36808686d9915923e63805b61c7b5e2311aba00b05aec1ea164794aa0d8e16d9",
+      "assets/index-Ci8dppto.js": "75875be4515f9672d724b7e54ccb2ed6c41363622d1ae2844d6b89ad1b561cff",
+      "assets/index-DaAv7Ly_.js": "7cb0323cd9288d5f6a6bd4fe865be170358b93d267d393764c6d6b06ba99b256",
+      "assets/index-DxOLeIxd.js": "382c81f65aa1a3e4e9ea369a2c6a853d77949ea9f33b0dad38816d571fc3f85a",
+      "assets/index-Dep6LnX4.js": "d1442abb437956bb48d7186ce4b834b476d9460b19434af9f6b5ad17e270acc2",
+      "assets/index-bTzYq6qo.js": "4890eb6b9986052de58ca91ca0763d369b27ddd98c18322327b2d932c7a44ee0",
+      "assets/index-CCatVpcb.js": "035fa7bf1ceff42639fd616a897fbb34f64a59c91920860ab1b54316f68a8474",
+      "assets/index-DUY-JGOI.js": "5331c45323d3dc617660fe54a3a22ba5b3f57fc2a114af77f19720362f775bc6",
+      "assets/index-DmRyDV7E.js": "404b00a7edc74179ec042718eb9c2f4a6de09644c5a70f5361c23822c67a53ac",
+      "assets/index-q6hoDBBg.js": "69960c44da0e809e56d7ce74a352cb0a26fe8d01fc8d88711c80b95949f93663",
+      "assets/index-DzxWs-qX.js": "70529332c65fd96c1e8e89cd6aec1f188108f7cbc9a79e8d68b626d6658eebfd",
+      "assets/index-CNUtLyVF.js": "9ebc7384ec9dd1caddf1b082d7529e22df89a31dc593ba019a779c355785dadc",
+      "assets/index-C0lJ-52a.css": "866eaf28ecc91e9d8f00ce211ae218adb3dab259fbe02ec357f0a2ed4e49fb37",
+      "assets/index-RUgE49rX.js": "f7c7a13f1c6d70c4e943c5c7cb3220be8ea8242ec49b8f2a2f374e2fc2308f62",
+      "assets/index-CAvb_OQ_.css": "a50a509ba030cb0fbe7617bd9df538f679e2e201fd052bb77917bc68b40aec23",
+      "assets/index-Dfw42Ksu.css": "74b40c0f5805116cd2a11786be6965e7a62462403035c3d887095a0f8e0f5c65",
+      "assets/index-BnExC37B.css": "1dee18259d7a4bb22389a84665c7c2671a0d9c40e2f9cd07ddc33f6f8f1ac0ce",
+      "assets/index-BfnoHBGA.js": "bee8856df5ef6602a85ef81adb70d231c5f21b49e9254f0dbf63d6dbe17ec633",
+      "assets/index-BboWAyzo.js": "c0cb1c5681b0f3a2068af96049611cbd2e61b29a241da3ea3c5272df00ad8efa",
+      "assets/index-DKkw_zml.js": "817386c9cc9d94a8de9bd77884675a2da6a8f9106d13b65c9286e50195b5859e",
+      "assets/index-CUPFpjOF.css": "db297d3b6480913f74f002612053e56f14c5b6cc6ce072d5bf184dc940a461db",
+      "assets/index-IxlFoFnC.js": "d760d57d57252d3bbd67d5fc377eb23a9c64cb183a67c1c6ed0b9404d595a78f",
+      "assets/index-CI9OZbI-.js": "bc892ec73be28a080984930590c27b77ec42e42b8b34bd6043ae5b2f2d9cee8b",
+      "assets/index-DTHV-r2E.js": "017ae54b7b4ba094d432b97fba0570787bb4f6dfd807ba97f108cd3840c59513",
+      "assets/index-Bjp0zVu-.js": "cbe554c7a833abd09f63433c3eaa5a39cad34f7bf558a5a571d59edf4f790ba1",
+      "assets/index-D3C3op8s.js": "3c2e32e60cfbc0c61ccd0913c78db1c196d9f2223ede3e9a53885490b3ae9b50",
+      "assets/index-YylxoVSo.js": "9efc4b1c9cea1e4c633229c757e83c937fae0a1efa4841e5f33d61935ef25ee6",
+      "assets/index-CvC4LC7v.js": "647d0acd3be03400c58d85faa69d19917d0d1c1f4a5a317f2074aa186c1c55cb",
+      "assets/index-CrgPYjgQ.js": "bd0b45937714620963c72cbba1d5415874b7bd2f08f5716521e45f42e4a3a1ca",
+      "assets/index-Boy4Q_TT.js": "b2a8e729643a7bbb8293417f58b59d59ccc49eebc3d78ec721730df7bd5c20e7",
+      "assets/index-CxNcO6My.css": "fce1b0671914cf3100191c67a5f7ea2661cdf1881aa66e09690fcf2413717af9",
+      "assets/index-DGwQw7C3.css": "9960083d41fe049cb7ed124c0a2b6b3e60673be5b37db1e30ce30bdd708eb431",
+      "assets/index-oceCbdUi.js": "e7a6df155391887aaff3dc93ea3fe43934a7109edc5ddb984c8a34f3d4c752ab",
+      "assets/index-og-iF2pK.js": "cb98365ebc0cd9d91111fef4bdb9027c1114c837ebd440d586ea036074b63b31",
+      "assets/index-KgXGan-t.js": "ade1fb1ac7e768b67f3e761cb1c86a9a9ed863d2bc41cca96107d595d7f55153",
+      "assets/index-frYHC8wO.css": "4171080cde2d94d4063f2825e1e9da179f4144a9e920184b095b9b73ccf650fc",
+      "assets/index-BR_NWyaa.js": "76e9387461f61e1a73916ca91bf1cbd11a1eec1ad011ba9822bf7f026462be34",
+      "assets/index-DsqIpBnA.js": "8cd82def872e50628fbd207192317fa54276b2d45df8d8455829d3742fb4b19f",
+      "assets/index-CKkNWRcK.js": "8f9f390fe21a006c402d9306589354ab4845e829ae8cb575d9be3778f1c32ed9",
+      "assets/index-FU_Lkc6C.css": "fcb183550232da0e0f61bd796b234128fba00e17def76553d7f8baf008bb7228",
+      "assets/index-DWT2WngC.js": "701e78ba0a26c73eb38b9bd2e4b7b1ae302ab71b1486ab2ce3e6abfed8c55010",
+      "assets/index-DUdQ9fD9.js": "98a322690193ae1116ac415dd76c3aaa96c063b121c572ddcd788e6fd788e116",
+      "assets/index-DYQpIWWT.js": "e322ba4f6c55f9eef295b44eaa1018498d1e917f27710f1931008853578e8c27",
+      "assets/index-Bo3mrQMU.js": "24c8fe64724f1218ad65ecef824c71273eefca01355b95528e12bd386eb22a09",
+      "assets/index-CmftDAVX.css": "42be2d70f2daacef463cb30ee403e31ff572523d01035e05709f2de31b32d415",
+      "assets/index-B3CILvTT.js": "182824358b0f0815979a555969ceb0d111b846a3219319ea561244610664d008",
+      "assets/index-M9z2xIwN.css": "772873abf670e2d7b0f0b9cccbca4943d98ec8bcb07f32b4309b223888bd4112",
+      "assets/index-DTK1B-AR.css": "0e2c7a4448eccc0ddc4db18a49276aa28580395361bea960f7ef874022d11afc",
+      "assets/index-r7tEOS3v.js": "479213ee53f93e9fe7613d89d87d727b360cf03dbd355e56bd40728b152d1a85",
+      "assets/index-BGAzc0p_.js": "8972b56af4b5c16d157e87dbb32a2056a6499c5f430ede3652fc699e2f8ada89",
+      "assets/index-BdZQHOVf.js": "d5bfd7db1d30252c7045db12dfd51b9a35ddb6ff469d391144f5b171e6db5a1b",
+      "assets/index-DhfqefTS.js": "1230b33e5c4dafead9c410492f73b2db38f243c8620403fc874e1b43dbfe88eb",
+      "assets/index-BEV2yvMX.js": "e18cb693918edf4842e2360229606e77094c8670f51211136b6e9503b21f18cb",
+      "assets/index-BIy6ige1.css": "cd4632e0b441ba8d30e9f0c07f68b52d4933409466940ff8b1dbc67146efb4f6",
+      "assets/index-D_-0XrBg.css": "649da916b19382412331844b04fb3acd8a56c38da2de32e6ec21bc2f03268d75",
+      "assets/index-D56CiX_7.js": "475d10950ff4432dc47b5b529997e2086775a9999c68389b016c8c61a297a9a9",
+      "assets/index-BloTyzdv.css": "5bea3a0df4211d6774c947215c252307cafdae116a4082d7dfae6627d9a90772",
+      "assets/index-CZBmbT-w.js": "97140d52a5db0f96d70b61233959c1cba5b4dc75828039d00da1e240834d36e6",
+      "assets/index-BbyVtZDa.js": "1ef7035b204fb5fc5ad2a4c0e17addd85c1601b6add0dcdcabcab076274bf04d",
+      "assets/index-BnMIJ9xM.css": "b17f798fb8c7369f772ebce7a6a09157bfbc357cee96d545ed3e3cbece9a7466",
+      "assets/index-BcsHLurs.js": "c02eae5a24dc2ab1e401a5f9bc1924958da41eed8439612d3822941f6bcaa10c",
+      "assets/index-5Hld9K6e.js": "161c30f5f37975c2e5f26de5661e8960c9eb1652df8f207a05de8716bfc6c0c7",
+      "assets/index-7hfkCRof.css": "b212011f1c429f9648b12a1d676e3e1b56353afa9e191bf39bd8c20cea7bf9de",
+      "assets/index-DZtbmDEk.js": "e8827122fb5a1a6375e02b98dbaff64c199f96cbd32e398c0d8cb6affe54b242",
+      "assets/index-B3xBfZPg.js": "0096279f19e5474bf550e04ae938280752f8fefa611c0a2b2f8ff4cc7272750b",
+      "assets/index-Cp8kWQt-.css": "c4a414f94b02a593b8953b2170637e496d9f613df696f1bd615485aa2d007400",
+      "assets/index-Cb1Z_Gxa.js": "9491f4f05d007e0910f1a27a266e1c82686288a4c95d8e8711052de05ab7236b",
+      "assets/index-CTvYixN0.js": "c4b5cffaaddb9e70a9e9557eaf7472f8e9e98af8f9ddbad8a2732cd356726960",
+      "assets/index-ChgDtyJ4.js": "65c006149f23bc3c8f5c25fcc8e53397922c278a1939ef3b0bce00e38041c0e3",
+      "assets/index-C6F2sAa0.css": "5295ec788ea57194290b0be64fa9ed65ca269cf12194a355fa095190bcf367ad",
+      "assets/index-DkzdOky-.js": "5edc090d93fa97e3119d4b986c05004cf5f9573a68826011dbf0ea44809f4468",
+      "assets/index-Dw8M88n8.js": "b4b12b6b09e13f9b980686550bda70796fee47533377797c0fb25c86b9ccf3c3",
+      "assets/index-DgtigaPK.js": "a61301d010934ce1ce00da1f41a124f6eed2b2fe4ec168d35b683b8f44594917",
+      "assets/index-IVqC-Io3.js": "d0d7cd1dd9e4c531e2067992c6470fa70cd33dce7a1da73d370fe13e03a690d3",
+      "assets/index-BuoVIj-m.js": "2b2fbc52cf8d78d8d424d18e8c1c076217e5b9ce5cbdada8fac4d23fa1e0e12d",
+      "assets/index-CmriMhBp.js": "a795edcb3414aca7c3ab6918b05cda7423fbecd320668a2bfc4e09bbf4f4246a",
+      "assets/index-Dz2zulNB.js": "af17ca9ec45a65d31a74024572ebf9e4399f5c28f1439447b55b10ddc4643ce4",
+      "assets/index-CvJPD-VT.js": "b4362795e9945a4253cd7309afb3c900e8b8feebdb0b94af245108a5745b100e",
+      "assets/index-BQC0jmyd.js": "28f727f381af6da6e4312830de5ff3d175f9532ad6e0a4b147236a90b9ca9ab9",
+      "assets/index-LCDEmPre.js": "3238a655883e7c85ae3d8d23900a49c013213d2b67fd0dae0eae8579cb88bd6a",
+      "assets/index-ei_2sMUa.js": "18f8ec969a951311460adfd53cb134e779f88e10c3e1a26c210681cb6ee5bb7a",
+      "assets/index-CRCHNy-x.css": "10d1cc21edc62d389a79e1b74184690647316277ddd36dcb651f929f56db6bb4",
+      "assets/index-BE6-1o7g.css": "e3ebd154d74f875ac5253e1a5580ad822b3c25cdc9f2c52c02339c14e768d197",
+      "assets/index-CDtAT7ti.js": "de8fc53a238e996bcc92f01336de22b2a4f44e216d650712f20d318e16d06c75",
+      "assets/index-B_eC4SBf.js": "da1ae493c7741426eb42b1650c5dedd788cd6db0066a8e0bcb4b3e21227a2e0d",
+      "assets/index-Doy7a3gv.css": "9ff6f3ff31a6711f47697ea3c7d408b6c5d4f34be1e31f766bab01b38eea18b6",
+      "assets/index-CENTHmk-.js": "29adfc88f3f90c0cd3a2b50c167aae53e7fa7a06bfdf9f7716c9e8fede4c5209",
+      "assets/index-1gsxHEKX.js": "b1ec007de7167253abc48f56e88ef3888f8efbc4c4414f8f08edd8bba62c01ea",
+      "assets/index-DA1pZx7F.js": "d3fc8e928c5797f8ae23498e9c0299614a6677909e663bb393ae19eb8be39ad3",
+      "assets/index-mAAoj2sz.css": "1ee7d308a944c2dc2aff2da10dada658b2ee99898ab91b7b07f40947b5645b1b",
+      "assets/index-jA5QC7od.js": "f4b300e72f722d6313d3b89021748cf3776e4ff8413f5db35da8a2d33bee2eef",
+      "assets/index-pxiwdrqm.css": "88272a153cd93ac19f9f71819600e164181b63739b44039c7feab257aea16313",
+      "assets/index-DUD8LDZ2.css": "8f5d157210f5670a5d895168d01fa4700c5bbe7e15678889210da9f2d800e4bb",
+      "assets/index-CPneGpRT.js": "c1de1cc3ada8cad0bd62aaef4e6c11f37a5b336998be98b19296e93698f5a4a5",
+      "assets/index-D3DTv-dk.css": "9fb1c3c267b89f46059a852148476fcd0ce543e8fb46d4b2a40ebae25a2aff10",
+      "assets/index-DzmHTjyp.js": "3bbd2ccb762084d3064598fab52c6512d7678f7940282c91247894f173804980",
+      "assets/index-m1hCfqCK.js": "571d039613df676966afe6f0bb0ba9fb8dd0442d4396d0920c78f2c3c33b6af4",
+      "assets/index-Bo1gc6FE.js": "6f6e3576299edad032bffb8fef27fca68aa2c8c29815405de2b8120a18305a58",
+      "assets/index-nclTL1Kb.css": "2a57deb466d09c9829a271daf5122b72f2a0ae0281e0be863c6b682e8643acd5",
+      "assets/index-CjXAsBVp.js": "67364db2e4630938146b4803fe0f65ffc33635c8ecb4f69072e2bf0e78bfb7a0",
+      "assets/index-Cgg95WzE.js": "d87b5e37d8c2cfd07bef6418290615176a39c9c871d25b204dcfee5663499ac4",
+      "assets/index-DmtoWFVL.css": "f05afbd8067578b4692a029e4b7f2d82009ba3272c0b68364e205e5b8a5700a9",
+      "assets/index-ZwRN9iBG.css": "265a4ec67ac16f660c0f7e78ec92e1ba74d280f7813be7d4ecec9b26666459f4",
+      "assets/index-CFGRgZyl.css": "6d51b7676167ac746b51ccac755a3a0a6f7528cba744f161966e58c457d6dcc4",
+      "assets/index-KGAu8wZ9.js": "427bc5db30ae385421a2be6f7e3162f3ce44f316612402ec3b192253161139ec",
+      "assets/index-CskDV2sG.js": "8e5181b501b96d1cf9f01dd56c9715a7568ba9c5947dc87a422906d395899ec6",
+      "assets/index-D6lNbvIj.css": "8876ceec62664cf4457852b2d89ffb800aba07b3ea94eed097ddd1b9c6c23464",
+      "assets/index-x7HJx5Kc.js": "2e85c7adc6e08c69250c3d50b8d21dfa52fc5b431d0db77e94760e136df7acdf",
+      "assets/index-DpyIFcx4.css": "36f61b9afc00cda56bc487b2a14c243563c2ed65e2e8471e8adf023f83ca7d78",
+      "assets/index-Dw4CXVhd.css": "d01fd7b4f4a88a32fc74f47c4bb337ae220d8277daac1c86c1000e6f4f1591c7",
+      "assets/index-CprmWf2O.js": "290eb2f74cc4f24261bb3185e6ef57d861c7990ab6410b8d75bd030715891d93",
+      "assets/index-CYdA2z9z.css": "2868f3f72d1ffcf3d52f3dec40f55d1c68f8555d35d4c1afe66512dee5637fe7",
+      "assets/index-BBsx4BCT.js": "2e12f32437fbf2fa156571a782ba48a0833871216b14a800fc5e3090ba70d13e",
+      "assets/index-r7dBNDXr.css": "de4613c4a9fe2d52fa2ee7221a2123581f061b89fde848628e50ddf2b04e0d2d",
+      "assets/index-BeV8ISLW.js": "e1d179f2bc50990c00d15d3d6e88a1dfd2dfe345578699ed7e068cfd88005892",
+      "assets/index-BmRejWOd.css": "3d607376fa9628cc4a84ec0459a5a20c4a749baada5787649ff131bc3a2f875d",
+      "assets/index-BwgAoYjD.js": "67d1f7a6134c6d6269a57127f0ac23d43535c4bfefb4f04c0f5df7d86e3e5fef",
+      "assets/index-D9jYvdAe.js": "d151d503db9584a2b27717bf18c3f6409d41dc1c10146a03cba88cbe0ef039a6",
+      "assets/index-Czz_IayW.js": "882cdaad4abf2ffa3f55ce7ab17e4f73bcbd987932b6cdf1a877c48a0561afaa",
+      "assets/index-B4Eo_I96.js": "e18e940ee670c069778d4894be9d91deab6bb55492e32fc24a0bc05d27a7ea6b",
+      "assets/index-NEK_uPan.js": "b45b484d49bad1a87636d2560cbf718869e6453dcab0472db697843741943d1f",
+      "assets/index-DMvhPmFN.js": "b1ec007de7167253abc48f56e88ef3888f8efbc4c4414f8f08edd8bba62c01ea",
+      "assets/index-Q_n2swSq.css": "c21909ffdf6d8f96b88756654df2e2427d115b7919d15c6c1c03e4203a251d52",
+      "assets/index-pKMA-03r.js": "aa80a164320ba3e712ab9a38c22323be3a5a82d1d59b9a1ffc275166ad91e8e7",
+      "assets/index-CtxvfQU0.js": "6d237a15c3e51872a61cbbce2e478f23d22ea3112fc63be81669853b125a8995",
+      "assets/index-Bb7cIFIM.js": "7c86ed9113b0bbf35ad71a0156d7bf0fd7d3162a1618b09917963db99ee6a12a",
+      "assets/index-DayvyVFI.css": "3d28e53af9ea6cb5bfefa10ada26ecf2ecb7071f9c27122c8689dcee878adc4e",
+      "assets/index-BIpEzPg9.js": "fd95fb2e6c604128057df74e2dc03988a40f00e090a0cf308c6f24ca59528722",
+      "assets/index-DDAlEzai.js": "95e7bc06085d98090f6252bf9259c79b4a7ca880be2a8ea5fb779a813168002d",
+      "assets/index-DKcACrfi.js": "a2ac6cc7fc62c7ba5dda63859de6951a4c4f0a68370bf5203de8b0718efe485b",
+      "assets/index-DH9cvpLI.js": "466550725d0131aa4a6aecaa62b4f24f1fb2c48e0d6ad4a882910b386f0b15d7",
+      "assets/index-CzCZFoQA.js": "4b17018ab662df61de259e75f2ba14d9361069f3067a820a1ad6fa8e07d13a44",
+      "assets/index-1OWEzNtl.css": "255db9751f02123507650d846c59faefa710de6198c15091386b6962a5b48c93",
+      "assets/index-HafZrdPx.css": "1d0d5ae7512918ff9c37993fbcad17c66b2c8b4fd17563d2807131611a858319",
+      "assets/index-DjQUlG0u.js": "fad020b4d9e519988e6a8356c73747c656494c7b5944052e288b6b695922e598",
+      "assets/index-DWnDMBNN.js": "43297b42151c90ef26afdeb481e155a8d5f4b31e7c1e52a6403e5f77c6053b15",
+      "assets/index-zWs85N1U.css": "325729a5c2f29b04e03beb7b7447a2b5bfc09f48bdf616e5c5f161e07ceba39b",
+      "assets/index-D6h7E5IB.css": "061ee260fc89ccec8a0edd95a206b32f1c01ddbdb6bf7b982a2dd94a6a4865df",
+      "assets/index-CtCAlQzg.css": "a5450321f01bf3588f57d35971e5795b2e1ea6a67b600ec58df7e9985d4f7dc5",
+      "assets/index-CM2pp_1P.js": "d5ec0f13abdeead9763d082ed61916c931004b94254b876f82c219069096c1b6",
+      "assets/index-DgbTMir4.js": "95a2ee658bb57aa3be5a5da4929008002e3bb80aac625bb8bde0b02eaa331aaf",
+      "assets/index-DxachZtE.js": "457691c969f95ac8a212165b4a17bf314780f4d385c0f20b467355983b776122",
+      "assets/index-CKbQv6NF.css": "7eab13f9335f9c4f75a694994ebd1321146ede099f64e058ac781defda8fbe68",
+      "assets/index-UDbLZLth.css": "9e7757784767221c656718226545ee98e5ca71f600d18b36e53719fc49b9a004",
+      "assets/index-CQlKhxQT.css": "c1bba1b75de589a8afe94786c397ec14cff4e639d5cc137c17b672915f70918d",
+      "assets/index-PmfCqzpm.js": "3e359635ea2ec53938d150e1efd123db05055d5962a8da19f72668919c53444d",
+      "assets/index-rJpjkD0m.js": "2c27a0babb95ff5bdf32db54400a1465a361a47d4efa4e7874310ae0025e45f5",
+      "assets/index-BJgrhIkW.css": "06afffeafd8bcbae05b936e15b59ad4d901728d3866bf47e60e44b47be8ade8c",
+      "assets/index-D3Y7Bns_.js": "e07d986de8ec95ec6ff4173665a56bfe7effbe289150939a9533dbcb0217ff5f",
+      "assets/index-C5IshpC9.css": "5063ce563cc67695fa1f7d1fd57dd454bc528cf23b39654d5e4210fce618ee1f",
+      "assets/index-Do_Eyw_8.js": "6ab374f0e13e6053c3cc6d77d0e385677ea554f24690184f775ac33103bbc828",
+      "assets/index-Dptr_DyR.js": "f57fec3b021aca137be9ac29b71a6fed045ccf726fd1e12fb626cabda717e584",
+      "assets/index-DEfqvNYW.js": "b7a0e06d1bc3f70d11de73ee4f5d8ff07c60af9868fc495187f6365a2db5faf9",
+      "assets/index-CzLliNXU.css": "e68d25ebc2406a87bfd156fe5a84e7ab798c97033736a3c872ada0aa42e226b3",
+      "assets/index-FhBl_5Gt.js": "219a3dd2ed85f083ebafbe0440084f3ec27f12d9fbbfe751bf59f9d7034c90b3",
+      "assets/index-C2Yfl5W0.js": "3b2090b710e5b75a64b26726efc8146aba39a2c64a9fa72af300de287d849515",
+      "assets/index-DSLHCQMK.css": "45f7bbdc8f8daafd3ca2aeff17462bd25da321e4de01da7218e1f41652995867",
+      "assets/index-DuPrLfZ3.css": "21a53a3cbca350b75086c8653fba7a0f2c85839d7ff7a432dd208767ac309d7d",
+      "assets/index-B-u72Ken.js": "33f46979a836f32324a51070044bb3c4b0f01a6e7fb012e77c6a4b860edd270b",
+      "assets/index-CMXq6FxC.js": "739b6d22089680d80877543591b161dbde5e80bdae48cd9c3b52d996fe972cdb",
+      "assets/index-ClERrAiG.js": "483efc21c5a766c4aca83379b4203ca70eea2c92a2dc53eff8edbd88dda2d8da",
+      "assets/index-BuP8PoQo.js": "866e3e87ec1c8400784cecba0edf23d4af1e0e4a0f801bf8836a53a14d639ad8",
+      "assets/index-DVO8NDkZ.js": "9f1aa92898913ed5c8310319101448d465c43d02432e7249f07118c4d52d8982",
+      "assets/index-VgVs7Fsv.css": "18fc3bc48cca41d17e211c29c23a30bf59abba8687455dc8aa7093c509656a05",
+      "assets/index-CIxsVevb.js": "961d19c3166be257969cab63fa51b3d103e484b640e09e2d45da407007fc4be7",
+      "assets/index-D67YD5dc.css": "bd18759ac3489b10ae4172ec4888b12449cff03fb7140d108b0701d63ba8e4f3",
+      "assets/index-7JknQAD8.js": "16e4a4e5cde0faf4ff6215e6b9ef11f5092010b30205a43f11fcb4bc79fb246c",
+      "assets/index-BImwV6SW.css": "b742ab1adda7e40e2d70b72814d47e0a0446080ded513185b47c85f6e364df73",
+      "assets/index-B3BwTx1R.js": "c670df71d8a84ee30c90af992172f235481c2949406e87b0b51ba486605634c8",
+      "assets/index-Cb6xUrMK.js": "185027f5ec5689c119429eb92ad4cf191ffac2b5252a9fca8b06d420d89dc134",
+      "assets/index-1v4KHgBQ.css": "d6eb7635454e526ede8cdc3fecd9826db8143237a33bca7fb31cd1cb90035ca6",
+      "assets/index-Ca9hzBg6.js": "dd9a63512cb1f964290e71427f132e52cd8939d466088c8e02fd9d98684f34ee",
+      "assets/index-DxH0vt16.css": "fdceedd2e826d2c34f34861fb8f2391dd0adcf2eb57d8999a1a86ee64f2ee7dd",
+      "assets/index-BVUJNqn4.js": "ab46625dc3c66f7a0ca6c5c0f9f05470afda3fca3557ae052c341d4f3d984572",
+      "assets/index-BwV_pp6D.css": "c9453af82e94049fae853d459ebf3870b246cddfc131ecb84983960bef54d21c",
+      "assets/index-DCCCcbuQ.js": "a04c9de370ab288532579bb76fdf25fb282e84c2fb78a92f35f72148b339904c",
+      "assets/index-_VyB5nR7.js": "8369c498cbe331816a7c57420a6f02a743c5fbb2f7054695fa90154d15536fed",
+      "assets/index-B6J0EcNb.js": "2086938b85f84e3aed05fa2c77f224629304abf652f66586129acce6c889d5c1",
+      "assets/index-D1IHC-Fl.css": "fe193471cfb2a2d48226c786743d51acbce6d8461e155421e2953b147d794680",
+      "assets/index-Ck3Fjvz2.js": "967f6bad3dd85daf87e673081d6812ffe65eb10a74eb6d80f51e9aaa49e7810f",
+      "assets/index-C3dChkLW.js": "7bbb1268f9921db1a3a132f5f9f50d6dceb5400482a8b8d6b24bbcb71e0a5d05",
+      "assets/index-C24e7W1A.css": "aef5200bdbe255f61f85b13f139657137bb3204f8d793a02c37527e35c3b1980",
+      "assets/index-ThmH5PJa.css": "b24f56085f89f348a060f401a256850041e92ed6bbc5f276ddfc544a25079abc",
+      "assets/index-DZxSbIw0.css": "b70f9fe3e0849588e2094054f25f9aee5f11e2fb22f78c8c8fc4d90cb1d357e6",
+      "assets/index-NfaLeGSB.css": "95a7663c3dbb33236cc93716276ad8013a01b9496cad0d1dd9ec9e04c7b9a72f",
+      "assets/index-Bhc_AFoB.css": "154f77f3f15eb71d68f92efb9ec81ab4cd50016fb573a54cb9e4478c1e7e257b",
+      "assets/index-sMb3zTzr.js": "5e114baf9d7986ef9958e043f667e65fa85da68b85f234998798ce415ccfc6b8",
+      "assets/index-Yi77hGE_.css": "e05b6b347fa880e79ed22b63564ae23d786e3301df2e9672d61305a4cd0d0898",
+      "assets/index-UC3lftdV.js": "24500c504a0017b91a32b1a51977bd68afc075c2a90fa6d071348c32858c60a3",
+      "assets/index-BOOyXVYY.js": "57f1b801bd86e5ba348d6cb2a9d22f2ac21c3f650cea666f0a4780ef0149b64b",
+      "assets/index-DTx2Xw4m.js": "164ee7d322f6efa7108bbd410ea61d136a438ff4097f3d220583e03d9b3761b7",
+      "assets/index-BYFH5mfu.js": "2075a000d963b12759df1454c7de8f585cf08fa83ade9eca82adfca038fd87dc",
+      "assets/index-Y8Ju8gH3.js": "f748be01ce8c7f75a495f870ff7c16ee6103bb6ccda87b558a1ec2794fa5b205",
+      "assets/index-GwDQvApM.js": "f449964cf260be70522f8228208e0a9e2f031c615aa72fa24fc71bd11d72fccf",
+      "assets/index-DbNAJ4Da.js": "3660475b2b30f34dcd521752d6e6e26d1f59b99a6be2f0b8c203f921a4edc35d",
+      "assets/index-D72swjR4.css": "4b62fe0b48abc9b74e4b335815c5d353f5d8f63e411f4208da399896c484b4e4",
+      "assets/index-DuxxdRuj.js": "99eeff9ef14fb32251aa304d0ed60ed090e3752f9b91442d20604b02dba9b00b",
+      "assets/index-B5Ij8QFp.css": "c71c678bb5307411b540e9f9e0f49c5bdaa2b5613226911d87bec9957f47e299",
+      "assets/index-DE88B82x.js": "729ec29358e6444c577370dd4e636e6f26189b214adc0e7815be35e3512be460",
+      "assets/index-BVZOdasf.js": "fdd2b5ba3fb4bd2d4934666fc74fcf1b1de7f25348edccfe97bc97f9fc7df4f2",
+      "assets/index-BUBMHavQ.js": "f9ca2f83ca778c83cefcc12db86030b0c9c902a737a8fee45180abccae405d24",
+      "assets/index-DbWzs0n2.css": "4e9bf5a28d525d046c76175ff2c85db9f9f3151a00e408b4beba066101ca83c1",
+      "assets/index-BrhRMO6T.js": "479213ee53f93e9fe7613d89d87d727b360cf03dbd355e56bd40728b152d1a85",
+      "assets/index-V9gyx7l3.js": "9ebc7384ec9dd1caddf1b082d7529e22df89a31dc593ba019a779c355785dadc",
+      "assets/index-1tqiVPwk.js": "d760d57d57252d3bbd67d5fc377eb23a9c64cb183a67c1c6ed0b9404d595a78f",
+      "assets/index-mYd7LBYJ.js": "3a09dcdc7fece97f39af03a43a8ad189aadf0da240b86b627b4a84cab5a20f77",
+      "assets/index-DMVwZXG7.js": "e3cd930b293701cc8f8d46e6e38c573b2b45179f4bace808f1a684a55eb9ed02",
+      "assets/index-C_B5QABt.js": "ae01705b5a0fef268c8469e4969946823111c984e13f8b113a0e8a8ac3ec0777",
+      "assets/index-DQ2RMLhw.js": "a323e0be29be260f63799b1aff3e48ba09a1c74698fb80cdc87d5f5eff90c9a7",
+      "assets/index-BlMMM5sv.js": "4ac94b385d5c6dac7281fe71b70214286706e56d49de8bdc9486793c20e7dd25",
+      "assets/index-COnhWig0.css": "2a78e499c2f67b11d8244da033fc10560a54ddf9a56052ef5b5243c6d868760d",
+      "assets/index-BTZS2UOl.css": "3f8dde88a3c182ed96cf18f73703ddf0721cc127e1828bc8cfc1dfb6f3976bc1",
+      "assets/index-D4S1dlyP.js": "7b13656cfa1a217fd957331547996f7632c4cc7c3944a1fa7f2e1c6244a825ef",
+      "assets/index-Bc56KkZZ.css": "04b6629253739f852fe1403aca99362442308302e97a93b36a70f955c87308e9",
+      "assets/index-B_ygfKFD.js": "0887bd29e32c7123954ed2702dfd1c21be8ba387d4a3e9942039cb3bb172f1f4",
+      "assets/index-DqK4iVbK.css": "f5cb2d328145d1c4bab84eb23700fa5355a6baabbd8a0b51902b3c7497ec68f4",
+      "assets/index-XzSmd-E7.js": "c04ad6bd82605b9a3e7515ca2ffc5c1c8f31f7737b4474d6f57092ef479ad8cc",
+      "assets/index-CPm83ISC.js": "0988255e77f819fa2a3bc41d8af157849173c72495a6140ff657026f66004aeb",
+      "assets/index-DWOvar5F.js": "a2cec3cc9628fd00ec456079fbd4f630b40819f9e4278bc1628f0b0eca789dfc",
+      "assets/index-CqzjfHPO.css": "d839b97bf3cca7fa425a3ff2a51946ebdcd93a253d3fd216ea6a7abe6af9bd55",
+      "assets/index-BjZ5w7ii.js": "95e7bc06085d98090f6252bf9259c79b4a7ca880be2a8ea5fb779a813168002d",
+      "assets/index-CpFssnY7.js": "479213ee53f93e9fe7613d89d87d727b360cf03dbd355e56bd40728b152d1a85",
+      "assets/index-BJS_L0Zm.js": "7f2fb2923403360dd1a0eed52e2ffa7285147e8423167dbbca3581bcf123dca3",
+      "assets/index-C_EEy8-A.js": "404d7adfa32f87b4f4b5ac81f0449c1690e0316c53c997c703bd67d1a9093f7c",
+      "assets/index-DgdYYx2L.css": "65d61d4d66e62752c55815157c5689b1c681a04f3fade55acb51f94df4f22151",
+      "assets/index-B8HzGtqG.js": "ebfefe39b676073cad78d5530dc67a1af20e8d727f4f8a66390221b491a9f148",
+      "assets/index-BbL9WedV.js": "6dc1edd7217dabec01a4b8ffe5c8c2fc6c6bf331277fbc95d7fa43e126ac39d0",
+      "assets/index-BMxGt7t5.css": "edb2d5ab8a4d38fe18f0bfd866f6ef3915e191213f2ca0d8f79e04e18672926e",
+      "assets/index-4U7aVBKo.css": "98fa0633b7c05ae53b20ab2ab79d2d436448652d77a5aa5f79634712c8f6cfa1",
+      "assets/index-BcmVc-qE.js": "a323e0be29be260f63799b1aff3e48ba09a1c74698fb80cdc87d5f5eff90c9a7",
+      "assets/index-Kilnjld3.js": "38da2a6ad4d227b5ebd3f14b81af6303e0a1961b29bafd1f3c209e99c9599011",
+      "assets/index-DGAnMRN9.css": "55395116399bce25e8f5c54496449b49162255e4f87ab19a72b2a2663ec35f34",
+      "assets/index-Cs9kXsNI.js": "185f6f29d55f65e56a92f638f0402f5f0cf1db97dc4511fa5925d4127acd4fce",
+      "assets/index-wP0JyWy0.js": "2c92698c65f3f39145fb5bc4e478e5e60886f8fbf5cc7e5df7cbca44315ce019"
+    }
+  },
+  "static_files": {
+    "value-evidence.html": "a177d5c9d69262ed30c3ef0e3590a75a34383a52f7c122592ccea10394894db0",
+    "value-announcement.html": "6395d4223d1772714d5c0a97263fdb43b4a15965900eed2bc055ea1512ed5c27",
+    "index.html": "5223d4f6ee9efdca3d0033b62b6774306403f0124343e2d421353e00ff5680bc",
+    "assets/index-DKnw8Ckx.js": "6300cb4e15350f2134078be86e837470935386a64de1732c550bb1239a03a0b7",
+    "assets/index-cJii0ZAY.css": "ea2b534962b82b32f11e3a754266f80af86a18f988003cb7ed8bed8fc3f36e96"
+  },
+  "source_baseline": "ac53bfc13a04ff3214eb56f21038cb6b65ea5687",
+  "source_hashes": {
+    "frontend/src/SecurityNotice.jsx": "913964358213c326777199e30af495916982d994ddf8a558a12501d1db7da3cd",
+    "frontend/src/ProductOverview.jsx": "dfb99cbf53885d3092ce4f5e74117b53bf688291f34130d2f1f5667ea6e11a05",
+    "frontend/src/securitySceneStories.mjs": "5cdc9f3894b4a74a90187f2501fb2b89946791db8636e3274d8eef6d23157b3d",
+    "frontend/src/securityNotice.css": "ca8017600246fe2afc19c6d1d2d23ef1e06fbee8946ab6465ddf0607aeaba169",
+    "scripts/build_value_announcement.py": "26caaf9acd2e267f3356ef93309b9de71e0bf0176dafd0e3969b44fcc5f5a5bb",
+    "docs/research/value-reliability-20261012/announcement.md": "010cc68345f385cf6449598b06adb39dae5a0f2d706c0adf98be59e9abaa09c2"
+  },
+  "services_restarted": false,
+  "policy_mutated": false,
+  "published": true,
+  "after": {
+    "services": {
+      "agentscope-scope-demo-api.service": {
+        "MainPID": "1882321",
+        "WorkingDirectory": "/opt/agentscope-value-read-20261012-224541",
+        "argv": [
+          "/opt/agentscope/.venv/bin/python",
+          "-m",
+          "uvicorn",
+          "agentscope_app.main:app",
+          "--host",
+          "127.0.0.1",
+          "--port",
+          "18003",
+          "--timeout-graceful-shutdown",
+          "3"
+        ],
+        "start_ticks": "20684936"
+      },
+      "agentscope-scope-demo-broker.service": {
+        "MainPID": "1881389",
+        "WorkingDirectory": "/opt/agentscope-value-startup-20261012-225631",
+        "argv": [
+          "/opt/agentscope/.venv/bin/python",
+          "/opt/agentscope-value-startup-20261012-225631/backend/broker/main.py"
+        ],
+        "start_ticks": "20679589"
+      }
+    },
+    "authority": {
+      "agents": {
+        "instance-1f4469579e8947f4": {
+          "policy_hash": "9c5fa9fbb63c9bcd71da29007179d6c9fed00b23ac9b9f4e41165a76b92425c1",
+          "generation": "a8ee7f9c5ad64e0a9bf543e3929255ed",
+          "pid": 1881572,
+          "domain_id": 133859788,
+          "active": true
+        },
+        "instance-c0dd272b6a734a34": {
+          "policy_hash": "f930aa4e9f224e24588a51a652d773cf022a74fa8be0b379ed4e80023c58ad87",
+          "generation": "947b1b6dd3334b3c9a2a250bd3705832",
+          "pid": 1881769,
+          "domain_id": 1819175395,
+          "active": true
+        },
+        "instance-bb171d3176b644a2": {
+          "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+          "generation": "566ddd5edaad438f9473d4ea08ec1cc1",
+          "pid": null,
+          "domain_id": null,
+          "active": false
+        },
+        "instance-cc444fe38c094cbb": {
+          "policy_hash": "c3371a12d813cbf8c4e13bfc39ac8caa8868b6d394f8a7dbebcd74afa15b2cfe",
+          "generation": "3028d67dd05a4be2ac4944b26e278a6d",
+          "pid": 1881965,
+          "domain_id": 766367180,
+          "active": true
+        }
+      },
+      "dsl_scopes": {
+        "system": {
+          "revision": 6,
+          "document_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "documents": [],
+          "phase": "ready"
+        },
+        "instance-1f4469579e8947f4": {
+          "revision": 0,
+          "document_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "documents": [],
+          "phase": "ready"
+        },
+        "instance-c0dd272b6a734a34": {
+          "revision": 0,
+          "document_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "documents": [],
+          "phase": "ready"
+        },
+        "instance-bb171d3176b644a2": {
+          "revision": 3,
+          "document_hash": "71c7dcce2e8f6cdaba1a3d48962b0eb9182e11dd5149ac267e78299ff52974e2",
+          "documents": [
+            {
+              "id": "96e44c04-3a24-4347-9d01-af43c8b10bae",
+              "name": "agentscope-browser-acceptance.dsl",
+              "original_dsl": "source CODING_AGENT = exec \"**\"\nsource REVIEWED_CONTEXT = file \"/w/0/.agentscope-context-canary\"\n\nrule tests-before-commit:\n  kill exec \"git\" \"commit\" if CODING_AGENT unless after exec \"pytest\" exits 0 since write \"/w/0/src/**\" or write \"/w/0/tests/**\"\n  because \"\u63d0\u4ea4\u524d\u5fc5\u987b\u6709\u6700\u8fd1\u4e00\u6b21\u6e90\u7801\u53d8\u66f4\u4e4b\u540e\u7684\u6210\u529f\u6d4b\u8bd5\u3002\"\n\nrule context-notice:\n  notify read file \"/w/0/.agentscope-dsl-notify.txt\" if REVIEWED_CONTEXT\n  because \"\u643a\u5e26\u5df2\u8bfb\u53d6\u4e0a\u4e0b\u6587\u6807\u7b7e\u7684\u8fdb\u7a0b\u8bfb\u53d6\u6d4b\u8bd5\u6587\u4ef6\u65f6\u4e0a\u62a5\u3002\"\n",
+              "metadata": {}
+            },
+            {
+              "id": "canary",
+              "name": "canary.dsl",
+              "original_dsl": "source AGENT = exec \"**\"\n\nrule canary:\n  block read file \"/s/instance-resources/dsl-acceptance-201658fa/a/.agentscope-dsl-block.txt\" if AGENT\n  notify read file \"/s/instance-resources/dsl-acceptance-201658fa/a/.agentscope-dsl-notify.txt\" if AGENT\n  kill read file \"/s/instance-resources/dsl-acceptance-201658fa/a/.agentscope-dsl-kill.txt\" if AGENT\n  because \"Synthetic DSL acceptance\"\n",
+              "metadata": {
+                "canary": {
+                  "statement": "\u8bfb\u53d6\u6d4b\u8bd5\u6587\u4ef6\u65f6\u5206\u522b\u963b\u6b62\u3001\u4e0a\u62a5\u548c\u7ec8\u6b62\u5b50\u8fdb\u7a0b\u3002",
+                  "context_requirement": "project",
+                  "context_reason": "\u5df2\u7ed1\u5b9a\u672c\u9a8c\u6536\u8fde\u63a5\u767b\u8bb0\u7684\u6d4b\u8bd5\u76ee\u5f55\uff0c\u4e09\u4e2a\u76ee\u6807\u5747\u4e3a\u65e0\u654f\u611f\u6570\u636e\u7684\u56fa\u5b9a\u6d4b\u8bd5\u6587\u4ef6\u3002"
+                }
+              }
+            }
+          ],
+          "phase": "ready"
+        },
+        "instance-cc444fe38c094cbb": {
+          "revision": 1,
+          "document_hash": "c38f0ad8b80dbf9fa9a8c80c8b22b9e8821ecd237585f7a5f639d903e5370e29",
+          "documents": [
+            {
+              "id": "g_12a440f2afb547b5bc2707a13ca17148",
+              "name": "\u53ea\u8bfb\u53d6 sales.csv \u4ee5\u83b7\u53d6\u62a5\u544a\u6570\u636e\uff0c\u4e0d\u5199\u5165\u3001\u8ffd\u52a0\u6216\u8986\u76d6\u8be5\u6587\u4ef6\u3002",
+              "original_dsl": "source AGENT = exec \"**/node\"\n\nrule h_a557fe9061c847b9_intent_1:\n  block write file \"/w/0/sales.csv\" if AGENT\n  because \"\u4e0d\u5199\u5165\u3001\u8ffd\u52a0\u6216\u8986\u76d6\u8be5\u6587\u4ef6\"",
+              "metadata": {
+                "h_a557fe9061c847b9_intent_1": {
+                  "statement": "\u53ea\u8bfb\u53d6 sales.csv \u4ee5\u83b7\u53d6\u62a5\u544a\u6570\u636e\uff0c\u4e0d\u5199\u5165\u3001\u8ffd\u52a0\u6216\u8986\u76d6\u8be5\u6587\u4ef6\u3002",
+                  "context_requirement": "project",
+                  "context_reason": "\u670d\u52a1\u7aef\u5df2\u6838\u9a8c\u5f53\u524d Agent \u548c\u539f\u751f\u4f1a\u8bdd\u5de5\u4f5c\u76ee\u5f55"
+                }
+              },
+              "generation_binding": {
+                "artifact_id": "12a440f2afb547b5bc2707a13ca17148",
+                "context_hash": "bfe3e458bc13e3af5d6da54346724385ee644cffd40ef089ecfbe7bc072fed15"
+              }
+            }
+          ],
+          "phase": "ready"
+        }
+      },
+      "system": {
+        "revision": 0,
+        "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815"
+      }
+    },
+    "other_listeners": [
+      "LISTEN 0      2048        127.0.0.1:18000 0.0.0.0:* users:((\"uvicorn\",pid=403,fd=12))"
+    ]
+  },
+  "published_files": [
+    "assets/index-DKnw8Ckx.js",
+    "assets/index-cJii0ZAY.css",
+    "index.html"
+  ],
+  "finished_at": 1791862641.9549289
+}

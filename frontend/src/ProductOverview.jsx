@@ -6,8 +6,7 @@ export default function ProductOverview({dash,status,error,onRetry,onNav,onSessi
  const agents=dash?.agents||[],stats=dash?.stats;
  const checked=value=>value?new Date(value).toLocaleString('zh-CN',{hour12:false}):'暂无核验记录';
  const formalEntry=typeof location!=='undefined'&&location.hostname==='127.0.0.1'?location.href.replace('127.0.0.1','localhost'):null;
- return <div className="content product-overview"><div className="page-head"><div><p>查看 Agent 的连接、保护状态和待处理策略。</p></div><SecurityNotice/></div>
- <section className="overview-value" aria-label="系统行为保护的价值"><p className="overview-value-lead">让授权管到脚本真正做的事。</p><p>测试脚本读了什么、后台进程做了什么、报告把什么发了出去，都需要执行时检查。</p><div className="overview-value-points"><span><b>凭证仍受保护</b> · 插件偷读会被检查</span><span><b>验收依据保持不变</b> · 源码可改，测试受保护</span><span><b>数据来源参与判断</b> · 同一地址也可区别处理</span></div></section>
+ return <div className="content product-overview"><div className="page-head"><div><p>查看 Agent 的连接、保护状态和待处理策略。</p></div><div className="security-notice-actions"><SecurityNotice/><a className="button ghost" href="/value-announcement.html" target="_blank" rel="noreferrer">阅读公告 ↗</a></div></div>
  {error&&<div role="alert" className="inline-notice warning">控制台数据不可达，当前运行与保护状态未知：{error} <button className="button tiny ghost" onClick={onRetry}>重新读取</button>{formalEntry&&<a className="button tiny ghost" href={formalEntry}>打开正式入口</a>}</div>}
  {dash&&<p className="overview-control-state">{error?'等待控制台恢复；上次成功读取':'控制台可达 · 最近读取'}：{checked(dash.observedAt)}。执行保护以各实例的当前核验为准。</p>}
  {!dash?!error&&<p role="status">正在读取 Agent…</p>:<>

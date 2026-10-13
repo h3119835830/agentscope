@@ -1,6 +1,6 @@
 # 安全总览图解与公告阅读合同
 
-状态：已实现并静态发布到 18003。整合基线 `e1af002`。关联原始研究与证据：`docs/research/value-reliability-20261012/`。本轮仅修改前端展示、静态生成和静态发布脚本。
+状态：此前实现及静态发布记录；用户要求后续恢复旧版，当前场景布局以 RFC-20261013-restore-original-security-overview.md 为准。本文的公告生成与静态发布合同继续适用。整合基线 `e1af002`。关联原始研究与证据：`docs/research/value-reliability-20261012/`。
 
 ## 用户入口与阅读顺序
 

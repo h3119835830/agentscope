@@ -1,0 +1,773 @@
+{
+  "schema": "agentscope.stability-observation.v1",
+  "started_at": 1791817050.4725075,
+  "due_at": 1791903450.4725077,
+  "baseline": {
+    "instance-1f4469579e8947f4": {
+      "pid": 1881572,
+      "generation": "a8ee7f9c5ad64e0a9bf543e3929255ed",
+      "policy_hash": "9c5fa9fbb63c9bcd71da29007179d6c9fed00b23ac9b9f4e41165a76b92425c1"
+    },
+    "instance-c0dd272b6a734a34": {
+      "pid": 1881769,
+      "generation": "947b1b6dd3334b3c9a2a250bd3705832",
+      "policy_hash": "f930aa4e9f224e24588a51a652d773cf022a74fa8be0b379ed4e80023c58ad87"
+    },
+    "instance-cc444fe38c094cbb": {
+      "pid": 1881965,
+      "generation": "3028d67dd05a4be2ac4944b26e278a6d",
+      "policy_hash": "c3371a12d813cbf8c4e13bfc39ac8caa8868b6d394f8a7dbebcd74afa15b2cfe"
+    }
+  },
+  "services": {
+    "agentscope-scope-demo-api.service": {
+      "ActiveState": "active",
+      "MainPID": "1882321",
+      "NRestarts": "0",
+      "WorkingDirectory": "/opt/agentscope-value-read-20261012-224541",
+      "start_ticks": "20684936"
+    },
+    "agentscope-scope-demo-broker.service": {
+      "ActiveState": "active",
+      "MainPID": "1881389",
+      "NRestarts": "0",
+      "WorkingDirectory": "/opt/agentscope-value-startup-20261012-225631",
+      "start_ticks": "20679589"
+    }
+  },
+  "samples": [
+    {
+      "at": 1791817050.4844766,
+      "issues": [],
+      "services": {
+        "agentscope-scope-demo-api.service": {
+          "ActiveState": "active",
+          "MainPID": "1882321",
+          "NRestarts": "0",
+          "WorkingDirectory": "/opt/agentscope-value-read-20261012-224541",
+          "start_ticks": "20684936"
+        },
+        "agentscope-scope-demo-broker.service": {
+          "ActiveState": "active",
+          "MainPID": "1881389",
+          "NRestarts": "0",
+          "WorkingDirectory": "/opt/agentscope-value-startup-20261012-225631",
+          "start_ticks": "20679589"
+        }
+      },
+      "execution": {
+        "instance-1f4469579e8947f4": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        },
+        "instance-c0dd272b6a734a34": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        },
+        "instance-cc444fe38c094cbb": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        }
+      },
+      "health_ms": 2.23,
+      "overview_ms": 352.12,
+      "journal_failure_count": 0
+    },
+    {
+      "at": 1791817229.8330534,
+      "issues": [],
+      "services": {
+        "agentscope-scope-demo-api.service": {
+          "ActiveState": "active",
+          "MainPID": "1882321",
+          "NRestarts": "0",
+          "WorkingDirectory": "/opt/agentscope-value-read-20261012-224541",
+          "start_ticks": "20684936"
+        },
+        "agentscope-scope-demo-broker.service": {
+          "ActiveState": "active",
+          "MainPID": "1881389",
+          "NRestarts": "0",
+          "WorkingDirectory": "/opt/agentscope-value-startup-20261012-225631",
+          "start_ticks": "20679589"
+        }
+      },
+      "execution": {
+        "instance-1f4469579e8947f4": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        },
+        "instance-c0dd272b6a734a34": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        },
+        "instance-cc444fe38c094cbb": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        }
+      },
+      "health_ms": 7.04,
+      "overview_ms": 111.4,
+      "journal_failure_count": 0
+    },
+    {
+      "at": 1791819987.1228697,
+      "issues": [],
+      "services": {
+        "agentscope-scope-demo-api.service": {
+          "ActiveState": "active",
+          "MainPID": "1882321",
+          "NRestarts": "0",
+          "WorkingDirectory": "/opt/agentscope-value-read-20261012-224541",
+          "start_ticks": "20684936"
+        },
+        "agentscope-scope-demo-broker.service": {
+          "ActiveState": "active",
+          "MainPID": "1881389",
+          "NRestarts": "0",
+          "WorkingDirectory": "/opt/agentscope-value-startup-20261012-225631",
+          "start_ticks": "20679589"
+        }
+      },
+      "execution": {
+        "instance-1f4469579e8947f4": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        },
+        "instance-c0dd272b6a734a34": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        },
+        "instance-cc444fe38c094cbb": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        }
+      },
+      "health_ms": 10.35,
+      "overview_ms": 111.14,
+      "journal_failure_count": 0
+    },
+    {
+      "at": 1791824067.1749144,
+      "issues": [],
+      "services": {
+        "agentscope-scope-demo-api.service": {
+          "ActiveState": "active",
+          "MainPID": "1882321",
+          "NRestarts": "0",
+          "WorkingDirectory": "/opt/agentscope-value-read-20261012-224541",
+          "start_ticks": "20684936"
+        },
+        "agentscope-scope-demo-broker.service": {
+          "ActiveState": "active",
+          "MainPID": "1881389",
+          "NRestarts": "0",
+          "WorkingDirectory": "/opt/agentscope-value-startup-20261012-225631",
+          "start_ticks": "20679589"
+        }
+      },
+      "execution": {
+        "instance-1f4469579e8947f4": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        },
+        "instance-c0dd272b6a734a34": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        },
+        "instance-cc444fe38c094cbb": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        }
+      },
+      "health_ms": 6.67,
+      "overview_ms": 93.15,
+      "journal_failure_count": 0
+    },
+    {
+      "at": 1791827520.469919,
+      "issues": [],
+      "services": {
+        "agentscope-scope-demo-api.service": {
+          "ActiveState": "active",
+          "MainPID": "1882321",
+          "NRestarts": "0",
+          "WorkingDirectory": "/opt/agentscope-value-read-20261012-224541",
+          "start_ticks": "20684936"
+        },
+        "agentscope-scope-demo-broker.service": {
+          "ActiveState": "active",
+          "MainPID": "1881389",
+          "NRestarts": "0",
+          "WorkingDirectory": "/opt/agentscope-value-startup-20261012-225631",
+          "start_ticks": "20679589"
+        }
+      },
+      "execution": {
+        "instance-1f4469579e8947f4": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        },
+        "instance-c0dd272b6a734a34": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        },
+        "instance-cc444fe38c094cbb": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        }
+      },
+      "health_ms": 6.4,
+      "overview_ms": 107.94,
+      "journal_failure_count": 0
+    },
+    {
+      "at": 1791831086.3499517,
+      "issues": [],
+      "services": {
+        "agentscope-scope-demo-api.service": {
+          "ActiveState": "active",
+          "MainPID": "1882321",
+          "NRestarts": "0",
+          "WorkingDirectory": "/opt/agentscope-value-read-20261012-224541",
+          "start_ticks": "20684936"
+        },
+        "agentscope-scope-demo-broker.service": {
+          "ActiveState": "active",
+          "MainPID": "1881389",
+          "NRestarts": "0",
+          "WorkingDirectory": "/opt/agentscope-value-startup-20261012-225631",
+          "start_ticks": "20679589"
+        }
+      },
+      "execution": {
+        "instance-1f4469579e8947f4": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        },
+        "instance-c0dd272b6a734a34": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        },
+        "instance-cc444fe38c094cbb": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        }
+      },
+      "health_ms": 7.0,
+      "overview_ms": 101.97,
+      "journal_failure_count": 0
+    },
+    {
+      "at": 1791834790.390797,
+      "issues": [],
+      "services": {
+        "agentscope-scope-demo-api.service": {
+          "ActiveState": "active",
+          "MainPID": "1882321",
+          "NRestarts": "0",
+          "WorkingDirectory": "/opt/agentscope-value-read-20261012-224541",
+          "start_ticks": "20684936"
+        },
+        "agentscope-scope-demo-broker.service": {
+          "ActiveState": "active",
+          "MainPID": "1881389",
+          "NRestarts": "0",
+          "WorkingDirectory": "/opt/agentscope-value-startup-20261012-225631",
+          "start_ticks": "20679589"
+        }
+      },
+      "execution": {
+        "instance-1f4469579e8947f4": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        },
+        "instance-c0dd272b6a734a34": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        },
+        "instance-cc444fe38c094cbb": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        }
+      },
+      "health_ms": 7.79,
+      "overview_ms": 97.84,
+      "journal_failure_count": 0
+    },
+    {
+      "at": 1791838592.8358557,
+      "issues": [],
+      "services": {
+        "agentscope-scope-demo-api.service": {
+          "ActiveState": "active",
+          "MainPID": "1882321",
+          "NRestarts": "0",
+          "WorkingDirectory": "/opt/agentscope-value-read-20261012-224541",
+          "start_ticks": "20684936"
+        },
+        "agentscope-scope-demo-broker.service": {
+          "ActiveState": "active",
+          "MainPID": "1881389",
+          "NRestarts": "0",
+          "WorkingDirectory": "/opt/agentscope-value-startup-20261012-225631",
+          "start_ticks": "20679589"
+        }
+      },
+      "execution": {
+        "instance-1f4469579e8947f4": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        },
+        "instance-c0dd272b6a734a34": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        },
+        "instance-cc444fe38c094cbb": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        }
+      },
+      "health_ms": 6.96,
+      "overview_ms": 97.58,
+      "journal_failure_count": 0
+    },
+    {
+      "at": 1791842106.508506,
+      "issues": [],
+      "services": {
+        "agentscope-scope-demo-api.service": {
+          "ActiveState": "active",
+          "MainPID": "1882321",
+          "NRestarts": "0",
+          "WorkingDirectory": "/opt/agentscope-value-read-20261012-224541",
+          "start_ticks": "20684936"
+        },
+        "agentscope-scope-demo-broker.service": {
+          "ActiveState": "active",
+          "MainPID": "1881389",
+          "NRestarts": "0",
+          "WorkingDirectory": "/opt/agentscope-value-startup-20261012-225631",
+          "start_ticks": "20679589"
+        }
+      },
+      "execution": {
+        "instance-1f4469579e8947f4": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        },
+        "instance-c0dd272b6a734a34": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        },
+        "instance-cc444fe38c094cbb": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        }
+      },
+      "health_ms": 7.08,
+      "overview_ms": 91.04,
+      "journal_failure_count": 0
+    },
+    {
+      "at": 1791845795.9023924,
+      "issues": [],
+      "services": {
+        "agentscope-scope-demo-api.service": {
+          "ActiveState": "active",
+          "MainPID": "1882321",
+          "NRestarts": "0",
+          "WorkingDirectory": "/opt/agentscope-value-read-20261012-224541",
+          "start_ticks": "20684936"
+        },
+        "agentscope-scope-demo-broker.service": {
+          "ActiveState": "active",
+          "MainPID": "1881389",
+          "NRestarts": "0",
+          "WorkingDirectory": "/opt/agentscope-value-startup-20261012-225631",
+          "start_ticks": "20679589"
+        }
+      },
+      "execution": {
+        "instance-1f4469579e8947f4": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        },
+        "instance-c0dd272b6a734a34": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        },
+        "instance-cc444fe38c094cbb": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        }
+      },
+      "health_ms": 7.75,
+      "overview_ms": 93.87,
+      "journal_failure_count": 0
+    },
+    {
+      "at": 1791849158.2575426,
+      "issues": [],
+      "services": {
+        "agentscope-scope-demo-api.service": {
+          "ActiveState": "active",
+          "MainPID": "1882321",
+          "NRestarts": "0",
+          "WorkingDirectory": "/opt/agentscope-value-read-20261012-224541",
+          "start_ticks": "20684936"
+        },
+        "agentscope-scope-demo-broker.service": {
+          "ActiveState": "active",
+          "MainPID": "1881389",
+          "NRestarts": "0",
+          "WorkingDirectory": "/opt/agentscope-value-startup-20261012-225631",
+          "start_ticks": "20679589"
+        }
+      },
+      "execution": {
+        "instance-1f4469579e8947f4": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        },
+        "instance-c0dd272b6a734a34": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        },
+        "instance-cc444fe38c094cbb": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        }
+      },
+      "health_ms": 6.28,
+      "overview_ms": 128.06,
+      "journal_failure_count": 0
+    },
+    {
+      "at": 1791852912.0193403,
+      "issues": [],
+      "services": {
+        "agentscope-scope-demo-api.service": {
+          "ActiveState": "active",
+          "MainPID": "1882321",
+          "NRestarts": "0",
+          "WorkingDirectory": "/opt/agentscope-value-read-20261012-224541",
+          "start_ticks": "20684936"
+        },
+        "agentscope-scope-demo-broker.service": {
+          "ActiveState": "active",
+          "MainPID": "1881389",
+          "NRestarts": "0",
+          "WorkingDirectory": "/opt/agentscope-value-startup-20261012-225631",
+          "start_ticks": "20679589"
+        }
+      },
+      "execution": {
+        "instance-1f4469579e8947f4": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        },
+        "instance-c0dd272b6a734a34": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        },
+        "instance-cc444fe38c094cbb": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        }
+      },
+      "health_ms": 7.47,
+      "overview_ms": 109.03,
+      "journal_failure_count": 0
+    },
+    {
+      "at": 1791856733.3765626,
+      "issues": [],
+      "services": {
+        "agentscope-scope-demo-api.service": {
+          "ActiveState": "active",
+          "MainPID": "1882321",
+          "NRestarts": "0",
+          "WorkingDirectory": "/opt/agentscope-value-read-20261012-224541",
+          "start_ticks": "20684936"
+        },
+        "agentscope-scope-demo-broker.service": {
+          "ActiveState": "active",
+          "MainPID": "1881389",
+          "NRestarts": "0",
+          "WorkingDirectory": "/opt/agentscope-value-startup-20261012-225631",
+          "start_ticks": "20679589"
+        }
+      },
+      "execution": {
+        "instance-1f4469579e8947f4": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        },
+        "instance-c0dd272b6a734a34": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        },
+        "instance-cc444fe38c094cbb": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        }
+      },
+      "health_ms": 6.59,
+      "overview_ms": 180.69,
+      "journal_failure_count": 0
+    },
+    {
+      "at": 1791860476.0461383,
+      "issues": [],
+      "services": {
+        "agentscope-scope-demo-api.service": {
+          "ActiveState": "active",
+          "MainPID": "1882321",
+          "NRestarts": "0",
+          "WorkingDirectory": "/opt/agentscope-value-read-20261012-224541",
+          "start_ticks": "20684936"
+        },
+        "agentscope-scope-demo-broker.service": {
+          "ActiveState": "active",
+          "MainPID": "1881389",
+          "NRestarts": "0",
+          "WorkingDirectory": "/opt/agentscope-value-startup-20261012-225631",
+          "start_ticks": "20679589"
+        }
+      },
+      "execution": {
+        "instance-1f4469579e8947f4": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        },
+        "instance-c0dd272b6a734a34": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        },
+        "instance-cc444fe38c094cbb": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        }
+      },
+      "health_ms": 6.96,
+      "overview_ms": 103.1,
+      "journal_failure_count": 0
+    },
+    {
+      "at": 1791860891.2336764,
+      "issues": [],
+      "services": {
+        "agentscope-scope-demo-api.service": {
+          "ActiveState": "active",
+          "MainPID": "1882321",
+          "NRestarts": "0",
+          "WorkingDirectory": "/opt/agentscope-value-read-20261012-224541",
+          "start_ticks": "20684936"
+        },
+        "agentscope-scope-demo-broker.service": {
+          "ActiveState": "active",
+          "MainPID": "1881389",
+          "NRestarts": "0",
+          "WorkingDirectory": "/opt/agentscope-value-startup-20261012-225631",
+          "start_ticks": "20679589"
+        }
+      },
+      "execution": {
+        "instance-1f4469579e8947f4": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        },
+        "instance-c0dd272b6a734a34": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        },
+        "instance-cc444fe38c094cbb": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        }
+      },
+      "health_ms": 9.69,
+      "overview_ms": 1370.8,
+      "journal_failure_count": 0
+    },
+    {
+      "at": 1791862160.661946,
+      "issues": [],
+      "services": {
+        "agentscope-scope-demo-api.service": {
+          "ActiveState": "active",
+          "MainPID": "1882321",
+          "NRestarts": "0",
+          "WorkingDirectory": "/opt/agentscope-value-read-20261012-224541",
+          "start_ticks": "20684936"
+        },
+        "agentscope-scope-demo-broker.service": {
+          "ActiveState": "active",
+          "MainPID": "1881389",
+          "NRestarts": "0",
+          "WorkingDirectory": "/opt/agentscope-value-startup-20261012-225631",
+          "start_ticks": "20679589"
+        }
+      },
+      "execution": {
+        "instance-1f4469579e8947f4": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        },
+        "instance-c0dd272b6a734a34": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        },
+        "instance-cc444fe38c094cbb": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        }
+      },
+      "health_ms": 6.98,
+      "overview_ms": 122.56,
+      "journal_failure_count": 0
+    },
+    {
+      "at": 1791862642.0112085,
+      "issues": [],
+      "services": {
+        "agentscope-scope-demo-api.service": {
+          "ActiveState": "active",
+          "MainPID": "1882321",
+          "NRestarts": "0",
+          "WorkingDirectory": "/opt/agentscope-value-read-20261012-224541",
+          "start_ticks": "20684936"
+        },
+        "agentscope-scope-demo-broker.service": {
+          "ActiveState": "active",
+          "MainPID": "1881389",
+          "NRestarts": "0",
+          "WorkingDirectory": "/opt/agentscope-value-startup-20261012-225631",
+          "start_ticks": "20679589"
+        }
+      },
+      "execution": {
+        "instance-1f4469579e8947f4": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        },
+        "instance-c0dd272b6a734a34": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        },
+        "instance-cc444fe38c094cbb": {
+          "gate": "open",
+          "protection_fresh": true,
+          "pending_events": 0,
+          "outstanding_calls": 0
+        }
+      },
+      "health_ms": 7.52,
+      "overview_ms": 118.88,
+      "journal_failure_count": 0
+    }
+  ],
+  "method": "Hourly samples plus systemd/Broker journal review. No claim of continuous latency measurement. No automatic permission recovery.",
+  "status": "observing"
+}
