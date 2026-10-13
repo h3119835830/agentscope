@@ -6,7 +6,7 @@ from urllib.parse import urlsplit
 
 ROOT=Path(__file__).resolve().parents[1]
 SOURCE=ROOT/'docs/research/value-reliability-20261012/announcement.md'
-TARGET=ROOT/'frontend/public/value-announcement.html'
+TARGETS=[ROOT/'frontend/public'/name for name in ('value-announcement.html','value-evidence.html')]
 
 def inline(text):
  def plain(value):
@@ -51,15 +51,15 @@ def main():
  .lane-label{display:block;font-size:11px;color:#7d91ad;margin-bottom:11px}.kernel .lane-label{color:#5277aa}
  .lane-steps{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;color:#5d7697;line-height:1.8}.lane-steps>span{flex:1}.lane-steps>i{font-style:normal;color:#a5b6ce;font-size:14px;flex-shrink:0}
  figcaption{font-size:10px;color:#97a5b8;padding:10px 19px;background:#fafbfd}
- .report-link{display:block;background:#eff4fc;border-left:3px solid #83a4d2;padding:16px 18px;text-decoration:none;font-size:13px;line-height:1.8;margin:32px 0;color:#426b9e}
  footer{border-top:1px solid #dfe7f2;padding-top:18px;margin-top:32px;color:#93a0b3;font-size:11px;line-height:1.9;overflow-wrap:anywhere}
  @media(max-width:850px){.layout{grid-template-columns:1fr;gap:0;max-width:760px;padding-top:32px}aside{display:none}h1{font-size:28px}}
  @media(max-width:500px){.topbar{padding:17px 20px}.layout{padding:28px 22px 45px}h1{font-size:25px;line-height:1.6}h2{font-size:19px;margin-top:30px}article p{font-size:13px;line-height:2.1}article>p:first-of-type{font-size:14px}.summary{font-size:11px}.kicker{font-size:10px}.observation-lane{padding:14px}.lane-steps{font-size:11px;gap:7px}.lane-steps>span{overflow-wrap:anywhere}.lane-steps>i{font-size:12px}figcaption{padding:9px 14px}}
  @media print{body{background:white}.topbar,aside{display:none}.layout{display:block;max-width:none;padding:0}h1{font-size:25px}article p{font-size:11px}h2{font-size:16px;break-after:avoid}a{color:inherit}}
  '''
  contents=''.join('<a href="#'+i+'">'+html.escape(label)+'</a>' for i,label in toc)
- output='<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="announcement-source-sha256" content="'+hashlib.sha256(SOURCE.read_bytes()).hexdigest()+'"><meta name="description" content="从插件读取凭证、后台进程、文件越界和跨进程数据流转等场景，理解内核侧可审计、可反馈、可监控的执行约束。"><title>'+html.escape(title)+' · AgentScope</title><style>'+css+'</style></head><body><div class="topbar"><a class="brand" href="/?view=overview">◈ AgentScope</a><a href="/?view=overview">← 返回总览</a></div><main class="layout"><aside aria-label="文章目录"><p>本文内容</p>'+contents+'</aside><article><div class="kicker">产品公告 · 更新于 2026.10.13</div><h1>'+html.escape(title)+'</h1><div class="summary">看见应用日志遗漏的行为，关联跨进程风险。<br>让内核侧的策略执行可审计、可反馈、可监控。</div>'+''.join(blocks)+'<a class="report-link" href="/value-evidence.html">阅读相关场景的实验依据 →</a><footer>研究依据与实验记录见文中链接。</footer></article></main></body></html>'
- TARGET.parent.mkdir(parents=True,exist_ok=True);TARGET.write_text(output)
- print('Generated '+str(TARGET))
+ output='<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="announcement-source-sha256" content="'+hashlib.sha256(SOURCE.read_bytes()).hexdigest()+'"><meta name="description" content="从插件读取凭证、后台进程、文件越界和跨进程数据流转等场景，理解内核侧可审计、可反馈、可监控的执行约束。"><title>'+html.escape(title)+' · AgentScope</title><style>'+css+'</style></head><body><div class="topbar"><a class="brand" href="/?view=overview">◈ AgentScope</a><a href="/?view=overview">← 返回总览</a></div><main class="layout"><aside aria-label="文章目录"><p>本文内容</p>'+contents+'</aside><article><div class="kicker">产品公告 · 更新于 2026.10.13</div><h1>'+html.escape(title)+'</h1><div class="summary">看见应用日志遗漏的行为，关联跨进程风险。<br>让内核侧的策略执行可审计、可反馈、可监控。</div>'+''.join(blocks)+'<footer>研究依据见文中论文与源码链接。</footer></article></main></body></html>'
+ for target in TARGETS:
+  target.parent.mkdir(parents=True,exist_ok=True);target.write_text(output)
+  print('Generated '+str(target))
 
 if __name__=='__main__':main()

@@ -17,7 +17,7 @@
 
 复现实验需可信 Linux/eBPF、root 与独立隔离前缀。脚本位于仓库 scripts：value_acceptance_service.py、accept_execution_independence.py、accept_value_scenarios.py、accept_value_dsh.py、accept_value_revocation.py。实验脚本只能操作其专用 18163 服务、合成目录及独立 BPF pin 根；正式部署脚本另有运行基线与目标冻结检查，不能把隔离脚本直接改端口用于正式服务。
 
-正式报告网页 `/value-evidence.html` 由 build_value_evidence.py 从实际报告生成；原始报告和二进制哈希在网页及数据文件中保留。页面显示的本机验证标签必须同时有完整证据，缺失时降级为待验证。源码与产品 UI 不包含示意 PID/trace 冒充真实结果。
+原报告网页已按用户要求从前台移除，`/value-evidence.html` 现与 `/value-announcement.html` 显示同一篇公告。[旧报告 HTML](experiment-report.html) 原样归档为技术附件，build_value_evidence.py 后续仅在技术附件目录生成 HTML，不覆盖公告。原始报告和二进制哈希继续保留。已有本机验证标签仍需完整证据，缺失时降级为待验证。源码与产品 UI 不包含示意 PID/trace 冒充真实结果。
 
 24 小时后续脚本 observe_value_stability.py 只核验、记账和报告；不自动重启、不恢复旧授权。2026-10-13 已按用户要求取消“AgentScope 24 小时稳定性验收”自动跟进，没有因此将稳定性项标为通过。
 

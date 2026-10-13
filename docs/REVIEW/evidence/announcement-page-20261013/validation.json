@@ -1,0 +1,16 @@
+{
+  "checked_at_utc": "2026-10-13T04:23:49.788632+00:00",
+  "python_syntax_compile": "passed",
+  "announcement_urls_identical": true,
+  "report_generator_isolated_render": "passed; no public report HTML generated",
+  "old_report_archive_sha256": "a177d5c9d69262ed30c3ef0e3590a75a34383a52f7c122592ccea10394894db0",
+  "old_report_archive_matches_baseline": true,
+  "overview_sources_equal_to_baseline": {
+    "frontend/src/SecurityNotice.jsx": "913964358213c326777199e30af495916982d994ddf8a558a12501d1db7da3cd",
+    "frontend/src/securityNotice.css": "ca8017600246fe2afc19c6d1d2d23ef1e06fbee8946ab6465ddf0607aeaba169",
+    "frontend/src/ProductOverview.jsx": "dfb99cbf53885d3092ce4f5e74117b53bf688291f34130d2f1f5667ea6e11a05",
+    "frontend/src/securityNoticeCases.mjs": "acbb44b19c46daaff2983a2c84ed1aa0e2c35632b226bbe873df9788ef8a1635",
+    "frontend/src/valueEvidence.json": "cd0bae2c46e02e63d7be42bd3d62bd65bc8bdc618aa548d95a259f1d86855677"
+  },
+  "markdown_unchanged": true
+}

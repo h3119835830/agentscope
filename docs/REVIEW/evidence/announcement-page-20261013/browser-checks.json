@@ -1,0 +1,30 @@
+{
+  "checkedAt": "2026-10-13T04:22:26.103Z",
+  "formal": {
+    "capabilities": [
+      "可审计。",
+      "可反馈。",
+      "可监控。"
+    ],
+    "oldReportPresent": false,
+    "reportLinks": 0,
+    "scrollWidth": 1086,
+    "sections": 7,
+    "sourceSha": "34d61b417769ab0e45ca929c9d2c97211bf859c238249d42955d13ee714d6bbf",
+    "tables": 0,
+    "title": "应用日志之外：AgentScope 如何追踪并约束 Agent 的真实行为 · AgentScope",
+    "url": "http://localhost:18003/value-evidence.html#section-6",
+    "width": 1101
+  },
+  "mobile": {
+    "bodyWidth": 375,
+    "scrollWidth": 375,
+    "width": 390
+  },
+  "keyboardAnchorPassed": true,
+  "oldReportRemoved": true,
+  "screenshots": [
+    "announcement-replaced-report-desktop.jpg",
+    "announcement-replaced-report-mobile.jpg"
+  ]
+}
