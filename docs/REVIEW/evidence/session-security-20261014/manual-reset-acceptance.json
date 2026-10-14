@@ -1,0 +1,44 @@
+{
+  "status": "accepted",
+  "counts": {
+    "native_sessions": 23,
+    "workspace_registrations": 7,
+    "cache_rows": 25,
+    "display_names": 11
+  },
+  "controlled_instances": 4,
+  "executors_stopped": true,
+  "project_directories_preserved": 9,
+  "project_fingerprint_unchanged": true,
+  "system_and_agent_policies_unchanged": true,
+  "connection_resources_preserved": true,
+  "session_api_empty": true,
+  "native_stores_empty": true,
+  "at": "2026-10-14T07:36:01.785568+00:00",
+  "source_revision": "a1c95098d784a430504d3c796c7c38a62cf256e1",
+  "native_sessions_by_type": {
+    "dsh": 14,
+    "hermes": 9
+  },
+  "published_artifacts": {
+    "html": {
+      "url": "http://127.0.0.1:18003/reference/manual-session-lab-20261014.html",
+      "bytes": 10504,
+      "sha256": "ac3722cf433ee88da6dd95637d1a31cbacd813118cfd08211fff6d35ab4508f6"
+    },
+    "zip": {
+      "url": "http://127.0.0.1:18003/reference/manual-session-lab-20261014.zip",
+      "bytes": 17385,
+      "sha256": "baa11683e2d8ff1adb25bbfef6d64c544ef316f458ae75e5061cccb3c8a32510"
+    },
+    "csv": {
+      "url": "http://127.0.0.1:18003/reference/manual-session-lab-20261014.csv",
+      "bytes": 1344,
+      "sha256": "ee1d28612fe749af2ad7e9805e4c2f05925912610cf4ad09799b43996f62b437"
+    }
+  },
+  "api_pid_unchanged": true,
+  "broker_pid_unchanged": true,
+  "old_agent_restart_tested": false,
+  "agent_scenario_executed": false
+}

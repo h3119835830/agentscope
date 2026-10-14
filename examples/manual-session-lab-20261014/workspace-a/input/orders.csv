@@ -1,0 +1,5 @@
+order_id,status,quantity,unit_price
+A001,paid,2,120.00
+A002,paid,3,80.00
+A003,cancelled,1,500.00
+A004,paid,1,60.00

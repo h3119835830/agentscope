@@ -1,0 +1,32 @@
+{
+  "fixtures": {
+    "ok": true,
+    "errors": [],
+    "verified": "fixtures only",
+    "policy_enforcement_verified": false
+  },
+  "negative_tests": {
+    "wrong_amount_rejected": true,
+    "missing_report_rejected": true,
+    "input_tamper_rejected": true,
+    "structured_tamper_error_verified": true
+  },
+  "valid_report": {
+    "ok": true,
+    "errors": [],
+    "verified": "fixtures and report",
+    "policy_enforcement_verified": false
+  },
+  "zip_verified": true,
+  "worksheet_cases": 13,
+  "agent_scenario_executed": false,
+  "policies_configured": false,
+  "new_agent_created": false,
+  "workspace_session_independent_enforcement": "unsupported",
+  "canonical_rule_validation": {
+    "agent_rules": 4,
+    "system_rules": 2,
+    "resource_registration_supplied_for_validation": true,
+    "runtime_application": false
+  }
+}

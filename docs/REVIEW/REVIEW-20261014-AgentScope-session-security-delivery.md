@@ -43,3 +43,5 @@ UI 版本为本地提交 fee18b745ca21bc2b7c1b017c7ab343e257ea960，静态目录
 合同：[RFC](../RFC/RFC-20261014-AgentScope-session-security-workbench.md)、[ADR](../ADR/ADR-20261014-AgentScope-session-security-entry.md)、[BUG](../BUG/BUG-20261014-AgentScope-session-security-ui-gap.md)。
 
 2026-10-14 后续修复：策略域原先沿用旧 DSL records 计数造成全零，现与 security 约束汇总统一；正式最新版本为 06c0a8a53fcbb9dfa59a93590a567e5c680fd6f2，详见 [策略域计数修复评审](REVIEW-20261014-AgentScope-session-domain-count.md)。此前发布结果保留为各阶段历史证据。
+
+2026-10-14 用户随后授权清空原生工作区登记和会话、保留项目文件。现有受控执行器已停止；前述会话、Agent 运行 PID 和会话 URL 为当时验收历史状态。清理 23 个原生会话、7 项登记及对应缓存，准备手工场景但未代配策略/运行，见 [清理与测试准备评审](REVIEW-20261014-AgentScope-manual-session-reset-and-lab.md)。
