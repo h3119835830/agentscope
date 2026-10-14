@@ -1,0 +1,316 @@
+{
+  "schema": "AgentLaunchResearch/1",
+  "at": "2026-10-14T11:30:13.571738+00:00",
+  "status": "research_only_not_runtime_acceptance",
+  "source_baseline": "c6e660f",
+  "installed_dsh": "0.2.0-rc.2",
+  "hermes_revision": "3c27eb6234bf91b8ceee9e9071591b31e9b148cb",
+  "source_snapshot_warning": "DSH readable source snapshot and installed CLI differ; installed artifacts take priority. Neither protocol handshake nor multi-session execution was run.",
+  "sources": {
+    "dsh_launcher": {
+      "path": "/opt/agentscope/dsh/node_modules/@deepseek-ai/dsh/lib/bin.js",
+      "sha256": "1a03dee18683483ff6a1b27b2a1e650230da6bcca9a0f55f7d81b3308c3f307f",
+      "anchors": [
+        {
+          "needle": "web",
+          "lines": [
+            20,
+            41,
+            42,
+            43,
+            47
+          ]
+        },
+        {
+          "needle": "headless",
+          "lines": [
+            44
+          ]
+        },
+        {
+          "needle": "--profile",
+          "lines": [
+            19,
+            20,
+            22,
+            41,
+            48,
+            105
+          ]
+        }
+      ]
+    },
+    "dsh_agent_factory": {
+      "path": "/opt/agentscope/dsh/node_modules/@deepseek-ai/dsh-agent-loop/lib/index.js",
+      "sha256": "00c4814d63f3d1e2754eb09144832d19b30499d6ea444730473f740b587948c2",
+      "anchors": [
+        {
+          "needle": "async createAgent(ownerCtx, options)",
+          "lines": [
+            1851
+          ]
+        }
+      ]
+    },
+    "dsh_sdk_sessions": {
+      "path": "/opt/agentscope/dsh/node_modules/@deepseek-ai/dsh-sdk-jsonrpc-server/lib/index.js",
+      "sha256": "f935ba0fc284441b8937c45feddd030cd85ae6e2514b3fe64104dc28202d9353",
+      "anchors": [
+        {
+          "needle": "sessions = /* @__PURE__ */ new Map()",
+          "lines": [
+            57
+          ]
+        },
+        {
+          "needle": "async createSession(sessionId)",
+          "lines": [
+            218
+          ]
+        }
+      ]
+    },
+    "dsh_acp_sessions": {
+      "path": "/opt/agentscope/dsh/node_modules/@deepseek-ai/dsh-acp/lib/index.js",
+      "sha256": "c08ed51ebe53b7b45ca8f475630afc0271bf4ccb8b53f13b456fe2b4568a61b3",
+      "anchors": [
+        {
+          "needle": "async newSession(params, signal)",
+          "lines": [
+            1168
+          ]
+        },
+        {
+          "needle": "sessions.set(sessionId, record)",
+          "lines": [
+            1192,
+            1244
+          ]
+        },
+        {
+          "needle": "requestPermission",
+          "lines": [
+            1134
+          ]
+        }
+      ]
+    },
+    "hermes_launch": {
+      "path": "/home/happy/.hermes/hermes-agent-v020/hermes_cli/subcommands/dashboard.py",
+      "sha256": "5200b56bd3f92054f02b179102547648dc41b28e791944e5dbd94f11930ed021",
+      "anchors": [
+        {
+          "needle": "--isolated",
+          "lines": [
+            52
+          ]
+        },
+        {
+          "needle": "--stop",
+          "lines": [
+            70,
+            76
+          ]
+        }
+      ]
+    },
+    "hermes_compute_sessions": {
+      "path": "/home/happy/.hermes/hermes-agent-v020/tui_gateway/compute_host.py",
+      "sha256": "2a28ca1990a5bfc411a4cd75a3963e2497a067bb80f42972eb0c4a59cb559bd4",
+      "anchors": [
+        {
+          "needle": "self._sessions: dict[str, HostSession]",
+          "lines": [
+            145
+          ]
+        },
+        {
+          "needle": "ThreadPoolExecutor",
+          "lines": [
+            146
+          ]
+        }
+      ]
+    },
+    "hermes_acp_threads": {
+      "path": "/home/happy/.hermes/hermes-agent-v020/acp_adapter/server.py",
+      "sha256": "9dc0bad7d82ba4ab36227a99f8b31598c659c4b3616fdb9cd03ed49e85184640",
+      "anchors": [
+        {
+          "needle": "run_in_executor(_executor, ctx.run, _run_agent)",
+          "lines": [
+            1957
+          ]
+        }
+      ]
+    },
+    "hermes_pty": {
+      "path": "/home/happy/.hermes/hermes-agent-v020/hermes_cli/web_server.py",
+      "sha256": "b52cc35523f891b6947fa59ac70516d955e47714877069e5ed3f06544b793c1a",
+      "anchors": [
+        {
+          "needle": "return PtyBridge.spawn(argv, cwd=cwd, env=env)",
+          "lines": [
+            15729
+          ]
+        },
+        {
+          "needle": "PTY_REGISTRY.attach_or_spawn",
+          "lines": [
+            15748
+          ]
+        }
+      ]
+    },
+    "agentscope_launch": {
+      "path": "/home/happy/projects/agentscope-session-security-20261014/backend/agentscope_app/instances/launch.py",
+      "sha256": "6aa1869ca1146213aa95134bd01a1d092460c0cc28ed1e26c57bc0e4b3f5405c",
+      "anchors": [
+        {
+          "needle": "def canonical",
+          "lines": [
+            26
+          ]
+        },
+        {
+          "needle": "if is_dsh:",
+          "lines": [
+            60
+          ]
+        },
+        {
+          "needle": "def validate_saved",
+          "lines": [
+            85
+          ]
+        }
+      ]
+    },
+    "agentscope_profile": {
+      "path": "/home/happy/projects/agentscope-session-security-20261014/backend/broker/instance_runtime.py",
+      "sha256": "2f6da39ee44ffda53408af577ca425cd06c093c3c47a5030cf7b45fa7f496040",
+      "anchors": [
+        {
+          "needle": "def prepare_home",
+          "lines": [
+            336
+          ]
+        },
+        {
+          "needle": "shutil.copytree(B.REPO_ROOT/'integrations/dsh-instance-runtime'",
+          "lines": [
+            356
+          ]
+        },
+        {
+          "needle": "executor_shared",
+          "lines": [
+            486,
+            833,
+            834,
+            877,
+            878
+          ]
+        }
+      ]
+    },
+    "agentscope_hook": {
+      "path": "/home/happy/projects/agentscope-session-security-20261014/integrations/dsh-instance-runtime/lib/index.js",
+      "sha256": "a3d964ba5bf26deba2ae2c23e3231b4ba0593dc9d313665c25bd1af425d50896",
+      "anchors": [
+        {
+          "needle": "mode:'danger-full-access'",
+          "lines": [
+            23
+          ]
+        },
+        {
+          "needle": "ctx.on('tools/execute'",
+          "lines": [
+            27
+          ]
+        },
+        {
+          "needle": "const result=await next()",
+          "lines": [
+            37
+          ]
+        }
+      ]
+    },
+    "agentscope_local_scope": {
+      "path": "/home/happy/projects/agentscope-session-security-20261014/backend/agentscope_app/instances/policy_targets.py",
+      "sha256": "4123f22c757a71667f5d9a8394c19e3bd4cb9e0572113813a6b727345c291340",
+      "anchors": [
+        {
+          "needle": "'supported': False",
+          "lines": [
+            36
+          ]
+        }
+      ]
+    }
+  },
+  "checks": {
+    "installed_launcher_help": true,
+    "source_anchors": true,
+    "draft_reverted": true,
+    "isolated_services_stopped": true,
+    "four_layer_runtime_acceptance": false,
+    "native_agent_source_written": false,
+    "production_application_deployed": false
+  },
+  "live_observation": {
+    "services": {
+      "agentscope-scope-demo-api": "ActiveState=active\nMainPID=500\nExecMainStartTimestamp=Wed 2026-10-14 19:21:28 CST",
+      "agentscope-scope-demo-broker": "ActiveState=active\nMainPID=437\nExecMainStartTimestamp=Wed 2026-10-14 19:21:28 CST",
+      "asfour14-api": "ActiveState=inactive\nMainPID=0\nExecMainStartTimestamp=",
+      "asfour14-broker": "ActiveState=inactive\nMainPID=0\nExecMainStartTimestamp="
+    },
+    "ports": {
+      "18003": true,
+      "18020": false,
+      "18190": false,
+      "18195": false
+    },
+    "connections": [
+      {
+        "id": "instance-1f4469579e8947f4",
+        "agent_type": "dsh",
+        "generation": "69f45750cd7a4a1f824cd55f3d6b0746",
+        "gate": "open",
+        "active": false,
+        "policy_hash": "9c5fa9fbb63c9bcd71da29007179d6c9fed00b23ac9b9f4e41165a76b92425c1"
+      },
+      {
+        "id": "instance-c0dd272b6a734a34",
+        "agent_type": "hermes",
+        "generation": "947b1b6dd3334b3c9a2a250bd3705832",
+        "gate": "closed",
+        "active": false,
+        "policy_hash": "f930aa4e9f224e24588a51a652d773cf022a74fa8be0b379ed4e80023c58ad87"
+      },
+      {
+        "id": "instance-bb171d3176b644a2",
+        "agent_type": "dsh",
+        "generation": "566ddd5edaad438f9473d4ea08ec1cc1",
+        "gate": "closed",
+        "active": false,
+        "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815"
+      },
+      {
+        "id": "instance-cc444fe38c094cbb",
+        "agent_type": "dsh",
+        "generation": "3028d67dd05a4be2ac4944b26e278a6d",
+        "gate": "closed",
+        "active": false,
+        "policy_hash": "c3371a12d813cbf8c4e13bfc39ac8caa8868b6d394f8a7dbebcd74afa15b2cfe"
+      }
+    ]
+  },
+  "external_primary_sources": [
+    "https://docs.kernel.org/admin-guide/cgroup-v2.html",
+    "https://agentclientprotocol.com/protocol/v1/session-setup"
+  ],
+  "draft_note": "Unpublished tool-worker draft retained privately outside Git after user changed direction; only isolated parent startup and native tool composition boot occurred, not four-layer acceptance."
+}

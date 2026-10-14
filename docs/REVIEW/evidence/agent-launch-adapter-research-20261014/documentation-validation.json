@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "scope": "research_documentation_only",
+  "checks": [
+    "four_document_links",
+    "canonical_byte_equality",
+    "installed_and_local_source_hashes",
+    "line_anchors",
+    "no_secret_tokens",
+    "documentation_only_git_diff",
+    "isolated_services_stopped",
+    "no_live_isolated_cgroup",
+    "runtime_acceptance_not_claimed"
+  ],
+  "documents": [
+    "RFC/RFC-20261014-AgentScope-agent-launch-adapter-research.md",
+    "ADR/ADR-20261014-AgentScope-agent-launch-adapter-research.md",
+    "REVIEW/REVIEW-20261014-AgentScope-agent-launch-adapter-research.md",
+    "BUG/BUG-20261014-AgentScope-agent-launch-adapter-research.md"
+  ]
+}
