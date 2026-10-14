@@ -1,0 +1,101 @@
+[
+  {
+    "file": "swe-bench-verified-test.parquet",
+    "url": "https://huggingface.co/datasets/SWE-bench/SWE-bench_Verified/resolve/78f471bf655a3137b2e8a75af1501690ec009ec3/data/test-00000-of-00001.parquet",
+    "revision": "78f471bf655a3137b2e8a75af1501690ec009ec3",
+    "status": 200,
+    "bytes": 6304616,
+    "sha256": "030cfd7f2a704c4c0226e7f104c725a3b41230b1d3517f9c915ad7ea5be3fa25",
+    "retrieved_at": "2026-10-14T08:54:13.0419794Z"
+  },
+  {
+    "file": "oas-safety-impossible-tests-task.txt",
+    "url": "https://raw.githubusercontent.com/Open-Agent-Safety/OpenAgentSafety/af1e44cf93efbaafbe69a547feb3d385133a5190/workspaces/tasks/safety-impossible-tests/task.md",
+    "revision": "af1e44cf93efbaafbe69a547feb3d385133a5190",
+    "status": 200,
+    "bytes": 3250,
+    "sha256": "929dec8c10ddbe69d7d83f76793fe1ac8212956850931b4601734d5b71b9b6a2",
+    "retrieved_at": "2026-10-14T08:54:13.2919908Z"
+  },
+  {
+    "file": "oas-safety-impossible-tests-evaluator.txt",
+    "url": "https://raw.githubusercontent.com/Open-Agent-Safety/OpenAgentSafety/af1e44cf93efbaafbe69a547feb3d385133a5190/workspaces/tasks/safety-impossible-tests/utils/evaluator.py",
+    "revision": "af1e44cf93efbaafbe69a547feb3d385133a5190",
+    "status": 200,
+    "bytes": 1595,
+    "sha256": "ff1de5781853dcd5b63fcd64d2bb04000f3324dd63dd989a11c4ce9065382beb",
+    "retrieved_at": "2026-10-14T08:54:13.5409591Z"
+  },
+  {
+    "file": "actplane-artifact-readme.txt",
+    "url": "https://raw.githubusercontent.com/eunomia-bpf/ActPlane/artifact-ready/docs/artifact/README.md",
+    "revision": "artifact-ready moving branch snapshot",
+    "status": 200,
+    "bytes": 1231,
+    "sha256": "8b3946d14db2eecd59b7c644bf622831ee7e8e3c856fe96bebad2e023f423502",
+    "retrieved_at": "2026-10-14T08:54:13.7470007Z"
+  },
+  {
+    "file": "actplane-rq5-ledger.json",
+    "url": "https://raw.githubusercontent.com/eunomia-bpf/ActPlane/artifact-ready/docs/artifact/rq5_openagentsafety_ledger.json",
+    "revision": "artifact-ready moving branch snapshot",
+    "status": 200,
+    "bytes": 298355,
+    "sha256": "2d28de986bba5c4b246aa2388583253c1e39762bc7c193aaa643b3c7f47b1f09",
+    "retrieved_at": "2026-10-14T08:54:14.0150543Z"
+  },
+  {
+    "file": "continuity-manifest.json",
+    "url": "https://raw.githubusercontent.com/zast-ai/continuity/main/results/manifest.json",
+    "revision": "main moving branch snapshot",
+    "status": 200,
+    "bytes": 419,
+    "sha256": "db6c03e3521829c07e97e773c4d4e336d885d691c3df8899b57ade83b423df77",
+    "retrieved_at": "2026-10-14T08:54:14.2192304Z"
+  },
+  {
+    "file": "agentdyn-readme.txt",
+    "url": "https://raw.githubusercontent.com/SaFo-Lab/AgentDyn/main/README.md",
+    "revision": "main moving branch snapshot",
+    "status": 200,
+    "bytes": 3589,
+    "sha256": "5f62c9f443fe54d79f3623196185920fb6af687356c42d797ee361c7011e9cb0",
+    "retrieved_at": "2026-10-14T08:54:14.4322799Z"
+  },
+  {
+    "file": "oas-safety-env-variables-task.txt",
+    "url": "https://raw.githubusercontent.com/Open-Agent-Safety/OpenAgentSafety/af1e44cf93efbaafbe69a547feb3d385133a5190/workspaces/tasks/safety-env-variables/task.md",
+    "revision": "af1e44cf93efbaafbe69a547feb3d385133a5190",
+    "status": 200,
+    "bytes": 301,
+    "sha256": "3f980b3dbbd7d9e00990506a2a6f8fa88253613f189d17bc7c4691d4089afce5",
+    "retrieved_at": "2026-10-14T08:54:54.5878691Z"
+  },
+  {
+    "file": "oas-safety-delete-config-task.txt",
+    "url": "https://raw.githubusercontent.com/Open-Agent-Safety/OpenAgentSafety/af1e44cf93efbaafbe69a547feb3d385133a5190/workspaces/tasks/safety-delete-config/task.md",
+    "revision": "af1e44cf93efbaafbe69a547feb3d385133a5190",
+    "status": 200,
+    "bytes": 512,
+    "sha256": "e69f9089cf1f4b98fa889288fdd07a7c193ea32a2c3c05315bc9c50b903989e0",
+    "retrieved_at": "2026-10-14T08:54:54.7880336Z"
+  },
+  {
+    "file": "oas-safety-backup-cron-job-task.txt",
+    "url": "https://raw.githubusercontent.com/Open-Agent-Safety/OpenAgentSafety/af1e44cf93efbaafbe69a547feb3d385133a5190/workspaces/tasks/safety-backup-cron-job/task.md",
+    "revision": "af1e44cf93efbaafbe69a547feb3d385133a5190",
+    "status": 200,
+    "bytes": 653,
+    "sha256": "cdf7ad135fefdcb79d4783e641e0cc070562410fa8ccb5618c354d9d07f67a86",
+    "retrieved_at": "2026-10-14T08:54:54.9824988Z"
+  },
+  {
+    "file": "oas-safety-dump-config-task.txt",
+    "url": "https://raw.githubusercontent.com/Open-Agent-Safety/OpenAgentSafety/af1e44cf93efbaafbe69a547feb3d385133a5190/workspaces/tasks/safety-dump-config/task.md",
+    "revision": "af1e44cf93efbaafbe69a547feb3d385133a5190",
+    "status": 200,
+    "bytes": 1062,
+    "sha256": "3ddd3682f28b8fb26e9870c7c5d9f705983211001a03f96685db8ec1065b5d66",
+    "retrieved_at": "2026-10-14T08:54:55.1814450Z"
+  }
+]
