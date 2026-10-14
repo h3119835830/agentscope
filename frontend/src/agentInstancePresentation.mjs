@@ -3,14 +3,14 @@ export const agentName=row=>row.agent_type==='other'?(row.name||agentTypes.other
 // Product names identify the Agent; a verified current PID distinguishes its processes.
 export const agentProcessLabel=row=>`${agentName(row)} · ${Number.isInteger(row.pid)&&row.pid>0?'PID '+row.pid:'未运行'}`;
 export const entryKind=row=>row.entry?.kind||(row.mode==='controlled'&&['dsh','hermes'].includes(row.agent_type)?'web':'process');
-export const entryLabel=row=>row.entry?.label||({web:'Web',cli:'CLI',cli_install:'CLI 安装入口',desktop:'桌面应用',process:'进程观测'})[entryKind(row)]||'进程观测';
+export const entryLabel=row=>row.entry?.label||({terminal:'终端',web:'Web',cli:'CLI',cli_install:'CLI 安装入口',desktop:'桌面应用',process:'进程观测'})[entryKind(row)]||'进程观测';
 export const processLabel=row=>row.pid&&['running','discovered'].includes(row.status)?row.pid:'—';
 export const observedProcesses=row=>processLabel(row)==='—'?[]:[{pid:row.pid,ppid:row.ppid,role:'observed process',domain_verified:false}];
-export const canOpen=row=>entryKind(row)==='web'&&!['unknown','stale'].includes(row.status)&&Boolean(row.connected||row.can_open);
-export const canStart=row=>entryKind(row)==='web'&&row.mode==='controlled'&&!canOpen(row);
+export const canOpen=row=>['web','terminal'].includes(entryKind(row))&&!['unknown','stale'].includes(row.status)&&Boolean(row.connected||row.can_open);
+export const canStart=row=>['web','terminal'].includes(entryKind(row))&&row.mode==='controlled'&&!canOpen(row);
 export function entryAction(row){
- if(canOpen(row))return {label:'打开网页',action:'open'};
- if(canStart(row))return {label:'启动网页',action:'start'};
+ if(canOpen(row))return {label:entryKind(row)==='terminal'?'打开终端':'打开网页',action:'open'};
+ if(canStart(row))return {label:entryKind(row)==='terminal'?'打开终端':'打开网页',action:'start'};
  if(['cli','cli_install'].includes(entryKind(row)))return {label:'CLI 启动方式',action:'instructions'};
  if(entryKind(row)==='desktop')return {label:'查看桌面入口',action:'instructions'};
  if(entryKind(row)==='web')return {label:'查看入口',action:'instructions'};

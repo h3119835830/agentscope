@@ -4,13 +4,13 @@ from ..broker_client import call
 
 def entry_details(instance):
     """Describe an entry, never infer a CLI from a generic OS process name."""
-    controlled=instance.get('mode')=='controlled' and instance.get('agent_type') in ('dsh','hermes')
-    kind='web' if controlled or instance.get('runtime',{}).get('open_url') else instance.get('entry_kind','process')
-    labels={'web':'Web','cli':'CLI','cli_install':'CLI 安装入口','desktop':'桌面应用','process':'进程观测'}
+    controlled=instance.get('mode')=='controlled' and instance.get('agent_type') in ('dsh','hermes','other')
+    kind=(instance.get('launch') or {}).get('kind','web') if controlled or instance.get('runtime',{}).get('open_url') else instance.get('entry_kind','process')
+    labels={'terminal':'终端','web':'Web','cli':'CLI','cli_install':'CLI 安装入口','desktop':'桌面应用','process':'进程观测'}
     if kind not in labels: kind='process'
     result={'kind':kind,'label':labels[kind]}
     if controlled:
-        result['instructions']='已运行时点击“打开网页”；未运行时点击“启动网页”，由 AgentScope 加载此实例策略并核验后打开原生网页。'
+        result['instructions']='点击打开对应网页或终端；未运行时由 AgentScope 先加载此实例策略、核验保护，再启动并进入原生入口。'
     elif kind=='cli_install' and instance.get('id')=='installed-wsl-hermes':
         result['command']='wsl -d Ubuntu -u happy -- /home/happy/.local/bin/hermes'
         result['instructions']='这是 WSL 原生 Hermes 的 CLI 安装入口，不是已运行的会话。命令在 Windows 终端运行；需要网页时，在 AgentScope 添加 Hermes 受控连接并点击“启动网页”。直接运行 CLI 尚未接入实例策略。'
@@ -40,7 +40,7 @@ class LocalAdapter:
     def open(self, instance): return self.invoke('open',instance)
     def start(self, instance, token, generation):
         from .dsl_policy import launch_spec
-        return self.invoke('start',instance,agent_type=instance['agent_type'],resources=instance['resources'],policy=instance['policy'],policy_hash=instance['policy_hash'],token=token,generation=generation,**launch_spec(instance))
+        return self.invoke('start',instance,agent_type=instance['agent_type'],resources=instance['resources'],policy=instance['policy'],policy_hash=instance['policy_hash'],token=token,generation=generation,launch=instance.get('launch'),**launch_spec(instance))
     def stop(self, instance): return self.invoke('stop',instance)
     def sessions(self, instance): return self.invoke('sessions',instance)
     def processes(self, instance): return self.invoke('processes',instance)
@@ -49,6 +49,6 @@ class LocalAdapter:
         return store.events(instance['id'],before)
 
 def adapter(instance):
-    if instance['environment']!='wsl' or instance['agent_type'] not in ('dsh','hermes'):
+    if instance['environment']!='wsl' or instance['agent_type'] not in ('dsh','hermes','other'):
         raise ValueError('此连接仅支持观测，未接入受控启动适配器')
     return LocalAdapter()

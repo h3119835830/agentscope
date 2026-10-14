@@ -50,6 +50,9 @@ def agents():
         cached=[(r[0],json.loads(r[1])) for r in con.execute('SELECT instance_id,metadata_json FROM instance_session_cache')]
     for row in rows:
         infos={info['path']:info for ident,s in cached if ident==row['id'] and (info:=native_workspace_info(row,s))}
+        if row.get('native_workspaces') is not None:
+            from .instances.native_workspaces import project
+            infos={w['path']:project(row,w) for w in row['native_workspaces']}
         row['workspace_records']=[infos[path] for path in sorted(infos)]
         row['workspaces']=sorted(infos)
         row['policy_source']=source_status(row)
@@ -264,3 +267,15 @@ def apply_policy(ident:str,body:ApplicationRequest):
 def approval_decision(ident:str,decision:Literal['confirm','reject'],body:ApprovalDecision):
     from .instances.approval_views import decide
     return invoke(decide,ident,decision,body.proposal_hash)
+
+@router.get('/agents/{ident}/workspaces')
+def native_workspaces(ident:str):
+    require_visible('agent',ident)
+    from .instances.native_workspaces import directory
+    return invoke(directory,ident)
+
+@router.get('/agents/{ident}/workspaces/{workspace_id}/files')
+def native_workspace_files(ident:str,workspace_id:str,path:str=Query('',max_length=2000)):
+    require_visible('agent',ident)
+    from .instances.native_workspaces import files
+    return invoke(files,ident,workspace_id,path)

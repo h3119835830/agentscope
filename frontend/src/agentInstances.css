@@ -128,3 +128,5 @@ body:has(.instance-drawer[open]),body:has(.instance-add[open]){overflow:hidden}
 .session-workspace-name{display:flex;align-items:center;gap:6px;width:fit-content;max-width:100%;color:#236b6b;background:#edf7f5;border:1px solid #d8eae6;border-radius:5px;padding:4px 7px;font-size:12px;font-weight:600;overflow-wrap:anywhere}
 .session-workspace-name svg{flex-shrink:0}
 .session-workspace-path{display:block;color:#61768b;font:11px/1.65 Consolas,"Cascadia Code",monospace;overflow-wrap:anywhere;white-space:normal}
+
+.agent-launch-fields{border:0;padding:0;margin:0;display:grid;gap:14px;min-width:0}.agent-launch-fields textarea{font-family:ui-monospace,monospace;line-height:1.5}.native-workspaces .task-section-heading{gap:12px;align-items:center}.native-workspaces .task-section-heading p{margin:0;color:var(--muted,#657791);font-size:13px}.native-workspace-files{margin-top:20px;border-top:1px solid #dce6f2;padding-top:16px}.native-workspaces td small{display:block;color:#70809a;margin-top:4px}.native-workspaces .task-path{max-width:100%;white-space:normal;overflow-wrap:anywhere}.native-workspaces{min-width:0}.instance-add .record-drawer-body{padding-bottom:24px}

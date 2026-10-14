@@ -5,6 +5,7 @@ import logging
 from pathlib import Path
 from agentscope_app.instances.policy import canonical, clean_resources, digest
 from agentscope_app.instances.mapping import translate,resource_records
+from agentscope_app.instances.launch import validate_saved
 from agentscope_app.workspaces import broker_instances as legacy
 from dsl_documents import prepare as prepare_documents, fingerprint as dsl_fingerprint
 from broker.instance_supervision import Admission, SCHEMA as SUPERVISION_SCHEMA
@@ -235,9 +236,9 @@ def policy_dsl(resources,policy):
     lines += ['# actplane-rule-source ref=platform.no-publish mode=locked','rule immutable-no-publish:', '  kill exec "git" "push" if AGENT','  because "Publishing is outside the instance execution boundary."']
     return '\n'.join(lines)+'\n'
 
-def compile_documents(value,resources,policy,documents,agent_type=None):
+def compile_documents(value,resources,policy,documents,agent_type=None,launch=None):
     """Compile before loading. User labels never address platform/other documents."""
-    source={'dsh':'**/node','hermes':'**/python'}.get(agent_type)
+    source=launch['source'] if launch else {'dsh':'**/node','hermes':'**/python'}.get(agent_type)
     parsed=prepare_documents(documents,resources,agent_source=source)
     validate_runtime_capabilities(parsed)
     dsl=policy_dsl(resources,policy)+'\n'+'\n'.join(d['effective_dsl'] for d in parsed)
@@ -318,6 +319,20 @@ def seal_dsh(home):
             p=Path(base)/name
             if not p.is_symlink(): os.chown(p,0,B.TASK_GID);os.chmod(p,0o440)
 
+def reserve_launch_port(requested=None):
+    with B.LOCK:
+        for port in ([requested] if requested else range(18200,18280)):
+            if not 1024<=port<=65000 or any(p in B.WEB_PORTS for p in (port,port+100,port+200,port+300)):continue
+            sockets=[]
+            try:
+                for number in (port,port+100,port+200,port+300):
+                    sock=socket.socket();sockets.append(sock);sock.bind(('127.0.0.1',number))
+                B.WEB_PORTS.add(port);return port
+            except OSError:pass
+            finally:
+                for sock in sockets:sock.close()
+        raise ValueError('启动端口或对应控制端口已占用，请更换端口')
+
 def prepare_home(value,agent_type):
     import yaml
     directory=root(value)/'state'; directory.mkdir(parents=True,exist_ok=True)
@@ -369,6 +384,11 @@ def prepare_home(value,agent_type):
     return home,port,user
 
 def native(record,operation,**fields):
+    if record.get('launch',{}).get('adapter')=='process':
+        if operation=='observe':return request_relay(record,{'operation':'process'})['payload']
+        if operation=='flush':return {'ok':True}
+        if operation=='open_url':return {'url':record['launch']['web_url'].replace('{port}',str(record['web_port']))}
+        raise ValueError('此命令已接入进程策略，尚无原生工作区与会话适配器')
     payload={'operation':operation,**fields}
     request=urllib.request.Request(f"http://127.0.0.1:{record['web_port']+100}/",data=json.dumps(payload).encode(),headers={'Content-Type':'application/json','Authorization':'Bearer '+record['native_token']})
     with urllib.request.urlopen(request,timeout=2 if operation in ('observe','open_url') else 35) as response: result=json.load(response)
@@ -376,6 +396,9 @@ def native(record,operation,**fields):
 
 def native_pid(record,namespace_pid):
     """Native plugins report namespace PIDs. Resolve only admitted cgroup members."""
+    if record.get('launch',{}).get('adapter')=='process':
+        if namespace_pid not in {int(p) for p in (B.task_cgroup(record)/'cgroup.procs').read_text().split()}:raise ValueError('Process left the execution cgroup')
+        return namespace_pid
     candidates=[]
     for value in (B.task_cgroup(record)/'cgroup.procs').read_text().split():
         try:
@@ -446,7 +469,7 @@ def observe(value):
 def _observe(value):
     record=RUNS.get(value)
     if not record: return {'id':value,'status':'offline','connected':False,'verified':False}
-    if not record.get('ready') or record.get('paused'):
+    if not record.get('ready') or record.get('paused') or record.get('command_frozen'):
         return {'id':value,'status':'paused' if record.get('paused') else 'starting','connected':False,'verified':False,'generation':record['generation'],'last_state_reason':record.get('last_state_reason','正在启动与核验')}
     try:
         if record['watch'].poll() is not None: raise ValueError('watch ended')
@@ -460,7 +483,9 @@ def _observe(value):
         cgpids={int(p) for p in (group/'cgroup.procs').read_text().split()}
         if pid not in members or pid not in cgpids or identity(pid)!=before: raise ValueError('agent binding changed')
         protection_check(record)
-        return {'id':value,'status':'running','connected':True,'verified':bool(record.get('verification',{}).get('passed')),'pid':pid,'dsl_hash':record.get('dsl_hash'),'start_ticks':before['start_ticks'],'generation':record['generation'],'domain_id':record['domain_id'],'process_cgroup':record['process_cgroup'],'resources':record['resources'],'resource_records':resource_records(record['resources']),'agent_type':record['agent_type'],'environment':'wsl','sessions':result.get('sessions',[]),'session_count':len(result.get('sessions',[])),'executor_shared':True,'supervision':SUPERVISION_SCHEMA,'execution_status':record['admission'].status(),**host_identity()}
+        observation={'id':value,'status':'running','connected':True,'verified':bool(record.get('verification',{}).get('passed')),'pid':pid,'dsl_hash':record.get('dsl_hash'),'start_ticks':before['start_ticks'],'generation':record['generation'],'domain_id':record['domain_id'],'process_cgroup':record['process_cgroup'],'resources':record['resources'],'resource_records':resource_records(record['resources']),'agent_type':record['agent_type'],'environment':'wsl','sessions':result.get('sessions',[]),'session_count':len(result.get('sessions',[])),'executor_shared':True,'native_workspaces':result.get('workspaces',[]),'native_adapter':record.get('launch',{}).get('adapter','native'),'entry_kind':record.get('launch',{}).get('kind','web'),'launch_hash':record.get('launch',{}).get('hash'),'supervision':SUPERVISION_SCHEMA,'execution_status':record['admission'].status(),**host_identity()}
+        record['last_observation']=observation
+        return observation
     except Exception as error:
         logging.getLogger(__name__).warning('Binding observation failed instance=%s generation=%s reason=%s',value,record['generation'],str(error)[:200])
         # Freeze the whole scope on lost native/control/binding evidence.
@@ -570,8 +595,11 @@ def start(message):
     with inst_lock(value):
         if value in RUNS: raise ValueError('Instance already started')
         agent_type=message['agent_type']
-        if agent_type not in ('dsh','hermes'): raise ValueError('Unsupported agent adapter')
+        if agent_type not in ('dsh','hermes','other'): raise ValueError('Unsupported agent adapter')
         resources=clean_resources(message['resources']);policy=canonical(message['policy'],resources)
+        launch=validate_saved(message.get('launch'),agent_type,resources)
+        if agent_type=='other' and not launch:raise ValueError('Missing launch command')
+        if agent_type=='other' and any(r['action']=='tool' for r in policy['rules']):raise ValueError('此命令尚无原生工具适配器，不能宣称工具规则已执行')
         if digest(policy)!=message['policy_hash'] or not re.fullmatch('[a-f0-9]{32}',message['generation']) or len(message['token'])<32: raise ValueError('Instance launch identity mismatch')
         directory=root(value);directory.mkdir(parents=True,exist_ok=True)
         # ActPlane resets its feedback files when a watcher starts. Give each
@@ -579,13 +607,21 @@ def start(message):
         # and preventing an old byte offset from skipping new events.
         control=directory/'control'/message['generation'];control.mkdir(parents=True,exist_ok=False)
         temp=directory/'state/tmp';temp.mkdir(parents=True,exist_ok=True)
-        home,port,user=prepare_home(value,agent_type)
+        if agent_type=='other':
+            home=directory/'state/home';home.mkdir(parents=True,exist_ok=True)
+            user=pwd.getpwnam('happy');own_tree(directory/'state',user.pw_uid,user.pw_gid)
+            port=reserve_launch_port()
+        else:home,port,user=prepare_home(value,agent_type)
+        if launch and launch['kind']=='web' and '{port}' not in launch['web_url']:
+            requested=int(re.search(r':([0-9]+)/',launch['web_url'])[1])
+            if requested!=port:
+                B.WEB_PORTS.discard(port);port=reserve_launch_port(requested)
         os.chmod(directory,0o755);os.chmod(directory.parent,0o755)
         os.chown(directory/'state',user.pw_uid,user.pw_gid)
         key=run_id(value)
         documents=message.get('dsl_documents',[])
         if dsl_fingerprint(documents,resources)!=message.get('dsl_hash'):raise ValueError('DSL launch fingerprint mismatch')
-        compiled,artifact=compile_documents(value,resources,policy,documents,agent_type)
+        compiled,artifact=compile_documents(value,resources,policy,documents,agent_type,launch)
         env=B.child_env(task_id=key)
         env.update(ACTPLANE_ATTACH_PID='0',ACTPLANE_RESERVE_FILE_FLOW='1',ACTPLANE_ENABLE_ADVANCED_HOOKS='1',SUDO_UID='0',SUDO_GID='0',TMPDIR=str(temp))
         anchor=subprocess.Popen(['/usr/bin/sleep','infinity'],start_new_session=True)
@@ -594,6 +630,7 @@ def start(message):
         log=open(logfile,'a')
         watch=subprocess.Popen([str(B.ACTPLANE),'--policy',compiled['watch_path'],'watch'],cwd=control,env=env,stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
         record={'instance_id':value,'task_id':key,'workspace':str(control),'agent_type':agent_type,'resources':resources,'generation':message['generation'],'policy_hash':message['policy_hash'],'watch':watch,'watch_pid':watch.pid,'anchor':anchor,'watch_policy':compiled['watch_path'],'watch_log':str(logfile),'pin_root':env.get('ACTPLANE_BPF_PIN_ROOT'),'web_port':port,'native_token':secrets.token_urlsafe(36),'domain_id':secrets.randbelow(1800000000)+100000000}
+        if launch:record['launch']=launch
         record.update(policy_artifact={**artifact,'loaded':True},dsl_hash=artifact['dsl_hash'])
         record['startup_deadline']=time.monotonic()+90
         record['event_start']=0
@@ -620,6 +657,7 @@ def start(message):
             B.write_file(record['heartbeat_path'],json.dumps({'generation':record['generation'],'at':time.monotonic()}),0o600)
             for p in ('request_path','result_path'): Path(record[p]).unlink(missing_ok=True)
             config={'instance_id':value,'agent_type':agent_type,'resources':resources,'policy':policy,'home':str(home),'state':str(directory/'state'),'web_port':port,'native_token':record['native_token'],'token':message['token'],'generation':record['generation'],'api_url':'http://127.0.0.1:'+str(port+200),'uid':user.pw_uid,'gid':B.TASK_GID,'dsh':str(B.DSH_WEB),'hermes_root':str(HERMES_ROOT),'hermes_dist':str(HERMES_DIST),'request_path':record['request_path'],'result_path':record['result_path'],'heartbeat_path':record['heartbeat_path'],'process_cgroup':record['process_cgroup']}
+            if launch:config['launch']=launch
             handoff=commanddir/'launch.json';B.write_file(handoff,json.dumps(config),0o600)
             ready=commanddir/'ready';ready.unlink(missing_ok=True);nonce=secrets.token_hex(24)
             out=B.run_actplane(['--policy',record['watch_policy'],'control','launch-child','--child-id',record['domain_id'],'--delta',compiled['dsl_path'],'--','/usr/bin/python3','-c',B.RELAY_BOOTSTRAP,str(ready),nonce,str(B.REPO_ROOT/'backend/broker/instance_runner.py'),str(handoff)],control,env,35)
@@ -635,7 +673,8 @@ def start(message):
                 try:
                     state=native(record,'observe')
                     record['agent_pid']=native_pid(record,int(state['pid']))
-                    with socket.create_connection(('127.0.0.1',port),timeout=.5): pass
+                    if not launch or launch['kind']=='web':
+                        with socket.create_connection(('127.0.0.1',port),timeout=.5):pass
                     if record['agent_pid'] in B.domain_members(record): break
                 except Exception: pass
                 time.sleep(.2)
@@ -647,7 +686,7 @@ def start(message):
             record['ready']=True
             protection_check(record)
             record['admission'].verified()
-            return {**observe(value),'compile':compiled['compile'],'policy_artifact':record['policy_artifact'],'dsl_hash':record['dsl_hash'],'verification':record['verification'],'launch_source':'WSL independent native Hermes' if agent_type=='hermes' else 'native DSH','executable':str(HERMES_ENTRY) if agent_type=='hermes' else str(B.DSH_WEB)}
+            return {**observe(value),'compile':compiled['compile'],'policy_artifact':record['policy_artifact'],'dsl_hash':record['dsl_hash'],'verification':record['verification'],'launch_source':'WSL independent native Hermes' if agent_type=='hermes' else 'native DSH','launch_hash':(launch or {}).get('hash'),'executable':launch['argv'][0] if launch and agent_type=='other' else str(HERMES_ENTRY) if agent_type=='hermes' else str(B.DSH_WEB)}
         except Exception:
             stop(value)
             raise
@@ -698,11 +737,26 @@ def inventory():
             current=identity(int(proc.name))
             result.append({'id':'wsl-hermes-'+proc.name+'-'+current['start_ticks'],'name':'WSL 原生 Hermes 进程','agent_type':'hermes','environment':'wsl','connected':False,'status':'discovered','pid':current['pid'],'start_ticks':current['start_ticks'],'resources':[],'source':'原生安装路径、独立 HERMES_HOME 与 OS 进程'})
         except (OSError,ValueError): pass
-    for value in list(RUNS): result.append(observe(value))
+    for value in list(RUNS):
+        lock=inst_lock(value);record=RUNS.get(value,{})
+        if lock.acquire(timeout=.4 if record.get('ready') else 0):
+            try:result.append(_observe(value))
+            finally:lock.release()
+        else:
+            # A PTY/file read is not a launch-state transition. Fresh root-owned
+            # process/domain protection can renew the last metadata snapshot.
+            previous=record.get('last_observation')
+            try:
+                if not previous or record.get('command_frozen'):raise ValueError('No verified current observation')
+                protection_check(record)
+                if previous['generation']!=record['generation']:raise ValueError('Generation changed')
+                result.append({**previous,'execution_status':record['admission'].status()})
+            except (OSError,ValueError):
+                result.append({'id':value,'status':'starting' if not record.get('ready') else 'unknown','connected':False,'verified':False,'generation':record.get('generation')})
     for row in result:
         # Registered DSH bridges and the explicitly matched Hermes dashboard
         # expose Web entry types; installation alone is not a live CLI process.
-        row['entry_kind']='cli_install' if row['id']=='installed-wsl-hermes' else 'web'
+        row['entry_kind']=row.get('entry_kind') or ('cli_install' if row['id']=='installed-wsl-hermes' else 'web')
     return {'instances':result}
 
 def existing_dsh_url(row,proc):
@@ -749,7 +803,7 @@ def dispatch(message):
     value=message['instance_id']
     if action=='dsl-compile':
         ident(value);resources=clean_resources(message['resources']);policy=canonical(message['policy'],resources)
-        return compile_documents(value,resources,policy,message['dsl_documents'],message.get('agent_type'))[1]
+        return compile_documents(value,resources,policy,message['dsl_documents'],message.get('agent_type'),validate_saved(message.get('launch'),message.get('agent_type'),resources))[1]
     if action=='start': return start(message)
     if value in RUNS:
         with inst_lock(value):
@@ -760,7 +814,11 @@ def dispatch(message):
                 admission=record['admission']
                 if action=='execution-gate':
                     if type(message.get('open')) is not bool:raise ValueError('Invalid execution gate')
-                    if message['open']:protection_check(record);admission.verified()
+                    if message['open']:
+                        protection_check(record);admission.verified()
+                        if record.get('command_frozen'):(B.task_cgroup(record)/'cgroup.freeze').write_text('0');record['command_frozen']=False
+                    elif record.get('launch',{}).get('adapter')=='process':
+                        (B.task_cgroup(record)/'cgroup.freeze').write_text('1');record['command_frozen']=True
                     return admission.set_gate(message['open'], '已批准策略保持执行' if message['open'] else '策略变更期间暂停新工具')
                 if action=='execution-events':return {'events':admission.events(message.get('after',0))}
                 if action=='execution-ack':return admission.acknowledge(message['sequence'])
@@ -773,7 +831,7 @@ def dispatch(message):
                 if message.get('generation')!=record['generation']:raise ValueError('Kernel audit generation mismatch')
                 return kernel_events(record,message.get('cursor'))
             if action=='processes': return {'processes':processes(record),'executor_shared':True}
-            if action=='sessions': return {'sessions':session_records(record),'resources':record['resources'],'executor_shared':True}
+            if action=='sessions': return {'sessions':session_records(record),'resources':record['resources'],'executor_shared':True,**({'mapping_available':False,'unsupported_reason':'此启动命令尚无原生会话适配器'} if record.get('launch',{}).get('adapter')=='process' else {})}
             if action=='dsl-probe':
                 if message.get('generation')!=record['generation'] or message.get('effect') not in ('block','kill','notify'):raise ValueError('Invalid fixed DSL probe')
                 return request_relay(record,{'operation':'dsl-probe','effect':message['effect']})
@@ -781,7 +839,25 @@ def dispatch(message):
                 target=Path(message['target'])
                 if target.name!='.agentscope-held-handle-probe' or target.is_symlink() or not target.is_file() or target.stat().st_nlink!=1: raise ValueError('Invalid fixed held-handle probe')
                 return request_relay(record,{'operation':'hold','path':str(target)})
-            if action=='open': return native(record,'open_url')
+            if action=='terminal':
+                if message.get('generation')!=record['generation'] or message.get('policy_hash')!=record['policy_hash']:raise ValueError('终端运行身份已经变化，请重新打开')
+                protection_check(record)
+                if record.get('launch',{}).get('kind')!='terminal':raise ValueError('此连接使用网页入口')
+                status=record['admission'].status()
+                if record.get('command_frozen') or status.get('gate')!='open' or not status.get('protection_fresh'):raise ValueError('终端执行已暂停')
+                return {**request_relay(record,{'operation':'terminal','body':message['body']})['payload'],'pid':record['agent_pid'],'generation':record['generation']}
+            if action=='workspaces':
+                protection_check(record)
+                if record['agent_type']!='dsh':return {'supported':False,'reason':'此 Agent 尚无独立原生工作区适配器','workspaces':[]}
+                return {'supported':True,'workspaces':native(record,'observe').get('workspaces',[])}
+            if action=='workspace-files':
+                protection_check(record)
+                if record['agent_type']!='dsh':raise ValueError('此 Agent 尚无原生工作区文件适配器')
+                return native(record,'workspace-files',workspace_id=message['workspace_id'],path=message.get('path',''))
+            if action=='open':
+                protection_check(record)
+                if record.get('launch',{}).get('kind')=='terminal':return {'url':os.getenv('AGENTSCOPE_PUBLIC_URL','http://127.0.0.1:18003')+'/terminal/'+value}
+                return native(record,'open_url')
             if action=='native':
                 op=message.get('operation')
                 if op not in ('create','prompt','inspect','cancel','flush'): raise ValueError('Native operation unavailable')

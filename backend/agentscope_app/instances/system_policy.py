@@ -85,9 +85,11 @@ def plan(policy):
     for row in store.rows():
         if row['mode'] != 'controlled': continue
         effective=compose(row['local_policy'],row['resources'],policy)
+        from .launch import validate_policy
+        validate_policy(row.get('launch'),effective)
         result.append({'id':row['id'],'name':row['name'],'generation':row['generation'],
             'base_hash':row['policy_hash'],'gate':row['gate'],'resources':row['resources'],
-            'local_hash':digest(row['local_policy']),'effective_hash':digest(effective),
+            'launch_hash':(row.get('launch') or {}).get('hash'),'local_hash':digest(row['local_policy']),'effective_hash':digest(effective),
             'affected':blocked or digest(effective)!=row['policy_hash']})
     return result
 

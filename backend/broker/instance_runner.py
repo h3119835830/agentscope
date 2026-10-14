@@ -15,7 +15,13 @@ def sandbox(config,probe=False):
           '--ro-bind','/opt/agentscope/bin','/opt/agentscope/bin',
           '--ro-bind','/var/lib/agentscope-rq5-v1/task-python','/opt/task-python',
           '--bind',state,state,'--bind',config['home'],config['home'],'--symlink',state+'/tmp','/tmp']
-    for target in config['resources']: args += ['--bind' if probe else '--ro-bind',target,translate(target,config['resources'])]
+    for target in config['resources']:
+        alias=translate(target,config['resources'])
+        args += ['--bind' if probe else '--ro-bind',target,alias]
+        if config.get('launch',{}).get('native_paths'):
+            for parent in reversed(Path(target).parents):
+                if str(parent)!='/':args += ['--dir',str(parent)]
+            args += ['--symlink',alias,target]
     for rule in ([] if probe else config['policy']['rules']):
         if rule['action']=='write' and rule['effect']=='allow': args += ['--bind',rule['target'],translate(rule['target'],config['resources'])]
     # Denies override grants. Separate mount points also prevent hardlink aliases.
@@ -25,13 +31,13 @@ def sandbox(config,probe=False):
         if rule['action']=='read' and rule['effect']=='deny' and Path(rule['target']).is_dir():
             args += ['--tmpfs',target,'--chmod','000',target]
     if config['agent_type']=='dsh': args += ['--ro-bind','/opt/agentscope/dsh','/opt/agentscope/dsh']
-    else:
+    elif config['agent_type']=='hermes':
         args += ['--ro-bind',config['hermes_root'],config['hermes_root'],'--ro-bind',config['hermes_dist'],config['hermes_dist']]
         args += ['--ro-bind',config['home']+'/plugins',config['home']+'/plugins']
         for name in ('config.yaml','.env','auth.json'):
             p=Path(config['home'])/name
             if p.is_file(): args += ['--ro-bind',str(p),str(p)]
-    args += ['--uid',str(config['uid']),'--gid',str(config['gid']),'--chdir',translate(config['resources'][0],config['resources']),'--']
+    args += ['--uid',str(config['uid']),'--gid',str(config['gid']),'--chdir',config.get('launch',{}).get('cwd') or translate(config['resources'][0],config['resources']),'--']
     return args
 
 PROBE = """
@@ -109,16 +115,20 @@ def main():
          'TMPDIR':config['state']+'/tmp','PYTHONDONTWRITEBYTECODE':'1','NO_PROXY':'*','no_proxy':'*',
          'AGENTSCOPE_INSTANCE_ID':config['instance_id'],'AGENTSCOPE_INSTANCE_TOKEN':config['token'],'AGENTSCOPE_GENERATION':config['generation'],
          'AGENTSCOPE_INSTANCE_URL':config['api_url'],'AGENTSCOPE_NATIVE_TOKEN':config['native_token'],'AGENTSCOPE_NATIVE_PORT':str(config['web_port']+100),
-         'AGENTSCOPE_RESOURCES':json.dumps([translate(p,config['resources']) for p in config['resources']]),'AGENTSCOPE_WEB_PORT':str(config['web_port'])}
+         'AGENTSCOPE_FILE_DENIES':json.dumps([translate(r['target'],config['resources']) for r in config['policy']['rules'] if r['action']=='read' and r['effect']=='deny']),
+          'AGENTSCOPE_RESOURCES':json.dumps([translate(p,config['resources']) for p in config['resources']]),'AGENTSCOPE_WEB_PORT':str(config['web_port'])}
     if config['agent_type']=='dsh':
         env['DSH_HOME']=config['home']
         argv=[config['dsh'],'web','--host','127.0.0.1','--port',str(config['web_port']),'--no-open']
-    else:
+    elif config['agent_type']=='hermes':
         # The read-only native checkout ships its TUI; runtime must not npm-install or rebuild it.
         env.update(HERMES_HOME=config['home'],HERMES_WEB_DIST=config['hermes_dist'],HERMES_TUI_DIR=config['hermes_root']+'/ui-tui',HERMES_SKIP_NODE_BOOTSTRAP='1',PYTHONPATH=config['hermes_root'],HERMES_ENABLE_PROJECT_PLUGINS='0')
         # Native plugin loader and CLI, without core/prompt modifications.
         code='from hermes_cli.plugins import discover_plugins; discover_plugins(); from hermes_cli.main import main; main()'
         argv=[config['hermes_root']+'/venv/bin/python','-c',code,'dashboard','--isolated','--no-open','--skip-build','--host','127.0.0.1','--port',str(config['web_port'])]
+    if config.get('launch'):
+        argv=[v.replace('{port}',str(config['web_port'])) for v in config['launch']['argv']]
+        if config['agent_type']=='hermes':argv=[config['hermes_root']+'/venv/bin/python','-c',code,*argv[1:]]
     def demote():
         os.setgroups([]);os.setgid(config['gid']);os.setuid(config['uid'])
     def fixed_program(program,values,hold=False,dsl_effect=False):
@@ -126,7 +136,7 @@ def main():
         if dsl_effect:
             # Exercise the same executable identity as the trusted launch profile.
             # The command and target stay fixed; native credentials cannot choose code.
-            command=['/opt/agentscope/bin/node','-e',program] if config['agent_type']=='dsh' else [config['hermes_root']+'/venv/bin/python','-c',program]
+            command=['/opt/agentscope/bin/node','-e',program] if config['agent_type']=='dsh' or config.get('launch',{}).get('source')=='**/node' else [config['hermes_root']+'/venv/bin/python' if config['agent_type']=='hermes' else config.get('launch',{}).get('argv',['/usr/bin/python3'])[0],'-c',program]
         child=subprocess.Popen([*sandbox(config,probe=True),*command],env=values,preexec_fn=demote,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
         line=child.stdout.readline()
         if not line: raise RuntimeError(child.stderr.read()[-1000:])
@@ -158,11 +168,15 @@ def main():
     # Do not carry a host-file descriptor through the mount namespace: its
     # path cannot be resolved by LSM there. The trusted relay drains a pipe.
     env['PYTHONUNBUFFERED']='1'
-    process=subprocess.Popen([*sandbox(config),*argv],env=env,preexec_fn=demote,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
-    def drain():
-        for chunk in iter(lambda:process.stdout.read1(8192),b''):
-            os.write(1,chunk)
-    threading.Thread(target=drain,daemon=True).start()
+    terminal=None
+    if config.get('launch',{}).get('kind')=='terminal':
+        from broker.terminal_relay import TerminalRelay
+        terminal=TerminalRelay([*sandbox(config),*argv],env,demote);process=terminal.process
+    else:
+        process=subprocess.Popen([*sandbox(config),*argv],env=env,preexec_fn=demote,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+        def drain():
+            for chunk in iter(lambda:process.stdout.read1(8192),b''):os.write(1,chunk)
+        threading.Thread(target=drain,daemon=True).start()
     req=Path(config['request_path']); last=None
     while process.poll() is None:
         try:
@@ -178,12 +192,29 @@ def main():
                 value=json.loads(req.read_text())
                 if value['request_id']!=last:
                     last=value['request_id']
+                    if value.get('operation') in ('terminal','process'):
+                        if value['operation']=='terminal':
+                            if terminal is None:raise ValueError('This connection has no terminal')
+                            payload=terminal.request(value['body'])
+                        else:
+                            candidates=[]
+                            for pid in (Path(config['process_cgroup'])/'cgroup.procs').read_text().split():
+                                try:
+                                    actual=(Path('/proc')/pid/'cmdline').read_bytes().split(b'\x00')
+                                    if [a.decode() for a in actual if a]==argv:candidates.append(int(pid))
+                                except (OSError,UnicodeError):pass
+                            if len(candidates)!=1:raise ValueError('Launch process identity is ambiguous')
+                            payload={'pid':candidates[0],'sessions':[],'inflight':0}
+                        output={'request_id':last,'ok':True,'payload':payload}
+                        target=Path(config['result_path']);temp=target.with_suffix('.tmp')
+                        temp.write_text(json.dumps(output));temp.chmod(0o600);os.replace(temp,target)
+                        continue
                     if value.get('operation')=='dsl-probe':
                         effect=value.get('effect')
                         if effect not in ('block','kill','notify'):raise ValueError('Unknown fixed DSL probe')
                         target=Path(config['resources'][0])/('.agentscope-dsl-'+effect+'.txt')
                         if target.is_symlink() or not target.is_file() or target.stat().st_nlink!=1:raise ValueError('Missing fixed DSL probe fixture')
-                        program=DSL_NODE_PROBE if config['agent_type']=='dsh' else DSL_PROBE
+                        program=DSL_NODE_PROBE if config['agent_type']=='dsh' or config.get('launch',{}).get('source')=='**/node' else DSL_PROBE
                         result=fixed_program(program,{'DSL_TARGET':translate(str(target),config['resources'])},dsl_effect=True)
                         output={'request_id':last,'ok':True,'probe':result}
                         p=Path(config['result_path']);tmp=p.with_suffix('.tmp')

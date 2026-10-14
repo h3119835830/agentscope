@@ -22,6 +22,16 @@ class Register(Model):
     mode:Literal['controlled','observed']='controlled'
     environment:Literal['wsl','windows']='wsl'
     open_url:str=''
+    launch:dict|None=None
+class TerminalRequest(Model):
+    generation:str=Field(pattern=r'^[a-f0-9]{32}$')
+    policy_hash:str=Field(pattern=r'^[a-f0-9]{64}$')
+    action:Literal['read','write','resize']='read'
+    cursor:int=Field(default=0,ge=0)
+    data:str=Field(default='',max_length=12000)
+    cols:int=Field(default=100,ge=10,le=300)
+    rows:int=Field(default=30,ge=4,le=150)
+
 class WindowsProcess(Model):
     name:str=Field(max_length=120)
     agent_type:Literal['codex','hermes-desktop']
@@ -31,8 +41,10 @@ class WindowsProcess(Model):
 class WindowsReport(Model):
     rows:list[WindowsProcess]=Field(max_length=100)
 class Configure(Model):
+    expected_launch_hash:str|None=Field(default=None,pattern=r'^[a-f0-9]{64}$')
     name:str=Field(min_length=1,max_length=120)
-    resources:list[str]=Field(min_length=1,max_length=16)
+    resources:list[str]|None=Field(default=None,min_length=1,max_length=16)
+    launch:dict|None=None
     expected_policy_hash:str=Field(pattern=r'^[a-f0-9]{64}$')
 class Proposal(Model):
     generation:str|None=None
@@ -74,6 +86,11 @@ def propose_system_rules(body:SystemProposal): return invoke(system_policy.propo
 def confirm_system_rules(pid:str,body:Confirm):
     from .approval_decisions import confirm
     return invoke(confirm,'system:'+pid,body.proposal_hash)
+
+@router.get('/api/agent-launch-profiles')
+def launch_profiles():
+    from .launch import presets
+    return presets()
 
 @router.get('/api/agent-instances')
 def instances(): return invoke(c.listing)
@@ -160,3 +177,28 @@ def result(ident:str,body:Result,request:Request):
 def agent_proposal(ident:str,body:Proposal,request:Request):
     auth(ident,request,body.generation)
     return invoke(c.proposals,ident,body.model_dump(),'agent')
+
+@router.get('/api/agent-instances/{ident}/workspaces')
+def native_workspaces(ident:str):
+    from .native_workspaces import directory
+    return invoke(directory,ident)
+
+@router.get('/api/agent-instances/{ident}/workspaces/{workspace_id}/files')
+def native_workspace_files(ident:str,workspace_id:str,path:str=Query('',max_length=2000)):
+    from .native_workspaces import files
+    return invoke(files,ident,workspace_id,path)
+
+@router.post('/api/agent-instances/{ident}/terminal')
+def terminal(ident:str,body:TerminalRequest):
+    row=invoke(store.get,ident)
+    if row['mode']!='controlled' or row['gate']!='open' or row['generation']!=body.generation or row['policy_hash']!=body.policy_hash:
+        raise HTTPException(409,'终端运行身份已变化或执行已暂停，请重新打开连接')
+    return invoke(broker,{'action':'agent-instance-terminal','instance_id':ident,
+        'generation':body.generation,'policy_hash':body.policy_hash,'body':body.model_dump(exclude={'generation','policy_hash'})})
+
+@router.get('/terminal/{ident}')
+def terminal_page(ident:str):
+    from fastapi.responses import FileResponse
+    from ..config import UI_DIST
+    if not ident.startswith('instance-'):raise HTTPException(404,'连接不存在')
+    return FileResponse(UI_DIST/'terminal.html')

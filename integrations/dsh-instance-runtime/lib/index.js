@@ -1,4 +1,5 @@
 import http from 'node:http';
+import {projectWorkspace,filesForWorkspace} from './workspaces.js';
 import {randomUUID,timingSafeEqual} from 'node:crypto';
 import {defineTool} from '@deepseek-ai/dsh-tools';
 export const name='agentscope-instance-runtime';
@@ -46,10 +47,12 @@ export function apply(ctx){
     const sessions=[];
     for(const w of ctx.workspaceRegistry.list())for(const sid of w.sessionIds||[]){
      const live=ctx.agents.get(sid);
-     sessions.push({id:sid,resource:w.path,process_ids:live?[process.pid]:[],mapping:'native_registry',status:live?.status||'stored'});
+     sessions.push({id:sid,resource:w.path,process_ids:live?[process.pid]:[],native_workspace:{id:w.workspaceId||w.id,name:w.title,path:w.path,source:'dsh_workspace_registry'},mapping:'native_registry',status:live?.status||'stored'});
     }
-    result={pid:process.pid,sessions,inflight:calls.size};
-   }else if(data.operation==='open_url')result={url:ctx.connection.authenticatedUrl('http://127.0.0.1:'+webPort+'/')};
+    result={pid:process.pid,sessions,workspaces:ctx.workspaceRegistry.list().map(projectWorkspace),inflight:calls.size};
+   }else if(data.operation==='workspace-files'){
+     result=await filesForWorkspace(ctx.workspaceRegistry.list(),data.workspace_id,data.path||'',resources,JSON.parse(process.env.AGENTSCOPE_FILE_DENIES||'[]'));
+    }else if(data.operation==='open_url')result={url:ctx.connection.authenticatedUrl('http://127.0.0.1:'+webPort+'/')};
    else if(data.operation==='flush'){
     for(const w of ctx.workspaceRegistry.list())for(const sid of w.sessionIds||[]){
      const found=await ctx.sessionController.resolveAgent(sid);

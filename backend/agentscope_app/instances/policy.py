@@ -16,8 +16,8 @@ def clean_resources(paths):
         p = Path(value)
         if not p.is_absolute() or p.is_symlink() or str(p.resolve(strict=True)) != str(p) or not p.is_dir():
             raise ValueError('资源必须是已存在的规范绝对目录')
-        if not any(str(p).startswith(root) for root in ('/home/happy/projects/', '/mnt/c/Users/happy/Desktop/projects/', '/s/instance-resources/')):
-            raise ValueError('资源目录须在本机项目目录或 Demo 的 instance-resources 下')
+        if str(p)!='/home/happy/projects' and not any(str(p).startswith(root) for root in ('/home/happy/projects/', '/mnt/c/Users/happy/Desktop/', '/s/instance-resources/')):
+            raise ValueError('文件访问范围须位于本机项目目录、桌面项目目录或 Demo 资源目录')
         if any(p == Path(old) or p in Path(old).parents or Path(old) in p.parents for old in result):
             raise ValueError('资源目录不能重复或相互包含')
         result.append(str(p))

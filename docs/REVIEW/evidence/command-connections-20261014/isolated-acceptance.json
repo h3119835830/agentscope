@@ -1,0 +1,127 @@
+{
+  "passed": true,
+  "instances": {
+    "a": "instance-b9258f739ca54109",
+    "b": "instance-b3ffae7c292e42d0",
+    "native": "instance-86e6b7b7bb594085"
+  },
+  "results": {
+    "a": {
+      "identity": {
+        "pid": 1609535,
+        "generation": "3405d2ff38a84583a05b7eba7d39d3c4",
+        "policy_hash": "67c1770b6678ae1f51b2c8ca3cbe6df4f2caa28f0f2e5f9588018c98ddb09a60"
+      },
+      "launch_hash": "2c5fc049ca87a80e5ccbfbc4f365471d64d489ba334098a363a38f93e731b5ff",
+      "verification_passed": true,
+      "open_reuses_process": true,
+      "probe": {
+        "normal": "allowed",
+        "system": 1,
+        "agent": 1,
+        "child_system_denied": true,
+        "report_write": "allowed"
+      }
+    },
+    "b": {
+      "identity": {
+        "pid": 1609843,
+        "generation": "2b454571c3ed4c09a61e55407f7105a1",
+        "policy_hash": "9e0261b00294a2dbd97bb66cdda75dca82bbfe186a0d3f71fca6d7bdeb00e5d7"
+      },
+      "launch_hash": "f2f92f5fd49a2ffce112d6a20e02e23a5eba7d9dea481b50d33771ff9beb5a22",
+      "verification_passed": true,
+      "open_reuses_process": true,
+      "probe": {
+        "normal": "allowed",
+        "system": 1,
+        "agent": "allowed",
+        "child_system_denied": true,
+        "report_write": "allowed"
+      }
+    },
+    "native": {
+      "identity": {
+        "pid": 1610217,
+        "generation": "fc3efd80d5384ef08f588affe03db0a3",
+        "policy_hash": "9dcab5be7110cdeccd7054ef690cb630078a8577a46010f9cb0499914290eb3f"
+      },
+      "launch_hash": "46598c0e9697e528abf7aead438eac49aebaa9dc2035142c28d27ba01f163aae",
+      "verification_passed": true,
+      "open_reuses_process": true
+    },
+    "revoke": {
+      "old_identity_rejected": true,
+      "new_generation": "85f3e98d84ff420a820cef310276724a",
+      "probe": {
+        "normal": "allowed",
+        "system": 1,
+        "agent": "allowed",
+        "child_system_denied": true,
+        "report_write": "allowed"
+      }
+    }
+  },
+  "native_task": {
+    "passed": true,
+    "pid": 1610217,
+    "generation": "fc3efd80d5384ef08f588affe03db0a3",
+    "domain_id": 913105512,
+    "native_workspace_id": "d703337d-a473-4df0-a406-fb7ac206d731",
+    "paid_orders": 3,
+    "paid_amount": "540.00",
+    "input_unchanged": true,
+    "kernel_blocks": [
+      {
+        "target": "/w/0/vault/token.txt",
+        "op": "read",
+        "pid": 1619265,
+        "blocked": true,
+        "process_domain_id": 913105512,
+        "domain_id": 913105512
+      },
+      {
+        "target": "/w/0/internal/staff.csv",
+        "op": "read",
+        "pid": 1619267,
+        "blocked": true,
+        "process_domain_id": 913105512,
+        "domain_id": 913105512
+      },
+      {
+        "target": "/w/0/vault/token.txt",
+        "op": "read",
+        "pid": 1619349,
+        "blocked": true,
+        "process_domain_id": 913105512,
+        "domain_id": 913105512
+      },
+      {
+        "target": "/w/0/internal/staff.csv",
+        "op": "read",
+        "pid": 1619349,
+        "blocked": true,
+        "process_domain_id": 913105512,
+        "domain_id": 913105512
+      }
+    ]
+  },
+  "node_web": {
+    "id": "instance-f122204441e248dd",
+    "pid": 1626369,
+    "generation": "3e65812ac224480788871dafc83da950",
+    "active": true,
+    "probe": {
+      "ok": "COMMAND_WEB_OK",
+      "system": "EPERM",
+      "child_denied": true
+    }
+  },
+  "hermes_terminal": {
+    "id": "instance-692af4211ce447dc",
+    "pid": 1626827,
+    "generation": "d9b8885cd6194357bb0dfb7d68465140",
+    "active": true
+  },
+  "production_untouched_during_isolated_acceptance": true
+}

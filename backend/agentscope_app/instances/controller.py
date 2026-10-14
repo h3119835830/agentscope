@@ -157,20 +157,36 @@ def register(body):
         row=store.create(body['name'].strip(),body['agent_type'],[],mode='observed',environment=body['environment'])
         store.update(row['id'],runtime={'open_url':url})
         return store.get(row['id'])
-    if body['agent_type'] not in ('dsh','hermes'): raise ValueError('受控启动支持 DSH 和 WSL 原生 Hermes')
+    if body['agent_type'] not in ('dsh','hermes','other'): raise ValueError('不支持的 Agent 类型')
     if body.get('environment','wsl')!='wsl': raise ValueError('受控启动首轮仅支持 WSL 原生安装')
-    return store.create(body['name'].strip(),body['agent_type'],clean_resources(body['resources']))
+    from . import launch as entries
+    launch=body.get('launch')
+    if launch:
+        launch=entries.canonical(launch,body['agent_type'])
+    if body['agent_type']=='other' and not launch:raise ValueError('请配置 Agent 启动命令')
+    resources=clean_resources(body['resources'] or ([launch['cwd']] if launch else []))
+    if launch:launch=entries.validate_saved(launch,body['agent_type'],resources)
+    return store.create(body['name'].strip(),body['agent_type'],resources,launch=launch)
 
 @system.lifecycle
 def configure(ident,body):
     system.ensure_ready(ident)
     with lock(ident):
         row=store.get(ident)
+        if row['mode']!='controlled':raise ValueError('仅受控连接可配置启动命令与文件访问范围')
         if row['gate'] not in ('closed','failed'): raise ValueError('请先停止实例再修改连接设置')
         if body['expected_policy_hash']!=row['policy_hash']: raise ValueError('配置已变化，请刷新')
-        resources=clean_resources(body['resources'])
+        if body.get('launch') and body.get('expected_launch_hash')!=(row.get('launch') or {}).get('hash'):raise ValueError('启动配置已变化，请刷新后重新保存')
+        resources=clean_resources(body.get('resources') if body.get('resources') is not None else row['resources'])
+        if resources!=row['resources'] and any(dsl_policy.current(scope)['documents'] for scope in ('system',ident)):
+            raise ValueError('已有 DSL 策略引用访问范围；请先停用并应用这些策略，再调整目录，避免改变原策略对象')
+        if resources[:len(row['resources'])]!=row['resources']:
+            raise ValueError('已有目录映射必须保持稳定；当前仅支持在排序末尾追加目录，替换或移除目录请新建连接')
+        from . import launch as entries
+        launch=entries.canonical(body['launch'],row['agent_type'],resources) if body.get('launch') else row.get('launch')
+        if launch:entries.validate_saved(launch,row['agent_type'],resources)
         effective=system.compose(canonical(row['local_policy'],resources),resources)
-        store.update(ident,name=body['name'].strip(),resources=resources,policy=effective,policy_hash=digest(effective),local_policy=row['local_policy'])
+        store.update(ident,name=body['name'].strip(),resources=resources,policy=effective,policy_hash=digest(effective),local_policy=row['local_policy'],launch=launch)
         store.event(ident,'configured',{'resources':resources})
         return store.get(ident)
 
@@ -195,6 +211,7 @@ def start(ident):
         store.event(ident,'starting',generation=generation)
         try:
             runtime=adapter(row).start(row,token,generation)
+            if row.get('launch') and runtime.get('launch_hash')!=row['launch']['hash']:raise ValueError('运行命令与登记配置不一致')
             if runtime.get('dsl_hash')!=dsl_policy.launch_spec(row)['dsl_hash']:raise ValueError('运行 DSL 指纹与确认策略不一致')
             dsl_policy.record_receipt(ident,generation,runtime)
             store.update(ident,runtime=runtime,gate='open' if runtime.get('verified') else 'paused')
@@ -232,7 +249,7 @@ def proposal_context(row):
     """Authority and execution identity frozen separately from candidate origin."""
     return {'instance_id':row['id'],'resources':row['resources'],'generation':row['generation'],
         'system_revision':system.current()['revision'],
-        'local_hash':digest(row['local_policy']),
+        'local_hash':digest(row['local_policy']),'launch_hash':(row.get('launch') or {}).get('hash'),
         'binding':{k:row['runtime'].get(k) for k in ('pid','start_ticks','domain_id','host_id','boot_id')},
         'dsl':{scope:{k:dsl_policy.current(scope)[k] for k in ('revision','document_hash')} for scope in ('system',row['id'])}}
 
@@ -268,6 +285,8 @@ def proposals(ident,body,actor='user'):
             return dict(old)
         local=system.local_candidate(row,body['policy'],actor)
         candidate=system.compose(local,row['resources'])
+        from .launch import validate_policy
+        validate_policy(row.get('launch'),candidate)
         context=proposal_context(row)
         proposal_hash=digest({'policy':candidate,'local_policy':local,'target':context,'generation':body['generation'],'base_hash':body['base_hash']})
         with db.connect() as con:

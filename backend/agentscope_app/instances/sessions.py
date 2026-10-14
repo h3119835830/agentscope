@@ -50,6 +50,9 @@ def native_workspace_info(row,session):
     if not isinstance(path,str) or not path or path!=native_cwd(row,session):return None
     # Reserved platform mount roots are not user project paths, even when a
     # native workspace registration happens to point at one of them.
+    if row.get('launch',{} ) and row['launch'].get('native_paths'):
+        from .mapping import translate
+        path=translate(path,row.get('resources',[]),reverse=True)
     if internal_workspace_path(path):return None
     import ntpath
     from pathlib import PurePosixPath

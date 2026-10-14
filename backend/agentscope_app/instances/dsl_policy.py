@@ -70,7 +70,7 @@ def target_snapshot(scope,documents):
     for row in rows:
         docs=documents_for(row['id'],scope,documents)
         targets.append({'id':row['id'],'console_retained':row['id'] in retained,'name':row['name'],'agent_type':row['agent_type'],'resources':row['resources'],'generation':row['generation'],
-            'gate':row['gate'],'base_hash':row['policy_hash'],'current_dsl_hash':launch_spec(row)['dsl_hash'],
+            'launch_hash':(row.get('launch') or {}).get('hash'),'gate':row['gate'],'base_hash':row['policy_hash'],'current_dsl_hash':launch_spec(row)['dsl_hash'],
             'pid':live.get(row['id'],{}).get('pid'),'domain_id':live.get(row['id'],{}).get('domain_id'),
             'next_dsl_hash':fingerprint(docs,row['resources']),'system_revision':system.current()['revision'],
             'system_dsl_revision':current('system')['revision'],'agent_dsl_revision':current(row['id'])['revision'],
@@ -102,7 +102,7 @@ def propose(scope,body):
         try:
             row=store.get(target['id'])
             result=broker({'action':'agent-instance-dsl-compile','instance_id':row['id'],'resources':row['resources'],
-                'policy':row['policy'],'agent_type':row['agent_type'],'dsl_documents':documents_for(row['id'],scope,docs)},timeout=60)
+                'policy':row['policy'],'agent_type':row['agent_type'],'launch':row.get('launch'),'dsl_documents':documents_for(row['id'],scope,docs)},timeout=60)
             results.append({'instance_id':row['id'],**result})
         except (OSError,TimeoutError,ValueError,RuntimeError) as e:
             error=str(e)[:4000];break
@@ -152,7 +152,7 @@ def apply(scope,pid,expected_hash):
     # Recompile the same frozen effective policy before any process is stopped.
     for target,previous in zip(p['targets'],p['result']['compilations']):
         row=store.get(target['id'])
-        check=broker({'action':'agent-instance-dsl-compile','instance_id':row['id'],'resources':row['resources'],'policy':row['policy'],'agent_type':row['agent_type'],'dsl_documents':documents_for(row['id'],scope,p['documents'])},timeout=60)
+        check=broker({'action':'agent-instance-dsl-compile','instance_id':row['id'],'resources':row['resources'],'policy':row['policy'],'agent_type':row['agent_type'],'launch':row.get('launch'),'dsl_documents':documents_for(row['id'],scope,p['documents'])},timeout=60)
         if check['bundle_hash']!=previous['bundle_hash']:raise ValueError('确认后的编译内容不一致，请重新校验')
         if check.get('execution_capabilities')!=previous.get('execution_capabilities'):raise ValueError('执行能力已经变化，请重新校验')
     if target_snapshot(scope,p['documents'])!=p['targets']:raise ValueError('校验期间应用目标已经变化，请重新校验')
