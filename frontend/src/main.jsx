@@ -23,7 +23,7 @@ import './productConsole.css';
 import './policyExperience.css';
 import './policyScene.css';
 
-const api = (url, options = {}) => requestJSON(fetch,productReadUrl(url,options.method||'GET'), {...options, credentials:'omit', headers:{'Content-Type':'application/json','X-AgentScope-Surface':'product', ...options.headers}});
+const api = (url, options = {}) => requestJSON(fetch,productReadUrl(url,options.method||'GET'), {...options, credentials:'omit', headers:{'Content-Type':'application/json','X-AgentScope-Surface':'product', ...options.headers}}, /\/template-configurations\/generate$/.test(url)?90000:10000);
 const post = (url, body = {}) => api(url, { method: 'POST', body: JSON.stringify(body) });
 const short = (value, n = 12) => value ? `${value.slice(0, n)}…` : '—';
 const HISTORY_MODULES = [

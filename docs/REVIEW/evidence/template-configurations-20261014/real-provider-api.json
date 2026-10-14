@@ -1,0 +1,190 @@
+{
+  "preview": {
+    "pid": 146651,
+    "start_ticks": "785708",
+    "root": "/home/happy/projects/agentscope-template-configurations-20261014",
+    "state": "/tmp/agentscope-template-preview-6ln9a9x2",
+    "port": 18153
+  },
+  "checks": [
+    "真实模型仅选择模板和填参",
+    "删除与修改为同一模板的独立子记录",
+    "共享访问组实际影响明确显示",
+    "生成重试不重复保存",
+    "手工与助手使用相同参数合同",
+    "生效策略与 Agent 停止状态未改变"
+  ],
+  "production_agent_actions": false,
+  "policy_application": false,
+  "real_provider": true,
+  "agent_id": "instance-a22beb631c9c42e6",
+  "generation_seconds": 1.444,
+  "passed": true,
+  "template_count": 27,
+  "children": [
+    {
+      "id": "tc_6f52b1bfde0840fb938236c57d184299",
+      "template_id": "FILE-CHANGE",
+      "scope_id": "instance-a22beb631c9c42e6",
+      "scope": "agent",
+      "workspace_id": null,
+      "revision": 1,
+      "archived": 0,
+      "created_at": "2026-10-14T13:26:47.977670+00:00",
+      "updated_at": "2026-10-14T13:26:47.977670+00:00",
+      "latest_revision": 1,
+      "template_version": 1,
+      "template_hash": "b474dab5dc1a099f5126d1206bf304be48eb39c4568fad0d7caa2b1794f704c5",
+      "resource_hash": "70d597ce84451969fee9539f6cbf97de5dbcb9dd9a2adbdf9bc3f61f539ddb42",
+      "name": "禁止删除内部员工文件",
+      "reason": "仅保留用户指定的禁止删除该文件的意图。",
+      "execution_reason": "仅保留用户指定的禁止删除该文件的意图。 当前执行访问组同时限制修改与删除。",
+      "parameters": {
+        "target": "/w/0/internal/staff.csv",
+        "operations": [
+          "unlink"
+        ]
+      },
+      "document": {
+        "id": "tc_6f52b1bfde0840fb938236c57d184299",
+        "name": "禁止删除内部员工文件",
+        "original_dsl": "rule config-tc_6f52b1bfde0840fb938236c57d184299:\n  block unlink file \"/w/0/internal/staff.csv\" if AGENT\n  because \"仅保留用户指定的禁止删除该文件的意图。 当前执行访问组同时限制修改与删除。\"",
+        "metadata": {
+          "config-tc_6f52b1bfde0840fb938236c57d184299": {
+            "statement": "禁止删除内部员工文件",
+            "context_requirement": "self_contained",
+            "context_reason": ""
+          }
+        },
+        "managed_identity": true
+      },
+      "requested_operations": [
+        "unlink"
+      ],
+      "effective_operations": [
+        "write",
+        "unlink"
+      ],
+      "coverage_warning": "当前执行后端将修改与删除作为同一访问组；此配置实际影响两者。",
+      "effect": "block",
+      "note": "",
+      "origin": "assistant",
+      "applied_revision": null,
+      "applied_configuration": null,
+      "applied": false,
+      "approval_id": null,
+      "status": "draft",
+      "can_submit": true,
+      "scope_label": "此 Agent 的全部工作区与会话"
+    },
+    {
+      "id": "tc_03831dc9d1d94ac982d3296648389b09",
+      "template_id": "FILE-CHANGE",
+      "scope_id": "instance-a22beb631c9c42e6",
+      "scope": "agent",
+      "workspace_id": null,
+      "revision": 1,
+      "archived": 0,
+      "created_at": "2026-10-14T13:26:47.978182+00:00",
+      "updated_at": "2026-10-14T13:26:47.978182+00:00",
+      "latest_revision": 1,
+      "template_version": 1,
+      "template_hash": "b474dab5dc1a099f5126d1206bf304be48eb39c4568fad0d7caa2b1794f704c5",
+      "resource_hash": "70d597ce84451969fee9539f6cbf97de5dbcb9dd9a2adbdf9bc3f61f539ddb42",
+      "name": "禁止修改内部员工文件",
+      "reason": "仅保留用户指定的禁止修改该文件的意图。",
+      "execution_reason": "仅保留用户指定的禁止修改该文件的意图。 当前执行访问组同时限制修改与删除。",
+      "parameters": {
+        "target": "/w/0/internal/staff.csv",
+        "operations": [
+          "write"
+        ]
+      },
+      "document": {
+        "id": "tc_03831dc9d1d94ac982d3296648389b09",
+        "name": "禁止修改内部员工文件",
+        "original_dsl": "rule config-tc_03831dc9d1d94ac982d3296648389b09:\n  block write file \"/w/0/internal/staff.csv\" if AGENT\n  because \"仅保留用户指定的禁止修改该文件的意图。 当前执行访问组同时限制修改与删除。\"",
+        "metadata": {
+          "config-tc_03831dc9d1d94ac982d3296648389b09": {
+            "statement": "禁止修改内部员工文件",
+            "context_requirement": "self_contained",
+            "context_reason": ""
+          }
+        },
+        "managed_identity": true
+      },
+      "requested_operations": [
+        "write"
+      ],
+      "effective_operations": [
+        "write",
+        "unlink"
+      ],
+      "coverage_warning": "当前执行后端将修改与删除作为同一访问组；此配置实际影响两者。",
+      "effect": "block",
+      "note": "",
+      "origin": "assistant",
+      "applied_revision": null,
+      "applied_configuration": null,
+      "applied": false,
+      "approval_id": null,
+      "status": "draft",
+      "can_submit": true,
+      "scope_label": "此 Agent 的全部工作区与会话"
+    },
+    {
+      "id": "tc_a19b2dee8c6c49c1938bdfe8346e8e23",
+      "template_id": "FILE-CHANGE",
+      "scope_id": "instance-a22beb631c9c42e6",
+      "scope": "agent",
+      "workspace_id": null,
+      "revision": 1,
+      "archived": 0,
+      "created_at": "2026-10-14T13:26:47.994398+00:00",
+      "updated_at": "2026-10-14T13:26:47.994398+00:00",
+      "latest_revision": 1,
+      "template_version": 1,
+      "template_hash": "b474dab5dc1a099f5126d1206bf304be48eb39c4568fad0d7caa2b1794f704c5",
+      "resource_hash": "70d597ce84451969fee9539f6cbf97de5dbcb9dd9a2adbdf9bc3f61f539ddb42",
+      "name": "员工资料禁止删除（手工对照）",
+      "reason": "仅保留用户指定的禁止删除该文件的意图。",
+      "execution_reason": "仅保留用户指定的禁止删除该文件的意图。 当前执行访问组同时限制修改与删除。",
+      "parameters": {
+        "target": "/w/0/internal/staff.csv",
+        "operations": [
+          "unlink"
+        ]
+      },
+      "document": {
+        "id": "tc_a19b2dee8c6c49c1938bdfe8346e8e23",
+        "name": "员工资料禁止删除（手工对照）",
+        "original_dsl": "rule config-tc_a19b2dee8c6c49c1938bdfe8346e8e23:\n  block unlink file \"/w/0/internal/staff.csv\" if AGENT\n  because \"仅保留用户指定的禁止删除该文件的意图。 当前执行访问组同时限制修改与删除。\"",
+        "metadata": {
+          "config-tc_a19b2dee8c6c49c1938bdfe8346e8e23": {
+            "statement": "员工资料禁止删除（手工对照）",
+            "context_requirement": "self_contained",
+            "context_reason": ""
+          }
+        },
+        "managed_identity": true
+      },
+      "requested_operations": [
+        "unlink"
+      ],
+      "effective_operations": [
+        "write",
+        "unlink"
+      ],
+      "coverage_warning": "当前执行后端将修改与删除作为同一访问组；此配置实际影响两者。",
+      "effect": "block",
+      "note": "",
+      "applied_revision": null,
+      "applied_configuration": null,
+      "applied": false,
+      "approval_id": null,
+      "status": "draft",
+      "can_submit": true,
+      "scope_label": "此 Agent 的全部工作区与会话"
+    }
+  ]
+}

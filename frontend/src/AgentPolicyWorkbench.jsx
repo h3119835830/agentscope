@@ -1,7 +1,7 @@
 import NativeAgentWorkspaces from './NativeAgentWorkspaces.jsx';
 import React,{useEffect,useState} from 'react';
 import ActPlanePolicies from './ActPlanePolicies.jsx';
-import AgentPolicyDrafts from './AgentPolicyDrafts.jsx';
+import AgentPolicyDrafts from './TemplatePolicyAssistant.jsx';
 import {agentName,agentProcessLabel,visibleAgentInstances} from './agentInstancePresentation.mjs';
 import {tabKeys} from './consoleState.mjs';
 import './policyFlow.css';

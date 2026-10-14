@@ -86,8 +86,31 @@ def plan(ident):
         raise ValueError('生成候选绑定了旧场景，请返回策略助手重新读取材料并生成新版本；不能直接替换执行绑定。')
     with db.connect() as con:
         binding=con.execute('SELECT * FROM system_policy_library_proposals WHERE proposal_id=?',(ident,)).fetchone()
+        template_binding=con.execute('SELECT * FROM template_configuration_proposals WHERE proposal_id=?',(ident,)).fetchone()
     comparisons=[]
-    if binding:
+    if template_binding:
+        from . import template_configurations as configurations, template_catalog
+        docs={d['id']:d for d in base['documents']};previous={d['id']:d for d in p['documents']};selections=[]
+        for chosen in json.loads(template_binding['selections_json']):
+            item=configurations.load(chosen['id'])
+            configurations.verify_current(item)
+            if item['archived'] or item['scope_id']!=p['scope_id']:raise ValueError('子配置已删除或目标不一致，请返回策略与模板核对')
+            if digest(template_catalog.get(item['template_id'],item['template_version']))!=item['template_hash']:raise ValueError('模板合同已经变化，请先编辑并保存子配置的新版本')
+            removal=chosen.get('operation')=='disable'
+            before=docs.get(item['id']) if removal else previous.get(item['id'])
+            if before is None:raise ValueError('原子配置来源不完整，请返回策略与模板重新提交')
+            after=None if removal else item['document']
+            comparisons.append({'name':item['name'],'before_version':chosen['revision'],'after_version':item['revision'],
+                'removal':removal,'same_content':before==after if not removal else True,
+                'before_dsl':before['original_dsl'],'after_dsl':after['original_dsl'] if after else '',
+                'before_summary':'原子配置，展开核对','after_summary':item['coverage_warning'] or item['note'] or item['name']})
+            if removal:docs.pop(item['id'])
+            else:docs[item['id']]=after
+            selections.append({'id':item['id'],'revision':item['revision'],'document_hash':digest(item['document']),
+                               'operation':'disable' if removal else 'apply','acknowledge_coverage':bool(item['coverage_warning'])})
+        documents=list(docs.values());kind='template'
+        body={'selections':selections,'documents':documents,'base_hash':base['document_hash'],'base_revision':base['revision']}
+    elif binding:
         if p['scope_id']!='system':raise ValueError('系统配置来源与审批范围不一致')
         docs={d['id']:d for d in base['documents']};old={d['id']:d for d in p['documents']};selections=[]
         for chosen in json.loads(binding['selections_json']):
@@ -119,7 +142,7 @@ def plan(ident):
             if not any(d['id']==doc['id'] for d in p['documents']):comparisons.append({'name':doc['name'],'removal':True,'same_content':True})
     from dsl_documents import canonical_documents
     documents=canonical_documents(documents)
-    if kind=='dsl':body['documents']=documents
+    if kind in ('dsl','template'):body['documents']=documents
     targets=dsl.target_snapshot(p['scope_id'],documents)
     frozen={'source_id':ident,'scope_id':p['scope_id'],'kind':kind,'body':body,'documents':documents,'targets':targets}
     return {**frozen,'plan_hash':digest(frozen),'comparisons':comparisons,'target_count':len(targets),
@@ -147,7 +170,11 @@ def revalidate(ident,plan_hash,request_key):
     with db.connect() as con:
         con.execute('INSERT OR IGNORE INTO policy_approval_revalidations VALUES(?,?,?,?,?,NULL,?)',
                     (ident,request_key,plan_hash,child_key,json.dumps(body),db.now()))
-    result=library.propose(body) if fresh['kind']=='library' else dsl.propose(p['scope_id'],body)
+    if fresh['kind']=='template':
+        from .template_configurations import revalidate_proposal
+        result=revalidate_proposal(p['scope_id'],body)
+    else:
+        result=library.propose(body) if fresh['kind']=='library' else dsl.propose(p['scope_id'],body)
     if result['targets']!=fresh['targets']:raise ValueError('校验期间执行目标已经变化，请重新读取预览并提交新校验请求')
     with db.connect() as con:
         con.execute('UPDATE policy_approval_revalidations SET new_approval_id=? WHERE source_id=? AND request_key=?',

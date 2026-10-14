@@ -27,6 +27,8 @@ def init(con):
     from .policy_drafts import init as init_drafts
     init_decisions(con)
     init_drafts(con)
+    from .template_configurations import init as init_templates
+    init_templates(con)
     from .approval_recovery import init as init_recovery
     init_recovery(con)
     con.execute("UPDATE instance_dsl_scopes SET phase='blocked' WHERE phase='updating'")
@@ -144,6 +146,8 @@ def apply(scope,pid,expected_hash):
     if p['state']=='applied':return {**p['result'].get('application',{}),'id':pid,'state':'applied','idempotent':True}
     from .policy_library import verify_proposal
     verify_proposal(pid)
+    from .template_configurations import verify_proposal as verify_template_proposal
+    verify_template_proposal(pid)
     base=current(scope)
     if p['state']!='pending' or p['base_hash']!=base['document_hash'] or p['base_revision']!=base['revision']:raise ValueError('DSL 候选已过期或尚未通过编译')
     if target_snapshot(scope,p['documents'])!=p['targets']:raise ValueError('连接、资源、运行代次或继承策略已经变化，请重新校验')

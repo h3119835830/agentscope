@@ -45,6 +45,8 @@ from .instances.dsl_api import router as instance_dsl_router
 app.include_router(instance_dsl_router)
 from .instances.drafts_api import router as policy_drafts_router
 app.include_router(policy_drafts_router)
+from .instances.templates_api import router as policy_templates_router
+app.include_router(policy_templates_router)
 from .console import router as console_router
 from .audit_identity import principal, AuditModel
 app.include_router(console_router)

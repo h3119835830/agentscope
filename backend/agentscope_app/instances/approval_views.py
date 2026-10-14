@@ -37,6 +37,8 @@ def project(p,names,full=False,locations=None):
             if not completed(p):raise ValueError('重新校验尚未完成，请重试原校验请求。')
             from .policy_library import verify_proposal
             verify_proposal(p['id'])
+            from .template_configurations import verify_proposal as verify_template_proposal
+            verify_template_proposal(p['id'])
             if p['base_revision']!=base['revision'] or p['base_hash']!=base['document_hash']:
                 raise ValueError('策略配置已经变化，请重新校验')
             if dsl.target_snapshot(p['scope_id'],p['documents'])!=p['targets']:

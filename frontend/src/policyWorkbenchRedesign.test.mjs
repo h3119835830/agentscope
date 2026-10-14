@@ -56,6 +56,29 @@ test('compiled candidates blocked by server validation require regeneration and 
  assert.equal(candidateView(pending).ready,true);assert.equal(candidateView(pending).stale,false);
 });
 function elements(tree){if(!tree||typeof tree!=='object')return [];return [tree,...[tree.props?.children].flat(Infinity).flatMap(elements)]}
+test('manual child configuration sends only template parameters to the shared API without approving',async()=>{
+ const render=await harness('TemplateConfigurationDialog.jsx'),calls=[];
+ const template={id:'FILE-CHANGE',version:1,name:'文件修改与删除限制',summary:'文件保护',reason:'保留原件',scopes:['agent'],effect:'block',parameters:[{key:'target',label:'对象',type:'path',default:'/w/0/staff.csv'},{key:'operations',label:'操作',type:'operations',default:['unlink','write']}]};
+ const props={template,agents:[target],targetId:target.id,post:async(path,body)=>{calls.push({path,body});return {id:'tc_child'};},onSaved(){},onClose(){}};
+ let tree=render(props);assert.equal(elements(tree).find(e=>e.type==='select'&&e.props['aria-label']==='操作').props.value,'write,unlink');
+ await elements(tree).find(e=>e.type==='form').props.onSubmit({preventDefault(){}});
+ assert.equal(calls.length,1);assert.equal(calls[0].path,'/api/policy-template-configurations');assert.equal(calls[0].body.scope_id,target.id);assert.equal(calls[0].body.template_id,'FILE-CHANGE');assert.equal(calls[0].body.document,undefined);assert.equal(calls[0].body.original_dsl,undefined);
+});
+test('template assistant uses the parameter generation API even for a stopped Agent and never calls legacy generation',async()=>{
+ const templates=[{id:'FILE-READ',version:1,name:'文件读取限制',scopes:['agent'],parameters:[]}],data={catalog:templates,items:[],generations:[]};
+ const render=await harness('TemplatePolicyAssistant.jsx','default',[data]),calls=[];
+ const props={target:{...target,connected:false},scope:'agent',api:async()=>data,post:async(path,body)=>{calls.push({path,body});return {items:[],questions:['请补充路径'],gaps:[]};},onApprovals(){}};
+ let tree=render(props);elements(tree).find(e=>e.props?.['aria-label']==='策略需求').props.onChange({target:{value:'禁止读取 /w/0/staff.csv'}});tree=render(props);
+ await elements(tree).find(e=>e.type==='form').props.onSubmit({preventDefault(){}});
+ assert.equal(calls.length,1);assert.ok(calls[0].path.endsWith('/agent-1/template-configurations/generate'));assert.equal(calls[0].body.scope,'agent');assert.equal(calls[0].body.document,undefined);assert.ok(!calls[0].path.includes('/history/'));
+});
+test('static template groups independent sibling configurations without displaying internal DSL',async()=>{
+ const templates=[{id:'FILE-CHANGE',version:1,name:'文件修改与删除限制',category:'文件保护',summary:'保护指定文件',scopes:['agent'],parameters:[],operation:'write',effect:'block'}];
+ const row={template_id:'FILE-CHANGE',scope_label:'此 Agent',parameters:{target:'/w/0/staff.csv'},effective_operations:['write','unlink'],status:'draft',can_submit:true,coverage_warning:'共用访问组',effect:'block'};
+ const data={catalog:templates,items:[{...row,id:'one',name:'员工资料禁止删除',requested_operations:['unlink']},{...row,id:'two',name:'员工资料禁止修改',requested_operations:['write']}]};
+ const render=await harness('AgentPolicyTemplates.jsx','default',[data]);const tree=render({api:async()=>data,post:async()=>{},onApprovals(){}}),html=renderToStaticMarkup(tree);
+ assert.match(html,/员工资料禁止删除/);assert.match(html,/员工资料禁止修改/);assert.match(html,/2 项子配置/);assert.match(html,/实际影响修改与删除/);assert.doesNotMatch(html,/source AGENT|original_dsl/);
+});
 async function harness(entry,exported='default',initialStates=[]){
  const built=await build({entryPoints:[join(base,entry)],bundle:true,platform:'node',format:'cjs',external:['react'],loader:{'.css':'empty'},write:false});
  const states=[...initialStates],refs=[];let index=0,refIndex=0;const react={...React,useState:init=>{const i=index++;if(!(i in states))states[i]=typeof init==='function'?init():init;return [states[i],v=>states[i]=typeof v==='function'?v(states[i]):v]},useRef:init=>{const i=refIndex++;return refs[i]||={current:init}},useEffect:()=>{}};
@@ -63,9 +86,10 @@ async function harness(entry,exported='default',initialStates=[]){
  return (...props)=>{globalThis.document={activeElement:null};index=0;refIndex=0;return mod.exports[exported](...props)};
 }
 test('templates open as a structured record table, with configuration deferred until a record is selected',async()=>{
- const render=await harness('AgentPolicyTemplates.jsx');let writes=0;const props={agents:[target],onHandoff:()=>writes++};let tree=render(props),nodes=elements(tree);
+ const templates=catalogue.templates.map(t=>({...t,version:1,scopes:['agent','workspace'],parameters:t.parameters.map(p=>({...p,default:p.value,type:'path'}))}));
+ const render=await harness('AgentPolicyTemplates.jsx','default',[{catalog:templates,items:[]}]);let writes=0;const props={agents:[target],api:async()=>({catalog:templates,items:[]}),post:async()=>writes++,onApprovals:()=>{}};let tree=render(props),nodes=elements(tree);
  assert.equal(nodes.filter(e=>e.type==='table').length,1);assert.equal(nodes.filter(e=>e.type==='tr').length,7);assert.equal(nodes.filter(e=>e.type==='form').length,0);
- const html=renderToStaticMarkup(tree);for(const field of ['策略名称','匹配对象 / 操作','处置方式','适用范围'])assert.ok(html.includes(field));assert.doesNotMatch(html,/template-card|RQ\d/i);
+ const html=renderToStaticMarkup(tree);for(const field of ['模板 / 子配置','保护对象','操作与处置','配置状态'])assert.ok(html.includes(field));assert.doesNotMatch(html,/template-card|RQ\d/i);
  nodes.find(e=>e.type==='button'&&e.props['aria-label']==='配置 敏感配置访问限制').props.onClick();tree=render(props);assert.ok(elements(tree).some(e=>e.props?.template?.id==='RQ1-ENV'));assert.equal(writes,0);
 });
 test('system configurations are explicit system candidates and cannot be imported as Agent templates',()=>{

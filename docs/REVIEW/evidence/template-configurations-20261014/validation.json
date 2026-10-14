@@ -1,0 +1,16 @@
+{
+  "backend_tests": 118,
+  "frontend_tests": 284,
+  "build": "passed",
+  "real_provider_api": "passed",
+  "real_provider_seconds": 1.444,
+  "template_count": 27,
+  "agent_templates": 15,
+  "system_presets": 12,
+  "real_provider_children": 2,
+  "manual_comparison_children": 1,
+  "kernel_abi_changed": false,
+  "production_agent_actions": false,
+  "policy_application": false,
+  "scope": "isolated API/provider and real static compiler; no new kernel enforcement claim"
+}
