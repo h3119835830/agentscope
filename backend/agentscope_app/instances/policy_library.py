@@ -130,6 +130,7 @@ def archive(ident,revision):
         item=get(ident,con)
         if item['revision']!=revision:raise ValueError('配置版本已经变化')
         con.execute('UPDATE system_policy_library SET archived=1,revision=revision+1,updated_at=? WHERE id=?',(db.now(),ident))
+        db.audit(con,None,'system_policy_configuration_archived','administrator',{'id':ident,'revision':revision,'runtime_policy_changed':False})
     return {'id':ident,'archived':True}
 
 def directory():

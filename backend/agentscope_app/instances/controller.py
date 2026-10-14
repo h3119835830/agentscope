@@ -208,9 +208,11 @@ def start(ident):
             raise
 
 @system.lifecycle
-def stop(ident):
+def stop(ident,expected=None):
     with lock(ident):
         row=store.get(ident)
+        if expected is not None and any(row[k]!=expected[k] for k in ('generation','policy_hash')):
+            raise ValueError('Agent 运行身份或策略已经变化，请刷新后重新确认停止')
         try: close_runtime_gates([row])
         except Exception: pass # Broker stop below independently closes and terminates.
         store.update(ident,gate='paused')

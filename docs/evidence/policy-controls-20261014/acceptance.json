@@ -1,0 +1,342 @@
+{
+  "schema": "agentscope.policy-controls.acceptance.v1",
+  "verified_at": "2026-10-14T06:09:03Z",
+  "source_base": "d66605e",
+  "kernel_release": "6.6.114.1-microsoft-standard-WSL2",
+  "binary_sha256": "5e8d43c279d88bd4215f654746675debfd976e28426c9fabdabeca408865d6da",
+  "checks": {
+    "approve_alone_does_not_apply": true,
+    "active_configuration_cannot_be_archived": true,
+    "named_removal_approval": true,
+    "wrong_confirmation_rejected": true,
+    "approved_removal_keeps_protection": true,
+    "old_candidate_rejected": true,
+    "application_retry_idempotent": true,
+    "stale_stop_rejected": true,
+    "inactive_delete_retains_history": true,
+    "stop_terminates_and_does_not_restart": true,
+    "production_unchanged": true
+  },
+  "protected_identity": {
+    "id": "instance-645361be393b4469",
+    "pid": 1058532,
+    "generation": "b20e18c656db4ed19d259084a0936ffe",
+    "domain_id": 102499937,
+    "dsl_hash": "e475f1ca77e0da97b97f6c753166d80b646de7ba5085689da571d5ce9f14411f"
+  },
+  "before_removal": {
+    "blocked_probe": {
+      "pid": 1058832,
+      "returncode": 0,
+      "outcome": {
+        "read_completed": false,
+        "errno": 1
+      }
+    },
+    "legal_probe": {
+      "pid": 1058880,
+      "returncode": 0,
+      "outcome": {
+        "read_completed": true,
+        "errno": null
+      }
+    },
+    "kernel_events": [
+      {
+        "offset": 1877,
+        "event": {
+          "action": "block",
+          "blocked": true,
+          "comm": "node-MainThread",
+          "domain_id": 102499937,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x2",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "d0c946583c42c_AGENT",
+                  "label_mask": "0x2",
+                  "origin_op": "exec",
+                  "origin_pid": 1058832,
+                  "origin_target": "node",
+                  "origin_timestamp_ns": 347153090843857
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "d0c946583c42c_AGENT",
+              "label_mask": "0x2",
+              "provenance": {
+                "label": "d0c946583c42c_AGENT",
+                "label_mask": "0x2",
+                "origin_op": "exec",
+                "origin_pid": 1058832,
+                "origin_target": "node",
+                "origin_timestamp_ns": 347153090843857
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "d0c946583c42c_AGENT",
+          "matched_label_names": [
+            "d0c946583c42c_AGENT"
+          ],
+          "matched_labels": "0x2",
+          "op": "read",
+          "op_code": 1,
+          "pid": 1058832,
+          "ppid": 1058831,
+          "process_domain_id": 102499937,
+          "provenance": {
+            "label": "d0c946583c42c_AGENT",
+            "label_mask": "0x2",
+            "origin_op": "exec",
+            "origin_pid": 1058832,
+            "origin_target": "node",
+            "origin_timestamp_ns": 347153090843857
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "binding_mode": "locked",
+            "clause_end_line": 19,
+            "clause_hash": "fnv1a64:65ab08e49dfc2207",
+            "clause_op": "open",
+            "clause_source_index": 0,
+            "clause_start_line": 19,
+            "clause_text": "  block open file \"**/*.agentscope-dsl-block.txt\" if d0c946583c42c_AGENT",
+            "effect": "block",
+            "immutable": true,
+            "kernel_op": "read",
+            "name": "d0c946583c42c-system-policy-558d23fae37843138e7cf62af53a20f9",
+            "ops": [
+              "open"
+            ],
+            "reason": "测试依据禁止读取，其他测试文件允许读取",
+            "source_end_line": 20,
+            "source_hash": "fnv1a64:7fa0933936ebe70d",
+            "source_ref": "d0c946583c42c:0",
+            "source_start_line": 18,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "**/*.agentscope-dsl-block.txt"
+          },
+          "rule_id": 4,
+          "schema": "actplane.violation.v1",
+          "session_root": 1057785,
+          "taint_label": "0x3",
+          "target": "/w/0/.agentscope-dsl-block.txt",
+          "timestamp_unix_ns": "1791957352543495064",
+          "tool_call_tag": "0"
+        }
+      }
+    ]
+  },
+  "while_pending": {
+    "pid": 1058937,
+    "returncode": 0,
+    "outcome": {
+      "read_completed": false,
+      "errno": 1
+    }
+  },
+  "approved_not_applied": {
+    "pid": 1058948,
+    "returncode": 0,
+    "outcome": {
+      "read_completed": false,
+      "errno": 1
+    }
+  },
+  "after_removal": {
+    "application": {
+      "id": "7ec73217c3bd4711a6c31ed9debf8354",
+      "state": "applied",
+      "affected_count": 1,
+      "resumed_count": 1,
+      "targets": [
+        {
+          "id": "instance-645361be393b4469",
+          "status": "active"
+        }
+      ]
+    },
+    "probe": {
+      "pid": 1059854,
+      "returncode": 0,
+      "outcome": {
+        "read_completed": true,
+        "errno": null
+      }
+    },
+    "identity": {
+      "id": "instance-645361be393b4469",
+      "pid": 1059662,
+      "generation": "aada4fb4f1fd425ba85f1f36339f4fb9",
+      "domain_id": 731653499,
+      "dsl_hash": null
+    }
+  },
+  "closed_identity": {
+    "id": "instance-645361be393b4469",
+    "pid": null,
+    "generation": "aada4fb4f1fd425ba85f1f36339f4fb9",
+    "gate": "closed",
+    "active": false
+  },
+  "production_checks": {
+    "authority_unchanged": true,
+    "broker_unchanged": true,
+    "other_ports_unchanged": true,
+    "instance-1f4469579e8947f4": true,
+    "instance-c0dd272b6a734a34": true,
+    "instance-cc444fe38c094cbb": true
+  },
+  "production_agents": {
+    "instance-1f4469579e8947f4": {
+      "policy_hash": "9c5fa9fbb63c9bcd71da29007179d6c9fed00b23ac9b9f4e41165a76b92425c1",
+      "generation": "a8ee7f9c5ad64e0a9bf543e3929255ed",
+      "pid": 1881572,
+      "domain_id": 133859788,
+      "active": true
+    },
+    "instance-c0dd272b6a734a34": {
+      "policy_hash": "f930aa4e9f224e24588a51a652d773cf022a74fa8be0b379ed4e80023c58ad87",
+      "generation": "947b1b6dd3334b3c9a2a250bd3705832",
+      "pid": 1881769,
+      "domain_id": 1819175395,
+      "active": true
+    },
+    "instance-bb171d3176b644a2": {
+      "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+      "generation": "566ddd5edaad438f9473d4ea08ec1cc1",
+      "pid": null,
+      "domain_id": null,
+      "active": false
+    },
+    "instance-cc444fe38c094cbb": {
+      "policy_hash": "c3371a12d813cbf8c4e13bfc39ac8caa8868b6d394f8a7dbebcd74afa15b2cfe",
+      "generation": "3028d67dd05a4be2ac4944b26e278a6d",
+      "pid": 1881965,
+      "domain_id": 766367180,
+      "active": true
+    }
+  },
+  "protection": {
+    "instance-1f4469579e8947f4": {
+      "gate": "open",
+      "protection_fresh": true,
+      "pending_events": 0,
+      "outstanding_calls": 0
+    },
+    "instance-c0dd272b6a734a34": {
+      "gate": "open",
+      "protection_fresh": true,
+      "pending_events": 0,
+      "outstanding_calls": 0
+    },
+    "instance-cc444fe38c094cbb": {
+      "gate": "open",
+      "protection_fresh": true,
+      "pending_events": 0,
+      "outstanding_calls": 0
+    }
+  },
+  "api_before": "3051254",
+  "api_after": "1083843",
+  "broker_pid": "1881389",
+  "api_release": "/opt/agentscope-policy-lifecycle-20261014-140322",
+  "ui_release": "/opt/agentscope-policy-controls-ui-20261014-1410",
+  "javascript": "index-BmLVhcze.js",
+  "session_display_names": [
+    {
+      "instance_id": "instance-1f4469579e8947f4",
+      "session_id": "session-1e38fe17-5015-494b-92f4-a164b650bdf4",
+      "name": "提出实例共享策略收紧方案",
+      "revision": 1
+    },
+    {
+      "instance_id": "instance-1f4469579e8947f4",
+      "session_id": "session-248b69ae-bc23-4fe4-8a43-0493d1412795",
+      "name": "执行一次原生 Bash 测试",
+      "revision": 1
+    },
+    {
+      "instance_id": "instance-1f4469579e8947f4",
+      "session_id": "session-4b0ba2e5-36dd-419d-be19-6fa17f1a596e",
+      "name": "未命名会话",
+      "revision": 1
+    },
+    {
+      "instance_id": "instance-1f4469579e8947f4",
+      "session_id": "session-4ee319d9-3257-485f-a13a-04a009b1afc5",
+      "name": "调用实例策略检查工具",
+      "revision": 1
+    },
+    {
+      "instance_id": "instance-1f4469579e8947f4",
+      "session_id": "session-55c08c67-1ecc-4e64-9079-8a1009b31b65",
+      "name": "修复交易校验问题",
+      "revision": 1
+    },
+    {
+      "instance_id": "instance-1f4469579e8947f4",
+      "session_id": "session-74fe57c1-fe55-4bd4-9db8-5e624d3c5702",
+      "name": "调用实例策略检查工具",
+      "revision": 1
+    },
+    {
+      "instance_id": "instance-1f4469579e8947f4",
+      "session_id": "session-f1aaccc8-ab10-4719-9499-0c1f2af76996",
+      "name": "读取 README 并简要总结",
+      "revision": 1
+    },
+    {
+      "instance_id": "instance-bb171d3176b644a2",
+      "session_id": "session-316da73e-589d-4777-883f-4d94be71c158",
+      "name": "读取 DSL 通知规则文件",
+      "revision": 1
+    },
+    {
+      "instance_id": "instance-bb171d3176b644a2",
+      "session_id": "session-928120d5-678c-4e32-ba56-c0f50410889c",
+      "name": "未命名会话",
+      "revision": 1
+    },
+    {
+      "instance_id": "instance-cc444fe38c094cbb",
+      "session_id": "session-60a2bace-691f-4411-8c5f-904a9176e686",
+      "name": "未命名会话",
+      "revision": 1
+    },
+    {
+      "instance_id": "instance-cc444fe38c094cbb",
+      "session_id": "session-71c5083e-23a1-4963-916b-33c6ebbf8868",
+      "name": "运行基线探针并报告结果",
+      "revision": 1
+    }
+  ],
+  "frontend_tests": 270,
+  "backend_tests": 170,
+  "build": "passed",
+  "native_models_called_in_this_lifecycle_acceptance": false,
+  "ui_validation": [
+    "system-summary",
+    "approve-then-apply-in-isolated-library",
+    "delete-cancel-focus",
+    "stop-cancel-only-on-production",
+    "metadata-name-dialog",
+    "390px-responsive"
+  ],
+  "notes": [
+    "Real probes ran in the owned Broker execution domain; this is lifecycle acceptance, not a rerun of the earlier Agent business tasks.",
+    "Historical approval scope is a frozen submission snapshot, so the summary says submission scope rather than current registry totals."
+  ]
+}

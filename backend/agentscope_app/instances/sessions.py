@@ -20,7 +20,10 @@ CREATE TABLE IF NOT EXISTS instance_session_task_bindings(instance_id TEXT NOT N
  PRIMARY KEY(instance_id,generation,session_id));
 '''
 
-def init(con):con.executescript(SCHEMA)
+def init(con):
+    con.executescript(SCHEMA)
+    from . import session_display
+    session_display.init(con)
 
 def internal_workspace_path(path):
     return isinstance(path,str) and any(path==base or path.startswith(base+'/') for base in ('/w','/s/instance-resources'))
@@ -59,10 +62,11 @@ def native_workspace(row,session):
     return info['path'] if info else None
 
 def native_sessions(row):
+    from .session_display import project
     if not row.get('connected'):
         with db.connect() as con:cached=con.execute('SELECT * FROM instance_session_cache WHERE instance_id=? ORDER BY observed_at DESC',(row['id'],)).fetchall()
-        return {'sessions':[{**json.loads(r['metadata_json']),'process_ids':[],'status':'stored','historical':True,'last_observed_at':r['observed_at']} for r in cached],
-            'mapping_available':False,'historical':bool(cached),'disconnected':True,'executor_shared':True}
+        return project(row['id'],{'sessions':[{**json.loads(r['metadata_json']),'process_ids':[],'status':'stored','historical':True,'last_observed_at':r['observed_at']} for r in cached],
+            'mapping_available':False,'historical':bool(cached),'disconnected':True,'executor_shared':True})
     result=broker({'action':'agent-instance-sessions','instance_id':row['id']},timeout=5)
     result=with_session_names(row,result,lambda:broker({'action':'agent-instance-open','instance_id':row['id']}))
     rows=[]
@@ -80,7 +84,7 @@ def native_sessions(row):
     if row.get('mode')=='controlled':
         with db.connect() as con:
             for item in rows:con.execute('INSERT OR REPLACE INTO instance_session_cache VALUES(?,?,?,?,?)',(row['id'],item['id'],json.dumps(item),row.get('generation'),db.now()))
-    return {**result,'sessions':rows,'mapping_available':True}
+    return project(row['id'],{**result,'sessions':rows,'mapping_available':True})
 
 def current_agent_pid(row):
     pid=row.get('pid')
@@ -112,7 +116,7 @@ def directory(agent_type='',instance_id='',q='',cursor=0,limit=30,workspace='',c
                 if workspace and source_resource==workspace and s['resource']:selected_workspace=s['resource']
             if s.get('resource'):workspaces.add(s['resource'])
             if workspace and s.get('resource')!=workspace and not (console and s.get('resource') and source_resource==workspace):continue
-            if q.lower() not in ((s.get('name') or '')+' '+s['id']).lower():continue
+            if q.lower() not in ((s.get('name') or '')+' '+(s.get('native_name') or '')+' '+s['id']).lower():continue
             rows.append({**s,'instance_id':row['id'],'instance_name':row['name'],'agent_type':row['agent_type'],
                 'agent_pid':current_agent_pid(row),
                 'generation':row.get('generation'),'policy_state':'active' if row.get('active') and not s.get('historical') else 'uncontrolled' if row['mode']=='observed' else 'not_verified',

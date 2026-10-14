@@ -104,7 +104,11 @@ def propose(scope,body):
             results.append({'instance_id':row['id'],**result})
         except (OSError,TimeoutError,ValueError,RuntimeError) as e:
             error=str(e)[:4000];break
-    state='invalid' if error else 'pending';result={'compilations':results,'error':error}
+    previous={d['id']:d for d in base['documents']};next_docs={d['id']:d for d in docs}
+    changes={'added':[d['name'] for d in docs if d['id'] not in previous],
+             'updated':[d['name'] for d in docs if d['id'] in previous and d!=previous[d['id']]],
+             'removed':[d['name'] for d in base['documents'] if d['id'] not in next_docs]}
+    state='invalid' if error else 'pending';result={'compilations':results,'error':error,'document_changes':changes}
     proposal_hash=digest({'request_hash':request_hash,'targets':targets,'compilations':results})
     pid=uuid.uuid4().hex
     with db.connect() as con:

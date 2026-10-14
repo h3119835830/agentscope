@@ -82,7 +82,10 @@ def project(p, names, full=False, locations=None):
            'agents': [{'id': p['instance_id'], 'name': names[p['instance_id']], 'pid': None,
                        'process_state': 'unverified'}]}
     from .approval_locations import Locations
-    location = (locations or Locations()).project(
+    reader=locations or Locations()
+    cached=reader.sessions.get((p['instance_id'],candidate['sessionId']))
+    if cached:session['name']=cached.get('name') or '未命名会话'
+    location = reader.project(
         {'scope_id':p['instance_id'],'documents':[candidate['document']]}, [{'id':p['instance_id']}])
     row['agents'] = location['agents']
     if location['origin_sessions']: row['origin_sessions'] = location['origin_sessions']

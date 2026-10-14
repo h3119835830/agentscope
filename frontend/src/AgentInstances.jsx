@@ -1,4 +1,5 @@
 import RecordBadge from './RecordBadge.jsx';
+import PolicyLifecycleDialog from './PolicyLifecycleDialog.jsx';
 import React,{useEffect,useRef,useState} from 'react';
 import AgentWorkspaces from './AgentWorkspaces.jsx';
 import SecurityConfiguration from './SecurityConfiguration.jsx';
@@ -18,7 +19,7 @@ function PagedRecords(props){
 const kinds={registered:'登记连接',configured:'修改连接',starting:'启动 Agent',verified:'保护核验通过',verification_failed:'保护核验失败',start_failed:'启动失败',stopped:'停止 Agent',policy_proposed:'提出策略变更',gate_closed:'暂停全部会话',quiesced:'终止旧执行进程',policy_applied:'应用共享策略',policy_apply_failed:'策略应用失败',tool_start:'工具执行前检查',tool_result:'工具执行结果',tool_denied:'工具被拒绝'};
 function Fields({values}){return <dl className="task-fields">{values.map(([k,v])=><React.Fragment key={k}><dt>{k}</dt><dd>{v??'—'}</dd></React.Fragment>)}</dl>}
 function Records({labels,rows,empty='暂无记录'}){if(!rows.length)return <p className="task-empty">{empty}</p>;return <div className="table-scroll" tabIndex={0}><table className="task-record-table instance-record-table"><thead><tr>{labels.map(label=><th key={label}>{label}</th>)}</tr></thead><tbody>{rows.map((row,i)=><tr key={i}>{row.map((value,n)=><td key={n}>{value}</td>)}</tr>)}{!rows.length&&<tr><td colSpan={labels.length} className="task-empty">{empty}</td></tr>}</tbody></table></div>}
-function Drawer({id,api,post,onClose,onChanged,onOpen,onSessions,policyScope,initialTab='connection'}){
+export function Drawer({id,api,post,onClose,onChanged,onOpen,onSessions,policyScope,initialTab='connection'}){
  const dialog=useRef(null),origin=useRef(document.activeElement),seq=useRef(0),initialized=useRef(false);
  const [revision,setRevision]=useState(0);
  const [tab,setTab]=useState(initialTab),[row,setRow]=useState(null),[error,setError]=useState(''),[busy,setBusy]=useState(''),[name,setName]=useState(''),[paths,setPaths]=useState(''),[events,setEvents]=useState(null),[eventsError,setEventsError]=useState(''),[proposals,setProposals]=useState([]);
@@ -41,6 +42,7 @@ function Drawer({id,api,post,onClose,onChanged,onOpen,onSessions,policyScope,ini
   return()=>{active=false;clearInterval(timer);};
  },[tab,row?.generation,row?.updated_at,row?.connected,row?.pid,row?.status,revision]);
  async function act(label,fn){setBusy(label);setError('');try{const value=await fn();await refresh();setRevision(n=>n+1);onChanged();return {ok:true,value};}catch(e){setError(e.message);return {ok:false};}finally{setBusy('');}}
+ const [stopping,setStopping]=useState(null);
  const controlled=row?.mode==='controlled'; const pending=proposals.filter(p=>p.state==='pending'&&p.classification==='expand'&&p.generation===row?.generation&&p.base_hash===row?.policy_hash);
  return <dialog ref={dialog} className="record-drawer instance-drawer" aria-label="Agent 配置" onCancel={e=>{e.preventDefault();onClose();}}>
  <div className="record-drawer-head"><h2>{row?agentName(row):'读取 Agent…'}</h2><div className="actions">{row&&(canOpen(row)||canStart(row))&&<button type="button" className="button tiny primary" disabled={!!busy} onClick={()=>act(canStart(row)?'启动并打开 Agent':'打开 Agent',()=>onOpen(row))}>{canStart(row)?'启动并打开 Agent':'打开 Agent'}</button>}<button type="button" className="button tiny ghost" onClick={onClose}>关闭</button></div></div>
@@ -52,13 +54,13 @@ function Drawer({id,api,post,onClose,onChanged,onOpen,onSessions,policyScope,ini
 
   {controlled?<form className="instance-form" onSubmit={e=>{e.preventDefault();act('保存连接设置',()=>api(endpoint(id),{method:'PUT',body:JSON.stringify({name,resources:paths.split('\n').map(p=>p.trim()).filter(Boolean),expected_policy_hash:row.policy_hash})}));}}>
     <label>资源目录<textarea required rows={4} value={paths} onChange={e=>setPaths(e.target.value)} placeholder="每行一个已有项目目录"/></label>
-    <p className="field-note">资源目录用于会话映射和文件权限。连接设置在 Agent 停止后修改。</p><div className="actions"><button className="button primary" disabled={!!busy||!['closed','failed'].includes(row.gate)}>保存连接设置</button><button type="button" className="button ghost" disabled={!!busy||row.gate==='closed'} onClick={()=>act('停止 Agent',()=>post(endpoint(id)+'/stop'))}>停止 Agent</button></div>
+    <p className="field-note">资源目录用于会话映射和文件权限。连接设置在 Agent 停止后修改。</p><div className="actions"><button className="button primary" disabled={!!busy||!['closed','failed'].includes(row.gate)}>保存连接设置</button><button type="button" className="button ghost" disabled={!!busy||row.gate==='closed'} onClick={()=>setStopping({generation:row.generation??null,policy_hash:row.policy_hash,pid:row.pid})}>停止 Agent</button></div>
   </form>:<p className="field-note">这是发现的本机 Agent。受控接入后可配置策略。</p>}
  </>}
  {row&&tab==='policy'&&<>
   <SecurityConfiguration key={id} initialScope={policyScope==='system'?'system':'agent'} row={row} api={api} post={post} onSystemChanged={()=>{refresh();onChanged();}} pending={pending} busy={!!busy} onPropose={candidate=>act('提交安全配置',()=>post(endpoint(id)+'/policy/proposals',{policy:candidate.policy,generation:candidate.generation,base_hash:candidate.base_hash,request_key:crypto.randomUUID()}))} onConfirm={proposal=>act('确认并应用变更',()=>post(endpoint(id)+'/policy/proposals/'+proposal.id+'/confirm',{proposal_hash:proposal.proposal_hash}))}/></>}
  {row&&tab==='events'&&<div className="security-runtime">{eventsError&&<p role="alert">{eventsError}</p>}<PagedRecords labels={['时间','操作','会话 / 工具','处理结果']} rows={(events||[]).map(e=>[timeLabel(e.created_at),kinds[e.kind]||e.kind,[e.session_id,e.tool].filter(Boolean).join(' / ')||'整个 Agent',<RecordBadge>{eventResult(e)}</RecordBadge>])} empty={eventsError?'运行记录读取失败':events?'暂无运行记录':'正在读取运行记录…'}/></div>}
- </div></dialog>
+ </div>{stopping&&<PolicyLifecycleDialog title={'停止 '+agentName(row)} confirmLabel="停止全部会话" busy={!!busy} onClose={()=>setStopping(null)} onConfirm={async()=>{const result=await act('停止 Agent',()=>post(endpoint(id)+'/stop',{generation:stopping.generation,policy_hash:stopping.policy_hash}));if(result.ok)setStopping(null);else throw Error('停止未完成，请刷新检查实际运行状态。');}}><p>确认进程：{stopping.pid?'PID '+stopping.pid:'当前未核验'}。若运行身份或策略发生变化，需要重新确认。</p><p>将停止这个 Agent 的全部会话及受控执行进程。策略配置和历史记录保留，之后需要你手动启动。</p><p>停止 Agent 与停用策略是两个操作。</p></PolicyLifecycleDialog>}</dialog>
 }
 function Add({api,post,onClose,onCreated}){
  const dialog=useRef(null),origin=useRef(document.activeElement);

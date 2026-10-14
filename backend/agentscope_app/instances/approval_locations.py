@@ -23,6 +23,8 @@ class Locations:
         with db.connect() as con:
             self.sessions = {(r['instance_id'], r['session_id']): json.loads(r['metadata_json'])
                              for r in con.execute('SELECT instance_id,session_id,metadata_json FROM instance_session_cache')}
+            for r in con.execute('SELECT instance_id,session_id,name FROM instance_session_display_names'):
+                if (r['instance_id'],r['session_id']) in self.sessions:self.sessions[(r['instance_id'],r['session_id'])]['name']=r['name']
 
     def target(self, frozen):
         live = self.agents.get(frozen['id'], {})

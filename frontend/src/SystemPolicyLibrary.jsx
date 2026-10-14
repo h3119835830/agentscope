@@ -1,3 +1,4 @@
+import PolicyLifecycleDialog from './PolicyLifecycleDialog.jsx';
 import React,{useEffect,useRef,useState} from 'react';
 import {DslCode} from './DslCode.jsx';
 import {ApprovalDetail} from './PolicyApprovals.jsx';
@@ -7,7 +8,7 @@ import './systemPolicyLibrary.css';
 
 const base='/api/security/system/policy-library';
 const blank={name:'',mode:'suffix',values:'',ops:['open'],effect:'block',reason:'',template_id:''};
-const scopeText='勾选并确认后，统一载入所有受控 Agent；Agent 策略继续继承这些约束。';
+const scopeText='选择配置后先提交审批，批准后再单独应用；所有受控 Agent 继承这些约束。';
 const configuredStatus=(item,phase,targets=[])=>{
  if(!item)return '未配置';if(!item.applied)return '已保存';if(phase!=='ready')return '加载未完成';if(item.has_changes)return '有更新待应用';
  const records=item.records||[];if(records.length&&records.every(r=>r.active))return '已应用';
@@ -54,29 +55,30 @@ function Editor({entry,capability,onClose,onSave,onArchive,onDisable,onRecord,bu
   </div><aside className="spl-config-aside"><h3>配置摘要</h3>{kind==='structured'?<><Badge effect={config.effect}/><p>{effects[config.effect]?.detail}</p><dl><dt>保护对象</dt><dd>{config.values||'填写后展示'}</dd><dt>触发操作</dt><dd>{config.ops.map(o=>operations[o]).join('、')}</dd><dt>适用范围</dt><dd>所有受控 Agent 及其工作区、会话</dd></dl>{['suffix','filename','tail','directory','exact','flow'].includes(config.mode)&&<label>匹配示例<input value={example} onChange={e=>setExample(e.target.value)} spellCheck={false}/><span className={'spl-match-result '+(match?'yes':'')}>{match===null?'输入绝对路径检查匹配':match?'匹配此对象':'不匹配此对象'}</span></label>}</>:<p>文档中的每条规则分别展示，来源和跨事件依赖随整个文档一起应用。</p>}<div className="spl-inherit"><b>系统策略</b><span>↓ 所有 Agent 继承</span><b>Agent 专属策略</b><span>追加约束，保留系统保护</span></div></aside></div>}
   {tab==='dsl'&&<div className="spl-dsl-pane"><div className="spl-section-head"><h3>原始策略文档</h3><button className="button tiny ghost" disabled={!preview} onClick={copy}>{copied?'已复制':'复制 DSL'}</button></div>{kind==='structured'&&<p className="spl-note">AGENT 来源由后端根据受控启动身份补全。逐 Agent 的加载文档与映射可在应用详情查看。</p>}{preview?<DslCode text={preview}/>:<p className="spl-note">{validation}</p>}</div>}
   {tab==='evidence'&&<div className="spl-dsl-pane"><h3>规则与加载记录</h3>{item.records.map(record=><button className="spl-evidence-row" key={record.id} onClick={()=>onRecord(record)}><span>{record.rule_name}<small>{record.statement}</small></span><span>查看原文与加载回执 ↗</span></button>)}</div>}
-  </div><footer className="spl-editor-footer"><span>{item?.applied?'保存新版本后，当前策略继续执行，直到再次确认应用。':'保存到配置库后，可勾选并校验应用。'}</span>{item?.applied?<button className="spl-danger" disabled={busy} onClick={()=>onDisable(item)}>停用策略…</button>:item&&<button className="spl-danger" disabled={busy} onClick={()=>onArchive(item)}>归档</button>}<button className="button ghost" disabled={busy} onClick={onClose}>取消</button><button className="button primary" disabled={busy} onClick={save}>{busy?'正在保存…':'保存配置'}</button></footer>
+  </div><footer className="spl-editor-footer"><span>{item?.applied?'保存新版本后，当前策略继续执行，直到再次确认应用。':'保存到配置库后，可勾选并校验应用。'}</span>{item?.applied?<button className="spl-danger" disabled={busy} onClick={()=>onDisable(item)}>停用策略…</button>:item&&<button className="spl-danger" disabled={busy} onClick={()=>onArchive(item)}>删除配置…</button>}<button className="button ghost" disabled={busy} onClick={onClose}>取消</button><button className="button primary" disabled={busy} onClick={save}>{busy?'正在保存…':'保存配置'}</button></footer>
  </Modal>;
 }
 
 export default function SystemPolicyLibrary({api,post,onChanged}){
  const [data,setData]=useState(null),[capability,setCapability]=useState(null),[error,setError]=useState(''),[notice,setNotice]=useState(''),[busy,setBusy]=useState(false),
- [filter,setFilter]=useState('all'),[q,setQ]=useState(''),[category,setCategory]=useState('全部类型'),[selected,setSelected]=useState(new Set()),[editor,setEditor]=useState(null),[review,setReview]=useState(null),[record,setRecord]=useState(null),[removal,setRemoval]=useState(null);
- const mounted=useRef(false),request=useRef(0);
+ [filter,setFilter]=useState('all'),[q,setQ]=useState(''),[category,setCategory]=useState('全部类型'),[selected,setSelected]=useState(new Set()),[editor,setEditor]=useState(null),[review,setReview]=useState(null),[record,setRecord]=useState(null),[removal,setRemoval]=useState(null),[deletion,setDeletion]=useState(null);
+ const mounted=useRef(false),request=useRef(0),decisionRequest=useRef(null);
  async function refresh(){const seq=++request.current;try{const value=await api(base);if(mounted.current&&seq===request.current){setData(value);setError('');}}catch(e){if(mounted.current)setError(e.message);}}
  useEffect(()=>{mounted.current=true;refresh();api('/api/security/system/execution-capabilities').then(v=>{if(mounted.current)setCapability(v);}).catch(()=>{});return()=>{mounted.current=false;request.current++;};},[api]);
  const rows=data?[...data.items.map(item=>({id:item.id,item,preset:data.catalog.find(p=>p.id===item.config?.template_id)})),...data.catalog.filter(p=>!data.items.some(i=>i.config?.template_id===p.id)).map(preset=>({id:'preset-'+preset.id,preset}))]:[];
  const visible=rows.filter(r=>(filter==='all'||r.item)&&(category==='全部类型'||(r.preset?.category||r.item?.category)===category)&&JSON.stringify([r.item?.name||r.preset?.name,r.item?.config||r.preset,r.item?.document?.original_dsl]).toLowerCase().includes(q.toLowerCase()));
  const selectable=visible.filter(r=>r.item&&!r.item.validation_error);
  const toggle=id=>setSelected(old=>{const next=new Set(old);next.has(id)?next.delete(id):next.add(id);return next;});
- async function save(item,body){setBusy(true);try{await post(base+(item?'/'+encodeURIComponent(item.id)+'/versions':''),{...body,base_revision:item?.revision||0});await refresh();setEditor(null);setNotice('已保存到配置库。勾选并确认后才会应用。');onChanged?.();}finally{setBusy(false);}}
- async function archive(item){setBusy(true);setError('');try{await post(base+'/'+encodeURIComponent(item.id)+'/archive',{revision:item.revision});setSelected(s=>new Set([...s].filter(x=>x!==item.id)));await refresh();setEditor(null);setNotice('配置已归档。');}catch(e){setError(e.message);}finally{setBusy(false);}}
+ async function save(item,body){setBusy(true);try{await post(base+(item?'/'+encodeURIComponent(item.id)+'/versions':''),{...body,base_revision:item?.revision||0});await refresh();setEditor(null);setNotice('已保存到配置库。选择后提交审批，批准后再应用。');onChanged?.();}finally{setBusy(false);}}
+ async function archive(item){setBusy(true);setError('');try{await post(base+'/'+encodeURIComponent(item.id)+'/archive',{revision:item.revision});setSelected(s=>new Set([...s].filter(x=>x!==item.id)));await refresh();setEditor(null);setNotice('配置已从库中移除；历史审批与执行记录保留。');setDeletion(null);}catch(e){setError(e.message);}finally{setBusy(false);}}
  async function propose(removals=[]){setBusy(true);setError('');setNotice('');try{
   const selections=removals.length?[]:data.items.filter(i=>selected.has(i.id)).map(i=>({id:i.id,revision:i.revision}));
   const proposal=await post(base+'/proposals',{selections,removals,base_hash:data.base_hash,base_revision:data.base_revision,request_key:crypto.randomUUID()});
   if(proposal.state!=='pending'){setError(proposal.result?.error||'策略未通过校验，请调整配置后重试。');return;}
   const result=await api('/api/console/approvals/'+proposal.id);setReview(result);setRemoval(null);
  }catch(e){setError(e.message);}finally{setBusy(false);}}
- async function decide(p,decision){setBusy(true);try{const result=await post('/api/console/approvals/'+encodeURIComponent(p.id)+'/'+decision,{proposal_hash:p.proposal_hash});await refresh();setReview(null);setSelected(new Set());setNotice(decision==='confirm'?'确认已处理：'+(result.resumed_count||0)+' 个运行中 Agent 已加载，其余受控 Agent 将在启动时加载。':'此次候选已拒绝，运行策略保持原状。');onChanged?.();}finally{setBusy(false);}}
+ async function decide(p,decision){setBusy(true);try{const body={proposal_hash:p.proposal_hash};if(['approve','apply'].includes(decision)){const fingerprint=p.id+':'+decision+':'+p.proposal_hash+':'+(p.approval_hash||'');if(decisionRequest.current?.fingerprint!==fingerprint)decisionRequest.current={fingerprint,key:crypto.randomUUID()};body.request_key=decisionRequest.current.key;}if(decision==='apply')body.approval_hash=p.approval_hash;const result=await post('/api/console/approvals/'+encodeURIComponent(p.id)+'/'+decision,body);await refresh();if(decision==='approve'){setReview(await api('/api/console/approvals/'+encodeURIComponent(p.id)));setNotice('已批准变更，当前运行策略尚未改变。请核对后单独应用。');}else{setReview(null);setSelected(new Set());setNotice(decision==='apply'?'策略已应用：'+(result.resumed_count||0)+' 个运行中 Agent 已重新加载，其余受控 Agent 将在启动时加载。':'此次候选已拒绝或撤回，运行策略保持原状。');}onChanged?.();}finally{setBusy(false);}}
+
  return <div className="system-policy-library">
   <div className="spl-intro"><span className="spl-root">◇</span><div><strong>所有受控 Agent 共同遵守</strong><p>{scopeText}</p></div><button className="button tiny ghost" disabled={busy} onClick={refresh}>刷新</button></div>
   <div className="spl-toolbar"><div className="spl-filter-tabs" role="tablist" aria-label="系统策略筛选">{[['all','全部策略',rows.length],['configured','已配置',data?.items.length||0]].map(([k,t,n])=><button role="tab" aria-selected={filter===k} key={k} onClick={()=>setFilter(k)}>{t}<span>{n}</span></button>)}</div><div><button className="button ghost" onClick={()=>setEditor({kind:'dsl'})}>导入 DSL</button><button className="button primary" onClick={()=>setEditor({kind:'structured'})}>＋ 新建策略</button></div></div>
@@ -91,13 +93,14 @@ export default function SystemPolicyLibrary({api,post,onChanged}){
     <td>{cfg?<><code>{lines(cfg.values).slice(0,2).join('、')||'待填写实际目录'}{lines(cfg.values).length>2?' …':''}</code><small>{modes[cfg.mode]} · {cfg.ops.map(o=>operations[o]).join('、')}</small></>:rule?<><code>{rule.clauses.map(c=>c.target).join('、')}</code><small>{rule.clauses.map(c=>operations[c.operation]||c.operation).join('、')}</small></>:<small>完整 DSL 文档</small>}</td>
     <td><div className="spl-effect-list">{(cfg?[cfg.effect]:rule?.effects||[]).map(effect=><Badge key={effect} effect={effect}/>)}</div></td>
     <td><span className={'spl-state '+(item?.has_changes?'changed':item?.applied?'applied':item?'saved':'')}>{item?.validation_error?'需校验':configuredStatus(item,data.phase,data.targets)}</span></td>
-    <td><button className="spl-open" onClick={()=>setEditor(row)}>{item?'详情 / 编辑':'配置'} ↗</button></td></tr>);
+    <td><button className="spl-open" onClick={()=>setEditor(row)}>{item?'详情 / 编辑':'配置'} ↗</button>{item&&<button className="spl-open spl-lifecycle-action" disabled={busy} onClick={()=>item.applied?setRemoval(item):setDeletion(item)}>{item.applied?'停用…':'删除配置…'}</button>}</td></tr>);
   })}
   </tbody></table>{!visible.length&&<div className="spl-empty">{data?'没有符合条件的策略。':'正在读取系统配置库…'}</div>}<footer><span>{data?.items.length||0} 项已保存配置</span><span>保存和勾选均不会改变运行策略</span></footer></div>
   {selected.size>0&&<div className="spl-selection" role="region" aria-label="已选策略"><strong>已选 {selected.size} 项</strong><span>新增或更新所选配置，保留其他已应用策略</span><button onClick={()=>setSelected(new Set())}>清空</button><button className="button primary" disabled={busy} onClick={()=>propose()}>{busy?'正在校验…':'校验并预览 →'}</button></div>}
-  {editor&&<Editor entry={editor} capability={capability} busy={busy} onClose={()=>setEditor(null)} onSave={save} onArchive={archive} onDisable={item=>{setEditor(null);setRemoval(item);}} onRecord={setRecord}/>}
+  {editor&&<Editor entry={editor} capability={capability} busy={busy} onClose={()=>setEditor(null)} onSave={save} onArchive={item=>{setEditor(null);setDeletion(item);}} onDisable={item=>{setEditor(null);setRemoval(item);}} onRecord={setRecord}/>}
   {record&&<PolicyDetail record={record} onClose={()=>setRecord(null)} onEdit={()=>setRecord(null)}/>}
   {review&&<ApprovalDetail data={review} busy={busy} onClose={()=>setReview(null)} onDecision={decide}/>}
-  {removal&&<Modal label="停用系统策略" className="spl-small-dialog" onClose={()=>!busy&&setRemoval(null)}><header><h2>停用 {removal.name}</h2></header><p>将从所有受控 Agent 的系统策略中移除这个完整文档。配置保留在库中；其他系统策略和 Agent 策略继续保留。</p>{error&&<p role="alert" className="spl-error">{error}</p>}<p>下一步查看移除差异与全部受影响 Agent，再人工确认。</p><footer><button className="button ghost" disabled={busy} onClick={()=>setRemoval(null)}>取消</button><button className="button primary" disabled={busy} onClick={()=>propose([removal.id])}>校验停用影响 →</button></footer></Modal>}
+  {deletion&&<PolicyLifecycleDialog title={'删除配置：'+deletion.name} confirmLabel="删除配置" busy={busy} onClose={()=>setDeletion(null)} onConfirm={()=>archive(deletion)}><p>从配置库中移除这项未生效配置，保留历史版本、审批和执行记录。</p><p>删除配置不会改变当前运行策略；已生效策略必须先停用并完成审批。</p>{error&&<p role="alert" className="spl-error">{error}</p>}</PolicyLifecycleDialog>}
+  {removal&&<Modal label="停用系统策略" className="spl-small-dialog" onClose={()=>!busy&&setRemoval(null)}><header><h2>停用 {removal.name}</h2></header><p>将从所有受控 Agent 的系统策略中移除这个完整文档。配置保留在库中；其他系统策略和 Agent 策略继续保留。</p>{error&&<p role="alert" className="spl-error">{error}</p>}<p>下一步校验移除差异并提交审批；批准后再单独应用。</p><footer><button className="button ghost" disabled={busy} onClick={()=>setRemoval(null)}>取消</button><button className="button primary" disabled={busy} onClick={()=>propose([removal.id])}>校验停用影响 →</button></footer></Modal>}
  </div>;
 }

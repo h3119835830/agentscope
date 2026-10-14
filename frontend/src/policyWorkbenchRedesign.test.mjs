@@ -56,9 +56,9 @@ test('compiled candidates blocked by server validation require regeneration and 
  assert.equal(candidateView(pending).ready,true);assert.equal(candidateView(pending).stale,false);
 });
 function elements(tree){if(!tree||typeof tree!=='object')return [];return [tree,...[tree.props?.children].flat(Infinity).flatMap(elements)]}
-async function harness(entry,exported='default'){
- const built=await build({entryPoints:[join(base,entry)],bundle:true,platform:'node',format:'cjs',external:['react'],write:false});
- const states=[],refs=[];let index=0,refIndex=0;const react={...React,useState:init=>{const i=index++;if(!(i in states))states[i]=typeof init==='function'?init():init;return [states[i],v=>states[i]=typeof v==='function'?v(states[i]):v]},useRef:init=>{const i=refIndex++;return refs[i]||={current:init}},useEffect:()=>{}};
+async function harness(entry,exported='default',initialStates=[]){
+ const built=await build({entryPoints:[join(base,entry)],bundle:true,platform:'node',format:'cjs',external:['react'],loader:{'.css':'empty'},write:false});
+ const states=[...initialStates],refs=[];let index=0,refIndex=0;const react={...React,useState:init=>{const i=index++;if(!(i in states))states[i]=typeof init==='function'?init():init;return [states[i],v=>states[i]=typeof v==='function'?v(states[i]):v]},useRef:init=>{const i=refIndex++;return refs[i]||={current:init}},useEffect:()=>{}};
  const name=join(base,'.policy-redesign-test.cjs'),mod=new Module(name);mod.paths=Module._nodeModulePaths(base);const original=mod.require.bind(mod);mod.require=id=>id==='react'?react:original(id);mod._compile(built.outputFiles[0].text,name);
  return (...props)=>{globalThis.document={activeElement:null};index=0;refIndex=0;return mod.exports[exported](...props)};
 }
@@ -240,7 +240,7 @@ test('approval records show product, PID and native session with exact read navi
  const render=await harness('PolicyApprovals.jsx','ApprovalRecords'),paths=[];
  const row={id:'proposal-a',name:'Protect secret',scope_type:'agent',document_count:1,status:'stale',created_at:'2026-10-11T01:00:00Z',target_name:'DeepSeek Harness',agents:[{id:'agent-a',name:'DeepSeek Harness',pid:54870}],origin_sessions:[{instance_id:'agent-a',session_id:'session-one',name:'Run native tests',available:true,generation_pid:54870}]};
  const tree=render({rows:[row],navigate:p=>paths.push(p)}),html=renderToStaticMarkup(tree);
- for(const value of ['Agent / PID','生成会话','DeepSeek Harness','54870','Run native tests','状态 / 提交时间'])assert.ok(html.includes(value));
+ for(const value of ['适用 Agent','生成会话','DeepSeek Harness','54870','Run native tests','状态 / 提交时间'])assert.ok(html.includes(value));
  assert.doesNotMatch(html,/RQ5|受控实例|批准并应用/);assert.equal(paths.length,0);
  // Render the nested location components independently to exercise their buttons.
  const agentNode=elements(tree).find(e=>e.type?.name==='AgentLocation');
@@ -255,4 +255,89 @@ test('approval search finds native session and both current and historical PID',
  for(const q of ['PID 77','55','33','native task','session-one','DeepSeek','protect'])assert.ok(matchesApproval(r,q));
  assert.ok(!matchesApproval(r,'Hermes'));assert.equal(processLabel({pid:null,process_state:'offline'}),'未运行');
  assert.equal(originLabel({scope_type:'agent',origin_state:'unrecorded'}),'未关联会话');
+});
+
+test('system approvals present one global audience instead of enumerating every Agent and repeated scope',async()=>{
+ const render=await harness('PolicyApprovals.jsx','ApprovalRecords');
+ const row={id:'global',name:'保护环境凭据',scope_type:'system',scope_label:'全部受控 Agent',status:'pending',created_at:'2026-10-14T00:00:00Z',total_affected_count:4,agents:[{id:'one',name:'DeepSeek Harness',pid:44},{id:'two',name:'Hermes',pid:55},{id:'three',name:'DeepSeek Harness',pid:66},{id:'four',name:'DeepSeek Harness',pid:null}],origin_sessions:[]};
+ const html=renderToStaticMarkup(render({rows:[row],navigate(){throw Error('read-only rendering');}}));
+ assert.equal((html.match(/全部受控 Agent/g)||[]).length,1);
+ assert.match(html,/提交时涉及 4 个实例/);assert.match(html,/系统配置/);
+ assert.doesNotMatch(html,/DeepSeek Harness|Hermes|PID 44|PID 55|未运行/);
+});
+
+test('applied removal retains the removed policy name and accurate change count',async()=>{
+ const render=await harness('PolicyApprovals.jsx','ApprovalDetail');
+ const data={id:'removed',name:'停用 验收依据保护',scope_type:'system',status:'applied',kind:'dsl',created_at:'2026-10-14T00:00:00Z',documents:[],records:[],targets:[],agents:[],total_affected_count:0,document_changes:{removed:['验收依据保护']},can_apply:false};
+ const html=renderToStaticMarkup(render({data,onClose(){}}));
+ assert.match(html,/1 项变更/);assert.match(html,/移除<\/span>验收依据保护/);assert.doesNotMatch(html,/0 项变更/);
+});
+
+test('inactive system policy deletion is explicitly confirmed and uses archive without runtime confirmation',async()=>{
+ const item={id:'saved',name:'中文测试策略',kind:'dsl',document:{id:'saved',name:'中文测试策略',original_dsl:'rule x:\n notify exec "git" if AGENT'},revision:3,applied:false,records:[]};
+ const data={items:[item],catalog:[],targets:[],phase:'ready',base_hash:'a'.repeat(64),base_revision:0};
+ const render=await harness('SystemPolicyLibrary.jsx','default',[data]),calls=[];
+ const props={api:async()=>data,post:async(...args)=>{calls.push(args);return {archived:true};}};
+ let tree=render(props);elements(tree).find(e=>e.type==='button'&&e.props.children==='删除配置…').props.onClick();
+ assert.equal(calls.length,0);tree=render(props);
+ const prompt=elements(tree).find(e=>e.type?.name==='PolicyLifecycleDialog');assert.match(renderToStaticMarkup(prompt.props.children),/历史版本、审批和执行记录/);
+ await prompt.props.onConfirm();assert.deepEqual(calls,[['/api/security/system/policy-library/saved/archive',{revision:3}]]);
+});
+
+test('Agent policy stop creates a reviewed removal candidate and preserves every other document',async()=>{
+ const first={id:'first',name:'项目测试保护',original_dsl:'source AGENT = exec "**/node"\nrule x:\n block write file "/w/0/tests/**" if AGENT'};
+ const second={id:'second',name:'配置保护',original_dsl:first.original_dsl};
+ const record={id:'r',document_id:first.id,document_name:first.name,rule_name:'x',statement:first.name,editable:true,effects:['block']};
+ const data={scope_id:'agent-a',revision:2,document_hash:'a'.repeat(64),phase:'ready',documents:[first,second],records:[record],proposals:[]};
+ const render=await harness('ActPlanePolicies.jsx','default',[data]),calls=[],approvals=[];
+ const props={scopeId:'agent-a',scopeLabel:'DeepSeek Harness',api:async()=>data,post:async(...args)=>{calls.push(args);return {id:'remove-candidate',state:'pending'};},onApprovals:id=>approvals.push(id)};
+ let tree=render(props);elements(tree).find(e=>e.type?.name==='ConfiguredPolicyRecords').props.onDisable(record);
+ assert.equal(calls.length,0);tree=render(props);const prompt=elements(tree).find(e=>e.type?.name==='PolicyLifecycleDialog');
+ await prompt.props.onConfirm();assert.equal(calls.length,1);assert.equal(calls[0][0],'/api/agent-instances/agent-a/dsl/proposals');
+ assert.deepEqual(calls[0][1].documents,[second]);assert.equal(calls[0][1].base_hash,data.document_hash);assert.deepEqual(approvals,['remove-candidate']);
+});
+
+test('assistant stops only the selected generation and waits for backend cancellation acknowledgement',async()=>{
+ const turn={runId:'generation-one',text:'请生成中文项目保护策略',targetId:target.id};
+ const render=await harness('AgentPolicyAssistant.jsx','default',[[turn],'',false,'',{'generation-one':{status:'running'}},{}]),calls=[];
+ const props={target,api:async()=>({}),post:async(...args)=>{calls.push(args);return {status:'cancelling'};}};
+ let tree=render(props);const button=elements(tree).find(e=>e.type==='button'&&e.props.children==='停止生成');assert.ok(button);
+ await button.props.onClick();assert.deepEqual(calls,[['/api/history/generations/generation-one/cancel',{}]]);
+ tree=render(props);assert.match(renderToStaticMarkup(tree),/正在停止生成，当前请求结束后退出/);
+ assert.ok(elements(tree).find(e=>e.type==='button'&&e.props.children==='正在停止…').props.disabled);
+});
+
+test('current baseline draft assistant can cancel its own generation without applying a policy',async()=>{
+ const draft={id:'draft-one',run_id:'baseline-run',revision:1,text:'禁止修改项目验收依据',state:'generating',materials:[]};
+ const initial=['',[],null,null,[draft],{'baseline-run':{status:'running'}},{},'',false,true];
+ const render=await harness('AgentPolicyDrafts.jsx','default',initial),calls=[];
+ const props={target,scope:'agent',context:{ready:true},api:async()=>({records:[draft]}),post:async(...args)=>{calls.push(args);return {cancel_requested:true};}};
+ let tree=render(props);await elements(tree).find(e=>e.type==='button'&&e.props.children==='停止生成').props.onClick();
+ assert.deepEqual(calls,[['/api/history/generations/baseline-run/cancel',{}]]);
+ tree=render(props);assert.match(renderToStaticMarkup(tree),/正在停止生成，当前请求结束后退出/);
+ assert.ok(elements(tree).find(e=>e.type==='button'&&e.props.children==='正在停止…').props.disabled);
+});
+
+test('stop confirmation freezes the displayed generation instead of accepting a refreshed identity',async()=>{
+ const row={...target,gate:'open',policy_hash:'a'.repeat(64),proposals:[],policy:{rules:[],network:'model_only'}};
+ const render=await harness('AgentInstances.jsx','Drawer',[0,'connection',row,'','','','',null,'',[]]),calls=[];
+ const props={id:row.id,api:async()=>row,post:async(...args)=>calls.push(args),onChanged(){}};
+ let tree=render(props);elements(tree).find(e=>e.type==='button'&&e.props.children==='停止 Agent').props.onClick();
+ row.generation='changed-after-dialog';row.policy_hash='b'.repeat(64);
+ tree=render(props);const modal=elements(tree).find(e=>e.type?.name==='PolicyLifecycleDialog');
+ await modal.props.onConfirm();assert.deepEqual(calls,[['/api/agent-instances/'+row.id+'/stop',{generation:identity.generation,policy_hash:'a'.repeat(64)}]]);
+});
+
+test('system library review sends separate idempotent approve and apply requests',async()=>{
+ const pending={id:'system-review',scope_type:'system',status:'pending',proposal_hash:'a'.repeat(64),documents:[],records:[],targets:[],agents:[],total_affected_count:0,can_approve:true,can_apply:false,created_at:'2026-10-14T00:00:00Z'};
+ const approved={...pending,status:'approved',can_approve:false,can_apply:true,approval_hash:'b'.repeat(64)};
+ const data={items:[],catalog:[],targets:[],phase:'ready'};
+ const render=await harness('SystemPolicyLibrary.jsx','default',[data,null,'','',false,'all','','全部类型',new Set(),null,pending]),calls=[];
+ const props={api:async path=>path.includes('/approvals/')?approved:data,post:async(...args)=>{calls.push(args);return {state:'applied',resumed_count:0};}};
+ let tree=render(props),detail=elements(tree).find(e=>e.type?.name==='ApprovalDetail');
+ await detail.props.onDecision(pending,'approve');
+ assert.equal(calls.length,1);assert.equal(calls[0][0],'/api/console/approvals/system-review/approve');assert.ok(calls[0][1].request_key);
+ tree=render(props);detail=elements(tree).find(e=>e.type?.name==='ApprovalDetail');assert.equal(detail.props.data.can_apply,true);
+ assert.match(renderToStaticMarkup(tree),/当前运行策略尚未改变/);
+ await detail.props.onDecision(approved,'apply');assert.equal(calls[1][0],'/api/console/approvals/system-review/apply');assert.equal(calls[1][1].approval_hash,approved.approval_hash);assert.ok(calls[1][1].request_key);
 });

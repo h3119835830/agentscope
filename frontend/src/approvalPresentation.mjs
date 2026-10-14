@@ -7,3 +7,5 @@ export function matchesApproval(row, query) {
  const words=[row.name,row.target_name,row.scope_label,...(row.agents||[]).flatMap(a=>[a.name,a.pid?`PID ${a.pid}`:'',a.submitted_pid?`PID ${a.submitted_pid}`:'']),...(row.origin_sessions||[]).flatMap(s=>[s.name,s.session_id,s.generation_pid?`PID ${s.generation_pid}`:''])];
  return words.join(' ').toLowerCase().includes(query.trim().toLowerCase());
 }
+
+export const approvalTitle = row => row.name?.trim() || (row.documents||[]).map(d=>d.name?.trim()).filter(Boolean).join('、') || '未命名策略';

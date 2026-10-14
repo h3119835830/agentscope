@@ -56,6 +56,10 @@ class Prompt(Model):
 class Generation(Model):
     generation:str=Field(pattern=r'^[a-f0-9]{32}$')
 
+class Stop(Model):
+    generation:str|None=Field(default=None,pattern=r'^[a-f0-9]{32}$')
+    policy_hash:str|None=Field(default=None,pattern=r'^[a-f0-9]{64}$')
+
 class SystemProposal(Model):
     policy:dict
     base_hash:str=Field(pattern=r'^[a-f0-9]{64}$')
@@ -96,7 +100,9 @@ def open_agent(ident:str):
 @router.post('/api/agent-instances/{ident}/start')
 def start(ident:str): return invoke(c.start,ident)
 @router.post('/api/agent-instances/{ident}/stop')
-def stop(ident:str): return invoke(c.stop,ident)
+def stop(ident:str,body:Stop|None=None):
+    if body and body.generation is not None and body.policy_hash is None:raise HTTPException(422,'停止身份确认须同时包含策略指纹')
+    return invoke(c.stop,ident,body.model_dump() if body and body.policy_hash is not None else None)
 @router.get('/api/agent-instances/{ident}/policy')
 def policy(ident:str):
     row=invoke(c.detail,ident)
@@ -113,7 +119,8 @@ def sessions(ident:str):
     if row['mode']=='observed' and (not row.get('connected') or row.get('runtime',{}).get('open_url')) or row.get('gate')=='closed':
         return {'sessions':[],'resources':row.get('resources',[]),'mapping_available':False}
     result=invoke(broker,{'action':'agent-instance-sessions','instance_id':ident})
-    return with_session_names(row,result,lambda:broker({'action':'agent-instance-open','instance_id':ident}))
+    from .session_display import project
+    return project(ident,with_session_names(row,result,lambda:broker({'action':'agent-instance-open','instance_id':ident})))
 @router.post('/api/agent-instances/{ident}/sessions')
 def session(ident:str,body:Session):
     row=invoke(store.get,ident)

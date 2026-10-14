@@ -75,6 +75,15 @@ def directory(agent_type:str='',instance_id:str='',q:str=Query('',max_length=200
     return invoke(sessions.directory,agent_type,instance_id,q,cursor,limit,workspace)
 @router.get('/api/agent-instances/{ident}/sessions/{sid}/policies')
 def policies(ident:str,sid:str,generation:str|None=None):return invoke(sessions.policies,ident,sid,generation)
+
+class SessionName(Model):
+    name:str=Field(min_length=1,max_length=120)
+    expected_name:str|None=Field(max_length=500)
+
+@router.post('/api/agent-instances/{ident}/sessions/{sid}/name')
+def session_rename(ident:str,sid:str,body:SessionName):
+    from .session_display import rename
+    return invoke(rename,ident,sid,body.name,body.expected_name)
 @router.get('/api/agent-instances/{ident}/sessions/{sid}/domains')
 def domains(ident:str,sid:str,generation:str|None=None):return invoke(sessions.domains,ident,sid,generation)
 @router.get('/api/agent-instances/{ident}/sessions/{sid}/kernel-events')

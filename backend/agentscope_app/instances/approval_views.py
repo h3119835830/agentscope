@@ -46,8 +46,10 @@ def project(p,names,full=False,locations=None):
     elif status=='invalid':reason='候选未通过运行环境校验，请调整配置后重新提交。'
     elif status=='failed':reason='上次应用未完成，请检查配置并重新校验。'
     visible_targets=[t for t in p['targets'] if p['scope_id']=='system' or t['id'] not in hidden('agent')]
+    changes=p['result'].get('document_changes')
+    change_name='；'.join(verb+' '+ '、'.join(changes[key]) for verb,key in (('新增','added'),('更新','updated'),('停用','removed')) if changes.get(key)) if changes else ''
     row={'id':p['id'],'scope_id':p['scope_id'],'scope_type':'system' if p['scope_id']=='system' else 'agent',
-         'target_name':names[p['scope_id']],'name':'、'.join(d['name'] for d in p['documents']) or '移除本层策略',
+         'target_name':names[p['scope_id']],'name':change_name or '、'.join(d['name'] for d in p['documents']) or '移除本层策略',
          'status':status,'created_at':p['created_at'],'document_count':len(p['documents']),
          'can_apply':status=='pending','reason':reason,
          'affected_count':len(visible_targets),'total_affected_count':len(p['targets'])}
@@ -55,7 +57,7 @@ def project(p,names,full=False,locations=None):
     if full:
         compilation=next((c for c in p['result'].get('compilations',[]) if c['instance_id'] in {t['id'] for t in visible_targets}),None)
         records=dsl.policy_records(compilation,p['scope_id']) if compilation else []
-        row.update(documents=p['documents'],records=records,targets=visible_targets,proposal_hash=p['proposal_hash'],application=p['result'].get('application'),
+        row.update(documents=p['documents'],records=records,targets=visible_targets,proposal_hash=p['proposal_hash'],application=p['result'].get('application'),document_changes=changes,
                    previous_documents=base['documents'] if p['base_hash']==base['document_hash'] else None)
     row.update(kind='dsl',origin='manual',candidate_hash=p['proposal_hash'],
         target={'scope':row['scope_type'],'id':p['scope_id']},
