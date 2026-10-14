@@ -1,0 +1,30 @@
+{
+  "published": true,
+  "release": "/opt/agentscope-template-configurations-20261014-212944",
+  "source_commit": "fddc532aa8cabfeb41b8d6a09793a74529c51836",
+  "agent_actions": false,
+  "policy_application": false,
+  "restart_seconds": 1.44,
+  "broker_unchanged": true,
+  "authority_unchanged": true,
+  "other_ports_unchanged": true,
+  "api": {
+    "MainPID": "150030",
+    "WorkingDirectory": "/opt/agentscope-template-configurations-20261014-212944",
+    "argv": [
+      "/opt/agentscope/.venv/bin/python",
+      "-m",
+      "uvicorn",
+      "agentscope_app.main:app",
+      "--host",
+      "127.0.0.1",
+      "--port",
+      "18003",
+      "--timeout-graceful-shutdown",
+      "3"
+    ],
+    "start_ticks": "805516"
+  },
+  "ui_sha256": "c0401cf7dbd1eccde602fea924ccc1bec95e1c1b9857190fb5003ec082b8066f",
+  "finished_at": 1791984605.225915
+}

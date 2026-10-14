@@ -12,5 +12,13 @@
   "kernel_abi_changed": false,
   "production_agent_actions": false,
   "policy_application": false,
-  "scope": "isolated API/provider and real static compiler; no new kernel enforcement claim"
+  "scope": "isolated API/provider and real static compiler; no new kernel enforcement claim",
+  "production_published": true,
+  "deployed_source": "fddc532aa8cabfeb41b8d6a09793a74529c51836",
+  "production_health_http": 200,
+  "broker_unchanged": true,
+  "agent_authority_unchanged": true,
+  "other_ports_unchanged": true,
+  "new_production_configurations": 0,
+  "isolated_preview_stopped": true
 }

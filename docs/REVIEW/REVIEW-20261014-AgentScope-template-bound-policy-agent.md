@@ -38,4 +38,8 @@
 
 ## 正式发布核验
 
-待发布前最后核对。发布只替换 API/UI，保留 Broker、已有 Agent 身份与策略；不执行 Agent 启停、批准或应用。发布脚本先核对运行源码与整合基线、当前权限/运行身份和其他端口，保留回滚，并在 API 健康后再切换界面入口。最终结果与本地提交在本节追加；未获新许可不推送 GitHub。
+正式发布通过，时间 2026-10-14T21:30:05.225915+08:00。运行版本 `fddc532aa8cabfeb41b8d6a09793a74529c51836`，API PID 150030，目录 `/opt/agentscope-template-configurations-20261014-212944`。API 切换用时 1.44 秒；Broker 身份、既有 Agent 的 generation/PID/domain/策略及系统基准完全一致，18000/18004 未变。没有启停 Agent、恢复权限、批准或应用策略。
+
+Windows 的 127.0.0.1 健康接口 HTTP 200，读取用时约 0.005 秒；HTTP 入口 SHA-256 与发布目录一致。正式页面显示 27 个模板、4 项已有系统配置的只读子记录；新正式子配置数量为零，没有把隔离模型验收结果写进正式库。浏览器已刷新至新界面，保留全部模板目录。界面新增没有改动原安全总览。
+
+[发布结果](evidence/template-configurations-20261014/production-release.json)、[正式页面](evidence/template-configurations-20261014/production-template-children.png)。代码与文档已本地提交，未推送 GitHub。
