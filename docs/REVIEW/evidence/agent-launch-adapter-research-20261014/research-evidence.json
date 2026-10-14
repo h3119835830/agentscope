@@ -312,5 +312,50 @@
     "https://docs.kernel.org/admin-guide/cgroup-v2.html",
     "https://agentclientprotocol.com/protocol/v1/session-setup"
   ],
-  "draft_note": "Unpublished tool-worker draft retained privately outside Git after user changed direction; only isolated parent startup and native tool composition boot occurred, not four-layer acceptance."
+  "draft_note": "Unpublished tool-worker draft retained privately outside Git after user changed direction; only isolated parent startup and native tool composition boot occurred, not four-layer acceptance.",
+  "actplane_domain_sources": {
+    "bpf/capability.bpf.h": {
+      "path": "/opt/agentscope/actplane/bpf/capability.bpf.h",
+      "sha256": "85a89c0fa972217f686f900a1f2887e805ad0000932c8132cd7da6216ea4e60d",
+      "anchors": [
+        {
+          "needle": "} cap_task SEC",
+          "lines": [
+            99
+          ]
+        },
+        {
+          "needle": "cap_domain_for_pid(pid_t pid)",
+          "lines": [
+            522
+          ]
+        },
+        {
+          "needle": "cap_fork(pid_t ppid, pid_t cpid)",
+          "lines": [
+            572
+          ]
+        }
+      ]
+    },
+    "bpf/src/lib.rs": {
+      "path": "/opt/agentscope/actplane/bpf/src/lib.rs",
+      "sha256": "ec0ff67459546888a0b1ea096445377de24904ebb168d2975cb1914b94720995",
+      "anchors": [
+        {
+          "needle": "pub fn bind_child_domain",
+          "lines": [
+            648,
+            2275
+          ]
+        },
+        {
+          "needle": "pub fn domain_for_pid",
+          "lines": [
+            2797
+          ]
+        }
+      ]
+    }
+  }
 }

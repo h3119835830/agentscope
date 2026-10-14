@@ -42,3 +42,17 @@
 ## 进入实现前的最小研究实验
 
 对 DSH Web、DSH headless/SDK/ACP、Hermes dashboard/serve/CLI/ACP 和通用命令入口分别形成启动进程树与会话绑定图。用户保持原生工作区/会话创建流程；实验环境另建合成数据。检查双会话同时运行、取消其中一个、服务是否共享、重连/恢复、子进程继承与旧句柄撤销。结果决定能否无修改接入局部边界，不能先给能力开关置为 true。
+
+
+## ActPlane 执行粒度核查补充
+
+- bpf/capability.bpf.h:94–99：cap_task 的 key 是 pid_t，value 是 domain ID。
+- bpf/capability.bpf.h:522–536：按 PID 查询当前 domain，并可读取其 parent domain。
+- bpf/capability.bpf.h:572–576：fork 复制父任务 domain 绑定。
+- bpf/src/lib.rs:648–686：bind_child_domain 先创建 child domain，再把指定 PID 绑定到它。
+- bpf/src/lib.rs:2797–2799：domain_for_pid 读取同一映射。
+- AgentScope 当前 instance_runtime 的会话观察仍为 executor_shared=True，局部能力仍拒绝。
+
+结论：当前共享进程/域的会话共享一套内核策略包，不等于包内每一次操作获得相同处置；没有可信原生会话匹配信号时，无法单凭 session_id 在共享执行域中应用不同会话权限。子进程有不同 PID 但默认继承域，单看派生子进程也不能证明局部隔离。
+
+已把共享执行单元的策略兼容性/范围冲突检查加入 RFC 和 ADR，尚未实现。源锚点与 SHA 见 evidence 中 actplane_domain_sources；四份文档镜像、链接、源锚和仅文档 diff 检查通过，未进行或声称新的内核运行验收。

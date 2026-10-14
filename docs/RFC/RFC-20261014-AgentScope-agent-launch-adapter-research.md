@@ -92,3 +92,30 @@ Web 原生入口与协议管理入口是两种接入方式。不能把另一个 
 完成源码与安装产物锚点核对、已安装 launcher `--help` 退出检查、草稿撤回/隔离服务停止检查和文档证据检查。没有进行新的四层加载、Agent 对话、模型请求、并发会话或协议握手验收，也没有发布新应用代码到 18003。
 
 证据：[research-evidence.json](../REVIEW/evidence/agent-launch-adapter-research-20261014/research-evidence.json)、[launcher help](../REVIEW/evidence/agent-launch-adapter-research-20261014/dsh-launcher-help.txt)。外部参考：[Linux cgroup v2](https://docs.kernel.org/admin-guide/cgroup-v2.html)、[ACP session setup](https://agentclientprotocol.com/protocol/v1/session-setup)。
+
+
+## 7. 共性结构补充：逻辑策略与执行单元
+
+2026-10-14 根据用户追问核查 ActPlane 源码：cap_task 是 pid_t → domain_id 映射；cap_domain_for_pid 查询此映射；cap_fork 默认复制父任务的 domain。多个会话在同一进程/域中执行时，共享该域及祖先域的已加载策略包。规则仍可按文件对象、操作和其他已支持条件给出不同结果，但当前接入没有把 DSH 原生 session_id 变成可信内核匹配条件。
+
+统一结构采用以下对象，不能按产品固定为一会话一进程：
+
+| 对象 | 共同字段与职责 |
+|---|---|
+| Connection | 原生启动 argv、cwd、宿主环境、入口、生命周期所有权；表示如何启动/附着/打开 |
+| NativeSubject | instance_id、可选 native workspace_id、native session_id、可信原生关系；表示配置归属 |
+| PolicyDocument | 系统/Agent/工作区/会话 scope、版本、DSL 与结构化表单；表示配置内容和来源 |
+| ExecutionUnit | 实际 PID/start_ticks 集合、cgroup/domain、generation、shared_by；表示可核验的执行边界 |
+| PolicyBinding | 精确 Subject → ExecutionUnit 映射、已批准的策略包 hash、覆盖操作、核验状态；表示哪些配置实际在哪里执行 |
+
+在任意时刻，一个 ExecutionUnit 只能有一套与该单元绑定的有效内核策略包，包内可包含多条规则和域继承。多个 Subject 可以共享该单元；NativeSubject 与 ExecutionUnit 不强制一一对应。原生进程池导致一个 Subject 使用多个单元时，也必须逐一核验完整覆盖。
+
+### 7.1 共享单元的兼容性检查
+
+1. 分别计算各会话按四层继承得到的目标策略和所需执行能力。
+2. 通过适配器解析真实执行单元和共享会话，不能用 cwd、产品名或 UI 参数猜测。
+3. 对共享单元检查所需的内核策略是否等价且可由同一策略包承载。相同策略可共享执行；规则对象/操作不同并不必然意味着策略包不同。
+4. 如果两个会话要求不同权限、却映射到同一执行域，拒绝声称局部生效。不能把禁止规则取并集后对全部会话实施，也不能取更宽权限后损失保护。改变整体影响范围须成为另一份明确审批候选。
+5. 原生已有独立 worker/沙箱时可绑定其边界；原生可信会话授权接口可承担其覆盖操作的会话级检查，但必须与 ActPlane 进程域强制执行分别报告。不存在这些能力时，局部策略保留配置/候选状态。
+
+四层可视化分别展示本层配置、继承配置、目标有效规则以及实际加载到哪个执行单元。共享执行单元时明确显示共享范围；未应用/缺少绑定的工作区或会话候选，不计入当前强制执行保护。此补充不实施进程拆分、不修改 DSH，也未发布新运行功能。

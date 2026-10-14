@@ -10,7 +10,9 @@
     "documentation_only_git_diff",
     "isolated_services_stopped",
     "no_live_isolated_cgroup",
-    "runtime_acceptance_not_claimed"
+    "runtime_acceptance_not_claimed",
+    "actplane_domain_source_anchors",
+    "shared_unit_conflict_documented"
   ],
   "documents": [
     "RFC/RFC-20261014-AgentScope-agent-launch-adapter-research.md",
