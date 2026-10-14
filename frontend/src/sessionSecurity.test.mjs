@@ -42,3 +42,17 @@ test('panel renders all inherited controls by default and marks local applicatio
  assert.match(html,/当前会话全部已接入安全约束/);assert.match(html,/工具使用/);assert.match(html,/会话独立配置与停用：暂不支持/);
  assert.ok(!html.includes('继承约束 ·'));assert.match(html,/>停用<\/button>/);assert.ok(!html.includes('应用策略'));
 });
+test('domain view distinguishes inherited constraints, empty scopes and incomplete counts',async()=>{
+ const require=createRequire(import.meta.url),Module=require('node:module');
+ const source=new URL('./SessionDomainView.jsx',import.meta.url).pathname;
+ const built=await build({entryPoints:[source],bundle:true,platform:'node',format:'cjs',external:['react'],write:false});
+ const mod=new Module(source);mod.paths=Module._nodeModulePaths(new URL('.',import.meta.url).pathname);mod._compile(built.outputFiles[0].text,source);
+ const data={coverage_complete:false,notice:'没有额外约束不表示停用',nodes:[
+  {id:'platform',title:'平台底线',count:2,count_label:'2 项已接入约束',status:'继承约束已核验'},
+  {id:'system',title:'系统策略',count:0,count_label:'无额外约束',status:'继续继承上层约束'},
+  {id:'agent',title:'Agent 策略',count:15,count_label:'15 项已接入约束',status:'继承约束已核验'},
+  {id:'session',title:'会话约束',count:null,count_label:'数量未完整取得',status:'暂不支持独立应用'}]};
+ const html=renderToStaticMarkup(React.createElement(mod.exports.default,{data}));
+ for(const text of ['2 项已接入约束','15 项已接入约束','无额外约束','继续继承上层约束','数量未完整取得','暂不支持独立应用'])assert.ok(html.includes(text));
+ assert.ok(!html.includes('0 条策略')&&!html.includes('null 条策略'));assert.match(html,/约束信息尚不完整/);
+});

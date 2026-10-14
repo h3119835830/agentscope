@@ -56,13 +56,16 @@ def test_history_retention_filters_before_pagination_and_keeps_original(client,s
 def test_product_policies_exclude_platform_generated_boundaries_without_deleting_them(client,monkeypatch):
     records=[{'id':'auto','source_kind':'legacy_generated','scope_type':'agent'},
              {'id':'user','source_kind':'user_dsl','scope_type':'system','hits':[{'session_id':None},{'session_id':'s'}]}]
-    monkeypatch.setattr(sessions,'policies',lambda *args:{'active':True,'executor_shared':True,'records':json.loads(json.dumps(records))})
+    monkeypatch.setattr(sessions,'policies',lambda *args:{'active':True,'executor_shared':True,'records':json.loads(json.dumps(records)),
+        'generation':'g','pid':42,'domain_id':91,'bundle_hash':'hash',
+        'security':{'coverage_complete':True,'controls':[{'scope':'platform'},{'scope':'system'},{'scope':'agent'},{'scope':'agent'}]}})
     response=client.get('/api/console/agents/a/sessions/s/policies',headers=ADMIN).json()
     assert [r['id'] for r in response['records']]==['user']
     assert response['records'][0]['hits']==[{'session_id':'s'}]
     assert len(sessions.policies('a','s')['records'])==2
     domains=client.get('/api/console/agents/a/sessions/s/domains',headers=ADMIN).json()
-    assert domains['nodes'][0]['count']==1 and 'domain_id' not in domains
+    assert {n['id']:n['count'] for n in domains['nodes']}=={'platform':1,'system':1,'agent':2,'workspace':0,'session':0}
+    assert 'domain_id' not in domains
     monkeypatch.setattr(sessions,'policies',lambda *a:(_ for _ in ()).throw(ValueError('没有此会话')))
     assert client.get('/api/console/agents/a/sessions/s/policies',headers=ADMIN).status_code==409
 

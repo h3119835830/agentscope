@@ -210,10 +210,9 @@ def attach_hits(records,row,generation,session_id=None):
 
 def domains(ident,sid,generation=None):
     data=policies(ident,sid,generation)
-    nodes=[{'id':scope,'title':title,'kind':'configuration_scope','count':sum(r.get('scope_type')==scope for r in data['records'])} for scope,title in (('system','系统策略'),('agent','Agent 专属策略'),('session','会话策略'))]
-    return {**{k:data[k] for k in ('generation','active','executor_shared','pid','domain_id','bundle_hash')},'nodes':nodes,
-        'edges':[{'from':'system','to':'agent'},{'from':'agent','to':'session'}],
-        'notice':'上方为配置继承关系。原生会话共用执行器，不代表三个独立的内核域。'}
+    from .session_security import domain_view
+    return {**{k:data[k] for k in ('generation','active','executor_shared','pid','domain_id','bundle_hash')},
+            **domain_view(data['security'],data['active'])}
 
 _collection_lock=threading.RLock()
 

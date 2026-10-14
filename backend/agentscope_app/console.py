@@ -154,9 +154,8 @@ def session_read(ident:str,sid:str,section:str,before:int|None=Query(None,ge=1),
             record['hits']=[h for h in record.get('hits',[]) if h.get('session_id')==sid]
         return data
     if section=='domains':
-        data=session_read(ident,sid,'policies')
-        return {'active':data['active'],'executor_shared':data['executor_shared'],
-            'nodes':[{'id':scope,'title':title,'count':sum(r.get('scope_type')==scope for r in data['records'])} for scope,title in (('system','系统策略'),('agent','Agent 策略'),('session','会话策略'))]}
+        data=invoke(sessions.domains,ident,sid)
+        return {k:data[k] for k in ('active','executor_shared','nodes','edges','coverage_complete','notice')}
     if section=='kernel-events':return invoke(sessions.kernel_page,ident,sid,before=before,limit=limit,session_only=True)
     if section=='tool-traces':return invoke(sessions.traces,ident,sid,before=before,limit=limit)
     raise HTTPException(404,'没有此会话页面')

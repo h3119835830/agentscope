@@ -141,6 +141,32 @@ def build(row, session, generation, active, policy_records, receipt):
             'network_modes': ['model_only', 'disabled']}
 
 
+def domain_view(view, active):
+    """Count the same known constraints as the panel; counts never grant execution."""
+    complete = view['coverage_complete']
+    scopes = [('platform', '平台底线', '全部受控执行'),
+              ('system', '系统策略', '全部受控 Agent'),
+              ('agent', 'Agent 策略', '此 Agent 的全部工作区与会话'),
+              ('workspace', '工作区约束', '当前工作区'),
+              ('session', '会话约束', '当前会话')]
+    nodes = []
+    for scope, title, applies_to in scopes:
+        known = sum(c['scope'] == scope for c in view['controls'])
+        local = scope in ('workspace', 'session')
+        count_label = (f'{known} 项已接入约束' if complete else f'已取得 {known} 项约束') if known else \
+                      '数量未完整取得' if not complete else '无独立约束' if local else '无额外约束'
+        status = '暂不支持独立应用' if local else \
+                 '当前执行未核验' if not active else \
+                 '继承约束已核验' if known else '继续继承上层约束'
+        nodes.append({'id': scope, 'title': title, 'kind': 'configuration_scope',
+                      'count': known if complete else None, 'known_count': known,
+                      'count_label': count_label, 'status': status, 'applies_to': applies_to,
+                      'independent_application_supported': scope in ('system', 'agent')})
+    return {'nodes': nodes, 'edges': [{'from': scopes[i][0], 'to': scopes[i+1][0]} for i in range(len(scopes)-1)],
+            'coverage_complete': complete,
+            'notice': '这里展示约束归属与继承关系，数量与安全配置一致。没有额外约束不表示停用；原生会话仍共用 Agent 执行器。'}
+
+
 @system.lifecycle
 def propose(ident, sid, body):
     """Revalidate the exact native target and change only the selected owner's config."""

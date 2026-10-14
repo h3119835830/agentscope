@@ -64,6 +64,34 @@ def test_default_mount_network_and_platform_are_visible_without_user_dsl(panel):
     assert store.get(panel.a['id']) == before and not panel.calls
 
 
+def test_domain_counts_match_all_security_controls_and_do_not_imply_disabled_scope(panel):
+    install_rule(panel, {'action': 'tool', 'target': 'bash', 'effect': 'deny', 'text': ''})
+    before = store.get(panel.a['id'])
+    security = view(panel)
+    raw = panel.client.get(url(panel) + '/domains', headers=ADMIN).json()
+    projected = panel.client.get('/api/console/agents/' + panel.a['id'] + '/sessions/s1/domains', headers=ADMIN).json()
+    assert raw['nodes'] == projected['nodes']
+    nodes = {n['id']:n for n in projected['nodes']}
+    assert sum(n['count'] for n in nodes.values()) == len(security['controls']) == 4
+    assert nodes['platform']['count'] == 1 and nodes['agent']['count'] == 3
+    assert nodes['system']['count_label'] == '无额外约束'
+    assert nodes['system']['status'] == '继续继承上层约束'
+    assert nodes['session']['count_label'] == '无独立约束'
+    assert nodes['session']['status'] == nodes['workspace']['status'] == '暂不支持独立应用'
+    assert '没有额外约束不表示停用' in projected['notice']
+    assert store.get(panel.a['id']) == before and not panel.calls
+
+
+def test_incomplete_domain_projection_does_not_turn_unknown_counts_into_zero():
+    from agentscope_app.instances.session_security import domain_view
+    data = domain_view({'coverage_complete':False,'controls':[{'scope':'agent'}]},False)
+    assert all(n['count'] is None for n in data['nodes'])
+    nodes = {n['id']:n for n in data['nodes']}
+    assert nodes['agent']['count_label'] == '已取得 1 项约束'
+    assert nodes['system']['count_label'] == '数量未完整取得'
+    assert nodes['agent']['status'] == '当前执行未核验'
+
+
 def test_guidance_system_inheritance_and_dominant_deny_keep_distinct_owners(panel):
     path = panel.a['resources'][0]
     shared = {'rules': [{'action': 'write', 'target': path, 'effect': 'deny', 'text': ''}], 'network': 'model_only'}
