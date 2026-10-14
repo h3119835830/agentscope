@@ -156,3 +156,14 @@ def test_resource_edits_cannot_retarget_persisted_native_workspace_aliases(clien
         with pytest.raises(ValueError,match='目录映射必须保持稳定'):controller.configure(row['id'],{**body,'resources':paths})
     updated=controller.configure(row['id'],{**body,'resources':[entry['cwd'],entry['cwd']+'-next']})
     assert updated['resources']==[entry['cwd'],entry['cwd']+'-next']
+
+
+def test_terminal_entry_canonicalizes_only_verified_local_origin_and_exact_instance(client,monkeypatch):
+    from agentscope_app.instances import api,discovery
+    ident='instance-0000000000000001'
+    monkeypatch.setattr(api.store,'get',lambda _: {'mode':'controlled','launch':{'kind':'terminal'}})
+    monkeypatch.setattr(api,'broker',lambda _: {'url':'http://localhost:18003/terminal/'+ident})
+    response=client.post('/api/agent-instances/'+ident+'/open',json={},headers=ADMIN)
+    assert response.status_code==200 and response.json()['url']=='http://127.0.0.1:18003/terminal/'+ident
+    for url in ['http://example.org:18003/terminal/'+ident,'http://127.0.0.1:18003/terminal/instance-0000000000000002','http://127.0.0.1:18003/terminal/'+ident+'?token=secret']:
+        with pytest.raises(ValueError):discovery.terminal_url(url,ident)

@@ -30,3 +30,12 @@ def windows_snapshot():
         if age>=8:r['status']='stale'
         r.update(mode='observed',security='仅发现，未接入执行',active=False)
     return rows
+
+
+def terminal_url(value,ident):
+    u=urlsplit(value)
+    if (not re.fullmatch(r'instance-[a-f0-9]{16}',ident) or u.scheme!='http' or u.hostname not in ('localhost','127.0.0.1')
+            or not u.port or not 1024<=u.port<=65535 or u.username or u.password or u.query or u.fragment
+            or u.path!='/terminal/'+ident):
+        raise ValueError('终端入口与当前本机连接不一致，请重新打开')
+    return 'http://127.0.0.1:'+str(u.port)+u.path

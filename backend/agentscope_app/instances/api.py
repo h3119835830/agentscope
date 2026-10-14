@@ -113,7 +113,10 @@ def open_agent(ident:str):
     try: row=store.get(ident)
     except ValueError: row=None
     if row and row['mode']=='observed': return {'url':invoke(discovery.local_url,row['runtime']['open_url'])}
-    return invoke(broker,{'action':'agent-instance-open','instance_id':ident})
+    result=invoke(broker,{'action':'agent-instance-open','instance_id':ident})
+    if row and (row.get('launch') or {}).get('kind')=='terminal':
+        return {'url':invoke(discovery.terminal_url,result['url'],ident)}
+    return result
 @router.post('/api/agent-instances/{ident}/start')
 def start(ident:str): return invoke(c.start,ident)
 @router.post('/api/agent-instances/{ident}/stop')
