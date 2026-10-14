@@ -1,6 +1,6 @@
 # 系统内置保护归入第一层系统策略
 
-日期：2026-10-14。状态：源码、后端 43 项定向回归、前端 280 项回归、生产构建及隔离真实 DSH/浏览器验收通过；18003 发布进行中。
+日期：2026-10-14。状态：源码、后端 43 项定向回归、前端 280 项回归、生产构建及隔离真实 DSH/浏览器验收通过；18003 发布验收通过。
 
 用户指出“第一层应是系统策略”。复现：安全面板后端将保护控制目录/执行凭据以及 immutable 启动规则投影成 scope=platform；domain_view 独立画 platform 节点，形成五层。它是本次读模型的错误归类，实际没有单独 platform 策略数据库、审批控制器或加载入口。
 
@@ -15,3 +15,7 @@ Broker/ActPlane 的隔离挂载、非特权身份、固定 no-publish 规则及�
 较长隔离目录导致 ActPlane watch 的 Unix socket 路径超过 SUN_LEN，首次运行失败。未改变 Agent 提示词或策略逻辑，缩短测试批次名为 b 后，新批次实际读取拒绝、另一 Agent 不受影响、审批不提前执行、停用恢复全部通过。两项系统内置保护均在真实 API 的配置/停用尝试中返回 409，运行身份和策略不变。
 
 浏览器真实会话显示四个节点：system=2、agent=3、workspace/session=0 且局部独立应用仍标不支持。系统筛选只列两项内置保护，无配置或停用入口。证据：[核验摘要](evidence/session-security-20261014/system-builtins-acceptance.json)、[四层关系](evidence/session-security-20261014/system-layer-domains.jpg)、[系统筛选](evidence/session-security-20261014/system-layer-panel.jpg)。
+
+## 18003 发布结果
+
+发布代码 fff1da8b8c0f2968b5ec2afd820a340b4a583179，目录 /opt/agentscope-session-security-20261014-162759，API PID 1460279。HTTP 健康、入口及 CSS/JS 内容摘要与构建一致，实时 policy 接口返回“系统内置保护”。Broker 身份、权威配置和 18000/18004 监听不变；4 个正式受控连接仍停止，已清空的会话缓存与显示名仍为空，未新建正式会话。原手工测试材料入口保持可用。两个隔离测试批次服务均已停止，截图来自隔离真实会话验收。发布证据：[system-builtins-deployment.json](evidence/session-security-20261014/system-builtins-deployment.json)。

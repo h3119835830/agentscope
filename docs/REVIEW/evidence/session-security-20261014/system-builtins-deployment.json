@@ -1,0 +1,40 @@
+{
+  "published": true,
+  "release": "/opt/agentscope-session-security-20261014-162759",
+  "source_commit": "fff1da8b8c0f2968b5ec2afd820a340b4a583179",
+  "current_api": {
+    "MainPID": "1460279",
+    "WorkingDirectory": "/opt/agentscope-session-security-20261014-162759",
+    "argv": [
+      "/opt/agentscope/.venv/bin/python",
+      "-m",
+      "uvicorn",
+      "agentscope_app.main:app",
+      "--host",
+      "127.0.0.1",
+      "--port",
+      "18003",
+      "--timeout-graceful-shutdown",
+      "3"
+    ],
+    "start_ticks": "35630561"
+  },
+  "broker_unchanged": true,
+  "other_ports_unchanged": true,
+  "authority_unchanged": true,
+  "production_connections_preserved": 4,
+  "production_agents_still_stopped": true,
+  "cleared_session_cache_still_empty": true,
+  "live_api_builtin_source": "系统内置保护",
+  "assets": [
+    {
+      "path": "/assets/index-Dfr9WfLB.js",
+      "sha256": "102a97211503ac8d59be85f1601f55c09c820e3aea549719059e9da6e2664330"
+    },
+    {
+      "path": "/assets/index-B8BRpNnA.css",
+      "sha256": "14ecbbc55822d476c4942db15eef3d905645a52ceddbcef277b9ee5f8276eb56"
+    }
+  ],
+  "manual_lab_reference_preserved": true
+}
