@@ -1,0 +1,27 @@
+{
+  "published": true,
+  "ui_release": "/opt/agentscope-session-directory-ui-20261014-151344",
+  "source_commit": "fee18b745ca21bc2b7c1b017c7ab343e257ea960",
+  "files": {
+    "value-evidence.html": "9e5e6cb14fb35d05d5b1e826788c4ecff1f1f012b140a15615ef02291aa40335",
+    "value-announcement.html": "9e5e6cb14fb35d05d5b1e826788c4ecff1f1f012b140a15615ef02291aa40335",
+    "index.html": "bf595792d02643c037424b1cb519cc364f84f98d4bb8cf8c3710caa9045c3818",
+    "assets/index-D5bsGL8N.css": "c2fc2aa4bb0812d05a8ff64ba4a908a0b2b280e8ee9527eb2febb0f1082e1892",
+    "assets/index-CI8zJ7Wo.js": "96003ec1697ca19879643e687a62d63ed1c2c121e763490b24aa1d9f220dbb1f"
+  },
+  "api_unchanged": true,
+  "broker_unchanged": true,
+  "authority_unchanged": true,
+  "other_ports_unchanged": true,
+  "api_release": "/opt/agentscope-session-security-20261014-145845",
+  "frontend_tests_passed": 278,
+  "preview_checks": {
+    "collapse_width_gain_px": 162,
+    "constraints_retained": 17,
+    "reload_remembers": true,
+    "keyboard_toggle": true,
+    "exact_session_switch": true,
+    "mobile_width": 390,
+    "mobile_scroll_width": 375
+  }
+}

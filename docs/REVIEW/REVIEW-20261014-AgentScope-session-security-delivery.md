@@ -34,4 +34,10 @@ API 版本为本地提交 `6f8397726f28a74cb1905c1f9774c44654d7b679`，运行目
 
 真实入口 `/?view=sessions&sessionInstance=instance-1f4469579e8947f4&sessionId=session-1e38fe17-5015-494b-92f4-a164b650bdf4&sessionTab=policies`。原会话显示 17 项已接入约束、8 条启动规则详情记录，读取检查明确显示局部应用与外部约束边界。生产未提交、批准或应用验收策略。本次两个隔离批次均已停止，报告保留；本地截图在会话工作区 `session-security-live.jpg`。公开发布证据另见 [deployment.json](evidence/session-security-20261014/deployment.json)。所有提交均为本地，未推送远端。
 
+## 会话目录折叠补充验收
+
+用户要求截图中的会话目录可折叠。新增独立收起/展开按钮及本机布局记忆，关闭后保留窄入口；窄屏入口横排。前端 278 项回归与生产构建通过。只读预览验证展开后目录仍能按产品筛选和按精确身份切换会话、键盘 Enter 可操作、刷新记忆，收起后主面板从 783px 增至 945px 且 17 项约束不丢失。390px 视口页面宽 375px，测试视口已恢复。
+
+UI 版本为本地提交 fee18b745ca21bc2b7c1b017c7ab343e257ea960，静态目录 `/opt/agentscope-session-directory-ui-20261014-151344`，资源 `index-D5bsGL8N.css` / `index-CI8zJ7Wo.js` 已按 HTTP 200 和 SHA-256 验证。仅替换 UI，无 API/Broker 重启，权威策略、Agent 运行身份和其他端口保持一致。正式原会话已经验证收起与刷新记忆。公开证据：[directory-collapse-deployment.json](evidence/session-security-20261014/directory-collapse-deployment.json)。
+
 合同：[RFC](../RFC/RFC-20261014-AgentScope-session-security-workbench.md)、[ADR](../ADR/ADR-20261014-AgentScope-session-security-entry.md)、[BUG](../BUG/BUG-20261014-AgentScope-session-security-ui-gap.md)。
