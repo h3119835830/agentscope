@@ -1,0 +1,48 @@
+{
+  "release": "/opt/agentscope-session-security-20261014-152316",
+  "source_commit": "06c0a8a53fcbb9dfa59a93590a567e5c680fd6f2",
+  "published": true,
+  "restart_seconds": 2.095,
+  "broker_unchanged": true,
+  "other_ports_unchanged": true,
+  "current_api": {
+    "MainPID": "1343653",
+    "WorkingDirectory": "/opt/agentscope-session-security-20261014-152316",
+    "argv": [
+      "/opt/agentscope/.venv/bin/python",
+      "-m",
+      "uvicorn",
+      "agentscope_app.main:app",
+      "--host",
+      "127.0.0.1",
+      "--port",
+      "18003",
+      "--timeout-graceful-shutdown",
+      "3"
+    ],
+    "start_ticks": "35241503"
+  },
+  "authority_preserved": true,
+  "static": {
+    "value-evidence.html": "9e5e6cb14fb35d05d5b1e826788c4ecff1f1f012b140a15615ef02291aa40335",
+    "value-announcement.html": "9e5e6cb14fb35d05d5b1e826788c4ecff1f1f012b140a15615ef02291aa40335",
+    "index.html": "36cdd3da3c3380222e57e943242091682b6f9c0be7be402bab66182dee83d877",
+    "assets/index-sl4onWQ_.css": "d417a0799699d13974ed1ecc0e5eed9f025350b7a14dea55c623484506974fcb",
+    "assets/index-KsOntYIV.js": "58a320213d1d22f592ee9fa37f407b7b3a14d65a69aacf0d63d2362ed108f803"
+  },
+  "counts": {
+    "platform": 2,
+    "system": 0,
+    "agent": 15,
+    "workspace": 0,
+    "session": 0
+  },
+  "panel_count": 17,
+  "public_and_raw_domains_equal": true,
+  "browser_verified": true,
+  "frontend_tests": 279,
+  "backend_tests": 1210,
+  "backend_skipped": 11,
+  "preview_mobile_width": 390,
+  "preview_page_width": 375
+}

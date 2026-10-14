@@ -41,3 +41,5 @@ API 版本为本地提交 `6f8397726f28a74cb1905c1f9774c44654d7b679`，运行目
 UI 版本为本地提交 fee18b745ca21bc2b7c1b017c7ab343e257ea960，静态目录 `/opt/agentscope-session-directory-ui-20261014-151344`，资源 `index-D5bsGL8N.css` / `index-CI8zJ7Wo.js` 已按 HTTP 200 和 SHA-256 验证。仅替换 UI，无 API/Broker 重启，权威策略、Agent 运行身份和其他端口保持一致。正式原会话已经验证收起与刷新记忆。公开证据：[directory-collapse-deployment.json](evidence/session-security-20261014/directory-collapse-deployment.json)。
 
 合同：[RFC](../RFC/RFC-20261014-AgentScope-session-security-workbench.md)、[ADR](../ADR/ADR-20261014-AgentScope-session-security-entry.md)、[BUG](../BUG/BUG-20261014-AgentScope-session-security-ui-gap.md)。
+
+2026-10-14 后续修复：策略域原先沿用旧 DSL records 计数造成全零，现与 security 约束汇总统一；正式最新版本为 06c0a8a53fcbb9dfa59a93590a567e5c680fd6f2，详见 [策略域计数修复评审](REVIEW-20261014-AgentScope-session-domain-count.md)。此前发布结果保留为各阶段历史证据。
