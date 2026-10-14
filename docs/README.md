@@ -2,7 +2,7 @@
 
 ## 数据集研究选题方案
 
-当前 `dataset` 分支新增[智能体策略演化与数据集选题方案](research/policy-evolution-proposal-20261014/README.md)，包含导师版 Word 与公开资产下载清单。以下历史文档保留 `技术文档` 分支原归档信息和各自证据边界。
+当前 `dataset` 分支新增[智能体策略演化与数据集选题方案 Markdown 版](research/policy-evolution-proposal-20261014/research-proposal.md)，可直接阅读具体场景、数据集链接和实验设计；[专题入口](research/policy-evolution-proposal-20261014/README.md)同时提供 Word 版与公开资产下载清单。以下历史文档保留 `技术文档` 分支原归档信息和各自证据边界。
 
 首次整理：2026-10-07；最新同步：2026-10-12。分支：`技术文档`；仓库：`h3119835830/agentscope`。
 
