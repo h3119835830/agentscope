@@ -1,6 +1,6 @@
 # AgentScope 会话安全面板实现与发布验收
 
-日期：2026-10-14。状态：验收进行中，尚未认定 18003 发布完成。
+日期：2026-10-14。状态：第一阶段实现、真实隔离、浏览器与 18003 发布验收通过；独立 session 执行和完整模型任务闭环仍开放。
 
 ## 实现范围
 
@@ -25,5 +25,13 @@
 浏览器在真实 18189 验证 5 项约束、继承启动 DSL 详情、网络范围配置、局部作用域禁用、缺失路径可恢复错误。结构化候选提交后刷新仍可见，切换另一会话不串入；完整审批差异可读，验收候选已拒绝，未应用。390px 窄屏页面宽 375px，卡片无页面横向溢出；已恢复桌面视口。安全检查只读取配置，不主动进行危险操作。
 
 公开证据位于源码 `docs/REVIEW/evidence/session-security-20261014/`，仅含摘要、合成测试事件、测试日志与哈希基线；完整运行报告、数据库/UI 备份保留在私有部署目录。独立原生 session 应用和完整模型业务任务闭环尚未实现/验收，本次交付关闭的是第一阶段界面与现有所属层配置入口缺口。
+
+## 18003 发布结果
+
+API 版本为本地提交 `6f8397726f28a74cb1905c1f9774c44654d7b679`，运行目录 `/opt/agentscope-session-security-20261014-145845`，API PID 1277322。发布脚本通过健康检查、逐文件摘要、完整权威快照和静态入口检查。Broker PID 1881389 及三个正式运行 Agent PID 1881572/1881769/1881965、代次、策略摘要、执行域、active 和系统/DSL 配置保持原样，18000/18004 监听不变。
+
+正式窗口复查补齐了窄面板的容器自适应：不足 600px 时按卡片读出归属、执行方式与状态。UI 单独发布本地提交 `b845fb5e222a04119fb4631f63e6d5182a20f9f9`，静态快照 `/opt/agentscope-session-security-ui-20261014-150114`；未再次重启 API。新资源为 `index-COnLgoRx.css` 和 `index-zMCLJcW6.js`，HTTP 200 与内容 SHA-256 均匹配构建产物；保留旧哈希资源以兼容缓存。CSS 补齐后构建及 6 项面板定向验证通过，正式 911px 视口、452px 面板已经实际呈现卡片，页面无横向溢出。
+
+真实入口 `/?view=sessions&sessionInstance=instance-1f4469579e8947f4&sessionId=session-1e38fe17-5015-494b-92f4-a164b650bdf4&sessionTab=policies`。原会话显示 17 项已接入约束、8 条启动规则详情记录，读取检查明确显示局部应用与外部约束边界。生产未提交、批准或应用验收策略。本次两个隔离批次均已停止，报告保留；本地截图在会话工作区 `session-security-live.jpg`。公开发布证据另见 [deployment.json](evidence/session-security-20261014/deployment.json)。所有提交均为本地，未推送远端。
 
 合同：[RFC](../RFC/RFC-20261014-AgentScope-session-security-workbench.md)、[ADR](../ADR/ADR-20261014-AgentScope-session-security-entry.md)、[BUG](../BUG/BUG-20261014-AgentScope-session-security-ui-gap.md)。
