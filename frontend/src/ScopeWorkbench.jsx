@@ -123,7 +123,7 @@ export default function ScopeWorkbench({api,post,notify,task,onSelectTask}) {
           <label>你的要求<textarea minLength={4} maxLength={2000} required value={text} onChange={e=>{setText(e.target.value);idempotence.current=null;}}/></label>
           <p className="scope-muted">{kind==='restrict'?'收紧要求将在下个工具边界暂停 Agent。':'Pi 生成候选，审核后才会应用权限。'}</p><button className="scope-button primary" disabled={busy||!!data.session.apply_id||ended||!!error}>{busy?'正在提交…':'生成权限候选'}</button></form>}
         {detailDelta&&<><Badge tone={detailState.ready?'warn':'neutral'}>{detailState.label}</Badge><h3>用户要求</h3><p>{detailDelta.input.text}</p><h3>权限变化</h3><Diff base={detailBase?.payload} next={detailDelta.proposal?.proposal}/>
-          <p className="scope-muted">tests / config 的保护与平台底线始终保留。</p><h3>候选说明</h3><p>{proposalSummary(detailDelta)}</p>
+          <p className="scope-muted">tests / config 的保护与系统内置保护始终保留。</p><h3>候选说明</h3><p>{proposalSummary(detailDelta)}</p>
           {detailDelta.proposal?.proposal?.explanation&&<details className="scope-pi-explanation"><summary>查看 Pi 原始说明</summary><p className="scope-evidence-copy">{detailDelta.proposal.proposal.explanation}</p></details>}
           {['guidance_only','no_change'].includes(detailDelta.proposal?.proposal?.decision)&&<p className="scope-muted">本候选只提供指导或无需变更，不会扩展文件权限。</p>}
           <div className="scope-review-states">{[['review_status','审核'],['compile_status','编译'],['apply_status','加载'],['verify_status','核验']].map(([key,label])=><div key={key}><small>{label}</small><b>{statusNames[detailDelta[key]]||detailDelta[key]}</b></div>)}</div>
@@ -134,7 +134,7 @@ export default function ScopeWorkbench({api,post,notify,task,onSelectTask}) {
           <Evidence value={{delta:detailDelta,job:detailState.job}}/></>}
         {historical&&<><div className="scope-notice"><div><b>{historical.id===snapshot?.id&&effective?'当前有效权限':historical.revision===undefined?'默认策略，尚未核验':'历史核验快照'}</b>
           <p>{historical.confirmed_at?when(historical.confirmed_at):'冷启动规则'}{ended?'；本次临时授权已撤销。':''}</p></div>{historical.revision!==undefined&&<Badge>v{historical.revision}</Badge>}</div>
-          <PermissionTable scope={historical.payload}/><p className="scope-muted">运行资产中的原生插件、凭据与平台底线保持保护。</p>
+          <PermissionTable scope={historical.payload}/><p className="scope-muted">运行资产中的原生插件、凭据与系统内置保护保持保护。</p>
           {historical.verification&&<p>{historical.verification.probe?.checks?.filter(c=>c.passed).length||0} 项文件探针通过；执行域已核验。</p>}<Evidence value={historical}/></>}
         {detail?.type==='task'&&data&&<><h3>这次任务</h3><p>修复 backend 的文本统计，完善 frontend 的摘要，运行现有测试并将报告写入任务专属 output。</p>
           <dl className="scope-detail-fields"><dt>场景来源</dt><dd>自建 Python 标准库项目</dd><dt>执行 Agent</dt><dd>DSH</dd><dt>策略候选</dt><dd>Pi</dd><dt>权限核验</dt><dd>{snapshot?.verification?.passed&&snapshot?.verification?.root_owned_events?'实际执行域文件探针与内核事件':'尚未取得完整核验证据'}</dd><dt>任务 ID</dt><dd>{task}</dd><dt>当前状态</dt><dd>{state.label}</dd></dl><Evidence value={{task:data.task,session:data.session,execution:data.execution}}/></>}

@@ -1,4 +1,4 @@
-export const scopeNames={platform:'平台底线',system:'系统继承',agent:'Agent 继承',workspace:'工作区继承',session:'本会话'};
+export const scopeNames={system:'系统继承',agent:'Agent 继承',workspace:'工作区继承',session:'本会话'};
 export const actionNames={read:'文件读取',write:'文件写入与删除',tool:'工具使用',network:'网络连接',behavior:'行为指导'};
 export const effectNames={allow:'允许',deny:'禁止',confirm:'确认后允许',block:'阻止',notify:'记录并提醒',kill:'终止进程'};
 export function impact(scope){return scope==='system'?'全部受控 Agent 及其工作区与会话':'此 Agent 的全部工作区、会话和子进程';}

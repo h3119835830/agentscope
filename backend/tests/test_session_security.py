@@ -54,11 +54,11 @@ def decide(panel, created):
     return applied.json()
 
 
-def test_default_mount_network_and_platform_are_visible_without_user_dsl(panel):
+def test_default_mount_network_and_system_builtins_are_visible_without_user_dsl(panel):
     before = store.get(panel.a['id'])
     data = panel.client.get(url(panel) + '/policies', headers=ADMIN).json()
     assert data['records'] == []
-    assert {r['kind'] for r in data['security']['controls']} == {'platform', 'baseline', 'network_mode'}
+    assert {r['kind'] for r in data['security']['controls']} == {'system_builtin', 'baseline', 'network_mode'}
     assert data['security']['session_local_supported'] is False
     assert data['security']['coverage_complete']
     assert store.get(panel.a['id']) == before and not panel.calls
@@ -73,9 +73,11 @@ def test_domain_counts_match_all_security_controls_and_do_not_imply_disabled_sco
     assert raw['nodes'] == projected['nodes']
     nodes = {n['id']:n for n in projected['nodes']}
     assert sum(n['count'] for n in nodes.values()) == len(security['controls']) == 4
-    assert nodes['platform']['count'] == 1 and nodes['agent']['count'] == 3
-    assert nodes['system']['count_label'] == '无额外约束'
-    assert nodes['system']['status'] == '继续继承上层约束'
+    assert list(nodes) == ['system', 'agent', 'workspace', 'session']
+    assert nodes['system']['count'] == 1 and nodes['agent']['count'] == 3
+    assert nodes['system']['count_label'] == '1 项已接入约束'
+    assert nodes['system']['status'] == '继承约束已核验'
+    assert raw['edges'] == [{'from': 'system', 'to': 'agent'}, {'from': 'agent', 'to': 'workspace'}, {'from': 'workspace', 'to': 'session'}]
     assert nodes['session']['count_label'] == '无独立约束'
     assert nodes['session']['status'] == nodes['workspace']['status'] == '暂不支持独立应用'
     assert '没有额外约束不表示停用' in projected['notice']
@@ -155,9 +157,16 @@ def test_foreign_session_stale_generation_and_missing_ack_cannot_submit(panel):
     assert not panel.calls
 
 
-def test_platform_boundary_and_system_rule_cannot_be_removed_as_agent_rule(panel):
-    platform = next(r for r in view(panel)['controls'] if r['kind'] == 'platform')
-    assert send(panel, body(panel, operation='disable', selected=platform['id'])).status_code == 409
+def test_system_builtins_remain_read_only_after_scope_merge(panel):
+    builtin = next(r for r in view(panel)['controls'] if r['kind'] == 'system_builtin')
+    assert builtin['scope'] == 'system' and builtin['system_builtin']
+    assert not builtin['can_disable'] and not builtin['can_configure']
+    before = store.get(panel.a['id'])
+    for scope in ('system', 'agent'):
+        for operation in ('disable', 'replace'):
+            result = send(panel, body(panel, scope=scope, operation=operation, selected=builtin['id']))
+            assert result.status_code == 409
+    assert store.get(panel.a['id']) == before and not panel.calls
     path = panel.a['resources'][0]
     shared = {'rules': [{'action': 'write', 'target': path, 'effect': 'deny', 'text': ''}], 'network': 'model_only'}
     with db.connect() as con:
@@ -228,3 +237,22 @@ def test_product_projection_keeps_startup_evidence_for_the_security_panel(panel)
         if control['kind'] == 'execution_record':
             assert any(r['id'] == control['record_id'] for r in data['security']['evidence_records'])
             assert control['title'].startswith('启动执行约束')
+
+
+def test_immutable_startup_rules_join_system_without_becoming_editable(panel):
+    from agentscope_app.instances.session_security import build, domain_view
+    row = store.get(panel.a['id'])
+    record = {'id': 'startup-fixed', 'scope_type': 'agent', 'source_kind': 'legacy_generated',
+              'compiled_refs': [{'immutable': True, 'clause_op': 'exec', 'target_pattern': 'git', 'target_arg': 'push'}],
+              'loaded': True}
+    before = store.get(row['id'])
+    security = build(row, {'id': 's1'}, row['generation'], True, [record], None)
+    fixed = next(c for c in security['controls'] if c.get('record_id') == record['id'])
+    assert fixed['scope'] == 'system' and fixed['system_builtin']
+    assert not fixed['can_disable'] and not fixed['can_configure']
+    assert set(security['scope_labels']) == {'system', 'agent', 'workspace', 'session'}
+    nodes = domain_view(security, True)['nodes']
+    assert len(nodes) == 4 and nodes[0]['id'] == 'system' and nodes[0]['count'] == 2
+    assert sum(n['count'] for n in nodes) == len(security['controls'])
+    assert record['scope_type'] == 'agent'  # Original execution evidence is not rewritten.
+    assert store.get(row['id']) == before and not panel.calls

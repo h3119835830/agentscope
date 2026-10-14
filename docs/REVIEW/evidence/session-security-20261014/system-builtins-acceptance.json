@@ -1,0 +1,36 @@
+{
+  "scope": "isolated-native-dsh",
+  "passed": true,
+  "native_checks": {
+    "proposal_and_approval_do_not_execute": true,
+    "actual_read_denied_only_in_target_agent": true,
+    "visual_disable_uses_new_approval_and_preserves_other_agent": true,
+    "all_native_sessions_inherit_actual_agent_scope": true,
+    "production_unchanged": true
+  },
+  "domain_order": [
+    "system",
+    "agent",
+    "workspace",
+    "session"
+  ],
+  "domain_counts": {
+    "system": 2,
+    "agent": 3,
+    "workspace": 0,
+    "session": 0
+  },
+  "system_builtins": 2,
+  "builtin_disable_and_replace_rejected": true,
+  "runtime_identity_unchanged_by_rejected_changes": true,
+  "browser_four_layers_and_system_filter_verified": true,
+  "first_run": {
+    "passed": false,
+    "reason": "Unix socket path exceeds SUN_LEN in the longer isolated test directory"
+  },
+  "second_run": {
+    "passed": true,
+    "short_profile": "b"
+  },
+  "production_agents_created": false
+}

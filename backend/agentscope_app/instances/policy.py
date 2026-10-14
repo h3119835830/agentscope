@@ -82,7 +82,7 @@ def restrictive(old, new):
 
 def records(policy, resources, active=False):
     result = [
-        {'sentence':'实例内全部会话及子进程继承平台底线，不能写入控制目录或自行扩权。','source':'平台底线','method':'隔离挂载、非特权身份与 ActPlane','result':'已核验' if active else '待启动核验'},
+        {'sentence':'实例内全部会话及子进程继承系统内置保护，不能写入控制目录或自行扩权。','source':'系统内置保护','method':'隔离挂载、非特权身份与 ActPlane','result':'已核验' if active else '待启动核验'},
         {'sentence':'只读已登记资源目录；写入必须有明确授权。','source':'实例默认策略','method':'隔离挂载与 ActPlane','result':'已核验' if active else '待启动核验'},
         {'sentence':'仅连接本机控制端、DNS 和启动层解析的模型 IPv4 地址。' if policy['network']=='model_only' else '禁止模型和外部网络连接，保留本机控制端。','source':'实例策略','method':'实例 cgroup 网络过滤','result':'已核验' if active else '待启动核验'}
     ]

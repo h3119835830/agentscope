@@ -60,9 +60,9 @@ def build(row, session, generation, active, policy_records, receipt):
                          'reason': '由所属配置维护，不能在会话中移除继承约束。', **extra})
 
     if controlled:
-        add('platform', 'platform', 'control', '保护控制目录与执行凭据', '控制平面和执行后代',
-            '隔离挂载、非特权身份与 ActPlane', effect='deny',
-            reason='平台底线不可在用户策略中停用。')
+        add('system_builtin', 'system', 'control', '保护控制目录与执行凭据', '控制平面和执行后代',
+            '隔离挂载、非特权身份与 ActPlane', effect='deny', system_builtin=True,
+            reason='系统内置保护不可通过用户策略停用。')
         add('baseline', 'agent', 'mounts', '登记资源默认只读，写入需显式授权',
             '；'.join(row.get('resources', [])), '隔离挂载与 ActPlane', effect='deny',
             reason='默认边界不可直接停用；可以通过所属 Agent 配置申请明确写入授权。')
@@ -98,22 +98,24 @@ def build(row, session, generation, active, policy_records, receipt):
         match = documents.get((scope, doc_id))
         refs = record.get('compiled_refs', [])
         legacy = record.get('source_kind') == 'legacy_generated'
-        if legacy and refs and all(ref.get('immutable') for ref in refs):
-            scope = 'platform'
+        builtin = bool(legacy and refs and all(ref.get('immutable') for ref in refs))
+        if builtin:
+            scope = 'system'
         verbs = {'read': '读取', 'write': '写入', 'unlink': '删除', 'exec': '执行', 'connect': '网络连接'}
         operations = list(dict.fromkeys(verbs.get(ref.get('clause_op'), ref.get('clause_op', '操作')) for ref in refs))
         targets = list(dict.fromkeys((ref.get('target_pattern', '') + (' ' + ref['target_arg'] if ref.get('target_arg') else '')).strip() for ref in refs))
         matches_current = bool(match and match.get('original_dsl') == record.get('original_document'))
-        mutable = bool(editable and matches_current and scope in ('system', 'agent'))
+        mutable = bool(not builtin and editable and matches_current and scope in ('system', 'agent'))
         add('dsl' if doc_id else 'execution_record', scope, record['id'],
             '启动执行约束 · ' + '、'.join(operations) if legacy else
             record.get('statement') or record.get('document_name') or record.get('rule_name') or '已记录约束',
             '；'.join(targets) or '见规则详情', 'ActPlane 内核规则' if refs else '受管任务记录',
-            record_id=record['id'], document_id=doc_id, effects=record.get('effects', []),
+            record_id=record['id'], document_id=doc_id, effects=record.get('effects', []), system_builtin=builtin,
             status='加载回执与当前绑定已核验' if active and record.get('loaded') else
                    '历史加载记录 · 当前未核验' if record.get('loaded') else '执行状态未核验',
             can_disable=mutable, can_configure=False,
-            reason='复杂 DSL 需前往所属配置编辑；停用将移除整个文档。' if mutable else
+            reason='系统内置保护不可通过用户策略停用。' if builtin else
+                   '复杂 DSL 需前往所属配置编辑；停用将移除整个文档。' if mutable else
                    '未取得可编辑的当前文档，或此记录属于受管任务；只读查看。')
 
     recorded_docs = {(r.get('scope_type'), r.get('document_id')) for r in policy_records
@@ -127,7 +129,7 @@ def build(row, session, generation, active, policy_records, receipt):
 
     checks = [
         {'name': '运行绑定', 'ok': active, 'message': '当前 Agent 继承绑定已核验' if active else '当前执行保护未核验'},
-        {'name': '结构化安全配置', 'ok': controlled, 'message': '已汇总平台、资源、网络、工具及行为约定' if controlled else '仅观测连接，未接管执行'},
+        {'name': '结构化安全配置', 'ok': controlled, 'message': '已汇总系统内置保护、资源、网络、工具及行为约定' if controlled else '仅观测连接，未接管执行'},
         {'name': 'DSL 加载详情', 'ok': not missing, 'message': '已汇总当前可用规则映射' if not missing else '部分配置文档缺少加载映射，不能将其计为当前保护'},
         {'name': '会话独立应用', 'ok': False, 'message': LOCAL_REASON},
         {'name': '其他系统或业务约束', 'ok': False, 'message': '未接入的外部约束无法由本页面核验，不计入已保护范围。'}]
@@ -136,7 +138,7 @@ def build(row, session, generation, active, policy_records, receipt):
             'controls': controls, 'checks': checks, 'coverage_complete': controlled and not missing,
             'pending_changes': pending_changes(row['id'], session['id']),
             'can_propose': editable, 'session_local_supported': False, 'session_local_reason': LOCAL_REASON,
-            'scope_labels': {'platform': '平台底线', 'system': '系统继承', 'agent': 'Agent 继承',
+            'scope_labels': {'system': '系统继承', 'agent': 'Agent 继承',
                              'workspace': '工作区继承', 'session': '本会话'},
             'network_modes': ['model_only', 'disabled']}
 
@@ -144,8 +146,7 @@ def build(row, session, generation, active, policy_records, receipt):
 def domain_view(view, active):
     """Count the same known constraints as the panel; counts never grant execution."""
     complete = view['coverage_complete']
-    scopes = [('platform', '平台底线', '全部受控执行'),
-              ('system', '系统策略', '全部受控 Agent'),
+    scopes = [('system', '系统策略', '全部受控 Agent · 包含系统内置保护'),
               ('agent', 'Agent 策略', '此 Agent 的全部工作区与会话'),
               ('workspace', '工作区约束', '当前工作区'),
               ('session', '会话约束', '当前会话')]
