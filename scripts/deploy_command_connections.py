@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Stage/switch both local 18003 planes with exact idle instances and config preservation."""
-import argparse,hashlib,json,os,shutil,sqlite3,subprocess,time
+import argparse,hashlib,json,os,shutil,sqlite3,subprocess,time,urllib.request
 from pathlib import Path
-from deploy_policy_semantics import guard,service,listeners,files,sha,api
+from deploy_policy_semantics import guard,service,listeners,files,sha,api as read_api
 SOURCE=Path(__file__).resolve().parents[1]
 STATE=Path('/var/lib/agentscope-scope-demo')
 API='agentscope-scope-demo-api.service';BROKER='agentscope-scope-demo-broker.service'
@@ -11,6 +11,12 @@ TABLES={'agent_instances':'id,name,agent_type,environment,mode,resources_json,po
         'instance_local_policies':'*','system_security_policy':'*','instance_dsl_scopes':'*',
         'instance_proposals':'*','instance_dsl_proposals':'*','system_security_proposals':'*',
         'policy_approval_decisions':'*','instance_launch_configs':'*'}
+
+def api(path,body=None):
+ if body is None:return read_api(path)
+ request=urllib.request.Request('http://127.0.0.1:18003'+path,data=json.dumps(body).encode(),headers={'Content-Type':'application/json'})
+ with urllib.request.urlopen(request,timeout=120) as response:return json.load(response)
+
 
 def configuration():
  result={}
@@ -69,11 +75,13 @@ def apply(path):
  with sqlite3.connect(STATE/'demo.sqlite3') as source,sqlite3.connect(backup/'demo.sqlite3') as target:source.backup(target)
  (backup/'demo.sqlite3').chmod(0o600)
  result={'release':str(release),'source_commit':m['source_commit'],'published':False,'before':m['configuration'],'old_running':m['running']}
+ switch_started=False
  try:
   for row in m['running']:
    current=api('/api/agent-instances/'+row['id'])
    assert all(current[k]==row[k] for k in ('pid','generation','policy_hash','gate'))
    api('/api/agent-instances/'+row['id']+'/stop',{'generation':row['generation'],'policy_hash':row['policy_hash']})
+  switch_started=True
   subprocess.run(['systemctl','stop',API,BROKER],check=True,timeout=40)
   shutil.copytree(release/'frontend/dist',STATE/'ui',dirs_exist_ok=True)
   for unit,path in DROPS.items():path.parent.mkdir(exist_ok=True);path.write_text(drop_text(unit,release))
@@ -91,13 +99,14 @@ def apply(path):
   result.update(published=True,after=configuration(),restored=restored,services={u:service(u) for u in (API,BROKER)},other_ports_unchanged=True,configuration_preserved=True)
  except BaseException as error:
   result['error']=str(error)[:1000]
-  subprocess.run(['systemctl','stop',API,BROKER],timeout=40)
-  for unit,path in DROPS.items():
-   if m['previous_drops'][unit] is None:path.unlink(missing_ok=True)
-   else:path.write_text(m['previous_drops'][unit])
-  shutil.copytree(backup/'ui',STATE/'ui',dirs_exist_ok=True)
-  subprocess.run(['systemctl','daemon-reload'],check=True);subprocess.run(['systemctl','start',BROKER,API],check=True,timeout=45)
-  result['code_rolled_back']=True
+  if switch_started:
+   subprocess.run(['systemctl','stop',API,BROKER],timeout=40)
+   for unit,path in DROPS.items():
+    if m['previous_drops'][unit] is None:path.unlink(missing_ok=True)
+    else:path.write_text(m['previous_drops'][unit])
+   shutil.copytree(backup/'ui',STATE/'ui',dirs_exist_ok=True)
+   subprocess.run(['systemctl','daemon-reload'],check=True);subprocess.run(['systemctl','start',BROKER,API],check=True,timeout=45)
+   result['code_rolled_back']=True
   # Keep audit/database facts; never restore stale authority from a raw DB backup.
   for old in m['running']:
    try:api('/api/agent-instances/'+old['id']+'/start',{})
