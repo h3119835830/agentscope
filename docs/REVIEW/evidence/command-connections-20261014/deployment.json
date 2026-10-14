@@ -1,0 +1,71 @@
+{
+  "published": true,
+  "api_source_commit": "76d13a5",
+  "broker_source_commit": "4721508",
+  "ui_source_commit": "f3908f7",
+  "api_release": "/opt/agentscope-session-security-20261014-180615",
+  "broker_release": "/opt/agentscope-command-connections-20261014-175212",
+  "api_service": {
+    "MainPID": "1710189",
+    "WorkingDirectory": "/opt/agentscope-session-security-20261014-180615",
+    "argv": [
+      "/opt/agentscope/.venv/bin/python",
+      "-m",
+      "uvicorn",
+      "agentscope_app.main:app",
+      "--host",
+      "127.0.0.1",
+      "--port",
+      "18003",
+      "--timeout-graceful-shutdown",
+      "3"
+    ],
+    "start_ticks": "36219611"
+  },
+  "broker_service": {
+    "MainPID": "1666990",
+    "WorkingDirectory": "/opt/agentscope-command-connections-20261014-175212",
+    "argv": [
+      "/opt/agentscope/.venv/bin/python",
+      "/opt/agentscope-command-connections-20261014-175212/backend/broker/main.py"
+    ],
+    "start_ticks": "36134768"
+  },
+  "original_agent": {
+    "id": "instance-1f4469579e8947f4",
+    "pid": 1667542,
+    "generation": "6efd182057e64eae8266c181c6fdfd69",
+    "policy_hash": "9c5fa9fbb63c9bcd71da29007179d6c9fed00b23ac9b9f4e41165a76b92425c1",
+    "active": true
+  },
+  "configuration_preserved": true,
+  "other_ports_unchanged": true,
+  "http_assets": {
+    "/assets/main-Chpnzv93.js": "97e53616e856ea3cb20588930ed8c932fa0430e0e07a4faf25a410c34f1fdbe2",
+    "/assets/client-2tdd2SJ7.js": "db45583e1f8b00f66e65251c12c9cfd14337051285ac085f1e9fefbf6dd45a29",
+    "/assets/main-DekQ6kt3.css": "fe1d242813fdf0ea66a85b87d191d4615a08019dc371ef50c1e0a9a7a7cbc56f"
+  },
+  "isolated_services_stopped": true,
+  "desktop_command_smoke": {
+    "passed": true,
+    "steps": [
+      "registered",
+      "started_and_protected",
+      "fresh_observation",
+      "canonical_terminal_entry"
+    ],
+    "id": "instance-c5f96fa8f0984c78",
+    "pid": 1714307,
+    "generation": "94aa711049b143199f78809450089b56",
+    "normalized_cwd": "/mnt/c/Users/happy/Desktop/\u8ba2\u5355\u65e5\u62a5\u4e0e\u654f\u611f\u8d44\u6599\u9694\u79bb",
+    "probe": {
+      "input_readable": true,
+      "write_denied": 30,
+      "child_write_denied": true
+    },
+    "kernel_verification_passed": true,
+    "default_write_kernel_events": 1,
+    "desktop_fixture_hashes_unchanged": true,
+    "configuration_preserved_after_test": true
+  }
+}
