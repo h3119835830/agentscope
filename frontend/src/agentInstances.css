@@ -130,3 +130,13 @@ body:has(.instance-drawer[open]),body:has(.instance-add[open]){overflow:hidden}
 .session-workspace-path{display:block;color:#61768b;font:11px/1.65 Consolas,"Cascadia Code",monospace;overflow-wrap:anywhere;white-space:normal}
 
 .agent-launch-fields{border:0;padding:0;margin:0;display:grid;gap:14px;min-width:0}.agent-launch-fields textarea{font-family:ui-monospace,monospace;line-height:1.5}.native-workspaces .task-section-heading{gap:12px;align-items:center}.native-workspaces .task-section-heading p{margin:0;color:var(--muted,#657791);font-size:13px}.native-workspace-files{margin-top:20px;border-top:1px solid #dce6f2;padding-top:16px}.native-workspaces td small{display:block;color:#70809a;margin-top:4px}.native-workspaces .task-path{max-width:100%;white-space:normal;overflow-wrap:anywhere}.native-workspaces{min-width:0}.instance-add .record-drawer-body{padding-bottom:24px}
+
+.instance-add.record-drawer{width:min(760px,100vw)}
+.instance-add .instance-form{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 16px;align-content:start;margin-top:0}
+.instance-add .instance-form>label:nth-of-type(3),.instance-add .instance-form>.agent-launch-fields,.instance-add .instance-form>.field-note,.instance-add .instance-form>.inline-notice,.instance-add .instance-form>button{grid-column:1/-1}
+.instance-add .instance-form label{margin:0;padding:0;gap:6px;align-content:start;line-height:1.45}
+.instance-add .agent-launch-fields{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 16px;align-content:start}
+.instance-add .agent-launch-fields>label:nth-of-type(1),.instance-add .agent-launch-fields>label:nth-of-type(2),.instance-add .agent-launch-fields>p{grid-column:1/-1}
+.instance-add .instance-form>.field-note,.instance-add .agent-launch-fields>.field-note{margin:0;line-height:1.6}
+.instance-add .instance-form>button{justify-self:end}
+@media(max-width:650px){.instance-add .instance-form,.instance-add .agent-launch-fields{grid-template-columns:minmax(0,1fr)}}
