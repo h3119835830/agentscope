@@ -1,0 +1,56 @@
+{
+  "scope": "isolated-real-native-sessions",
+  "passed": true,
+  "checks": {
+    "proposal_and_approval_do_not_execute": true,
+    "actual_read_denied_only_in_target_agent": true,
+    "visual_disable_uses_new_approval_and_preserves_other_agent": true,
+    "all_native_sessions_inherit_actual_agent_scope": true,
+    "production_unchanged": true
+  },
+  "instance_id": "instance-e347a897ccb84d37",
+  "other_instance_id": "instance-f03d9dfea5b44cf5",
+  "session_id": "session-bfb09028-4907-48fa-8976-ab17662a3b89",
+  "other_session_id": "session-bd3ff0bc-d0fb-4858-8048-1bea7b6e5518",
+  "probe_outcome": {
+    "read_completed": false,
+    "errno": 1
+  },
+  "kernel_event_evidence": [
+    {
+      "op": "read",
+      "blocked": true,
+      "domain_id": 1500159851,
+      "clause": "  block read file \"/w/0/.agentscope-dsl-block.txt\" if AGENT"
+    },
+    {
+      "op": "read",
+      "blocked": true,
+      "domain_id": 1500159851,
+      "clause": "  block read file \"/w/0/.agentscope-dsl-block.txt\" if AGENT"
+    }
+  ],
+  "first_batch": {
+    "port": 18188,
+    "passed": false,
+    "functional_checks_passed": true,
+    "failure": "Concurrent production API release changed identity; original private report retained"
+  },
+  "latest_browser": {
+    "port": 18189,
+    "real_native_session": true,
+    "constraints_rendered": 5,
+    "legacy_rule_details_opened": true,
+    "missing_path_error_corrected_and_verified": true,
+    "candidate_id": "instance:51febb336fe54b62a7a7006d0cdf1a21",
+    "candidate_submitted_without_apply": true,
+    "candidate_survived_reload": true,
+    "other_session_did_not_show_candidate": true,
+    "candidate_rejected": true,
+    "network_scope_dialog_verified": true,
+    "viewport": 390,
+    "page_scroll_width": 375,
+    "viewport_reset": true,
+    "local_scopes_disabled": true
+  }
+}

@@ -146,6 +146,9 @@ def session_read(ident:str,sid:str,section:str,before:int|None=Query(None,ge=1),
     if section=='policies':
         data=invoke(sessions.policies,ident,sid)
         if 'session' in data:data['session']={**data['session'],'resource':data['session'].get('workspace')}
+        if 'security' in data:
+            data['security']['evidence_records']=[{**r,'hits':[h for h in r.get('hits',[]) if h.get('session_id')==sid]}
+                for r in data['records'] if r.get('source_kind')=='legacy_generated']
         data['records']=[r for r in data['records'] if r.get('source_kind')!='legacy_generated']
         for record in data['records']:
             record['hits']=[h for h in record.get('hits',[]) if h.get('session_id')==sid]
@@ -232,6 +235,21 @@ class ApprovalRequest(ApprovalDecision):
 
 class ApplicationRequest(ApprovalRequest):
     approval_hash:str=Field(pattern=r'^[a-f0-9]{64}$')
+
+class RevalidationRequest(BaseModel):
+    model_config=ConfigDict(extra='forbid')
+    plan_hash:str=Field(pattern=r'^[a-f0-9]{64}$')
+    request_key:str=Field(min_length=8,max_length=100)
+
+@router.get('/approvals/{ident}/revalidation')
+def revalidation_preview(ident:str):
+    from .instances.approval_recovery import preview
+    return invoke(preview,ident)
+
+@router.post('/approvals/{ident}/revalidate')
+def revalidate_policy(ident:str,body:RevalidationRequest):
+    from .instances.approval_recovery import revalidate
+    return invoke(revalidate,ident,body.plan_hash,body.request_key)
 
 @router.post('/approvals/{ident}/approve')
 def approve_policy(ident:str,body:ApprovalRequest):

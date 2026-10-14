@@ -153,7 +153,8 @@ def verify_proposal(proposal_id):
         if not binding:return
         for chosen in json.loads(binding['selections_json']):
             current=get(chosen['id'],con)
-            if current['archived'] or current['revision']!=chosen['revision']:raise ValueError('配置库版本已变化，请重新选择并校验')
+            if current['archived']:raise ValueError('配置库版本已变化：配置“'+current['name']+'”已删除，请返回配置库重新创建。')
+            if current['revision']!=chosen['revision']:raise ValueError('配置库版本已变化：配置“'+current['name']+'”已从 v'+str(chosen['revision'])+' 更新到 v'+str(current['revision'])+'，请重新校验。')
 
 @system.lifecycle
 def propose(body):

@@ -27,6 +27,8 @@ def init(con):
     from .policy_drafts import init as init_drafts
     init_decisions(con)
     init_drafts(con)
+    from .approval_recovery import init as init_recovery
+    init_recovery(con)
     con.execute("UPDATE instance_dsl_scopes SET phase='blocked' WHERE phase='updating'")
 
 def current(scope_id,con=None):
@@ -137,6 +139,8 @@ def apply(scope,pid,expected_hash):
     with db.connect() as con:raw=con.execute('SELECT * FROM instance_dsl_proposals WHERE id=? AND scope_id=?',(pid,scope)).fetchone()
     if not raw or raw['proposal_hash']!=expected_hash:raise ValueError('DSL 候选确认内容不一致')
     p=unpack(raw)
+    from .approval_recovery import completed
+    if not completed(p):raise ValueError('重新校验尚未完成，请重试原校验请求。')
     if p['state']=='applied':return {**p['result'].get('application',{}),'id':pid,'state':'applied','idempotent':True}
     from .policy_library import verify_proposal
     verify_proposal(pid)

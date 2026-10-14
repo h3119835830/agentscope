@@ -341,3 +341,25 @@ test('system library review sends separate idempotent approve and apply requests
  assert.match(renderToStaticMarkup(tree),/当前运行策略尚未改变/);
  await detail.props.onDecision(approved,'apply');assert.equal(calls[1][0],'/api/console/approvals/system-review/apply');assert.equal(calls[1][1].approval_hash,approved.approval_hash);assert.ok(calls[1][1].request_key);
 });
+
+test('stale approval exposes revalidation and keeps original record read only',async()=>{
+ const render=await harness('PolicyApprovals.jsx','ApprovalDetail'),chosen=[];
+ const data={id:'old',name:'环境凭据文件',scope_type:'system',status:'stale',kind:'dsl',created_at:'2026-10-14T00:00:00Z',documents:[],records:[],targets:[],agents:[],total_affected_count:0,can_apply:false,can_approve:false,can_reject:true,reason:'配置从 v1 更新到 v2',revalidation:{available:true,destination:{page:'strategies'}}};
+ const tree=render({data,onClose(){},onRevalidate:row=>chosen.push(row.id)});
+ const html=renderToStaticMarkup(tree);assert.match(html,/重新校验/);assert.doesNotMatch(html,/>批准变更<|>应用策略</);
+ elements(tree).find(e=>e.type==='button'&&e.props.children==='重新校验').props.onClick();assert.deepEqual(chosen,['old']);
+ const locations=[];const shared=render({data,onClose(){},navigate:target=>locations.push(target)});
+ elements(shared).find(e=>e.type==='button'&&e.props.children==='重新校验').props.onClick();
+ assert.deepEqual(locations,[{page:'approvals',approvalId:'old'}]);
+});
+
+test('revalidation previews current versions and creates only a fresh candidate after explicit acknowledgement',async()=>{
+ const plan={plan_hash:'a'.repeat(64),scope_label:'全部受控 Agent',target_count:4,message:'创建新候选，旧记录保留',changed_content:true,comparisons:[{name:'环境凭据文件',before_version:1,after_version:2,same_content:false,before_summary:'记录通知',after_summary:'阻断操作',before_dsl:'notify open file "**/*.env" if AGENT',after_dsl:'block open file "**/*.env" if AGENT'}]};
+ const render=await harness('ApprovalRevalidation.jsx','default',[plan,'',false,false,false]),calls=[],created=[];
+ const props={data:{id:'old',name:'环境凭据文件',revalidation:{destination:{page:'strategies'}}},api:async()=>plan,post:async(...args)=>{calls.push(args);return {id:'new'};},onCreated:result=>created.push(result.id)};
+ let tree=render(props),nodes=elements(tree);assert.ok(nodes.find(e=>e.type==='button'&&e.props.children==='校验并生成新候选').props.disabled);
+ assert.match(renderToStaticMarkup(tree),/内容已变化，请核对/);assert.equal(calls.length,0);
+ nodes.find(e=>e.type==='input'&&e.props.type==='checkbox').props.onChange({target:{checked:true}});
+ tree=render(props);await elements(tree).find(e=>e.type==='button'&&e.props.children==='校验并生成新候选').props.onClick();
+ assert.equal(calls.length,1);assert.equal(calls[0][0],'/api/console/approvals/old/revalidate');assert.equal(calls[0][1].plan_hash,plan.plan_hash);assert.ok(calls[0][1].request_key);assert.deepEqual(created,['new']);
+});

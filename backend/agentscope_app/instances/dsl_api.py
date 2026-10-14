@@ -76,6 +76,21 @@ def directory(agent_type:str='',instance_id:str='',q:str=Query('',max_length=200
 @router.get('/api/agent-instances/{ident}/sessions/{sid}/policies')
 def policies(ident:str,sid:str,generation:str|None=None):return invoke(sessions.policies,ident,sid,generation)
 
+class SessionSecurityProposal(Model):
+    scope:Literal['system','agent','workspace','session']
+    operation:Literal['add','replace','disable']
+    basis_hash:str=Field(pattern=r'^[a-f0-9]{64}$')
+    constraint_id:str|None=Field(default=None,max_length=100)
+    rule:dict|None=None
+    network:Literal['model_only','disabled']|None=None
+    request_key:str=Field(min_length=8,max_length=100)
+    acknowledge_scope:bool=False
+
+@router.post('/api/agent-instances/{ident}/sessions/{sid}/security/proposals')
+def session_security_propose(ident:str,sid:str,body:SessionSecurityProposal):
+    from .session_security import propose
+    return invoke(propose,ident,sid,body.model_dump())
+
 class SessionName(Model):
     name:str=Field(min_length=1,max_length=120)
     expected_name:str|None=Field(max_length=500)
