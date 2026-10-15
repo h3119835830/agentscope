@@ -4,6 +4,7 @@ from fastapi import APIRouter, Query
 from pydantic import Field
 from .api import Model, invoke
 from . import template_configurations as configurations
+from . import workspace_references as references
 
 router = APIRouter()
 
@@ -49,7 +50,29 @@ class Generate(Model):
     scope: Literal['agent','workspace'] = 'agent'
     workspace_id: str | None = Field(default=None,max_length=200)
     materials: list[Material] = Field(default_factory=list,max_length=10)
+    reference_read_id: str | None = Field(default=None,min_length=1,max_length=64)
     request_key: str = Field(min_length=8,max_length=100)
+
+
+class ReadWorkspace(Model):
+    workspace_id: str = Field(min_length=1,max_length=64)
+    paths: list[str] = Field(min_length=1,max_length=10)
+    request_key: str = Field(min_length=8,max_length=100)
+
+
+@router.get('/api/agent-instances/{ident}/policy-reference-workspaces')
+def reference_workspaces(ident: str):
+    return invoke(references.directory,ident)
+
+
+@router.post('/api/agent-instances/{ident}/policy-workspace-reads')
+def read_workspace(ident: str,body: ReadWorkspace):
+    return invoke(references.create,ident,body.model_dump())
+
+
+@router.get('/api/agent-instances/{ident}/policy-workspace-reads/{read_id}')
+def read_workspace_record(ident: str,read_id: str):
+    return invoke(lambda:references.public(references.verify(ident,read_id)))
 
 
 @router.get('/api/policy-templates')
