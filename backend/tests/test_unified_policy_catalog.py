@@ -5,6 +5,7 @@ from agentscope_app.instances import template_configurations as tc, template_cat
 from test_dsl_configuration import world, ADMIN
 from test_template_configurations import clean_templates, config, Provider, plan_body
 from test_policy_library import config as system_config
+from test_policy_workspace_references import reference, read, generated
 
 def batch(scope,rows,**changes):
     base=dsl.current(scope)
@@ -60,3 +61,33 @@ def test_native_cannot_submit_batch_or_global_assistant(world):
     for route,payload in [('/api/policy-template-configurations/proposals',batch(world.a['id'],[row])),
                           ('/api/policy-template-configurations/generate',dict(scope_id='system',scope='system',text='禁止读取员工资料',request_key=uuid.uuid4().hex))]:
         assert world.client.post(route,headers={'Authorization':'Bearer native'},json=payload).status_code==401
+
+def test_batch_preserves_source_snapshot_validation_before_approval(reference):
+    world,root,_=reference
+    result,_=generated(reference)
+    p=tc.propose_batch(batch(world.a['id'],result['items']))
+    assert p['state']=='pending'
+    (root/'README.md').write_text('场景资料已经更新')
+    with pytest.raises(ValueError):decisions.approve(p['id'],p['proposal_hash'],uuid.uuid4().hex)
+    assert not world.calls
+
+def test_stale_reference_does_not_prevent_explicit_disable(reference):
+    world,root,_=reference
+    result,_=generated(reference)
+    p=tc.propose_batch(batch(world.a['id'],result['items']))
+    receipt=decisions.approve(p['id'],p['proposal_hash'],uuid.uuid4().hex)
+    decisions.apply(p['id'],p['proposal_hash'],receipt['approval_hash'],uuid.uuid4().hex)
+    (root/'README.md').write_text('场景资料已经更新')
+    removal=batch(world.a['id'],result['items']);removal['operation']='disable'
+    q=tc.propose_batch(removal)
+    receipt=decisions.approve(q['id'],q['proposal_hash'],uuid.uuid4().hex)
+    decisions.apply(q['id'],q['proposal_hash'],receipt['approval_hash'],uuid.uuid4().hex)
+    assert not dsl.current(world.a['id'])['documents']
+
+def test_agent_reference_cannot_be_reused_as_all_agent_generation(reference):
+    world,_,_=reference
+    receipt=read(reference)
+    provider=Provider({'configurations':[],'questions':[],'gaps':[]})
+    with pytest.raises(ValueError,match='作用范围'):
+        tc.generate('system',{**plan_body(),'scope':'system','reference_read_id':receipt['id']},provider)
+    assert not provider.calls and not world.calls

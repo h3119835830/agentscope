@@ -15,17 +15,24 @@ ROOT = Path(__file__).resolve().parents[1]
 STATE = Path('/var/lib/agentscope-scope-demo')
 API = 'agentscope-scope-demo-api.service'
 BROKER = 'agentscope-scope-demo-broker.service'
-DROP = Path('/etc/systemd/system/'+API+'.d/99zzzzzzzz-template-configurations-20261014.conf')
-BASE = 'fddc532'
+DROP = Path('/etc/systemd/system/'+API+'.d/99zzzzzzzzzz-workspace-references-20261015.conf')
+BASE = '71873f849962f0344817f4bdea07ea32527fcc96'
 
 
 def git(*args):
     return subprocess.check_output(['git','-c','safe.directory='+str(ROOT),'-C',str(ROOT),*args])
 
 
+def idle():
+    guard()
+    with sqlite3.connect('file:'+str(STATE/'demo.sqlite3')+'?mode=ro',uri=True) as con:
+        assert not con.execute("SELECT 1 FROM template_configuration_requests WHERE state='running'").fetchone(), 'Template generation is busy'
+
+
 def stage():
     assert os.geteuid() == 0
-    guard()
+    idle()
+    assert not git('status','--porcelain').strip(), 'Commit reviewed source first'
     before = service(API); broker = service(BROKER)
     live = Path(before['WorkingDirectory'])
     assert live.parent == Path('/opt')
@@ -33,6 +40,8 @@ def stage():
     for rel, digest in files(live/'backend/agentscope_app').items():
         original = git('show',BASE+':backend/agentscope_app/'+rel)
         assert hashlib.sha256(original).hexdigest() == digest, 'Live application changed: '+rel
+    assert sha(STATE/'ui/index.html') == sha(live/'frontend/dist/index.html'), 'Live UI changed'
+    assert sha(live/'backend/reference_file_reader.py') == hashlib.sha256(git('show',BASE+':backend/reference_file_reader.py')).hexdigest(), 'Reference reader changed'
     release = Path('/opt/agentscope-unified-policy-catalog-'+time.strftime('%Y%m%d-%H%M%S'))
     assert not release.exists()
     release.mkdir(mode=0o755)
@@ -44,7 +53,7 @@ def stage():
     assert files(live/'dsh') == files(release/'dsh'), 'DSH files must stay unchanged'
     subprocess.run(['/opt/agentscope/.venv/bin/python','-m','compileall','-q',str(release/'backend/agentscope_app')],check=True)
     manifest = {'release':str(release),'api':before,'broker':broker,'authority':authority(),'listeners':listeners(),
-                'live_files':files(live/'backend/agentscope_app'),'release_files':files(release),
+                'live_files':files(live/'backend/agentscope_app'),'release_files':files(release),'ui_hash':sha(STATE/'ui/index.html'),'reader_hash':sha(live/'backend/reference_file_reader.py'),
                 'dsh_files':files(live/'dsh'),'source_commit':git('rev-parse','HEAD').decode().strip(),'old_drop':DROP.read_text() if DROP.exists() else None}
     path = release/'unified-catalog-deployment.json'
     path.write_text(json.dumps(manifest,indent=2));path.chmod(0o600)
@@ -61,7 +70,9 @@ def apply(path):
     assert files(Path(m['api']['WorkingDirectory'])/'backend/agentscope_app') == m['live_files']
     assert files(Path(m['api']['WorkingDirectory'])/'dsh') == m['dsh_files']
     assert (DROP.read_text() if DROP.exists() else None) == m['old_drop']
-    guard();assert authority() == m['authority'] and listeners() == m['listeners']
+    assert sha(STATE/'ui/index.html') == m['ui_hash']
+    assert sha(Path(m['api']['WorkingDirectory'])/'backend/reference_file_reader.py') == m['reader_hash']
+    idle();assert authority() == m['authority'] and listeners() == m['listeners']
     backup = STATE/'release-backups'/release.name;backup.mkdir(parents=True,mode=0o700)
     shutil.copytree(STATE/'ui',backup/'ui')
     with sqlite3.connect(STATE/'demo.sqlite3') as src,sqlite3.connect(backup/'demo.sqlite3') as dst:

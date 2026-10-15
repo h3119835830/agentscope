@@ -1,0 +1,27 @@
+{
+  "passed": true,
+  "real_provider": true,
+  "isolated_http_port": 18155,
+  "agent_started": false,
+  "policy_applied": false,
+  "computer_use": false,
+  "checks": [
+    "HTTP 读取真实合成工作区正文",
+    "真实模型从正文得到员工资料路径并选择已有模板",
+    "读取与生成幂等",
+    "跨实例引用拒绝",
+    "真实 DAC 无权限文件拒绝",
+    "符号链接、越界和凭据文件拒绝",
+    "正文变化后拒绝旧引用和旧生成重试",
+    "未启动 Agent、未审批或应用",
+    "现有 API/Broker/Agent 身份和策略不变"
+  ],
+  "generation_seconds": 1.299,
+  "production_runtime_unchanged": true,
+  "template_id": "FILE-READ",
+  "parameters": {
+    "target": "/w/0/internal/staff.csv"
+  },
+  "name": "禁止读取员工档案",
+  "read_uid_contract": "happy UID + agentscope-task GID; no supplementary groups"
+}

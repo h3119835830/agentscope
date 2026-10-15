@@ -1,8 +1,8 @@
 {
   "status": "passed_pending_publication",
   "scope": "source_tests_and_read_only_browser_preview",
-  "backend_tests": 1269,
-  "frontend_tests": 296,
+  "backend_tests": 1317,
+  "frontend_tests": 305,
   "build": "passed",
   "browser_checks": [
     "two_system_tabs_no_duplicate_template_entry",
@@ -15,5 +15,11 @@
   "dsh_changed": false,
   "broker_changed": false,
   "live_policy_application": false,
-  "kernel_enforcement_newly_tested": false
+  "kernel_enforcement_newly_tested": false,
+  "integrated_live_source": "71873f849962f0344817f4bdea07ea32527fcc96",
+  "integration_checks": [
+    "reference_snapshot_staleness_blocks_approval",
+    "stale_reference_does_not_block_explicit_disable",
+    "agent_reference_cannot_widen_to_all_agents"
+  ]
 }

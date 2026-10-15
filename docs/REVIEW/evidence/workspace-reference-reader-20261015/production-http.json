@@ -1,0 +1,15 @@
+{
+  "http_health": 200,
+  "http_index": 200,
+  "asset_count": 3,
+  "asset_status": 200,
+  "index_sha256": "d8da4dd1bc47d028472cb795d56948cfa5687d81c2b4104579be279af20b101f",
+  "reference_directory_available": true,
+  "published_template_count": 27,
+  "agent_authority_unchanged": true,
+  "broker_identity_unchanged": true,
+  "other_ports_unchanged": true,
+  "production_project_bodies_read": false,
+  "production_generation": false,
+  "computer_use": false
+}

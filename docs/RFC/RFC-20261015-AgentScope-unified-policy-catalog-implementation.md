@@ -28,8 +28,12 @@ Agent 页新增的全局填参 API 为 `POST /api/policy-template-configurations
 
 ## 4. 验收与发布边界
 
-后端 1269 项通过，包含真实 ActPlane parser/compiler、统一审批、跨目标、漂移、历史兼容及新批量配置测试；其中特权加载 I/O 使用隔离适配器，不是新增内核拦截实测。前端 296 项通过，生产构建通过。浏览器使用只读代理核对真实配置名称、继承范围、详情编辑器、精确目标和折叠，不写入正式策略。
+后端 1317 项通过，包含真实 ActPlane parser/compiler、统一审批、跨目标、漂移、历史兼容及新批量配置测试；其中特权加载 I/O 使用隔离适配器，不是新增内核拦截实测。前端 305 项通过，生产构建通过。浏览器使用只读代理核对真实配置名称、继承范围、详情编辑器、精确目标和折叠，不写入正式策略。
 
 发布仅切换 18003 API / UI，保留 Broker PID、Agent 权限与 DSL 快照、DSH 文件和 18000 / 18004。发布前快照、私有 SQLite / UI 备份、源文件哈希和并发任务检查通过后才切换；API 停止超时 3 秒，避免触发 Broker 心跳失效；异常恢复原 API / UI。正式配置不作为测试数据加载。
 
 设计依据：[既有范围字段合同](RFC-20261015-AgentScope-unified-policy-scope.md)。关联：[ADR](../ADR/ADR-20261015-AgentScope-unified-policy-catalog-implementation.md)、[REVIEW](../REVIEW/REVIEW-20261015-AgentScope-unified-policy-catalog-implementation.md)、[BUG](../BUG/BUG-20261015-AgentScope-unified-policy-catalog-implementation.md)。
+
+## 并行发布的兼容集成
+
+发布前检测到 18003 已切换为 `71873f8` 的工作区参考资料读取能力，合并保留其只读入口、权限校验、资料快照与应用前校验。参考资料不改变策略范围；所有 Agent 生成不能复用某一 Agent 的参考读取凭据。停用已应用策略不依赖资料仍然可读。发布基线和 UI / 读取器哈希据此更新。

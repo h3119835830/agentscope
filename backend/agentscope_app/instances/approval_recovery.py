@@ -93,7 +93,7 @@ def plan(ident):
         docs={d['id']:d for d in base['documents']};previous={d['id']:d for d in p['documents']};selections=[]
         for chosen in json.loads(template_binding['selections_json']):
             item=configurations.load(chosen['id'])
-            configurations.verify_current(item)
+            configurations.verify_current(item,read_source=chosen.get('operation','apply')!='disable')
             if item['archived'] or item['scope_id']!=p['scope_id']:raise ValueError('子配置已删除或目标不一致，请返回策略与模板核对')
             if digest(template_catalog.get(item['template_id'],item['template_version']))!=item['template_hash']:raise ValueError('模板合同已经变化，请先编辑并保存子配置的新版本')
             removal=chosen.get('operation')=='disable'
