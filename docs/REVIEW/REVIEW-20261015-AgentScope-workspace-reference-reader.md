@@ -32,4 +32,8 @@
 
 遵照用户“不用 computer use”，本轮不操作浏览器；页面交互由组件测试、转义 HTML 和生产构建验证，正式端由 HTTP 与资产核对验证。没有像素或真人浏览器截图验收声明。
 
-发布前检查完整 diff、保持普通业务零改动、先本地提交再进行保留 Broker/Agent 身份的 API/UI 切换。正式发布结果、HTTP 哈希和最终测试计数补录本文件。未经用户新许可不推送远端。
+完整 diff 检查通过，普通业务与 Broker/ActPlane 源码零改动。实现本地提交为 71873f849962f0344817f4bdea07ea32527fcc96；API/UI 已发布至 /opt/agentscope-workspace-references-20261015-170902。控制台 API 切换及核对约 1.54 秒，Broker 未重启，所有 Agent 的 generation/PID/domain/active/策略及系统约束保持不变；没有启动、停止或重启 Agent，没有审批或应用策略，18000/18004 保持原状。
+
+正式健康、HTML 和 3 个入口资产均 HTTP 200；HTML 哈希 d8da4dd1bc47d028472cb795d56948cfa5687d81c2b4104579be279af20b101f 与构建一致。Windows 端健康读取同样 HTTP 200。精确实例参考目录 API 可用，模板仍为 27 项。正式发布验收只读取目录元数据，不读取用户项目正文、不调用正式模型生成。
+
+正式摘要见 [production-http.json](evidence/workspace-reference-reader-20261015/production-http.json) 和 [validation.json](evidence/workspace-reference-reader-20261015/validation.json)。私有代码/UI 回滚与数据库备份留在 /var/lib/agentscope-scope-demo/release-backups/agentscope-workspace-references-20261015-170902；未复制权限数据到 Git 或技术文档。未推送远端。
