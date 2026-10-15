@@ -1,6 +1,6 @@
 {
-  "status": "passed_pending_publication",
-  "scope": "source_tests_and_read_only_browser_preview",
+  "status": "published_verified",
+  "scope": "source_tests_and_production_http_browser_verification",
   "backend_tests": 1317,
   "frontend_tests": 305,
   "build": "passed",
@@ -21,5 +21,90 @@
     "reference_snapshot_staleness_blocks_approval",
     "stale_reference_does_not_block_explicit_disable",
     "agent_reference_cannot_widen_to_all_agents"
-  ]
+  ],
+  "production_browser_checks": [
+    "system_tabs_merged",
+    "real_saved_child_names_scopes_details",
+    "existing_parameters_preserved",
+    "actual_name_required",
+    "explicit_registered_instance_choice",
+    "template_children_collapse",
+    "batch_review_does_not_load",
+    "agent_assistant_present",
+    "all_agent_assistant_present_without_agent_reference",
+    "no_page_alert_or_console_error",
+    "compact_actions_visible"
+  ],
+  "deployment": {
+    "published": true,
+    "release": "/opt/agentscope-unified-policy-catalog-20261015-172329",
+    "source_commit": "2a026fb666d57e36c034fec39567b26f1037ca0d",
+    "agent_actions": false,
+    "policy_application": false,
+    "restart_seconds": 1.25,
+    "broker_unchanged": true,
+    "authority_unchanged": true,
+    "other_ports_unchanged": true,
+    "dsh_files_unchanged": true,
+    "api": {
+      "MainPID": "191294",
+      "WorkingDirectory": "/opt/agentscope-unified-policy-catalog-20261015-172329",
+      "argv": [
+        "/opt/agentscope/.venv/bin/python",
+        "-m",
+        "uvicorn",
+        "agentscope_app.main:app",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "18003",
+        "--timeout-graceful-shutdown",
+        "3"
+      ],
+      "start_ticks": "439432"
+    },
+    "ui_sha256": "6e3551f49053b84db771e6f5ac2dbb7fc06799264f39df9b47b404fb4c734e57",
+    "finished_at": 1792056216.3997006
+  },
+  "frontend_publication": {
+    "published": true,
+    "frontend_commit": "eff68bb106917541a03ad97ac5e1be8576241a2a",
+    "api_commit": "2a026fb666d57e36c034fec39567b26f1037ca0d",
+    "ui_sha256": "0eb0986c3295914d760e921b984911fb0f24e6fd81b0414829c061db902ad206",
+    "api_broker_authority_ports_unchanged": true,
+    "finished_at": 1792056406.3780546
+  },
+  "production_http": {
+    "health": {
+      "ok": true,
+      "service": "AgentScope",
+      "version": "0.2.0"
+    },
+    "assets": [
+      {
+        "path": "/assets/main-CrRFl12O.js",
+        "status": 200,
+        "sha256": "62110c2b767537adcadf4cc9caaf0f7d790471795184f36c2d5acfccd7756e88"
+      },
+      {
+        "path": "/assets/client-2tdd2SJ7.js",
+        "status": 200,
+        "sha256": "db45583e1f8b00f66e65251c12c9cfd14337051285ac085f1e9fefbf6dd45a29"
+      },
+      {
+        "path": "/assets/main-Cw1tLyJx.css",
+        "status": 200,
+        "sha256": "1f9283886f9dbd33361a31a7f153b729e7fb9f2efce757593082821118f616cd"
+      }
+    ],
+    "templates": 27,
+    "catalog_version": 2,
+    "all_template_scopes": [
+      "system",
+      "agent"
+    ],
+    "reference_route_preserved": true,
+    "saved_configuration_count": 4
+  },
+  "authority_unchanged_on_final_readback": true
 }
