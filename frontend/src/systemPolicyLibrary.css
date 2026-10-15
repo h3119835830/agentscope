@@ -15,3 +15,13 @@
 @media(max-width:720px){.spl-editor-footer>.button.ghost{margin-left:auto}}
 @media(max-width:720px){.spl-records th:nth-child(4){width:62px}.spl-records th:last-child{width:64px}.spl-records th:nth-child(2){width:28%}.spl-records th:nth-child(3){width:auto}.spl-effect{padding:4px 6px;font-size:10px}}
 @media(max-width:480px){.spl-records th:nth-child(3),.spl-records td:nth-child(3){display:none}.spl-records th:nth-child(2){width:auto}.spl-filters select{max-width:115px}.spl-intro{gap:7px}.spl-intro strong{font-size:11px}.spl-selection{padding:10px;gap:7px}.spl-selection .button{padding:8px;font-size:11px}}
+.spl-scope-visible .spl-records{overflow-x:auto}
+.spl-scope-visible .spl-records table{min-width:860px;table-layout:fixed}
+.spl-scope-visible .spl-records th:nth-child(2){width:21%}
+.spl-scope-visible .spl-records th:nth-child(3){width:132px;max-width:none}
+.spl-scope-visible .spl-records td:nth-child(3){max-width:none}
+.spl-scope-visible .spl-records th:nth-child(4){width:auto}
+.spl-scope-visible .spl-records th:nth-child(5){width:85px}
+.spl-scope-visible .spl-records th:nth-child(6){width:90px}
+.spl-scope-visible .spl-records th:last-child{width:100px}
+.spl-scope-visible .spl-records th:nth-child(3),.spl-scope-visible .spl-records td:nth-child(3),.spl-scope-visible .spl-records th:nth-child(5),.spl-scope-visible .spl-records td:nth-child(5){display:table-cell}
