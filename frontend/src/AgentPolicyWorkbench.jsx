@@ -2,7 +2,6 @@ import React,{useEffect,useState} from 'react';
 import NativeAgentWorkspaces from './NativeAgentWorkspaces.jsx';
 import ActPlanePolicies from './ActPlanePolicies.jsx';
 import TemplatePolicyAssistant from './TemplatePolicyAssistant.jsx';
-import SystemPolicyLibrary from './SystemPolicyLibrary.jsx';
 import LegacyWorkspacePolicies from './LegacyWorkspacePolicies.jsx';
 import {agentName,agentProcessLabel,visibleAgentInstances} from './agentInstancePresentation.mjs';
 import {tabKeys} from './consoleState.mjs';
@@ -28,7 +27,7 @@ export default function AgentPolicyWorkbench({api,post,navigation:n,navigate,can
    {scope==='agent'&&<label>指定 Agent<select aria-label="策略目标 Agent" value={targetId} onChange={e=>navigate({policyAgent:e.target.value,policyWorkspace:'',policySession:'',policyScope:'agent'})}><option value="" disabled>请选择 Agent</option>{choices.map(a=><option key={a.id} value={a.id}>{agentProcessLabel(a)}{a.mode!=='controlled'?' · 仅观测':''}</option>)}</select></label>}
    <button className="button tiny ghost" onClick={()=>setRevision(v=>v+1)}>刷新</button><button className="assistant-text-button" onClick={()=>navigate({page:'approvals',approvalId:''})}>查看审批 ↗</button>
   </div>
-  {scope==='system'?<SystemPolicyLibrary key="system" api={api} post={post} showScope/>:<>
+  {scope==='system'?<TemplatePolicyAssistant key="system" target={{id:'system',name:'所有 Agent'}} scope="system" api={api} post={post} onApprovals={id=>navigate({page:'approvals',approvalId:id})}/>:<>
    {error&&<p role="alert" className="inline-notice warning">{error} <button className="button tiny ghost" onClick={()=>setRevision(v=>v+1)}>重新读取</button></p>}
    {!agents&&!error&&<p role="status">正在读取 Agent…</p>}
    {agents&&!choices.length&&<p className="task-empty">尚未登记 Agent，请先到 Agent 连接添加。</p>}

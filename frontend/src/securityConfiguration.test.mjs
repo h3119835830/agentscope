@@ -44,7 +44,7 @@ test('loading and error states never invent or retain verified shared rules',()=
  const error=render(SystemSecurityRules,{error:'连接失败'});
  assert.match(error,/role="alert"/);assert.match(error,/重新读取/);assert.doesNotMatch(error,/已核验|shared_tool/);
  const blocked=render(SystemSecurityRules,{data:{...shared,phase:'blocked',network_result:'应用未完成'}});
- assert.match(blocked,/执行保持暂停/);assert.match(blocked,/重新核验并应用/);
+ assert.match(blocked,/执行保持暂停/);assert.match(blocked,/重新核验并提交审批/);
 });
 
 test('system change preview lists the affected Agents and requires explicit confirmation',()=>{
@@ -53,7 +53,7 @@ test('system change preview lists the affected Agents and requires explicit conf
  assert.match(html,/待确认的系统规则变更/);assert.match(html,/受影响连接：DSH/);
  assert.doesNotMatch(html,/受影响连接：DSH、Hermes/);
  assert.match(html,/当前规则尚未被替换/);assert.match(html,/未运行的连接在下次启动时应用/);
- assert.match(html,/确认此变更并应用/);
+ assert.match(html,/前往审批/);
 });
 
 test('current Agent editor uses its own rules and shared restrictions remain separately identified',()=>{

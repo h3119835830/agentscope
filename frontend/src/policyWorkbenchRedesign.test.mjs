@@ -60,7 +60,7 @@ test('manual child configuration sends only template parameters to the shared AP
  const render=await harness('TemplateConfigurationDialog.jsx'),calls=[];
  const template={id:'FILE-CHANGE',version:1,name:'文件修改与删除限制',summary:'文件保护',reason:'保留原件',scopes:['agent'],effect:'block',parameters:[{key:'target',label:'对象',type:'path',default:'/w/0/staff.csv'},{key:'operations',label:'操作',type:'operations',default:['unlink','write']}]};
  const props={template,agents:[target],targetId:target.id,post:async(path,body)=>{calls.push({path,body});return {id:'tc_child'};},onSaved(){},onClose(){}};
- let tree=render(props);assert.equal(elements(tree).find(e=>e.type==='select'&&e.props['aria-label']==='操作').props.value,'write,unlink');
+ let tree=render(props);assert.equal(elements(tree).filter(e=>e.type==='input'&&e.props.type==='checkbox'&&e.props.checked).length,2);
  await elements(tree).find(e=>e.type==='form').props.onSubmit({preventDefault(){}});
  assert.equal(calls.length,1);assert.equal(calls[0].path,'/api/policy-template-configurations');assert.equal(calls[0].body.scope_id,target.id);assert.equal(calls[0].body.template_id,'FILE-CHANGE');assert.equal(calls[0].body.document,undefined);assert.equal(calls[0].body.original_dsl,undefined);
 });

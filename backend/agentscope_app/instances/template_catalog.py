@@ -62,9 +62,20 @@ for preset in SYSTEM_CATALOG:
                     'scopes': ['system'], 'reason': preset['reason'], 'system_preset': preset['id']})
 
 
+HISTORICAL = {(t['id'], t['version']): copy.deepcopy(t) for t in CATALOG}
+for item in CATALOG:
+    item['version'] = 2
+    item['scopes'] = ['system', 'agent']
+    if item['renderer'] == 'system':
+        preset = next(p for p in SYSTEM_CATALOG if p['id'] == item['system_preset'])
+        item['parameters'] += [field('operations', '触发操作', ','.join(preset['ops']), 'operations'),
+                               field('effect', '匹配后的动作', preset['effect'], 'effect')]
+        item['allowed_operations'] = ['exec'] if preset['mode'] in ('exec','remote') else ['connect'] if preset['mode'] in ('endpoint','flow') else ['open','write','unlink']
+
+
 def get(ident, version=1):
-    item = next((t for t in CATALOG if t['id'] == ident), None)
-    if not item or type(version) is not int or item['version'] != version:
+    item = next((t for t in CATALOG if t['id'] == ident and t['version'] == version), None) or HISTORICAL.get((ident, version))
+    if not item or type(version) is not int:
         raise ValueError('模板不存在或版本已经变化，请刷新模板列表')
     return copy.deepcopy(item)
 

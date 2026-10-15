@@ -96,9 +96,12 @@ def materialize(ident, scope_id, body):
             value = path_parameter(value, row)
         elif p['type'] == 'operations':
             value = value.split(',') if isinstance(value, str) else value
-            if not isinstance(value, list) or not value or any(v not in ('write','unlink') for v in value) or len(set(value)) != len(value):
-                raise ValueError('请选择修改、删除或两者')
+            if not isinstance(value, list) or not value or any(v not in t.get('allowed_operations',('write','unlink')) for v in value) or len(set(value)) != len(value):
+                raise ValueError('请选择模板支持的触发操作')
             value = sorted(value)
+        elif p['type'] == 'effect':
+            if value not in ('block','notify','kill'):
+                raise ValueError('请选择模板支持的处置动作')
         elif p['type'] == 'program':
             if not isinstance(value, str) or not re.fullmatch(r'[a-zA-Z0-9_./-]{1,63}', value):
                 if not (value == '*' and t['id'] == 'EXEC-AUDIT'):
@@ -111,16 +114,16 @@ def materialize(ident, scope_id, body):
         else:
             value = text_parameter(value, p['label'])
         normalized[p['key']] = value
-    name = text_parameter(body.get('name') or t['name'], '中文策略名称', 120)
+    name = text_parameter(body.get('name') if t['version'] >= 2 else body.get('name') or t['name'], '场景中的实际策略名称', 120)
     reason = text_parameter(body.get('reason') or t['reason'], '反馈说明')
     q = lambda value: json.dumps(value, ensure_ascii=False)
-    kind = t['renderer']; effect = t['effect']; sources = []; clauses = []
+    kind = t['renderer']; effect = normalized.get('effect',t['effect']); sources = []; clauses = []
     requested = normalized.get('operations', [t['operation']])
     if kind == 'system':
         preset = next(p for p in policy_library.CATALOG if p['id'] == t['system_preset'])
-        document, _ = policy_library.structured(ident, {**{k:preset[k] for k in ('mode','ops','effect')},
+        document, _ = policy_library.structured(ident, {**{k:preset[k] for k in ('mode','ops','effect')},'ops':normalized.get('operations',preset['ops']),'effect':effect,
                                                        'values':normalized['values'],'name':name,'reason':reason})
-        requested = preset['ops']
+        requested = normalized.get('operations',preset['ops'])
     else:
         obj = q(normalized.get('target', ''))
         if kind == 'file':
@@ -192,7 +195,7 @@ def view(row):
         approval = detail(proposal_id)
     return {**row, 'applied_revision':applied_revision, 'applied_configuration':applied_configuration,'applied':applied_revision == row['revision'],
             'approval_id':proposal_id, 'status':approval['status'] if approval else 'draft',
-            'can_submit':row['scope'] in ('system','agent'),
+            'can_submit':row['scope'] in ('system','agent'),'template_definition':{k:v for k,v in catalog.get(row['template_id'],row['template_version']).items() if k not in ('renderer','system_preset')},
             'scope_label':'全部受控 Agent' if row['scope'] == 'system' else '此 Agent 的全部工作区与会话' if row['scope'] == 'agent' else '当前工作区（独立应用暂不支持）'}
 
 
@@ -343,6 +346,65 @@ def propose(ident, body):
 
 
 @lifecycle
+def propose_batch(body):
+    scope = body['scope_id']
+    base = dsl.current(scope)
+    if base['revision'] != body['base_revision'] or base['document_hash'] != body['base_hash']:
+        raise ValueError('当前策略已经变化，请刷新后重新提交')
+    selected = body['selections']
+    if not selected or len({s['id'] for s in selected}) != len(selected):
+        raise ValueError('请选择不重复的子配置')
+    docs = {d['id']:d for d in base['documents']}
+    bindings, legacy = [], []
+    removing = body.get('operation') == 'disable'
+    for choice in selected:
+        with db.connect() as con:
+            is_template = con.execute('SELECT 1 FROM template_configurations WHERE id=?',(choice['id'],)).fetchone()
+        if is_template:
+            row = load(choice['id'])
+            if row['scope_id'] != scope or row['scope'] not in ('system','agent'):
+                raise ValueError('只能同时提交同一个 Agent 或所有 Agent 的配置，历史局部配置不能扩大范围')
+            if row['archived'] or row['revision'] != choice['revision']:
+                raise ValueError('子配置版本已经变化，请刷新')
+            verify_current(row)
+            if row['coverage_warning'] and not body.get('acknowledge_coverage'):
+                raise ValueError(row['coverage_warning']+' 请确认实际覆盖。')
+            bindings.append({'id':row['id'],'revision':row['revision'],'document_hash':digest(row['document']),
+                             'operation':'disable' if removing else 'apply','acknowledge_coverage':bool(body.get('acknowledge_coverage'))})
+        else:
+            if scope != 'system':
+                raise ValueError('已有系统配置不能转为某个 Agent 的配置')
+            row = policy_library.get(choice['id'])
+            if row['archived'] or row['revision'] != choice['revision'] or row.get('validation_error'):
+                raise ValueError('已有配置已经变化或尚未通过校验')
+            mutation = any(op in ('write','unlink') for op in row.get('config',{}).get('ops',[]))
+            if mutation and not body.get('acknowledge_coverage'):
+                raise ValueError('文件修改与删除共用访问组，请确认实际覆盖')
+            legacy.append(choice)
+        if removing:
+            if row['id'] not in docs:
+                raise ValueError('所选配置未应用，无需停用')
+            del docs[row['id']]
+        else:
+            docs[row['id']] = row['document']
+    result = dsl.propose(scope,{'documents':list(docs.values()),'base_hash':body['base_hash'],
+                               'base_revision':body['base_revision'],'request_key':'catalog:'+body['request_key']})
+    with db.connect() as con:
+        encoded = json.dumps(bindings)
+        prior = con.execute('SELECT selections_json FROM template_configuration_proposals WHERE proposal_id=?',(result['id'],)).fetchone()
+        if prior and prior['selections_json'] != encoded:
+            raise ValueError('此请求已提交其他配置')
+        con.execute('INSERT OR IGNORE INTO template_configuration_proposals VALUES(?,?)',(result['id'],encoded))
+        if legacy:
+            values = (json.dumps(legacy,sort_keys=True),json.dumps([s['id'] for s in legacy] if removing else [],sort_keys=True))
+            old = con.execute('SELECT * FROM system_policy_library_proposals WHERE proposal_id=?',(result['id'],)).fetchone()
+            if old and (old['selections_json'],old['removals_json']) != values:
+                raise ValueError('此请求已提交其他配置版本')
+            con.execute('INSERT OR IGNORE INTO system_policy_library_proposals VALUES(?,?,?)',(result['id'],*values))
+    return result
+
+
+@lifecycle
 def archive(ident, revision):
     row = load(ident)
     if row['revision'] != revision:
@@ -356,16 +418,14 @@ def archive(ident, revision):
 
 
 def generation_basis(row):
-    return digest({'resources':row['resources'],'generation':row['generation'],'policy_hash':row['policy_hash'],
-                   'system':dsl.current('system')['document_hash'],'agent':dsl.current(row['id'])['document_hash'],
+    return digest({'resources':row['resources'] if row else [],'generation':row['generation'] if row else None,'policy_hash':row['policy_hash'] if row else None,
+                   'system':dsl.current('system')['document_hash'],'agent':dsl.current(row['id'])['document_hash'] if row else None,
                    'templates':catalog.public_catalog()})
 
 
 def generate(scope_id, body, provider=None):
     """The only model output is a list of calls to the same parameterized save contract."""
     row = target(scope_id,body['scope'],body.get('workspace_id'))
-    if row is None:
-        raise ValueError('场景助手只起草所选 Agent 的配置，系统规则由系统配置入口管理')
     basis = generation_basis(row)
     request_hash = digest({'scope_id':scope_id,'body':{k:v for k,v in body.items() if k != 'request_key'}})
     key = 'generate:' + body['request_key']
@@ -392,9 +452,9 @@ def generate(scope_id, body, provider=None):
             '缺少模板能力列入 gaps。每条 configurations 只能含 template_id,template_version,name,parameters,reason；'
             'reason 可省略。返回 configurations,questions,gaps 三个数组。配置本身没有授权。',
             {'requirements':body['text'],'materials':body.get('materials',[]),'templates':templates,
-             'resources':resource_records(row['resources']),
+             'resources':resource_records(row['resources']) if row else [],
              'system_constraints':[{'name':d['name'],'dsl':d['original_dsl']} for d in dsl.current('system')['documents']],
-             'output_schema':{'configurations':[{'template_id':'已发布 ID','template_version':1,'name':'中文名称','parameters':{}}],'questions':[],'gaps':[]}},
+             'output_schema':{'configurations':[{'template_id':'已发布 ID','template_version':templates[0]['version'],'name':'中文名称','parameters':{}}],'questions':[],'gaps':[]}},
             'template-parameters-v1')
         if not isinstance(result,dict) or set(result) != {'configurations','questions','gaps'}:
             raise ValueError('助手返回的配置计划格式不合法')
@@ -412,7 +472,7 @@ def generate(scope_id, body, provider=None):
             ident = 'tc_' + uuid.uuid4().hex
             values = {**item,'scope':body['scope'],'workspace_id':body.get('workspace_id')}
             prepared.append((ident,values,materialize(ident,scope_id,values)))
-        if basis != generation_basis(store.get(scope_id)):
+        if basis != generation_basis(store.get(scope_id) if scope_id!='system' else None):
             raise ValueError('生成期间资源、策略或模板发生变化，请重新生成')
         references = [{'id':ident,'revision':1} for ident,_,_ in prepared]
         response = {'items':references,'questions':result['questions'],'gaps':result['gaps'],'text':body['text'],

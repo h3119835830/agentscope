@@ -103,3 +103,5 @@ own licenses and provenance.
 - [验收、部署与限制](docs/REVIEW/REVIEW-Agent实例接入验收-20261008.md)
 - [复现问题与修复](docs/BUG/BUG-Agent实例接入与路径核验-20261008.md)
 - [脱敏执行证据](docs/acceptance/agent-instances-20261008/summary.json)
+
+2026-10-15：[统一模板目录与审批加载实施](docs/RFC/RFC-20261015-AgentScope-unified-policy-catalog-implementation.md)，沿用系统策略样式，助手留在 Agent 页；发布结果见对应 REVIEW。

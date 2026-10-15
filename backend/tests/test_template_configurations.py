@@ -15,7 +15,7 @@ def clean_templates(client):
 
 
 def config(template='FILE-READ', **extra):
-    return {'template_id':template,'template_version':1,'scope':'agent','workspace_id':None,'name':'员工资料保护',
+    return {'template_id':template,'template_version':2,'scope':'agent','workspace_id':None,'name':'员工资料保护',
             'reason':'员工资料与订单日报无关，请继续使用订单文件。','parameters':{'target':'/w/0/staff.csv'},
             'base_revision':0,'request_key':uuid.uuid4().hex,**extra}
 
@@ -55,7 +55,7 @@ def test_native_credential_cannot_read_generate_or_save(world):
     assert bad.status_code==422
 
 
-@pytest.mark.parametrize('extra',[{'template_id':'invented'},{'template_version':2},{'parameters':{'target':'/etc/shadow'}},
+@pytest.mark.parametrize('extra',[{'template_id':'invented'},{'template_version':999},{'parameters':{'target':'/etc/shadow'}},
     {'parameters':{'target':'/w/0/../staff.csv'}},{'parameters':{'target':'/w/0/staff.csv','effect':'notify'}},
     {'original_dsl':'source AGENT = exec "**"'},{'scope':'system'}])
 def test_unknown_templates_parameters_paths_and_scope_rejected(world,extra):

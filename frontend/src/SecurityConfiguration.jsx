@@ -10,12 +10,12 @@ export function SystemSecurityRules({data,error,busy,onPropose,onConfirm,onReloa
  if(!data)return <p className="task-empty" role={error?'alert':'status'}>{error?'系统规则读取失败：'+error:'正在读取系统规则…'}{error&&<button type="button" className="button tiny ghost" onClick={onReload}>重新读取</button>}</p>;
  return <section className="system-security" aria-label="系统共享规则">
   {error&&<p className="inline-notice warning" role="alert">{error}</p>}
-  {data.phase!=='ready'&&<p className="inline-notice warning" role="alert">上次系统规则应用未完成，执行保持暂停。<button type="button" className="button tiny ghost" disabled={busy} onClick={()=>onPropose(proposalDraft(data,data.policy))}>重新核验并应用</button></p>}
+  {data.phase!=='ready'&&<p className="inline-notice warning" role="alert">上次系统规则应用未完成，执行保持暂停。<button type="button" className="button tiny ghost" disabled={busy} onClick={()=>onPropose(proposalDraft(data,data.policy))}>重新核验并提交审批</button></p>}
   <InstanceSecurity scope="system" row={data} pending={data.proposals||[]} busy={busy} onPropose={onPropose} onConfirm={onConfirm}/>
  </section>;
 }
 
-export function SystemSecurityConfiguration({api,post,onChanged}){
+export function SystemSecurityConfiguration({api,post,onChanged,onApprovals}){
  const [data,setData]=useState(null),[error,setError]=useState(''),[busy,setBusy]=useState(false);
  const sequence=useRef(0),mounted=useRef(false);
  async function refresh(){const n=++sequence.current;try{const value=await api('/api/security/system');if(mounted.current&&n===sequence.current){setData(value);setError('');}}catch(e){if(mounted.current&&n===sequence.current){setError(e.message);setData(null);}}}
@@ -23,7 +23,7 @@ export function SystemSecurityConfiguration({api,post,onChanged}){
  async function act(fn){setBusy(true);setError('');try{const value=await fn();await refresh();onChanged?.();return {ok:true,value};}catch(e){if(mounted.current)setError(e.message);return {ok:false};}finally{if(mounted.current)setBusy(false);}}
  return <SystemSecurityRules data={data} error={error} busy={busy} onReload={refresh}
   onPropose={candidate=>act(()=>post('/api/security/system/proposals',{policy:candidate.policy,base_hash:candidate.base_hash,revision:Number(candidate.generation),request_key:crypto.randomUUID()}))}
-  onConfirm={proposal=>act(()=>post('/api/security/system/proposals/'+proposal.id+'/confirm',{proposal_hash:proposal.proposal_hash}))}/>;
+  onConfirm={proposal=>{if(onApprovals)onApprovals(proposal.id);else window.location.assign('/?view=approvals&approvalId='+encodeURIComponent(proposal.id));}}/>;
 }
 
 export default function SecurityConfiguration({row,api,post,onSystemChanged,initialScope='agent',...props}){

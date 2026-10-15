@@ -29,8 +29,8 @@ test('changing to all Agents clears workspace provenance and never posts a polic
 test('all-Agent scope works without a selected or connected Agent and uses the existing system contract',async()=>{
  const render=await harness('AgentPolicyWorkbench.jsx',[[],'',0,null]);
  const tree=render(props({policyScope:'system',policyAgent:''}));
- assert.ok(nodes(tree).find(n=>n.type?.name==='SystemPolicyLibrary'&&n.props.showScope));
- assert.ok(!nodes(tree).some(n=>n.type?.name==='TemplatePolicyAssistant'));
+ const assistant=nodes(tree).find(n=>n.type?.name==='TemplatePolicyAssistant');
+ assert.equal(assistant.props.scope,'system');assert.equal(assistant.props.target.id,'system');
  assert.ok(!nodes(tree).some(n=>n.type==='select'&&n.props['aria-label']==='策略目标 Agent'));
 });
 test('legacy workspace links cannot mount the generator or promote their candidates',async()=>{

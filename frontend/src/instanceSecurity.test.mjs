@@ -71,14 +71,14 @@ test('permission expansion review shows the exact deletion and requires explicit
  assert.match(html,/禁止修改与删除/);
  assert.ok(html.includes(root+'/tests'));
  assert.match(html,/查看变更后的完整配置/);
- assert.match(html,/确认此变更并应用/);
+ assert.match(html,/前往审批/);
  assert.doesNotMatch(html,/<details[^>]*\sopen(?:[\s=>])/);
  assert.equal(calls,0);
 });
 
 test('rule editor restricts invalid action decisions and stale drafts cannot submit',()=>{
  const html=render(RuleForm,{initial:deny,stale:true,onCancel:()=>{},onSubmit:()=>{}});
- assert.match(html,/收紧和放宽都需确认/);assert.doesNotMatch(html,/收紧自动应用/);
+ assert.match(html,/收紧和放宽都需审批/);assert.doesNotMatch(html,/收紧自动应用/);
  assert.doesNotMatch(html,/<option value="confirm"/);
  assert.match(html,/<button[^>]*disabled[^>]*>提交更改/);
  assert.match(html,/配置已有更新/);
@@ -99,5 +99,5 @@ test('policy content stays escaped in list and full candidate review',()=>{
 test('system rule editor only offers common restrictions and previews before applying',()=>{
  const html=render(RuleForm,{scope:'system',initial:deny,onCancel:()=>{},onSubmit:()=>{}});
  assert.doesNotMatch(html,/<option value="allow"/);assert.match(html,/提交并预览/);
- assert.match(html,/确认后应用/);assert.doesNotMatch(html,/收紧自动应用/);
+ assert.match(html,/批准后还需单独应用/);assert.doesNotMatch(html,/收紧自动应用/);
 });

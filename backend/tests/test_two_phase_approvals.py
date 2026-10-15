@@ -88,11 +88,13 @@ def test_apply_failure_keeps_execution_paused_without_automatic_retry(world):
     assert world.calls==calls and store.get(world.a['id'])['gate']=='paused' and store.get(world.b['id'])==before
 
 
-def test_legacy_confirm_keeps_exact_hash_and_records_receipt(world):
+def test_legacy_confirm_records_approval_without_loading(world):
     p=candidate(world.a['id'])
     response=world.client.post('/api/console/approvals/'+p['id']+'/confirm',headers=ADMIN,json={'proposal_hash':p['proposal_hash']})
     assert response.status_code==200,response.text
-    assert decisions.receipts()[p['id']]['state']=='applied'
+    assert decisions.receipts()[p['id']]['state']=='approved'
+    assert response.json()['application_required'] and not world.calls
+    assert dsl.current(world.a['id'])['revision']==0
     assert world.client.post('/api/console/approvals/'+p['id']+'/confirm',headers=ADMIN,
                              json={'proposal_hash':'0'*64}).status_code==409
 

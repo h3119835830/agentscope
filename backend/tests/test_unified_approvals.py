@@ -12,6 +12,12 @@ def propose(row,actor='user'):
 def decide(client,ident,p,decision='confirm',headers=ADMIN):
     return client.post('/api/console/approvals/'+ident+'/'+decision,json={'proposal_hash':p['proposal_hash']},headers=headers)
 
+def apply_approved(client,ident,p):
+    from agentscope_app.instances.approval_decisions import receipts
+    receipt=receipts()[ident]
+    return client.post('/api/console/approvals/'+ident+'/apply',headers=ADMIN,json={
+        'proposal_hash':p['proposal_hash'],'approval_hash':receipt['approval_hash'],'request_key':uuid.uuid4().hex})
+
 @pytest.mark.parametrize('actor',['user'])
 @pytest.mark.parametrize('running',[False,True])
 def test_native_restriction_is_pending_even_for_an_open_agent_tool(world,actor,running):
@@ -30,7 +36,9 @@ def test_native_only_exact_confirmation_applies_and_other_instance_unchanged(wor
     before=store.get(world.b['id']);p=propose(world.a);ident='instance:'+p['id']
     assert decide(world.client,ident,{**p,'proposal_hash':'0'*64}).status_code==409
     assert not world.calls and store.get(world.a['id'])['policy']['network']=='model_only'
-    assert decide(world.client,ident,p).status_code==200
+    assert decide(world.client,ident,p).json()['state']=='approved'
+    assert not world.calls
+    assert apply_approved(world.client,ident,p).status_code==200
     assert store.get(world.a['id'])['policy']['network']=='disabled' and store.get(world.b['id'])==before
     calls=list(world.calls)
     assert decide(world.client,ident,p).status_code==200 and world.calls==calls
@@ -79,13 +87,16 @@ def test_system_typed_and_dsl_proposals_share_approval_contract(world):
     assert {'system_policy','dsl'}<={r['kind'] for r in approvals.directory()['records']}
     assert decide(world.client,ident,p,'reject').status_code==200
     assert system.current()==base and not world.calls
-    assert decide(world.client,d['id'],d).status_code==200
+    assert decide(world.client,d['id'],d).json()['state']=='approved'
+    assert apply_approved(world.client,d['id'],d).status_code==200
     assert dsl.current(world.a['id'])['revision']==1
 
 def test_system_approval_retains_original_before_after_once_applied(world):
     base=system.current();p=system.propose({'policy':{'rules':[],'network':'disabled'},'base_hash':base['policy_hash'],'revision':base['revision'],'request_key':uuid.uuid4().hex})
     ident='system:'+p['id'];before=approvals.detail(ident)['change_items']
-    assert decide(world.client,ident,p).status_code==200
+    assert decide(world.client,ident,p).json()['state']=='approved'
+    assert system.current()==base
+    assert apply_approved(world.client,ident,p).status_code==200
     assert system.current()['policy']['network']=='disabled'
     assert approvals.detail(ident)['change_items']==before and before
 
@@ -125,6 +136,8 @@ def test_runtime_candidate_is_visible_read_only_then_human_confirmed_once(pendin
     assert not calls
     with db.connect() as con:assert managed.load(con,task)==before
     assert client.post('/api/console/approvals/'+ident+'/confirm',headers=ADMIN,json=body).status_code==200
+    assert approvals.detail(ident)['status']=='approved' and not calls
+    assert apply_approved(client,ident,{'proposal_hash':p['hash']}).status_code==200
     assert approvals.detail(ident)['status']=='applied' and calls==[task]
     assert client.post('/api/console/approvals/'+ident+'/confirm',headers=ADMIN,json=body).status_code==200 and calls==[task]
 
@@ -191,4 +204,6 @@ def test_legacy_expansion_confirmation_records_the_same_approval_receipt(pending
     task,_,job,put=pending;p=put('expand');calls=[];install_mock(monkeypatch,calls)
     response=client.post('/api/managed/tasks/'+task+'/expansion/confirm',headers=ADMIN,json={'expected_hash':p['hash']})
     assert response.status_code==200,response.text
-    assert calls==[task] and receipts()['runtime:'+job['id']]['state']=='applied'
+    assert not calls and receipts()['runtime:'+job['id']]['state']=='approved'
+    assert apply_approved(client,'runtime:'+job['id'],{'proposal_hash':p['hash']}).status_code==200
+    assert calls==[task]

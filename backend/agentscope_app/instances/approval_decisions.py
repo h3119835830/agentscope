@@ -210,7 +210,9 @@ def confirm(ident, expected_hash):
     if row['status'] == 'applied':
         return {'id': ident, 'state': 'applied', 'idempotent': True}
     receipt = approve(ident, expected_hash, 'legacy-confirm-' + digest({'id': ident, 'hash': expected_hash}))
-    return apply(ident, expected_hash, receipt['approval_hash'], 'legacy-apply-' + receipt['approval_hash'])
+    # Compatibility confirmation records consent only. Loading always requires
+    # the separate application endpoint with this exact approval receipt.
+    return {**receipt, 'application_required': True}
 
 
 def confirm_scoped(scope,ident,expected_hash):

@@ -232,6 +232,9 @@ def test_api_admin_contract_and_agent_credentials_cannot_change_system_rules(wor
     assert p.status_code==200 and p.json()['state']=='pending'
     assert client.post('/api/security/system/proposals/'+p.json()['id']+'/confirm',headers=agent,json={'proposal_hash':p.json()['proposal_hash']}).status_code==401
     result=client.post('/api/security/system/proposals/'+p.json()['id']+'/confirm',headers=ADMIN,json={'proposal_hash':p.json()['proposal_hash']})
-    assert result.status_code==200 and result.json()['state']=='applied'
+    assert result.status_code==200 and result.json()['state']=='approved'
+    receipt=result.json()
+    applied=client.post('/api/console/approvals/system:'+p.json()['id']+'/apply',headers=ADMIN,json={'proposal_hash':p.json()['proposal_hash'],'approval_hash':receipt['approval_hash'],'request_key':uuid.uuid4().hex})
+    assert applied.status_code==200,applied.text
     info=client.get('/api/security/system',headers=ADMIN).json()
     assert info['policy']==policy(rule()) and info['connection_count']==2

@@ -39,6 +39,20 @@ class Version(Model):
     revision: int = Field(ge=1)
 
 
+class Selection(Version):
+    id: str = Field(min_length=1,max_length=80)
+
+
+class Batch(Model):
+    scope_id: str = Field(min_length=1,max_length=100)
+    selections: list[Selection] = Field(min_length=1,max_length=20)
+    operation: Literal['apply','disable'] = 'apply'
+    acknowledge_coverage: bool = False
+    base_revision: int = Field(ge=0)
+    base_hash: str = Field(pattern=r'^[a-f0-9]{64}$')
+    request_key: str = Field(min_length=8,max_length=100)
+
+
 class Material(Model):
     name: str = Field(min_length=1,max_length=80)
     text: str = Field(min_length=1,max_length=8000)
@@ -52,6 +66,11 @@ class Generate(Model):
     request_key: str = Field(min_length=8,max_length=100)
 
 
+class ScopedGenerate(Generate):
+    scope_id: str = Field(min_length=1,max_length=100)
+    scope: Literal['system','agent']
+
+
 @router.get('/api/policy-templates')
 def directory(scope_id: str | None = Query(None,max_length=100)):
     return invoke(configurations.directory,scope_id)
@@ -62,6 +81,18 @@ def create(body: Create):
     values = body.model_dump()
     scope_id = values.pop('scope_id')
     return invoke(configurations.save,scope_id,values)
+
+
+@router.post('/api/policy-template-configurations/proposals')
+def propose_batch(body: Batch):
+    return invoke(configurations.propose_batch,body.model_dump())
+
+
+@router.post('/api/policy-template-configurations/generate')
+def generate_scoped(body: ScopedGenerate):
+    value = body.model_dump()
+    scope_id = value.pop('scope_id')
+    return invoke(configurations.generate,scope_id,value)
 
 
 @router.post('/api/policy-template-configurations/{ident}/versions')
