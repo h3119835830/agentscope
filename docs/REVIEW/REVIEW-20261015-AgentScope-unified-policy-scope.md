@@ -26,4 +26,8 @@
 
 ## 发布核对
 
-发布前先完成源码审核和本地提交，再执行静态资产发布脚本。发布结果、正式页面截图和保持不变的运行权限核对结果补录到同目录 evidence/unified-policy-scope-20261015。远端推送未授权。
+已完成源码审核、本地提交与正式静态入口发布。代码提交 d6a2afe124211c0279bfbc193532c4dab0dc0f12；仅上传内容哈希命名资产，原子切换 index.html，保留全部旧资产和旧入口备份。
+
+正式 HTTP 页面哈希为 a2f8d4629f62f0fa995cb02056ff75b649a9fb3bb841ec1009a8747a106a4a28，与构建一致。发布脚本核对 API/Broker 进程身份、全部受控 Agent 的 PID/generation/domain/active/策略、系统约束版本和 18000/18004 均保持不变；没有重启任何服务或启动/停止 Agent，没有应用策略。
+
+正式 18003 页面已复核指定 Agent 助手和全部 Agent 配置库，截图与摘要位于 [evidence/unified-policy-scope-20261015](evidence/unified-policy-scope-20261015/validation.json)。静态发布私有回滚记录保留于 /var/lib/agentscope-scope-demo/release-backups/unified-policy-scope-20261015-164120/result.json。远端未推送。

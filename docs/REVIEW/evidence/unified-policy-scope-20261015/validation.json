@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-15",
+  "source_commit": "d6a2afe124211c0279bfbc193532c4dab0dc0f12",
+  "frontend_tests": {"passed": 291, "failed": 0, "new_scope_checks": 7},
+  "vite_production_build": "passed",
+  "diff_check": "passed",
+  "browser": {
+    "preview": "read-only GET proxy on 18154; POST denied",
+    "production": "18003",
+    "checks": ["specified Agent assistant", "empty configured-policy table", "all-Agent scope and row scope labels", "keyboard tab navigation", "historical workspace link stays read only"],
+    "narrow": {"viewport": 390, "document_width": 375, "table_width": 860, "scroll_container_width": 287, "scope_visible": true},
+    "screenshots": ["production-agent-scope.png", "production-all-agents.png", "narrow-preview.png"]
+  },
+  "publication": {
+    "published": true,
+    "mode": "static-ui-only",
+    "index_sha256": "a2f8d4629f62f0fa995cb02056ff75b649a9fb3bb841ec1009a8747a106a4a28",
+    "previous_index_sha256": "c0401cf7dbd1eccde602fea924ccc1bec95e1c1b9857190fb5003ec082b8066f",
+    "service_restart": false,
+    "api_identity_unchanged": true,
+    "broker_identity_unchanged": true,
+    "agent_authority_unchanged": true,
+    "other_ports_unchanged": true,
+    "agent_actions": false,
+    "policy_application": false
+  },
+  "unchanged_capabilities": ["global template generation by model not added", "workspace body auto-reading not connected to new template assistant", "independent workspace execution binding not added"],
+  "git_push": false
+}
