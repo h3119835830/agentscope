@@ -1,0 +1,32 @@
+{
+  "frontend_tests": {
+    "passed": 314,
+    "failed": 0
+  },
+  "build": "passed",
+  "preview": "read-only GET proxy of live 18003",
+  "normal_viewport": {
+    "width": 1280,
+    "child_client_width": 961,
+    "child_scroll_width": 961
+  },
+  "narrow_viewport": {
+    "width": 826,
+    "page_width": 811,
+    "record_client_width": 541,
+    "record_scroll_width": 720,
+    "child_client_width": 686,
+    "child_scroll_width": 686,
+    "all_six_fields_retained": true
+  },
+  "legacy_example": {
+    "name": "环境凭据文件",
+    "parent_default": "block",
+    "saved_child_effect": "notify",
+    "target": ".env",
+    "operation": "open",
+    "applied": false
+  },
+  "policy_mutations": false,
+  "dsh_mutations": false
+}

@@ -1,0 +1,84 @@
+{
+  "passed": true,
+  "real_provider": true,
+  "computer_use": false,
+  "agent_started": false,
+  "policy_applied": false,
+  "user_supplied_file_paths": false,
+  "port": 18156,
+  "generation_seconds": 4.548,
+  "production_runtime_unchanged": true,
+  "template_id": "FILE-READ",
+  "template_version": 2,
+  "parameters": {
+    "target": "/w/0/people/roster_496710.csv"
+  },
+  "activity": [
+    {
+      "tool": "list_directory",
+      "workspace": "agentscope-context-accept-2973xkyg",
+      "status": "completed",
+      "path": "",
+      "entry_count": 4,
+      "omitted_count": 2
+    },
+    {
+      "tool": "read_files",
+      "workspace": "agentscope-context-accept-2973xkyg",
+      "status": "completed",
+      "paths": [
+        "README.md"
+      ],
+      "file_count": 1
+    },
+    {
+      "tool": "list_directory",
+      "workspace": "agentscope-context-accept-2973xkyg",
+      "status": "completed",
+      "path": "people",
+      "entry_count": 1,
+      "omitted_count": 0
+    },
+    {
+      "tool": "list_directory",
+      "workspace": "agentscope-context-accept-2973xkyg",
+      "status": "completed",
+      "path": "sales",
+      "entry_count": 1,
+      "omitted_count": 0
+    },
+    {
+      "tool": "list_directory",
+      "workspace": "agentscope-context-accept-2973xkyg",
+      "status": "completed",
+      "path": "docs",
+      "entry_count": 1,
+      "omitted_count": 0
+    },
+    {
+      "tool": "read_files",
+      "workspace": "agentscope-context-accept-2973xkyg",
+      "status": "completed",
+      "paths": [
+        "docs/report-requirements.md",
+        "people/roster_496710.csv",
+        "sales/settled_orders.csv"
+      ],
+      "file_count": 3
+    }
+  ],
+  "file_count": 4,
+  "round_count": 4,
+  "call_count": 6,
+  "total_bytes": 315,
+  "checks": [
+    "用户只提供中文场景，不提供文件路径",
+    "真实模型自主查看目录与选择正文",
+    "多轮实际工具结果回填上下文",
+    "从正文得到随机目标路径并填写已有 v2 模板",
+    "凭据和链接未作为资料读取",
+    "重试不重复创建子配置",
+    "正文变化后旧生成结果拒绝复用",
+    "Agent 未启动、策略未应用、正式运行权限未变化"
+  ]
+}

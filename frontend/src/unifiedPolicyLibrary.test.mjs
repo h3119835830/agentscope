@@ -5,6 +5,7 @@ import {build} from 'esbuild';
 import {createRequire} from 'node:module';
 import {dirname,join} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {configurationRecordSummary} from './policyConfigurationPresentation.mjs';
 const require=createRequire(import.meta.url),Module=require('node:module'),base=dirname(fileURLToPath(import.meta.url));
 const nodes=t=>t&&typeof t==='object'?[t,...[t.props?.children].flat(Infinity).flatMap(nodes)]:[];
 async function harness(entry,initial=[],exportName='default'){
@@ -22,13 +23,37 @@ test('old templates URL resolves to one policy page without a second assistant o
  assert.equal(all.filter(n=>n.type?.name==='UnifiedPolicyLibrary').length,1);
  assert.ok(!all.some(n=>['AgentPolicyTemplates','TemplatePolicyAssistant'].includes(n.type?.name)));
 });
-test('child records expose actual name scope and the shared template detail',async()=>{
+test('child records expose six fields and retain the shared template detail',async()=>{
  const render=await harness('UnifiedPolicyLibrary.jsx',[{catalog:[template],items:[child]},{catalog:[],items:[]}]);
  const props={api(){},post(){},agents:[{id:'a',agent_type:'dsh',mode:'controlled'}],onApprovals(){}};
  let tree=render(props);const table=nodes(tree).find(n=>n.type==='table'&&n.props['aria-label']==='文件读取限制 的子配置');
- assert.equal(nodes(table).filter(n=>n.type==='th').length,3);
- nodes(table).find(n=>n.type==='button'&&n.props.children==='详情 / 编辑 ↗').props.onClick();tree=render(props);
+ assert.deepEqual(nodes(table).filter(n=>n.type==='th').map(n=>n.props.children),['实际策略名称','范围','保护对象 / 操作','动作','状态','详情']);
+ nodes(table).find(n=>n.type==='button'&&n.props.children==='详情 ↗').props.onClick();tree=render(props);
  const editor=nodes(tree).find(n=>n.type?.name==='TemplateConfigurationDialog');assert.equal(editor.props.item.name,child.name);assert.equal(editor.props.template.id,template.id);
+});
+test('legacy child action and target come from saved configuration, not parent defaults',()=>{
+ const row={legacy:true,config:{values:'.ssh/id_rsa\n.ssh/id_ed25519',ops:['open'],effect:'notify'},applied:false};
+ const summary=configurationRecordSummary(row,{...template,parameters:[{key:'values',type:'lines'}]});
+ assert.deepEqual(summary.effects,['notify']);assert.equal(summary.target,'.ssh/id_rsa 等 2 项');assert.equal(summary.targetTitle,'.ssh/id_rsa\n.ssh/id_ed25519');assert.equal(summary.operation,'打开文件');assert.equal(summary.status,'未应用');
+});
+test('actual child parameters preserve multi-condition context and effective operation coverage',()=>{
+ const definition={...template,parameters:[{key:'target',label:'限制范围',type:'path'},{key:'exception',label:'允许范围',type:'path'}]};
+ const summary=configurationRecordSummary({...child,parameters:{target:'/w/0/a,b',exception:'/w/0/reports'},effective_operations:['write','unlink']},definition);
+ assert.equal(summary.target,'限制范围：/w/0/a,b 等 2 项');assert.equal(summary.targetTitle,'限制范围：/w/0/a,b\n允许范围：/w/0/reports');assert.equal(summary.operation,'写入、删除');
+});
+test('approval and historical application never masquerade as current application or kernel enforcement',()=>{
+ assert.equal(configurationRecordSummary({...child,status:'approved'},template).status,'已批准待应用');
+ const old=configurationRecordSummary({...child,revision:2,applied_revision:1,applied:false,status:'pending'},template);
+ assert.equal(old.status,'待审批');assert.equal(old.note,'旧版仍应用');
+ assert.equal(configurationRecordSummary({...child,status:'applied',applied:false},template).status,'未应用');
+ assert.equal(configurationRecordSummary({...child,status:'applied',applied:true,applied_revision:1},template).status,'已应用配置');
+ assert.equal(configurationRecordSummary({legacy:true,applied:true,has_changes:true,revision:2,applied_revision:1}).status,'有未应用修改');
+});
+test('raw DSL without a structured projection stays unknown while mixed record effects are preserved',()=>{
+ const row={legacy:true,document:{original_dsl:'unparsed DSL'},config:{}};
+ const summary=configurationRecordSummary(row,{custom:true});
+ assert.equal(summary.target,'查看详情');assert.equal(summary.operation,'操作见详情');assert.deepEqual(summary.effects,[]);
+ assert.deepEqual(configurationRecordSummary({...row,records:[{effects:['notify','block']},{effect:'notify'}]},{custom:true}).effects,['notify','block']);
 });
 test('batch submit freezes selected instance and never approves or loads on its own',async()=>{
  const render=await harness('UnifiedPolicyLibrary.jsx',[{catalog:[template],items:[child]},{catalog:[],items:[]}]),calls=[];

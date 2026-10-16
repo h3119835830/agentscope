@@ -1,4 +1,50 @@
-.unified-policy-library .spl-filters{flex-wrap:wrap}.unified-policy-library .spl-filters select{max-width:240px}.unified-policy-library .upl-children>td{padding:0 18px 12px 42px;background:var(--surface)}.unified-policy-library .upl-children table{width:100%;table-layout:fixed}.unified-policy-library .upl-children th:first-child{width:54%}.unified-policy-library .upl-children th:nth-child(2){width:28%}.unified-policy-library .upl-children th:last-child{width:18%}.unified-policy-library .upl-child-name{display:flex;gap:10px;align-items:center}.unified-policy-library .upl-child-name input{flex:0 0 auto}.unified-policy-library .upl-children td{overflow-wrap:anywhere}.upl-picker{max-width:560px}.upl-picker select{width:100%}.spl-template-detail .spl-form>label{display:block;margin-bottom:18px}.spl-template-detail .spl-form input:not([type=checkbox]),.spl-template-detail .spl-form select,.spl-template-detail .spl-form textarea{width:100%}.spl-template-detail .spl-template-state{margin:14px 0}.spl-template-detail .spl-template-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}@media(max-width:700px){.unified-policy-library .upl-children>td{padding-left:10px;padding-right:10px}.unified-policy-library .spl-filters select{max-width:100%}.unified-policy-library .spl-records{overflow-x:auto}.unified-policy-library .spl-records>table{min-width:650px}}
-
-.unified-policy-library .spl-records .button.tiny{white-space:nowrap}.unified-policy-library .spl-records>table>tbody>tr:not(.upl-children)>td:last-child{min-width:112px}.unified-policy-library .upl-children th{padding-top:8px;padding-bottom:8px}.unified-policy-library .upl-children td{padding-top:10px;padding-bottom:10px}
-.unified-policy-library .spl-records>table>thead>tr>th:nth-child(2){width:23%}.unified-policy-library .spl-records>table>thead>tr>th:nth-child(3){width:auto}.unified-policy-library .spl-records>table>thead>tr>th:nth-child(4){width:94px}.unified-policy-library .spl-records>table>thead>tr>th:nth-child(5){width:96px}.unified-policy-library .spl-records>table>thead>tr>th:last-child{width:112px}.unified-policy-library .spl-status{white-space:nowrap}
+.unified-policy-library .spl-filters{flex-wrap:wrap}
+.unified-policy-library .spl-filters select{max-width:240px}
+.unified-policy-library .spl-records{overflow-x:auto}
+.unified-policy-library .spl-records>table{min-width:720px}
+.unified-policy-library .upl-children>td{padding:0 14px 14px;background:var(--surface)}
+.unified-policy-library .upl-child-records{overflow-x:auto;border:1px solid var(--spl-line);border-radius:7px;background:#fff}
+.unified-policy-library .upl-children table{width:100%;min-width:680px;table-layout:fixed}
+.unified-policy-library .upl-children th,.unified-policy-library .upl-children td{display:table-cell;max-width:none;padding:11px 10px;overflow-wrap:anywhere}
+.unified-policy-library .upl-children th{padding-top:9px;padding-bottom:9px;background:#f5f7fb;font-size:10px}
+.unified-policy-library .upl-children th:first-child{width:24%}
+.unified-policy-library .upl-children th:nth-child(2){width:15%}
+.unified-policy-library .upl-children th:nth-child(3){width:auto}
+.unified-policy-library .upl-children th:nth-child(4){width:90px}
+.unified-policy-library .upl-children th:nth-child(5){width:100px}
+.unified-policy-library .upl-children th:last-child{width:80px}
+.unified-policy-library .upl-child-name{display:flex;gap:9px;align-items:flex-start}
+.unified-policy-library .upl-child-name input{flex:0 0 auto;margin-top:3px}
+.unified-policy-library .upl-child-name .spl-record-name{font-size:11px}
+.unified-policy-library .upl-child-scope{display:block;font-size:11px;line-height:1.6}
+.unified-policy-library .upl-child-target{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:#486586}
+.unified-policy-library .upl-children td>small{margin-top:4px;font-size:10px;line-height:1.5}
+.unified-policy-library .upl-children .spl-effect{padding:4px 6px;font-size:10px}
+.unified-policy-library .upl-children .spl-effect small{display:block;font-size:9px}
+.unified-policy-library .upl-child-state{font-size:10px;line-height:1.6;color:#68809e}
+.unified-policy-library .upl-child-state:before{content:'●';font-size:6px;vertical-align:middle;margin-right:5px}
+.unified-policy-library .upl-child-state.applied{color:#258269}
+.unified-policy-library .upl-child-state.pending{color:#ab7931}
+.unified-policy-library .upl-child-state.error{color:#b35555}
+.unified-policy-library .upl-children .upl-child-state-note{color:#ab7931;font-size:9px}
+.unified-policy-library .upl-child-muted{color:#8a9bb2;font-size:10px}
+.prototype-theme .main[data-page] .unified-policy-library .upl-child-records th,
+.prototype-theme .main[data-page] .unified-policy-library .upl-child-records td{padding:11px 10px;font-size:11px}
+.prototype-theme .main[data-page] .unified-policy-library .upl-child-records th{padding-top:9px;padding-bottom:9px;font-size:10px}
+.unified-policy-library .spl-records .button.tiny{white-space:nowrap}
+.unified-policy-library .spl-records>table>tbody>tr:not(.upl-children)>td:last-child{min-width:112px}
+.unified-policy-library .spl-records>table>thead>tr>th:nth-child(2){width:23%}
+.unified-policy-library .spl-records>table>thead>tr>th:nth-child(3){width:auto}
+.unified-policy-library .spl-records>table>thead>tr>th:nth-child(4){width:94px}
+.unified-policy-library .spl-records>table>thead>tr>th:nth-child(5){width:96px}
+.unified-policy-library .spl-records>table>thead>tr>th:last-child{width:112px}
+.unified-policy-library .spl-status{white-space:nowrap}
+.upl-picker{max-width:560px}.upl-picker select{width:100%}
+.spl-template-detail .spl-form>label{display:block;margin-bottom:18px}
+.spl-template-detail .spl-form input:not([type=checkbox]),.spl-template-detail .spl-form select,.spl-template-detail .spl-form textarea{width:100%}
+.spl-template-detail .spl-template-state{margin:14px 0}
+.spl-template-detail .spl-template-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+@media(max-width:700px){
+ .unified-policy-library .upl-children>td{padding-left:10px;padding-right:10px}
+ .unified-policy-library .spl-filters select{max-width:100%}
+}

@@ -1,0 +1,74 @@
+{
+  "published": true,
+  "release": "/opt/agentscope-policy-context-agent-20261016-113618",
+  "source_commit": "5ae0bb404373b8abf4e95e3eb62d5d3ee50c5913",
+  "agent_actions": false,
+  "policy_application": false,
+  "restart_seconds": 1.361,
+  "broker_unchanged": true,
+  "authority_unchanged": true,
+  "other_ports_unchanged": true,
+  "before_agents": {
+    "instance-1f4469579e8947f4": {
+      "pid": 4427,
+      "start_ticks": "52568",
+      "generation": "1c8da098cab043ffa7e59b696d437041",
+      "policy_hash": "9c5fa9fbb63c9bcd71da29007179d6c9fed00b23ac9b9f4e41165a76b92425c1",
+      "domain_id": 1234128068
+    },
+    "instance-cc444fe38c094cbb": {
+      "pid": 4712,
+      "start_ticks": "53653",
+      "generation": "972bc3a07bdf4185bd598c07230c03e7",
+      "policy_hash": "c3371a12d813cbf8c4e13bfc39ac8caa8868b6d394f8a7dbebcd74afa15b2cfe",
+      "domain_id": 328918578
+    }
+  },
+  "after_agents": {
+    "instance-1f4469579e8947f4": {
+      "pid": 4427,
+      "start_ticks": "52568",
+      "generation": "1c8da098cab043ffa7e59b696d437041",
+      "policy_hash": "9c5fa9fbb63c9bcd71da29007179d6c9fed00b23ac9b9f4e41165a76b92425c1",
+      "domain_id": 1234128068
+    },
+    "instance-cc444fe38c094cbb": {
+      "pid": 4712,
+      "start_ticks": "53653",
+      "generation": "972bc3a07bdf4185bd598c07230c03e7",
+      "policy_hash": "c3371a12d813cbf8c4e13bfc39ac8caa8868b6d394f8a7dbebcd74afa15b2cfe",
+      "domain_id": 328918578
+    }
+  },
+  "ui_sha256": "7a8cfdebb34164a7588b24e3be811dd507b017ae18a968da97300ba8bfa7fbe8",
+  "finished_at": 1792121785.978209,
+  "api_pid": "50675",
+  "broker_pid": "443",
+  "post_publication_protection_unchanged": true,
+  "post_publication_authority_unchanged": true,
+  "post_publication_broker_unchanged": true,
+  "catalog_count": 27,
+  "health": true,
+  "windows_http": {
+    "localhost_health": 200,
+    "numeric_health": 200,
+    "index": 200,
+    "main_js": 200,
+    "main_css": 200
+  },
+  "first_attempt": {
+    "published": false,
+    "cause": "Release probe expected 404; existing absent-instance contract is 409",
+    "code_ui_rolled_back": true,
+    "broker_authority_protection_verified_unchanged": true
+  },
+  "checks": {
+    "backend_full_passed": 1353,
+    "additional_directory_contract_test_passed": true,
+    "context_test_file_passed": 37,
+    "frontend_passed": 310,
+    "vite_build_passed": true,
+    "computer_use": false,
+    "pixel_acceptance": false
+  }
+}
