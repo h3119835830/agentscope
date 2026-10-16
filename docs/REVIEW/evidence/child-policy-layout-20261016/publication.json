@@ -1,0 +1,23 @@
+{
+  "published": true,
+  "frontend_source_commit": "31c8d735b49c9f614ba7dd4777584f5ccb6c4f8a",
+  "publication_mode": "static frontend overlay only",
+  "backend_release": "/opt/agentscope-child-row-actions-20261016-141905",
+  "api_process_unchanged": true,
+  "broker_process_unchanged": true,
+  "backend_files_unchanged": true,
+  "policy_authority_unchanged": true,
+  "configuration_and_approval_tables_unchanged": true,
+  "api_pid": 60969,
+  "broker_pid": 464,
+  "health_ok": true,
+  "assets_match_build": true,
+  "asset_paths": [
+    "/assets/main-Bv6TEVPK.js",
+    "/assets/client-2tdd2SJ7.js",
+    "/assets/main-BD1KN2fy.css"
+  ],
+  "ui_sha256": "edc3cc7b4397bc7bb647943e30a63307e463001fd3d6bcfd1a95f91d8ac15171",
+  "old_assets_retained": true,
+  "private_backup": "/var/lib/agentscope-scope-demo/release-backups/child-policy-layout-20261016-143045"
+}

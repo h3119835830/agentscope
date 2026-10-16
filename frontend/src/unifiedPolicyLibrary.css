@@ -1,7 +1,7 @@
 .unified-policy-library .spl-filters{flex-wrap:wrap}
 .unified-policy-library .spl-filters select{max-width:240px}
 .unified-policy-library .upl-grouped-records{overflow-x:auto;border-color:#dfe7f0;border-radius:10px}
-.unified-policy-library .upl-grouped-records>table{min-width:980px;table-layout:fixed}
+.unified-policy-library .upl-grouped-records>table{min-width:920px;table-layout:fixed}
 .unified-policy-library .upl-col-check{width:42px}
 .unified-policy-library .upl-col-name{width:20%}
 .unified-policy-library .upl-col-scope{width:112px}

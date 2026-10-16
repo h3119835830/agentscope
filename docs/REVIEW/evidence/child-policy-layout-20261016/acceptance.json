@@ -16,12 +16,19 @@
   "narrow_viewport_width": 826,
   "narrow_record_client_scroll": [
     541,
-    980
+    920
   ],
   "narrow_page_width": 811,
   "all_six_functional_fields_retained": true,
   "all_four_actions_within_visible_record": true,
   "collapse_and_independent_groups_verified": true,
   "submission_confirmation_and_cancel_verified": true,
-  "formal_policy_mutations": false
+  "formal_policy_mutations": false,
+  "desktop_width_1070_collapsed_sidebar": {
+    "record_client_scroll": [
+      933,
+      933
+    ],
+    "add_child_fully_visible": true
+  }
 }
