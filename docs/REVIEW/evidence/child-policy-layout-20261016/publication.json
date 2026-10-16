@@ -1,6 +1,6 @@
 {
   "published": true,
-  "frontend_source_commit": "31c8d735b49c9f614ba7dd4777584f5ccb6c4f8a",
+  "frontend_source_commit": "4f49fbdf2a361cec685e9766ca9a3d9f2b7391eb",
   "publication_mode": "static frontend overlay only",
   "backend_release": "/opt/agentscope-child-row-actions-20261016-141905",
   "api_process_unchanged": true,
@@ -13,11 +13,24 @@
   "health_ok": true,
   "assets_match_build": true,
   "asset_paths": [
-    "/assets/main-Bv6TEVPK.js",
+    "/assets/main-wgxXBME2.js",
     "/assets/client-2tdd2SJ7.js",
-    "/assets/main-BD1KN2fy.css"
+    "/assets/main-DdVHFFyU.css"
   ],
-  "ui_sha256": "edc3cc7b4397bc7bb647943e30a63307e463001fd3d6bcfd1a95f91d8ac15171",
+  "ui_sha256": "9353f5ac3b3088fdc1dca013e32f9ec9a2e15a823f86853cf6ca36b5ffcb6ac4",
   "old_assets_retained": true,
-  "private_backup": "/var/lib/agentscope-scope-demo/release-backups/child-policy-layout-20261016-143045"
+  "private_backup": "/var/lib/agentscope-scope-demo/release-backups/child-policy-layout-fit-20261016-143246",
+  "desktop_clip_corrected": true,
+  "browser_verified": {
+    "live_table_count": 1,
+    "live_header_count": 1,
+    "viewport_width": 1085,
+    "record_client_scroll": [
+      948,
+      948
+    ],
+    "add_child_fully_visible": true,
+    "all_four_actions_fully_visible": true,
+    "published_assets_observed": true
+  }
 }
