@@ -25,6 +25,8 @@ CREATE TABLE IF NOT EXISTS template_configuration_proposals(
 
 def init(con):
     con.executescript(SCHEMA)
+    from . import template_versions
+    template_versions.init(con)
     from .workspace_references import init as init_references
     init_references(con)
     con.execute("UPDATE template_configuration_requests SET state='failed' WHERE state='running'")
@@ -133,22 +135,22 @@ def materialize(ident, scope_id, body):
             clauses = [effect + ' ' + op + ' file ' + obj + ' if AGENT' for op in requested]
         elif kind == 'boundary':
             requested = ['write','unlink']
-            clauses = ['block write file ' + obj + ' if AGENT unless target ' + q(normalized['exception'])]
+            clauses = [effect + ' write file ' + obj + ' if AGENT unless target ' + q(normalized['exception'])]
         elif kind == 'lineage':
-            clauses = ['block write file ' + obj + ' if AGENT unless lineage-includes exec ' + q(normalized['producer'])]
+            clauses = [effect + ' write file ' + obj + ' if AGENT unless lineage-includes exec ' + q(normalized['producer'])]
         elif kind in ('exec','endpoint'):
             clauses = [effect + (' exec ' + q(normalized['program']) if kind == 'exec' else ' connect endpoint ' + q(normalized['endpoint'])) + ' if AGENT']
         elif kind == 'flow':
             sources = ['source SENSITIVE = file ' + obj]
-            clauses = ['block connect endpoint ' + q(normalized['endpoint']) + ' if AGENT and SENSITIVE']
+            clauses = [effect + ' connect endpoint ' + q(normalized['endpoint']) + ' if AGENT and SENSITIVE']
         elif kind == 'remote':
             sources = ['source REMOTE = endpoint "*"']
-            clauses = ['notify exec ' + q(normalized['program']) + ' if AGENT and REMOTE']
+            clauses = [effect + ' exec ' + q(normalized['program']) + ' if AGENT and REMOTE']
         elif kind == 'workflow':
             sources = ['source CODE = file ' + obj]
-            clauses = ['block exec "git" "commit" if AGENT and CODE unless after exec ' + q(normalized['checker']) + ' since write ' + obj]
+            clauses = [effect + ' exec "git" "commit" if AGENT and CODE unless after exec ' + q(normalized['checker']) + ' since write ' + obj]
         elif kind == 'git':
-            clauses = ['kill exec "git" ' + q(arg) + ' if AGENT' for arg in ('reset','clean','stash','--no-verify')]
+            clauses = [effect + ' exec "git" ' + q(arg) + ' if AGENT' for arg in ('reset','clean','stash','--no-verify')]
         else:
             raise ValueError('模板执行类型未实现')
         rule = 'config-' + ident

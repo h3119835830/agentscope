@@ -1,6 +1,7 @@
 import React,{useEffect,useRef,useState} from 'react';
 import {Editor as ExistingEditor} from './SystemPolicyLibrary.jsx';
 import TemplateConfigurationDialog from './TemplateConfigurationDialog.jsx';
+import TemplateDefinitionDialog from './TemplateDefinitionDialog.jsx';
 import PolicyLifecycleDialog from './PolicyLifecycleDialog.jsx';
 import {PolicyDetail} from './ActPlanePolicies.jsx';
 import {visibleAgentInstances} from './agentInstancePresentation.mjs';
@@ -14,7 +15,6 @@ const CATALOG_COLUMNS=[
  {label:'说明',key:'description',width:300,min:180,max:1200},
  {label:'配置项',key:'parameters',width:190,min:164,max:800},
  {label:'默认动作',key:'effect',width:108,min:108,max:320},
- {label:'触发操作',key:'operation',width:88,min:84,max:320},
  {label:'子配置',key:'count',width:76,min:72,max:240},
  {label:'操作',key:'actions',width:152,min:152,max:500},
 ];
@@ -33,6 +33,7 @@ export default function UnifiedPolicyLibrary({api,post,agents=[],targetId='',onA
  const needsCoverage=!!action&&action.operation!=='archive'&&action.rows.some(i=>i.coverage_warning||i.config?.ops?.some(op=>['write','unlink'].includes(op)));
  const [capability,setCapability]=useState(null);
  const [columnWidths,setColumnWidths]=useState(()=>CATALOG_COLUMNS.map(c=>c.width)),[resizingColumn,setResizingColumn]=useState(null),columnDrag=useRef(null);
+ const [templateEditing,setTemplateEditing]=useState(null);
  const resizeColumn=(index,width)=>setColumnWidths(previous=>previous.map((value,i)=>i===index?Math.max(CATALOG_COLUMNS[i].min,Math.min(CATALOG_COLUMNS[i].max,width)):value));
  function startColumnResize(e,index){
   if(e.button!==0)return;e.preventDefault();e.stopPropagation();e.currentTarget.focus();e.currentTarget.setPointerCapture(e.pointerId);
@@ -74,15 +75,14 @@ export default function UnifiedPolicyLibrary({api,post,agents=[],targetId='',onA
    <thead><tr>{CATALOG_COLUMNS.map((column,index)=><th key={column.key} scope="col">{column.label}<span className="upl-column-resizer" role="separator" aria-label={'调整'+column.label+'列宽'} aria-orientation="vertical" aria-valuemin={column.min} aria-valuemax={column.max} aria-valuenow={columnWidths[index]} tabIndex={0} title="拖动调整列宽，方向键微调；刷新页面恢复默认宽度" onPointerDown={e=>startColumnResize(e,index)} onPointerMove={e=>moveColumnResize(e,index)} onPointerUp={endColumnResize} onPointerCancel={endColumnResize} onLostPointerCapture={endColumnResize} onKeyDown={e=>keyColumnResize(e,index)}/></th>)}</tr></thead>
    {rows.map(({template:t,children})=>{const open=collapsed[t.id]===false,selectable=children.filter(i=>configurationRecordActions(i).canSubmit),description=t.description||t.summary,detailId='template-detail-'+t.id;return <tbody key={t.id}>
     <tr className={'upl-catalog-row'+(open?' is-open':'')}>
-     <td><button className="spl-record-name upl-catalog-name" aria-label={t.name+'：模板详情'} aria-expanded={open} aria-controls={detailId} onClick={()=>setCollapsed(old=>({...old,[t.id]:open}))}><span className="upl-catalog-chevron" aria-hidden="true">{open?'▾':'▸'}</span><span>{t.name}</span></button><small className="upl-catalog-category">{t.category}</small></td>
+     <td><div className="upl-catalog-heading"><button className="upl-catalog-disclosure" aria-label={t.name+'：子配置'} title={open?'收起子配置':'展开子配置'} aria-expanded={open} aria-controls={detailId} onClick={()=>setCollapsed(old=>({...old,[t.id]:open}))}><span className="upl-catalog-chevron" aria-hidden="true">{open?'▾':'▸'}</span></button><span className="upl-catalog-name">{t.name}</span></div><small className="upl-catalog-category">{t.category}</small></td>
      <td><p className="upl-catalog-description" title={description}>{description}</p></td>
      <td><span className="upl-catalog-parameters" title={t.parameters.map(p=>p.label).join('、')}>{t.parameters.length?t.parameters.map(p=>p.label).join('、'):t.custom?'原始 DSL 文档':'固定条件'}</span></td>
      <td>{t.effect&&<span className={'spl-effect '+t.effect} title={t.effect}>{effectLabel(t.effect)}</span>}</td>
-     <td><span className="upl-catalog-operation">{operationLabel(t.operation)}</span></td>
      <td><span className={'upl-catalog-count'+(!children.length?' is-empty':'')}>{children.length} 项</span></td>
-     <td><div className="upl-catalog-actions"><button className="upl-row-action" aria-label={t.name+'：详情'} aria-expanded={open} aria-controls={detailId} onClick={()=>setCollapsed(old=>({...old,[t.id]:open}))}>{open?'收起':'详情'}</button>{!t.custom&&<button className="upl-row-action upl-submit" aria-label={t.name+'：新增子配置'} disabled={busy} onClick={()=>create(t)}>新增子配置</button>}</div></td>
+     <td><div className="upl-catalog-actions"><button className="upl-row-action" aria-label={t.name+'：详情'} disabled={busy||t.custom} title={t.custom?'导入 DSL 没有独立模板，请编辑子配置':'查看和编辑模板'} onClick={()=>setTemplateEditing(t)}>详情</button>{!t.custom&&<button className="upl-row-action upl-submit" aria-label={t.name+'：新增子配置'} disabled={busy} onClick={()=>create(t)}>新增子配置</button>}</div></td>
     </tr>
-    {open&&<tr className="upl-template-detail-row"><td colSpan={7}><section id={detailId} aria-label={t.name+' 的模板详情'} className="upl-template-detail">
+    {open&&<tr className="upl-template-detail-row"><td colSpan={6}><section id={detailId} aria-label={t.name+' 的子配置记录区'} className="upl-template-detail">
      <div className="upl-configurations-head"><strong>子配置记录 <span>{children.length} 项</span></strong>{!t.custom&&<button className="button tiny ghost" aria-label={t.name+'：新增子配置记录'} disabled={busy} onClick={()=>create(t)}>＋ 新增子配置</button>}</div>
      <div className="upl-configuration-records" tabIndex={0} role="region" aria-label={t.name+' 的子配置记录'}><table aria-label={t.name+' 的子配置'}><colgroup><col className="upl-col-check"/><col className="upl-col-name"/><col className="upl-col-scope"/><col className="upl-col-target"/><col className="upl-col-effect"/><col className="upl-col-state"/><col className="upl-col-actions"/></colgroup>
       <thead><tr><th className="spl-check"><input type="checkbox" aria-label={'选择 '+t.name+' 的子配置'} disabled={busy||!selectable.length} checked={!!selectable.length&&selectable.every(i=>selected.has(i.id))} onChange={e=>setSelected(prev=>{const n=new Set(prev);selectable.forEach(i=>e.target.checked?n.add(i.id):n.delete(i.id));return n;})}/></th><th>实际策略名称</th><th>范围</th><th>保护对象 / 操作</th><th>动作</th><th>状态</th><th>操作</th></tr></thead><tbody>
@@ -108,6 +108,7 @@ export default function UnifiedPolicyLibrary({api,post,agents=[],targetId='',onA
   {selected.size>0&&<div className="spl-selection" role="region" aria-label="已选策略"><strong>已选 {selected.size} 项</strong><span>保留其他已应用配置</span><button onClick={()=>setSelected(new Set())}>清空</button><button className="button primary" disabled={busy} onClick={()=>request(items.filter(i=>selected.has(i.id)))}>校验并提交审批 →</button></div>}
   {editing&&<TemplateConfigurationDialog {...editing} capability={capability} agents={agents} targetId={scope!=='all'&&scope!=='system'?scope:targetId} initialTarget={scope==='system'?'system':undefined} post={post} onClose={()=>setEditing(null)} onSaved={async()=>{setEditing(null);await refresh();setNotice('已保存草案，尚未批准或应用。');}} onSubmit={i=>{setEditing(null);request([i]);}} onDisable={i=>{setEditing(null);request([i],'disable');}} onApprovals={onApprovals}/>}
   {legacyEditing&&<ExistingEditor entry={legacyEditing} capability={capability} busy={busy} onClose={()=>setLegacyEditing(null)} onSave={saveLegacy} onRecord={setRecord} onArchive={i=>{setLegacyEditing(null);request([{...i,scope_id:'system',legacy:true}],'archive');}} onDisable={i=>{setLegacyEditing(null);request([{...i,scope_id:'system',legacy:true}],'disable');}}/>}
+  {templateEditing&&<TemplateDefinitionDialog template={templateEditing} post={post} onClose={()=>setTemplateEditing(null)} onSaved={async()=>{setTemplateEditing(null);await refresh();setNotice('已保存模板新版本；已有子配置和运行策略保持原版本。');}}/>}
   {record&&<PolicyDetail record={record} onClose={()=>setRecord(null)}/>}
   {picker&&<Picker catalog={catalog} onChoose={create} onClose={()=>setPicker(false)}/>}
   {action&&<PolicyLifecycleDialog title={action.operation==='archive'?'归档配置':action.operation==='disable'?'提交停用审批':'核对并提交审批'} confirmLabel={action.operation==='archive'?'归档配置':'提交审批'} busy={busy} confirmDisabled={needsCoverage&&!coverageAck} onClose={()=>setAction(null)} onConfirm={confirmAction}><p>{action.rows.map(i=>i.name).join('、')}</p><p>范围：{scopeName(action.rows[0])}</p>{action.operation==='disable'&&action.rows.map(row=>{const snapshot=configurationDisableSnapshot(row),summary=configurationRecordSummary(snapshot,catalog.find(t=>t.id===row.template_id));return <div className="upl-disable-preview" key={row.id}><p>停用{row.applied_revision?'已应用版本 v'+row.applied_revision:'当前已应用配置'}{row.applied_revision&&row.applied_revision!==row.revision?'；未应用的新版本草案保留。':'。'}</p><dl><dt>保护对象 / 操作</dt><dd>{summary.targetTitle}<small>{summary.operation}</small></dd><dt>当前动作</dt><dd>{summary.effects.map(effectLabel).join('、')||'见原始 DSL'}</dd></dl></div>;})}{needsCoverage&&<label className="spl-note spl-attention"><input type="checkbox" aria-label="接受修改与删除的共同覆盖" checked={coverageAck} disabled={busy} onChange={e=>setCoverageAck(e.target.checked)}/> 我已了解：修改和删除共用访问组，实际影响两者。</label>}<p>{action.operation==='archive'?'仅归档未应用配置，保留历史。':action.operation==='disable'?'停用只提交审批，当前策略继续保留。由你批准后再单独应用，其他配置保留。':'此操作只提交候选，不加载策略。批准后还需单独应用。'}</p>{error&&<p role="alert" className="spl-error">{error}</p>}</PolicyLifecycleDialog>}

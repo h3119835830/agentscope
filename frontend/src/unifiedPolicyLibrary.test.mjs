@@ -18,7 +18,7 @@ async function harness(entry,initial=[],exportName='default'){
 const template={description:'场景明确要求隔离无关资料时使用，填写目标路径，不额外禁止修改或删除。',id:'FILE-READ',version:2,name:'文件读取限制',category:'文件保护',scopes:['system','agent'],parameters:[],operation:'open',effect:'block'};
 const child={id:'tc_a',template_id:'FILE-READ',template_version:2,name:'禁止日报读取员工资料',scope_id:'a',scope:'agent',revision:1,parameters:{},status:'draft',can_submit:true};
 function templateDetails(render,props,name=template.name){
- let tree=render(props);const button=nodes(tree).find(n=>n.props?.['aria-label']===name+'：详情');
+ let tree=render(props);const button=nodes(tree).find(n=>n.props?.['aria-label']===name+'：子配置');
  if(!button.props['aria-expanded'])button.props.onClick();return render(props);
 }
 test('old templates URL resolves to one policy page without a second assistant or library',async()=>{
@@ -27,11 +27,11 @@ test('old templates URL resolves to one policy page without a second assistant o
  assert.equal(all.filter(n=>n.type?.name==='UnifiedPolicyLibrary').length,1);
  assert.ok(!all.some(n=>['AgentPolicyTemplates','TemplatePolicyAssistant'].includes(n.type?.name)));
 });
-test('template catalogue describes templates and opens separately labelled child fields only on details',async()=>{
+test('template catalogue omits parameter operation values and expands child fields only on the arrow',async()=>{
  const render=await harness('UnifiedPolicyLibrary.jsx',[{catalog:[template],items:[child]},{catalog:[],items:[]}]);
  const props={api(){},post(){},agents:[{id:'a',agent_type:'dsh',mode:'controlled'}],onApprovals(){}};
  let tree=render(props),table=nodes(tree).find(n=>n.type==='table'&&n.props['aria-label']==='策略模板目录');
- assert.deepEqual(nodes(table).filter(n=>n.type==='th').map(n=>[n.props.children].flat().find(v=>typeof v==='string')),['策略模板','说明','配置项','默认动作','触发操作','子配置','操作']);
+ assert.deepEqual(nodes(table).filter(n=>n.type==='th').map(n=>[n.props.children].flat().find(v=>typeof v==='string')),['策略模板','说明','配置项','默认动作','子配置','操作']);
  assert.ok(!nodes(tree).some(n=>n.props?.['aria-label']===child.name+'：提交审批'));
  assert.ok(nodes(table).some(n=>n.type==='p'&&n.props.children===template.description));
  tree=templateDetails(render,props);table=nodes(tree).find(n=>n.type==='table'&&n.props['aria-label']==='文件读取限制 的子配置');
@@ -138,10 +138,10 @@ test('description search finds a template and preserves its scoped children',asy
  assert.ok(nodes(tree).some(n=>n.props?.['aria-label']===template.name+'：详情'));tree=templateDetails(render,props);
  assert.ok(nodes(tree).some(n=>n.props?.['aria-label']===child.name+'：提交审批'));
 });
-test('the main disclosure arrow opens only child records and stays in sync with details',async()=>{
+test('the arrow expands children while details exclusively opens the template editor',async()=>{
  const def={...template,parameters:[{key:'target',label:'保护对象路径',type:'path',default:''}]};const render=await harness('UnifiedPolicyLibrary.jsx',[{catalog:[def],items:[]},{catalog:[],items:[]}]);
  const props={api(){},post(){},onApprovals(){}};let tree=render(props);
- const toggle=()=>nodes(tree).find(n=>n.props?.['aria-label']===template.name+'：模板详情');
+ const toggle=()=>nodes(tree).find(n=>n.props?.['aria-label']===template.name+'：子配置');
  const arrow=()=>nodes(toggle()).find(n=>n.props?.className==='upl-catalog-chevron');
  assert.equal(toggle().props['aria-expanded'],false);assert.equal(arrow().props.children,'▸');
  toggle().props.onClick();tree=render(props);
@@ -150,6 +150,9 @@ test('the main disclosure arrow opens only child records and stays in sync with 
  assert.equal(nodes(tree).filter(n=>n.type==='p'&&n.props.children===template.description).length,1);
  assert.ok(nodes(tree).some(n=>n.type==='td'&&n.props.children==='暂无子配置，新增后可在此查看、提交审批或停用。'));
  nodes(tree).find(n=>n.props?.['aria-label']===template.name+'：详情').props.onClick();tree=render(props);
+ assert.equal(toggle().props['aria-expanded'],true);
+ const editor=nodes(tree).find(n=>n.type?.name==='TemplateDefinitionDialog');assert.equal(editor.props.template.id,template.id);editor.props.onClose();tree=render(props);
+ toggle().props.onClick();tree=render(props);
  assert.equal(toggle().props['aria-expanded'],false);assert.equal(arrow().props.children,'▸');
  assert.ok(!nodes(tree).some(n=>n.props?.className==='upl-template-detail'));
 });
@@ -171,3 +174,14 @@ test('column drag changes only its column, clamps widths and stops at release wi
  nodes(tree).find(n=>n.type==='button'&&n.props.children==='刷新').props.onClick();tree=render(props);assert.deepEqual(widths(),defaults);
  const reloaded=await harness('UnifiedPolicyLibrary.jsx',initial);tree=reloaded(props);assert.deepEqual(widths(),defaults);
 });
+
+ test('template editor saves a template version with synchronized effect defaults, never a child or application',async()=>{
+ const def={...template,parameters:[{key:'target',label:'保护对象',type:'path',default:''},{key:'effect',label:'动作',type:'effect',default:'block'}]};
+ const render=await harness('TemplateDefinitionDialog.jsx'),calls=[],props={template:def,post:async(path,body)=>{calls.push({path,body});return {version:3}},onClose:()=>calls.push('close'),onSaved:value=>calls.push({saved:value})};let tree=render(props);
+ nodes(tree).find(n=>n.props?.['aria-label']==='模板名称').props.onChange({target:{value:'新模板名称'}});tree=render(props);
+ nodes(tree).find(n=>n.props?.['aria-label']==='target 配置项名称').props.onChange({target:{value:'资料路径'}});tree=render(props);
+ nodes(tree).find(n=>n.props?.['aria-label']==='模板默认动作').props.onChange({target:{value:'notify'}});tree=render(props);
+ await nodes(tree).find(n=>n.type==='form').props.onSubmit({preventDefault(){}});
+ assert.equal(calls[0].path,'/api/policy-templates/FILE-READ/versions');assert.equal(calls[0].body.base_version,2);assert.equal(calls[0].body.effect,'notify');assert.equal(calls[0].body.parameters[1].default,'notify');assert.equal(calls[0].body.parameters[0].label,'资料路径');assert.equal(calls[0].body.name,'新模板名称');assert.deepEqual(calls[1],{saved:{version:3}});
+ assert.ok(!('scope_id' in calls[0].body));
+ });

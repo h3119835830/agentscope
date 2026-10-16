@@ -81,11 +81,22 @@ for item in CATALOG:
 
 def get(ident, version=1):
     item = next((t for t in CATALOG if t['id'] == ident and t['version'] == version), None) or HISTORICAL.get((ident, version))
+    if item is None and type(version) is int and version>2:
+        from . import template_versions
+        saved=template_versions.get(ident,version)
+        item=saved['definition'] if saved else None
     if not item or type(version) is not int:
         raise ValueError('模板不存在或版本已经变化，请刷新模板列表')
     return copy.deepcopy(item)
 
 
 def public_catalog():
-    return [{**{k: copy.deepcopy(v) for k, v in t.items() if k not in ('renderer', 'system_preset')},
-             'description':DESCRIPTIONS[t['id']]} for t in CATALOG]
+    from . import template_versions
+    latest=template_versions.latest()
+    result=[]
+    for published in CATALOG:
+        saved=latest.get(published['id'])
+        definition=saved['definition'] if saved else published
+        result.append({**{k:copy.deepcopy(v) for k,v in definition.items() if k not in ('renderer','system_preset')},
+                       'description':saved['description'] if saved else DESCRIPTIONS[published['id']]})
+    return result
