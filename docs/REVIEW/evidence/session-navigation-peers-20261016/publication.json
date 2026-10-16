@@ -1,0 +1,33 @@
+{
+  "published": true,
+  "frontend_only": true,
+  "source_commit": "ed583332e1bcd60d12b73e0a202b3c04e19cefe5",
+  "api_release": "/opt/agentscope-template-descriptions-20261016-145034",
+  "backup": "/var/lib/agentscope-scope-demo/release-backups/session-navigation-peers-20261016-151130",
+  "api_pid": 106545,
+  "broker_pid": 464,
+  "api_process_unchanged": true,
+  "broker_process_unchanged": true,
+  "backend_files_unchanged": true,
+  "policy_authority_unchanged": true,
+  "configuration_and_approval_tables_unchanged": true,
+  "formal_policy_mutations": false,
+  "dsh_code_changed": false,
+  "health_ok": true,
+  "assets_match_build": true,
+  "asset_paths": [
+    "/assets/main-DNyid-rZ.js",
+    "/assets/client-2tdd2SJ7.js",
+    "/assets/main-DTaO_p-7.css"
+  ],
+  "ui_sha256": "21f6de96b1f577b0f03f6f4daae58b615d74c4c63413bb243b32b9c578923fd9",
+  "browser_verified": {
+    "session_direct_nav_child": true,
+    "nested_session_container_count": 0,
+    "collapsed_all_nav_items_same_dimensions": true,
+    "expanded_all_nav_items_same_dimensions": true,
+    "screenshot": "18003-sidebar-expanded.jpg",
+    "screenshot_sha256": "757459f7f510f4a62caaf93ff7b1a04a658b801fcf40ab8b383ab853f0ad26d8"
+  },
+  "post_browser_authority_and_approval_tables_unchanged": true
+}
