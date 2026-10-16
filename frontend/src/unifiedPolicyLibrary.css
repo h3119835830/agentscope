@@ -1,13 +1,14 @@
 .unified-policy-library .spl-filters{flex-wrap:wrap}
 .unified-policy-library .spl-filters select{max-width:240px}
 .unified-policy-library .upl-template-library{overflow-x:auto;border-color:#dfe7f0;border-radius:10px}
+.unified-policy-library .upl-template-library:focus-visible{outline:2px solid #8cb2fb;outline-offset:2px}
 .unified-policy-library .upl-template-library>table{min-width:920px;table-layout:fixed}
-.unified-policy-library col.upl-catalog-name{width:18%}
-.unified-policy-library col.upl-catalog-parameters{width:17%}
-.unified-policy-library col.upl-catalog-effect{width:108px}
-.unified-policy-library col.upl-catalog-operation{width:84px}
-.unified-policy-library col.upl-catalog-count{width:72px}
-.unified-policy-library col.upl-catalog-actions{width:152px}
+.prototype-theme .main[data-page] .unified-policy-library .upl-template-library>table>thead>tr>th{position:relative;padding-right:18px}
+.unified-policy-library .upl-column-resizer{position:absolute;top:0;right:0;bottom:0;width:9px;cursor:col-resize;touch-action:none;user-select:none;z-index:1}
+.unified-policy-library .upl-column-resizer:after{content:'';position:absolute;top:12px;bottom:12px;left:4px;width:1px;background:#ced9e7}
+.unified-policy-library .upl-column-resizer:hover:after,.unified-policy-library .upl-column-resizer:focus-visible:after{width:2px;background:#6f9be5}
+.unified-policy-library .upl-column-resizer:focus-visible{outline:2px solid #8cb2fb;outline-offset:-2px}
+.unified-policy-library .is-resizing-columns,.unified-policy-library .is-resizing-columns *{cursor:col-resize!important;user-select:none}
 .prototype-theme .main[data-page] .unified-policy-library .upl-template-library th,
 .prototype-theme .main[data-page] .unified-policy-library .upl-template-library td{display:table-cell;width:auto;max-width:none;padding:17px 12px;vertical-align:middle;line-height:1.55;font-size:13px}
 .prototype-theme .main[data-page] .unified-policy-library .upl-template-library th{padding:13px 12px;background:#eef3f9;color:#63768e;font-size:12px;font-weight:500}

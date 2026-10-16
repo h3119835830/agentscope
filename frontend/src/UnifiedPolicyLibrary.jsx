@@ -9,6 +9,16 @@ import {configurationAgentLabel,configurationRecordSummary,configurationRecordAc
 import './systemPolicyLibrary.css';
 import './unifiedPolicyLibrary.css';
 
+const CATALOG_COLUMNS=[
+ {label:'策略模板',key:'name',width:200,min:160,max:600},
+ {label:'说明',key:'description',width:300,min:180,max:1200},
+ {label:'配置项',key:'parameters',width:190,min:164,max:800},
+ {label:'默认动作',key:'effect',width:108,min:108,max:320},
+ {label:'触发操作',key:'operation',width:88,min:84,max:320},
+ {label:'子配置',key:'count',width:76,min:72,max:240},
+ {label:'操作',key:'actions',width:152,min:152,max:500},
+];
+
 function Picker({catalog,onChoose,onClose}){
  const ref=useRef(null),[id,setId]=useState(catalog[0]?.id||'');
  useEffect(()=>{ref.current?.showModal();return()=>ref.current?.close();},[]);
@@ -22,6 +32,15 @@ export default function UnifiedPolicyLibrary({api,post,agents=[],targetId='',onA
  const alive=useRef(false),seq=useRef(0),[coverageAck,setCoverageAck]=useState(false);
  const needsCoverage=!!action&&action.operation!=='archive'&&action.rows.some(i=>i.coverage_warning||i.config?.ops?.some(op=>['write','unlink'].includes(op)));
  const [capability,setCapability]=useState(null);
+ const [columnWidths,setColumnWidths]=useState(()=>CATALOG_COLUMNS.map(c=>c.width)),[resizingColumn,setResizingColumn]=useState(null),columnDrag=useRef(null);
+ const resizeColumn=(index,width)=>setColumnWidths(previous=>previous.map((value,i)=>i===index?Math.max(CATALOG_COLUMNS[i].min,Math.min(CATALOG_COLUMNS[i].max,width)):value));
+ function startColumnResize(e,index){
+  if(e.button!==0)return;e.preventDefault();e.stopPropagation();e.currentTarget.focus();e.currentTarget.setPointerCapture(e.pointerId);
+  columnDrag.current={pointerId:e.pointerId,index,startX:e.clientX,startWidth:columnWidths[index]};setResizingColumn(index);
+ }
+ function moveColumnResize(e,index){const drag=columnDrag.current;if(drag?.pointerId===e.pointerId&&drag.index===index)resizeColumn(index,drag.startWidth+e.clientX-drag.startX);}
+ function endColumnResize(e){if(columnDrag.current?.pointerId!==e.pointerId)return;columnDrag.current=null;setResizingColumn(null);if(e.currentTarget.hasPointerCapture(e.pointerId))e.currentTarget.releasePointerCapture(e.pointerId);}
+ function keyColumnResize(e,index){if(!['ArrowLeft','ArrowRight'].includes(e.key))return;e.preventDefault();resizeColumn(index,columnWidths[index]+(e.key==='ArrowRight'?1:-1)*(e.shiftKey?40:10));}
  const decorate=t=>({...t,description:data?.catalog.find(p=>p.id===t.id&&p.version===t.version)?.description||t.summary,requires_suffix:['suffix','filename','tail','flow'].includes(library?.catalog.find(p=>'SYS-'+p.id===t.id)?.mode)});
  async function refresh(){const n=++seq.current;try{const [d,l]=await Promise.all([api('/api/policy-templates'),api('/api/security/system/policy-library')]);if(alive.current&&n===seq.current){setData(d);setLibrary(l);setError('');setSelected(new Set());}}catch(e){if(alive.current&&n===seq.current){setError(e.message);setData(null);setLibrary(null);}}}
  useEffect(()=>{alive.current=true;refresh();api('/api/security/system/execution-capabilities').then(v=>{if(alive.current)setCapability(v);}).catch(()=>{});return()=>{alive.current=false;seq.current++;};},[api]);
@@ -46,13 +65,13 @@ export default function UnifiedPolicyLibrary({api,post,agents=[],targetId='',onA
  }catch(e){setError(e.message);}finally{setBusy(false);}}
  async function saveLegacy(item,body){setBusy(true);try{await post('/api/security/system/policy-library'+(item?'/'+item.id+'/versions':''),{...body,base_revision:item?.revision||0});await refresh();setLegacyEditing(null);setNotice('已保存草案。提交审批并批准后，还需单独应用。');}finally{setBusy(false);}}
  return <div className="system-policy-library unified-policy-library">
-  <div className="spl-intro"><span className="spl-root">◇</span><div><strong>策略配置与模板</strong><p>手工与 Agent 配置统一保存，提交审批后由你批准，再单独应用。</p></div><button className="button tiny ghost" disabled={busy} onClick={refresh}>刷新</button></div>
+  <div className="spl-intro"><span className="spl-root">◇</span><div><strong>策略配置与模板</strong><p>手工与 Agent 配置统一保存，提交审批后由你批准，再单独应用。</p></div><button className="button tiny ghost" disabled={busy} onClick={()=>{setColumnWidths(CATALOG_COLUMNS.map(c=>c.width));refresh();}}>刷新</button></div>
   <div className="spl-toolbar"><div className="spl-filter-tabs" role="tablist" aria-label="系统策略筛选">{[['all','全部策略',groups.length],['configured','已配置',items.length]].map(([key,title,count])=><button key={key} role="tab" aria-selected={filter===key} onClick={()=>setFilter(key)}>{title}<span>{count}</span></button>)}</div><div><button className="button ghost" onClick={()=>setLegacyEditing({kind:'dsl'})}>导入 DSL</button><button className="button primary" disabled={!data} onClick={()=>setPicker(true)}>＋ 新建策略</button></div></div>
   <div className="spl-filters"><input type="search" aria-label="搜索系统策略" placeholder="搜索模板、说明、子配置名称…" value={q} onChange={e=>setQ(e.target.value)}/><select aria-label="策略分类" value={category} onChange={e=>setCategory(e.target.value)}><option value="">全部类型</option>{[...new Set(groups.map(t=>t.category))].map(c=><option key={c}>{c}</option>)}</select><select aria-label="配置范围" value={scope} onChange={e=>{setScope(e.target.value);setSelected(new Set());}}><option value="all">全部范围</option><option value="system">所有 Agent</option>{instances.map(a=><option value={a.id} key={a.id}>{configurationAgentLabel(a,agents)}</option>)}</select><span>{rows.length} 个模板</span></div>
   {error&&<p role="alert" className="spl-error">{error} <button className="button tiny ghost" onClick={refresh}>重试</button></p>}{notice&&<p role="status" className="spl-success">{notice}</p>}
-  <div className="spl-records upl-template-library"><table aria-label="策略模板目录">
-   <colgroup><col className="upl-catalog-name"/><col className="upl-catalog-description"/><col className="upl-catalog-parameters"/><col className="upl-catalog-effect"/><col className="upl-catalog-operation"/><col className="upl-catalog-count"/><col className="upl-catalog-actions"/></colgroup>
-   <thead><tr><th>策略模板</th><th>说明</th><th>配置项</th><th>默认动作</th><th>触发操作</th><th>子配置</th><th>操作</th></tr></thead>
+  <div className="spl-records upl-template-library" tabIndex={0} role="region" aria-label="策略模板表格"><table aria-label="策略模板目录" style={{width:columnWidths.reduce((sum,width)=>sum+width,0)}} className={resizingColumn!==null?'is-resizing-columns':undefined}>
+   <colgroup>{CATALOG_COLUMNS.map((column,index)=><col key={column.key} className={'upl-catalog-'+column.key} style={{width:columnWidths[index]}}/>)}</colgroup>
+   <thead><tr>{CATALOG_COLUMNS.map((column,index)=><th key={column.key} scope="col">{column.label}<span className="upl-column-resizer" role="separator" aria-label={'调整'+column.label+'列宽'} aria-orientation="vertical" aria-valuemin={column.min} aria-valuemax={column.max} aria-valuenow={columnWidths[index]} tabIndex={0} title="拖动调整列宽，方向键微调；刷新页面恢复默认宽度" onPointerDown={e=>startColumnResize(e,index)} onPointerMove={e=>moveColumnResize(e,index)} onPointerUp={endColumnResize} onPointerCancel={endColumnResize} onLostPointerCapture={endColumnResize} onKeyDown={e=>keyColumnResize(e,index)}/></th>)}</tr></thead>
    {rows.map(({template:t,children})=>{const open=collapsed[t.id]===false,selectable=children.filter(i=>configurationRecordActions(i).canSubmit),description=t.description||t.summary,detailId='template-detail-'+t.id;return <tbody key={t.id}>
     <tr className={'upl-catalog-row'+(open?' is-open':'')}>
      <td><button className="spl-record-name upl-catalog-name" aria-label={t.name+'：模板详情'} aria-expanded={open} aria-controls={detailId} onClick={()=>setCollapsed(old=>({...old,[t.id]:open}))}><span className="upl-catalog-chevron" aria-hidden="true">{open?'▾':'▸'}</span><span>{t.name}</span></button><small className="upl-catalog-category">{t.category}</small></td>

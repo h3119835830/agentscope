@@ -31,7 +31,7 @@ test('template catalogue describes templates and opens separately labelled child
  const render=await harness('UnifiedPolicyLibrary.jsx',[{catalog:[template],items:[child]},{catalog:[],items:[]}]);
  const props={api(){},post(){},agents:[{id:'a',agent_type:'dsh',mode:'controlled'}],onApprovals(){}};
  let tree=render(props),table=nodes(tree).find(n=>n.type==='table'&&n.props['aria-label']==='策略模板目录');
- assert.deepEqual(nodes(table).filter(n=>n.type==='th').map(n=>n.props.children),['策略模板','说明','配置项','默认动作','触发操作','子配置','操作']);
+ assert.deepEqual(nodes(table).filter(n=>n.type==='th').map(n=>[n.props.children].flat().find(v=>typeof v==='string')),['策略模板','说明','配置项','默认动作','触发操作','子配置','操作']);
  assert.ok(!nodes(tree).some(n=>n.props?.['aria-label']===child.name+'：提交审批'));
  assert.ok(nodes(table).some(n=>n.type==='p'&&n.props.children===template.description));
  tree=templateDetails(render,props);table=nodes(tree).find(n=>n.type==='table'&&n.props['aria-label']==='文件读取限制 的子配置');
@@ -152,4 +152,22 @@ test('the main disclosure arrow opens only child records and stays in sync with 
  nodes(tree).find(n=>n.props?.['aria-label']===template.name+'：详情').props.onClick();tree=render(props);
  assert.equal(toggle().props['aria-expanded'],false);assert.equal(arrow().props.children,'▸');
  assert.ok(!nodes(tree).some(n=>n.props?.className==='upl-template-detail'));
+});
+
+test('column drag changes only its column, clamps widths and stops at release without policy writes',async()=>{
+ const initial=[{catalog:[template],items:[child]},{catalog:[],items:[]}],render=await harness('UnifiedPolicyLibrary.jsx',initial),writes=[];
+ const props={api(){},post:()=>writes.push('write'),onApprovals(){}};let tree=render(props),captured=false;
+ const handle=()=>nodes(tree).find(n=>n.props?.['aria-label']==='调整说明列宽');
+ const widths=()=>nodes(tree).filter(n=>n.type==='col').map(n=>n.props.style.width);
+ const defaults=widths(),target={focus(){},setPointerCapture(){captured=true},hasPointerCapture(){return captured},releasePointerCapture(){captured=false}};
+ const event={button:0,pointerId:7,clientX:500,currentTarget:target,preventDefault(){},stopPropagation(){}};
+ handle().props.onPointerDown({...event,button:2});handle().props.onPointerMove({...event,clientX:640});tree=render(props);assert.deepEqual(widths(),defaults);
+ handle().props.onPointerDown(event);handle().props.onPointerMove({...event,pointerId:8,clientX:640});tree=render(props);assert.deepEqual(widths(),defaults);
+ handle().props.onPointerMove({...event,clientX:640});tree=render(props);assert.deepEqual(widths(),defaults.map((w,i)=>i===1?w+140:w));
+ handle().props.onPointerMove({...event,clientX:590});tree=render(props);assert.equal(widths()[1],390);
+ handle().props.onPointerMove({...event,clientX:-500});tree=render(props);assert.equal(widths()[1],180);
+ handle().props.onPointerUp(event);handle().props.onPointerMove({...event,clientX:2000});tree=render(props);assert.equal(widths()[1],180);assert.equal(captured,false);
+ handle().props.onKeyDown({key:'ArrowRight',preventDefault(){}});tree=render(props);assert.equal(widths()[1],190);assert.deepEqual(writes,[]);
+ nodes(tree).find(n=>n.type==='button'&&n.props.children==='刷新').props.onClick();tree=render(props);assert.deepEqual(widths(),defaults);
+ const reloaded=await harness('UnifiedPolicyLibrary.jsx',initial);tree=reloaded(props);assert.deepEqual(widths(),defaults);
 });
