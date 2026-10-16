@@ -1,0 +1,37 @@
+{
+  "published": true,
+  "frontend_only": true,
+  "source_commit": "cf02407c7c4c4eea202a9a121ed98837d1295dbf",
+  "api_release": "/opt/agentscope-template-descriptions-20261016-145034",
+  "backup": "/var/lib/agentscope-scope-demo/release-backups/child-configuration-scroll-20261016-155009",
+  "api_pid": 106545,
+  "broker_pid": 464,
+  "api_process_unchanged": true,
+  "broker_process_unchanged": true,
+  "backend_files_unchanged": true,
+  "policy_authority_unchanged": true,
+  "configuration_and_approval_tables_unchanged": true,
+  "formal_policy_mutations": false,
+  "dsh_code_changed": false,
+  "health_ok": true,
+  "assets_match_build": true,
+  "asset_paths": [
+    "/assets/main-CdmgNGXX.js",
+    "/assets/client-2tdd2SJ7.js",
+    "/assets/main-CPgxbWLV.css"
+  ],
+  "ui_sha256": "16d936d50b8e9562badeb9001615ece36fb99552da3bf62bc4dedcd8d44cff27",
+  "browser_verified": {
+    "actual_viewport_width": 826,
+    "child_width": 499,
+    "child_scroll_width": 860,
+    "child_scroll_left_after_mouse_drag": 361,
+    "scrollbar_height": 12,
+    "outer_scroll_left": 0,
+    "all_four_actions_visible": true,
+    "page_overflow": false,
+    "screenshot": "18003-child-scroll-826.jpg",
+    "screenshot_sha256": "f455eba5d4282fb9741b2df3fb019dde118fe9915330126929ad6a4eea95f6d9"
+  },
+  "post_browser_authority_and_approval_tables_unchanged": true
+}
