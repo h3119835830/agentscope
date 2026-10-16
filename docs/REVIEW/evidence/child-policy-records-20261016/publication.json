@@ -1,0 +1,38 @@
+{
+  "published": true,
+  "publication_mode": "frontend-only static overlay; no service restart",
+  "frontend_source_commit": "e34acaae025f85145644550c9114c9a77e4e38a9",
+  "backend_source_commit": "5ae0bb404373b8abf4e95e3eb62d5d3ee50c5913",
+  "backend_release": "/opt/agentscope-policy-context-agent-20261016-113618",
+  "health_ok": true,
+  "index_sha256": "2d5a6269b935ac3fc64d6e683e384bde4a21c09ba9b59b534a4899a4c7523008",
+  "asset_paths": [
+    "/assets/main-CHRdf_Ss.js",
+    "/assets/client-2tdd2SJ7.js",
+    "/assets/main-CNJKormX.css"
+  ],
+  "assets_match_build": true,
+  "api_pid": 50675,
+  "broker_pid": 443,
+  "api_process_unchanged": true,
+  "broker_process_unchanged": true,
+  "policy_authority_unchanged": true,
+  "policy_library_unchanged": true,
+  "existing_assets_preserved": true,
+  "private_backup": "/var/lib/agentscope-scope-demo/release-backups/child-policy-records-20261016-114950",
+  "browser_verified": {
+    "live_url": "http://127.0.0.1:18003/?view=strategies&systemTab=templates",
+    "six_child_headers": [
+      "实际策略名称",
+      "范围",
+      "保护对象 / 操作",
+      "动作",
+      "状态",
+      "详情"
+    ],
+    "observed_saved_effect": "notify",
+    "observed_saved_target": ".env",
+    "observed_application_status": "未应用",
+    "asset_references_match_published_build": true
+  }
+}
