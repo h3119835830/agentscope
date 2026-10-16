@@ -1,0 +1,63 @@
+{
+  "published": true,
+  "frontend_only": true,
+  "source_commit": "85fb11b43911ec88bfcf374c4337752b15dd4b57",
+  "api_release": "/opt/agentscope-template-descriptions-20261016-145034",
+  "backup": "/var/lib/agentscope-scope-demo/release-backups/template-catalog-ui-correction-20261016-150608",
+  "api_pid": 106545,
+  "broker_pid": 464,
+  "api_process_unchanged": true,
+  "broker_process_unchanged": true,
+  "backend_files_unchanged": true,
+  "policy_authority_unchanged": true,
+  "configuration_and_approval_tables_unchanged": true,
+  "agent_runtime_identity_unchanged": true,
+  "runtime_comparison_fields": [
+    "policy_hash",
+    "generation",
+    "pid",
+    "domain_id",
+    "active"
+  ],
+  "volatile_agent_poll_metadata_excluded": true,
+  "formal_policy_mutations": false,
+  "dsh_code_changed": false,
+  "health_ok": true,
+  "assets_match_build": true,
+  "asset_paths": [
+    "/assets/main-DTJRAZY1.js",
+    "/assets/client-2tdd2SJ7.js",
+    "/assets/main-tE5A2Eya.css"
+  ],
+  "ui_sha256": "11c07e352983dfdee61f4e8c53967f1c894e664074b2c1590894b0f3d3a5e9ae",
+  "configuration_and_approval_table_hashes": {
+    "system_policy_library": "b3545a5f336c2ce35959a2f74f2d549d0f6514f3ffb340a87c93603a3a289532",
+    "system_policy_library_versions": "05e05768a49d5349471381dbd86224e2ea70a91d76fb0bf4e4a302bbdeee4b56",
+    "system_policy_library_proposals": "b9cd01f95d7e55ca8075e2b86ac6750c41358050630a1c6edef723843923a091",
+    "template_configurations": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "template_configuration_versions": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "template_configuration_proposals": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "policy_approval_decisions": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "policy_application_requests": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "browser_verified": {
+    "main_headers": [
+      "策略模板",
+      "说明",
+      "配置项",
+      "默认动作",
+      "触发操作",
+      "子配置",
+      "操作"
+    ],
+    "main_arrow_expanded": "▾",
+    "extra_description_and_schema_sections": 0,
+    "all_catalog_cols_table_column_display": true,
+    "template_default_block_preserved": true,
+    "child_notify_preserved": true,
+    "published_assets_observed": true,
+    "screenshot": "18003-template-records.jpg",
+    "screenshot_sha256": "da0aa9e76bd119511fa01cfcc53909e6387a6baaa7276c5fc3213cc03a03ee1a"
+  },
+  "post_browser_authority_and_approval_tables_unchanged": true
+}
