@@ -23,7 +23,6 @@
 .prototype-theme .main[data-page] .unified-policy-library .upl-catalog-row td>small{display:block;margin-top:6px;font-size:11px;color:#8998ac}
 .unified-policy-library .upl-catalog-category{padding-left:19px}
 .unified-policy-library p.upl-catalog-description{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin:0;color:#63778f;font-size:12px;line-height:1.75}
-.unified-policy-library span.upl-catalog-parameters{display:block;color:#6f829b;font-size:12px;line-height:1.75}
 .unified-policy-library span.upl-catalog-count{display:inline-block;padding:3px 8px;background:#edf3fc;border-radius:4px;color:#5675a5;font-size:12px;white-space:nowrap}
 .unified-policy-library span.upl-catalog-count.is-empty{background:none;color:#9ca8b7}
 .unified-policy-library .upl-catalog-row .upl-catalog-actions{display:flex;align-items:center;gap:12px;white-space:nowrap}

@@ -13,7 +13,6 @@ import './unifiedPolicyLibrary.css';
 const CATALOG_COLUMNS=[
  {label:'策略模板',key:'name',width:200,min:160,max:600},
  {label:'说明',key:'description',width:300,min:180,max:1200},
- {label:'配置项',key:'parameters',width:190,min:164,max:800},
  {label:'默认动作',key:'effect',width:108,min:108,max:320},
  {label:'子配置',key:'count',width:76,min:72,max:240},
  {label:'操作',key:'actions',width:152,min:152,max:500},
@@ -77,12 +76,11 @@ export default function UnifiedPolicyLibrary({api,post,agents=[],targetId='',onA
     <tr className={'upl-catalog-row'+(open?' is-open':'')}>
      <td><div className="upl-catalog-heading"><button className="upl-catalog-disclosure" aria-label={t.name+'：子配置'} title={open?'收起子配置':'展开子配置'} aria-expanded={open} aria-controls={detailId} onClick={()=>setCollapsed(old=>({...old,[t.id]:open}))}><span className="upl-catalog-chevron" aria-hidden="true">{open?'▾':'▸'}</span></button><span className="upl-catalog-name">{t.name}</span></div><small className="upl-catalog-category">{t.category}</small></td>
      <td><p className="upl-catalog-description" title={description}>{description}</p></td>
-     <td><span className="upl-catalog-parameters" title={t.parameters.map(p=>p.label).join('、')}>{t.parameters.length?t.parameters.map(p=>p.label).join('、'):t.custom?'原始 DSL 文档':'固定条件'}</span></td>
      <td>{t.effect&&<span className={'spl-effect '+t.effect} title={t.effect}>{effectLabel(t.effect)}</span>}</td>
      <td><span className={'upl-catalog-count'+(!children.length?' is-empty':'')}>{children.length} 项</span></td>
      <td><div className="upl-catalog-actions"><button className="upl-row-action" aria-label={t.name+'：详情'} disabled={busy||t.custom} title={t.custom?'导入 DSL 没有独立模板，请编辑子配置':'查看和编辑模板'} onClick={()=>setTemplateEditing(t)}>详情</button>{!t.custom&&<button className="upl-row-action upl-submit" aria-label={t.name+'：新增子配置'} disabled={busy} onClick={()=>create(t)}>新增子配置</button>}</div></td>
     </tr>
-    {open&&<tr className="upl-template-detail-row"><td colSpan={6}><section id={detailId} aria-label={t.name+' 的子配置记录区'} className="upl-template-detail">
+    {open&&<tr className="upl-template-detail-row"><td colSpan={5}><section id={detailId} aria-label={t.name+' 的子配置记录区'} className="upl-template-detail">
      <div className="upl-configurations-head"><strong>子配置记录 <span>{children.length} 项</span></strong>{!t.custom&&<button className="button tiny ghost" aria-label={t.name+'：新增子配置记录'} disabled={busy} onClick={()=>create(t)}>＋ 新增子配置</button>}</div>
      <div className="upl-configuration-records" tabIndex={0} role="region" aria-label={t.name+' 的子配置记录'}><table aria-label={t.name+' 的子配置'}><colgroup><col className="upl-col-check"/><col className="upl-col-name"/><col className="upl-col-scope"/><col className="upl-col-target"/><col className="upl-col-effect"/><col className="upl-col-state"/><col className="upl-col-actions"/></colgroup>
       <thead><tr><th className="spl-check"><input type="checkbox" aria-label={'选择 '+t.name+' 的子配置'} disabled={busy||!selectable.length} checked={!!selectable.length&&selectable.every(i=>selected.has(i.id))} onChange={e=>setSelected(prev=>{const n=new Set(prev);selectable.forEach(i=>e.target.checked?n.add(i.id):n.delete(i.id));return n;})}/></th><th>实际策略名称</th><th>范围</th><th>保护对象 / 操作</th><th>动作</th><th>状态</th><th>操作</th></tr></thead><tbody>

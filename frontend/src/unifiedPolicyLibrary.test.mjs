@@ -31,7 +31,7 @@ test('template catalogue omits parameter operation values and expands child fiel
  const render=await harness('UnifiedPolicyLibrary.jsx',[{catalog:[template],items:[child]},{catalog:[],items:[]}]);
  const props={api(){},post(){},agents:[{id:'a',agent_type:'dsh',mode:'controlled'}],onApprovals(){}};
  let tree=render(props),table=nodes(tree).find(n=>n.type==='table'&&n.props['aria-label']==='策略模板目录');
- assert.deepEqual(nodes(table).filter(n=>n.type==='th').map(n=>[n.props.children].flat().find(v=>typeof v==='string')),['策略模板','说明','配置项','默认动作','子配置','操作']);
+ assert.deepEqual(nodes(table).filter(n=>n.type==='th').map(n=>[n.props.children].flat().find(v=>typeof v==='string')),['策略模板','说明','默认动作','子配置','操作']);
  assert.ok(!nodes(tree).some(n=>n.props?.['aria-label']===child.name+'：提交审批'));
  assert.ok(nodes(table).some(n=>n.type==='p'&&n.props.children===template.description));
  tree=templateDetails(render,props);table=nodes(tree).find(n=>n.type==='table'&&n.props['aria-label']==='文件读取限制 的子配置');
