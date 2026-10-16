@@ -1,0 +1,44 @@
+{
+  "published": true,
+  "source_commit": "1b01b31b4ddb87885816226c4910f79b171c3f2f",
+  "release": "/opt/agentscope-child-row-actions-20261016-141905",
+  "api_restarted_for_read_only_projection": true,
+  "broker_code_changed": false,
+  "dsh_code_changed": false,
+  "formal_policy_mutations": false,
+  "active_agent_count_before": 0,
+  "backup": "/var/lib/agentscope-scope-demo/release-backups/agentscope-child-row-actions-20261016-141905",
+  "restart_seconds": 0.968,
+  "health_ok": true,
+  "api_pid": 60969,
+  "broker_pid": 464,
+  "broker_process_unchanged": true,
+  "policy_authority_unchanged": true,
+  "configuration_and_approval_tables_unchanged": true,
+  "agent_state_unchanged": true,
+  "other_ports_unchanged": true,
+  "read_only_approval_projection_verified": true,
+  "ui_sha256": "0df00f72dd3a02456232f70de5c27e03d5465f0338d853a72ce14713fe60409d",
+  "asset_paths": [
+    "/assets/main-Bv138Ty_.js",
+    "/assets/client-2tdd2SJ7.js",
+    "/assets/main-C0KSzz0q.css"
+  ],
+  "assets_match_build": true,
+  "browser_verified": {
+    "row_buttons": [
+      "详情",
+      "提交审批",
+      "查看审批",
+      "停用"
+    ],
+    "submit_confirmation_verified": true,
+    "cancel_without_submission": true,
+    "view_approval_opens_exact_server_link": true,
+    "existing_approval_status": "stale",
+    "unapplied_disable_button_disabled": true,
+    "returned_to_system_policy_rows": true,
+    "published_assets_observed": true
+  },
+  "post_browser_authority_and_configuration_tables_unchanged": true
+}
