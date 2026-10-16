@@ -102,7 +102,7 @@ def apply(path):
   # The new route is registered; an absent target must fail without reading.
   import urllib.request,urllib.error
   try:urllib.request.urlopen('http://127.0.0.1:18003/api/agent-instances/absent-policy-context-target/policy-reference-workspaces/absent/files',timeout=5)
-  except urllib.error.HTTPError as error:assert error.code==404 and json.load(error).get('detail')
+  except urllib.error.HTTPError as error:assert error.code==409 and json.load(error).get('detail')
   else:raise AssertionError('Absent target was accepted')
   temporary=STATE/'ui/index.html.next';shutil.copy2(release/'frontend/dist/index.html',temporary);temporary.replace(STATE/'ui/index.html')
   assert sha(STATE/'ui/index.html')==sha(release/'frontend/dist/index.html')

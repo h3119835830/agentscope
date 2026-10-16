@@ -195,3 +195,8 @@ def test_native_credentials_cannot_call_directory_interface(reference):
  world,_,body=reference;path='/api/agent-instances/'+world.a['id']+'/policy-reference-workspaces/'+body['workspace_id']+'/files'
  assert world.client.get(path,headers={'Authorization':'Bearer native'}).status_code==401
  result=world.client.get(path,headers=ADMIN);assert result.status_code==200 and result.json()['read_only']
+
+def test_absent_target_directory_uses_existing_conflict_contract(reference):
+ world,_,_=reference
+ response=world.client.get('/api/agent-instances/absent-policy-context-target/policy-reference-workspaces/absent/files',headers=ADMIN)
+ assert response.status_code==409 and response.json()['detail']
