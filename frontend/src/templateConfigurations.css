@@ -7,3 +7,7 @@
 .workspace-reference-actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .workspace-reference-sources{margin-top:12px;font-size:11px;color:#607a9b}
 .workspace-reference-sources pre{max-height:200px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;background:#f6f8fc;border-radius:6px;font-size:11px}
+.policy-context-evidence{margin:12px 0;font-size:11px;color:#637c9c}
+.policy-context-evidence summary{cursor:pointer;color:#4c74ad}
+.policy-context-evidence ul,.policy-context-evidence ol{padding-left:20px;line-height:1.8;overflow-wrap:anywhere}
+.policy-context-evidence strong{display:block;margin-top:10px}

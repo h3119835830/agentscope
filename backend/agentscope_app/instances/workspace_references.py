@@ -8,6 +8,8 @@ import subprocess
 import sys
 import threading
 import uuid
+import time
+from contextvars import ContextVar
 from pathlib import Path,PurePosixPath
 from fastapi import HTTPException
 from .. import db
@@ -21,6 +23,7 @@ SCHEMA='''CREATE TABLE IF NOT EXISTS template_workspace_reads(
  snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,created_at TEXT NOT NULL,
  UNIQUE(instance_id,request_key));'''
 SLOTS=threading.BoundedSemaphore(2)
+READ_DEADLINE=ContextVar('policy_reference_deadline',default=None)
 WORKER=Path(__file__).resolve().parents[2]/'reference_file_reader.py'
 TEXT_EXTENSIONS={'.md','.txt','.rst','.json','.yaml','.yml','.toml','.ini','.cfg','.py','.js','.jsx','.ts','.tsx','.sh','.sql','.xml','.csv','.dsl'}
 SENSITIVE=re.compile(r'(?i)(?:^|[._-])(?:credentials?|secrets?|tokens?|private|id_rsa|id_ed25519)(?:$|[._-])')
@@ -64,7 +67,7 @@ def selected_workspace(row,workspace_id):
  raise ValueError('工作区不属于此 Agent 当前登记的资源范围')
 
 def paths_checked(paths):
- if not isinstance(paths,list) or not 1<=len(paths)<=10 or len(set(paths))!=len(paths):raise ValueError('请选择 1 至 10 个不同的参考文件')
+ if not isinstance(paths,list) or not 1<=len(paths)<=10 or any(not isinstance(p,str) for p in paths) or len(set(paths))!=len(paths):raise ValueError('请选择 1 至 10 个不同的参考文件')
  for value in paths:
   if not isinstance(value,str) or not value or len(value)>1000 or re.search(r'[\x00-\x1f\\]',value):raise ValueError('参考文件路径不合法')
   path=PurePosixPath(value)
@@ -89,14 +92,14 @@ def could_match(pattern,value):
    offset+=len(part)
  return True
 
-def check_permissions(row,mount,paths):
+def permission_guard(row,mount):
  shared=system.current()['policy']
  rules=row['policy']['rules']+system.applicable(shared['rules'],row['resources'])
  from dsl_documents import prepare
  # Parsing only: every potentially matching deny applies regardless of labels.
  # No synthetic source is installed or claimed as a verified runtime source.
  parsed=prepare(dsl.documents_for(row['id']),row['resources'],'**/reference-read')
- for relative in paths:
+ def allowed(relative):
   host=str(Path(mount['source'])/relative);execution=translate(host,row['resources'])
   for rule in rules:
    if rule['action']=='read' and rule['effect']=='deny' and (host==rule['target'] or host.startswith(rule['target']+'/')):raise ValueError('系统或 Agent 策略禁止读取所选文件')
@@ -105,16 +108,23 @@ def check_permissions(row,mount,paths):
     for clause in rule['clauses']:
      if clause['effect'] in ('block','kill') and clause['operation'] in ('read','open') and any(could_match(clause['target'],v) for v in (host,execution)):
       raise ValueError('已有 ActPlane 读取约束可能匹配所选文件，请选择其他参考资料')
+ return allowed
 
-def read_files(root,paths,uid,gid):
+def check_permissions(row,mount,paths):
+ guard=permission_guard(row,mount)
+ for relative in paths:guard(relative)
+
+def run_reader(payload,uid,gid):
  if not SLOTS.acquire(blocking=False):raise ValueError('参考文件读取繁忙，请稍后重试')
  try:
   # subprocess's built-in identity drop is safe from this threaded API. No
   # preexec_fn, user commands, shell, tools, runtime cgroup or native Agent call.
   identity={'user':uid,'group':gid,'extra_groups':[]} if os.geteuid()==0 else {}
   if os.geteuid()!=0 and (os.geteuid()!=uid or os.getegid()!=gid or os.getgroups()):raise ValueError('当前服务不能核验 Agent 的文件读取身份')
-  result=subprocess.run([sys.executable,'-I',str(WORKER)],input=json.dumps({'root':root,'paths':paths}),capture_output=True,text=True,
-   timeout=5,env={'LANG':'C.UTF-8'},cwd='/',**identity)
+  remaining=READ_DEADLINE.get()-time.monotonic() if READ_DEADLINE.get() is not None else 5
+  if remaining<=0:raise ValueError('场景分析读取期限已到，请重新分析或缩小场景')
+  result=subprocess.run([sys.executable,'-I',str(WORKER)],input=json.dumps(payload),capture_output=True,text=True,
+   timeout=min(5,remaining),env={'LANG':'C.UTF-8'},cwd='/',**identity)
   if result.returncode or len(result.stdout.encode())>1600000:raise ValueError('所选文件无读取权限、格式不支持、超过限额或读取期间发生变化')
   value=json.loads(result.stdout)
   if 'error' in value:raise ValueError('参考文件读取失败，请重新选择')
@@ -122,10 +132,39 @@ def read_files(root,paths,uid,gid):
  except (OSError,subprocess.TimeoutExpired,json.JSONDecodeError):raise ValueError('参考文件读取未完成，请稍后重新读取') from None
  finally:SLOTS.release()
 
-def snapshot(ident,workspace_id,paths):
+def read_files(root,paths,uid,gid,max_total_bytes=None):
+ return run_reader({'root':root,'paths':paths,**({'max_total_bytes':max_total_bytes} if max_total_bytes is not None else {})},uid,gid)
+
+def directory_path(path):
+ if not isinstance(path,str) or len(path)>1000 or re.search(r'[\x00-\x1f\\]',path) or path.startswith('/') or path and (str(PurePosixPath(path))!=path or any(p in ('','.','..') for p in path.split('/'))):
+  raise ValueError('只能浏览工作区内的规范相对目录')
+ if any(p in EXCLUDED or p=='.env' or p.startswith('.env.') or SENSITIVE.search(p) for p in PurePosixPath(path).parts):
+  raise ValueError('运行私有目录和凭据目录不能作为场景资料')
+ return path
+
+def list_files(ident,workspace_id,path='',cursor=0):
+ row,binding=context(ident);mount=selected_workspace(row,workspace_id);path=directory_path(path)
+ if type(cursor) is not int or not 0<=cursor<=1000:raise ValueError('目录分页参数不合法')
+ guard=permission_guard(row,mount);guard(path)
+ result=run_reader({'operation':'list','root':mount['source'],'path':path,'cursor':cursor},binding['uid'],binding['gid'])
+ entries=[];omitted=0
+ for entry in result['entries']:
+  try:
+   if not entry['readable']:raise ValueError('unreadable')
+   if entry['kind']=='directory':directory_path(entry['relative_path'])
+   elif entry['kind']=='file':paths_checked([entry['relative_path']])
+   else:raise ValueError('unsupported')
+   guard(entry['relative_path'])
+  except ValueError:omitted+=1;continue
+  entries.append({k:entry[k] for k in ('name','relative_path','kind','byte_size')})
+ if context(ident)[1]!=binding:raise ValueError('浏览期间 Agent、资源或策略发生变化，请重新分析场景')
+ return {'instance_id':ident,'workspace_id':workspace_id,'path':path,'entries':entries,'omitted_count':omitted,
+  'next_cursor':result['next_cursor'],'truncated':result['truncated'],'read_only':True}
+
+def snapshot(ident,workspace_id,paths,max_total_bytes=None):
  row,binding=context(ident);paths=paths_checked(paths);mount=selected_workspace(row,workspace_id)
  check_permissions(row,mount,paths)
- value=read_files(mount['source'],paths,binding['uid'],binding['gid'])
+ value=read_files(mount['source'],paths,binding['uid'],binding['gid'],**({'max_total_bytes':max_total_bytes} if max_total_bytes is not None else {}))
  for source in value['files']:
   source['text']=sanitized_text(source['text']);source['execution_path']=mount['execution']+'/'+source['relative_path']
   source['text_hash']=digest(source['text'])
@@ -173,13 +212,13 @@ def public(row):
   'workspace_name':value['workspace_name'],'workspace_id':value['workspace_id'],'files':[{k:f[k] for k in ('relative_path','execution_path','byte_size','text')} for f in value['files']],
   'read_only':True,'applied':False}
 
-def create(ident,body):
+def create(ident,body,max_total_bytes=None):
  paths=paths_checked(body['paths']);request_hash=digest([body['workspace_id'],paths])
  with db.connect() as con:prior=con.execute('SELECT id,request_hash FROM template_workspace_reads WHERE instance_id=? AND request_key=?',(ident,body['request_key'])).fetchone()
  if prior:
   if prior['request_hash']!=request_hash:raise ValueError('读取请求已用于其他文件选择')
   return public(verify(ident,prior['id']))
- value=snapshot(ident,body['workspace_id'],paths);read_id=uuid.uuid4().hex
+ value=snapshot(ident,body['workspace_id'],paths,**({'max_total_bytes':max_total_bytes} if max_total_bytes is not None else {}));read_id=uuid.uuid4().hex
  with db.connect() as con:
   con.execute('INSERT OR IGNORE INTO template_workspace_reads VALUES(?,?,?,?,?,?,?)',(read_id,ident,body['request_key'],request_hash,json.dumps(value,ensure_ascii=False),digest(value),db.now()))
   winner=con.execute('SELECT id,request_hash FROM template_workspace_reads WHERE instance_id=? AND request_key=?',(ident,body['request_key'])).fetchone()

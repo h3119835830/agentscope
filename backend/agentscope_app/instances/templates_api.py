@@ -65,6 +65,7 @@ class Generate(Model):
     workspace_id: str | None = Field(default=None,max_length=200)
     materials: list[Material] = Field(default_factory=list,max_length=10)
     reference_read_id: str | None = Field(default=None,min_length=1,max_length=64)
+    context_mode: Literal['auto','provided','none'] = 'auto'
     request_key: str = Field(min_length=8,max_length=100)
 
 
@@ -87,6 +88,11 @@ def reference_workspaces(ident: str):
 @router.post('/api/agent-instances/{ident}/policy-workspace-reads')
 def read_workspace(ident: str,body: ReadWorkspace):
     return invoke(references.create,ident,body.model_dump())
+
+
+@router.get('/api/agent-instances/{ident}/policy-reference-workspaces/{workspace_id}/files')
+def reference_files(ident: str,workspace_id: str,path: str=Query('',max_length=1000),cursor: int=Query(0,ge=0,le=1000)):
+    return invoke(references.list_files,ident,workspace_id,path,cursor)
 
 
 @router.get('/api/agent-instances/{ident}/policy-workspace-reads/{read_id}')

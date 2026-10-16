@@ -61,21 +61,58 @@ test('canceling the reference is an explicit local action without a request',asy
  nodes(render(props)).find(n=>n.type==='button'&&n.props.children==='取消参考').props.onClick();
  assert.deepEqual(changed,[{pending:false,receipt:null}]);
 });
-test('template generation submits only the read receipt, never file bodies or workspace application scope',async()=>{
+test('scenario-only generation delegates bounded context selection to the exact Agent API',async()=>{
  const catalog={catalog:[],items:[],generations:[]},calls=[];
- const render=await harness('TemplatePolicyAssistant.jsx',[catalog,'请根据订单说明保护员工文件','','',false,'',[],{pending:false,receipt}]);
+ const render=await harness('TemplatePolicyAssistant.jsx',[catalog,'请根据订单说明保护员工文件','','',false,'',[]]);
  const props={target:{id:'agent-a',agent_type:'dsh'},scope:'agent',workspaceId:null,api:async()=>catalog,post:async(path,body)=>{calls.push({path,body});return {};},onApprovals(){}};
  await nodes(render(props)).find(n=>n.type==='form').props.onSubmit({preventDefault(){}});
  assert.equal(calls.length,1);assert.ok(calls[0].path.endsWith('/template-configurations/generate'));
- assert.equal(calls[0].body.reference_read_id,'read-a');assert.equal(calls[0].body.scope,'agent');assert.equal(calls[0].body.workspace_id,null);
+ assert.equal(calls[0].path,'/api/agent-instances/agent-a/template-configurations/generate');
+ assert.equal(calls[0].body.context_mode,'auto');assert.equal(calls[0].body.scope,'agent');assert.equal(calls[0].body.workspace_id,null);
+ assert.equal(calls[0].body.reference_read_id,undefined);assert.equal(calls[0].body.paths,undefined);
  assert.deepEqual(calls[0].body.materials,[]);assert.equal(calls[0].body.files,undefined);assert.equal(calls[0].body.workspace_reference,undefined);
 });
-test('pending reference blocks generation through both button and direct form submission',async()=>{
+test('scenario input has no mandatory manual file or workspace selection',async()=>{
  const catalog={catalog:[],items:[],generations:[]};
- const render=await harness('TemplatePolicyAssistant.jsx',[catalog,'请保护员工文件','','',false,'',[],{pending:true,receipt:null}]);
+ const render=await harness('TemplatePolicyAssistant.jsx',[catalog,'请保护员工文件','','',false,'',[]]);
  const props={target:{id:'agent-a'},scope:'agent',api:async()=>catalog,post:async()=>assert.fail('unexpected generation'),onApprovals(){}};
- let tree=render(props);assert.ok(nodes(tree).find(n=>n.type==='button'&&n.props['aria-label']==='生成策略').props.disabled);
- await nodes(tree).find(n=>n.type==='form').props.onSubmit({preventDefault(){}});assert.match(renderToStaticMarkup(render(props)),/请先读取参考文件/);
+ let tree=render(props);assert.equal(nodes(tree).find(n=>n.type==='button'&&n.props['aria-label']==='生成策略').props.disabled,false);
+ assert.ok(!nodes(tree).some(n=>n.props?.['aria-label']==='参考文件路径'));
+ assert.match(renderToStaticMarkup(tree),/无需填写参考文件路径/);
+});
+test('system scope does not authorize automatic reading of individual Agent workspaces',async()=>{
+ const catalog={catalog:[],items:[],generations:[]},calls=[];
+ const render=await harness('TemplatePolicyAssistant.jsx',[catalog,'请为所有 Agent 保护配置文件','','',false,'',[]]);
+ const props={target:{id:'system'},scope:'system',api:async()=>catalog,post:async(path,body)=>{calls.push({path,body});return {};},onApprovals(){}};
+ await nodes(render(props)).find(n=>n.type==='form').props.onSubmit({preventDefault(){}});
+ assert.equal(calls.length,1);assert.equal(calls[0].path,'/api/policy-template-configurations/generate');
+ assert.equal(calls[0].body.context_mode,'none');assert.equal(calls[0].body.scope_id,'system');
+});
+test('busy analysis prevents duplicate submits and displays ongoing context work',async()=>{
+ const catalog={catalog:[],items:[],generations:[]};
+ const render=await harness('TemplatePolicyAssistant.jsx',[catalog,'请保护员工文件','','',true,'',[]]);
+ const props={target:{id:'agent-a'},scope:'agent',api:async()=>catalog,post:async()=>assert.fail('unexpected generation'),onApprovals(){}};
+ const tree=render(props);assert.ok(nodes(tree).find(n=>n.type==='button'&&n.props['aria-label']==='生成策略').props.disabled);
+ await nodes(tree).find(n=>n.type==='form').props.onSubmit({preventDefault(){}});
+ assert.match(renderToStaticMarkup(tree),/按需读取资料/);
+});
+test('automatic evidence reports actual sources and denied calls inside progressive disclosure',async()=>{
+ const render=await harness('PolicyContextEvidence.jsx');
+ const usage={file_count:1,sources:[{workspace:'订单资料',paths:['/w/0/<report>.md']}],activity:[{tool:'list_directory',workspace:'订单资料',status:'completed'},{tool:'read_files',workspace:'订单资料',status:'denied'}]};
+ const tree=render({usage}),html=renderToStaticMarkup(tree);
+ assert.equal(tree.type,'details');assert.match(html,/本次参考 · 1 个文件/);assert.match(html,/&lt;report&gt;/);
+ assert.match(html,/已拒绝/);assert.match(html,/提交和应用前仍会核对/);assert.doesNotMatch(html,/<report>/);
+});
+test('directory-only analysis never claims that file bodies were read',async()=>{
+ const render=await harness('PolicyContextEvidence.jsx');
+ const html=renderToStaticMarkup(render({usage:{file_count:0,sources:[],activity:[{tool:'list_directory',workspace:'订单资料',status:'completed'}]}}));
+ assert.match(html,/未读取正文/);assert.match(html,/查看目录/);assert.doesNotMatch(html,/已读取/);
+});
+test('legacy generation evidence remains readable without the new usage contract',async()=>{
+ const catalog={catalog:[],items:[],generations:[{request_id:'old',scope:'agent',workspace_id:null,text:'保护员工资料',items:[],questions:[],gaps:[],reference_read:{workspace:'订单资料',paths:['README.md']}}]};
+ const render=await harness('TemplatePolicyAssistant.jsx',[catalog,'','','',false,'',[]]);
+ const html=renderToStaticMarkup(render({target:{id:'agent-a'},scope:'agent',api:async()=>catalog,post:async()=>assert.fail('unexpected write'),onApprovals(){}}));
+ assert.match(html,/参考资料：订单资料/);assert.match(html,/README.md/);
 });
 test('project text is escaped and only displayed inside an expandable evidence section',async()=>{
  const value={...receipt,files:[{...receipt.files[0],text:'<script>doSomething()</script>'}]};
