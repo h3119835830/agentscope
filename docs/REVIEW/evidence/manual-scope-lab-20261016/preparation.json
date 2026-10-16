@@ -1,0 +1,63 @@
+{
+  "date": "2026-10-16",
+  "status": "preparation_passed_user_enforcement_test_pending",
+  "configuration_parameter_contracts_verified": 4,
+  "test_policy_saved": false,
+  "test_policy_submitted": false,
+  "test_policy_approved": false,
+  "test_policy_loaded": false,
+  "dsh_code_changed": false,
+  "native_workspaces_or_sessions_created_by_assistant": false,
+  "protected_dsh_probe_not_yet_executed": true,
+  "browser_verified": [
+    "merged system UI",
+    "DSH A native web authenticated",
+    "DSH B native web authenticated",
+    "both native directory pickers reach /w/0/scope-policy-lab-20261016",
+    "exact Agent A assistant deep link"
+  ],
+  "wsl_keepalive_windows_pid": 56564,
+  "keepalive_scope": "current Windows login; no auto-start installation",
+  "services": {
+    "agentscope-scope-demo-api.service": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "MainPID": "471",
+      "WorkingDirectory": "/opt/agentscope-unified-policy-catalog-20261015-172329"
+    },
+    "agentscope-scope-demo-broker.service": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "MainPID": "443",
+      "WorkingDirectory": "/opt/agentscope-command-connections-20261014-175212"
+    }
+  },
+  "agents": [
+    {
+      "label": "A",
+      "instance_id": "instance-1f4469579e8947f4",
+      "pid": 4427,
+      "domain_id": 1234128068,
+      "generation": "1c8da098cab043ffa7e59b696d437041",
+      "verified": true,
+      "execution_directory": "/w/0/scope-policy-lab-20261016"
+    },
+    {
+      "label": "B",
+      "instance_id": "instance-cc444fe38c094cbb",
+      "pid": 4712,
+      "domain_id": 328918578,
+      "generation": "972bc3a07bdf4185bd598c07230c03e7",
+      "verified": true,
+      "execution_directory": "/w/0/scope-policy-lab-20261016"
+    }
+  ],
+  "existing_dsl_counts": {
+    "system": 0,
+    "instance-1f4469579e8947f4": 0,
+    "instance-cc444fe38c094cbb": 1
+  },
+  "assistant_provider_configured": true,
+  "host_probe_baseline_passed": true,
+  "desktop_mirrors_match_runtime_files": true
+}
