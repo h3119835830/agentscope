@@ -1,0 +1,18 @@
+ok 320 - pending failed and interrupted reads never provide task creation input
+  ---
+  duration_ms: 0.16476
+  ...
+# Subtest: user supplement citations keep their source role without duplicating the entered goal
+ok 321 - user supplement citations keep their source role without duplicating the entered goal
+  ---
+  duration_ms: 0.206749
+  ...
+1..321
+# tests 321
+# suites 0
+# pass 321
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1000.335835

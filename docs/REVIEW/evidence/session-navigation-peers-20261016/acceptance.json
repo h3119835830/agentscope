@@ -1,0 +1,34 @@
+{
+  "frontend_tests": 321,
+  "frontend_failed": 0,
+  "vite_build": true,
+  "new_low_impact_tests_added": false,
+  "backend_changed": false,
+  "dsh_changed": false,
+  "preview_read_only": true,
+  "nested_session_container_count": 0,
+  "nav_order": [
+    "总览",
+    "Agent连接",
+    "会话",
+    "审批",
+    "Agent",
+    "系统",
+    "任务历史"
+  ],
+  "collapsed_nav_geometry": {
+    "width": 52,
+    "height": 40,
+    "x": 8
+  },
+  "expanded_nav_geometry": {
+    "width": 192,
+    "height": 40,
+    "x": 12
+  },
+  "routes_verified": [
+    "sessions",
+    "connections",
+    "strategies"
+  ]
+}
