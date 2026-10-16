@@ -26,9 +26,10 @@ test('old templates URL resolves to one policy page without a second assistant o
 test('child records expose six fields and retain the shared template detail',async()=>{
  const render=await harness('UnifiedPolicyLibrary.jsx',[{catalog:[template],items:[child]},{catalog:[],items:[]}]);
  const props={api(){},post(){},agents:[{id:'a',agent_type:'dsh',mode:'controlled'}],onApprovals(){}};
- let tree=render(props);const table=nodes(tree).find(n=>n.type==='table'&&n.props['aria-label']==='文件读取限制 的子配置');
- assert.deepEqual(nodes(table).filter(n=>n.type==='th').map(n=>n.props.children),['实际策略名称','范围','保护对象 / 操作','动作','状态','操作']);
- nodes(table).find(n=>n.type==='button'&&n.props.children==='详情 ↗').props.onClick();tree=render(props);
+ let tree=render(props);const table=nodes(tree).find(n=>n.type==='table'&&n.props['aria-label']==='系统策略配置库');
+ assert.equal(nodes(tree).filter(n=>n.type==='table').length,1);
+ assert.deepEqual(nodes(table).filter(n=>n.type==='th'&&!n.props.className?.includes('spl-check')).map(n=>n.props.children),['实际策略名称','范围','保护对象 / 操作','动作','状态','操作']);
+ nodes(table).find(n=>n.type==='button'&&n.props.children==='详情').props.onClick();tree=render(props);
  const editor=nodes(tree).find(n=>n.type?.name==='TemplateConfigurationDialog');assert.equal(editor.props.item.name,child.name);assert.equal(editor.props.template.id,template.id);
 });
 test('row submit freezes this child and exact Agent without opening the detail or granting approval',async()=>{

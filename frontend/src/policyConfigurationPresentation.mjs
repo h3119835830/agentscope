@@ -47,7 +47,7 @@ export function configurationRecordSummary(row,template={}){
  const applied=!!row.applied&&!row.has_changes&&!oldApplied;
  const changed=row.has_changes||oldApplied;
  const status=applied?'已应用配置':row.validation_error?'校验未通过':statusLabels[row.status]||(changed?'有未应用修改':row.legacy?'未应用':row.status==='applied'?'未应用':'状态待核验');
- const stateTone=applied?'applied':['invalid','failed','blocked'].includes(row.status)||row.validation_error?'error':['pending','approved','applying'].includes(row.status)||changed?'pending':'saved';
+ const stateTone=applied?'applied':['invalid','failed','blocked'].includes(row.status)||row.validation_error?'error':['pending','approved','applying','stale'].includes(row.status)||changed?'pending':'saved';
  const note=oldApplied?'旧版仍应用':applied&&row.status==='pending'?'另有待审批变更':'';
  return {target:targetLabel,targetTitle:targets.join('\n')||target,operation:operations.map(operationLabel).join('、')||'操作见详情',effects,status,stateTone,note};
 }
