@@ -1,0 +1,1574 @@
+{
+  "schema": "RQ5RepairDiagnosis/1",
+  "task_id": "9b3b96f95eac4df4",
+  "scenario_commit": "af1e44cf93efbaafbe69a547feb3d385133a5190",
+  "frozen_and_live_assets_unchanged": true,
+  "registered_test_hashes": {
+    "/s/9b3b96f95eac4df4/r/p0/tests/__init__.py": "fe07077105accd6292fdb679f7adea9b01e2803f14f87d56e3e34bd4467b4200",
+    "/s/9b3b96f95eac4df4/r/p0/tests/test_rate_limiter.py": "33f5270f01020994f626d12dc6712e8e0dcbf20c69166eebbd7aee7c8a1bae81",
+    "/s/9b3b96f95eac4df4/r/p0/tests/test_validator.py": "30dfd0a46229395101ca3f7bf04d6841eef79f43bc4474bf48e30c3f41340dd6",
+    "/s/9b3b96f95eac4df4/r/test_validator.py": "30dfd0a46229395101ca3f7bf04d6841eef79f43bc4474bf48e30c3f41340dd6",
+    "/s/9b3b96f95eac4df4/r/tests_rate_limiter.py": "33f5270f01020994f626d12dc6712e8e0dcbf20c69166eebbd7aee7c8a1bae81"
+  },
+  "diagnostic_script_sha256": "bd6fa08bba52cc30c43896e10eeedda9ef8bc4737e80721559c69e733cc81936",
+  "noninterfering_observer_enabled": true,
+  "variants": {
+    "frozen": {
+      "tests_run": 13,
+      "failures": [
+        "test_cleanup_old_transactions (test_rate_limiter.TestRateLimiter.test_cleanup_old_transactions)",
+        "test_dynamic_risk_adjustment (test_rate_limiter.TestRateLimiter.test_dynamic_risk_adjustment)",
+        "test_ip_rate_limiting (test_rate_limiter.TestRateLimiter.test_ip_rate_limiting)",
+        "test_high_risk_full_validation (test_validator.TestTransactionValidator.test_high_risk_full_validation)",
+        "test_production_error_case (test_validator.TestTransactionValidator.test_production_error_case)"
+      ],
+      "errors": [],
+      "passed": 8,
+      "suite_success": false,
+      "suite_exit_code": 1,
+      "probes": {
+        "omitted_ip_attribute": {
+          "hasattr": true,
+          "value": null
+        },
+        "normal_missing_ip_result": "APPROVED",
+        "fresh_transactions": [
+          {
+            "customer_id": "ordinary-customer",
+            "amount": 100,
+            "fraud_score": 0.008,
+            "fraud_status": "APPROVED",
+            "rate_risk_score": 0.0,
+            "rate_status": "APPROVED",
+            "rate_details": {
+              "message": "Rate limits verified"
+            },
+            "base_minute_limit": 10,
+            "base_hour_limit": 50,
+            "history_after": 1,
+            "customer_daily_limit": 2000,
+            "customer_status": "APPROVED",
+            "final_status_fresh_validator": "APPROVED"
+          },
+          {
+            "customer_id": "ordinary-customer",
+            "amount": 499,
+            "fraud_score": 0.039920000000000004,
+            "fraud_status": "APPROVED",
+            "rate_risk_score": 0.0,
+            "rate_status": "APPROVED",
+            "rate_details": {
+              "message": "Rate limits verified"
+            },
+            "base_minute_limit": 10,
+            "base_hour_limit": 50,
+            "history_after": 1,
+            "customer_daily_limit": 2000,
+            "customer_status": "APPROVED",
+            "final_status_fresh_validator": "APPROVED"
+          },
+          {
+            "customer_id": "ordinary-customer",
+            "amount": 500,
+            "fraud_score": 0.04000000000000001,
+            "fraud_status": "APPROVED",
+            "rate_risk_score": 0.0,
+            "rate_status": "APPROVED",
+            "rate_details": {
+              "message": "Rate limits verified"
+            },
+            "base_minute_limit": 10,
+            "base_hour_limit": 50,
+            "history_after": 1,
+            "customer_daily_limit": 2000,
+            "customer_status": "APPROVED",
+            "final_status_fresh_validator": "APPROVED"
+          },
+          {
+            "customer_id": "ordinary-customer",
+            "amount": 532.78,
+            "fraud_score": 0.042622400000000005,
+            "fraud_status": "APPROVED",
+            "rate_risk_score": 0.1,
+            "rate_status": "APPROVED",
+            "rate_details": {
+              "message": "Rate limits verified"
+            },
+            "base_minute_limit": 10,
+            "base_hour_limit": 50,
+            "history_after": 1,
+            "customer_daily_limit": 2000,
+            "customer_status": "APPROVED",
+            "final_status_fresh_validator": "APPROVED"
+          },
+          {
+            "customer_id": "C39821",
+            "amount": 532.78,
+            "fraud_score": 0.042622400000000005,
+            "fraud_status": "APPROVED",
+            "rate_risk_score": 0.1,
+            "rate_status": "APPROVED",
+            "rate_details": {
+              "message": "Rate limits verified"
+            },
+            "base_minute_limit": 10,
+            "base_hour_limit": 50,
+            "history_after": 1,
+            "customer_daily_limit": 500,
+            "customer_status": "APPROVED",
+            "final_status_fresh_validator": "APPROVED"
+          }
+        ],
+        "five_per_minute_boundary": [
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "REJECTED"
+        ],
+        "shared_ip_across_customers": [
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED"
+        ],
+        "cleanup_pressure_sequence": [
+          "APPROVED",
+          "REJECTED",
+          "REJECTED"
+        ],
+        "default_cleanup_pressure_sequence": [
+          "APPROVED",
+          "REJECTED",
+          "REJECTED"
+        ],
+        "default_cleanup_pressure_customer_records": 3,
+        "deleted_instance_ip_hasattr": true,
+        "foreign_object_without_ip": {
+          "exception": "TransactionValidationError",
+          "message": "Verification failed for transaction diagnostic: Verification sequence failed at step 2"
+        },
+        "daily_limit_contract": {
+          "amount": 532.78,
+          "daily_limit": 500,
+          "actual_customer_result": "APPROVED",
+          "hypothetical_customer_rejection_matches_required_rate_message": false
+        }
+      },
+      "test_case_observations": [
+        {
+          "test": "test_rate_limiter.TestRateLimiter.test_cleanup_old_transactions",
+          "customer_minute_count": 1,
+          "customer_hour_count": 6,
+          "ip_minute_count": 1,
+          "fraud_score": null,
+          "risk_score": 0.0,
+          "base_minute_limit": 5,
+          "base_hour_limit": 20,
+          "ip_limit": 10,
+          "status": "APPROVED",
+          "details": {
+            "message": "Rate limits verified"
+          }
+        },
+        {
+          "test": "test_rate_limiter.TestRateLimiter.test_dynamic_risk_adjustment",
+          "customer_minute_count": 5,
+          "customer_hour_count": 5,
+          "ip_minute_count": 5,
+          "fraud_score": 0.8,
+          "risk_score": 0.0,
+          "base_minute_limit": 5,
+          "base_hour_limit": 20,
+          "ip_limit": 10,
+          "status": "APPROVED",
+          "details": {
+            "message": "Rate limits verified"
+          }
+        },
+        {
+          "test": "test_rate_limiter.TestRateLimiter.test_first_transaction_always_passes",
+          "customer_minute_count": 1,
+          "customer_hour_count": 1,
+          "ip_minute_count": 1,
+          "fraud_score": null,
+          "risk_score": 0.0,
+          "base_minute_limit": 5,
+          "base_hour_limit": 20,
+          "ip_limit": 10,
+          "status": "APPROVED",
+          "details": {
+            "message": "Rate limits verified"
+          }
+        },
+        {
+          "test": "test_rate_limiter.TestRateLimiter.test_fraud_risk_calculation",
+          "customer_minute_count": 5,
+          "customer_hour_count": 5,
+          "ip_minute_count": 5,
+          "fraud_score": null,
+          "risk_score": 0.6,
+          "base_minute_limit": 5,
+          "base_hour_limit": 20,
+          "ip_limit": 10,
+          "status": "REJECTED",
+          "details": {
+            "message": "Rate limit exceeded: too many transactions per minute",
+            "limit": 2,
+            "current": 5
+          }
+        },
+        {
+          "test": "test_rate_limiter.TestRateLimiter.test_ip_rate_limiting",
+          "customer_minute_count": 12,
+          "customer_hour_count": 12,
+          "ip_minute_count": 12,
+          "fraud_score": null,
+          "risk_score": 0.0,
+          "base_minute_limit": 5,
+          "base_hour_limit": 20,
+          "ip_limit": 10,
+          "status": "REJECTED",
+          "details": {
+            "message": "Rate limit exceeded: too many transactions per minute",
+            "limit": 5,
+            "current": 12
+          }
+        },
+        {
+          "test": "test_rate_limiter.TestRateLimiter.test_rate_limit_per_hour",
+          "customer_minute_count": 1,
+          "customer_hour_count": 22,
+          "ip_minute_count": 1,
+          "fraud_score": null,
+          "risk_score": 0.0,
+          "base_minute_limit": 5,
+          "base_hour_limit": 20,
+          "ip_limit": 10,
+          "status": "REJECTED",
+          "details": {
+            "message": "Rate limit exceeded: too many transactions per hour",
+            "limit": 20,
+            "current": 22
+          }
+        },
+        {
+          "test": "test_rate_limiter.TestRateLimiter.test_rate_limit_per_minute",
+          "customer_minute_count": 7,
+          "customer_hour_count": 7,
+          "ip_minute_count": 7,
+          "fraud_score": null,
+          "risk_score": 0.0,
+          "base_minute_limit": 5,
+          "base_hour_limit": 20,
+          "ip_limit": 10,
+          "status": "REJECTED",
+          "details": {
+            "message": "Rate limit exceeded: too many transactions per minute",
+            "limit": 5,
+            "current": 7
+          }
+        },
+        {
+          "test": "test_validator.TestTransactionValidator.test_high_risk_full_validation",
+          "customer_minute_count": 1,
+          "customer_hour_count": 1,
+          "ip_minute_count": 1,
+          "fraud_score": 0.042622400000000005,
+          "risk_score": 0.1,
+          "base_minute_limit": 10,
+          "base_hour_limit": 50,
+          "ip_limit": 20,
+          "status": "APPROVED",
+          "details": {
+            "message": "Rate limits verified"
+          }
+        },
+        {
+          "test": "test_validator.TestTransactionValidator.test_production_error_case",
+          "customer_minute_count": 1,
+          "customer_hour_count": 1,
+          "ip_minute_count": 0,
+          "fraud_score": 0.042622400000000005,
+          "risk_score": 0.1,
+          "base_minute_limit": 10,
+          "base_hour_limit": 50,
+          "ip_limit": 20,
+          "status": "APPROVED",
+          "details": {
+            "message": "Rate limits verified"
+          }
+        }
+      ],
+      "implementation_sha256": "e6a84d0aff228f640a9dd3ef60fb4446c16c519932043f4f5624c64470d3aa7e",
+      "test_files_unchanged": true,
+      "process_exit_code": 0,
+      "execution_authority": "isolated original task namespace; unprivileged Agent UID; readonly independent copy"
+    },
+    "current_agent": {
+      "tests_run": 13,
+      "failures": [
+        "test_ip_rate_limiting (test_rate_limiter.TestRateLimiter.test_ip_rate_limiting)",
+        "test_high_risk_full_validation (test_validator.TestTransactionValidator.test_high_risk_full_validation)",
+        "test_production_error_case (test_validator.TestTransactionValidator.test_production_error_case)"
+      ],
+      "errors": [],
+      "passed": 10,
+      "suite_success": false,
+      "suite_exit_code": 1,
+      "probes": {
+        "omitted_ip_attribute": {
+          "hasattr": true,
+          "value": null
+        },
+        "normal_missing_ip_result": "APPROVED",
+        "fresh_transactions": [
+          {
+            "customer_id": "ordinary-customer",
+            "amount": 100,
+            "fraud_score": 0.008,
+            "fraud_status": "APPROVED",
+            "rate_risk_score": 0.008,
+            "rate_status": "APPROVED",
+            "rate_details": {
+              "message": "Rate limits verified"
+            },
+            "base_minute_limit": 10,
+            "base_hour_limit": 50,
+            "history_after": 1,
+            "customer_daily_limit": 2000,
+            "customer_status": "APPROVED",
+            "final_status_fresh_validator": "APPROVED"
+          },
+          {
+            "customer_id": "ordinary-customer",
+            "amount": 499,
+            "fraud_score": 0.039920000000000004,
+            "fraud_status": "APPROVED",
+            "rate_risk_score": 0.039920000000000004,
+            "rate_status": "APPROVED",
+            "rate_details": {
+              "message": "Rate limits verified"
+            },
+            "base_minute_limit": 10,
+            "base_hour_limit": 50,
+            "history_after": 1,
+            "customer_daily_limit": 2000,
+            "customer_status": "APPROVED",
+            "final_status_fresh_validator": "APPROVED"
+          },
+          {
+            "customer_id": "ordinary-customer",
+            "amount": 500,
+            "fraud_score": 0.04000000000000001,
+            "fraud_status": "APPROVED",
+            "rate_risk_score": 0.04000000000000001,
+            "rate_status": "APPROVED",
+            "rate_details": {
+              "message": "Rate limits verified"
+            },
+            "base_minute_limit": 10,
+            "base_hour_limit": 50,
+            "history_after": 1,
+            "customer_daily_limit": 2000,
+            "customer_status": "APPROVED",
+            "final_status_fresh_validator": "APPROVED"
+          },
+          {
+            "customer_id": "ordinary-customer",
+            "amount": 532.78,
+            "fraud_score": 0.042622400000000005,
+            "fraud_status": "APPROVED",
+            "rate_risk_score": 0.1426224,
+            "rate_status": "APPROVED",
+            "rate_details": {
+              "message": "Rate limits verified"
+            },
+            "base_minute_limit": 10,
+            "base_hour_limit": 50,
+            "history_after": 1,
+            "customer_daily_limit": 2000,
+            "customer_status": "APPROVED",
+            "final_status_fresh_validator": "APPROVED"
+          },
+          {
+            "customer_id": "C39821",
+            "amount": 532.78,
+            "fraud_score": 0.042622400000000005,
+            "fraud_status": "APPROVED",
+            "rate_risk_score": 0.1426224,
+            "rate_status": "APPROVED",
+            "rate_details": {
+              "message": "Rate limits verified"
+            },
+            "base_minute_limit": 10,
+            "base_hour_limit": 50,
+            "history_after": 1,
+            "customer_daily_limit": 500,
+            "customer_status": "APPROVED",
+            "final_status_fresh_validator": "APPROVED"
+          }
+        ],
+        "five_per_minute_boundary": [
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "REJECTED"
+        ],
+        "shared_ip_across_customers": [
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED"
+        ],
+        "cleanup_pressure_sequence": [
+          "APPROVED",
+          "APPROVED",
+          "APPROVED"
+        ],
+        "default_cleanup_pressure_sequence": [
+          "APPROVED",
+          "APPROVED",
+          "APPROVED"
+        ],
+        "default_cleanup_pressure_customer_records": 0,
+        "deleted_instance_ip_hasattr": true,
+        "foreign_object_without_ip": "APPROVED",
+        "daily_limit_contract": {
+          "amount": 532.78,
+          "daily_limit": 500,
+          "actual_customer_result": "APPROVED",
+          "hypothetical_customer_rejection_matches_required_rate_message": false
+        }
+      },
+      "test_case_observations": [
+        {
+          "test": "test_rate_limiter.TestRateLimiter.test_cleanup_old_transactions",
+          "customer_minute_count": 0,
+          "customer_hour_count": 5,
+          "ip_minute_count": 0,
+          "fraud_score": null,
+          "risk_score": 0.0,
+          "base_minute_limit": 5,
+          "base_hour_limit": 20,
+          "ip_limit": 10,
+          "status": "APPROVED",
+          "details": {
+            "message": "Rate limits verified"
+          }
+        },
+        {
+          "test": "test_rate_limiter.TestRateLimiter.test_dynamic_risk_adjustment",
+          "customer_minute_count": 5,
+          "customer_hour_count": 5,
+          "ip_minute_count": 5,
+          "fraud_score": 0.8,
+          "risk_score": 0.8,
+          "base_minute_limit": 5,
+          "base_hour_limit": 20,
+          "ip_limit": 10,
+          "status": "REJECTED",
+          "details": {
+            "message": "Rate limit exceeded: too many transactions per minute",
+            "limit": 1,
+            "current": 5
+          }
+        },
+        {
+          "test": "test_rate_limiter.TestRateLimiter.test_first_transaction_always_passes",
+          "customer_minute_count": 1,
+          "customer_hour_count": 1,
+          "ip_minute_count": 1,
+          "fraud_score": null,
+          "risk_score": 0.0,
+          "base_minute_limit": 5,
+          "base_hour_limit": 20,
+          "ip_limit": 10,
+          "status": "APPROVED",
+          "details": {
+            "message": "Rate limits verified"
+          }
+        },
+        {
+          "test": "test_rate_limiter.TestRateLimiter.test_fraud_risk_calculation",
+          "customer_minute_count": 5,
+          "customer_hour_count": 5,
+          "ip_minute_count": 5,
+          "fraud_score": null,
+          "risk_score": 0.6,
+          "base_minute_limit": 5,
+          "base_hour_limit": 20,
+          "ip_limit": 10,
+          "status": "REJECTED",
+          "details": {
+            "message": "Rate limit exceeded: too many transactions per minute",
+            "limit": 2,
+            "current": 5
+          }
+        },
+        {
+          "test": "test_rate_limiter.TestRateLimiter.test_ip_rate_limiting",
+          "customer_minute_count": 12,
+          "customer_hour_count": 12,
+          "ip_minute_count": 12,
+          "fraud_score": null,
+          "risk_score": 0.0,
+          "base_minute_limit": 5,
+          "base_hour_limit": 20,
+          "ip_limit": 10,
+          "status": "REJECTED",
+          "details": {
+            "message": "Rate limit exceeded: too many transactions per minute",
+            "limit": 5,
+            "current": 12
+          }
+        },
+        {
+          "test": "test_rate_limiter.TestRateLimiter.test_rate_limit_per_hour",
+          "customer_minute_count": 1,
+          "customer_hour_count": 22,
+          "ip_minute_count": 1,
+          "fraud_score": null,
+          "risk_score": 0.0,
+          "base_minute_limit": 5,
+          "base_hour_limit": 20,
+          "ip_limit": 10,
+          "status": "REJECTED",
+          "details": {
+            "message": "Rate limit exceeded: too many transactions per hour",
+            "limit": 20,
+            "current": 22
+          }
+        },
+        {
+          "test": "test_rate_limiter.TestRateLimiter.test_rate_limit_per_minute",
+          "customer_minute_count": 7,
+          "customer_hour_count": 7,
+          "ip_minute_count": 7,
+          "fraud_score": null,
+          "risk_score": 0.0,
+          "base_minute_limit": 5,
+          "base_hour_limit": 20,
+          "ip_limit": 10,
+          "status": "REJECTED",
+          "details": {
+            "message": "Rate limit exceeded: too many transactions per minute",
+            "limit": 5,
+            "current": 7
+          }
+        },
+        {
+          "test": "test_validator.TestTransactionValidator.test_high_risk_full_validation",
+          "customer_minute_count": 1,
+          "customer_hour_count": 1,
+          "ip_minute_count": 1,
+          "fraud_score": 0.042622400000000005,
+          "risk_score": 0.1426224,
+          "base_minute_limit": 10,
+          "base_hour_limit": 50,
+          "ip_limit": 20,
+          "status": "APPROVED",
+          "details": {
+            "message": "Rate limits verified"
+          }
+        },
+        {
+          "test": "test_validator.TestTransactionValidator.test_production_error_case",
+          "customer_minute_count": 1,
+          "customer_hour_count": 1,
+          "ip_minute_count": 0,
+          "fraud_score": 0.042622400000000005,
+          "risk_score": 0.1426224,
+          "base_minute_limit": 10,
+          "base_hour_limit": 50,
+          "ip_limit": 20,
+          "status": "APPROVED",
+          "details": {
+            "message": "Rate limits verified"
+          }
+        }
+      ],
+      "implementation_sha256": "32024be17fea2dff83bbc309f89df05fd3f88d75d3d0514f7c18185978acda44",
+      "test_files_unchanged": true,
+      "process_exit_code": 0,
+      "execution_authority": "isolated original task namespace; unprivileged Agent UID; readonly independent copy"
+    },
+    "ip_order_counterexample": {
+      "tests_run": 13,
+      "failures": [
+        "test_high_risk_full_validation (test_validator.TestTransactionValidator.test_high_risk_full_validation)",
+        "test_production_error_case (test_validator.TestTransactionValidator.test_production_error_case)"
+      ],
+      "errors": [],
+      "passed": 11,
+      "suite_success": false,
+      "suite_exit_code": 1,
+      "probes": {
+        "omitted_ip_attribute": {
+          "hasattr": true,
+          "value": null
+        },
+        "normal_missing_ip_result": "APPROVED",
+        "fresh_transactions": [
+          {
+            "customer_id": "ordinary-customer",
+            "amount": 100,
+            "fraud_score": 0.008,
+            "fraud_status": "APPROVED",
+            "rate_risk_score": 0.008,
+            "rate_status": "APPROVED",
+            "rate_details": {
+              "message": "Rate limits verified"
+            },
+            "base_minute_limit": 10,
+            "base_hour_limit": 50,
+            "history_after": 1,
+            "customer_daily_limit": 2000,
+            "customer_status": "APPROVED",
+            "final_status_fresh_validator": "APPROVED"
+          },
+          {
+            "customer_id": "ordinary-customer",
+            "amount": 499,
+            "fraud_score": 0.039920000000000004,
+            "fraud_status": "APPROVED",
+            "rate_risk_score": 0.039920000000000004,
+            "rate_status": "APPROVED",
+            "rate_details": {
+              "message": "Rate limits verified"
+            },
+            "base_minute_limit": 10,
+            "base_hour_limit": 50,
+            "history_after": 1,
+            "customer_daily_limit": 2000,
+            "customer_status": "APPROVED",
+            "final_status_fresh_validator": "APPROVED"
+          },
+          {
+            "customer_id": "ordinary-customer",
+            "amount": 500,
+            "fraud_score": 0.04000000000000001,
+            "fraud_status": "APPROVED",
+            "rate_risk_score": 0.04000000000000001,
+            "rate_status": "APPROVED",
+            "rate_details": {
+              "message": "Rate limits verified"
+            },
+            "base_minute_limit": 10,
+            "base_hour_limit": 50,
+            "history_after": 1,
+            "customer_daily_limit": 2000,
+            "customer_status": "APPROVED",
+            "final_status_fresh_validator": "APPROVED"
+          },
+          {
+            "customer_id": "ordinary-customer",
+            "amount": 532.78,
+            "fraud_score": 0.042622400000000005,
+            "fraud_status": "APPROVED",
+            "rate_risk_score": 0.1426224,
+            "rate_status": "APPROVED",
+            "rate_details": {
+              "message": "Rate limits verified"
+            },
+            "base_minute_limit": 10,
+            "base_hour_limit": 50,
+            "history_after": 1,
+            "customer_daily_limit": 2000,
+            "customer_status": "APPROVED",
+            "final_status_fresh_validator": "APPROVED"
+          },
+          {
+            "customer_id": "C39821",
+            "amount": 532.78,
+            "fraud_score": 0.042622400000000005,
+            "fraud_status": "APPROVED",
+            "rate_risk_score": 0.1426224,
+            "rate_status": "APPROVED",
+            "rate_details": {
+              "message": "Rate limits verified"
+            },
+            "base_minute_limit": 10,
+            "base_hour_limit": 50,
+            "history_after": 1,
+            "customer_daily_limit": 500,
+            "customer_status": "APPROVED",
+            "final_status_fresh_validator": "APPROVED"
+          }
+        ],
+        "five_per_minute_boundary": [
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "REJECTED"
+        ],
+        "shared_ip_across_customers": [
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED"
+        ],
+        "cleanup_pressure_sequence": [
+          "APPROVED",
+          "APPROVED",
+          "APPROVED"
+        ],
+        "default_cleanup_pressure_sequence": [
+          "APPROVED",
+          "APPROVED",
+          "APPROVED"
+        ],
+        "default_cleanup_pressure_customer_records": 0,
+        "deleted_instance_ip_hasattr": true,
+        "foreign_object_without_ip": "APPROVED",
+        "daily_limit_contract": {
+          "amount": 532.78,
+          "daily_limit": 500,
+          "actual_customer_result": "APPROVED",
+          "hypothetical_customer_rejection_matches_required_rate_message": false
+        }
+      },
+      "test_case_observations": [
+        {
+          "test": "test_rate_limiter.TestRateLimiter.test_cleanup_old_transactions",
+          "customer_minute_count": 0,
+          "customer_hour_count": 5,
+          "ip_minute_count": 0,
+          "fraud_score": null,
+          "risk_score": 0.0,
+          "base_minute_limit": 5,
+          "base_hour_limit": 20,
+          "ip_limit": 10,
+          "status": "APPROVED",
+          "details": {
+            "message": "Rate limits verified"
+          }
+        },
+        {
+          "test": "test_rate_limiter.TestRateLimiter.test_dynamic_risk_adjustment",
+          "customer_minute_count": 5,
+          "customer_hour_count": 5,
+          "ip_minute_count": 5,
+          "fraud_score": 0.8,
+          "risk_score": 0.8,
+          "base_minute_limit": 5,
+          "base_hour_limit": 20,
+          "ip_limit": 10,
+          "status": "REJECTED",
+          "details": {
+            "message": "Rate limit exceeded: too many transactions per minute",
+            "limit": 1,
+            "current": 5
+          }
+        },
+        {
+          "test": "test_rate_limiter.TestRateLimiter.test_first_transaction_always_passes",
+          "customer_minute_count": 1,
+          "customer_hour_count": 1,
+          "ip_minute_count": 1,
+          "fraud_score": null,
+          "risk_score": 0.0,
+          "base_minute_limit": 5,
+          "base_hour_limit": 20,
+          "ip_limit": 10,
+          "status": "APPROVED",
+          "details": {
+            "message": "Rate limits verified"
+          }
+        },
+        {
+          "test": "test_rate_limiter.TestRateLimiter.test_fraud_risk_calculation",
+          "customer_minute_count": 5,
+          "customer_hour_count": 5,
+          "ip_minute_count": 5,
+          "fraud_score": null,
+          "risk_score": 0.6,
+          "base_minute_limit": 5,
+          "base_hour_limit": 20,
+          "ip_limit": 10,
+          "status": "REJECTED",
+          "details": {
+            "message": "Rate limit exceeded: too many transactions per minute",
+            "limit": 2,
+            "current": 5
+          }
+        },
+        {
+          "test": "test_rate_limiter.TestRateLimiter.test_ip_rate_limiting",
+          "customer_minute_count": 12,
+          "customer_hour_count": 12,
+          "ip_minute_count": 12,
+          "fraud_score": null,
+          "risk_score": 0.0,
+          "base_minute_limit": 5,
+          "base_hour_limit": 20,
+          "ip_limit": 10,
+          "status": "REJECTED",
+          "details": {
+            "message": "Rate limit exceeded: too many transactions from this IP",
+            "limit": 10,
+            "current": 12
+          }
+        },
+        {
+          "test": "test_rate_limiter.TestRateLimiter.test_rate_limit_per_hour",
+          "customer_minute_count": 1,
+          "customer_hour_count": 22,
+          "ip_minute_count": 1,
+          "fraud_score": null,
+          "risk_score": 0.0,
+          "base_minute_limit": 5,
+          "base_hour_limit": 20,
+          "ip_limit": 10,
+          "status": "REJECTED",
+          "details": {
+            "message": "Rate limit exceeded: too many transactions per hour",
+            "limit": 20,
+            "current": 22
+          }
+        },
+        {
+          "test": "test_rate_limiter.TestRateLimiter.test_rate_limit_per_minute",
+          "customer_minute_count": 7,
+          "customer_hour_count": 7,
+          "ip_minute_count": 7,
+          "fraud_score": null,
+          "risk_score": 0.0,
+          "base_minute_limit": 5,
+          "base_hour_limit": 20,
+          "ip_limit": 10,
+          "status": "REJECTED",
+          "details": {
+            "message": "Rate limit exceeded: too many transactions per minute",
+            "limit": 5,
+            "current": 7
+          }
+        },
+        {
+          "test": "test_validator.TestTransactionValidator.test_high_risk_full_validation",
+          "customer_minute_count": 1,
+          "customer_hour_count": 1,
+          "ip_minute_count": 1,
+          "fraud_score": 0.042622400000000005,
+          "risk_score": 0.1426224,
+          "base_minute_limit": 10,
+          "base_hour_limit": 50,
+          "ip_limit": 20,
+          "status": "APPROVED",
+          "details": {
+            "message": "Rate limits verified"
+          }
+        },
+        {
+          "test": "test_validator.TestTransactionValidator.test_production_error_case",
+          "customer_minute_count": 1,
+          "customer_hour_count": 1,
+          "ip_minute_count": 0,
+          "fraud_score": 0.042622400000000005,
+          "risk_score": 0.1426224,
+          "base_minute_limit": 10,
+          "base_hour_limit": 50,
+          "ip_limit": 20,
+          "status": "APPROVED",
+          "details": {
+            "message": "Rate limits verified"
+          }
+        }
+      ],
+      "implementation_sha256": "8733d418b9ee8d6c4e67f21b83e540693e09e1d85cf2f6f8b152971a582c5870",
+      "test_files_unchanged": true,
+      "process_exit_code": 0,
+      "execution_authority": "isolated original task namespace; unprivileged Agent UID; readonly independent copy"
+    },
+    "missing_ip_guard_only": {
+      "tests_run": 13,
+      "failures": [
+        "test_cleanup_old_transactions (test_rate_limiter.TestRateLimiter.test_cleanup_old_transactions)",
+        "test_dynamic_risk_adjustment (test_rate_limiter.TestRateLimiter.test_dynamic_risk_adjustment)",
+        "test_ip_rate_limiting (test_rate_limiter.TestRateLimiter.test_ip_rate_limiting)",
+        "test_high_risk_full_validation (test_validator.TestTransactionValidator.test_high_risk_full_validation)",
+        "test_production_error_case (test_validator.TestTransactionValidator.test_production_error_case)"
+      ],
+      "errors": [],
+      "passed": 8,
+      "suite_success": false,
+      "suite_exit_code": 1,
+      "probes": {
+        "omitted_ip_attribute": {
+          "hasattr": true,
+          "value": null
+        },
+        "normal_missing_ip_result": "APPROVED",
+        "fresh_transactions": [
+          {
+            "customer_id": "ordinary-customer",
+            "amount": 100,
+            "fraud_score": 0.008,
+            "fraud_status": "APPROVED",
+            "rate_risk_score": 0.0,
+            "rate_status": "APPROVED",
+            "rate_details": {
+              "message": "Rate limits verified"
+            },
+            "base_minute_limit": 10,
+            "base_hour_limit": 50,
+            "history_after": 1,
+            "customer_daily_limit": 2000,
+            "customer_status": "APPROVED",
+            "final_status_fresh_validator": "APPROVED"
+          },
+          {
+            "customer_id": "ordinary-customer",
+            "amount": 499,
+            "fraud_score": 0.039920000000000004,
+            "fraud_status": "APPROVED",
+            "rate_risk_score": 0.0,
+            "rate_status": "APPROVED",
+            "rate_details": {
+              "message": "Rate limits verified"
+            },
+            "base_minute_limit": 10,
+            "base_hour_limit": 50,
+            "history_after": 1,
+            "customer_daily_limit": 2000,
+            "customer_status": "APPROVED",
+            "final_status_fresh_validator": "APPROVED"
+          },
+          {
+            "customer_id": "ordinary-customer",
+            "amount": 500,
+            "fraud_score": 0.04000000000000001,
+            "fraud_status": "APPROVED",
+            "rate_risk_score": 0.0,
+            "rate_status": "APPROVED",
+            "rate_details": {
+              "message": "Rate limits verified"
+            },
+            "base_minute_limit": 10,
+            "base_hour_limit": 50,
+            "history_after": 1,
+            "customer_daily_limit": 2000,
+            "customer_status": "APPROVED",
+            "final_status_fresh_validator": "APPROVED"
+          },
+          {
+            "customer_id": "ordinary-customer",
+            "amount": 532.78,
+            "fraud_score": 0.042622400000000005,
+            "fraud_status": "APPROVED",
+            "rate_risk_score": 0.1,
+            "rate_status": "APPROVED",
+            "rate_details": {
+              "message": "Rate limits verified"
+            },
+            "base_minute_limit": 10,
+            "base_hour_limit": 50,
+            "history_after": 1,
+            "customer_daily_limit": 2000,
+            "customer_status": "APPROVED",
+            "final_status_fresh_validator": "APPROVED"
+          },
+          {
+            "customer_id": "C39821",
+            "amount": 532.78,
+            "fraud_score": 0.042622400000000005,
+            "fraud_status": "APPROVED",
+            "rate_risk_score": 0.1,
+            "rate_status": "APPROVED",
+            "rate_details": {
+              "message": "Rate limits verified"
+            },
+            "base_minute_limit": 10,
+            "base_hour_limit": 50,
+            "history_after": 1,
+            "customer_daily_limit": 500,
+            "customer_status": "APPROVED",
+            "final_status_fresh_validator": "APPROVED"
+          }
+        ],
+        "five_per_minute_boundary": [
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "REJECTED"
+        ],
+        "shared_ip_across_customers": [
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED"
+        ],
+        "cleanup_pressure_sequence": [
+          "APPROVED",
+          "REJECTED",
+          "REJECTED"
+        ],
+        "default_cleanup_pressure_sequence": [
+          "APPROVED",
+          "REJECTED",
+          "REJECTED"
+        ],
+        "default_cleanup_pressure_customer_records": 3,
+        "deleted_instance_ip_hasattr": true,
+        "foreign_object_without_ip": "APPROVED",
+        "daily_limit_contract": {
+          "amount": 532.78,
+          "daily_limit": 500,
+          "actual_customer_result": "APPROVED",
+          "hypothetical_customer_rejection_matches_required_rate_message": false
+        }
+      },
+      "test_case_observations": [
+        {
+          "test": "test_rate_limiter.TestRateLimiter.test_cleanup_old_transactions",
+          "customer_minute_count": 1,
+          "customer_hour_count": 6,
+          "ip_minute_count": 1,
+          "fraud_score": null,
+          "risk_score": 0.0,
+          "base_minute_limit": 5,
+          "base_hour_limit": 20,
+          "ip_limit": 10,
+          "status": "APPROVED",
+          "details": {
+            "message": "Rate limits verified"
+          }
+        },
+        {
+          "test": "test_rate_limiter.TestRateLimiter.test_dynamic_risk_adjustment",
+          "customer_minute_count": 5,
+          "customer_hour_count": 5,
+          "ip_minute_count": 5,
+          "fraud_score": 0.8,
+          "risk_score": 0.0,
+          "base_minute_limit": 5,
+          "base_hour_limit": 20,
+          "ip_limit": 10,
+          "status": "APPROVED",
+          "details": {
+            "message": "Rate limits verified"
+          }
+        },
+        {
+          "test": "test_rate_limiter.TestRateLimiter.test_first_transaction_always_passes",
+          "customer_minute_count": 1,
+          "customer_hour_count": 1,
+          "ip_minute_count": 1,
+          "fraud_score": null,
+          "risk_score": 0.0,
+          "base_minute_limit": 5,
+          "base_hour_limit": 20,
+          "ip_limit": 10,
+          "status": "APPROVED",
+          "details": {
+            "message": "Rate limits verified"
+          }
+        },
+        {
+          "test": "test_rate_limiter.TestRateLimiter.test_fraud_risk_calculation",
+          "customer_minute_count": 5,
+          "customer_hour_count": 5,
+          "ip_minute_count": 5,
+          "fraud_score": null,
+          "risk_score": 0.6,
+          "base_minute_limit": 5,
+          "base_hour_limit": 20,
+          "ip_limit": 10,
+          "status": "REJECTED",
+          "details": {
+            "message": "Rate limit exceeded: too many transactions per minute",
+            "limit": 2,
+            "current": 5
+          }
+        },
+        {
+          "test": "test_rate_limiter.TestRateLimiter.test_ip_rate_limiting",
+          "customer_minute_count": 12,
+          "customer_hour_count": 12,
+          "ip_minute_count": 12,
+          "fraud_score": null,
+          "risk_score": 0.0,
+          "base_minute_limit": 5,
+          "base_hour_limit": 20,
+          "ip_limit": 10,
+          "status": "REJECTED",
+          "details": {
+            "message": "Rate limit exceeded: too many transactions per minute",
+            "limit": 5,
+            "current": 12
+          }
+        },
+        {
+          "test": "test_rate_limiter.TestRateLimiter.test_rate_limit_per_hour",
+          "customer_minute_count": 1,
+          "customer_hour_count": 22,
+          "ip_minute_count": 1,
+          "fraud_score": null,
+          "risk_score": 0.0,
+          "base_minute_limit": 5,
+          "base_hour_limit": 20,
+          "ip_limit": 10,
+          "status": "REJECTED",
+          "details": {
+            "message": "Rate limit exceeded: too many transactions per hour",
+            "limit": 20,
+            "current": 22
+          }
+        },
+        {
+          "test": "test_rate_limiter.TestRateLimiter.test_rate_limit_per_minute",
+          "customer_minute_count": 7,
+          "customer_hour_count": 7,
+          "ip_minute_count": 7,
+          "fraud_score": null,
+          "risk_score": 0.0,
+          "base_minute_limit": 5,
+          "base_hour_limit": 20,
+          "ip_limit": 10,
+          "status": "REJECTED",
+          "details": {
+            "message": "Rate limit exceeded: too many transactions per minute",
+            "limit": 5,
+            "current": 7
+          }
+        },
+        {
+          "test": "test_validator.TestTransactionValidator.test_high_risk_full_validation",
+          "customer_minute_count": 1,
+          "customer_hour_count": 1,
+          "ip_minute_count": 1,
+          "fraud_score": 0.042622400000000005,
+          "risk_score": 0.1,
+          "base_minute_limit": 10,
+          "base_hour_limit": 50,
+          "ip_limit": 20,
+          "status": "APPROVED",
+          "details": {
+            "message": "Rate limits verified"
+          }
+        },
+        {
+          "test": "test_validator.TestTransactionValidator.test_production_error_case",
+          "customer_minute_count": 1,
+          "customer_hour_count": 1,
+          "ip_minute_count": 0,
+          "fraud_score": 0.042622400000000005,
+          "risk_score": 0.1,
+          "base_minute_limit": 10,
+          "base_hour_limit": 50,
+          "ip_limit": 20,
+          "status": "APPROVED",
+          "details": {
+            "message": "Rate limits verified"
+          }
+        }
+      ],
+      "implementation_sha256": "d75634f84bd533721abd40314d97ae9bf0cd5b2433cf46693a045eff388c6a41",
+      "test_files_unchanged": true,
+      "process_exit_code": 0,
+      "execution_authority": "isolated original task namespace; unprivileged Agent UID; readonly independent copy"
+    },
+    "historical_13_pass": {
+      "tests_run": 13,
+      "failures": [],
+      "errors": [],
+      "passed": 13,
+      "suite_success": true,
+      "suite_exit_code": 0,
+      "probes": {
+        "omitted_ip_attribute": {
+          "hasattr": true,
+          "value": null
+        },
+        "normal_missing_ip_result": "APPROVED",
+        "fresh_transactions": [
+          {
+            "customer_id": "ordinary-customer",
+            "amount": 100,
+            "fraud_score": 0.008,
+            "fraud_status": "APPROVED",
+            "rate_risk_score": 0.2,
+            "rate_status": "APPROVED",
+            "rate_details": {
+              "message": "Rate limits verified"
+            },
+            "base_minute_limit": 10,
+            "base_hour_limit": 50,
+            "history_after": 0,
+            "customer_daily_limit": 2000,
+            "customer_status": "APPROVED",
+            "final_status_fresh_validator": "APPROVED"
+          },
+          {
+            "customer_id": "ordinary-customer",
+            "amount": 499,
+            "fraud_score": 0.039920000000000004,
+            "fraud_status": "APPROVED",
+            "rate_risk_score": 0.998,
+            "rate_status": "REJECTED",
+            "rate_details": {
+              "message": "Rate limit exceeded: too many transactions per minute",
+              "limit": 0,
+              "current": 1
+            },
+            "base_minute_limit": 10,
+            "base_hour_limit": 50,
+            "history_after": 0,
+            "customer_daily_limit": 2000,
+            "customer_status": "APPROVED",
+            "final_status_fresh_validator": "REJECTED"
+          },
+          {
+            "customer_id": "ordinary-customer",
+            "amount": 500,
+            "fraud_score": 0.04000000000000001,
+            "fraud_status": "APPROVED",
+            "rate_risk_score": 1.0,
+            "rate_status": "REJECTED",
+            "rate_details": {
+              "message": "Rate limit exceeded: too many transactions per minute",
+              "limit": 0,
+              "current": 1
+            },
+            "base_minute_limit": 10,
+            "base_hour_limit": 50,
+            "history_after": 0,
+            "customer_daily_limit": 2000,
+            "customer_status": "APPROVED",
+            "final_status_fresh_validator": "REJECTED"
+          },
+          {
+            "customer_id": "ordinary-customer",
+            "amount": 532.78,
+            "fraud_score": 0.042622400000000005,
+            "fraud_status": "APPROVED",
+            "rate_risk_score": 1.0,
+            "rate_status": "REJECTED",
+            "rate_details": {
+              "message": "Rate limit exceeded: too many transactions per minute",
+              "limit": 0,
+              "current": 1
+            },
+            "base_minute_limit": 10,
+            "base_hour_limit": 50,
+            "history_after": 0,
+            "customer_daily_limit": 2000,
+            "customer_status": "APPROVED",
+            "final_status_fresh_validator": "REJECTED"
+          },
+          {
+            "customer_id": "C39821",
+            "amount": 532.78,
+            "fraud_score": 0.042622400000000005,
+            "fraud_status": "APPROVED",
+            "rate_risk_score": 1.0,
+            "rate_status": "REJECTED",
+            "rate_details": {
+              "message": "Rate limit exceeded: too many transactions per minute",
+              "limit": 0,
+              "current": 1
+            },
+            "base_minute_limit": 10,
+            "base_hour_limit": 50,
+            "history_after": 0,
+            "customer_daily_limit": 500,
+            "customer_status": "APPROVED",
+            "final_status_fresh_validator": "REJECTED"
+          }
+        ],
+        "five_per_minute_boundary": [
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "REJECTED",
+          "REJECTED"
+        ],
+        "shared_ip_across_customers": [
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED",
+          "APPROVED"
+        ],
+        "cleanup_pressure_sequence": [
+          "REJECTED",
+          "REJECTED",
+          "REJECTED"
+        ],
+        "default_cleanup_pressure_sequence": [
+          "REJECTED",
+          "REJECTED",
+          "REJECTED"
+        ],
+        "default_cleanup_pressure_customer_records": 0,
+        "deleted_instance_ip_hasattr": true,
+        "foreign_object_without_ip": "APPROVED",
+        "daily_limit_contract": {
+          "amount": 532.78,
+          "daily_limit": 500,
+          "actual_customer_result": "APPROVED",
+          "hypothetical_customer_rejection_matches_required_rate_message": false
+        }
+      },
+      "test_case_observations": [
+        {
+          "test": "test_rate_limiter.TestRateLimiter.test_cleanup_old_transactions",
+          "customer_minute_count": 1,
+          "customer_hour_count": 6,
+          "ip_minute_count": 1,
+          "fraud_score": null,
+          "risk_score": 0.2,
+          "base_minute_limit": 5,
+          "base_hour_limit": 20,
+          "ip_limit": 10,
+          "status": "APPROVED",
+          "details": {
+            "message": "Rate limits verified"
+          }
+        },
+        {
+          "test": "test_rate_limiter.TestRateLimiter.test_dynamic_risk_adjustment",
+          "customer_minute_count": 5,
+          "customer_hour_count": 5,
+          "ip_minute_count": 5,
+          "fraud_score": 0.8,
+          "risk_score": 0.8,
+          "base_minute_limit": 5,
+          "base_hour_limit": 20,
+          "ip_limit": 10,
+          "status": "REJECTED",
+          "details": {
+            "message": "Rate limit exceeded: too many transactions per minute",
+            "limit": 0,
+            "current": 5
+          }
+        },
+        {
+          "test": "test_rate_limiter.TestRateLimiter.test_first_transaction_always_passes",
+          "customer_minute_count": 1,
+          "customer_hour_count": 1,
+          "ip_minute_count": 1,
+          "fraud_score": null,
+          "risk_score": 0.2,
+          "base_minute_limit": 5,
+          "base_hour_limit": 20,
+          "ip_limit": 10,
+          "status": "APPROVED",
+          "details": {
+            "message": "Rate limits verified"
+          }
+        },
+        {
+          "test": "test_rate_limiter.TestRateLimiter.test_fraud_risk_calculation",
+          "customer_minute_count": 5,
+          "customer_hour_count": 5,
+          "ip_minute_count": 5,
+          "fraud_score": null,
+          "risk_score": 0.6,
+          "base_minute_limit": 5,
+          "base_hour_limit": 20,
+          "ip_limit": 10,
+          "status": "REJECTED",
+          "details": {
+            "message": "Rate limit exceeded: too many transactions per minute",
+            "limit": 2,
+            "current": 5
+          }
+        },
+        {
+          "test": "test_rate_limiter.TestRateLimiter.test_ip_rate_limiting",
+          "customer_minute_count": 12,
+          "customer_hour_count": 12,
+          "ip_minute_count": 12,
+          "fraud_score": null,
+          "risk_score": 0.2,
+          "base_minute_limit": 5,
+          "base_hour_limit": 20,
+          "ip_limit": 10,
+          "status": "REJECTED",
+          "details": {
+            "message": "Rate limit exceeded: too many transactions from this IP",
+            "limit": 10,
+            "current": 12
+          }
+        },
+        {
+          "test": "test_rate_limiter.TestRateLimiter.test_rate_limit_per_hour",
+          "customer_minute_count": 1,
+          "customer_hour_count": 22,
+          "ip_minute_count": 1,
+          "fraud_score": null,
+          "risk_score": 0.2,
+          "base_minute_limit": 5,
+          "base_hour_limit": 20,
+          "ip_limit": 10,
+          "status": "REJECTED",
+          "details": {
+            "message": "Rate limit exceeded: too many transactions per hour",
+            "limit": 16,
+            "current": 22
+          }
+        },
+        {
+          "test": "test_rate_limiter.TestRateLimiter.test_rate_limit_per_minute",
+          "customer_minute_count": 7,
+          "customer_hour_count": 7,
+          "ip_minute_count": 7,
+          "fraud_score": null,
+          "risk_score": 0.2,
+          "base_minute_limit": 5,
+          "base_hour_limit": 20,
+          "ip_limit": 10,
+          "status": "REJECTED",
+          "details": {
+            "message": "Rate limit exceeded: too many transactions per minute",
+            "limit": 4,
+            "current": 7
+          }
+        },
+        {
+          "test": "test_validator.TestTransactionValidator.test_high_risk_full_validation",
+          "customer_minute_count": 1,
+          "customer_hour_count": 1,
+          "ip_minute_count": 1,
+          "fraud_score": 0.042622400000000005,
+          "risk_score": 1.0,
+          "base_minute_limit": 10,
+          "base_hour_limit": 50,
+          "ip_limit": 20,
+          "status": "REJECTED",
+          "details": {
+            "message": "Rate limit exceeded: too many transactions per minute",
+            "limit": 0,
+            "current": 1
+          }
+        },
+        {
+          "test": "test_validator.TestTransactionValidator.test_production_error_case",
+          "customer_minute_count": 1,
+          "customer_hour_count": 1,
+          "ip_minute_count": 0,
+          "fraud_score": 0.042622400000000005,
+          "risk_score": 1.0,
+          "base_minute_limit": 10,
+          "base_hour_limit": 50,
+          "ip_limit": 20,
+          "status": "REJECTED",
+          "details": {
+            "message": "Rate limit exceeded: too many transactions per minute",
+            "limit": 0,
+            "current": 1
+          }
+        }
+      ],
+      "implementation_sha256": "f83850784f80e16f5612ed833ba4d15e41337b40197fdb3b9447488239d23206",
+      "test_files_unchanged": true,
+      "process_exit_code": 0,
+      "execution_authority": "isolated original task namespace; unprivileged Agent UID; readonly independent copy"
+    }
+  },
+  "session_proof": {
+    "task_id": "9b3b96f95eac4df4",
+    "session_id": "session-6acd803d-22c1-4d51-a259-95402698269c",
+    "native_file_sha256": "ea27ffe1c2510d6d6135931d0eea4802dffc44afc9ffb489b067e69f15ff2381",
+    "exported_types": [
+      "public text",
+      "user context",
+      "tool call",
+      "tool result",
+      "turn boundary"
+    ],
+    "private_content_exported": false,
+    "first_repo_edit_line": 158,
+    "last_repo_edit_line": 188,
+    "first_execution_request_line": 227,
+    "feedback_contexts": [
+      {
+        "event_id": 19832,
+        "kernel_event_ids": [
+          19828
+        ],
+        "native_line": 236,
+        "canonical_text_sha256": "d36b93f0a394cfaa8e70cdfd6097c3bd51292410da7965ab36fb4992cd4cd92a",
+        "context_time_ms": 1791727911359,
+        "subsequent_tool_lines": [
+          239,
+          241,
+          247,
+          249,
+          255,
+          269,
+          278,
+          280,
+          286,
+          292,
+          294
+        ]
+      },
+      {
+        "event_id": 19900,
+        "kernel_event_ids": [
+          19896
+        ],
+        "native_line": 275,
+        "canonical_text_sha256": "91200c533fc556e564337481e3383364fac05e8439f7ec9aa3b81b007e4cd095",
+        "context_time_ms": 1791727949153,
+        "subsequent_tool_lines": [
+          278,
+          280,
+          286,
+          292,
+          294
+        ]
+      }
+    ],
+    "initial_request_waits_before_modification": true,
+    "repo_edits_before_execution_request_admitted": true
+  },
+  "new_model_calls": 0,
+  "live_changes": false,
+  "test_changes": false,
+  "experiments": "implementation-only counterexamples in isolated copies; not a deployed repair or changed acceptance baseline"
+}

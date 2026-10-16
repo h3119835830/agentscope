@@ -1,0 +1,167 @@
+{
+  "schema": "agentscope.agent-baseline-runtime-policy.validation.v1",
+  "checked_at": "2026-10-14T12:39:05.387101+00:00",
+  "status": "passed",
+  "acceptance_type": "static_document_review",
+  "documentation_only": true,
+  "runtime_acceptance_performed": false,
+  "application_or_dsh_modified": false,
+  "service_restart_or_deployment_performed": false,
+  "kernel_policy_applied": false,
+  "remote_push_performed": false,
+  "source_binary_reproducible_build_verified": false,
+  "base_document_commit": "ad39d601ed5cdf9a136df10cf3639f48802f6328",
+  "application_commit": "ffe88eb5aaca10f5b7c675da181be0a6ed068edc",
+  "before_documents": {
+    "RFC/RFC-20261011-AgentScope-policy-control-architecture.md": {
+      "sha256": "33ce6637380cc43c08a4dd28a4edc89b132e67da966cae5559f5183eaa58f288",
+      "lines": 321
+    },
+    "RFC/RFC-20261012-AgentScope-four-layer-policy.md": {
+      "sha256": "49c0f968df060c1b313cef6da7f311d2e26fc0d125287a8f19fe819dcc95c333",
+      "lines": 162
+    },
+    "ADR/ADR-20261012-AgentScope-four-layer-policy.md": {
+      "sha256": "661d04c97e56b8ee134275c286e334350b6042cd1f68f28e163a490a58e97af6",
+      "lines": 25
+    },
+    "RFC/RFC-20261014-AgentScope-execution-binding-rederivation.md": {
+      "sha256": "642ac243bba1ca0bd8c77490f6f5364b4f8b2c8a796c1dbe7029d3fbcd16e5fd",
+      "lines": 114
+    },
+    "ADR/ADR-20261014-AgentScope-execution-binding-rederivation.md": {
+      "sha256": "665139afe1cc6247c86d017eb9a27f1a0088ebb4c0181b088a1adf033e61f175",
+      "lines": 29
+    },
+    "RFC/RFC-20261014-AgentScope-session-security-workbench.md": {
+      "sha256": "4aa1a1ee6a54fb46f4de45a0a66e43a65d163535e90b8a913067f5136c0b9fe7",
+      "lines": 84
+    },
+    "ADR/ADR-20261014-AgentScope-session-security-entry.md": {
+      "sha256": "eb595ea62aa5fcabc61011ddf7d5b043d6c45e41850e6d3ac5585d537bccdd9d",
+      "lines": 24
+    },
+    "RFC/RFC-20261014-AgentScope-hot-policy-lifecycle-proposal.md": {
+      "sha256": "a9d814b40b14e2fac8bdd3d3bf70e6a8b555276ac479689c74740785b1d7f02d",
+      "lines": 148
+    },
+    "RFC/RFC-20261014-AgentScope-agent-launch-adapter-research.md": {
+      "sha256": "7d6bb80a49326f511464656fb0eb5e36845035ad5e814c0844bcc945e7d9f84d",
+      "lines": 126
+    },
+    "AgentScope-四层策略架构与ActPlane调研-20261012.md": {
+      "sha256": "1e619ed9fdadd2da4a80f1cef5e4bcfba10ab497247aa8ec166903595d714961",
+      "lines": 22
+    },
+    "REVIEW/REVIEW-20261014-AgentScope-rfc-execution-binding-audit.md": {
+      "sha256": "c1d686ace7fab07ccfdbb6c364dc324fd50ea71712c825efd816227c2dd7c904",
+      "lines": 42
+    },
+    "BUG/BUG-20261014-AgentScope-rfc-execution-assumptions.md": {
+      "sha256": "57b0c033d0da37a0aaea1d73b79b1d733e60acb5fc2f45f6cb75664f3cea1bc5",
+      "lines": 27
+    }
+  },
+  "after_documents": {
+    "RFC/RFC-20261011-AgentScope-policy-control-architecture.md": "c656f66a68cdfc382e7a345330b4e48a8c0b3981b8698d2962abd56d9f5bdd05",
+    "RFC/RFC-20261012-AgentScope-four-layer-policy.md": "a230bda95e3e5df9b0604ebc9feb9042beb24eef411d061a76c51caa9843ab9a",
+    "ADR/ADR-20261012-AgentScope-four-layer-policy.md": "85d9421809c21be272eb8cc4e46cb1ec69427bf8a0199ae799aad98f8d3b02de",
+    "RFC/RFC-20261014-AgentScope-execution-binding-rederivation.md": "d65b3e1c059e16ddfc1cb1ec16bc63a49bcd732be99c28bc05fbb74ed841bb5b",
+    "ADR/ADR-20261014-AgentScope-execution-binding-rederivation.md": "a0c602c6cd59512993ab99a7e102a54b59577d7f32329af24696aeb288d1cf77",
+    "RFC/RFC-20261014-AgentScope-session-security-workbench.md": "5d914e24a9710b2ba4fbe52f218348cb6562b03f461804c38a0c1e3cd95af575",
+    "ADR/ADR-20261014-AgentScope-session-security-entry.md": "ff70c47f5d6c7a80ce98d9af22d7d664d936fec03de3450ac85a48fd9af6d3b9",
+    "RFC/RFC-20261014-AgentScope-hot-policy-lifecycle-proposal.md": "868169817cfe76fc1809424ddfb7504f1ad322cb4a804fb2c1b03ab567d7f9b4",
+    "RFC/RFC-20261014-AgentScope-agent-launch-adapter-research.md": "efb7a85b2ba7583a59440d1d762176fbf1928d34204cc0636d23d763391ac51a",
+    "AgentScope-四层策略架构与ActPlane调研-20261012.md": "6a8706a40f78b4d4da24f23e7e26b7bb903033d42b2018c443430890ea070de9",
+    "REVIEW/REVIEW-20261014-AgentScope-rfc-execution-binding-audit.md": "5b44d361e73df105b78f7c88c3c6f8e69bf440aa300a0a81cfd08ca1c7b305b2",
+    "BUG/BUG-20261014-AgentScope-rfc-execution-assumptions.md": "ec9589673260ff549b45ebea8a1d754934df92c231816d349a52ef6c087f8917",
+    "RFC/RFC-20261014-AgentScope-agent-baseline-runtime-policy.md": "7505f52e3a89b82b40f35ac9cd5c72949ec9311135a4f799865c7c07df641b05",
+    "ADR/ADR-20261014-AgentScope-agent-baseline-runtime-policy.md": "c67e26cf9487826629cd7630d804bc5250d84cd6186e6424fc8dd5512cbe9d48",
+    "REVIEW/REVIEW-20261014-AgentScope-agent-baseline-runtime-policy.md": "cf65391bff6c45fe500ff6c5a7de75cb0b1b048b38d15735e2ad5ae56747c375",
+    "BUG/BUG-20261014-AgentScope-agent-baseline-runtime-policy.md": "5a7a4fc5761f244fd1f7bb2045f32822734e158761817cdffc6ad32de7ce986b"
+  },
+  "source_hashes": {
+    "actplane/bpf/capability.bpf.h": "85a89c0fa972217f686f900a1f2887e805ad0000932c8132cd7da6216ea4e60d",
+    "actplane/crates/actplane-cli/src/main.rs": "eeb5cc30d08b4be427c72bda027baa8a750dcac4bcd3930f691eff166d0e1da7",
+    "backend/agentscope_app/instances/dsl_policy.py": "d7b3cf6eda4ee3cd8a6e664da7f7b8b832380a09eddcb5a6817a27c80383f803",
+    "backend/agentscope_app/instances/policy_targets.py": "4123f22c757a71667f5d9a8394c19e3bd4cb9e0572113813a6b727345c291340",
+    "frontend/src/AgentSessions.jsx": "92620d93c3b6cab1295e2da4706b69c9cc4761cc3d53cb9125cd53303920d19b",
+    "frontend/src/SessionPolicyGroups.jsx": "0fc81822a401f3e77d3a842467a74eb7268886b30aff71c0cd2e3ff62a313ce5"
+  },
+  "checks": {
+    "all_repository_links_resolve": true,
+    "staged_diff_check": true,
+    "documentation_scope_only": true,
+    "source_and_application_worktree_unchanged": true,
+    "historical_evidence_unchanged": true,
+    "central_cas_preflight_passed": true,
+    "central_bytes_equal": true,
+    "text_credential_literal_scan": true,
+    "source_hashes_stable": true
+  },
+  "link_check": {
+    "files": 313,
+    "links": 617,
+    "missing": []
+  },
+  "changed_file_count": 19,
+  "json_files_parsed": 1,
+  "publication": {
+    "revised": [
+      "RFC/RFC-20261011-AgentScope-policy-control-architecture.md",
+      "RFC/RFC-20261012-AgentScope-four-layer-policy.md",
+      "ADR/ADR-20261012-AgentScope-four-layer-policy.md",
+      "RFC/RFC-20261014-AgentScope-execution-binding-rederivation.md",
+      "ADR/ADR-20261014-AgentScope-execution-binding-rederivation.md",
+      "RFC/RFC-20261014-AgentScope-session-security-workbench.md",
+      "ADR/ADR-20261014-AgentScope-session-security-entry.md",
+      "RFC/RFC-20261014-AgentScope-hot-policy-lifecycle-proposal.md",
+      "RFC/RFC-20261014-AgentScope-agent-launch-adapter-research.md",
+      "AgentScope-四层策略架构与ActPlane调研-20261012.md",
+      "REVIEW/REVIEW-20261014-AgentScope-rfc-execution-binding-audit.md",
+      "BUG/BUG-20261014-AgentScope-rfc-execution-assumptions.md"
+    ],
+    "new": [
+      "RFC/RFC-20261014-AgentScope-agent-baseline-runtime-policy.md",
+      "ADR/ADR-20261014-AgentScope-agent-baseline-runtime-policy.md",
+      "REVIEW/REVIEW-20261014-AgentScope-agent-baseline-runtime-policy.md",
+      "BUG/BUG-20261014-AgentScope-agent-baseline-runtime-policy.md"
+    ],
+    "central_index_after_sha256": "3307fc9038fadc33b50b458f2385fa373b8fa79b2590a22ea9b8d8cc1d97efec",
+    "byte_equality": {
+      "RFC/RFC-20261011-AgentScope-policy-control-architecture.md": true,
+      "RFC/RFC-20261012-AgentScope-four-layer-policy.md": true,
+      "ADR/ADR-20261012-AgentScope-four-layer-policy.md": true,
+      "RFC/RFC-20261014-AgentScope-execution-binding-rederivation.md": true,
+      "ADR/ADR-20261014-AgentScope-execution-binding-rederivation.md": true,
+      "RFC/RFC-20261014-AgentScope-session-security-workbench.md": true,
+      "ADR/ADR-20261014-AgentScope-session-security-entry.md": true,
+      "RFC/RFC-20261014-AgentScope-hot-policy-lifecycle-proposal.md": true,
+      "RFC/RFC-20261014-AgentScope-agent-launch-adapter-research.md": true,
+      "AgentScope-四层策略架构与ActPlane调研-20261012.md": true,
+      "REVIEW/REVIEW-20261014-AgentScope-rfc-execution-binding-audit.md": true,
+      "BUG/BUG-20261014-AgentScope-rfc-execution-assumptions.md": true,
+      "RFC/RFC-20261014-AgentScope-agent-baseline-runtime-policy.md": true,
+      "ADR/ADR-20261014-AgentScope-agent-baseline-runtime-policy.md": true,
+      "REVIEW/REVIEW-20261014-AgentScope-agent-baseline-runtime-policy.md": true,
+      "BUG/BUG-20261014-AgentScope-agent-baseline-runtime-policy.md": true
+    }
+  },
+  "readonly_ui_observation": {
+    "surface": "existing 18003 system policy page",
+    "configuration_count": 12,
+    "saved_configuration_count": 4,
+    "approval_and_explicit_application_separate": true,
+    "not_new_ui_acceptance": true
+  },
+  "normative_review": [
+    "Fixed configuration is system plus Agent; workspace/session retained as context and provenance.",
+    "RuntimeChange initially targets the actual domain and full shared execution/availability impact.",
+    "Source-session end does not delete current-domain changes; new generation and baseline promotion require explicit handling.",
+    "Historical four-layer ownership goals and mandatory local-loader acceptance are retired, not claimed implemented.",
+    "ActPlane process binding and Add primitive do not prove complete delete/replace/no-restart lifecycle.",
+    "User current scope overrides old UI skill session-policy categorization; visual entry and confirmation boundaries retained.",
+    "Future N01-N10 runtime acceptance remains unexecuted.",
+    "Explicitly approved same-instance/same-domain-generation future sessions inherit active rules without inserting native session creation gates; physical/authority drift still revalidated."
+  ]
+}

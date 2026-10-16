@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-12",
+  "files": [
+    {
+      "sha256": "f43ceac8fce44d844ac063833404a7191c2dd00caa5c7b0b790859d89211a8d7",
+      "preservation": "Existing historical content retained; new dated supersession note inserted",
+      "path": "RFC/RFC-20261011-AgentScope-policy-control-architecture.md"
+    },
+    {
+      "sha256": "24f7d82225a67411de74007cbe8e24c02ef6122659745a1b086e70a01d9cc642",
+      "preservation": "Existing historical content retained; new dated supersession note inserted",
+      "path": "ADR/ADR-20261011-AgentScope-policy-control-decisions.md"
+    },
+    {
+      "sha256": "e5f97f33db0dff89c05c2e19861f158962af71f01a14bb7e8e52827fedf72132",
+      "preservation": "Existing historical content retained; new dated supersession note inserted",
+      "path": "AgentScope-架构设计与评审-20261011.md"
+    },
+    {
+      "sha256": "07bfc35d07b1dd0503451ac2269004f1b32e5130f9b702f68f3c7baaba9b0816",
+      "preservation": "Existing historical content retained; new dated supersession note inserted",
+      "path": "BUG/BUG-20261011-AgentScope-policy-ui-gaps.md"
+    }
+  ]
+}

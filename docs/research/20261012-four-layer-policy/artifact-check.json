@@ -1,0 +1,10 @@
+{
+  "command": "python docs/artifact/verify_results.py all",
+  "repository": "actplane-artifact",
+  "returncode": 0,
+  "stdout_sha256": "8897f3bdc564e1149ca2f23be10c3a2b24e1e817507338cedf3afd751b028b8f",
+  "kind": "frozen_summary_and_inventory_validation",
+  "agents_run": false,
+  "bpf_loaded": false,
+  "models_called": false
+}

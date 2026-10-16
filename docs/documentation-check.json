@@ -1,0 +1,31 @@
+{
+  "schema": "agentscope.documentation-check.v1",
+  "date": "2026-10-07",
+  "result": "passed",
+  "base_commit": "c0457842e74389918083e05254cf7733892064c4",
+  "source_documents": 85,
+  "source_categories": {
+    "RFC": 19,
+    "ADR": 19,
+    "REVIEW": 25,
+    "BUG": 18,
+    "plans": 4
+  },
+  "new_organization_review": 1,
+  "topic_rows": 19,
+  "markdown_files_checked": 133,
+  "local_links_checked": 295,
+  "source_and_archived_hashes_checked": 85,
+  "source_fenced_code_blocks_preserved": 35,
+  "legacy_redirects_checked": 32,
+  "public_evidence_hashes_checked": 13,
+  "public_evidence_json_checked": 7,
+  "new_screenshots_visually_checked": 6,
+  "duplicate_complete_bodies": 0,
+  "outside_documentation_changes": [],
+  "staged_diff_whitespace_check": "passed",
+  "source_files_changed_after_snapshot": [],
+  "functionality_tests_rerun": false,
+  "runtime_services_changed": false,
+  "errors": []
+}

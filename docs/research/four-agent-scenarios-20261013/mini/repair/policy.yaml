@@ -1,0 +1,10 @@
+version: 1
+policy: |
+  source AGENT = exec "**/node"
+  source PYTHON = exec "**/python*"
+  rule boundary_0:
+    block write file "/a4/mini-repair-v4/work/tests/**" if AGENT or PYTHON
+    because "测试是独立验收依据，不得修改或截断；请修复 src/flask/blueprints.py 的真实实现。"
+  rule boundary_1:
+    block unlink file "/a4/mini-repair-v4/work/tests/**" if AGENT or PYTHON
+    because "不得删除测试来通过验收；修改业务实现并重新运行测试。"

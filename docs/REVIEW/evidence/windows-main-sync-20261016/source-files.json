@@ -1,0 +1,1563 @@
+[
+  {
+    "path": "docs/ADR/ADR-20261011-AgentScope-policy-control-decisions.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/ADR/ADR-20261011-AgentScope-policy-control-decisions.md",
+    "existing": false,
+    "size": 7124,
+    "sha256": "24f7d82225a67411de74007cbe8e24c02ef6122659745a1b086e70a01d9cc642"
+  },
+  {
+    "path": "docs/ADR/ADR-20261012-AgentScope-four-layer-policy.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/ADR/ADR-20261012-AgentScope-four-layer-policy.md",
+    "existing": false,
+    "size": 4077,
+    "sha256": "85d9421809c21be272eb8cc4e46cb1ec69427bf8a0199ae799aad98f8d3b02de"
+  },
+  {
+    "path": "docs/ADR/ADR-20261013-isolated-agent-experiment-feedback.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/ADR/ADR-20261013-isolated-agent-experiment-feedback.md",
+    "existing": false,
+    "size": 2000,
+    "sha256": "5afdbdeab15fc80b0dcdc0c12c2fbd2bffa39e56c901326b8f9fb3271c190e0d"
+  },
+  {
+    "path": "docs/ADR/ADR-20261014-AgentScope-agent-baseline-runtime-policy.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/ADR/ADR-20261014-AgentScope-agent-baseline-runtime-policy.md",
+    "existing": false,
+    "size": 3608,
+    "sha256": "ac106bdd27ccb4908a9e8414c48f23aa3247b4c79e4bdd08e388c42244417e85"
+  },
+  {
+    "path": "docs/ADR/ADR-20261014-AgentScope-approval-revalidation.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/ADR/ADR-20261014-AgentScope-approval-revalidation.md",
+    "existing": false,
+    "size": 1322,
+    "sha256": "87c27fd00ff5d991a55f9b72f7cf7735fbe3ceedb61e3015aa764809d7900b22"
+  },
+  {
+    "path": "docs/ADR/ADR-20261014-AgentScope-execution-binding-rederivation.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/ADR/ADR-20261014-AgentScope-execution-binding-rederivation.md",
+    "existing": false,
+    "size": 3730,
+    "sha256": "a0c602c6cd59512993ab99a7e102a54b59577d7f32329af24696aeb288d1cf77"
+  },
+  {
+    "path": "docs/ADR/ADR-20261014-AgentScope-session-security-entry.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/ADR/ADR-20261014-AgentScope-session-security-entry.md",
+    "existing": true,
+    "size": 3927,
+    "sha256": "ff70c47f5d6c7a80ce98d9af22d7d664d936fec03de3450ac85a48fd9af6d3b9"
+  },
+  {
+    "path": "docs/ADR/ADR-20261014-AgentScope-template-agent-security-workbench.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/ADR/ADR-20261014-AgentScope-template-agent-security-workbench.md",
+    "existing": false,
+    "size": 2129,
+    "sha256": "59ddc90f9cfaae3dcaf14210792027035fe448c769bd8c25d2aacaf5ee31ec89"
+  },
+  {
+    "path": "docs/ADR/ADR-20261015-AgentScope-unified-policy-catalog.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/ADR/ADR-20261015-AgentScope-unified-policy-catalog.md",
+    "existing": false,
+    "size": 2276,
+    "sha256": "30ce6d489d2c7a9b85da685e032398e37e8e4247150b3e04198e39530ffaf44f"
+  },
+  {
+    "path": "docs/AgentScope-四层策略架构与ActPlane调研-20261012.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/AgentScope-四层策略架构与ActPlane调研-20261012.md",
+    "existing": false,
+    "size": 3266,
+    "sha256": "6a8706a40f78b4d4da24f23e7e26b7bb903033d42b2018c443430890ea070de9"
+  },
+  {
+    "path": "docs/BUG/BUG-20261011-AgentScope-policy-source-semantics.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/BUG/BUG-20261011-AgentScope-policy-source-semantics.md",
+    "existing": true,
+    "size": 3852,
+    "sha256": "09739a674a2b90ae2d852821c99815fbf372d72f4ef49df32eafc965289c007d"
+  },
+  {
+    "path": "docs/BUG/BUG-20261011-AgentScope-policy-ui-gaps.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/BUG/BUG-20261011-AgentScope-policy-ui-gaps.md",
+    "existing": false,
+    "size": 8013,
+    "sha256": "07bfc35d07b1dd0503451ac2269004f1b32e5130f9b702f68f3c7baaba9b0816"
+  },
+  {
+    "path": "docs/BUG/BUG-20261012-AgentScope-policy-scope-and-evidence.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/BUG/BUG-20261012-AgentScope-policy-scope-and-evidence.md",
+    "existing": false,
+    "size": 4004,
+    "sha256": "ab12754c499db08200fb9d3cf32cb4bd949feb0a6abccf95369564775431119e"
+  },
+  {
+    "path": "docs/BUG/BUG-20261013-agent-experiment-feedback-and-flow.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/BUG/BUG-20261013-agent-experiment-feedback-and-flow.md",
+    "existing": false,
+    "size": 3365,
+    "sha256": "4a8ae886b804fe307e15f9887ff23e7d51c82e4ae8db9d57bb2cd49a8b058653"
+  },
+  {
+    "path": "docs/BUG/BUG-20261014-AgentScope-agent-baseline-runtime-policy.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/BUG/BUG-20261014-AgentScope-agent-baseline-runtime-policy.md",
+    "existing": false,
+    "size": 2381,
+    "sha256": "7fea45816c33c6939040e8dd42f3dd260457729af6166453eb81c7e0448c85b9"
+  },
+  {
+    "path": "docs/BUG/BUG-20261014-AgentScope-policy-reload-continuity-copy.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/BUG/BUG-20261014-AgentScope-policy-reload-continuity-copy.md",
+    "existing": false,
+    "size": 2086,
+    "sha256": "197818495642d66959887f059d4c9f9ec9522c2653c61774aeec90056a445779"
+  },
+  {
+    "path": "docs/BUG/BUG-20261014-AgentScope-rfc-execution-assumptions.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/BUG/BUG-20261014-AgentScope-rfc-execution-assumptions.md",
+    "existing": false,
+    "size": 3178,
+    "sha256": "ec9589673260ff549b45ebea8a1d754934df92c231816d349a52ef6c087f8917"
+  },
+  {
+    "path": "docs/BUG/BUG-20261014-AgentScope-stale-approval-recovery.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/BUG/BUG-20261014-AgentScope-stale-approval-recovery.md",
+    "existing": false,
+    "size": 3199,
+    "sha256": "c0c76afca3a39b83fa36c98ff4316beeb1128194e087481be4fbeffed480edcd"
+  },
+  {
+    "path": "docs/BUG/BUG-20261014-AgentScope-template-agent-security-workbench.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/BUG/BUG-20261014-AgentScope-template-agent-security-workbench.md",
+    "existing": false,
+    "size": 1996,
+    "sha256": "03e8e9632e7be5d935584a1da4dfa47db0862edfba86042d731da1e4ea8ae1bb"
+  },
+  {
+    "path": "docs/BUG/BUG-20261015-AgentScope-unified-policy-catalog.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/BUG/BUG-20261015-AgentScope-unified-policy-catalog.md",
+    "existing": false,
+    "size": 2687,
+    "sha256": "6d0883c5c3717422ec04bd997a42453cadeca8675a3672334e947fd609a4f7c7"
+  },
+  {
+    "path": "docs/REVIEW/REVIEW-20261011-AgentScope-agent-workspace-policy.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/REVIEW/REVIEW-20261011-AgentScope-agent-workspace-policy.md",
+    "existing": false,
+    "size": 5521,
+    "sha256": "50aa8b835baeac8370ca81f50a58cbeb9a78d36dcbe1309b62acfea47706ff5e"
+  },
+  {
+    "path": "docs/REVIEW/REVIEW-20261011-AgentScope-architecture-audit.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/REVIEW/REVIEW-20261011-AgentScope-architecture-audit.md",
+    "existing": false,
+    "size": 14273,
+    "sha256": "2f8fad4048c1c5caad7cecd13b536984f518b81e0fe16794a1fd6adbcb196aa6"
+  },
+  {
+    "path": "docs/REVIEW/REVIEW-20261011-AgentScope-policy-source-semantics.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/REVIEW/REVIEW-20261011-AgentScope-policy-source-semantics.md",
+    "existing": true,
+    "size": 3743,
+    "sha256": "f0795de9bc19f25a08600d941cec452325b7de509ae65f06e3e28a281bd89e4a"
+  },
+  {
+    "path": "docs/REVIEW/REVIEW-20261012-AgentScope-four-layer-audit.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/REVIEW/REVIEW-20261012-AgentScope-four-layer-audit.md",
+    "existing": false,
+    "size": 5595,
+    "sha256": "27e390f8fe791a64267712bf83cd7a12b336eae7a7eccb4f3d8c64ca392baf2a"
+  },
+  {
+    "path": "docs/REVIEW/REVIEW-20261012-AgentScope-technical-docs-sync.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/REVIEW/REVIEW-20261012-AgentScope-technical-docs-sync.md",
+    "existing": false,
+    "size": 3179,
+    "sha256": "208c9e718f09c6cbedf1cad912554ba8b4daca121594bb0481610c33718e7d14"
+  },
+  {
+    "path": "docs/REVIEW/REVIEW-20261013-four-agent-security-experiments.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/REVIEW/REVIEW-20261013-four-agent-security-experiments.md",
+    "existing": false,
+    "size": 5161,
+    "sha256": "61c9b257521b0cbc4ae1d447bfe56f57dbdf010ab13d7c7f50dfe4e38f191b8b"
+  },
+  {
+    "path": "docs/REVIEW/REVIEW-20261014-AgentScope-agent-baseline-runtime-policy.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/REVIEW/REVIEW-20261014-AgentScope-agent-baseline-runtime-policy.md",
+    "existing": false,
+    "size": 4356,
+    "sha256": "19f8a68e8299280b31d2dfb3053fb5c903661c7d92933a1b0f05ba3271f98421"
+  },
+  {
+    "path": "docs/REVIEW/REVIEW-20261014-AgentScope-approval-revalidation.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/REVIEW/REVIEW-20261014-AgentScope-approval-revalidation.md",
+    "existing": false,
+    "size": 6834,
+    "sha256": "c8648fa8eea4d88ebc802af04ee916bac0fa52310e0e7a2037846f9eda3f49f2"
+  },
+  {
+    "path": "docs/REVIEW/REVIEW-20261014-AgentScope-manual-session-reset-and-lab.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/REVIEW/REVIEW-20261014-AgentScope-manual-session-reset-and-lab.md",
+    "existing": true,
+    "size": 5390,
+    "sha256": "772f46515016d71a11030a716b2b7c6da66a5df571c7b40fbaa3f79f7203aaef"
+  },
+  {
+    "path": "docs/REVIEW/REVIEW-20261014-AgentScope-policy-activation-audit.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/REVIEW/REVIEW-20261014-AgentScope-policy-activation-audit.md",
+    "existing": false,
+    "size": 8702,
+    "sha256": "b2e2cabe5b68f097fcbba949c48f0a4b9df3993735e663c25d61cc85adce5238"
+  },
+  {
+    "path": "docs/REVIEW/REVIEW-20261014-AgentScope-policy-lifecycle.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/REVIEW/REVIEW-20261014-AgentScope-policy-lifecycle.md",
+    "existing": false,
+    "size": 11197,
+    "sha256": "658ce364f822be7848bcbbe7fbe69fb2dadd4ceb89573bb05f30f2157c58b723"
+  },
+  {
+    "path": "docs/REVIEW/REVIEW-20261014-AgentScope-rfc-execution-binding-audit.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/REVIEW/REVIEW-20261014-AgentScope-rfc-execution-binding-audit.md",
+    "existing": false,
+    "size": 5411,
+    "sha256": "5b44d361e73df105b78f7c88c3c6f8e69bf440aa300a0a81cfd08ca1c7b305b2"
+  },
+  {
+    "path": "docs/REVIEW/REVIEW-20261014-AgentScope-template-agent-security-workbench.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/REVIEW/REVIEW-20261014-AgentScope-template-agent-security-workbench.md",
+    "existing": false,
+    "size": 2659,
+    "sha256": "0d41b3bf0fb08480e19d9bd5b97adb1d56d2e892da8485a1348e5b811eb08c10"
+  },
+  {
+    "path": "docs/REVIEW/REVIEW-20261015-AgentScope-unified-policy-catalog.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/REVIEW/REVIEW-20261015-AgentScope-unified-policy-catalog.md",
+    "existing": false,
+    "size": 4351,
+    "sha256": "2bd1b8e2563b1fe1d739c8e0f76510fce0e3a510da2527465309484635fdc442"
+  },
+  {
+    "path": "docs/REVIEW/evidence/agent-baseline-runtime-policy-20261014/validation.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/REVIEW/evidence/agent-baseline-runtime-policy-20261014/validation.json",
+    "existing": false,
+    "size": 9855,
+    "sha256": "17feb34eee6dd6ac1e7156d364c5d8212a1a71ffc19055b1fa7d66fec2e966d2"
+  },
+  {
+    "path": "docs/REVIEW/evidence/agent-shared-runtime-design-20261014/validation.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/REVIEW/evidence/agent-shared-runtime-design-20261014/validation.json",
+    "existing": false,
+    "size": 4178,
+    "sha256": "eac11f497d77aef5d7a80a451c8a52855691099e086d7ad8dd0feb80b8f1ed11"
+  },
+  {
+    "path": "docs/REVIEW/evidence/agent-workspace-policy-20261011/validation.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/REVIEW/evidence/agent-workspace-policy-20261011/validation.json",
+    "existing": false,
+    "size": 14205,
+    "sha256": "371b3b3be1debf952a4532599158926e32ebb65b9d464d20caff8836557583e4"
+  },
+  {
+    "path": "docs/REVIEW/evidence/architecture-review-20261011/approval-detail.jpg",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/REVIEW/evidence/architecture-review-20261011/approval-detail.jpg",
+    "existing": false,
+    "size": 39733,
+    "sha256": "e90801f059badbb753d101ca3c7a3da2cb9f82e55ce84dd39f2e7dc02ac22a8f"
+  },
+  {
+    "path": "docs/REVIEW/evidence/architecture-review-20261011/architecture-evidence.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/REVIEW/evidence/architecture-review-20261011/architecture-evidence.json",
+    "existing": false,
+    "size": 8572,
+    "sha256": "ebd09148d68cb44e8690370b71a8d06809d21679b1086c263279262082009d48"
+  },
+  {
+    "path": "docs/REVIEW/evidence/architecture-review-20261011/connection-policy-duplicate-and-stale.jpg",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/REVIEW/evidence/architecture-review-20261011/connection-policy-duplicate-and-stale.jpg",
+    "existing": false,
+    "size": 50197,
+    "sha256": "2c2c60e1f633b56c693347b411850ec3a3825eaf663338542ed7e3c5c7f2529f"
+  },
+  {
+    "path": "docs/REVIEW/evidence/architecture-review-20261011/delivery-check.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/REVIEW/evidence/architecture-review-20261011/delivery-check.json",
+    "existing": false,
+    "size": 3490,
+    "sha256": "08b3f0555307d677fd92a1a4da7bb1fd2baed5c8c6da0ffbf5565f351f37f96c"
+  },
+  {
+    "path": "docs/REVIEW/evidence/architecture-review-20261011/generation-internal-diagnostics.jpg",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/REVIEW/evidence/architecture-review-20261011/generation-internal-diagnostics.jpg",
+    "existing": false,
+    "size": 69816,
+    "sha256": "b9e0ffcf1806b70810e257b331e8a796d4f05af127a778a86dba7407204526a9"
+  },
+  {
+    "path": "docs/REVIEW/evidence/architecture-review-20261011/generation-legacy-overlap.jpg",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/REVIEW/evidence/architecture-review-20261011/generation-legacy-overlap.jpg",
+    "existing": false,
+    "size": 67866,
+    "sha256": "89498715192ce104d4fcdf919c7c4464776e78b674f27a0d13ed71a4f59b4efb"
+  },
+  {
+    "path": "docs/REVIEW/evidence/architecture-review-20261011/reproduce_event_attribution.py",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/REVIEW/evidence/architecture-review-20261011/reproduce_event_attribution.py",
+    "existing": false,
+    "size": 2348,
+    "sha256": "906a8eeab9fc866e461a005a2e1064c3f09c0b17cc677a163fd61e2c5448d117"
+  },
+  {
+    "path": "docs/REVIEW/evidence/architecture-review-20261011/session-domain-configuration-chain.jpg",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/REVIEW/evidence/architecture-review-20261011/session-domain-configuration-chain.jpg",
+    "existing": false,
+    "size": 47907,
+    "sha256": "1634b6de5d68e4d543125175e67d7b3b1f1407574c07170712cb822a180f43c0"
+  },
+  {
+    "path": "docs/REVIEW/evidence/architecture-review-20261011/session-policy-empty.jpg",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/REVIEW/evidence/architecture-review-20261011/session-policy-empty.jpg",
+    "existing": false,
+    "size": 37961,
+    "sha256": "1be76fdd89f1b3466a08be6168f246983b3d2196dc714871ddb5e595c69863c4"
+  },
+  {
+    "path": "docs/REVIEW/evidence/architecture-review-20261011/validation.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/REVIEW/evidence/architecture-review-20261011/validation.json",
+    "existing": false,
+    "size": 2268,
+    "sha256": "111d2f8accc42087d9c4fda91a8da84afdc16b2c317fe3de929d8a439c6025f1"
+  },
+  {
+    "path": "docs/REVIEW/evidence/rfc-execution-binding-audit-20261014/audit.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/REVIEW/evidence/rfc-execution-binding-audit-20261014/audit.json",
+    "existing": false,
+    "size": 63797,
+    "sha256": "9a7b564090eff0a986b3fb2d309b8503e8be3181e03570e799bca4c6b895c89e"
+  },
+  {
+    "path": "docs/REVIEW/evidence/rfc-execution-binding-audit-20261014/validation.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/REVIEW/evidence/rfc-execution-binding-audit-20261014/validation.json",
+    "existing": false,
+    "size": 3412,
+    "sha256": "95addb655e9c61ac715ebcd39676fb66af258bb4f02a0b094eb9061867187057"
+  },
+  {
+    "path": "docs/REVIEW/evidence/session-security-20261014/lab-desktop-input-cleanup.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/REVIEW/evidence/session-security-20261014/lab-desktop-input-cleanup.json",
+    "existing": false,
+    "size": 2020,
+    "sha256": "50699fb0bbdd2e7629ff031869c0024ba443badf4e79524f878c291ceda3ea92"
+  },
+  {
+    "path": "docs/REVIEW/evidence/session-security-20261014/lab-wsl-input-cleanup.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/REVIEW/evidence/session-security-20261014/lab-wsl-input-cleanup.json",
+    "existing": false,
+    "size": 2077,
+    "sha256": "9119a34299478382afb0798e754e56d5d82a88f6865d3cb7c7095619a09d4e0c"
+  },
+  {
+    "path": "docs/REVIEW/evidence/template-agent-workbench-20261014/validation.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/REVIEW/evidence/template-agent-workbench-20261014/validation.json",
+    "existing": false,
+    "size": 7334,
+    "sha256": "fc4e18c2d55ee6fc69baed21b6c8806ed33eb1858afad5c9eff78df4c541995c"
+  },
+  {
+    "path": "docs/REVIEW/evidence/unified-policy-catalog-20261015/validation.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/REVIEW/evidence/unified-policy-catalog-20261015/validation.json",
+    "existing": false,
+    "size": 4762,
+    "sha256": "7765b8dd8850bb8bf59e4436898ac1b3038c0d0e31ef2e03b3fe247c7604cc5c"
+  },
+  {
+    "path": "docs/REVIEW/evidence/unified-policy-catalog-minimal-review-20261015/validation.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/REVIEW/evidence/unified-policy-catalog-minimal-review-20261015/validation.json",
+    "existing": false,
+    "size": 1924,
+    "sha256": "63bf00fd9e8ab2a251e1bb4dc20027bc4dcaa90dcf42bc08bb9eadcb52f8180b"
+  },
+  {
+    "path": "docs/REVIEW/evidence/unified-policy-catalog-scenario-records-20261015/validation.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/REVIEW/evidence/unified-policy-catalog-scenario-records-20261015/validation.json",
+    "existing": false,
+    "size": 1690,
+    "sha256": "2ea9b52e90adc6754cb1f44ededdba4d4fc59186513412dffa16ba7cef1ee24c"
+  },
+  {
+    "path": "docs/RFC/RFC-20261011-AgentScope-agent-scene-step3.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/RFC/RFC-20261011-AgentScope-agent-scene-step3.md",
+    "existing": true,
+    "size": 3817,
+    "sha256": "dbd9f52b9219948f4301e6b286b9d41e8f03fc48fd53d181a268f08df31806c7"
+  },
+  {
+    "path": "docs/RFC/RFC-20261011-AgentScope-policy-control-architecture.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/RFC/RFC-20261011-AgentScope-policy-control-architecture.md",
+    "existing": false,
+    "size": 33686,
+    "sha256": "c656f66a68cdfc382e7a345330b4e48a8c0b3981b8698d2962abd56d9f5bdd05"
+  },
+  {
+    "path": "docs/RFC/RFC-20261012-AgentScope-four-layer-policy.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/RFC/RFC-20261012-AgentScope-four-layer-policy.md",
+    "existing": false,
+    "size": 20464,
+    "sha256": "a230bda95e3e5df9b0604ebc9feb9042beb24eef411d061a76c51caa9843ab9a"
+  },
+  {
+    "path": "docs/RFC/RFC-20261013-four-agent-security-experiments.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/RFC/RFC-20261013-four-agent-security-experiments.md",
+    "existing": false,
+    "size": 5232,
+    "sha256": "3e1f320f1fa2062ffce015f8ab9918dfdda76b5af7573ca8eaaa6d2ee908fad5"
+  },
+  {
+    "path": "docs/RFC/RFC-20261014-AgentScope-agent-baseline-runtime-policy.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/RFC/RFC-20261014-AgentScope-agent-baseline-runtime-policy.md",
+    "existing": false,
+    "size": 19259,
+    "sha256": "8363c9f788b222c7d6101dbc12ad7808f0a56d135066808f8400dc857339b195"
+  },
+  {
+    "path": "docs/RFC/RFC-20261014-AgentScope-agent-launch-adapter-research.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/RFC/RFC-20261014-AgentScope-agent-launch-adapter-research.md",
+    "existing": true,
+    "size": 13068,
+    "sha256": "efb7a85b2ba7583a59440d1d762176fbf1928d34204cc0636d23d763391ac51a"
+  },
+  {
+    "path": "docs/RFC/RFC-20261014-AgentScope-approval-revalidation.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/RFC/RFC-20261014-AgentScope-approval-revalidation.md",
+    "existing": false,
+    "size": 3382,
+    "sha256": "f4d40b1ce003da8e3f0bbbbad20b978c886f28d90e17cea93d0bdfbce03171d6"
+  },
+  {
+    "path": "docs/RFC/RFC-20261014-AgentScope-execution-binding-rederivation.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/RFC/RFC-20261014-AgentScope-execution-binding-rederivation.md",
+    "existing": false,
+    "size": 14025,
+    "sha256": "d65b3e1c059e16ddfc1cb1ec16bc63a49bcd732be99c28bc05fbb74ed841bb5b"
+  },
+  {
+    "path": "docs/RFC/RFC-20261014-AgentScope-hot-policy-lifecycle-proposal.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/RFC/RFC-20261014-AgentScope-hot-policy-lifecycle-proposal.md",
+    "existing": false,
+    "size": 21253,
+    "sha256": "868169817cfe76fc1809424ddfb7504f1ad322cb4a804fb2c1b03ab567d7f9b4"
+  },
+  {
+    "path": "docs/RFC/RFC-20261014-AgentScope-session-security-workbench.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/RFC/RFC-20261014-AgentScope-session-security-workbench.md",
+    "existing": true,
+    "size": 13347,
+    "sha256": "5d914e24a9710b2ba4fbe52f218348cb6562b03f461804c38a0c1e3cd95af575"
+  },
+  {
+    "path": "docs/RFC/RFC-20261014-AgentScope-template-agent-security-workbench.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/RFC/RFC-20261014-AgentScope-template-agent-security-workbench.md",
+    "existing": false,
+    "size": 18943,
+    "sha256": "0bf1b7cf36525e485dd608c7c99f3a8cbbb0f262817cd39e830bb8d6b966672a"
+  },
+  {
+    "path": "docs/RFC/RFC-20261015-AgentScope-unified-policy-catalog.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/RFC/RFC-20261015-AgentScope-unified-policy-catalog.md",
+    "existing": false,
+    "size": 13365,
+    "sha256": "dc4300cb0d6e88b002d1b85a70e5c4954669fabeb8b2a0360853cc83385d653d"
+  },
+  {
+    "path": "docs/design/previews/unified-policy-catalog-20261015.html",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/design/previews/unified-policy-catalog-20261015.html",
+    "existing": false,
+    "size": 38330,
+    "sha256": "40927265fb5217599eacdd136bb86106f1783927d819739868cbeae73399c348"
+  },
+  {
+    "path": "docs/design/previews/unified-policy-catalog-scenario-records-20261015.html",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/design/previews/unified-policy-catalog-scenario-records-20261015.html",
+    "existing": false,
+    "size": 39931,
+    "sha256": "83a7d57772937dcdbb6599e464f197a0c8097f5a170962dcd881dbb6081bd623"
+  },
+  {
+    "path": "docs/documentation-check.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/documentation-check.json",
+    "existing": false,
+    "size": 902,
+    "sha256": "cb4e23dfb978918c862357c3a949d4de264e1a9398f2efee493678bbc2c345bc"
+  },
+  {
+    "path": "docs/documentation-sync-check-20261012.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/documentation-sync-check-20261012.json",
+    "existing": false,
+    "size": 10000,
+    "sha256": "974d500a3aa2d8019b25fbe1886709503b899ba7fb8e446dbf70911a8645587d"
+  },
+  {
+    "path": "docs/evidence/approval-recovery-20261014/acceptance.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/evidence/approval-recovery-20261014/acceptance.json",
+    "existing": false,
+    "size": 9216,
+    "sha256": "a250511756cef76aab02b984b54b3485b00ceb1ae878b1ba81a6a3e82800b38a"
+  },
+  {
+    "path": "docs/evidence/approval-recovery-20261014/applied-isolated.png",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/evidence/approval-recovery-20261014/applied-isolated.png",
+    "existing": false,
+    "size": 42808,
+    "sha256": "f6768d43df4ef9d06df8df23d639164aaeead12f7a876e8782b85af925eb5fc4"
+  },
+  {
+    "path": "docs/evidence/approval-recovery-20261014/approved-isolated.png",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/evidence/approval-recovery-20261014/approved-isolated.png",
+    "existing": false,
+    "size": 44624,
+    "sha256": "bc42970a4e5331e5398f3cc0bd96e031c89091af96f41164984f4da0d9fdb70f"
+  },
+  {
+    "path": "docs/evidence/approval-recovery-20261014/backend-tests.txt",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/evidence/approval-recovery-20261014/backend-tests.txt",
+    "existing": false,
+    "size": 2072,
+    "sha256": "ad6a48a2137ec0a1c25d41a96ec3fc6814d01280602dad7791890fcd7d40bf34"
+  },
+  {
+    "path": "docs/evidence/approval-recovery-20261014/frontend-build.txt",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/evidence/approval-recovery-20261014/frontend-build.txt",
+    "existing": false,
+    "size": 664,
+    "sha256": "ccd910715df96e7b68d0a5d980e2ba20b6e8ef318e387ca9a595d704af879cb2"
+  },
+  {
+    "path": "docs/evidence/approval-recovery-20261014/frontend-tests.txt",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/evidence/approval-recovery-20261014/frontend-tests.txt",
+    "existing": false,
+    "size": 28257,
+    "sha256": "cce21ff2c81146d60f357cf3e217e90148cf8646808ed1f4b578ce24d968d2c4"
+  },
+  {
+    "path": "docs/evidence/approval-recovery-20261014/pending-18003.png",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/evidence/approval-recovery-20261014/pending-18003.png",
+    "existing": false,
+    "size": 39866,
+    "sha256": "643560b81bf723581c953f3bbff00f69b335080fcc712d53004aed511e9b3588"
+  },
+  {
+    "path": "docs/evidence/approval-recovery-20261014/preview-18003.png",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/evidence/approval-recovery-20261014/preview-18003.png",
+    "existing": false,
+    "size": 39995,
+    "sha256": "05a80ba6b823ec91140309e4d4230c6c1d222891603c02454705ae9665099fd3"
+  },
+  {
+    "path": "docs/evidence/approval-recovery-20261014/revalidation-mobile.png",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/evidence/approval-recovery-20261014/revalidation-mobile.png",
+    "existing": false,
+    "size": 32715,
+    "sha256": "220c84540b6f08aaf362f61ed42a0cb2dcb9c01be669ce05f92d6e1d160e6656"
+  },
+  {
+    "path": "docs/evidence/approval-recovery-20261014/stale-18003.png",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/evidence/approval-recovery-20261014/stale-18003.png",
+    "existing": false,
+    "size": 43857,
+    "sha256": "0739baac6e56bd302c1ea293a5c95ae79307f8c3992c4a9152fb493b8a029654"
+  },
+  {
+    "path": "docs/evidence/hot-policy-plan-20261014/research.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/evidence/hot-policy-plan-20261014/research.json",
+    "existing": false,
+    "size": 5423,
+    "sha256": "6dddf4681b700b1aa2721a6dc7108ecd2f868b1f4ced0fce5038c2a0b07c672c"
+  },
+  {
+    "path": "docs/evidence/policy-activation-audit-20261014/status.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/evidence/policy-activation-audit-20261014/status.json",
+    "existing": false,
+    "size": 3983,
+    "sha256": "d139b0afe728b71ffcd91078d3d8748884cdd5f9f86e091e345e0d357e33af90"
+  },
+  {
+    "path": "docs/releases/20261011-architecture-review-pr.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/releases/20261011-architecture-review-pr.md",
+    "existing": false,
+    "size": 2029,
+    "sha256": "bb9fd1b1e70364d714255d43c798b4abb6093a2d1c17caf56e3399bb58049e78"
+  },
+  {
+    "path": "docs/research/20261012-four-layer-policy/README.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/research/20261012-four-layer-policy/README.md",
+    "existing": false,
+    "size": 2078,
+    "sha256": "f706a3e62961d529097dc19ba40c30f0edbc545fc0eb56860b2c5319cdbd9883"
+  },
+  {
+    "path": "docs/research/20261012-four-layer-policy/artifact-check.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/research/20261012-four-layer-policy/artifact-check.json",
+    "existing": false,
+    "size": 330,
+    "sha256": "9007c54c242936c727f7548fdce9c5023fbf17b8d2975e30fc81254951d3a29e"
+  },
+  {
+    "path": "docs/research/20261012-four-layer-policy/benchmark-catalog.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/research/20261012-four-layer-policy/benchmark-catalog.json",
+    "existing": false,
+    "size": 4519,
+    "sha256": "baf5414b9e7934a4feb93f371c49ba723e867908b03885c0cfc231985e0ae14f"
+  },
+  {
+    "path": "docs/research/20261012-four-layer-policy/case-catalog.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/research/20261012-four-layer-policy/case-catalog.json",
+    "existing": false,
+    "size": 15800,
+    "sha256": "d5fd0eb516ef724929cebe556fd954f95ff0f606ebd3e57c5804e49c3e7140ff"
+  },
+  {
+    "path": "docs/research/20261012-four-layer-policy/case-catalog.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/research/20261012-four-layer-policy/case-catalog.md",
+    "existing": false,
+    "size": 13470,
+    "sha256": "c78667b4718fa6487efd816b8f62b0b7cfa36d93f301d2729119a4e997976d53"
+  },
+  {
+    "path": "docs/research/20261012-four-layer-policy/case-notes.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/research/20261012-four-layer-policy/case-notes.json",
+    "existing": false,
+    "size": 10823,
+    "sha256": "c7f28e1d827928aab040e61bb5c4e9ce5df15677dd635bd01bbacd82dc4e37c9"
+  },
+  {
+    "path": "docs/research/20261012-four-layer-policy/central-index-updates.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/research/20261012-four-layer-policy/central-index-updates.json",
+    "existing": false,
+    "size": 1102,
+    "sha256": "f3d80e9cfb5e5d02089a7895378cd90a37a0b67791f39435fb6e0e7437e473f1"
+  },
+  {
+    "path": "docs/research/20261012-four-layer-policy/collect.py",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/research/20261012-four-layer-policy/collect.py",
+    "existing": false,
+    "size": 8659,
+    "sha256": "5b8ed2382d1998feb0c0b9cc837e79342fb63f1e79b50151cb62804f9a1781b7"
+  },
+  {
+    "path": "docs/research/20261012-four-layer-policy/example-source-index.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/research/20261012-four-layer-policy/example-source-index.json",
+    "existing": false,
+    "size": 5329,
+    "sha256": "f15868249692b586abbf08d172741b13e121a0f3ddbb5161303a63a80b9d6c39"
+  },
+  {
+    "path": "docs/research/20261012-four-layer-policy/generation-provenance.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/research/20261012-four-layer-policy/generation-provenance.json",
+    "existing": false,
+    "size": 2342,
+    "sha256": "db62b552cd2d1c452994a5a67d69fa0cc3e37c602efae7b420bb3047643b10df"
+  },
+  {
+    "path": "docs/research/20261012-four-layer-policy/generator-audit.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/research/20261012-four-layer-policy/generator-audit.md",
+    "existing": false,
+    "size": 9126,
+    "sha256": "86630f58aece9c2e4c8509bde97d6045b12977d1634e6c88e2293d40ebe540d9"
+  },
+  {
+    "path": "docs/research/20261012-four-layer-policy/render_catalog.py",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/research/20261012-four-layer-policy/render_catalog.py",
+    "existing": false,
+    "size": 3920,
+    "sha256": "fd2f30f10fcbfc27079c65de898b4aa4e0d263559351e5c7ffb05d6b0470aafe"
+  },
+  {
+    "path": "docs/research/20261012-four-layer-policy/reproduction-plan.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/research/20261012-four-layer-policy/reproduction-plan.md",
+    "existing": false,
+    "size": 9389,
+    "sha256": "b865e8b18cadbb00bae548c5167f4c63f9e96d2f6f504cab4e8632c822028c8d"
+  },
+  {
+    "path": "docs/research/20261012-four-layer-policy/runtime-readback.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/research/20261012-four-layer-policy/runtime-readback.json",
+    "existing": false,
+    "size": 627,
+    "sha256": "da3c28b8fdcd0256f0184a5ffa95c2b06f3f6d87828efd899d7e0381a41ac6fd"
+  },
+  {
+    "path": "docs/research/20261012-four-layer-policy/source-audit.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/research/20261012-four-layer-policy/source-audit.md",
+    "existing": false,
+    "size": 9415,
+    "sha256": "f5d3301f9ac228f676d680c264006a9f4b64696db9ca4a46b30b451752103977"
+  },
+  {
+    "path": "docs/research/20261012-four-layer-policy/source-evidence.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/research/20261012-four-layer-policy/source-evidence.json",
+    "existing": false,
+    "size": 115617,
+    "sha256": "043e1dd517b90270f4e5c135ef201af81ee611c7ffd8cdfec46dc7779fbf3081"
+  },
+  {
+    "path": "docs/research/20261012-four-layer-policy/source-lock.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/research/20261012-four-layer-policy/source-lock.json",
+    "existing": false,
+    "size": 2320,
+    "sha256": "54138348620590f41ce97bceadc31fe84acbc8f8cb886823060d920de3bb4355"
+  },
+  {
+    "path": "docs/research/20261012-four-layer-policy/upstream-artifact-check.txt",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/research/20261012-four-layer-policy/upstream-artifact-check.txt",
+    "existing": false,
+    "size": 2187,
+    "sha256": "8897f3bdc564e1149ca2f23be10c3a2b24e1e817507338cedf3afd751b028b8f"
+  },
+  {
+    "path": "docs/research/20261012-four-layer-policy/validate.py",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/research/20261012-four-layer-policy/validate.py",
+    "existing": false,
+    "size": 11373,
+    "sha256": "aae79b6601a896648b1792b84a5af77679f6c286607b8881a189a370c2e1d15a"
+  },
+  {
+    "path": "docs/research/20261012-four-layer-policy/validation.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/research/20261012-four-layer-policy/validation.json",
+    "existing": false,
+    "size": 4424,
+    "sha256": "82c077dc2d4d11a8be700cf10c8ba67d99f9ebb591798fda86113ca47f941972"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/README.md",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/research/four-agent-scenarios-20261013/README.md",
+    "existing": false,
+    "size": 4084,
+    "sha256": "b1b3644135b37a91988f21028d87450e059188d9b3da7e90a6d4e9d67e8a8543"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/dsh/backup/result.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/research/four-agent-scenarios-20261013/dsh/backup/result.json",
+    "existing": false,
+    "size": 678,
+    "sha256": "b8b564a9b3ab8c7f967a1d66be494512498ee17236a54d0133d99ccf39d4cba6"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/dsh/flow/result.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/research/four-agent-scenarios-20261013/dsh/flow/result.json",
+    "existing": false,
+    "size": 609,
+    "sha256": "e88312b02237ac8cf133e88974208ba2e0852b35b23d44045706ac7e8a28ca61"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/dsh/repair/result.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/research/four-agent-scenarios-20261013/dsh/repair/result.json",
+    "existing": false,
+    "size": 116611,
+    "sha256": "4378cce10b57bd3b12533074fed2541954d116b1692ec7688de7f95c34c629f9"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/dsh/ssh/result.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/research/four-agent-scenarios-20261013/dsh/ssh/result.json",
+    "existing": false,
+    "size": 740,
+    "sha256": "a5209544b8db9e2492fbf5e494b54024a199b24354cb9d2c5f2f13a9ba6ff198"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/mini/backup/result.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/research/four-agent-scenarios-20261013/mini/backup/result.json",
+    "existing": false,
+    "size": 682,
+    "sha256": "0b2569a17a6a20aabc25a82aa36ed6bb08ff83f887541738490bff32e84ebdaa"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/mini/flow/result.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/research/four-agent-scenarios-20261013/mini/flow/result.json",
+    "existing": false,
+    "size": 954,
+    "sha256": "cff38591dcb73c9df72ab8895c94a6b77eceabbcd1b1fdd0833850bc227e031f"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/mini/repair/result.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/research/four-agent-scenarios-20261013/mini/repair/result.json",
+    "existing": false,
+    "size": 4983,
+    "sha256": "e3131184d8789867bc27130e89a352c842c48a1d9fa50ff23721f4dcb1047f97"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/mini/ssh/result.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/research/four-agent-scenarios-20261013/mini/ssh/result.json",
+    "existing": false,
+    "size": 744,
+    "sha256": "5ee11d41d8fa29e09dd9911dc3cfdcc9d5a1ce7e38be23c62d467e0ddc189364"
+  },
+  {
+    "path": "docs/sync-source-20261012.json",
+    "source": "/home/happy/projects/agentscope-rfc-execution-unit-audit-20261014/docs/sync-source-20261012.json",
+    "existing": false,
+    "size": 73108,
+    "sha256": "36073dda1efad823177bcc1a66cf6c5207b34b641d7a2e42f86f48a4ea591278"
+  },
+  {
+    "path": "docs/because-feedback/REVIEW-20261011-RQ5-repair-failure-analysis.md",
+    "source": "/home/happy/projects/agentscope-because-feedback-20261011/docs/because-feedback/REVIEW-20261011-RQ5-repair-failure-analysis.md",
+    "existing": false,
+    "size": 12571,
+    "sha256": "12e9fad6ecf8eb11f3769f8b89a7711d8fa9609806dbd2b08d3d133c229917ca"
+  },
+  {
+    "path": "docs/because-feedback/repair-diagnosis-evidence/current_agent-tests.txt",
+    "source": "/home/happy/projects/agentscope-because-feedback-20261011/docs/because-feedback/repair-diagnosis-evidence/current_agent-tests.txt",
+    "existing": false,
+    "size": 4013,
+    "sha256": "c7ba13d63aaae22c9017bf7715b3e056f97479052acb51e973b6b03413fd5530"
+  },
+  {
+    "path": "docs/because-feedback/repair-diagnosis-evidence/diagnosis.json",
+    "source": "/home/happy/projects/agentscope-because-feedback-20261011/docs/because-feedback/repair-diagnosis-evidence/diagnosis.json",
+    "existing": false,
+    "size": 52636,
+    "sha256": "bebe147136e5b2d23b27b0aab414c90684f269ddab89989f812d42b02e246c97"
+  },
+  {
+    "path": "docs/because-feedback/repair-diagnosis-evidence/frozen-tests.txt",
+    "source": "/home/happy/projects/agentscope-because-feedback-20261011/docs/because-feedback/repair-diagnosis-evidence/frozen-tests.txt",
+    "existing": false,
+    "size": 5225,
+    "sha256": "2d5eca36d3b3fad818f964be6414a9d34c2f5cb8c4ef5fecbdbc0e7b3ccb6469"
+  },
+  {
+    "path": "docs/because-feedback/repair-diagnosis-evidence/historical_13_pass-tests.txt",
+    "source": "/home/happy/projects/agentscope-because-feedback-20261011/docs/because-feedback/repair-diagnosis-evidence/historical_13_pass-tests.txt",
+    "existing": false,
+    "size": 2099,
+    "sha256": "a5de889b7eeac9f9855d7edd2709e7c8707252d00fa4f70527f1139e93ba02a6"
+  },
+  {
+    "path": "docs/because-feedback/repair-diagnosis-evidence/ip_order_counterexample-tests.txt",
+    "source": "/home/happy/projects/agentscope-because-feedback-20261011/docs/because-feedback/repair-diagnosis-evidence/ip_order_counterexample-tests.txt",
+    "existing": false,
+    "size": 3317,
+    "sha256": "b1208797097df14fac015b3307a5cf96adf3cc1b274b34584efa8a67669e47a8"
+  },
+  {
+    "path": "docs/because-feedback/repair-diagnosis-evidence/missing_ip_guard_only-tests.txt",
+    "source": "/home/happy/projects/agentscope-because-feedback-20261011/docs/because-feedback/repair-diagnosis-evidence/missing_ip_guard_only-tests.txt",
+    "existing": false,
+    "size": 5225,
+    "sha256": "bc996a917da1278145be0b5c29796b38e384853265e0bf675ff3da06b8abc3ab"
+  },
+  {
+    "path": "docs/because-feedback/repair-diagnosis-evidence/native-public-records.json",
+    "source": "/home/happy/projects/agentscope-because-feedback-20261011/docs/because-feedback/repair-diagnosis-evidence/native-public-records.json",
+    "existing": false,
+    "size": 194362,
+    "sha256": "7df61c666461cc89d646199956df671217fd63072ed1c6f517da728481ba0b86"
+  },
+  {
+    "path": "docs/because-feedback/repair-diagnosis-evidence/uninstrumented/current_agent-tests.txt",
+    "source": "/home/happy/projects/agentscope-because-feedback-20261011/docs/because-feedback/repair-diagnosis-evidence/uninstrumented/current_agent-tests.txt",
+    "existing": false,
+    "size": 4013,
+    "sha256": "2a4ed37dba50729301c2f02618438f0f76b2a8287041ab42570bc379298b986a"
+  },
+  {
+    "path": "docs/because-feedback/repair-diagnosis-evidence/uninstrumented/diagnosis.json",
+    "source": "/home/happy/projects/agentscope-because-feedback-20261011/docs/because-feedback/repair-diagnosis-evidence/uninstrumented/diagnosis.json",
+    "existing": false,
+    "size": 28812,
+    "sha256": "2d0e95194799516628a38a552154000c9a0f3bc4e20360965cef08f4c2c05f85"
+  },
+  {
+    "path": "docs/because-feedback/repair-diagnosis-evidence/uninstrumented/frozen-tests.txt",
+    "source": "/home/happy/projects/agentscope-because-feedback-20261011/docs/because-feedback/repair-diagnosis-evidence/uninstrumented/frozen-tests.txt",
+    "existing": false,
+    "size": 5225,
+    "sha256": "e7d6ebb67cfcb6f88d31d87099c3d9ce1e2046f4cc5ff3e4de532ee15de660ac"
+  },
+  {
+    "path": "docs/because-feedback/repair-diagnosis-evidence/uninstrumented/historical_13_pass-tests.txt",
+    "source": "/home/happy/projects/agentscope-because-feedback-20261011/docs/because-feedback/repair-diagnosis-evidence/uninstrumented/historical_13_pass-tests.txt",
+    "existing": false,
+    "size": 2099,
+    "sha256": "b077a6c9b478ca4518dbf6137f0ccea77865feeedb2a3ae2066e567d856445e9"
+  },
+  {
+    "path": "docs/because-feedback/repair-diagnosis-evidence/uninstrumented/ip_order_counterexample-tests.txt",
+    "source": "/home/happy/projects/agentscope-because-feedback-20261011/docs/because-feedback/repair-diagnosis-evidence/uninstrumented/ip_order_counterexample-tests.txt",
+    "existing": false,
+    "size": 3317,
+    "sha256": "5984419f82f180ab5a7269b89e262cce8d72f533331e61150b3b3198e7c299e0"
+  },
+  {
+    "path": "docs/because-feedback/repair-diagnosis-evidence/uninstrumented/missing_ip_guard_only-tests.txt",
+    "source": "/home/happy/projects/agentscope-because-feedback-20261011/docs/because-feedback/repair-diagnosis-evidence/uninstrumented/missing_ip_guard_only-tests.txt",
+    "existing": false,
+    "size": 5225,
+    "sha256": "2d5eca36d3b3fad818f964be6414a9d34c2f5cb8c4ef5fecbdbc0e7b3ccb6469"
+  },
+  {
+    "path": "docs/because-feedback/repair-diagnosis-evidence/uninstrumented/native-public-records.json",
+    "source": "/home/happy/projects/agentscope-because-feedback-20261011/docs/because-feedback/repair-diagnosis-evidence/uninstrumented/native-public-records.json",
+    "existing": false,
+    "size": 194362,
+    "sha256": "7df61c666461cc89d646199956df671217fd63072ed1c6f517da728481ba0b86"
+  },
+  {
+    "path": "docs/because-feedback/repair-diagnosis-evidence/verification.json",
+    "source": "/home/happy/projects/agentscope-because-feedback-20261011/docs/because-feedback/repair-diagnosis-evidence/verification.json",
+    "existing": false,
+    "size": 4632,
+    "sha256": "c1325a164feba284d52a49299d5086319eeffed684690e43d7bce097a058207c"
+  },
+  {
+    "path": "scripts/diagnose_rq5_repair.py",
+    "source": "/home/happy/projects/agentscope-because-feedback-20261011/scripts/diagnose_rq5_repair.py",
+    "existing": false,
+    "size": 18060,
+    "sha256": "bd6fa08bba52cc30c43896e10eeedda9ef8bc4737e80721559c69e733cc81936"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/controls/probe-flow-control3/kernel-events.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/controls/probe-flow-control3/kernel-events.json",
+    "existing": false,
+    "size": 2798,
+    "sha256": "6e0ad9e0fc38a913cab61f8b9bd3fd5e79db19a143fe20342edce154b97b2e55"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/controls/probe-flow-control3/policy.yaml",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/controls/probe-flow-control3/policy.yaml",
+    "existing": false,
+    "size": 394,
+    "sha256": "d8cd115f5720e8a63907dcaf4c91223dc3c35e3ef5265e07818043703de3c6a4"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/controls/probe-flow-control3/result.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/controls/probe-flow-control3/result.json",
+    "existing": false,
+    "size": 394,
+    "sha256": "fea8bb4d2132207677e4ac415c3d6d06a6c9f0dfb11d7d4e4662148cdd80de9f"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/controls/probe-flow-control3/task.txt",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/controls/probe-flow-control3/task.txt",
+    "existing": false,
+    "size": 530,
+    "sha256": "ed80bf7b71e87c90a5e01651d0d914a8af3a149d9662abd263002478d34439fd"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/controls/raw-backup-controls2/kernel-events.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/controls/raw-backup-controls2/kernel-events.json",
+    "existing": false,
+    "size": 2,
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/controls/raw-backup-controls2/policy.yaml",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/controls/raw-backup-controls2/policy.yaml",
+    "existing": false,
+    "size": 907,
+    "sha256": "88ade3b319f338aa2100c5475222b6f6c724166e065bf365b6deaa58e9df83cb"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/controls/raw-backup-controls2/result.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/controls/raw-backup-controls2/result.json",
+    "existing": false,
+    "size": 284,
+    "sha256": "40cebf18d955ce1f98e8946deb41fc4f7c8b0b0b1ed8e51a33170b10e95c5ef4"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/controls/raw-backup-controls2/task.txt",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/controls/raw-backup-controls2/task.txt",
+    "existing": false,
+    "size": 469,
+    "sha256": "36a55276a1020079a6f9e5e2ea7268187687b2e1b731874c1034805b95e24cbe"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/controls/raw-flow-controls2/kernel-events.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/controls/raw-flow-controls2/kernel-events.json",
+    "existing": false,
+    "size": 2,
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/controls/raw-flow-controls2/policy.yaml",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/controls/raw-flow-controls2/policy.yaml",
+    "existing": false,
+    "size": 393,
+    "sha256": "886b945d103ee18d2bd1140a6d70ed11a0ef28727763d5e96d88168e663e6d40"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/controls/raw-flow-controls2/result.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/controls/raw-flow-controls2/result.json",
+    "existing": false,
+    "size": 526,
+    "sha256": "6335b5d245e61e74c6c1e02619d89983c22e7b54be5c9625b648d12d80983e29"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/controls/raw-flow-controls2/task.txt",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/controls/raw-flow-controls2/task.txt",
+    "existing": false,
+    "size": 530,
+    "sha256": "8504dbf1b1f9427a95c8495c64a9447363c40076141f0da966aeb183dba21fa5"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/controls/raw-repair-controls2/kernel-events.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/controls/raw-repair-controls2/kernel-events.json",
+    "existing": false,
+    "size": 2,
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/controls/raw-repair-controls2/policy.yaml",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/controls/raw-repair-controls2/policy.yaml",
+    "existing": false,
+    "size": 504,
+    "sha256": "1f48992fd8e13c0134bb69abee3dcdb32834f76fa42fee76609dfb5d7228c0a1"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/controls/raw-repair-controls2/result.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/controls/raw-repair-controls2/result.json",
+    "existing": false,
+    "size": 6658,
+    "sha256": "7493bd258b505e676bacb91fb34fe8689f54fb1f28a5ec006ed1ef8bd4e33f9d"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/controls/raw-repair-controls2/task.txt",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/controls/raw-repair-controls2/task.txt",
+    "existing": false,
+    "size": 702,
+    "sha256": "3db21f1932300bf546045b7456b02dc49467d375de7fcc1a2e6d217b8eec1b42"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/controls/raw-ssh-controls3/kernel-events.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/controls/raw-ssh-controls3/kernel-events.json",
+    "existing": false,
+    "size": 2,
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/controls/raw-ssh-controls3/policy.yaml",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/controls/raw-ssh-controls3/policy.yaml",
+    "existing": false,
+    "size": 300,
+    "sha256": "af0da980c8d52f2d8669f31392fb90a143aa8181b81f8fed8c84a214ceff708c"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/controls/raw-ssh-controls3/result.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/controls/raw-ssh-controls3/result.json",
+    "existing": false,
+    "size": 402,
+    "sha256": "05d6e0b34744b37bf966b5bb7efa9fe68fcf2feef46dcce6508602fc75409cab"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/controls/raw-ssh-controls3/task.txt",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/controls/raw-ssh-controls3/task.txt",
+    "existing": false,
+    "size": 506,
+    "sha256": "8dc53b60677ed0ac17860b69a198844c344da1fd294af13f2a42080f5ab84898"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/dsh/backup/adaptation.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/dsh/backup/adaptation.json",
+    "existing": false,
+    "size": 552,
+    "sha256": "4cf413892e131245b01cc170d236bc2bf1dc20af67b170812273d7b938ae5d6d"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/dsh/backup/child.py",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/dsh/backup/child.py",
+    "existing": false,
+    "size": 5374,
+    "sha256": "e8cbcbaca6086788e147f9b449ca310aefb0281aa3f0573ab5c643974e22c684"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/dsh/backup/kernel-events.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/dsh/backup/kernel-events.json",
+    "existing": false,
+    "size": 5356,
+    "sha256": "fe754bec09d49c4be4cf8fc1f1f864c415c865b61a09365b5b7b6b4aff98968f"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/dsh/backup/policy.yaml",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/dsh/backup/policy.yaml",
+    "existing": false,
+    "size": 879,
+    "sha256": "e5b2785bd5bd31fcd89c0c31c4a1949dbd319c0a4b7c012e7559dc88fa2d786b"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/dsh/backup/protected-before.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/dsh/backup/protected-before.json",
+    "existing": false,
+    "size": 165,
+    "sha256": "be8e1bae5731119039db1cbe49117e3460e7d41ec54a411b0a4bc933dd9784d4"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/dsh/backup/public-session.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/dsh/backup/public-session.json",
+    "existing": false,
+    "size": 21193,
+    "sha256": "6fd6fc329e33d84ec71d8ab7f20a8b6878925fab8d3c04892265380336b2df04"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/dsh/backup/task.txt",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/dsh/backup/task.txt",
+    "existing": false,
+    "size": 469,
+    "sha256": "36a55276a1020079a6f9e5e2ea7268187687b2e1b731874c1034805b95e24cbe"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/dsh/flow/child.py",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/dsh/flow/child.py",
+    "existing": false,
+    "size": 5374,
+    "sha256": "e8cbcbaca6086788e147f9b449ca310aefb0281aa3f0573ab5c643974e22c684"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/dsh/flow/kernel-events.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/dsh/flow/kernel-events.json",
+    "existing": false,
+    "size": 11098,
+    "sha256": "a79137ceb56095adab896166ce67aa2171b9113be5af9a7ca6012b63fba5a997"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/dsh/flow/policy.yaml",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/dsh/flow/policy.yaml",
+    "existing": false,
+    "size": 386,
+    "sha256": "a48ca823c27cdbea8f67256787a892d8a6e93c0d5e003469300379d48b909eee"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/dsh/flow/protected-before.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/dsh/flow/protected-before.json",
+    "existing": false,
+    "size": 90,
+    "sha256": "d09086d5106bcd25aac776d61b4d9c6126aee9ab485b0ab7433ce285d4a01420"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/dsh/flow/public-session.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/dsh/flow/public-session.json",
+    "existing": false,
+    "size": 73274,
+    "sha256": "e196705953b6e2a5f9cceb144c275e4e53a04da2f8f2bff9c4c55673d3d40ee9"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/dsh/flow/task.txt",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/dsh/flow/task.txt",
+    "existing": false,
+    "size": 530,
+    "sha256": "d7142cef91eaf04652085ea89fd90013792a85242a29fb7c4be3137bd245e950"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/dsh/repair/child.py",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/dsh/repair/child.py",
+    "existing": false,
+    "size": 5501,
+    "sha256": "a83df9742ff70f3e17c19d2087c87d72e3f9671d465075570148b3ea60e8bd32"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/dsh/repair/kernel-events.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/dsh/repair/kernel-events.json",
+    "existing": false,
+    "size": 2699,
+    "sha256": "940e23f80b175e5cffa260658869692cfaf6bbc21b0aa9b4a500cc9f2a380fd3"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/dsh/repair/policy.yaml",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/dsh/repair/policy.yaml",
+    "existing": false,
+    "size": 490,
+    "sha256": "d18974ba229fcb006d3aaacf23b77e38871dca73cddb2a247c09ecfe17e6c4c1"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/dsh/repair/protected-before.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/dsh/repair/protected-before.json",
+    "existing": false,
+    "size": 3838,
+    "sha256": "a74418c3a53b2fc6b0cd00dd960a3abaf45851a401179c7a10e6bda0bcd3b9de"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/dsh/repair/public-session.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/dsh/repair/public-session.json",
+    "existing": false,
+    "size": 177251,
+    "sha256": "d974b160d926329f8f9a7c2af574552fd73fd68558608d25da7076fcdda7f4f8"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/dsh/repair/task.txt",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/dsh/repair/task.txt",
+    "existing": false,
+    "size": 702,
+    "sha256": "3db21f1932300bf546045b7456b02dc49467d375de7fcc1a2e6d217b8eec1b42"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/dsh/ssh/child.py",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/dsh/ssh/child.py",
+    "existing": false,
+    "size": 5374,
+    "sha256": "e8cbcbaca6086788e147f9b449ca310aefb0281aa3f0573ab5c643974e22c684"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/dsh/ssh/kernel-events.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/dsh/ssh/kernel-events.json",
+    "existing": false,
+    "size": 2677,
+    "sha256": "5d55a516674b0c62ad19f904f2e87727ca8c9709d838b2e0a652e7c5817a32eb"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/dsh/ssh/policy.yaml",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/dsh/ssh/policy.yaml",
+    "existing": false,
+    "size": 293,
+    "sha256": "ce06be5497ed29e67748ff6708784046385bc1a3f0c53c00bcc47c55ff86dcd9"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/dsh/ssh/protected-before.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/dsh/ssh/protected-before.json",
+    "existing": false,
+    "size": 91,
+    "sha256": "99dc482678aae9422cee057061a9d081cec1ccac571e170378f0871021104b4d"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/dsh/ssh/public-session.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/dsh/ssh/public-session.json",
+    "existing": false,
+    "size": 14668,
+    "sha256": "b73f2dcbe6d5b6a04681c225b9f8d8432ad0c79c0c33131b03727c71ab8fc7be"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/dsh/ssh/task.txt",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/dsh/ssh/task.txt",
+    "existing": false,
+    "size": 506,
+    "sha256": "ff67dae15e47175852d2c5e98b30c603dcf7a9f9c0d65b1c0194f1542951eda7"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/flask-LICENSE.rst",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/flask-LICENSE.rst",
+    "existing": false,
+    "size": 1475,
+    "sha256": "489a8e1108509ed98a37bb983e11e0f7e1d31f0bd8f99a79c8448e7ff37d07ea"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/manifest.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/manifest.json",
+    "existing": false,
+    "size": 9408,
+    "sha256": "d4a9abef73647399113b9b55376176bd30085131b2daf7131c820c0ebb7c8124"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/mini/backup/adaptation.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/mini/backup/adaptation.json",
+    "existing": false,
+    "size": 553,
+    "sha256": "5e8f800e53d61cc43309d2fcd9d6044db5a49b5417d25ae45b91ed67d31f2852"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/mini/backup/child.py",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/mini/backup/child.py",
+    "existing": false,
+    "size": 6328,
+    "sha256": "73b40e788e5643ce685cd679749f4b71f0b9974d04debcc214c686571c848cb4"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/mini/backup/kernel-events.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/mini/backup/kernel-events.json",
+    "existing": false,
+    "size": 3994,
+    "sha256": "a9d26d10c664be214a11f5766191523a5b00696b3f75c64d851b11dd6255fd2f"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/mini/backup/model-feedback-receipts.jsonl",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/mini/backup/model-feedback-receipts.jsonl",
+    "existing": false,
+    "size": 864,
+    "sha256": "b90fc8c3d4670e3868993c69e864b94313bc37ae74b9cb4130acca278aeaeedc"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/mini/backup/policy.yaml",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/mini/backup/policy.yaml",
+    "existing": false,
+    "size": 883,
+    "sha256": "666e134d060e03b2bc60e2cbeca3f99869f25feb832d04e6acfca8f0f4151e2a"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/mini/backup/process-identities.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/mini/backup/process-identities.json",
+    "existing": false,
+    "size": 1011,
+    "sha256": "70a04168f65e691e8cd60c67fa78c179f4e13481d0b49b542060d2a7d2e6c9e4"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/mini/backup/protected-before.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/mini/backup/protected-before.json",
+    "existing": false,
+    "size": 165,
+    "sha256": "be8e1bae5731119039db1cbe49117e3460e7d41ec54a411b0a4bc933dd9784d4"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/mini/backup/public-tools.jsonl",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/mini/backup/public-tools.jsonl",
+    "existing": false,
+    "size": 5459,
+    "sha256": "be5fa5fbc00df3cdcd3681525db0b808c2ffc4c4bd04b97fbf11fdbdfd6cc79e"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/mini/backup/task.txt",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/mini/backup/task.txt",
+    "existing": false,
+    "size": 469,
+    "sha256": "36a55276a1020079a6f9e5e2ea7268187687b2e1b731874c1034805b95e24cbe"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/mini/flow/child.py",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/mini/flow/child.py",
+    "existing": false,
+    "size": 6328,
+    "sha256": "73b40e788e5643ce685cd679749f4b71f0b9974d04debcc214c686571c848cb4"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/mini/flow/kernel-events.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/mini/flow/kernel-events.json",
+    "existing": false,
+    "size": 2779,
+    "sha256": "0abb0c54e657012edf997a379b450e4ed29bfbadcf0a484d31993dc4323eed9e"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/mini/flow/model-feedback-receipts.jsonl",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/mini/flow/model-feedback-receipts.jsonl",
+    "existing": false,
+    "size": 518,
+    "sha256": "ceb575386758996ed886bd10d939a7d171e9f0828cefa53dd953068c4703289a"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/mini/flow/policy.yaml",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/mini/flow/policy.yaml",
+    "existing": false,
+    "size": 387,
+    "sha256": "bdfa298c11ab8bdb89ea16b4f583ef99bc0614bc53af3b8fa73b1e1ad405abc4"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/mini/flow/process-identities.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/mini/flow/process-identities.json",
+    "existing": false,
+    "size": 607,
+    "sha256": "4c36b95c85ceab3e294e8657d454d29598e9e25a5377d2f86a77b58d95e7b61b"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/mini/flow/protected-before.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/mini/flow/protected-before.json",
+    "existing": false,
+    "size": 90,
+    "sha256": "d09086d5106bcd25aac776d61b4d9c6126aee9ab485b0ab7433ce285d4a01420"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/mini/flow/public-tools.jsonl",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/mini/flow/public-tools.jsonl",
+    "existing": false,
+    "size": 14374,
+    "sha256": "f410a0ed632d103db5f2dc202059d0e3d577bf04cf669b964cbbe9c0421be8a7"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/mini/flow/task.txt",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/mini/flow/task.txt",
+    "existing": false,
+    "size": 530,
+    "sha256": "27116f282ff32211e36a135d0428d913ebb89ced876528e7f0b19c7a2ad111f0"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/mini/repair/child.py",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/mini/repair/child.py",
+    "existing": false,
+    "size": 6328,
+    "sha256": "73b40e788e5643ce685cd679749f4b71f0b9974d04debcc214c686571c848cb4"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/mini/repair/kernel-events.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/mini/repair/kernel-events.json",
+    "existing": false,
+    "size": 2022,
+    "sha256": "a5d3371751a406d91abd1bd8800b855599c3a239e9312c0996b5498dca8d96c3"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/mini/repair/model-feedback-receipts.jsonl",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/mini/repair/model-feedback-receipts.jsonl",
+    "existing": false,
+    "size": 2936,
+    "sha256": "ba2c588ebcff36183c200b70d1a51c6be32d78a85e744e923ad25a558d01c67d"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/mini/repair/policy.yaml",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/mini/repair/policy.yaml",
+    "existing": false,
+    "size": 492,
+    "sha256": "4ca6c20fd5c30e434e4afb5a8ecd95732ee41e0d54bf8a4b1d07bf058519f986"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/mini/repair/process-identities.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/mini/repair/process-identities.json",
+    "existing": false,
+    "size": 3397,
+    "sha256": "ea6b0db943606a6f92bbf696cab6ac7a430f72bc5071a324ba55d13914ba6951"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/mini/repair/protected-before.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/mini/repair/protected-before.json",
+    "existing": false,
+    "size": 3838,
+    "sha256": "a74418c3a53b2fc6b0cd00dd960a3abaf45851a401179c7a10e6bda0bcd3b9de"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/mini/repair/public-tools.jsonl",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/mini/repair/public-tools.jsonl",
+    "existing": false,
+    "size": 68460,
+    "sha256": "679809503d058bd3cf6902bf037e2f6032a298f2f4948226174b124945e14d02"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/mini/repair/task.txt",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/mini/repair/task.txt",
+    "existing": false,
+    "size": 702,
+    "sha256": "3db21f1932300bf546045b7456b02dc49467d375de7fcc1a2e6d217b8eec1b42"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/mini/ssh/child.py",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/mini/ssh/child.py",
+    "existing": false,
+    "size": 6328,
+    "sha256": "73b40e788e5643ce685cd679749f4b71f0b9974d04debcc214c686571c848cb4"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/mini/ssh/kernel-events.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/mini/ssh/kernel-events.json",
+    "existing": false,
+    "size": 2000,
+    "sha256": "033214dac8ec9c880b8e9fb3690b3b15d1e9794d218ccce69305fb7f6f2888ea"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/mini/ssh/model-feedback-receipts.jsonl",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/mini/ssh/model-feedback-receipts.jsonl",
+    "existing": false,
+    "size": 692,
+    "sha256": "6248943f41cf068f39a89b0bbac62d9a727f3e1c2573a8c1556e9ff82e2f0c5b"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/mini/ssh/policy.yaml",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/mini/ssh/policy.yaml",
+    "existing": false,
+    "size": 294,
+    "sha256": "d4d938257e53c4d687483db3018a617f86db941d478c5878aa93d532671beec6"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/mini/ssh/process-identities.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/mini/ssh/process-identities.json",
+    "existing": false,
+    "size": 607,
+    "sha256": "15a6676b4b6213eb622160841c13c24974fd3e2b2b9cb28d6bc3e60aceaa8b8c"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/mini/ssh/protected-before.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/mini/ssh/protected-before.json",
+    "existing": false,
+    "size": 91,
+    "sha256": "99dc482678aae9422cee057061a9d081cec1ccac571e170378f0871021104b4d"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/mini/ssh/public-tools.jsonl",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/mini/ssh/public-tools.jsonl",
+    "existing": false,
+    "size": 3861,
+    "sha256": "f3bc41fb0468525bd531707e6583361ef49d9fe1cdf11a12a73297f914614e60"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/mini/ssh/task.txt",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/mini/ssh/task.txt",
+    "existing": false,
+    "size": 506,
+    "sha256": "a3fee94dae18cd2200c3fcccb5b3571b8d7181f0b150b637f9690b80197deb8e"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/production-safety.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/production-safety.json",
+    "existing": false,
+    "size": 145736,
+    "sha256": "c6f40c2e055ac2a5ac8cce5acff0f8f99e97195212d627c3686393dde98fb8d4"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/source-manifest.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/source-manifest.json",
+    "existing": false,
+    "size": 3359,
+    "sha256": "c534a771215611b5bb8b9b6b81f3425089711514b0c6eeb29334cc84126e2777"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/summary.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/summary.json",
+    "existing": false,
+    "size": 144225,
+    "sha256": "b22acd316f81f1255c8ea0920d52719b24c8143d60a321f13554cf6b9ecff5b6"
+  },
+  {
+    "path": "docs/research/four-agent-scenarios-20261013/swe-baseline.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/docs/research/four-agent-scenarios-20261013/swe-baseline.json",
+    "existing": false,
+    "size": 6624,
+    "sha256": "f604ec7bb6c29a81989529f4429cbf6fcae202a97e0ece9230d6f668cdc9f07d"
+  },
+  {
+    "path": "integrations/dsh-experiment-feedback/README.md",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/integrations/dsh-experiment-feedback/README.md",
+    "existing": false,
+    "size": 601,
+    "sha256": "1ded0fd56ddcc012373254c349e0266aa0d83041147ff0bcb7b82e1c32c215bb"
+  },
+  {
+    "path": "integrations/dsh-experiment-feedback/cordis.patch.yml",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/integrations/dsh-experiment-feedback/cordis.patch.yml",
+    "existing": false,
+    "size": 97,
+    "sha256": "ab24d8d69f83e124ae1f145891865ce39902cd0ab20db2f3742dcca2e24455bc"
+  },
+  {
+    "path": "integrations/dsh-experiment-feedback/lib/index.js",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/integrations/dsh-experiment-feedback/lib/index.js",
+    "existing": false,
+    "size": 1158,
+    "sha256": "c952c101fb31c2aa76222e83a5e90a63cc64f462d73d487500b123a21d3bbecf"
+  },
+  {
+    "path": "integrations/dsh-experiment-feedback/package.json",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/integrations/dsh-experiment-feedback/package.json",
+    "existing": false,
+    "size": 275,
+    "sha256": "3a32ad579baa75082a4b70c9370fd20df3d489b49383382b1a75868f8d18b676"
+  },
+  {
+    "path": "scripts/accept_four_agent_scenarios.py",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/scripts/accept_four_agent_scenarios.py",
+    "existing": false,
+    "size": 20490,
+    "sha256": "4957528f8ff52f875c47a654c7e141cb0b382754d33d5c4b5bb93a3d470705f4"
+  },
+  {
+    "path": "scripts/export_four_agent_scenarios.py",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/scripts/export_four_agent_scenarios.py",
+    "existing": false,
+    "size": 7432,
+    "sha256": "8a4040f047e894f1437b86d5f77999bcbf33e06a343375c8490b21196b5069d2"
+  },
+  {
+    "path": "scripts/four_scenario_child.py",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/scripts/four_scenario_child.py",
+    "existing": false,
+    "size": 6327,
+    "sha256": "5717b5605ae33f7ce6a5fe8d2918b07232f1dd49f9973cf3174d829002b14261"
+  },
+  {
+    "path": "scripts/prepare_four_agent_scenarios.py",
+    "source": "/home/happy/projects/agentscope-policy-targets-step1-20261012/scripts/prepare_four_agent_scenarios.py",
+    "existing": false,
+    "size": 4742,
+    "sha256": "fd3c90838807941db93c1e0e20c34519208b7ce3f3329f96344c0e1bb8ef6fd7"
+  }
+]

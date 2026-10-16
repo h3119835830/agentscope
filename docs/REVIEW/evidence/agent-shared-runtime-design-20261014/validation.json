@@ -1,0 +1,79 @@
+{
+  "schema": "agentscope.shared-runtime-design.validation.v1",
+  "checked_at": "2026-10-14T12:44:52.623121+00:00",
+  "status": "passed",
+  "acceptance_type": "static_architecture_document_review",
+  "documentation_only": true,
+  "application_or_dsh_modified": false,
+  "runtime_or_model_acceptance_performed": false,
+  "kernel_policy_applied": false,
+  "service_restart_or_deployment_performed": false,
+  "remote_push_performed": false,
+  "source_binary_reproducible_build_verified": false,
+  "document_base_commit": "4931c9ba5ffedf0277a2e05cad7f05e785510f4d",
+  "application_commit": "ffe88eb5aaca10f5b7c675da181be0a6ed068edc",
+  "source_hashes": {
+    "actplane/bpf/capability.bpf.h": "85a89c0fa972217f686f900a1f2887e805ad0000932c8132cd7da6216ea4e60d",
+    "actplane/crates/actplane-cli/src/main.rs": "eeb5cc30d08b4be427c72bda027baa8a750dcac4bcd3930f691eff166d0e1da7",
+    "backend/agentscope_app/instances/dsl_policy.py": "d7b3cf6eda4ee3cd8a6e664da7f7b8b832380a09eddcb5a6817a27c80383f803",
+    "backend/broker/instance_runtime.py": "2f6da39ee44ffda53408af577ca425cd06c093c3c47a5030cf7b45fa7f496040"
+  },
+  "before_documents": {
+    "RFC/RFC-20261014-AgentScope-agent-baseline-runtime-policy.md": {
+      "sha256": "7505f52e3a89b82b40f35ac9cd5c72949ec9311135a4f799865c7c07df641b05",
+      "lines": 103
+    },
+    "ADR/ADR-20261014-AgentScope-agent-baseline-runtime-policy.md": {
+      "sha256": "c67e26cf9487826629cd7630d804bc5250d84cd6186e6424fc8dd5512cbe9d48",
+      "lines": 25
+    },
+    "REVIEW/REVIEW-20261014-AgentScope-agent-baseline-runtime-policy.md": {
+      "sha256": "cf65391bff6c45fe500ff6c5a7de75cb0b1b048b38d15735e2ad5ae56747c375",
+      "lines": 36
+    },
+    "BUG/BUG-20261014-AgentScope-agent-baseline-runtime-policy.md": {
+      "sha256": "5a7a4fc5761f244fd1f7bb2045f32822734e158761817cdffc6ad32de7ce986b",
+      "lines": 22
+    }
+  },
+  "after_documents": {
+    "RFC/RFC-20261014-AgentScope-agent-baseline-runtime-policy.md": "23db58407929518953bb942728eb30a93a98419a8a9d4ecf2cccc9d2ae49b575",
+    "ADR/ADR-20261014-AgentScope-agent-baseline-runtime-policy.md": "ac106bdd27ccb4908a9e8414c48f23aa3247b4c79e4bdd08e388c42244417e85",
+    "REVIEW/REVIEW-20261014-AgentScope-agent-baseline-runtime-policy.md": "19f8a68e8299280b31d2dfb3053fb5c903661c7d92933a1b0f05ba3271f98421",
+    "BUG/BUG-20261014-AgentScope-agent-baseline-runtime-policy.md": "7fea45816c33c6939040e8dd42f3dd260457729af6166453eb81c7e0448c85b9"
+  },
+  "index_documents": {
+    "README.md": "9c50371c6d5f7c3183653b3fcec459ff13f53bb27a3789c34927ee61a40a1e52",
+    "docs/README.md": "2e4c45a33de6b1479990ed88cbdcf3b5d2755ef0c16125f3f2f0ea79ea66fd8e"
+  },
+  "central_index_sha256": "b1d5640055916128c3fdfbde0e47c85e9a6c6087ce32814bb39476aad5bc0bcf",
+  "checks": {
+    "relative_link_closure": true,
+    "documentation_scope_only": true,
+    "staged_diff_check": true,
+    "central_cas_passed": true,
+    "central_byte_equality": true,
+    "source_facts_checked": true,
+    "source_hashes_stable": true,
+    "application_worktree_clean": true,
+    "historical_evidence_unchanged": true,
+    "text_credential_literal_scan": true
+  },
+  "link_check": {
+    "files": 314,
+    "links": 621,
+    "missing": []
+  },
+  "changed_file_count": 7,
+  "json_files_parsed": 1,
+  "normative_review": [
+    "Shared execution domain is the accepted default; session origin does not define enforcement scope.",
+    "System and Agent retain baseline ownership; AgentRuntime is execution metadata, not another policy layer.",
+    "Concurrent tasks and proposals remain allowed; domain policy application uses one trusted coordinator and expected active version.",
+    "Full immutable snapshots do not claim atomic kernel hot switching or cross-domain transactions.",
+    "Actual Broker/kernel readback remains distinct from stored intent; partial/unknown state is reported honestly.",
+    "Connection/native adapter preserves original workspace/session/tool flows and capability-dependent feedback.",
+    "Shared session projections read the same active domain facts; task cancellation does not remove shared rules.",
+    "N11/N12 define future concurrency/failure acceptance; no new runtime scenarios passed."
+  ]
+}

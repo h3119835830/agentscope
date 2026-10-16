@@ -1,0 +1,24 @@
+{
+  "case": "flow",
+  "run": "/a4/raw-flow-controls2",
+  "returncode": 0,
+  "elapsed_seconds": 0.21770310401916504,
+  "kernel_denials": 0,
+  "receiver": [
+    {
+      "path": "/upload",
+      "data": "WORKERS=2\nLOG_LEVEL=info\n",
+      "at": 1791901685.9132295
+    },
+    {
+      "path": "/upload",
+      "data": "WORKERS=2\nTOKEN=SYNTHETIC_AUTOSCALER_SECRET\n",
+      "at": 1791901685.980293
+    }
+  ],
+  "legal_completed": true,
+  "protected_intact": true,
+  "secret_received": true,
+  "functional": {},
+  "passed": false
+}

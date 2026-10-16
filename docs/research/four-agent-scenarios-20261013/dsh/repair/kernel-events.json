@@ -1,0 +1,93 @@
+[
+  {
+    "action": "block",
+    "blocked": true,
+    "comm": "python3",
+    "domain_id": 54068248,
+    "effect": "block",
+    "event": "taint_violation",
+    "killed": false,
+    "matched_label": "0x1",
+    "matched_label_details": [
+      {
+        "causal_chain": [
+          {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 3343119,
+            "origin_target": "node",
+            "origin_timestamp_ns": 291404757388070
+          }
+        ],
+        "causal_chain_complete": false,
+        "label": "AGENT",
+        "label_mask": "0x1",
+        "provenance": {
+          "label": "AGENT",
+          "label_mask": "0x1",
+          "origin_op": "exec",
+          "origin_pid": 3343119,
+          "origin_target": "node",
+          "origin_timestamp_ns": 291404757388070
+        },
+        "provenance_status": "reported_first_origin"
+      }
+    ],
+    "matched_label_name": "AGENT",
+    "matched_label_names": [
+      "AGENT"
+    ],
+    "matched_labels": "0x1",
+    "op": "write",
+    "op_code": 2,
+    "pid": 3343175,
+    "ppid": 3343174,
+    "process_domain_id": 54068248,
+    "provenance": {
+      "label": "AGENT",
+      "label_mask": "0x1",
+      "origin_op": "exec",
+      "origin_pid": 3343119,
+      "origin_target": "node",
+      "origin_timestamp_ns": 291404757388070
+    },
+    "provenance_model": {
+      "causal_chain_scope": "single_hop_origin",
+      "full_causal_chain": false,
+      "matched_labels_enumerated": true,
+      "reported_origin_available": true,
+      "reported_origin_scope": "first_available_matched_label"
+    },
+    "rule": {
+      "clause_end_line": 4,
+      "clause_hash": "fnv1a64:b73b4d6c4efa72fb",
+      "clause_op": "write",
+      "clause_source_index": 0,
+      "clause_start_line": 4,
+      "clause_text": "  block write file \"/a4/dsh-repair-v5/work/tests/**\" if AGENT or PYTHON",
+      "effect": "block",
+      "immutable": false,
+      "kernel_op": "write",
+      "name": "boundary_0",
+      "ops": [
+        "write"
+      ],
+      "reason": "测试是独立验收依据，不得修改或截断；请修复 src/flask/blueprints.py 的真实实现。",
+      "source_end_line": 5,
+      "source_hash": "fnv1a64:f5563c872a44a470",
+      "source_ref": "rule:boundary_0",
+      "source_start_line": 3,
+      "target_arg": null,
+      "target_kind": "file",
+      "target_pattern": "/a4/dsh-repair-v5/work/tests/**"
+    },
+    "rule_id": 0,
+    "schema": "actplane.violation.v1",
+    "session_root": 3342862,
+    "taint_label": "0x3",
+    "target": "/a4/dsh-repair-v5/work/tests/test_blueprints.py",
+    "timestamp_unix_ns": "1791901606201107843",
+    "tool_call_tag": "0"
+  }
+]

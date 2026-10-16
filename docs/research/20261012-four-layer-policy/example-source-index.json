@@ -1,0 +1,165 @@
+{
+  "document_examples": [
+    {
+      "id": "E1",
+      "title": "Sensitive context stays on approved paths"
+    },
+    {
+      "id": "E2",
+      "title": "Untrusted task input needs review before privileged action"
+    },
+    {
+      "id": "E3",
+      "title": "Mandatory mediation (must pass through a gate)"
+    },
+    {
+      "id": "E4",
+      "title": "Workspace policy (lineage-scoped writes)"
+    },
+    {
+      "id": "E5",
+      "title": "Test-before-commit (temporal ordering, staleness-aware)"
+    },
+    {
+      "id": "E6",
+      "title": "Read-only sub-agent capability scoping"
+    },
+    {
+      "id": "E7",
+      "title": "Transitive derived-data tracking (cross-process, cross-file)"
+    },
+    {
+      "id": "E8",
+      "title": "Redaction path (usability)"
+    },
+    {
+      "id": "E9",
+      "title": "Cross-tool / unbypassable coverage"
+    },
+    {
+      "id": "E10",
+      "title": "Provenance-scoped network allow-list"
+    },
+    {
+      "id": "E11",
+      "title": "Destructive op requires a fresh confirmation gate"
+    },
+    {
+      "id": "E12",
+      "title": "Task non-interference / separation (multi-label sets)"
+    },
+    {
+      "id": "E13",
+      "title": "Migration-check must be fresh w.r.t. the migrations on disk"
+    }
+  ],
+  "test_cases": [
+    {
+      "name": "E1  secret no-exfil (+E8 declassify)",
+      "expect": {
+        "want": "\"target\":\"1.1.1.1\"",
+        "notwant": "\"target\":\"1.1.1.2\""
+      },
+      "policy_sha256": "c842d63b19ba761948d1042a49a01928535891f7100131001bebc7990e80d8a9",
+      "trigger_sha256": "ab0ea874a709d874097b62d64af8b62ebedb61ecaac6c1a40be66a5bb212475d"
+    },
+    {
+      "name": "E2  injected-priv (+endorse suppress)",
+      "expect": {
+        "count": 1,
+        "re": "\"comm\":\"git\""
+      },
+      "policy_sha256": "ba7906b77244f4b3790eb8f1867b8a15124ac0be6cb5c7e1ade9b60c2716e0b7",
+      "trigger_sha256": "abf1417794c7d22a0d944d7d87dff1fdafd88b4cf822a341a13eede83abee6f5"
+    },
+    {
+      "name": "E3  mandatory mediation (lineage)",
+      "expect": {
+        "count": 1,
+        "re": "\"target\":\"[^\"]*prod.db\""
+      },
+      "policy_sha256": "633aeb4e17f41320ef353ed11b41a83559577889c69cd7ac9f56cce0747bfaec",
+      "trigger_sha256": "bb42ee0fab7d33288de1cd851628c3cf640815803c1914389676e0ba0310f684"
+    },
+    {
+      "name": "E4  workspace confinement",
+      "expect": {
+        "want": "\"target\":\"[^\"]*outside.txt\"",
+        "notwant": "\"target\":\"[^\"]*work/in.txt\""
+      },
+      "policy_sha256": "5ad0e170eddc064f0bb8aa7e6c345e0a4ed66de9d08eee8aa9be502662a918fa",
+      "trigger_sha256": "8a4da884d31e806a18c23b8d301ba2ed2fda395db3f390be083dcd15c4af8943"
+    },
+    {
+      "name": "E5  test-before-commit (after)",
+      "expect": {
+        "count": 1,
+        "re": "\"comm\":\"git\""
+      },
+      "policy_sha256": "d41322fd6cad0c10e8f66ac2c7997445540ea760d5e5b047c4baba88076221bd",
+      "trigger_sha256": "46439c635774d236772e20c425e438639d1becb94c38c780864625ebc0c52158"
+    },
+    {
+      "name": "E6  read-only sub-agent scope",
+      "expect": {
+        "want": "\"comm\":\"git\""
+      },
+      "policy_sha256": "aa800dc74407d6049a97afb55111d1009d4d090c28e34e6c2fc2b5835e49cebc",
+      "trigger_sha256": "b0bf408708fd36f6d49ed4125fffcf0076507d06575379896c85f7bcc1fdc3ed"
+    },
+    {
+      "name": "E7  transitive secret derivation",
+      "expect": {
+        "want": "\"target\":\"3.3.3.3\""
+      },
+      "policy_sha256": "ed935ef585513a26649d83d6eacdef4d6f180b933d91dc1bd25f4261f1cfb94f",
+      "trigger_sha256": "9ee95266f90b7d388274138e2c2f5b0ec2054d3892e5be587d2de214527715b4"
+    },
+    {
+      "name": "E9  cross-tool unbypassable git",
+      "expect": {
+        "count": 1,
+        "re": "\"comm\":\"git\""
+      },
+      "policy_sha256": "cd25a3af2e943d4fb5b36082400547888ba19270881003d181f5e3d55192aa38",
+      "trigger_sha256": "fe11202049a6194b37b9c047fc79890fa9a56eafbaa3fce51ad0edd10c2a32ed"
+    },
+    {
+      "name": "E10 provenance-scoped egress",
+      "expect": {
+        "want": "\"target\":\"8.8.8.8\"",
+        "notwant": "\"target\":\"127.0.0.1\""
+      },
+      "policy_sha256": "62227012ca2ad564677e8c634fea3a477bd95142963d97e4ee3dbeed8b19690b",
+      "trigger_sha256": "41a897cad3b9a876cd2ab1f461d2d28991cce9ece45712982b19cf8759be7b91"
+    },
+    {
+      "name": "E11 destructive needs confirm gate",
+      "expect": {
+        "count": 1,
+        "re": "\"comm\":\"git\""
+      },
+      "policy_sha256": "8d2588fef83187df8d7eae29ee0bd4d38591608955659c09c9b146b0414df462",
+      "trigger_sha256": "c62ac591d7f97c9b3f3140431a2aff703f5672fc32c8df6a130183d277a4a7fb"
+    },
+    {
+      "name": "E12 task non-interference (A and B)",
+      "expect": {
+        "count": 1,
+        "re": "\"comm\":\"git\""
+      },
+      "policy_sha256": "241777ee5292b7a537b7f25fed9d555c8dc9d030c37b3d86214174c405f35536",
+      "trigger_sha256": "98c814ce5694123faf73194edc5149883f728516ae5e4caa99311891149d806c"
+    },
+    {
+      "name": "E5b test-before-commit goes stale (since)",
+      "expect": {
+        "count": 1,
+        "re": "\"comm\":\"git\""
+      },
+      "policy_sha256": "4dc4bdb975b54ef43f3dafe42801891ab606a2a6126e38be4055cde515caa08c",
+      "trigger_sha256": "27117dc06822d7d414162f5bf3f2a6fca641a6ffd7546f0fd0a28cf2b59198a2"
+    }
+  ],
+  "runtime_executed": false
+}

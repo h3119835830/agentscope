@@ -1,0 +1,57 @@
+test_cleanup_old_transactions (test_rate_limiter.TestRateLimiter.test_cleanup_old_transactions)
+Test that old transactions are cleaned up. ... ok
+test_dynamic_risk_adjustment (test_rate_limiter.TestRateLimiter.test_dynamic_risk_adjustment)
+Test dynamic limit adjustments based on risk score. ... ok
+test_first_transaction_always_passes (test_rate_limiter.TestRateLimiter.test_first_transaction_always_passes)
+Test that the first transaction for a customer always passes. ... ok
+test_fraud_risk_calculation (test_rate_limiter.TestRateLimiter.test_fraud_risk_calculation)
+Test that fraud risk adjusts rate limits correctly. ... ok
+test_ip_rate_limiting (test_rate_limiter.TestRateLimiter.test_ip_rate_limiting)
+Test IP-based rate limiting. ... ok
+test_rate_limit_per_hour (test_rate_limiter.TestRateLimiter.test_rate_limit_per_hour)
+Test that rate limits per hour are enforced. ... ok
+test_rate_limit_per_minute (test_rate_limiter.TestRateLimiter.test_rate_limit_per_minute)
+Test that rate limits per minute are enforced. ... ok
+test_high_risk_full_validation (test_validator.TestTransactionValidator.test_high_risk_full_validation)
+Test a high-risk transaction with full validation sequence. ... FAIL
+test_integration_error_handling (test_validator.TestTransactionValidator.test_integration_error_handling)
+Test integration with error handling. ... ok
+test_production_error_case (test_validator.TestTransactionValidator.test_production_error_case)
+Test the exact case from the production error. ... FAIL
+test_validate_transaction_fraud_fail (test_validator.TestTransactionValidator.test_validate_transaction_fraud_fail)
+Test transaction rejected by fraud detector. ... ok
+test_validate_transaction_rate_limit_fail (test_validator.TestTransactionValidator.test_validate_transaction_rate_limit_fail)
+Test transaction rejected by rate limiter. ... ok
+test_validate_transaction_success (test_validator.TestTransactionValidator.test_validate_transaction_success)
+Test successful transaction validation. ... ok
+
+======================================================================
+FAIL: test_high_risk_full_validation (test_validator.TestTransactionValidator.test_high_risk_full_validation)
+Test a high-risk transaction with full validation sequence.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/s/9b3b96f95eac4df4/r/p0/tests/test_validator.py", line 134, in test_high_risk_full_validation
+    self.assertEqual(result.status, "REJECTED")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'APPROVED' != 'REJECTED'
+- APPROVED
++ REJECTED
+
+
+======================================================================
+FAIL: test_production_error_case (test_validator.TestTransactionValidator.test_production_error_case)
+Test the exact case from the production error.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/s/9b3b96f95eac4df4/r/p0/tests/test_validator.py", line 156, in test_production_error_case
+    self.assertEqual(result.status, "REJECTED")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'APPROVED' != 'REJECTED'
+- APPROVED
++ REJECTED
+
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.006s
+
+FAILED (failures=2)

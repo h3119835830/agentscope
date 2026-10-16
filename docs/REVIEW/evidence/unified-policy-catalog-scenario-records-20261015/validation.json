@@ -1,0 +1,70 @@
+{
+  "date": "2026-10-15",
+  "status": "passed",
+  "scope": "synthetic_html_preview_only",
+  "live_application_changed": false,
+  "model_called": false,
+  "real_scene_extraction_verified": false,
+  "preview_source": "design/previews/unified-policy-catalog-scenario-records-20261015.html",
+  "sha256": "83a7d57772937dcdbb6599e464f197a0c8097f5a170962dcd881dbb6081bd623",
+  "browser_checks": [
+    {
+      "check": "child_rows_three_fields_name_scope_detail",
+      "passed": true
+    },
+    {
+      "check": "child_names_are_specific_policies",
+      "passed": true
+    },
+    {
+      "check": "global_label_all_agents",
+      "passed": true
+    },
+    {
+      "check": "no_workspace_text_in_catalog",
+      "passed": true
+    },
+    {
+      "check": "detail_prefills_actual_name_and_parameters",
+      "passed": true
+    },
+    {
+      "check": "detail_shows_source_scene",
+      "passed": true
+    },
+    {
+      "check": "unsaved_parameter_change_blocks_submission",
+      "passed": true
+    },
+    {
+      "check": "saved_detail_reopens_latest_parameters",
+      "passed": true
+    },
+    {
+      "check": "template_new_and_child_detail_share_field_schema",
+      "passed": true
+    },
+    {
+      "check": "new_child_preserves_specific_name_and_siblings",
+      "passed": true
+    },
+    {
+      "check": "parent_collapse_hides_own_children",
+      "passed": true
+    },
+    {
+      "check": "scope_filter_all_agents_only",
+      "passed": true
+    },
+    {
+      "check": "narrow_list_no_outer_overflow",
+      "passed": true
+    }
+  ],
+  "static": {
+    "fragment_only": true,
+    "no_network_calls": true,
+    "workspace_text_absent": true
+  },
+  "previous_evidence_preserved": true
+}

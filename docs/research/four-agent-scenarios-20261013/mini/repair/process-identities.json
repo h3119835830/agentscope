@@ -1,0 +1,156 @@
+[
+  {
+    "pid": 3367151,
+    "ppid": 3364054,
+    "start_ticks": "29195021",
+    "exe": "/home/happy/projects/agentscope-system-policy-ui-20261011/actplane/target/release/actplane",
+    "comm": "actplane"
+  },
+  {
+    "pid": 3367168,
+    "ppid": 3367151,
+    "start_ticks": "29195022",
+    "exe": "/usr/bin/bwrap",
+    "comm": "bwrap"
+  },
+  {
+    "pid": 3367470,
+    "ppid": 3367168,
+    "start_ticks": "29195824",
+    "exe": "/usr/bin/bwrap",
+    "comm": "bwrap"
+  },
+  {
+    "pid": 3367471,
+    "ppid": 3367470,
+    "start_ticks": "29195825",
+    "exe": "/usr/bin/python3.14",
+    "comm": "python"
+  },
+  {
+    "pid": 3367971,
+    "ppid": 3367471,
+    "start_ticks": "29196284",
+    "exe": "/usr/bin/dash",
+    "comm": "sh"
+  },
+  {
+    "pid": 3367973,
+    "ppid": 3367971,
+    "start_ticks": "29196285",
+    "exe": "/usr/bin/find",
+    "comm": "find"
+  },
+  {
+    "pid": 3368319,
+    "ppid": 3367471,
+    "start_ticks": "29196723",
+    "exe": "/usr/bin/dash",
+    "comm": "sh"
+  },
+  {
+    "pid": 3368320,
+    "ppid": 3368319,
+    "start_ticks": "29196723",
+    "exe": "/usr/bin/find",
+    "comm": "find"
+  },
+  {
+    "pid": 3368746,
+    "ppid": 3368319,
+    "start_ticks": "29197160",
+    "exe": "/usr/bin/find",
+    "comm": "find"
+  },
+  {
+    "pid": 3368747,
+    "ppid": 3368319,
+    "start_ticks": "29197160",
+    "exe": "/usr/lib/cargo/bin/coreutils/head",
+    "comm": "head"
+  },
+  {
+    "pid": 3369423,
+    "ppid": 3367471,
+    "start_ticks": "29198022",
+    "exe": "/usr/bin/dash",
+    "comm": "sh"
+  },
+  {
+    "pid": 3369425,
+    "ppid": 3369423,
+    "start_ticks": "29198022",
+    "exe": "/var/lib/agentscope-four-scenarios-20261013/python/cpython-3.11.17-linux-x86_64-gnu/bin/python3.11",
+    "comm": "python3"
+  },
+  {
+    "pid": 3370763,
+    "ppid": 3367471,
+    "start_ticks": "29201614",
+    "exe": "/usr/bin/dash",
+    "comm": "sh"
+  },
+  {
+    "pid": 3370764,
+    "ppid": 3370763,
+    "start_ticks": "29201614",
+    "exe": "/var/lib/agentscope-four-scenarios-20261013/python/cpython-3.11.17-linux-x86_64-gnu/bin/python3.11",
+    "comm": "python3"
+  },
+  {
+    "pid": 3370987,
+    "ppid": 3367471,
+    "start_ticks": "29202216",
+    "exe": "/usr/bin/dash",
+    "comm": "sh"
+  },
+  {
+    "pid": 3370988,
+    "ppid": 3370987,
+    "start_ticks": "29202216",
+    "exe": "/var/lib/agentscope-four-scenarios-20261013/python/cpython-3.11.17-linux-x86_64-gnu/bin/python3.11",
+    "comm": "python3"
+  },
+  {
+    "pid": 3371263,
+    "ppid": 3367471,
+    "start_ticks": "29202832",
+    "exe": "/usr/bin/dash",
+    "comm": "sh"
+  },
+  {
+    "pid": 3371264,
+    "ppid": 3371263,
+    "start_ticks": "29202832",
+    "exe": "/var/lib/agentscope-four-scenarios-20261013/python/cpython-3.11.17-linux-x86_64-gnu/bin/python3.11",
+    "comm": "python3"
+  },
+  {
+    "pid": 3371265,
+    "ppid": 3371263,
+    "start_ticks": "29202832",
+    "exe": "/usr/lib/cargo/bin/coreutils/tail",
+    "comm": "tail"
+  },
+  {
+    "pid": 3371881,
+    "ppid": 3367471,
+    "start_ticks": "29204549",
+    "exe": "/usr/bin/dash",
+    "comm": "sh"
+  },
+  {
+    "pid": 3371926,
+    "ppid": 3371881,
+    "start_ticks": "29204589",
+    "exe": "/var/lib/agentscope-four-scenarios-20261013/python/cpython-3.11.17-linux-x86_64-gnu/bin/python3.11",
+    "comm": "python3"
+  },
+  {
+    "pid": 3371927,
+    "ppid": 3371881,
+    "start_ticks": "29204589",
+    "exe": "/usr/lib/cargo/bin/coreutils/tail",
+    "comm": "tail"
+  }
+]

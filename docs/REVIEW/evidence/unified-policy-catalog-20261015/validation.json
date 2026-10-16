@@ -1,0 +1,182 @@
+{
+  "date": "2026-10-15",
+  "status": "passed",
+  "scope": "existing_service_readonly_health_and_synthetic_design_preview_only",
+  "application_changed": false,
+  "dsh_changed": false,
+  "real_policies_changed": false,
+  "jev_api_called": false,
+  "deployed_application_commit": "fddc532",
+  "release_record_commit": "6bb4f6a",
+  "service": {
+    "agentscope-scope-demo-api": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "MainPID": "457",
+      "ExecMainStartTimestamp": "Thu 2026-10-15 16:11:20 CST",
+      "WorkingDirectory": "/opt/agentscope-template-configurations-20261014-212944"
+    },
+    "agentscope-scope-demo-broker": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "MainPID": "427",
+      "ExecMainStartTimestamp": "Thu 2026-10-15 16:11:20 CST",
+      "WorkingDirectory": "/opt/agentscope-command-connections-20261014-175212"
+    },
+    "agentscope-bpffs": {
+      "ActiveState": "active",
+      "SubState": "exited",
+      "MainPID": "0",
+      "ExecMainStartTimestamp": "Thu 2026-10-15 16:11:20 CST",
+      "WorkingDirectory": ""
+    }
+  },
+  "health": {
+    "http": 200,
+    "body": {
+      "ok": true,
+      "service": "AgentScope",
+      "version": "0.2.0"
+    }
+  },
+  "observed_catalog": {
+    "templates": 27,
+    "saved_configurations": 4,
+    "applied_count": "not inferred"
+  },
+  "preview": {
+    "source": "design/previews/unified-policy-catalog-20261015.html",
+    "sha256": "40927265fb5217599eacdd136bb86106f1783927d819739868cbeae73399c348",
+    "browser_checks": [
+      {
+        "check": "global_append",
+        "passed": true
+      },
+      {
+        "check": "approval_requires_scope_ack",
+        "passed": true
+      },
+      {
+        "check": "approve_not_apply",
+        "passed": true
+      },
+      {
+        "check": "approved_not_in_effective_snapshot",
+        "passed": true
+      },
+      {
+        "check": "inherited_snapshot_readonly",
+        "passed": true
+      },
+      {
+        "check": "explicit_apply_updates_version",
+        "passed": true
+      },
+      {
+        "check": "applied_config_in_shared_session_view",
+        "passed": true
+      },
+      {
+        "check": "global_per_instance_receipts",
+        "passed": true
+      },
+      {
+        "check": "edit_active_preserves_old_effective_snapshot",
+        "passed": true
+      },
+      {
+        "check": "precise_delete_blocked_without_ack",
+        "passed": true
+      },
+      {
+        "check": "broader_coverage_saved_as_draft_only",
+        "passed": true
+      },
+      {
+        "check": "agent_filter_does_not_leak_other_target",
+        "passed": true
+      },
+      {
+        "check": "unsupported_adapter_disabled",
+        "passed": true
+      },
+      {
+        "check": "unknown_selector_requires_manual",
+        "passed": true
+      },
+      {
+        "check": "runtime_shared_scope_visible",
+        "passed": true
+      },
+      {
+        "check": "agent_uses_same_configuration_form_and_list",
+        "passed": true
+      },
+      {
+        "check": "pending_disable_keeps_effective_snapshot",
+        "passed": true
+      },
+      {
+        "check": "disable_apply_removes_effective_snapshot",
+        "passed": true
+      },
+      {
+        "check": "wide_layout_no_outer_overflow",
+        "passed": true
+      },
+      {
+        "check": "narrow_layout_table_overflow_contained",
+        "passed": true
+      },
+      {
+        "check": "saved_target_frozen",
+        "passed": true
+      },
+      {
+        "check": "latest_draft_detail_retains_active_version_receipt",
+        "passed": true
+      },
+      {
+        "check": "narrow_configuration_form_no_overflow",
+        "passed": true
+      }
+    ],
+    "static_checks": {
+      "javascript_syntax": true,
+      "fragment_only": true,
+      "network_free": true,
+      "under_one_mb": true,
+      "browser_console_errors_absent": true
+    },
+    "viewports": {
+      "wide": {
+        "viewport": 1024,
+        "root_client": 977,
+        "root_scroll": 977
+      },
+      "narrow": {
+        "viewport": 320,
+        "root_client": 273,
+        "root_scroll": 273,
+        "table_client": 183,
+        "table_scroll": 630,
+        "form_width": 185
+      }
+    },
+    "screenshots": "Key catalog and parameter views inspected; screenshots retained in tool history."
+  },
+  "not_verified": [
+    "unified_backend_migration",
+    "live_jev_accuracy_cost_latency",
+    "new_runtime_binding_or_hot_reload",
+    "new_kernel_enforcement",
+    "perpetual_windows_wsl_liveness"
+  ],
+  "checked_at_utc": "2026-10-15T08:28:56.187636+00:00",
+  "documentation_checks": {
+    "changed_file_relative_links": 183,
+    "missing_links": 0,
+    "canonical_documents_and_archived_preview_equal": true,
+    "git_diff_check": true
+  }
+}

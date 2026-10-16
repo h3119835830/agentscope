@@ -1,0 +1,82 @@
+{
+  "date": "2026-10-15",
+  "scope": "read_only_page_source_and_api_review",
+  "status": "reviewed",
+  "writes_to_runtime": false,
+  "approval_or_apply_called": false,
+  "new_enforcement_acceptance": false,
+  "health": {
+    "ok": true,
+    "service": "AgentScope",
+    "version": "0.2.0"
+  },
+  "library": {
+    "count": 4,
+    "applied_revisions": [
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "system_dsl": {
+    "revision": 6,
+    "document_count": 0
+  },
+  "selected_agent_dsl": {
+    "revision": 0,
+    "document_count": 0
+  },
+  "registered_targets": {
+    "count": 4,
+    "active_count": 0
+  },
+  "source_facts": {
+    "assistant_generation_saves_only": {
+      "file": "template_configurations.py",
+      "lines": [
+        417,
+        426
+      ]
+    },
+    "submission_proposes_only": {
+      "file": "template_configurations.py",
+      "lines": [
+        308,
+        342
+      ]
+    },
+    "application_requires_approval_receipt": {
+      "file": "approval_decisions.py",
+      "lines": [
+        158,
+        173
+      ]
+    },
+    "legacy_combined_confirm": {
+      "file": "approval_decisions.py",
+      "lines": [
+        205,
+        220
+      ]
+    },
+    "runtime_reload_and_readback": {
+      "file": "dsl_policy.py",
+      "lines": [
+        163,
+        199
+      ]
+    }
+  },
+  "source_sha256": {
+    "template_configurations.py": "f8976d3af4417a986beb57b19462dcd5466f673cb2776d6dde659aa5423e174e",
+    "approval_decisions.py": "0e71173fcca003396bece0de84f4f6b52973fc5b74e2c76e73cc201902c67e27",
+    "dsl_policy.py": "fbd5d4022efc5b6748416e364f3474e67d7805a04ca952bf36fc4ef496d30426"
+  },
+  "design": {
+    "visual_base": "existing SystemPolicyLibrary page",
+    "assistant_entry": "Agent page only",
+    "withdrawn": "previous mockup visual and system assistant shortcut",
+    "approval": "all manual and assistant configurations require approval before explicit application"
+  }
+}

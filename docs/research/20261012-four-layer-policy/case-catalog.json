@@ -1,0 +1,303 @@
+{
+  "schema": "AgentScopeCaseAudit/1",
+  "common": {
+    "repository": "actplane-master",
+    "commit": "404542899a2153af0952cbf0dc52aeab0b7c5034",
+    "source_document": "docs/rule-language.md",
+    "source_tests": "test/e2e_cases.yaml",
+    "driver": "script/e2e_examples.sh",
+    "license": "示例随 ActPlane MIT；BPF 文件按 GPL-2.0 OR BSD-3-Clause；复用保留署名和许可",
+    "dependencies": "独立 Linux VM、兼容 BTF/BPF-LSM、实际编译/运行二进制、受控执行身份；真实 DSH 验收另需原生适配器及模型连接",
+    "runtime_verified_in_this_audit": false,
+    "classification_meaning": "分类指配方复用成本，不代表已经通过原生 DSH 或安全验收"
+  },
+  "cases": [
+    {
+      "id": "E1",
+      "name": "敏感来源后的网络连接约束",
+      "scope": [
+        "system",
+        "workspace",
+        "session"
+      ],
+      "classification": "需要适配",
+      "priority": 2,
+      "upstream_tests": [
+        "E1  secret no-exfil (+E8 declassify)"
+      ],
+      "tool_blind_spot": "读取秘密和后来连接可能由不同工具/子进程完成。",
+      "document_effect": "block connect",
+      "test_effect": "kill connect",
+      "expected_allow": "未接触秘密的指定测试进程仍能连接受控本地服务。",
+      "expected_deny": "读取合成秘密后新建受限连接被阻止。",
+      "adaptation": "绑定真实主体和秘密对象，区分新连接与已有连接发送；禁止依赖公共外网地址。",
+      "risk": "标签过度累积影响合法模型通信；connect 阻断不证明已有 socket 不能发送。",
+      "source_url": "https://github.com/eunomia-bpf/ActPlane/blob/404542899a2153af0952cbf0dc52aeab0b7c5034/docs/rule-language.md#L246",
+      "source_file_sha256": "497d717a33d1343338984cd3c80c769d42fb0d5001881768b1ef1a7aec694e95"
+    },
+    {
+      "id": "E2",
+      "name": "非可信输入后的特权动作审查",
+      "scope": [
+        "system",
+        "session"
+      ],
+      "classification": "需要适配",
+      "priority": 1,
+      "upstream_tests": [
+        "E2  injected-priv (+endorse suppress)"
+      ],
+      "tool_blind_spot": "同一工具执行读取非可信文件和后续敏感操作。",
+      "document_effect": "kill exec with endorsement",
+      "test_effect": "kill exec with endorsement",
+      "expected_allow": "可信控制面为精确动作确认后允许测试操作。",
+      "expected_deny": "读取非可信输入后，无确认的敏感操作拒绝。",
+      "adaptation": "将 human-approve 名称替换为不可伪造的受控批准与绑定；假同名程序不能产生授权。",
+      "risk": "示例程序名只证明事件发生，不证明人批准或批准内容正确。",
+      "source_url": "https://github.com/eunomia-bpf/ActPlane/blob/404542899a2153af0952cbf0dc52aeab0b7c5034/docs/rule-language.md#L258",
+      "source_file_sha256": "497d717a33d1343338984cd3c80c769d42fb0d5001881768b1ef1a7aec694e95"
+    },
+    {
+      "id": "E3",
+      "name": "数据库必须经指定中介访问",
+      "scope": [
+        "workspace",
+        "session"
+      ],
+      "classification": "需要适配",
+      "priority": 2,
+      "upstream_tests": [
+        "E3  mandatory mediation (lineage)"
+      ],
+      "tool_blind_spot": "脚本内部直接打开数据库绕过工具层路径约定。",
+      "document_effect": "kill open unless lineage gate",
+      "test_effect": "kill open unless lineage gate",
+      "expected_allow": "可信中介进程的限定访问成功。",
+      "expected_deny": "同会话中直接访问测试数据库拒绝。",
+      "adaptation": "核验中介二进制和不可替换路径；区分读取与修改需求；使用合成数据库。",
+      "risk": "进程经过 migrate 不证明迁移逻辑正确；祖先名称可伪造。",
+      "source_url": "https://github.com/eunomia-bpf/ActPlane/blob/404542899a2153af0952cbf0dc52aeab0b7c5034/docs/rule-language.md#L270",
+      "source_file_sha256": "497d717a33d1343338984cd3c80c769d42fb0d5001881768b1ef1a7aec694e95"
+    },
+    {
+      "id": "E4",
+      "name": "工作区写入边界",
+      "scope": [
+        "workspace"
+      ],
+      "classification": "需要适配",
+      "priority": 1,
+      "upstream_tests": [
+        "E4  workspace confinement"
+      ],
+      "tool_blind_spot": "shell/脚本/子进程写到工作目录外。",
+      "document_effect": "block write outside workspace",
+      "test_effect": "kill unlink within fixture outside work",
+      "expected_allow": "所选工作区内获准修改成功；另一工作区原权限不变。",
+      "expected_deny": "该工作区主体的越界修改拒绝，chdir 不改变主体归属。",
+      "adaptation": "测试扩充为写/创建/截断/删除/重命名；分别绑定 workspace identity 与进程域。",
+      "risk": "官方夹具只测删除且仅覆盖合成根；不是全部写操作或多工作区隔离证明。",
+      "source_url": "https://github.com/eunomia-bpf/ActPlane/blob/404542899a2153af0952cbf0dc52aeab0b7c5034/docs/rule-language.md#L278",
+      "source_file_sha256": "497d717a33d1343338984cd3c80c769d42fb0d5001881768b1ef1a7aec694e95"
+    },
+    {
+      "id": "E5",
+      "name": "测试先行及源码变更后重检",
+      "scope": [
+        "workspace",
+        "session"
+      ],
+      "classification": "需要适配",
+      "priority": 1,
+      "upstream_tests": [
+        "E5  test-before-commit (after)",
+        "E5b test-before-commit goes stale (since)"
+      ],
+      "tool_blind_spot": "脚本中提交，或使用旧测试记录完成新源码提交。",
+      "document_effect": "kill argv-sensitive exec with since",
+      "test_effect": "kill exec; latching and since variants",
+      "expected_allow": "实际测试成功且未再修改相关源码时，本地测试仓库提交成功。",
+      "expected_deny": "未测试、测试失败、测试后改源码或测试文件时提交拒绝。",
+      "adaptation": "绑定真实测试命令与退出码；since 的输入路径需由项目证据解析；仅在可证明支持的 hook 上使用。",
+      "risk": "公开 DSL 和 E5b 没有 exits 0，运行过 pytest 不代表通过；假的 pytest 不能成为测试回执。",
+      "source_url": "https://github.com/eunomia-bpf/ActPlane/blob/404542899a2153af0952cbf0dc52aeab0b7c5034/docs/rule-language.md#L287",
+      "source_file_sha256": "497d717a33d1343338984cd3c80c769d42fb0d5001881768b1ef1a7aec694e95"
+    },
+    {
+      "id": "E6",
+      "name": "只读子 Agent",
+      "scope": [
+        "session",
+        "delegation"
+      ],
+      "classification": "需要适配",
+      "priority": 1,
+      "upstream_tests": [
+        "E6  read-only sub-agent scope"
+      ],
+      "tool_blind_spot": "审查 Agent 用 Python/shell 修改文件而未调用写文件工具。",
+      "document_effect": "block write/connect/git",
+      "test_effect": "kill git only",
+      "expected_allow": "读取与子进程读取成功；明确获准的输出/模型通信保留可用性。",
+      "expected_deny": "受保护项目写入及子孙进程修改拒绝；未授权连接拒绝。",
+      "adaptation": "独立会话/子域绑定，完整写操作矩阵；隔离 harness 状态及获准通信，不能笼统禁全部写而破坏原生运行。",
+      "risk": "官方测试只执行 git status；不能据此宣称已验证文件只读或网络隔离。",
+      "source_url": "https://github.com/eunomia-bpf/ActPlane/blob/404542899a2153af0952cbf0dc52aeab0b7c5034/docs/rule-language.md#L297",
+      "source_file_sha256": "497d717a33d1343338984cd3c80c769d42fb0d5001881768b1ef1a7aec694e95"
+    },
+    {
+      "id": "E7",
+      "name": "派生文件和跨进程秘密传播",
+      "scope": [
+        "system",
+        "workspace",
+        "session"
+      ],
+      "classification": "需要适配",
+      "priority": 1,
+      "upstream_tests": [
+        "E7  transitive secret derivation"
+      ],
+      "tool_blind_spot": "上传者只读取派生文件，没有直接读取原秘密，工具审计看不到跨进程来源。",
+      "document_effect": "E1 source and connect sink",
+      "test_effect": "kill connect",
+      "expected_allow": "普通合成文件经同样流程可发送到受控本地服务。",
+      "expected_deny": "合成秘密经派生文件传给另一进程后，新连接受限。",
+      "adaptation": "在同一可追踪运行引擎中验证文件身份及域边界；保存派生摘要、来源和实际接收结果。",
+      "risk": "多个独立引擎的标签命名/对象状态未必共享；不能把数据流规则当成完整非干扰证明。",
+      "source_url": "https://github.com/eunomia-bpf/ActPlane/blob/404542899a2153af0952cbf0dc52aeab0b7c5034/docs/rule-language.md#L308",
+      "source_file_sha256": "497d717a33d1343338984cd3c80c769d42fb0d5001881768b1ef1a7aec694e95"
+    },
+    {
+      "id": "E8",
+      "name": "受控清洗后的解密级路径",
+      "scope": [
+        "system",
+        "workspace"
+      ],
+      "classification": "仅参考",
+      "priority": 2,
+      "upstream_tests": [
+        "E1  secret no-exfil (+E8 declassify)"
+      ],
+      "tool_blind_spot": "工具层不知道敏感来源是否经授权清洗。",
+      "document_effect": "declassify by exec",
+      "test_effect": "E1 combined gate suppression",
+      "expected_allow": "可信清洗器产物经独立内容检查后才可进入限定下游。",
+      "expected_deny": "假清洗器、直接原数据或不匹配批准的输出不得解密级。",
+      "adaptation": "需要可信清洗器、输入/输出身份和权限委托合同；本轮不列为可直接产品化模板。",
+      "risk": "程序运行不证明完成脱敏；官方测试使用替身程序，没有实际验证内容清洗。",
+      "source_url": "https://github.com/eunomia-bpf/ActPlane/blob/404542899a2153af0952cbf0dc52aeab0b7c5034/docs/rule-language.md#L317",
+      "source_file_sha256": "497d717a33d1343338984cd3c80c769d42fb0d5001881768b1ef1a7aec694e95"
+    },
+    {
+      "id": "E9",
+      "name": "跨工具禁止执行指定命令",
+      "scope": [
+        "agent",
+        "session",
+        "delegation"
+      ],
+      "classification": "可参数化复用",
+      "priority": 2,
+      "upstream_tests": [
+        "E9  cross-tool unbypassable git"
+      ],
+      "tool_blind_spot": "bash/Python 子进程隐藏实际 exec。",
+      "document_effect": "block exec",
+      "test_effect": "kill exec",
+      "expected_allow": "未受此主体规则约束的独立对照进程保持原权限。",
+      "expected_deny": "受控主体通过直接、shell、Python 三种路径执行目标均拒绝。",
+      "adaptation": "替换通用 exec 来源为核验身份；block 需实际 LSM 支持；补足三路径实际 OS 对照。",
+      "risk": "夹具只有一个受限路径与外部对照，未覆盖文档声称的三种真实 Agent 路径。",
+      "source_url": "https://github.com/eunomia-bpf/ActPlane/blob/404542899a2153af0952cbf0dc52aeab0b7c5034/docs/rule-language.md#L325",
+      "source_file_sha256": "497d717a33d1343338984cd3c80c769d42fb0d5001881768b1ef1a7aec694e95"
+    },
+    {
+      "id": "E10",
+      "name": "按数据来源限制新连接目的地址",
+      "scope": [
+        "system",
+        "workspace"
+      ],
+      "classification": "可参数化复用",
+      "priority": 2,
+      "upstream_tests": [
+        "E10 provenance-scoped egress"
+      ],
+      "tool_blind_spot": "目的地址允许与否取决于此前处理的数据。",
+      "document_effect": "block connect with endpoint exception",
+      "test_effect": "kill connect with 127. exception",
+      "expected_allow": "处理合成客户数据后仍可连接精确获准的本地地址。",
+      "expected_deny": "同主体新建非获准目的连接拒绝。",
+      "adaptation": "限定当前 ABI 可支持的数字 IPv4/例外，DNS 变化需重新编译；不承诺域名通配或 IPv6。",
+      "risk": "地址前缀不等同网络身份；已有连接及所有数据发送不在 connect 断言内。",
+      "source_url": "https://github.com/eunomia-bpf/ActPlane/blob/404542899a2153af0952cbf0dc52aeab0b7c5034/docs/rule-language.md#L335",
+      "source_file_sha256": "497d717a33d1343338984cd3c80c769d42fb0d5001881768b1ef1a7aec694e95"
+    },
+    {
+      "id": "E11",
+      "name": "破坏性操作的新鲜确认",
+      "scope": [
+        "session"
+      ],
+      "classification": "需要适配",
+      "priority": 1,
+      "upstream_tests": [
+        "E11 destructive needs confirm gate"
+      ],
+      "tool_blind_spot": "旧确认被后续脚本或不同动作重复使用。",
+      "document_effect": "kill exec with since; latching write gate",
+      "test_effect": "kill exec unless lineage includes confirm",
+      "expected_allow": "精确目标、内容和基线的一次批准允许对应测试动作。",
+      "expected_deny": "未批准、假 confirm、过期/重复批准和目标变化均拒绝。",
+      "adaptation": "可信控制面管理动作绑定与消费；测试新鲜度、一次性和写文件分支。",
+      "risk": "官方夹具是祖先门，不验证新鲜度；文档 write 分支仍为 latching，不可整体称为一次性确认。",
+      "source_url": "https://github.com/eunomia-bpf/ActPlane/blob/404542899a2153af0952cbf0dc52aeab0b7c5034/docs/rule-language.md#L344",
+      "source_file_sha256": "497d717a33d1343338984cd3c80c769d42fb0d5001881768b1ef1a7aec694e95"
+    },
+    {
+      "id": "E12",
+      "name": "任务标签混合约束",
+      "scope": [
+        "workspace",
+        "session",
+        "delegation"
+      ],
+      "classification": "需要适配",
+      "priority": 1,
+      "upstream_tests": [
+        "E12 task non-interference (A and B)"
+      ],
+      "tool_blind_spot": "不同任务经共享文件/工具混合数据来源。",
+      "document_effect": "kill commit if A and B",
+      "test_effect": "kill nested exec carrying both labels",
+      "expected_allow": "单一任务的获准本地提交成功。",
+      "expected_deny": "混合 A/B 来源且规则禁止的提交拒绝；其他任务原权限不变。",
+      "adaptation": "补充真实共享文件路径、独立会话与进程域对照，不只嵌套两个名称。",
+      "risk": "该规则只约束混合标签提交，不是任意任务非干扰、工作区隔离或隐蔽信道证明。",
+      "source_url": "https://github.com/eunomia-bpf/ActPlane/blob/404542899a2153af0952cbf0dc52aeab0b7c5034/docs/rule-language.md#L354",
+      "source_file_sha256": "497d717a33d1343338984cd3c80c769d42fb0d5001881768b1ef1a7aec694e95"
+    },
+    {
+      "id": "E13",
+      "name": "迁移检查相对输入的新鲜度",
+      "scope": [
+        "workspace",
+        "session"
+      ],
+      "classification": "需要适配",
+      "priority": 1,
+      "upstream_tests": [],
+      "tool_blind_spot": "一次工具检查成功后，后续脚本改动迁移输入再写库，旧检查不再有效。",
+      "document_effect": "block write with since",
+      "test_effect": "no dedicated case in e2e_cases.yaml",
+      "expected_allow": "当前迁移文件的实际检查通过后，测试数据库写入成功。",
+      "expected_deny": "未检查、检查失败或检查后再改迁移文件时写入拒绝。",
+      "adaptation": "新增独立正反夹具、退出码和输入摘要验证；禁止使用真实生产数据库。",
+      "risk": "该示例存在于文档，默认 12-case 驱动不覆盖；after exec 不证明检查成功。",
+      "source_url": "https://github.com/eunomia-bpf/ActPlane/blob/404542899a2153af0952cbf0dc52aeab0b7c5034/docs/rule-language.md#L364",
+      "source_file_sha256": "497d717a33d1343338984cd3c80c769d42fb0d5001881768b1ef1a7aec694e95"
+    }
+  ]
+}

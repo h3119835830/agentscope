@@ -1,0 +1,87 @@
+{
+  "date": "2026-10-16",
+  "repository": "h3119835830/agentscope",
+  "baseline": "cd328604c536914b91a5eb0cdfd59daf5458d04e",
+  "previous_main_and_WINDOWS": "90af640fb748216fec23fb1fbaf1a80b9b355ea0",
+  "cumulative_commits": 67,
+  "historical_dirty_files": 121,
+  "historical_dirty_files_in_baseline_history": 121,
+  "organized_source_files": 223,
+  "backend": {
+    "passed": 1354,
+    "skipped": 0,
+    "failed": 0,
+    "runner": "root with production-independent conftest state and identity-drop subprocesses"
+  },
+  "frontend_and_plugins": {
+    "passed": 362,
+    "failed": 0
+  },
+  "sandbox": {
+    "passed": 4,
+    "failed": 0,
+    "synthetic_only": true
+  },
+  "actplane_rust": {
+    "passed": 145,
+    "ignored": 49,
+    "failed": 0
+  },
+  "actplane_C": {
+    "passed": 42,
+    "failed": 0
+  },
+  "builds": {
+    "actplane_release": true,
+    "dsl_adapter_release": true,
+    "vite": true
+  },
+  "http": [
+    {
+      "path": "/",
+      "status": 200,
+      "sha256": "2d5a6269b935ac3fc64d6e683e384bde4a21c09ba9b59b534a4899a4c7523008"
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "sha256": "e3a226f6ef0a9a836245eb3824e08e7cb81d80088b537c910576b3b259164720"
+    },
+    {
+      "path": "/assets/main-CHRdf_Ss.js",
+      "status": 200,
+      "sha256": "ecd7ec40a88cde325923867a648df28e1a5846b6dd8c34104182685b30ffc7d2",
+      "matches_integration_build": true
+    },
+    {
+      "path": "/assets/client-2tdd2SJ7.js",
+      "status": 200,
+      "sha256": "db45583e1f8b00f66e65251c12c9cfd14337051285ac085f1e9fefbf6dd45a29",
+      "matches_integration_build": true
+    },
+    {
+      "path": "/assets/main-CNJKormX.css",
+      "status": 200,
+      "sha256": "ac6bb838302f307a130a95b36c9ac39ec6bfcd0e65389bcd2ceefe33370f3180",
+      "matches_integration_build": true
+    }
+  ],
+  "browser": {
+    "title": "AgentScope · 策略管控",
+    "overview_visible": true,
+    "registered_agents": 3,
+    "running_agents": 0,
+    "verified_protection": 0
+  },
+  "publication": {
+    "local_branch_sync_pending": true,
+    "remote_push": false,
+    "runtime_source_switch": false,
+    "policy_application": false
+  },
+  "limitations": [
+    "GitHub-hosted CI has not run for this local commit.",
+    "Privileged Rust eBPF integration cases remain ignored; this is not new formal-Agent kernel acceptance."
+  ],
+  "stage": "pre-commit integration acceptance"
+}

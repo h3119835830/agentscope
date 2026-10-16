@@ -1,0 +1,417 @@
+{
+  "schema": "agentscope.documentation-validation/v1",
+  "checked_at": "2026-10-11T23:00:37.894720+08:00",
+  "scope": "documentation_only",
+  "result": "passed",
+  "summary": {
+    "markdown_files": 7,
+    "relative_links": 48,
+    "traceability_items": 16,
+    "future_runtime_scenarios": 12
+  },
+  "structure_checks": [
+    {
+      "path": "RFC/RFC-20261011-AgentScope-policy-control-architecture.md",
+      "passed": true,
+      "issues": []
+    },
+    {
+      "path": "ADR/ADR-20261011-AgentScope-policy-control-decisions.md",
+      "passed": true,
+      "issues": []
+    },
+    {
+      "path": "REVIEW/REVIEW-20261011-AgentScope-architecture-audit.md",
+      "passed": true,
+      "issues": []
+    },
+    {
+      "path": "BUG/BUG-20261011-AgentScope-policy-ui-gaps.md",
+      "passed": true,
+      "issues": []
+    },
+    {
+      "path": "RFC/RFC-20261011-AgentScope-agent-scene-step3.md",
+      "passed": true,
+      "issues": []
+    },
+    {
+      "path": "AgentScope-架构设计与评审-20261011.md",
+      "passed": true,
+      "issues": []
+    },
+    {
+      "path": "REVIEW/REVIEW-20261011-AgentScope-agent-workspace-policy.md",
+      "passed": true,
+      "issues": []
+    }
+  ],
+  "relative_link_checks": [
+    {
+      "from": "RFC/RFC-20261011-AgentScope-policy-control-architecture.md",
+      "target": "../REVIEW/REVIEW-20261011-AgentScope-architecture-audit.md",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "RFC/RFC-20261011-AgentScope-policy-control-architecture.md",
+      "target": "../BUG/BUG-20261011-AgentScope-policy-ui-gaps.md",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "RFC/RFC-20261011-AgentScope-policy-control-architecture.md",
+      "target": "RFC-20261011-AgentScope-agent-scene-step3.md",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "RFC/RFC-20261011-AgentScope-policy-control-architecture.md",
+      "target": "RFC-20261011-AgentScope-unified-policy-approval.md",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "RFC/RFC-20261011-AgentScope-policy-control-architecture.md",
+      "target": "../REVIEW/REVIEW-20261011-AgentScope-agent-workspace-policy.md",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "ADR/ADR-20261011-AgentScope-policy-control-decisions.md",
+      "target": "../RFC/RFC-20261011-AgentScope-policy-control-architecture.md",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "ADR/ADR-20261011-AgentScope-policy-control-decisions.md",
+      "target": "../RFC/RFC-20261011-AgentScope-agent-scene-step3.md",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "ADR/ADR-20261011-AgentScope-policy-control-decisions.md",
+      "target": "../RFC/RFC-20261011-AgentScope-policy-control-architecture.md#11-agent工作区主线的后续验收合同",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "ADR/ADR-20261011-AgentScope-policy-control-decisions.md",
+      "target": "../REVIEW/REVIEW-20261011-AgentScope-agent-workspace-policy.md",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "REVIEW/REVIEW-20261011-AgentScope-architecture-audit.md",
+      "target": "../RFC/RFC-20261011-AgentScope-policy-control-architecture.md",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "REVIEW/REVIEW-20261011-AgentScope-architecture-audit.md",
+      "target": "../ADR/ADR-20261011-AgentScope-policy-control-decisions.md",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "REVIEW/REVIEW-20261011-AgentScope-architecture-audit.md",
+      "target": "../BUG/BUG-20261011-AgentScope-policy-ui-gaps.md",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "REVIEW/REVIEW-20261011-AgentScope-architecture-audit.md",
+      "target": "evidence/architecture-review-20261011/architecture-evidence.json",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "REVIEW/REVIEW-20261011-AgentScope-architecture-audit.md",
+      "target": "evidence/architecture-review-20261011/delivery-check.json",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "REVIEW/REVIEW-20261011-AgentScope-architecture-audit.md",
+      "target": "evidence/architecture-review-20261011/validation.json",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "REVIEW/REVIEW-20261011-AgentScope-architecture-audit.md",
+      "target": "evidence/architecture-review-20261011/reproduce_event_attribution.py",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "REVIEW/REVIEW-20261011-AgentScope-architecture-audit.md",
+      "target": "evidence/architecture-review-20261011/generation-legacy-overlap.jpg",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "REVIEW/REVIEW-20261011-AgentScope-architecture-audit.md",
+      "target": "evidence/architecture-review-20261011/generation-internal-diagnostics.jpg",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "REVIEW/REVIEW-20261011-AgentScope-architecture-audit.md",
+      "target": "evidence/architecture-review-20261011/approval-detail.jpg",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "REVIEW/REVIEW-20261011-AgentScope-architecture-audit.md",
+      "target": "evidence/architecture-review-20261011/connection-policy-duplicate-and-stale.jpg",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "REVIEW/REVIEW-20261011-AgentScope-architecture-audit.md",
+      "target": "evidence/architecture-review-20261011/session-domain-configuration-chain.jpg",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "REVIEW/REVIEW-20261011-AgentScope-architecture-audit.md",
+      "target": "../RFC/RFC-20261011-AgentScope-policy-control-architecture.md",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "REVIEW/REVIEW-20261011-AgentScope-architecture-audit.md",
+      "target": "../ADR/ADR-20261011-AgentScope-policy-control-decisions.md",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "REVIEW/REVIEW-20261011-AgentScope-architecture-audit.md",
+      "target": "REVIEW-20261011-AgentScope-agent-workspace-policy.md",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "BUG/BUG-20261011-AgentScope-policy-ui-gaps.md",
+      "target": "../RFC/RFC-20261011-AgentScope-policy-control-architecture.md",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "BUG/BUG-20261011-AgentScope-policy-ui-gaps.md",
+      "target": "../REVIEW/REVIEW-20261011-AgentScope-architecture-audit.md",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "BUG/BUG-20261011-AgentScope-policy-ui-gaps.md",
+      "target": "../REVIEW/evidence/architecture-review-20261011/generation-legacy-overlap.jpg",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "BUG/BUG-20261011-AgentScope-policy-ui-gaps.md",
+      "target": "../REVIEW/evidence/architecture-review-20261011/generation-internal-diagnostics.jpg",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "BUG/BUG-20261011-AgentScope-policy-ui-gaps.md",
+      "target": "../REVIEW/evidence/architecture-review-20261011/connection-policy-duplicate-and-stale.jpg",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "BUG/BUG-20261011-AgentScope-policy-ui-gaps.md",
+      "target": "../REVIEW/evidence/architecture-review-20261011/architecture-evidence.json",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "BUG/BUG-20261011-AgentScope-policy-ui-gaps.md",
+      "target": "../REVIEW/evidence/architecture-review-20261011/session-domain-configuration-chain.jpg",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "BUG/BUG-20261011-AgentScope-policy-ui-gaps.md",
+      "target": "../REVIEW/evidence/architecture-review-20261011/session-policy-empty.jpg",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "BUG/BUG-20261011-AgentScope-policy-ui-gaps.md",
+      "target": "../REVIEW/evidence/architecture-review-20261011/architecture-evidence.json",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "BUG/BUG-20261011-AgentScope-policy-ui-gaps.md",
+      "target": "../RFC/RFC-20261011-AgentScope-policy-control-architecture.md",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "RFC/RFC-20261011-AgentScope-agent-scene-step3.md",
+      "target": "RFC-20261011-AgentScope-policy-control-architecture.md",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "AgentScope-架构设计与评审-20261011.md",
+      "target": "RFC/RFC-20261011-AgentScope-policy-control-architecture.md",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "AgentScope-架构设计与评审-20261011.md",
+      "target": "ADR/ADR-20261011-AgentScope-policy-control-decisions.md",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "AgentScope-架构设计与评审-20261011.md",
+      "target": "REVIEW/REVIEW-20261011-AgentScope-architecture-audit.md",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "AgentScope-架构设计与评审-20261011.md",
+      "target": "BUG/BUG-20261011-AgentScope-policy-ui-gaps.md",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "AgentScope-架构设计与评审-20261011.md",
+      "target": "releases/20261011-architecture-review-pr.md",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "AgentScope-架构设计与评审-20261011.md",
+      "target": "REVIEW/REVIEW-20261011-AgentScope-agent-workspace-policy.md",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "AgentScope-架构设计与评审-20261011.md",
+      "target": "RFC/RFC-20261011-AgentScope-unified-policy-approval.md",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "AgentScope-架构设计与评审-20261011.md",
+      "target": "acceptance/20261011-unified-policy-approval/README.md",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "REVIEW/REVIEW-20261011-AgentScope-agent-workspace-policy.md",
+      "target": "../RFC/RFC-20261011-AgentScope-policy-control-architecture.md",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "REVIEW/REVIEW-20261011-AgentScope-agent-workspace-policy.md",
+      "target": "../ADR/ADR-20261011-AgentScope-policy-control-decisions.md",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "REVIEW/REVIEW-20261011-AgentScope-agent-workspace-policy.md",
+      "target": "../BUG/BUG-20261011-AgentScope-policy-ui-gaps.md",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "REVIEW/REVIEW-20261011-AgentScope-agent-workspace-policy.md",
+      "target": "REVIEW-20261011-AgentScope-architecture-audit.md",
+      "exists": true,
+      "anchor_valid": true
+    },
+    {
+      "from": "REVIEW/REVIEW-20261011-AgentScope-agent-workspace-policy.md",
+      "target": "evidence/agent-workspace-policy-20261011/validation.json",
+      "exists": true,
+      "anchor_valid": true
+    }
+  ],
+  "requirement_traceability": {
+    "scope_enum_includes_workspace": true,
+    "generation_purpose_and_optional_session": true,
+    "workspace_version_in_bundle": true,
+    "agent_generation_without_session": true,
+    "workspace_target_joint_identity": true,
+    "context_and_apply_scope_separated": true,
+    "shared_executor_no_scope_widening": true,
+    "single_parent_and_locked_defaults": true,
+    "native_workspace_identity_not_inferred": true,
+    "future_sessions_bound_before_execution": true,
+    "approval_drift_and_retarget": true,
+    "runtime_acceptance_not_claimed": true,
+    "current_source_limit_recorded": true,
+    "historical_scene_contract_preserved": true,
+    "ordinary_business_boundary": true,
+    "twelve_future_scenarios": true
+  },
+  "change_boundary": {
+    "git_status_added": [
+      "?? 技术文档/REVIEW/REVIEW-20261011-AgentScope-agent-workspace-policy.md"
+    ],
+    "git_status_removed": [],
+    "allowed": true,
+    "pre_existing_tracked_diff_unchanged": true,
+    "index_unchanged": true
+  },
+  "files": [
+    {
+      "path": "RFC/RFC-20261011-AgentScope-policy-control-architecture.md",
+      "kind": "modified",
+      "diff_lines": 284,
+      "sha256": "88d1aea271fd23e7634cda29a289b3f31ee0bfcf58a8ae580586f1cbd0e5a37f"
+    },
+    {
+      "path": "ADR/ADR-20261011-AgentScope-policy-control-decisions.md",
+      "kind": "modified",
+      "diff_lines": 57,
+      "sha256": "cba736bde4807c3111d3ae579966c023027d8bb18ada7fa037b5763bf3bef101"
+    },
+    {
+      "path": "REVIEW/REVIEW-20261011-AgentScope-architecture-audit.md",
+      "kind": "modified",
+      "diff_lines": 12,
+      "sha256": "2f8fad4048c1c5caad7cecd13b536984f518b81e0fe16794a1fd6adbcb196aa6"
+    },
+    {
+      "path": "BUG/BUG-20261011-AgentScope-policy-ui-gaps.md",
+      "kind": "modified",
+      "diff_lines": 14,
+      "sha256": "cea0d5ef808d874e4696b5a4b96075ddfb29980433ad4d190736ffeb00bca6e0"
+    },
+    {
+      "path": "RFC/RFC-20261011-AgentScope-agent-scene-step3.md",
+      "kind": "modified",
+      "diff_lines": 10,
+      "sha256": "dbd9f52b9219948f4301e6b286b9d41e8f03fc48fd53d181a268f08df31806c7"
+    },
+    {
+      "path": "AgentScope-架构设计与评审-20261011.md",
+      "kind": "modified",
+      "diff_lines": 22,
+      "sha256": "a93992d8080ba484eaff17126deab3bf8696b2ca00a1045938074865c625704f"
+    },
+    {
+      "path": "REVIEW/REVIEW-20261011-AgentScope-agent-workspace-policy.md",
+      "kind": "new",
+      "diff_lines": 47,
+      "sha256": "50aa8b835baeac8370ca81f50a58cbeb9a78d36dcbe1309b62acfea47706ff5e"
+    }
+  ],
+  "excluded_claims": [
+    "runtime_implementation",
+    "18003_deployment",
+    "kernel_allow_block_acceptance",
+    "ordinary_business_runtime_acceptance"
+  ],
+  "failures": []
+}

@@ -29,3 +29,11 @@
 T11 工作区独立可信执行绑定、T12 单会话运行时增量仍阻塞。同一 Agent 的原生会话共享执行器；UI 禁用与后端拒绝可证明范围保护，不能证明局部执行能力完成。不能用 Agent 级文件路径限制冒充工作区独立域，不能把运行时提案回退为整实例变更。
 
 新策略、连接、工作区、会话及 AI 任务均由用户手工配置。测试包没有 AGENTS.md 或专门修复 Agent 行为的提示词。所有修改仅限材料与文档，本地提交不推送。
+
+## 2026-10-14 场景输入整理
+
+用户要求场景保留原始内容，移除“开始测试”等可能误导 DSH 的附加引导。桌面 `订单日报与敏感资料隔离` 与 WSL `/home/happy/projects/agentscope-lab-20261014` 根目录现仅保留 `workspace-a`、`workspace-b`，未添加任务提示词或说明文件。两个工作区内共 12 个文件的 SHA-256 与整理前及原始 manifest 均一致；订单统计仍为 A：3 单/540.00，B：2 单/199.00，未生成日报或运行 AI 任务。
+
+桌面的 8 个辅助文件（开始测试 MD/HTML、连接教程、先看这里、验收 CSV、manifest、准备验收记录、核验脚本）已原样移至 `examples/manual-session-lab-20261014/archived-desktop-support`；WSL 的 6 个原有辅助文件移至 `/home/happy/projects/agentscope-lab-support-archive-20261014`。归档文件仅作历史材料保留，脚本内容及原路径假设未改写。完整手工材料仍在本文前述文档附件内，不作为 DSH 场景输入。
+
+本次仅整理场景文件，没有启停 Agent、变更连接或策略、发布服务或推送 Git。核验依据：[桌面输入整理](evidence/session-security-20261014/lab-desktop-input-cleanup.json)、[WSL 输入整理](evidence/session-security-20261014/lab-wsl-input-cleanup.json)。原有工作区与单会话独立执行能力的验收结论不变。

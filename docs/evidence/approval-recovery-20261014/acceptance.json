@@ -1,0 +1,293 @@
+{
+  "verified_at": "2026-10-14T06:42:02Z",
+  "checks": {
+    "old_candidate_content_and_identity_preserved": true,
+    "formal_candidate_unapproved_and_unapplied": true,
+    "authority_unchanged": true,
+    "broker_unchanged": true,
+    "other_ports_unchanged": true,
+    "protection:instance-1f4469579e8947f4": true,
+    "protection:instance-c0dd272b6a734a34": true,
+    "protection:instance-cc444fe38c094cbb": true
+  },
+  "protection": {
+    "instance-1f4469579e8947f4": {
+      "gate": "open",
+      "protection_fresh": true,
+      "pending_events": 0,
+      "outstanding_calls": 0
+    },
+    "instance-c0dd272b6a734a34": {
+      "gate": "open",
+      "protection_fresh": true,
+      "pending_events": 0,
+      "outstanding_calls": 0
+    },
+    "instance-cc444fe38c094cbb": {
+      "gate": "open",
+      "protection_fresh": true,
+      "pending_events": 0,
+      "outstanding_calls": 0
+    }
+  },
+  "api": {
+    "MainPID": "1187353",
+    "WorkingDirectory": "/opt/agentscope-approval-recovery-20261014-143959",
+    "argv": [
+      "/opt/agentscope/.venv/bin/python",
+      "-m",
+      "uvicorn",
+      "agentscope_app.main:app",
+      "--host",
+      "127.0.0.1",
+      "--port",
+      "18003",
+      "--timeout-graceful-shutdown",
+      "3"
+    ],
+    "start_ticks": "34982977"
+  },
+  "broker": {
+    "MainPID": "1881389",
+    "WorkingDirectory": "/opt/agentscope-value-startup-20261012-225631",
+    "argv": [
+      "/opt/agentscope/.venv/bin/python",
+      "/opt/agentscope-value-startup-20261012-225631/backend/broker/main.py"
+    ],
+    "start_ticks": "20679589"
+  },
+  "production_agents": {
+    "instance-1f4469579e8947f4": {
+      "policy_hash": "9c5fa9fbb63c9bcd71da29007179d6c9fed00b23ac9b9f4e41165a76b92425c1",
+      "generation": "a8ee7f9c5ad64e0a9bf543e3929255ed",
+      "pid": 1881572,
+      "domain_id": 133859788,
+      "active": true
+    },
+    "instance-c0dd272b6a734a34": {
+      "policy_hash": "f930aa4e9f224e24588a51a652d773cf022a74fa8be0b379ed4e80023c58ad87",
+      "generation": "947b1b6dd3334b3c9a2a250bd3705832",
+      "pid": 1881769,
+      "domain_id": 1819175395,
+      "active": true
+    },
+    "instance-bb171d3176b644a2": {
+      "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+      "generation": "566ddd5edaad438f9473d4ea08ec1cc1",
+      "pid": null,
+      "domain_id": null,
+      "active": false
+    },
+    "instance-cc444fe38c094cbb": {
+      "policy_hash": "c3371a12d813cbf8c4e13bfc39ac8caa8868b6d394f8a7dbebcd74afa15b2cfe",
+      "generation": "3028d67dd05a4be2ac4944b26e278a6d",
+      "pid": 1881965,
+      "domain_id": 766367180,
+      "active": true
+    }
+  },
+  "old_approval_id": "4902875341f142e0b7f3d43b49ac29a3",
+  "new_approval_id": "27739bdbca0a43bfa20e42d62e2267e4",
+  "new_candidate_status": "pending",
+  "approval_status": "unrecorded",
+  "version_reason": "配置库版本已变化：配置“环境凭据文件”已从 v1 更新到 v2，请重新校验。",
+  "same_content": true,
+  "frontend_tests": 272,
+  "backend_tests": 178,
+  "isolated": {
+    "checks": {
+      "new_candidate_and_retry_do_not_load": true,
+      "exact_version_drift_explained": true,
+      "approval_alone_keeps_old_execution": true,
+      "old_or_wrong_approval_cannot_apply": true,
+      "explicit_apply_rebuilds_only_test_instance_and_kernel_denies": true,
+      "legitimate_read_still_allowed": true,
+      "production_unchanged": true
+    },
+    "instance_id": "instance-d385ac26af4a424e",
+    "old_approval_id": "f3619cda3c404246aa071608be628001",
+    "new_approval_id": "32cbb769badd4de7b681576f17cbb998",
+    "original_identity": {
+      "pid": 1149435,
+      "generation": "8d85364ea8c74a50908f016a96fc1691",
+      "domain_id": 616982241,
+      "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815"
+    },
+    "pending_probe": {
+      "pid": 1149699,
+      "returncode": 0,
+      "outcome": {
+        "read_completed": true,
+        "errno": null
+      }
+    },
+    "approved_probe": {
+      "pid": 1149727,
+      "returncode": 0,
+      "outcome": {
+        "read_completed": true,
+        "errno": null
+      }
+    },
+    "application": {
+      "id": "32cbb769badd4de7b681576f17cbb998",
+      "state": "applied",
+      "affected_count": 1,
+      "resumed_count": 1,
+      "targets": [
+        {
+          "id": "instance-d385ac26af4a424e",
+          "status": "active"
+        }
+      ]
+    },
+    "applied_identity": {
+      "pid": 1150283,
+      "generation": "98280de5c0aa47a88d62db916d66bd18",
+      "domain_id": 1594379164,
+      "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815"
+    },
+    "blocked_probe": {
+      "pid": 1150410,
+      "returncode": 0,
+      "outcome": {
+        "read_completed": false,
+        "errno": 1
+      }
+    },
+    "legal_probe": {
+      "pid": 1150426,
+      "returncode": 0,
+      "outcome": {
+        "read_completed": true,
+        "errno": null
+      }
+    },
+    "kernel_events": [
+      {
+        "offset": 1879,
+        "event": {
+          "action": "block",
+          "blocked": true,
+          "comm": "node-MainThread",
+          "domain_id": 1594379164,
+          "effect": "block",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x2",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "db29ea9327fcd_AGENT",
+                  "label_mask": "0x2",
+                  "origin_op": "exec",
+                  "origin_pid": 1150410,
+                  "origin_target": "node",
+                  "origin_timestamp_ns": 349259121506838
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "db29ea9327fcd_AGENT",
+              "label_mask": "0x2",
+              "provenance": {
+                "label": "db29ea9327fcd_AGENT",
+                "label_mask": "0x2",
+                "origin_op": "exec",
+                "origin_pid": 1150410,
+                "origin_target": "node",
+                "origin_timestamp_ns": 349259121506838
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "db29ea9327fcd_AGENT",
+          "matched_label_names": [
+            "db29ea9327fcd_AGENT"
+          ],
+          "matched_labels": "0x2",
+          "op": "read",
+          "op_code": 1,
+          "pid": 1150410,
+          "ppid": 1150409,
+          "process_domain_id": 1594379164,
+          "provenance": {
+            "label": "db29ea9327fcd_AGENT",
+            "label_mask": "0x2",
+            "origin_op": "exec",
+            "origin_pid": 1150410,
+            "origin_target": "node",
+            "origin_timestamp_ns": 349259121506838
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "binding_mode": "locked",
+            "clause_end_line": 19,
+            "clause_hash": "fnv1a64:66622caff107ff84",
+            "clause_op": "open",
+            "clause_source_index": 0,
+            "clause_start_line": 19,
+            "clause_text": "  block open file \"**/*.agentscope-dsl-block.txt\" if db29ea9327fcd_AGENT",
+            "effect": "block",
+            "immutable": true,
+            "kernel_op": "read",
+            "name": "db29ea9327fcd-system-policy-f6d25e6649c7401aaf4f98aaa93084b5",
+            "ops": [
+              "open"
+            ],
+            "reason": "合成场景：重新校验后由管理员分别批准和应用",
+            "source_end_line": 20,
+            "source_hash": "fnv1a64:583bb60550fae1a4",
+            "source_ref": "db29ea9327fcd:0",
+            "source_start_line": 18,
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "**/*.agentscope-dsl-block.txt"
+          },
+          "rule_id": 4,
+          "schema": "actplane.violation.v1",
+          "session_root": 1149850,
+          "taint_label": "0x3",
+          "target": "/w/0/.agentscope-dsl-block.txt",
+          "timestamp_unix_ns": "1791959458424648539",
+          "tool_call_tag": "0"
+        }
+      }
+    ],
+    "ui_approval_id": "1bc6488b7db74e268822efb306c17c4d",
+    "passed": true,
+    "browser_acceptance": {
+      "approval_id": "c45ee612ce82483d82ce73686a02439a",
+      "state": "applied",
+      "multi_document_blocked_probe": {
+        "pid": 1201137,
+        "returncode": 0,
+        "outcome": {
+          "read_completed": false,
+          "errno": 1
+        }
+      },
+      "multi_document_legal_probe": {
+        "pid": 1201148,
+        "returncode": 0,
+        "outcome": {
+          "read_completed": true,
+          "errno": null
+        }
+      },
+      "identity": {
+        "pid": 1165418,
+        "generation": "60f0b57c0f9345c09412675b2b861116",
+        "domain_id": 1039932764,
+        "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815"
+      }
+    },
+    "test_instance_stopped": true
+  }
+}

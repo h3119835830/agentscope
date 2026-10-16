@@ -1,3 +1,12 @@
+# 2026-10-16 WINDOWS/main 同步
+
+当前设计以 Agent 基线和真实执行域运行时规则为准；旧四层材料保留取代说明。
+
+- [同步范围](RFC/RFC-2026-10-16-AgentScope-WINDOWS-main-sync.md)
+- [决策](ADR/ADR-2026-10-16-AgentScope-WINDOWS-main-sync.md)
+- [本地验收及运行边界](REVIEW/REVIEW-2026-10-16-AgentScope-WINDOWS-main-sync.md)
+- [问题闭环](BUG/BUG-2026-10-16-AgentScope-WINDOWS-main-sync.md)
+
 # 本次技术文档更新
 
 ## 2026-10-14 执行连接与原生工作区

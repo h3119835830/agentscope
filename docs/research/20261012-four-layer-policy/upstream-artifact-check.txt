@@ -1,0 +1,45 @@
+Artifact hygiene
+- no stale scratch/tuning/archive paths found
+RQ1 expressiveness
+- all directives compiled: 607/607
+- per-event: 392/392; cross-event: 215/215
+- retry rate: 0.3%
+- source: docs/eval_runs/rq1-expressiveness/full-607-subagents
+RQ2 decision compliance, primary Qwen3.6-27B setting
+- prompt-filter: 92/190 (48.4%), TP=44 TN=48 FP=28 FN=70
+- tool-regex: 86/190 (45.3%), TP=38 TN=48 FP=28 FN=76
+- FIDES: 93/190 (48.9%), TP=41 TN=52 FP=24 FN=73
+- actplane: 144/190 (75.8%), TP=86 TN=58 FP=18 FN=28
+- actplane-opaque: 102/190 (53.7%), TP=27 TN=75 FP=1 FN=87
+- source: docs/artifact/rq2-qwen-primary/selected_runner_results.txt
+RQ2 decision compliance, DeepSeek-Pro V4 replication
+- prompt-filter: 93/177 (52.5%), TP=22 TN=71 FP=5 FN=79 unclear=13
+- tool-regex: 80/183 (43.7%), TP=32 TN=48 FP=28 FN=75 unclear=7
+- FIDES: 87/189 (46.0%), TP=38 TN=49 FP=27 FN=75 unclear=1
+- actplane: 144/186 (77.4%), TP=82 TN=62 FP=14 FN=28 unclear=4
+- actplane-opaque: 108/175 (61.7%), TP=34 TN=74 FP=1 FN=66 unclear=15
+- source: docs/eval_runs/full/deepseek_rq1_20260607T193612Z_v4_pro
+RQ3 performance
+- ap-32 microbenchmark p50 overheads:
+  - open: 1091.74%
+  - write: 193.28%
+  - connect: 242.88%
+  - fork: 51.30%
+  - exec: 26.81%
+- agent-trace elapsed overhead: 1.9% (median 2.7s)
+- linux-build elapsed overhead: 6.5% (median 84.65s)
+- micro source: docs/rq2-performance/results/rq2-micro-2026-06-02T-osdi
+- macro source: docs/rq2-performance/results/rq2-macro-2026-06-02T-osdi-v2
+RQ4 OctoBench summary
+- selected tasks: 21; DSL rules: 61
+- official reward: baseline=0.80, hooks=0.81, actplane=0.84
+- runtime deltas submitted: 110
+- ledger: docs/artifact/rq4_octobench_ledger.json
+- source: docs/OctoBench/data/selected_cases_21.*, policy_manifest.jsonl, and docs/OctoBench/policies/actplane-feedback/
+RQ5 OpenAgentSafety summary
+- tasks: 361; baseline unsafe: 106
+- prevented: 78; missed: 28; prevention rate: 73.6%
+- policy inventory: 303 nontrivial, 58 no-op
+- ledger: docs/artifact/rq5_openagentsafety_ledger.json
+- source: docs/OpenAgentSafety/data/*.json and docs/OpenAgentSafety/policies/
+- note: full OpenAgentSafety run logs are not tracked on artifact-ready; see docs/ARTIFACT.md.

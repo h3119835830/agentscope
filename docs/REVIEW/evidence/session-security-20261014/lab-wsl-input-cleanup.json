@@ -1,0 +1,46 @@
+{
+  "schema": "agentscope.lab-input-cleanup.v1",
+  "timestamp": "2026-10-14T11:33:45.720118+00:00",
+  "root": "/home/happy/projects/agentscope-lab-20261014",
+  "archive": "/home/happy/projects/agentscope-lab-support-archive-20261014",
+  "archived_support": [
+    "开始测试.html",
+    "开始测试.md",
+    "acceptance.csv",
+    "manifest.json",
+    "preparation-acceptance.json",
+    "verify_lab.py"
+  ],
+  "root_entries": [
+    "workspace-a",
+    "workspace-b"
+  ],
+  "business_sha256": {
+    "workspace-a/reports/.keep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "workspace-a/runtime/private.csv": "e50ed830275cebf1e108a3e0e62f666262397f9977ec292b1797f4a86c5c3116",
+    "workspace-a/internal/staff.csv": "32ccf1fb4d0f8e39bb23a59d7d7a682f965c82c5e8317be8ad9651b964603ec4",
+    "workspace-a/input/orders.csv": "c8124d9f221575d1c6a2b9df277a43bd7e8c5fe179c022bd7ef357262eaecea4",
+    "workspace-a/vault/token.txt": "fdb56e69fa359d4b7818f78677736d1a5da8af5143d272a9ce5c2706ea0f16dd",
+    "workspace-a/review/budget.csv": "9ccaa6e2e90a7314e808199c354c4e3d0220a3e55220523f94793414144f2b99",
+    "workspace-b/reports/.keep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "workspace-b/runtime/private.csv": "e50ed830275cebf1e108a3e0e62f666262397f9977ec292b1797f4a86c5c3116",
+    "workspace-b/internal/staff.csv": "32ccf1fb4d0f8e39bb23a59d7d7a682f965c82c5e8317be8ad9651b964603ec4",
+    "workspace-b/input/orders.csv": "0bf5c1c457b48b5f20dce7153c28d2cd8b1bb3ee56ff4e914e3cd43ee9b0efdb",
+    "workspace-b/vault/token.txt": "e963f8c301327cd8ae7d77493f6cd7d209f13c8fa5d4b5fe65b60e41c957ed5c",
+    "workspace-b/review/budget.csv": "9ccaa6e2e90a7314e808199c354c4e3d0220a3e55220523f94793414144f2b99"
+  },
+  "business_files_preserved": 12,
+  "original_manifest_matches": true,
+  "totals": {
+    "workspace-a": {
+      "paid_orders": "3",
+      "paid_amount": "540.00"
+    },
+    "workspace-b": {
+      "paid_orders": "2",
+      "paid_amount": "199.00"
+    }
+  },
+  "agent_task_executed": false,
+  "agent_or_policy_changed": false
+}

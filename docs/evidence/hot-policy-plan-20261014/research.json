@@ -1,0 +1,141 @@
+{
+  "schema": "agentscope.hot-policy-research.v1",
+  "status": "proposal_not_implemented_or_kernel_tested",
+  "verified_at": "2026-10-14T07:10:35.585336+00:00",
+  "repository": "/home/happy/projects/agentscope-policy-lifecycle-20261014",
+  "source_commit": "1197a7dde986a42d8756aa75304cb1a2566dfe07",
+  "actplane_tree": "3b3e40e3eb4b1c927496aa73759407757a494fb3",
+  "sources": {
+    "crates/actplane-cli/src/main.rs": {
+      "sha256": "eeb5cc30d08b4be427c72bda027baa8a750dcac4bcd3930f691eff166d0e1da7",
+      "same_as_opt_source": true
+    },
+    "crates/actplane-runtime/src/runtime.rs": {
+      "sha256": "b1651e01508990aa772404e219e4f1622054d0ad44809e120fa61cc8fe330162",
+      "same_as_opt_source": false
+    },
+    "crates/actplane-runtime/src/control.rs": {
+      "sha256": "ff06e1cb7c1a2401f7c81fcb9244318531769df0e93e10a139877257cc8f4449",
+      "same_as_opt_source": true
+    },
+    "bpf/src/lib.rs": {
+      "sha256": "9051f16cec5d72dfced5bd048f8ec5bef65c6ce506d29f3042b6e4591081911b",
+      "same_as_opt_source": false
+    },
+    "bpf/capability.bpf.h": {
+      "sha256": "85a89c0fa972217f686f900a1f2887e805ad0000932c8132cd7da6216ea4e60d",
+      "same_as_opt_source": true
+    },
+    "bpf/taint_engine.bpf.h": {
+      "sha256": "f546c25fcab6174c05fd397fd333603cc2ea868a2ae7c58728f9b3e691d98ffa",
+      "same_as_opt_source": false
+    },
+    "bpf/process.bpf.c": {
+      "sha256": "b81b4440d577e8784cd570735987a6b2ad796f6534c8a5a1236dafc6aa9def7c",
+      "same_as_opt_source": false
+    },
+    "bpf/taint.h": {
+      "sha256": "ef5a9d92f612a3074249d9105e6d6421d7b34455e5285b02dda0f03388ad3bea",
+      "same_as_opt_source": false
+    }
+  },
+  "binaries": {
+    "/var/lib/agentscope-scope-demo/bin/actplane": "5e8d43c279d88bd4215f654746675debfd976e28426c9fabdabeca408865d6da",
+    "/home/happy/projects/agentscope-policy-lifecycle-20261014/actplane/target/release/actplane": "5e8d43c279d88bd4215f654746675debfd976e28426c9fabdabeca408865d6da",
+    "/opt/agentscope/bin/actplane": "efe5c895cca03393ba6ec41c77835c9675d9a407a6378e7e96adafa4ff553749"
+  },
+  "build_provenance": "Matching runtime/build artifact hashes; no independent reproducible-build attestation located. /opt/agentscope/actplane differs from the vendored tree.",
+  "api": {
+    "MainPID": "1277322",
+    "WorkingDirectory": "/opt/agentscope-session-security-20261014-145845",
+    "argv": [
+      "/opt/agentscope/.venv/bin/python",
+      "-m",
+      "uvicorn",
+      "agentscope_app.main:app",
+      "--host",
+      "127.0.0.1",
+      "--port",
+      "18003",
+      "--timeout-graceful-shutdown",
+      "3"
+    ],
+    "start_ticks": "35094285"
+  },
+  "broker": {
+    "MainPID": "1881389",
+    "WorkingDirectory": "/opt/agentscope-value-startup-20261012-225631",
+    "argv": [
+      "/opt/agentscope/.venv/bin/python",
+      "/opt/agentscope-value-startup-20261012-225631/backend/broker/main.py"
+    ],
+    "start_ticks": "20679589"
+  },
+  "current_agents": {
+    "instance-1f4469579e8947f4": {
+      "policy_hash": "9c5fa9fbb63c9bcd71da29007179d6c9fed00b23ac9b9f4e41165a76b92425c1",
+      "generation": "a8ee7f9c5ad64e0a9bf543e3929255ed",
+      "pid": 1881572,
+      "domain_id": 133859788,
+      "active": true
+    },
+    "instance-c0dd272b6a734a34": {
+      "policy_hash": "f930aa4e9f224e24588a51a652d773cf022a74fa8be0b379ed4e80023c58ad87",
+      "generation": "947b1b6dd3334b3c9a2a250bd3705832",
+      "pid": 1881769,
+      "domain_id": 1819175395,
+      "active": true
+    },
+    "instance-bb171d3176b644a2": {
+      "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+      "generation": "566ddd5edaad438f9473d4ea08ec1cc1",
+      "pid": null,
+      "domain_id": null,
+      "active": false
+    },
+    "instance-cc444fe38c094cbb": {
+      "policy_hash": "c3371a12d813cbf8c4e13bfc39ac8caa8868b6d394f8a7dbebcd74afa15b2cfe",
+      "generation": "3028d67dd05a4be2ac4944b26e278a6d",
+      "pid": 1881965,
+      "domain_id": 766367180,
+      "active": true
+    }
+  },
+  "agents_unchanged": true,
+  "api_unchanged": false,
+  "broker_unchanged": true,
+  "protection": {
+    "instance-1f4469579e8947f4": {
+      "gate": "open",
+      "protection_fresh": true,
+      "pending_events": 0,
+      "outstanding_calls": 0
+    },
+    "instance-c0dd272b6a734a34": {
+      "gate": "open",
+      "protection_fresh": true,
+      "pending_events": 0,
+      "outstanding_calls": 0
+    },
+    "instance-cc444fe38c094cbb": {
+      "gate": "open",
+      "protection_fresh": true,
+      "pending_events": 0,
+      "outstanding_calls": 0
+    }
+  },
+  "sources_online": [
+    "https://github.com/eunomia-bpf/ActPlane/blob/master/docs/security_model.md",
+    "https://github.com/eunomia-bpf/ActPlane/blob/master/crates/actplane-runtime/src/runtime.rs",
+    "https://docs.kernel.org/admin-guide/cgroup-v2.html",
+    "https://docs.kernel.org/bpf/map_of_maps.html"
+  ],
+  "operations_executed": "read_only_source_and_status; saved proposal and research evidence only; no compile, load, approval, application, service restart or fault injection",
+  "concurrent_change": {
+    "observed_at_cst": "2026-10-14 14:59:02",
+    "api_release": "/opt/agentscope-session-security-20261014-145845",
+    "api_pid": "1277322",
+    "journal": "normal stopping/deactivated/starting/started; NRestarts=0; not initiated by this research turn",
+    "integration_requirement": "Recheck the then-current runtime baseline before implementation or publication."
+  }
+}

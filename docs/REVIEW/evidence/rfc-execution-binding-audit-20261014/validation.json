@@ -1,0 +1,86 @@
+{
+  "schema": "agentscope.rfc-execution-binding-audit.validation.v1",
+  "checked_at": "2026-10-14T12:21:04.759530+00:00",
+  "status": "passed",
+  "acceptance_type": "static_document_review",
+  "documentation_only": true,
+  "runtime_acceptance_performed": false,
+  "source_binary_reproducible_build_verified": false,
+  "runtime_restart_or_deployment_performed": false,
+  "remote_push_performed": false,
+  "checks": {
+    "document_manifest_hashes": true,
+    "index_manifest_hashes": true,
+    "dependency_manifest_hashes": true,
+    "source_hashes_stable": true,
+    "central_contract_links": true,
+    "repository_link_closure": true,
+    "central_contract_bytes_equal": true,
+    "central_index_cas": true,
+    "application_worktree_clean": true,
+    "application_head_unchanged": true,
+    "runtime_identity_unchanged": true,
+    "documentation_scope_only": true,
+    "staged_diff_check": true,
+    "text_credential_literal_scan": true,
+    "historical_source_manifests_unchanged": true
+  },
+  "repository_links": {
+    "file_count": 308,
+    "link_count": 578,
+    "missing": []
+  },
+  "central_contract_links": {
+    "count": 76,
+    "missing": [],
+    "validation_receipt_written_after_measurement": true
+  },
+  "runtime_identity": {
+    "agentscope-scope-demo-api": {
+      "pid": 500,
+      "same_pid": true,
+      "same_process_start": true,
+      "same_boot": true,
+      "same_source_and_binary": true
+    },
+    "agentscope-scope-demo-broker": {
+      "pid": 437,
+      "same_pid": true,
+      "same_process_start": true,
+      "same_boot": true,
+      "same_source_and_binary": true
+    }
+  },
+  "changed_file_count": 80,
+  "json_files_parsed": 23,
+  "text_credential_scan_flags": [],
+  "publication": {
+    "revised_contracts": [
+      "RFC/RFC-20261011-AgentScope-policy-control-architecture.md",
+      "RFC/RFC-20261012-AgentScope-four-layer-policy.md",
+      "ADR/ADR-20261012-AgentScope-four-layer-policy.md",
+      "RFC/RFC-20261014-AgentScope-session-security-workbench.md",
+      "ADR/ADR-20261014-AgentScope-session-security-entry.md",
+      "RFC/RFC-20261014-AgentScope-hot-policy-lifecycle-proposal.md",
+      "RFC/RFC-20261014-AgentScope-agent-launch-adapter-research.md",
+      "AgentScope-四层策略架构与ActPlane调研-20261012.md"
+    ],
+    "new_records": [
+      "RFC/RFC-20261014-AgentScope-execution-binding-rederivation.md",
+      "ADR/ADR-20261014-AgentScope-execution-binding-rederivation.md",
+      "REVIEW/REVIEW-20261014-AgentScope-rfc-execution-binding-audit.md",
+      "BUG/BUG-20261014-AgentScope-rfc-execution-assumptions.md",
+      "REVIEW/evidence/rfc-execution-binding-audit-20261014/audit.json",
+      "design/agentscope-ui-design.md"
+    ],
+    "index_after_sha256": "09118cca13c42902163fd20c1632a183e41cdba47b0eb9dd651c74a3704b4b70"
+  },
+  "reviewed_contracts": [
+    "Four configuration layers retained; default DSH worker decision revoked in primary RFC and ADR.",
+    "One direct active domain per engine/process; ancestors retained; fork does not itself isolate.",
+    "Desired and loaded policies separated; execution and availability impact closure required.",
+    "Shared divergent projection rejected; hot epoch update does not alter identity granularity.",
+    "Cancel/end/disable/stop separated; independent stop requires exclusive verified coverage.",
+    "Historical acceptance is not extended; future A13-A20 scenarios remain unexecuted."
+  ]
+}

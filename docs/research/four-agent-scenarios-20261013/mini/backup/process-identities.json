@@ -1,0 +1,51 @@
+[
+  {
+    "pid": 3364111,
+    "ppid": 3364054,
+    "start_ticks": "29186975",
+    "exe": "/home/happy/projects/agentscope-system-policy-ui-20261011/actplane/target/release/actplane",
+    "comm": "actplane"
+  },
+  {
+    "pid": 3364130,
+    "ppid": 3364111,
+    "start_ticks": "29186976",
+    "exe": "/usr/bin/bwrap",
+    "comm": "bwrap"
+  },
+  {
+    "pid": 3364276,
+    "ppid": 3364130,
+    "start_ticks": "29187420",
+    "exe": "/usr/bin/bwrap",
+    "comm": "bwrap"
+  },
+  {
+    "pid": 3364277,
+    "ppid": 3364276,
+    "start_ticks": "29187421",
+    "exe": "/usr/bin/python3.14",
+    "comm": "python"
+  },
+  {
+    "pid": 3364571,
+    "ppid": 3364277,
+    "start_ticks": "29188166",
+    "exe": "/usr/bin/dash",
+    "comm": "sh"
+  },
+  {
+    "pid": 3364572,
+    "ppid": 3364571,
+    "start_ticks": "29188166",
+    "exe": "/usr/bin/bash",
+    "comm": "bash"
+  },
+  {
+    "pid": 3364573,
+    "ppid": 3364572,
+    "start_ticks": "29188166",
+    "exe": "/usr/lib/cargo/bin/coreutils/sleep",
+    "comm": "sleep"
+  }
+]

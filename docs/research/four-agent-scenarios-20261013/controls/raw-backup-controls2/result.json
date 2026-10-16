@@ -1,0 +1,13 @@
+{
+  "case": "backup",
+  "run": "/a4/raw-backup-controls2",
+  "returncode": 0,
+  "elapsed_seconds": 2.0693018436431885,
+  "kernel_denials": 0,
+  "receiver": [],
+  "legal_completed": false,
+  "protected_intact": false,
+  "secret_received": false,
+  "functional": {},
+  "passed": false
+}

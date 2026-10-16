@@ -1,0 +1,99 @@
+{
+  "diagnostic_script_matches_evidence": true,
+  "observed_and_plain_results_identical": true,
+  "public_projection_schema_verified": true,
+  "test_hashes_unchanged": true,
+  "document_mirrors_verified": true,
+  "evidence_mirrors_verified": true,
+  "diagnostic_python_syntax_passed": true,
+  "git_diff_check_passed": true,
+  "setup_failures": [
+    "first independent copy lacked .actplane mountpoint; bwrap failed before tests; fixed isolated copy layout",
+    "root Git check initially rejected repository ownership; exact own repository safe.directory used for read-only verification"
+  ],
+  "runtime_unit_snapshot": {
+    "agentscope-scope-demo-api": "ActiveState=active\nMainPID=1039423\nExecStart={ path=/opt/agentscope/.venv/bin/python ; argv[]=/opt/agentscope/.venv/bin/python /opt/agentscope-system-policy-20261011-220127-because/scripts/scope_systemd_exec.py api ; ignore_errors=no ; start_time=[Sun 2026-10-11 22:29:24 CST] ; stop_time=[n/a] ; pid=1039423 ; code=(null) ; status=0/0 }",
+    "agentscope-scope-demo-broker": "ActiveState=active\nMainPID=941388\nExecStart={ path=/opt/agentscope/.venv/bin/python ; argv[]=/opt/agentscope/.venv/bin/python /opt/agentscope-system-policy-20261011-220127-because/scripts/scope_systemd_exec.py broker ; ignore_errors=no ; start_time=[n/a] ; stop_time=[n/a] ; pid=0 ; code=(null) ; status=0/0 }"
+  },
+  "new_model_calls": 0,
+  "runtime_mutations": false,
+  "runtime_source_snapshot": [
+    {
+      "path": "backend/agentscope_app/pi_feedback.py",
+      "current_sha256": "e3269d027fc76ae9bcfa4929430c3d6406d2443d9523df4390b554ebef25527c",
+      "matches_acceptance_release": true
+    },
+    {
+      "path": "backend/agentscope_app/pi_rpc.py",
+      "current_sha256": "d7c70cb952ec5d5b3522a86c3a88922998042fe1a7540267a8454488e803f81a",
+      "matches_acceptance_release": true
+    },
+    {
+      "path": "backend/agentscope_app/bootstrap/runner.py",
+      "current_sha256": "8a49937dad79a8bb1129211467cfa55abb950948472b7bd576bc1b6870d0e558",
+      "matches_acceptance_release": true
+    },
+    {
+      "path": "backend/agentscope_app/bootstrap/validation.py",
+      "current_sha256": "2a25f3245d71c09731f2b95c46692b8ca627a5bd8eed955e7bcfb6b26ee636b6",
+      "matches_acceptance_release": true
+    },
+    {
+      "path": "backend/agentscope_app/scope/pi.py",
+      "current_sha256": "2c36cb2cd94648abcc424a150199756d3123d123efdcb7d509bf9736e91cb588",
+      "matches_acceptance_release": true
+    },
+    {
+      "path": "backend/agentscope_app/managed/feedback.py",
+      "current_sha256": "82e18f24fe90c60d0565f6c76bd64f27bd02980b8736eac352f671e81f77bfaa",
+      "matches_acceptance_release": true
+    },
+    {
+      "path": "backend/agentscope_app/managed/recovery.py",
+      "current_sha256": "c998e678e9104dce78374987ad89ef30d8f17dbaa489e9d2506a90da81740462",
+      "matches_acceptance_release": true
+    },
+    {
+      "path": "backend/broker/main.py",
+      "current_sha256": "98899752c9c9f9c0b62f6c65d603d5034e1473f8507f63b97f9c1057d4a4a0a4",
+      "matches_acceptance_release": true
+    },
+    {
+      "path": "backend/agentscope_app/instances/approval_locations.py",
+      "current_sha256": "6ebb6ff09f0d0d4266e2454d81713acf6684f15f570453dfb8db32cffeeaef69",
+      "matches_acceptance_release": true
+    },
+    {
+      "path": "backend/agentscope_app/instances/approval_views.py",
+      "current_sha256": "6d2d8dbb9bca9025b1ee3959be7cbb3986108abaee8f19e6816240bd98ba7f86",
+      "matches_acceptance_release": true
+    },
+    {
+      "path": "backend/agentscope_app/instances/system_policy_catalog.json",
+      "current_sha256": "da966e2ca61b3c44c08b8b91bb8750a7dede162577346286579c095e76a6cfca",
+      "matches_acceptance_release": true
+    },
+    {
+      "path": "integrations/pi-policy-tools/skills/policy-feedback/SKILL.md",
+      "current_sha256": "17391290dc93d1385d8746f6e62744ae4ed28c63ecc3ca27c68a43bdf1ff6314",
+      "matches_acceptance_release": true
+    },
+    {
+      "path": "integrations/dsh-managed-web/lib/index.js",
+      "current_sha256": "329cbe50c0c923dff351c5c601f5a51b2f9e2356169df24f23de27c211d78417",
+      "matches_acceptance_release": true
+    },
+    {
+      "path": "integrations/dsh-managed-web/lib/feedback-guard.js",
+      "current_sha256": "5f53e9899d5618e580714a00a2031aa6abb0df33e5a3a402380fc334fbb98f20",
+      "matches_acceptance_release": true
+    }
+  ],
+  "api_pid_observation": {
+    "initial": 941392,
+    "last": 1039423,
+    "release_pointer_same": true,
+    "restart_by_this_task": false,
+    "interpretation": "Concurrent shared service restart observed; do not claim runtime stayed unchanged throughout this forensic run."
+  }
+}

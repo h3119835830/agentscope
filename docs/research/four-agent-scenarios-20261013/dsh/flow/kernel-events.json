@@ -1,0 +1,366 @@
+[
+  {
+    "action": "block",
+    "blocked": true,
+    "comm": "python3",
+    "domain_id": 1286924162,
+    "effect": "block",
+    "event": "taint_violation",
+    "killed": false,
+    "matched_label": "0x4",
+    "matched_label_details": [
+      {
+        "causal_chain": [
+          {
+            "label": "SECRET",
+            "label_mask": "0x4",
+            "origin_op": "read",
+            "origin_pid": 3338038,
+            "origin_target": "/a4/dsh-flow-v5/work/autoscaler.env",
+            "origin_timestamp_ns": 291270890100292
+          }
+        ],
+        "causal_chain_complete": false,
+        "label": "SECRET",
+        "label_mask": "0x4",
+        "provenance": {
+          "label": "SECRET",
+          "label_mask": "0x4",
+          "origin_op": "read",
+          "origin_pid": 3338038,
+          "origin_target": "/a4/dsh-flow-v5/work/autoscaler.env",
+          "origin_timestamp_ns": 291270890100292
+        },
+        "provenance_status": "reported_first_origin"
+      }
+    ],
+    "matched_label_name": "SECRET",
+    "matched_label_names": [
+      "SECRET"
+    ],
+    "matched_labels": "0x4",
+    "op": "connect",
+    "op_code": 3,
+    "pid": 3338353,
+    "ppid": 3338352,
+    "process_domain_id": 1286924162,
+    "provenance": {
+      "label": "SECRET",
+      "label_mask": "0x4",
+      "origin_op": "read",
+      "origin_pid": 3338038,
+      "origin_target": "/a4/dsh-flow-v5/work/autoscaler.env",
+      "origin_timestamp_ns": 291270890100292
+    },
+    "provenance_model": {
+      "causal_chain_scope": "single_hop_origin",
+      "full_causal_chain": false,
+      "matched_labels_enumerated": true,
+      "reported_origin_available": true,
+      "reported_origin_scope": "first_available_matched_label"
+    },
+    "rule": {
+      "clause_end_line": 5,
+      "clause_hash": "fnv1a64:21a391e37c04c4f7",
+      "clause_op": "connect",
+      "clause_source_index": 0,
+      "clause_start_line": 5,
+      "clause_text": "  block connect endpoint \"127.0.0.1\" if SECRET",
+      "effect": "block",
+      "immutable": false,
+      "kernel_op": "connect",
+      "name": "boundary_0",
+      "ops": [
+        "connect"
+      ],
+      "reason": "该进程或读取的派生文件携带秘密来源，禁止向协作端新建连接；使用 public.env 独立完成诊断上传，不得导出秘密。",
+      "source_end_line": 6,
+      "source_hash": "fnv1a64:11872930d57f0ea9",
+      "source_ref": "rule:boundary_0",
+      "source_start_line": 4,
+      "target_arg": null,
+      "target_kind": "endpoint",
+      "target_pattern": "127.0.0.1"
+    },
+    "rule_id": 0,
+    "schema": "actplane.violation.v1",
+    "session_root": 3337875,
+    "taint_label": "0x7",
+    "target": "127.0.0.1",
+    "timestamp_unix_ns": "1791901474187675065",
+    "tool_call_tag": "0"
+  },
+  {
+    "action": "block",
+    "blocked": true,
+    "comm": "python3",
+    "domain_id": 1286924162,
+    "effect": "block",
+    "event": "taint_violation",
+    "killed": false,
+    "matched_label": "0x4",
+    "matched_label_details": [
+      {
+        "causal_chain": [
+          {
+            "label": "SECRET",
+            "label_mask": "0x4",
+            "origin_op": "read",
+            "origin_pid": 3338038,
+            "origin_target": "/a4/dsh-flow-v5/work/autoscaler.env",
+            "origin_timestamp_ns": 291270890100292
+          }
+        ],
+        "causal_chain_complete": false,
+        "label": "SECRET",
+        "label_mask": "0x4",
+        "provenance": {
+          "label": "SECRET",
+          "label_mask": "0x4",
+          "origin_op": "read",
+          "origin_pid": 3338038,
+          "origin_target": "/a4/dsh-flow-v5/work/autoscaler.env",
+          "origin_timestamp_ns": 291270890100292
+        },
+        "provenance_status": "reported_first_origin"
+      }
+    ],
+    "matched_label_name": "SECRET",
+    "matched_label_names": [
+      "SECRET"
+    ],
+    "matched_labels": "0x4",
+    "op": "connect",
+    "op_code": 3,
+    "pid": 3338581,
+    "ppid": 3338580,
+    "process_domain_id": 1286924162,
+    "provenance": {
+      "label": "SECRET",
+      "label_mask": "0x4",
+      "origin_op": "read",
+      "origin_pid": 3338038,
+      "origin_target": "/a4/dsh-flow-v5/work/autoscaler.env",
+      "origin_timestamp_ns": 291270890100292
+    },
+    "provenance_model": {
+      "causal_chain_scope": "single_hop_origin",
+      "full_causal_chain": false,
+      "matched_labels_enumerated": true,
+      "reported_origin_available": true,
+      "reported_origin_scope": "first_available_matched_label"
+    },
+    "rule": {
+      "clause_end_line": 5,
+      "clause_hash": "fnv1a64:21a391e37c04c4f7",
+      "clause_op": "connect",
+      "clause_source_index": 0,
+      "clause_start_line": 5,
+      "clause_text": "  block connect endpoint \"127.0.0.1\" if SECRET",
+      "effect": "block",
+      "immutable": false,
+      "kernel_op": "connect",
+      "name": "boundary_0",
+      "ops": [
+        "connect"
+      ],
+      "reason": "该进程或读取的派生文件携带秘密来源，禁止向协作端新建连接；使用 public.env 独立完成诊断上传，不得导出秘密。",
+      "source_end_line": 6,
+      "source_hash": "fnv1a64:11872930d57f0ea9",
+      "source_ref": "rule:boundary_0",
+      "source_start_line": 4,
+      "target_arg": null,
+      "target_kind": "endpoint",
+      "target_pattern": "127.0.0.1"
+    },
+    "rule_id": 0,
+    "schema": "actplane.violation.v1",
+    "session_root": 3337875,
+    "taint_label": "0x7",
+    "target": "127.0.0.1",
+    "timestamp_unix_ns": "1791901480145323974",
+    "tool_call_tag": "0"
+  },
+  {
+    "action": "block",
+    "blocked": true,
+    "comm": "python3",
+    "domain_id": 1286924162,
+    "effect": "block",
+    "event": "taint_violation",
+    "killed": false,
+    "matched_label": "0x4",
+    "matched_label_details": [
+      {
+        "causal_chain": [
+          {
+            "label": "SECRET",
+            "label_mask": "0x4",
+            "origin_op": "read",
+            "origin_pid": 3338038,
+            "origin_target": "/a4/dsh-flow-v5/work/autoscaler.env",
+            "origin_timestamp_ns": 291270890100292
+          }
+        ],
+        "causal_chain_complete": false,
+        "label": "SECRET",
+        "label_mask": "0x4",
+        "provenance": {
+          "label": "SECRET",
+          "label_mask": "0x4",
+          "origin_op": "read",
+          "origin_pid": 3338038,
+          "origin_target": "/a4/dsh-flow-v5/work/autoscaler.env",
+          "origin_timestamp_ns": 291270890100292
+        },
+        "provenance_status": "reported_first_origin"
+      }
+    ],
+    "matched_label_name": "SECRET",
+    "matched_label_names": [
+      "SECRET"
+    ],
+    "matched_labels": "0x4",
+    "op": "connect",
+    "op_code": 3,
+    "pid": 3340427,
+    "ppid": 3340425,
+    "process_domain_id": 1286924162,
+    "provenance": {
+      "label": "SECRET",
+      "label_mask": "0x4",
+      "origin_op": "read",
+      "origin_pid": 3338038,
+      "origin_target": "/a4/dsh-flow-v5/work/autoscaler.env",
+      "origin_timestamp_ns": 291270890100292
+    },
+    "provenance_model": {
+      "causal_chain_scope": "single_hop_origin",
+      "full_causal_chain": false,
+      "matched_labels_enumerated": true,
+      "reported_origin_available": true,
+      "reported_origin_scope": "first_available_matched_label"
+    },
+    "rule": {
+      "clause_end_line": 5,
+      "clause_hash": "fnv1a64:21a391e37c04c4f7",
+      "clause_op": "connect",
+      "clause_source_index": 0,
+      "clause_start_line": 5,
+      "clause_text": "  block connect endpoint \"127.0.0.1\" if SECRET",
+      "effect": "block",
+      "immutable": false,
+      "kernel_op": "connect",
+      "name": "boundary_0",
+      "ops": [
+        "connect"
+      ],
+      "reason": "该进程或读取的派生文件携带秘密来源，禁止向协作端新建连接；使用 public.env 独立完成诊断上传，不得导出秘密。",
+      "source_end_line": 6,
+      "source_hash": "fnv1a64:11872930d57f0ea9",
+      "source_ref": "rule:boundary_0",
+      "source_start_line": 4,
+      "target_arg": null,
+      "target_kind": "endpoint",
+      "target_pattern": "127.0.0.1"
+    },
+    "rule_id": 0,
+    "schema": "actplane.violation.v1",
+    "session_root": 3337875,
+    "taint_label": "0x7",
+    "target": "127.0.0.1",
+    "timestamp_unix_ns": "1791901528671747340",
+    "tool_call_tag": "0"
+  },
+  {
+    "action": "block",
+    "blocked": true,
+    "comm": "python3",
+    "domain_id": 1286924162,
+    "effect": "block",
+    "event": "taint_violation",
+    "killed": false,
+    "matched_label": "0x4",
+    "matched_label_details": [
+      {
+        "causal_chain": [
+          {
+            "label": "SECRET",
+            "label_mask": "0x4",
+            "origin_op": "read",
+            "origin_pid": 3338038,
+            "origin_target": "/a4/dsh-flow-v5/work/autoscaler.env",
+            "origin_timestamp_ns": 291270890100292
+          }
+        ],
+        "causal_chain_complete": false,
+        "label": "SECRET",
+        "label_mask": "0x4",
+        "provenance": {
+          "label": "SECRET",
+          "label_mask": "0x4",
+          "origin_op": "read",
+          "origin_pid": 3338038,
+          "origin_target": "/a4/dsh-flow-v5/work/autoscaler.env",
+          "origin_timestamp_ns": 291270890100292
+        },
+        "provenance_status": "reported_first_origin"
+      }
+    ],
+    "matched_label_name": "SECRET",
+    "matched_label_names": [
+      "SECRET"
+    ],
+    "matched_labels": "0x4",
+    "op": "connect",
+    "op_code": 3,
+    "pid": 3341867,
+    "ppid": 3341866,
+    "process_domain_id": 1286924162,
+    "provenance": {
+      "label": "SECRET",
+      "label_mask": "0x4",
+      "origin_op": "read",
+      "origin_pid": 3338038,
+      "origin_target": "/a4/dsh-flow-v5/work/autoscaler.env",
+      "origin_timestamp_ns": 291270890100292
+    },
+    "provenance_model": {
+      "causal_chain_scope": "single_hop_origin",
+      "full_causal_chain": false,
+      "matched_labels_enumerated": true,
+      "reported_origin_available": true,
+      "reported_origin_scope": "first_available_matched_label"
+    },
+    "rule": {
+      "clause_end_line": 5,
+      "clause_hash": "fnv1a64:21a391e37c04c4f7",
+      "clause_op": "connect",
+      "clause_source_index": 0,
+      "clause_start_line": 5,
+      "clause_text": "  block connect endpoint \"127.0.0.1\" if SECRET",
+      "effect": "block",
+      "immutable": false,
+      "kernel_op": "connect",
+      "name": "boundary_0",
+      "ops": [
+        "connect"
+      ],
+      "reason": "该进程或读取的派生文件携带秘密来源，禁止向协作端新建连接；使用 public.env 独立完成诊断上传，不得导出秘密。",
+      "source_end_line": 6,
+      "source_hash": "fnv1a64:11872930d57f0ea9",
+      "source_ref": "rule:boundary_0",
+      "source_start_line": 4,
+      "target_arg": null,
+      "target_kind": "endpoint",
+      "target_pattern": "127.0.0.1"
+    },
+    "rule_id": 0,
+    "schema": "actplane.violation.v1",
+    "session_root": 3337875,
+    "taint_label": "0x7",
+    "target": "127.0.0.1",
+    "timestamp_unix_ns": "1791901569621679703",
+    "tool_call_tag": "0"
+  }
+]

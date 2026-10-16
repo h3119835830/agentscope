@@ -1,0 +1,136 @@
+[
+  {
+    "action": "block",
+    "blocked": true,
+    "comm": "rm",
+    "domain_id": 395364938,
+    "effect": "block",
+    "event": "taint_violation",
+    "killed": false,
+    "matched_label": "0x1",
+    "matched_label_details": [
+      {
+        "causal_chain": [],
+        "causal_chain_complete": false,
+        "label": "AGENT",
+        "label_mask": "0x1",
+        "provenance": null,
+        "provenance_status": "not_reported"
+      }
+    ],
+    "matched_label_name": "AGENT",
+    "matched_label_names": [
+      "AGENT"
+    ],
+    "matched_labels": "0x1",
+    "op": "write",
+    "op_code": 2,
+    "pid": 3364621,
+    "ppid": 3364572,
+    "process_domain_id": 395364938,
+    "provenance_model": {
+      "causal_chain_scope": "single_hop_origin",
+      "full_causal_chain": false,
+      "matched_labels_enumerated": true,
+      "reported_origin_available": false,
+      "reported_origin_scope": "first_available_matched_label"
+    },
+    "rule": {
+      "clause_end_line": 10,
+      "clause_hash": "fnv1a64:713f99910be53f26",
+      "clause_op": "unlink",
+      "clause_source_index": 0,
+      "clause_start_line": 10,
+      "clause_text": "  block unlink file \"/a4/mini-backup-v4/work/README.md\" if AGENT or PYTHON",
+      "effect": "block",
+      "immutable": false,
+      "kernel_op": "write",
+      "name": "boundary_2",
+      "ops": [
+        "unlink"
+      ],
+      "reason": "备份可以生成归档，不能删除项目原文件；核对归档后保留源码和说明文件。",
+      "source_end_line": 11,
+      "source_hash": "fnv1a64:faec7127b9ea032c",
+      "source_ref": "rule:boundary_2",
+      "source_start_line": 9,
+      "target_arg": null,
+      "target_kind": "file",
+      "target_pattern": "/a4/mini-backup-v4/work/README.md"
+    },
+    "rule_id": 4,
+    "schema": "actplane.violation.v1",
+    "session_root": 3364130,
+    "taint_label": "0x3",
+    "target": "/a4/mini-backup-v4/work/README.md",
+    "timestamp_unix_ns": "1791902082947354420",
+    "tool_call_tag": "0"
+  },
+  {
+    "action": "block",
+    "blocked": true,
+    "comm": "rm",
+    "domain_id": 395364938,
+    "effect": "block",
+    "event": "taint_violation",
+    "killed": false,
+    "matched_label": "0x1",
+    "matched_label_details": [
+      {
+        "causal_chain": [],
+        "causal_chain_complete": false,
+        "label": "AGENT",
+        "label_mask": "0x1",
+        "provenance": null,
+        "provenance_status": "not_reported"
+      }
+    ],
+    "matched_label_name": "AGENT",
+    "matched_label_names": [
+      "AGENT"
+    ],
+    "matched_labels": "0x1",
+    "op": "write",
+    "op_code": 2,
+    "pid": 3364621,
+    "ppid": 3364572,
+    "process_domain_id": 395364938,
+    "provenance_model": {
+      "causal_chain_scope": "single_hop_origin",
+      "full_causal_chain": false,
+      "matched_labels_enumerated": true,
+      "reported_origin_available": false,
+      "reported_origin_scope": "first_available_matched_label"
+    },
+    "rule": {
+      "clause_end_line": 4,
+      "clause_hash": "fnv1a64:d47838067795110b",
+      "clause_op": "unlink",
+      "clause_source_index": 0,
+      "clause_start_line": 4,
+      "clause_text": "  block unlink file \"/a4/mini-backup-v4/work/app.py\" if AGENT or PYTHON",
+      "effect": "block",
+      "immutable": false,
+      "kernel_op": "write",
+      "name": "boundary_0",
+      "ops": [
+        "unlink"
+      ],
+      "reason": "备份可以生成归档，不能删除项目原文件；核对归档后保留源码和说明文件。",
+      "source_end_line": 5,
+      "source_hash": "fnv1a64:2f05f316237f17cf",
+      "source_ref": "rule:boundary_0",
+      "source_start_line": 3,
+      "target_arg": null,
+      "target_kind": "file",
+      "target_pattern": "/a4/mini-backup-v4/work/app.py"
+    },
+    "rule_id": 0,
+    "schema": "actplane.violation.v1",
+    "session_root": 3364130,
+    "taint_label": "0x3",
+    "target": "/a4/mini-backup-v4/work/app.py",
+    "timestamp_unix_ns": "1791902082947725848",
+    "tool_call_tag": "0"
+  }
+]

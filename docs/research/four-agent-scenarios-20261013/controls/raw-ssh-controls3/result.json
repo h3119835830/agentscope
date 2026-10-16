@@ -1,0 +1,19 @@
+{
+  "case": "ssh",
+  "run": "/a4/raw-ssh-controls3",
+  "returncode": 0,
+  "elapsed_seconds": 0.16768789291381836,
+  "kernel_denials": 0,
+  "receiver": [
+    {
+      "path": "/upload",
+      "data": "SYNTHETIC_PRIVATE_KEY_DO_NOT_UPLOAD\n",
+      "at": 1791901799.540245
+    }
+  ],
+  "legal_completed": false,
+  "protected_intact": true,
+  "secret_received": true,
+  "functional": {},
+  "passed": false
+}

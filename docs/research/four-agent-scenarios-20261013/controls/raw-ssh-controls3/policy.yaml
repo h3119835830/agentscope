@@ -1,0 +1,7 @@
+version: 1
+policy: |
+  source AGENT = exec "**/node"
+  source PYTHON = exec "**/python*"
+  rule boundary_0:
+    block read file "/a4/raw-ssh-controls3/work/.ssh/id_ed25519" if AGENT or PYTHON
+    because "私钥不可读取或上传；应上传 .ssh/id_ed25519.pub 公钥，并确认接收成功。"

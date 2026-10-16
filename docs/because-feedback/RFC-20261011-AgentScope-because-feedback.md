@@ -4,7 +4,7 @@
 
 方案的目标是在危险操作被拒绝后，向执行 Agent 返回有来源的原因、现有授权内可执行的下一步和继续条件。安全边界由已批准的 OS 策略维持，Agent 自主判断具体业务修复方式；无法合规完成时提交事实与审核请求。反馈送达、行为恢复、功能完成、安全保持分别验收。
 
-本方案延续 [总体架构](RFC-20261011-AgentScope-policy-control-architecture.md)，配套 [ADR](../ADR/ADR-20261011-AgentScope-because-feedback.md)、[REVIEW 与验收](../REVIEW/REVIEW-20261011-AgentScope-because-feedback.md)、[复现记录](../BUG/BUG-20261011-AgentScope-because-feedback.md)。
+本方案延续 [总体架构](../RFC/RFC-20261011-AgentScope-policy-control-architecture.md)，配套 [ADR](ADR-20261011-AgentScope-because-feedback.md)、[REVIEW 与验收](REVIEW-20261011-AgentScope-because-feedback.md)、[复现记录](BUG-20261011-AgentScope-because-feedback.md)。
 
 ## 实施记录
 
@@ -320,9 +320,9 @@ Agent 执行广泛删除命令并触及 `.gitconfig` 后，反馈应指出该对
 
 补充独立 OS 操作检查共 30 项通过（测试场景 17、清理场景 13），覆盖登记文件写/删、代表对象 rename/replace/symlink 写/mmap/已有 fd 写及允许读写。原始 oracle 两场景 checkpoint 均为 0（未标 unsafe），同时另查完整保护清单，避免把窄 oracle 当成完整安全证明。两个任务策略版本均保持 1、policy_hash/process_epoch 未变，kernel 触发的新 Pi job 为 0。两份原生压缩会话存储中都找到完整 canonical context 消息，不导出私有内容。
 
-记录 API 的 `feedback` 返回同一份结构化 because/指导，`reason` 使用 canonical 原因；blocked 显示兼容的 denied，kill/notify 分别显示 killed/notified。旧 collector 仅记录拒绝、历史行无 effect 标记时保留 denied 语义；新反馈事实不明确时为 unverified。两个最终内核记录的实际 API 回读通过，见 [records-api-check.json](../REVIEW/evidence/because-feedback-20261011/records-api-check.json)。
+记录 API 的 `feedback` 返回同一份结构化 because/指导，`reason` 使用 canonical 原因；blocked 显示兼容的 denied，kill/notify 分别显示 killed/notified。旧 collector 仅记录拒绝、历史行无 effect 标记时保留 denied 语义；新反馈事实不明确时为 unverified。两个最终内核记录的实际 API 回读通过，见 [records-api-check.json](evidence/records-api-check.json)。
 
-全量 backend 回归 1049 passed / 11 skipped；DSH 回归 21 passed。跳过项保持测试框架原始标记，不计通过。详细身份、保护哈希、事件、真实加载与源码哈希、验收矩阵和局限见 [REVIEW](../REVIEW/REVIEW-20261011-AgentScope-because-feedback.md) 及 [live-acceptance.json](../REVIEW/evidence/because-feedback-20261011/live-acceptance.json)。kill/notify 的真实终止试验、故障时主进程恢复、所有别名/祖先替换组合及 A/B/C 扩样仍需独立验收；本次通过不能推广成完整发布闸门全通过。
+全量 backend 回归 1049 passed / 11 skipped；DSH 回归 21 passed。跳过项保持测试框架原始标记，不计通过。详细身份、保护哈希、事件、真实加载与源码哈希、验收矩阵和局限见 [REVIEW](REVIEW-20261011-AgentScope-because-feedback.md) 及 [live-acceptance.json](evidence/live-acceptance.json)。kill/notify 的真实终止试验、故障时主进程恢复、所有别名/祖先替换组合及 A/B/C 扩样仍需独立验收；本次通过不能推广成完整发布闸门全通过。
 
 ## 2026-10-11 增量：系统默认反馈与 Pi Skill
 

@@ -105,3 +105,10 @@ own licenses and provenance.
 - [脱敏执行证据](docs/acceptance/agent-instances-20261008/summary.json)
 
 2026-10-15：[统一模板目录与审批加载实施](docs/RFC/RFC-20261015-AgentScope-unified-policy-catalog-implementation.md)，沿用系统策略样式，助手留在 Agent 页；发布结果见对应 REVIEW。
+
+## 2026-10-16 consolidated local release
+
+The latest accepted cumulative features and architecture records are consolidated
+for WINDOWS and main. See the [synchronization review](docs/REVIEW/REVIEW-2026-10-16-AgentScope-WINDOWS-main-sync.md)
+for source provenance, clean-checkout prerequisites, test results and runtime limits.
+Local branch synchronization does not publish or deploy a new runtime.

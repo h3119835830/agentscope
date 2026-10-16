@@ -1,6 +1,6 @@
 # AgentScope because 反馈方案评审与验收记录
 
-日期：2026-10-11。状态：本次反馈链路与两个真实 DSH 场景验收通过；扩展故障与统计实验未全部执行。未切换共享实例、未推送。关联 [RFC](../RFC/RFC-20261011-AgentScope-because-feedback.md)、[ADR](../ADR/ADR-20261011-AgentScope-because-feedback.md)、[复现记录](../BUG/BUG-20261011-AgentScope-because-feedback.md)。
+日期：2026-10-11。状态：本次反馈链路与两个真实 DSH 场景验收通过；扩展故障与统计实验未全部执行。未切换共享实例、未推送。关联 [RFC](RFC-20261011-AgentScope-because-feedback.md)、[ADR](ADR-20261011-AgentScope-because-feedback.md)、[复现记录](BUG-20261011-AgentScope-because-feedback.md)。
 
 设计阶段通过只读源码核对和隔离离线检查，确定旧反馈链路缺少规则专属原因与合规下一步。当时的 API 服务目录 `/opt/agentscope-system-policy-20261011-161846` 没有 Git 元信息，相关文件以内容哈希固定。实施与最终验收使用独立 18005，以下区分历史基线与本次真实结果。
 
@@ -20,7 +20,7 @@
 
 ## 2 历史设计基线
 
-保留 [design-checks.json](evidence/because-feedback-20261011/design-checks.json) 和 [design-checks.py](evidence/because-feedback-20261011/design-checks.py)，不覆盖成新结果。设计阶段验证三个冻结场景 28 个 manifest 文件、两套示例 DSL 和只改 because 时内核配置字节一致；复现旧 formatter 丢失原因。系统 Python 缺 `toml` 的预检为零用例环境失败。随后用已安装的公开实验解释器在非特权临时副本中实际运行原始 13 项测试、5 项失败，原件不变。该历史基线不证明任务不可解，不能包装为功能验收通过。
+保留 [design-checks.json](evidence/design-checks.json) 和 [design-checks.py](evidence/design-checks.py)，不覆盖成新结果。设计阶段验证三个冻结场景 28 个 manifest 文件、两套示例 DSL 和只改 because 时内核配置字节一致；复现旧 formatter 丢失原因。系统 Python 缺 `toml` 的预检为零用例环境失败。随后用已安装的公开实验解释器在非特权临时副本中实际运行原始 13 项测试、5 项失败，原件不变。该历史基线不证明任务不可解，不能包装为功能验收通过。
 
 ## 3 实施与真实闭环签收
 
@@ -41,11 +41,11 @@
 
 独立功能运行使用原任务 namespace，项目和 output 只读、非特权 UID、可信 unittest 在导入项目代码前装载；控制面与 oracle 不可见。原始测试真实计数 13，exit 0；不信任 Agent 自报或可编辑测试入口的 exit 0。这个结果仅覆盖原始测试集，不证明该业务实现的全部生产语义。
 
-API-only 重启曾从 PID 704623 到 733196，Broker 704622 和两个任务 process_epoch 保持，持久游标继续工作；这不是“反馈投递中途杀死进程”的故障注入。验收结束两个任务均已正常 close，执行进程终止并撤销写 fd/mapping，详见 [quiescence.json](evidence/because-feedback-20261011/quiescence.json)。
+API-only 重启曾从 PID 704623 到 733196，Broker 704622 和两个任务 process_epoch 保持，持久游标继续工作；这不是“反馈投递中途杀死进程”的故障注入。验收结束两个任务均已正常 close，执行进程终止并撤销写 fd/mapping，详见 [quiescence.json](evidence/quiescence.json)。
 
-记录 API 已补齐 canonical feedback 和真实 effect，兼容旧的无 effect 历史拒绝记录。会话关闭后，独立 API 再次回读两个内核记录 551/587，确认 because、指导、legacy delivery 链接均一致；只重启自身 API，Broker 未变。见 [records-api-check.json](evidence/because-feedback-20261011/records-api-check.json)。
+记录 API 已补齐 canonical feedback 和真实 effect，兼容旧的无 effect 历史拒绝记录。会话关闭后，独立 API 再次回读两个内核记录 551/587，确认 because、指导、legacy delivery 链接均一致；只重启自身 API，Broker 未变。见 [records-api-check.json](evidence/records-api-check.json)。
 
-证据：[live-acceptance.json](evidence/because-feedback-20261011/live-acceptance.json)、[原始 13 项测试](evidence/because-feedback-20261011/functional-tests.txt)、[backend 回归](evidence/because-feedback-20261011/backend-tests.txt)、[DSH 回归](evidence/because-feedback-20261011/dsh-tests.txt)。backend：1049 passed、11 skipped、5 warnings；DSH：21 passed。跳过项和警告保留原始日志，不计通过。
+证据：[live-acceptance.json](evidence/live-acceptance.json)、[原始 13 项测试](evidence/functional-tests.txt)、[backend 回归](evidence/backend-tests.txt)、[DSH 回归](evidence/dsh-tests.txt)。backend：1049 passed、11 skipped、5 warnings；DSH：21 passed。跳过项和警告保留原始日志，不计通过。
 
 ## 4 T01–T19 覆盖审计
 

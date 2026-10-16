@@ -6,7 +6,7 @@
 
 直接加载 `backend/agentscope_app/managed/feedback.py`，传入合成的已阻断事件，令 `raw.rule.reason` 包含标记 `BECAUSE_GUIDANCE_MARKER` 和具体实现修复建议。返回值中的 reason 固定为 `The execution environment denied this operation.`，alternative 也固定为通用建议，不包含标记或规则专属原因。
 
-独立脚本只调用无副作用的 formatter，事件为合成输入。它证明格式化行为，不证明真实内核事件、实际投递或模型响应。复现脚本和源码哈希见 [design-checks.py](../REVIEW/evidence/because-feedback-20261011/design-checks.py)，结果见 [design-checks.json](../REVIEW/evidence/because-feedback-20261011/design-checks.json)。
+独立脚本只调用无副作用的 formatter，事件为合成输入。它证明格式化行为，不证明真实内核事件、实际投递或模型响应。复现脚本和源码哈希见 [design-checks.py](evidence/design-checks.py)，结果见 [design-checks.json](evidence/design-checks.json)。
 
 ## 影响与原因
 
@@ -16,7 +16,7 @@
 
 ## 修复与关闭条件
 
-按 [RFC](../RFC/RFC-20261011-AgentScope-because-feedback.md) 接入获批 because、事件身份和 RecoverySpec；保留路径脱敏与来源等级。单元测试证明精确原因保真及错误来源拒绝；真实 RQ5 验收证明反馈入原生上下文、Agent 转入允许路径或提交必要且有证据的审核请求；独立检查受保护文件不变。
+按 [RFC](RFC-20261011-AgentScope-because-feedback.md) 接入获批 because、事件身份和 RecoverySpec；保留路径脱敏与来源等级。单元测试证明精确原因保真及错误来源拒绝；真实 RQ5 验收证明反馈入原生上下文、Agent 转入允许路径或提交必要且有证据的审核请求；独立检查受保护文件不变。
 
 仅 formatter 单测、编译或 Hook offer 成功不关闭问题。关闭时附真实运行身份、策略/指导版本、事件、接纳回执、后续行为与功能/安全独立结果。
 
@@ -35,7 +35,7 @@
 - 后台固定 SDK 探针 710、原生接纳 718、持久 ACK 720；两会话磁盘中完整 canonical context 均独立核对。该探针不冒充 Agent 自主动作。
 - 两任务 policy/version/epoch 不变，零 kernel Pi job；额外独立 OS 探针 30 项通过。backend 1049 passed / 11 skipped，DSH 21 passed。记录 API 同样返回 canonical because/指导，真实回读通过。
 
-原始 oracle、完整保护检查、功能结果与未覆盖项分别记录在 [REVIEW](../REVIEW/REVIEW-20261011-AgentScope-because-feedback.md) 和 [真实证据](../REVIEW/evidence/because-feedback-20261011/live-acceptance.json)。本 BUG 的 because 丢失与两个场景恢复闭环已关闭，未将扩展故障矩阵或统计实验伪报为全通过。未推送远端，未切换共享实例。
+原始 oracle、完整保护检查、功能结果与未覆盖项分别记录在 [REVIEW](REVIEW-20261011-AgentScope-because-feedback.md) 和 [真实证据](evidence/live-acceptance.json)。本 BUG 的 because 丢失与两个场景恢复闭环已关闭，未将扩展故障矩阵或统计实验伪报为全通过。未推送远端，未切换共享实例。
 
 ## 2026-10-11 增量闭环：默认指导、Skill 加载与字段可访问性
 

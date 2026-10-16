@@ -1,0 +1,4720 @@
+[
+  {
+    "repo": "actplane-master",
+    "path": "LICENSE",
+    "commit": "404542899a2153af0952cbf0dc52aeab0b7c5034",
+    "sha256": "6e717eac56fc03070c8d186d95b0f22994016eb69ee0af243194ad8c3ce84c0b",
+    "lines": 21,
+    "url": "https://github.com/eunomia-bpf/ActPlane/blob/404542899a2153af0952cbf0dc52aeab0b7c5034/LICENSE",
+    "symbols": []
+  },
+  {
+    "repo": "actplane-master",
+    "path": "docs/rule-language.md",
+    "commit": "404542899a2153af0952cbf0dc52aeab0b7c5034",
+    "sha256": "497d717a33d1343338984cd3c80c769d42fb0d5001881768b1ef1a7aec694e95",
+    "lines": 413,
+    "url": "https://github.com/eunomia-bpf/ActPlane/blob/404542899a2153af0952cbf0dc52aeab0b7c5034/docs/rule-language.md",
+    "symbols": [
+      {
+        "name": "### E1 — Sensitive context stays on approved paths",
+        "line": 246
+      },
+      {
+        "name": "### E2 — Untrusted task input needs review before privileged action",
+        "line": 258
+      },
+      {
+        "name": "### E3 — Mandatory mediation (must pass through a gate)",
+        "line": 270
+      },
+      {
+        "name": "### E4 — Workspace policy (lineage-scoped writes)",
+        "line": 278
+      },
+      {
+        "name": "### E5 — Test-before-commit (temporal ordering, staleness-aware)",
+        "line": 287
+      },
+      {
+        "name": "### E6 — Read-only sub-agent capability scoping",
+        "line": 297
+      },
+      {
+        "name": "### E7 — Transitive derived-data tracking (cross-process, cross-file)",
+        "line": 308
+      },
+      {
+        "name": "### E8 — Redaction path (usability)",
+        "line": 317
+      },
+      {
+        "name": "### E9 — Cross-tool / unbypassable coverage",
+        "line": 325
+      },
+      {
+        "name": "### E10 — Provenance-scoped network allow-list",
+        "line": 335
+      },
+      {
+        "name": "### E11 — Destructive op requires a fresh confirmation gate",
+        "line": 344
+      },
+      {
+        "name": "### E12 — Task non-interference / separation (multi-label sets)",
+        "line": 354
+      },
+      {
+        "name": "### E13 — Migration-check must be fresh w.r.t. the migrations on disk",
+        "line": 364
+      }
+    ]
+  },
+  {
+    "repo": "actplane-master",
+    "path": "test/e2e_cases.yaml",
+    "commit": "404542899a2153af0952cbf0dc52aeab0b7c5034",
+    "sha256": "8e98eb4fdb62cf25d2260ce0178d5bc7932b2644a76ae0d79f541cce675ecd99",
+    "lines": 179,
+    "url": "https://github.com/eunomia-bpf/ActPlane/blob/404542899a2153af0952cbf0dc52aeab0b7c5034/test/e2e_cases.yaml",
+    "symbols": []
+  },
+  {
+    "repo": "actplane-master",
+    "path": "script/e2e_examples.sh",
+    "commit": "404542899a2153af0952cbf0dc52aeab0b7c5034",
+    "sha256": "e0a846ec0a215bae72f26e8cae0e3a96734b04bde6fa7c54d4f1bc780f54974a",
+    "lines": 160,
+    "url": "https://github.com/eunomia-bpf/ActPlane/blob/404542899a2153af0952cbf0dc52aeab0b7c5034/script/e2e_examples.sh",
+    "symbols": []
+  },
+  {
+    "repo": "actplane-master",
+    "path": "docs/design/arch_plan.md",
+    "commit": "404542899a2153af0952cbf0dc52aeab0b7c5034",
+    "sha256": "6a663816f607797e2780b2f572a5d7d6c00250e0fe50774cf9fe709d099f0e3d",
+    "lines": 303,
+    "url": "https://github.com/eunomia-bpf/ActPlane/blob/404542899a2153af0952cbf0dc52aeab0b7c5034/docs/design/arch_plan.md",
+    "symbols": []
+  },
+  {
+    "repo": "actplane-master",
+    "path": "crates/actplane-runtime/src/config.rs",
+    "commit": "404542899a2153af0952cbf0dc52aeab0b7c5034",
+    "sha256": "aa512adb1941673a62b43561646831e78603f50fc46ae457324dafc6cd49f851",
+    "lines": 854,
+    "url": "https://github.com/eunomia-bpf/ActPlane/blob/404542899a2153af0952cbf0dc52aeab0b7c5034/crates/actplane-runtime/src/config.rs",
+    "symbols": [
+      {
+        "name": "pub fn load_policy(cli: &PolicyInput) -> Result<LoadedPolicy> {",
+        "line": 128
+      },
+      {
+        "name": "pub fn load_policy_path(path: &Path, explicit_policy: bool, cwd: &Path) -> Result<LoadedPolicy> {",
+        "line": 152
+      },
+      {
+        "name": "fn validate_policy_shape(config: &FileConfig, path: &Path) -> Result<()> {",
+        "line": 179
+      },
+      {
+        "name": "fn validate_runtime_config(config: &FileConfig, path: &Path) -> Result<()> {",
+        "line": 208
+      },
+      {
+        "name": "pub fn policy_source(loaded: &LoadedPolicy, domain: Option<&str>) -> Result<String> {",
+        "line": 221
+      },
+      {
+        "name": "pub fn resolve_policy(loaded: &LoadedPolicy, domain: Option<&str>) -> Result<ResolvedPolicy> {",
+        "line": 225
+      },
+      {
+        "name": "fn select_domain(config: &FileConfig, requested: Option<&str>) -> Result<String> {",
+        "line": 272
+      },
+      {
+        "name": "fn domain_names(config: &FileConfig) -> String {",
+        "line": 306
+      },
+      {
+        "name": "fn ifc_source(&self, name: &str) -> Result<&str> {",
+        "line": 320
+      },
+      {
+        "name": "fn resolve_domain(config: &FileConfig, domain: &str) -> Result<ResolvedDomain> {",
+        "line": 338
+      },
+      {
+        "name": "pub fn domain_summaries(config: &FileConfig) -> Result<Vec<DomainSummary>> {",
+        "line": 343
+      },
+      {
+        "name": "fn summary_for_domain(",
+        "line": 352
+      },
+      {
+        "name": "fn resolve_domain_inner(",
+        "line": 370
+      },
+      {
+        "name": "pub fn discover_policy(start: &Path) -> Option<PathBuf> {",
+        "line": 423
+      },
+      {
+        "name": "pub fn feedback_paths(loaded: &LoadedPolicy) -> FeedbackPaths {",
+        "line": 437
+      },
+      {
+        "name": "pub fn absolutize(path: &Path, base: &Path) -> PathBuf {",
+        "line": 481
+      },
+      {
+        "name": "fn policy_yaml_rejects_removed_fallback_config() {",
+        "line": 495
+      },
+      {
+        "name": "fn load(src: &str) -> LoadedPolicy {",
+        "line": 508
+      },
+      {
+        "name": "fn legacy_policy_source_still_works() {",
+        "line": 517
+      },
+      {
+        "name": "fn feedback_paths_include_default_and_custom_audit_log() {",
+        "line": 531
+      },
+      {
+        "name": "fn runtime_append_delta_approval_config_parses() {",
+        "line": 580
+      },
+      {
+        "name": "fn runtime_append_delta_approval_rejects_empty_approver() {",
+        "line": 605
+      },
+      {
+        "name": "fn domain_can_disable_default_but_not_locked() {",
+        "line": 630
+      },
+      {
+        "name": "fn child_locked_binding_is_mandatory_for_grandchild() {",
+        "line": 674
+      },
+      {
+        "name": "fn domain_parent_cycles_are_rejected() {",
+        "line": 701
+      },
+      {
+        "name": "fn domain_selection_errors_show_available_domains() {",
+        "line": 725
+      },
+      {
+        "name": "fn domain_summaries_include_effective_bindings() {",
+        "line": 754
+      },
+      {
+        "name": "fn invalid_policy_corpus_is_rejected() {",
+        "line": 803
+      }
+    ]
+  },
+  {
+    "repo": "actplane-master",
+    "path": "crates/actplane-runtime/src/runtime.rs",
+    "commit": "404542899a2153af0952cbf0dc52aeab0b7c5034",
+    "sha256": "61813400e6ac6f4f9edda495b8ef9643abe33828034900b6001a7cbe7aae57cd",
+    "lines": 2111,
+    "url": "https://github.com/eunomia-bpf/ActPlane/blob/404542899a2153af0952cbf0dc52aeab0b7c5034/crates/actplane-runtime/src/runtime.rs",
+    "symbols": [
+      {
+        "name": "fn fresh_runtime_domain_id(pid: i32, salt: u32) -> u32 {",
+        "line": 35
+      },
+      {
+        "name": "pub async fn watch_policy(cli: &PolicyInput, parent_domain: bool) -> Result<i32> {",
+        "line": 53
+      },
+      {
+        "name": "pub async fn watch_policy_for_pid(",
+        "line": 58
+      },
+      {
+        "name": "fn from_loaded_policy(loaded: &LoadedPolicy) -> Self {",
+        "line": 303
+      },
+      {
+        "name": "fn evaluate_append_delta(&self, meta: &PolicyAuditMeta) -> ApprovalEvaluation {",
+        "line": 311
+      },
+      {
+        "name": "fn internal_rejection(reason: String) -> Self {",
+        "line": 317
+      },
+      {
+        "name": "fn from_config(config: &AppendDeltaApprovalConfig) -> Self {",
+        "line": 331
+      },
+      {
+        "name": "fn evaluate(&self, meta: &PolicyAuditMeta) -> ApprovalEvaluation {",
+        "line": 340
+      },
+      {
+        "name": "fn string_missing(value: Option<&str>) -> bool {",
+        "line": 398
+      },
+      {
+        "name": "fn from_compiled(compiled: &dsl::Compiled, domain_id: u32) -> Self {",
+        "line": 403
+      },
+      {
+        "name": "fn register_domain(&self, domain_id: u32) -> Result<()> {",
+        "line": 414
+      },
+      {
+        "name": "fn append_outputs(&self, v: &report::Violation, feedback_file: &Path, event_file: &Path) {",
+        "line": 423
+      },
+      {
+        "name": "pub fn bind_child_domain(&self, spec: ebpf_ifc_engine::ChildDomainSpec) -> Result<()> {",
+        "line": 444
+      },
+      {
+        "name": "pub fn submitter_pid(&self) -> i32 {",
+        "line": 483
+      },
+      {
+        "name": "pub fn parent_domain_allows_runtime_mutation(&self) -> bool {",
+        "line": 487
+      },
+      {
+        "name": "pub fn parent_domain_mutation_error(&self, operation: &str) -> String {",
+        "line": 491
+      },
+      {
+        "name": "pub fn ensure_parent_or_external_control_actor(&self, actor_pid: i32) -> Result<()> {",
+        "line": 499
+      },
+      {
+        "name": "pub fn append_policy_delta_dsl_with_audit(",
+        "line": 515
+      },
+      {
+        "name": "pub fn append_policy_delta_dsl_for_actor_with_audit(",
+        "line": 529
+      },
+      {
+        "name": "pub fn append_policy_delta_dsl_for_actor_with_identity_and_audit(",
+        "line": 541
+      },
+      {
+        "name": "fn audit(&self, mut record: serde_json::Value) -> Result<()> {",
+        "line": 618
+      },
+      {
+        "name": "pub fn audit_child_launch(",
+        "line": 661
+      },
+      {
+        "name": "pub fn audit_child_restart(",
+        "line": 685
+      },
+      {
+        "name": "pub fn audit_child_adoption(",
+        "line": 713
+      },
+      {
+        "name": "fn append_policy_delta_dsl_inner(",
+        "line": 740
+      },
+      {
+        "name": "fn audit_context_id(path: &Path, submitter_pid: i32) -> String {",
+        "line": 783
+      },
+      {
+        "name": "fn json_i32(value: &serde_json::Value) -> Option<i32> {",
+        "line": 792
+      },
+      {
+        "name": "fn rule_provenance_json(meta: &[dsl::RuleMeta], rule_id_base: usize) -> Vec<serde_json::Value> {",
+        "line": 796
+      },
+      {
+        "name": "fn apply_policy_audit_meta(",
+        "line": 839
+      },
+      {
+        "name": "fn effect_name(effect: dsl::ast::Effect) -> &'static str {",
+        "line": 900
+      },
+      {
+        "name": "fn kind_name(kind: dsl::ast::Kind) -> &'static str {",
+        "line": 908
+      },
+      {
+        "name": "pub fn engine_control(&self) -> Option<Arc<EngineControl>> {",
+        "line": 917
+      },
+      {
+        "name": "fn drop(&mut self) {",
+        "line": 923
+      },
+      {
+        "name": "pub fn start_mcp_auto_attach(cli: &PolicyInput) -> Result<AttachGuard> {",
+        "line": 931
+      },
+      {
+        "name": "fn parent_pid() -> i32 {",
+        "line": 1087
+      },
+      {
+        "name": "fn attach_pid_from_env_or_parent() -> i32 {",
+        "line": 1091
+      },
+      {
+        "name": "fn watch_project_dir(loaded: &crate::config::LoadedPolicy) -> PathBuf {",
+        "line": 1098
+      },
+      {
+        "name": "pub fn have_bpf_caps() -> bool {",
+        "line": 1108
+      },
+      {
+        "name": "pub fn passwordless_sudo_available() -> bool {",
+        "line": 1124
+      },
+      {
+        "name": "fn require_bpf_caps_or_elevate(already_elevated: bool) -> Result<()> {",
+        "line": 1136
+      },
+      {
+        "name": "fn require_bpf_caps_or_elevate_with_env(",
+        "line": 1140
+      },
+      {
+        "name": "fn legacy_shutdown_signals() -> std::io::Result<[tokio::signal::unix::Signal; 2]> {",
+        "line": 1184
+      },
+      {
+        "name": "async fn run_legacy_command(",
+        "line": 1192
+      },
+      {
+        "name": "pub async fn run_command(cli: &PolicyInput, cmd: &[String], parent_domain: bool) -> Result<i32> {",
+        "line": 1265
+      },
+      {
+        "name": "pub async fn run_child_command(",
+        "line": 1434
+      },
+      {
+        "name": "fn runner_label(compiled: &dsl::Compiled) -> Result<u64> {",
+        "line": 1657
+      },
+      {
+        "name": "fn control_plane_cap_state(label: u64) -> CapState {",
+        "line": 1670
+      },
+      {
+        "name": "fn prepare_feedback_files(",
+        "line": 1687
+      },
+      {
+        "name": "fn scoped_feedback_paths(base: &FeedbackPaths, prefix: &str) -> FeedbackPaths {",
+        "line": 1729
+      },
+      {
+        "name": "fn run_id(prefix: &str) -> String {",
+        "line": 1744
+      },
+      {
+        "name": "fn load_child_policy_deltas(paths: &[PathBuf], inline: &[String]) -> Result<Vec<(String, String)>> {",
+        "line": 1752
+      },
+      {
+        "name": "fn chown_path(path: &Path, uid: libc::uid_t, gid: libc::gid_t) -> std::io::Result<()> {",
+        "line": 1765
+      },
+      {
+        "name": "fn spawn_stopped_target(",
+        "line": 1813
+      },
+      {
+        "name": "async fn kill_process_group_and_wait(child: &mut Child) {",
+        "line": 1871
+      },
+      {
+        "name": "fn target_user(run_as_root: bool) -> Option<(libc::uid_t, libc::gid_t)> {",
+        "line": 1878
+      },
+      {
+        "name": "fn send_signal(pid: u32, sig: i32) -> std::io::Result<()> {",
+        "line": 1893
+      },
+      {
+        "name": "fn send_process_group_signal(pid: u32, sig: i32) -> std::io::Result<()> {",
+        "line": 1902
+      },
+      {
+        "name": "fn wait_for_stopped_process(pid: u32, timeout: Duration) -> std::io::Result<()> {",
+        "line": 1911
+      },
+      {
+        "name": "fn proc_state_code(pid: u32) -> std::io::Result<char> {",
+        "line": 1928
+      },
+      {
+        "name": "fn exit_code(status: std::process::ExitStatus) -> i32 {",
+        "line": 1945
+      },
+      {
+        "name": "fn audit_context_id_uses_run_dir_when_available() {",
+        "line": 1961
+      },
+      {
+        "name": "fn rule_provenance_json_includes_source_text_and_binding_mode() {",
+        "line": 1973
+      },
+      {
+        "name": "fn append_delta_approval_gate_rejects_missing_and_unknown_approver() {",
+        "line": 2027
+      },
+      {
+        "name": "fn policy_audit_meta_records_enforced_approval_chain() {",
+        "line": 2071
+      }
+    ]
+  },
+  {
+    "repo": "actplane-master",
+    "path": "crates/actplane-runtime/src/mcp.rs",
+    "commit": "404542899a2153af0952cbf0dc52aeab0b7c5034",
+    "sha256": "8a6c510fdde68061217767b3365d54ff26cab514a2966993ba6ecb54cf509c36",
+    "lines": 2995,
+    "url": "https://github.com/eunomia-bpf/ActPlane/blob/404542899a2153af0952cbf0dc52aeab0b7c5034/crates/actplane-runtime/src/mcp.rs",
+    "symbols": [
+      {
+        "name": "fn drop(&mut self) {",
+        "line": 100
+      },
+      {
+        "name": "fn as_str(self) -> &'static str {",
+        "line": 115
+      },
+      {
+        "name": "fn next_restart_settings(&self) -> RestartSettings {",
+        "line": 124
+      },
+      {
+        "name": "fn next_restart_after_unix_ms(&self) -> Option<u64> {",
+        "line": 133
+      },
+      {
+        "name": "pub fn new_with_control_and_project_dir(",
+        "line": 153
+      },
+      {
+        "name": "fn discover_policy_file(&self) -> Option<PathBuf> {",
+        "line": 182
+      },
+      {
+        "name": "fn load_and_validate(&self) -> String {",
+        "line": 197
+      },
+      {
+        "name": "fn feedback_file(&self) -> PathBuf {",
+        "line": 243
+      },
+      {
+        "name": "fn load_feedback(&self) -> String {",
+        "line": 272
+      },
+      {
+        "name": "fn policy_mtime(&self) -> Option<SystemTime> {",
+        "line": 289
+      },
+      {
+        "name": "fn feedback_mtime(&self) -> Option<SystemTime> {",
+        "line": 295
+      },
+      {
+        "name": "fn do_bind_child_domain(",
+        "line": 301
+      },
+      {
+        "name": "fn do_append_policy_delta(",
+        "line": 351
+      },
+      {
+        "name": "fn do_append_policy_delta_for_actor(",
+        "line": 358
+      },
+      {
+        "name": "fn do_launch_child_domain(",
+        "line": 408
+      },
+      {
+        "name": "fn launch_child_domain_inner(",
+        "line": 452
+      },
+      {
+        "name": "fn do_list_child_domains(&self) -> Result<CallToolResult, rmcp::ErrorData> {",
+        "line": 624
+      },
+      {
+        "name": "fn do_read_child_domain_logs(",
+        "line": 642
+      },
+      {
+        "name": "fn do_terminate_child_domain(",
+        "line": 688
+      },
+      {
+        "name": "fn do_restart_child_domain(",
+        "line": 756
+      },
+      {
+        "name": "fn do_reconcile_child_domains(&self) -> Result<CallToolResult, rmcp::ErrorData> {",
+        "line": 910
+      },
+      {
+        "name": "fn control_parent(&self) -> Option<(i32, u32)> {",
+        "line": 1061
+      },
+      {
+        "name": "fn handle_local_control_request(",
+        "line": 1067
+      },
+      {
+        "name": "fn ensure_local_parent_peer(",
+        "line": 1148
+      },
+      {
+        "name": "fn local_control_status(&self) -> Value {",
+        "line": 1162
+      },
+      {
+        "name": "fn default_project_dir() -> PathBuf {",
+        "line": 1182
+      },
+      {
+        "name": "fn local_tool_response(result: Result<CallToolResult, rmcp::ErrorData>) -> Value {",
+        "line": 1191
+      },
+      {
+        "name": "fn first_tool_text(value: &Value) -> Option<String> {",
+        "line": 1213
+      },
+      {
+        "name": "fn invalid_params(msg: impl Into<String>) -> rmcp::ErrorData {",
+        "line": 1223
+      },
+      {
+        "name": "fn json_i32(args: &serde_json::Map<String, Value>, key: &str) -> Result<i32, rmcp::ErrorData> {",
+        "line": 1227
+      },
+      {
+        "name": "fn json_string<'a>(",
+        "line": 1237
+      },
+      {
+        "name": "fn json_optional_string<'a>(",
+        "line": 1246
+      },
+      {
+        "name": "fn json_string_vec(",
+        "line": 1259
+      },
+      {
+        "name": "fn json_optional_u32(",
+        "line": 1278
+      },
+      {
+        "name": "fn json_optional_usize(",
+        "line": 1293
+      },
+      {
+        "name": "fn json_optional_u64(",
+        "line": 1308
+      },
+      {
+        "name": "fn json_optional_bool(",
+        "line": 1321
+      },
+      {
+        "name": "fn policy_audit_meta_from_args(",
+        "line": 1334
+      },
+      {
+        "name": "fn json_optional_restart_policy(",
+        "line": 1345
+      },
+      {
+        "name": "fn child_id_arg(args: &serde_json::Map<String, Value>) -> Result<u32, rmcp::ErrorData> {",
+        "line": 1364
+      },
+      {
+        "name": "fn latest_run_feedback(root: &std::path::Path) -> Option<PathBuf> {",
+        "line": 1372
+      },
+      {
+        "name": "fn child_launch_id() -> String {",
+        "line": 1384
+      },
+      {
+        "name": "fn unix_time_ms() -> u64 {",
+        "line": 1392
+      },
+      {
+        "name": "fn child_record_json(record: &ChildRecord) -> serde_json::Value {",
+        "line": 1399
+      },
+      {
+        "name": "fn child_record_meta_json(record: &ChildRecord) -> serde_json::Value {",
+        "line": 1437
+      },
+      {
+        "name": "fn policy_audit_meta_json(meta: &PolicyAuditMeta) -> Option<serde_json::Value> {",
+        "line": 1445
+      },
+      {
+        "name": "fn policy_audit_meta_from_json(value: &Value) -> Option<PolicyAuditMeta> {",
+        "line": 1469
+      },
+      {
+        "name": "fn child_status_json(status: &ChildStatus) -> serde_json::Value {",
+        "line": 1491
+      },
+      {
+        "name": "fn persist_child_record(record: &ChildRecord) -> std::io::Result<()> {",
+        "line": 1503
+      },
+      {
+        "name": "fn secure_child_registry_dir(path: &std::path::Path) -> std::io::Result<()> {",
+        "line": 1516
+      },
+      {
+        "name": "fn secure_child_registry_dir(_path: &std::path::Path) -> std::io::Result<()> {",
+        "line": 1525
+      },
+      {
+        "name": "fn secure_child_registry_file(path: &std::path::Path) -> std::io::Result<()> {",
+        "line": 1530
+      },
+      {
+        "name": "fn secure_child_registry_file(_path: &std::path::Path) -> std::io::Result<()> {",
+        "line": 1539
+      },
+      {
+        "name": "fn load_child_records_with_adoptions(project_dir: &std::path::Path) -> LoadedChildRecords {",
+        "line": 1548
+      },
+      {
+        "name": "fn child_record_meta_trusted(meta: &std::path::Path) -> bool {",
+        "line": 1580
+      },
+      {
+        "name": "fn child_record_meta_trusted_root(meta: &std::path::Path) -> bool {",
+        "line": 1595
+      },
+      {
+        "name": "fn child_record_meta_trusted(_meta: &std::path::Path) -> bool {",
+        "line": 1614
+      },
+      {
+        "name": "fn child_record_from_meta(value: &Value, log_dir: PathBuf) -> Option<ChildRecord> {",
+        "line": 1618
+      },
+      {
+        "name": "fn parse_restart_policy_str(text: &str) -> RestartPolicy {",
+        "line": 1725
+      },
+      {
+        "name": "fn child_status_from_json(value: &Value) -> Option<ChildStatus> {",
+        "line": 1732
+      },
+      {
+        "name": "fn child_supervision_json(record: &ChildRecord) -> serde_json::Value {",
+        "line": 1750
+      },
+      {
+        "name": "fn adopt_running_child_record(record: &mut ChildRecord) -> bool {",
+        "line": 1766
+      },
+      {
+        "name": "fn refresh_child_record_status(record: &mut ChildRecord) {",
+        "line": 1775
+      },
+      {
+        "name": "fn child_record_running(record: &ChildRecord) -> bool {",
+        "line": 1796
+      },
+      {
+        "name": "fn child_record_exited(record: &ChildRecord) -> bool {",
+        "line": 1804
+      },
+      {
+        "name": "fn child_record_terminated(record: &ChildRecord) -> bool {",
+        "line": 1812
+      },
+      {
+        "name": "fn child_record_should_relaunch(record: &ChildRecord) -> bool {",
+        "line": 1820
+      },
+      {
+        "name": "fn child_restart_blocked_reason(record: &ChildRecord) -> Option<&'static str> {",
+        "line": 1834
+      },
+      {
+        "name": "fn process_identity_matches(record: &ChildRecord) -> bool {",
+        "line": 1846
+      },
+      {
+        "name": "fn process_exists(pid: i32) -> bool {",
+        "line": 1857
+      },
+      {
+        "name": "fn proc_start_time(pid: i32) -> Option<u64> {",
+        "line": 1866
+      },
+      {
+        "name": "fn read_log_json(path: &std::path::Path, max_bytes: usize) -> Result<Value, rmcp::ErrorData> {",
+        "line": 1872
+      },
+      {
+        "name": "fn spawn_stopped_child(",
+        "line": 1925
+      },
+      {
+        "name": "fn kill_and_wait(mut child: Child) {",
+        "line": 2038
+      },
+      {
+        "name": "fn send_signal(pid: i32, sig: i32) -> std::io::Result<()> {",
+        "line": 2043
+      },
+      {
+        "name": "fn terminate_process_group(pid: i32) -> std::io::Result<()> {",
+        "line": 2052
+      },
+      {
+        "name": "fn terminate_process_group_with(pid: i32, sig: i32) -> std::io::Result<()> {",
+        "line": 2056
+      },
+      {
+        "name": "fn wait_for_stopped_process(pid: i32, timeout: Duration) -> std::io::Result<()> {",
+        "line": 2065
+      },
+      {
+        "name": "fn proc_state_code(pid: i32) -> std::io::Result<char> {",
+        "line": 2082
+      },
+      {
+        "name": "fn sudo_target_user() -> Option<(libc::uid_t, libc::gid_t)> {",
+        "line": 2099
+      },
+      {
+        "name": "fn chown_path(path: &std::path::Path, uid: libc::uid_t, gid: libc::gid_t) -> std::io::Result<()> {",
+        "line": 2114
+      },
+      {
+        "name": "fn get_info(&self) -> ServerConfig {",
+        "line": 2128
+      },
+      {
+        "name": "fn list_tools(",
+        "line": 2142
+      },
+      {
+        "name": "fn call_tool(",
+        "line": 2398
+      },
+      {
+        "name": "fn list_resources(",
+        "line": 2422
+      },
+      {
+        "name": "fn read_resource(",
+        "line": 2444
+      },
+      {
+        "name": "async fn watch_policy_file(server: Arc<ActPlaneMcp>, peer: Peer<RoleServer>) {",
+        "line": 2484
+      },
+      {
+        "name": "pub async fn run_mcp_server_with_control(",
+        "line": 2544
+      },
+      {
+        "name": "pub fn start_local_control_server(",
+        "line": 2566
+      },
+      {
+        "name": "fn start_local_control_server_for_server(",
+        "line": 2574
+      },
+      {
+        "name": "fn start_supervisor(server: ActPlaneMcp) -> SupervisorGuard {",
+        "line": 2594
+      },
+      {
+        "name": "fn bind_child_domain_args_parse_required_and_optional_fields() {",
+        "line": 2619
+      },
+      {
+        "name": "fn bind_child_domain_args_reject_bad_types_and_ranges() {",
+        "line": 2656
+      },
+      {
+        "name": "fn spawn_stopped_child_can_be_killed_without_stdio_inheritance() {",
+        "line": 2690
+      },
+      {
+        "name": "fn child_record_json_includes_status_and_log_paths() {",
+        "line": 2708
+      },
+      {
+        "name": "fn restart_policy_args_parse_aliases_and_reject_bad_values() {",
+        "line": 2772
+      },
+      {
+        "name": "fn child_relaunch_honors_backoff_and_limit() {",
+        "line": 2799
+      },
+      {
+        "name": "fn read_log_json_returns_bounded_tail() {",
+        "line": 2852
+      },
+      {
+        "name": "fn child_registry_adopts_running_records_on_load() {",
+        "line": 2867
+      },
+      {
+        "name": "fn child_registry_persists_and_loads_records() {",
+        "line": 2917
+      }
+    ]
+  },
+  {
+    "repo": "actplane-master",
+    "path": "crates/actplane-runtime/src/feedback.rs",
+    "commit": "404542899a2153af0952cbf0dc52aeab0b7c5034",
+    "sha256": "43ac254bae4d772509d12872fad2b55a3792ca919e2b0bb4e78e804ebe3fd0d5",
+    "lines": 207,
+    "url": "https://github.com/eunomia-bpf/ActPlane/blob/404542899a2153af0952cbf0dc52aeab0b7c5034/crates/actplane-runtime/src/feedback.rs",
+    "symbols": [
+      {
+        "name": "pub fn format_payload(input: PayloadInput<'_>) -> String {",
+        "line": 36
+      },
+      {
+        "name": "fn provenance_line(p: Option<&Provenance>, op: &str, target: &str) -> String {",
+        "line": 116
+      },
+      {
+        "name": "fn json_str(s: &str) -> String {",
+        "line": 126
+      },
+      {
+        "name": "fn payload_has_prefix_and_tag() {",
+        "line": 135
+      },
+      {
+        "name": "fn notify_payload_is_soft() {",
+        "line": 152
+      },
+      {
+        "name": "fn block_without_lsm_is_unsupported_not_reported_as_blocked() {",
+        "line": 168
+      },
+      {
+        "name": "fn payload_includes_taint_provenance() {",
+        "line": 185
+      }
+    ]
+  },
+  {
+    "repo": "actplane-master",
+    "path": "crates/actplane-ifc-compiler/src/dsl/lower.rs",
+    "commit": "404542899a2153af0952cbf0dc52aeab0b7c5034",
+    "sha256": "8474e6a4ab02fc5320fcd8b78a120cbb09e1e1c08694c004d7b054f65d60602e",
+    "lines": 1085,
+    "url": "https://github.com/eunomia-bpf/ActPlane/blob/404542899a2153af0952cbf0dc52aeab0b7c5034/crates/actplane-ifc-compiler/src/dsl/lower.rs",
+    "symbols": [
+      {
+        "name": "fn set_pat(dst: &mut [u8], s: &str) {",
+        "line": 90
+      },
+      {
+        "name": "fn lower_exec(pat: &str) -> (u8, String) {",
+        "line": 98
+      },
+      {
+        "name": "fn shorten_contains_literal(lit: &str) -> String {",
+        "line": 110
+      },
+      {
+        "name": "fn shorten_repo_relative_exact_literal(path: &str) -> String {",
+        "line": 132
+      },
+      {
+        "name": "fn lower_path(pat: &str) -> (u8, String) {",
+        "line": 149
+      },
+      {
+        "name": "fn repo_relative_paths_match_absolute_runtime_paths() {",
+        "line": 228
+      },
+      {
+        "name": "fn absolute_paths_keep_absolute_semantics() {",
+        "line": 263
+      },
+      {
+        "name": "fn exec_wildcard_patterns_match_any_comm() {",
+        "line": 275
+      },
+      {
+        "name": "fn endpoint_sources_lower_to_connect_and_recv_updates() {",
+        "line": 282
+      },
+      {
+        "name": "fn hostname_endpoint_sources_resolve_to_ipv4_updates() {",
+        "line": 295
+      },
+      {
+        "name": "fn hostname_endpoint_rule_resolves_to_ipv4_matcher() {",
+        "line": 315
+      },
+      {
+        "name": "fn wildcard_hostnames_are_not_resolved_as_exact_hosts() {",
+        "line": 334
+      },
+      {
+        "name": "fn ipv4_to_kernel(addr: Ipv4Addr) -> u32 {",
+        "line": 340
+      },
+      {
+        "name": "fn kernel_ipv4_to_string(ip: u32) -> String {",
+        "line": 348
+      },
+      {
+        "name": "fn looks_like_ipv4_prefix(pat: &str) -> bool {",
+        "line": 358
+      },
+      {
+        "name": "fn lower_numeric_ipv4(pat: &str) -> Option<(u32, u32)> {",
+        "line": 372
+      },
+      {
+        "name": "fn lower_ipv4(pat: &str) -> (u32, u32) {",
+        "line": 397
+      },
+      {
+        "name": "fn hostname_candidate(pat: &str) -> Option<&str> {",
+        "line": 401
+      },
+      {
+        "name": "fn resolve_hostname_ipv4s(host: &str) -> Vec<u32> {",
+        "line": 419
+      },
+      {
+        "name": "fn endpoint_matches(&mut self, pat: &str) -> Vec<(u32, u32)> {",
+        "line": 447
+      },
+      {
+        "name": "fn endpoint_condition_match(&mut self, pat: &str, negate: bool) -> (u32, u32) {",
+        "line": 474
+      },
+      {
+        "name": "fn add_update(&mut self, spec: UpdateSpec<'_>) -> Result<(), String> {",
+        "line": 486
+      },
+      {
+        "name": "fn label_bit(&mut self, name: &str) -> Result<u64, String> {",
+        "line": 532
+      },
+      {
+        "name": "fn gate_bit(",
+        "line": 546
+      },
+      {
+        "name": "fn inval_slot(",
+        "line": 604
+      },
+      {
+        "name": "fn pat_eq(buf: &[u8; PAT], s: &str) -> bool {",
+        "line": 659
+      },
+      {
+        "name": "fn arg_eq(buf: &[u8; ARG], s: &str) -> bool {",
+        "line": 665
+      },
+      {
+        "name": "fn dnf(e: &Expr, ctx: &mut Ctx) -> Result<Vec<(u64, u64)>, String> {",
+        "line": 674
+      },
+      {
+        "name": "fn op_name(op: Op) -> &'static str {",
+        "line": 698
+      },
+      {
+        "name": "fn op_lowers(op: Op) -> Result<&'static [u8], String> {",
+        "line": 710
+      },
+      {
+        "name": "fn inval_op(op: Op) -> Result<u8, String> {",
+        "line": 723
+      },
+      {
+        "name": "fn lower_target(op: u8, kind: Kind, pat: &str) -> (u8, String) {",
+        "line": 735
+      },
+      {
+        "name": "fn lower_effect(effect: Effect) -> u8 {",
+        "line": 744
+      },
+      {
+        "name": "fn collect_label_names(pol: &Policy) -> Vec<String> {",
+        "line": 794
+      },
+      {
+        "name": "fn validate_label_bindings(labels: &HashMap<String, u64>) -> Result<u64, String> {",
+        "line": 810
+      },
+      {
+        "name": "fn collect_expr_labels(expr: &Expr, out: &mut std::collections::BTreeSet<String>) {",
+        "line": 827
+      },
+      {
+        "name": "pub fn compile(pol: &Policy) -> Result<Compiled, String> {",
+        "line": 840
+      },
+      {
+        "name": "pub fn compile_with_labels(",
+        "line": 844
+      },
+      {
+        "name": "fn kernel_op_name(op: u8) -> &'static str {",
+        "line": 1076
+      }
+    ]
+  },
+  {
+    "repo": "actplane-master",
+    "path": "bpf/capability.bpf.h",
+    "commit": "404542899a2153af0952cbf0dc52aeab0b7c5034",
+    "sha256": "83758b4b116e5555b86252d3ff4f2a246475a9a9952afc7416fc98a23505683c",
+    "lines": 578,
+    "url": "https://github.com/eunomia-bpf/ActPlane/blob/404542899a2153af0952cbf0dc52aeab0b7c5034/bpf/capability.bpf.h",
+    "symbols": [
+      {
+        "name": "static __always_inline void cap_count(__u32 slot)",
+        "line": 115
+      },
+      {
+        "name": "static __always_inline __u64 cap_required_mask(const struct cap_delta_request *r)",
+        "line": 142
+      },
+      {
+        "name": "static __always_inline int cap_scope_subset(__u32 new_scope, __u32 old_scope)",
+        "line": 149
+      },
+      {
+        "name": "static __always_inline int cap_check_request(const struct cap_delta_request *r)",
+        "line": 199
+      },
+      {
+        "name": "static __always_inline int cap_can_submit_for(pid_t submitter_pid, pid_t caller_pid)",
+        "line": 206
+      },
+      {
+        "name": "static __always_inline int cap_path_match_supported(unsigned char match)",
+        "line": 220
+      },
+      {
+        "name": "static __always_inline int cap_policy_mask_has(const struct cap_policy_mask *m,",
+        "line": 231
+      },
+      {
+        "name": "static __always_inline int cap_policy_rule_bound(__u32 domain_id, __u32 idx)",
+        "line": 241
+      },
+      {
+        "name": "static __always_inline int cap_policy_bind_rule(__u32 domain_id, __u32 idx)",
+        "line": 248
+      },
+      {
+        "name": "static __always_inline void cap_policy_clear_domain(__u32 domain_id)",
+        "line": 264
+      },
+      {
+        "name": "static __always_inline int cap_update_supported(const struct taint_update *u)",
+        "line": 269
+      },
+      {
+        "name": "static __always_inline int cap_rule_supported(const struct taint_rule *r)",
+        "line": 283
+      },
+      {
+        "name": "static __always_inline int cap_apply_request(const struct cap_delta_request *r)",
+        "line": 321
+      },
+      {
+        "name": "static __always_inline int cap_append_update_entry(const struct cap_append_update *r)",
+        "line": 394
+      },
+      {
+        "name": "static __always_inline int cap_append_rule_entry(const struct cap_append_rule *r)",
+        "line": 411
+      },
+      {
+        "name": "static long cap_request_cb(struct bpf_dynptr *dynptr, void *data)",
+        "line": 431
+      },
+      {
+        "name": "static __always_inline void cap_drain_current(void)",
+        "line": 486
+      },
+      {
+        "name": "static __always_inline __u64 cap_labels_for_pid(pid_t pid)",
+        "line": 498
+      },
+      {
+        "name": "static __always_inline int cap_task_bound(pid_t pid)",
+        "line": 509
+      },
+      {
+        "name": "static __always_inline __u32 cap_domain_for_pid(pid_t pid)",
+        "line": 516
+      },
+      {
+        "name": "static __always_inline __u32 cap_parent_domain(__u32 domain_id)",
+        "line": 523
+      },
+      {
+        "name": "static __always_inline int cap_domain_matches_pid(pid_t pid, __u32 domain_id)",
+        "line": 533
+      },
+      {
+        "name": "static __always_inline __u64 cap_labels_for_pid_domain(pid_t pid, __u32 domain_id)",
+        "line": 554
+      },
+      {
+        "name": "static __always_inline void cap_fork(pid_t ppid, pid_t cpid)",
+        "line": 566
+      },
+      {
+        "name": "static __always_inline void cap_exit(pid_t pid)",
+        "line": 573
+      }
+    ]
+  },
+  {
+    "repo": "actplane-master",
+    "path": "bpf/taint_engine.bpf.h",
+    "commit": "404542899a2153af0952cbf0dc52aeab0b7c5034",
+    "sha256": "c03302cad88ad1677448e75fe4f34043decb3f7e19397ae7e39035957c1a4c74",
+    "lines": 2581,
+    "url": "https://github.com/eunomia-bpf/ActPlane/blob/404542899a2153af0952cbf0dc52aeab0b7c5034/bpf/taint_engine.bpf.h",
+    "symbols": []
+  },
+  {
+    "repo": "actplane-master",
+    "path": "bpf/src/capability.rs",
+    "commit": "404542899a2153af0952cbf0dc52aeab0b7c5034",
+    "sha256": "38115be0c2469052494170a2f815884b48407909aea1fd7ccc0b103606006240",
+    "lines": 247,
+    "url": "https://github.com/eunomia-bpf/ActPlane/blob/404542899a2153af0952cbf0dc52aeab0b7c5034/bpf/src/capability.rs",
+    "symbols": [
+      {
+        "name": "fn required_mask(req: DeltaRequest) -> u64 {",
+        "line": 58
+      },
+      {
+        "name": "pub fn admit_delta(",
+        "line": 75
+      },
+      {
+        "name": "fn scope_subset(new_scope: u32, old_scope: u32) -> bool {",
+        "line": 108
+      },
+      {
+        "name": "fn admits_monotonic_child_delta() {",
+        "line": 113
+      },
+      {
+        "name": "fn rejects_non_monotonic_authority_gaps() {",
+        "line": 152
+      }
+    ]
+  },
+  {
+    "repo": "actplane-master",
+    "path": "bpf/src/lib.rs",
+    "commit": "404542899a2153af0952cbf0dc52aeab0b7c5034",
+    "sha256": "b7de73f2d7630076e6ea16ab5aaab0ac8e6427986ef5da13fea5da29bf79609d",
+    "lines": 7887,
+    "url": "https://github.com/eunomia-bpf/ActPlane/blob/404542899a2153af0952cbf0dc52aeab0b7c5034/bpf/src/lib.rs",
+    "symbols": [
+      {
+        "name": "fn object_bytes() -> &'static [u8] {",
+        "line": 44
+      },
+      {
+        "name": "fn legacy_object_bytes() -> &'static [u8] {",
+        "line": 47
+      },
+      {
+        "name": "fn running_kernel_version() -> Option<(u32, u32)> {",
+        "line": 51
+      },
+      {
+        "name": "pub fn legacy_kernel_required() -> bool {",
+        "line": 57
+      },
+      {
+        "name": "fn raise_legacy_memlock_limit() -> io::Result<()> {",
+        "line": 61
+      },
+      {
+        "name": "fn from_env() -> Self {",
+        "line": 113
+      },
+      {
+        "name": "fn new(root: impl Into<PathBuf>) -> Self {",
+        "line": 120
+      },
+      {
+        "name": "fn maps_dir(&self) -> PathBuf {",
+        "line": 124
+      },
+      {
+        "name": "fn links_dir(&self) -> PathBuf {",
+        "line": 128
+      },
+      {
+        "name": "fn map(&self, name: &str) -> PathBuf {",
+        "line": 132
+      },
+      {
+        "name": "fn link(&self, name: &str) -> PathBuf {",
+        "line": 136
+      },
+      {
+        "name": "fn default() -> Self {",
+        "line": 299
+      },
+      {
+        "name": "fn scope_subset(new_scope: u32, old_scope: u32) -> bool {",
+        "line": 316
+      },
+      {
+        "name": "fn child_domain_state(parent: &CapState, spec: ChildDomainSpec) -> io::Result<CapState> {",
+        "line": 320
+      },
+      {
+        "name": "fn merge_cap_state(mut base: CapState, update: CapState) -> CapState {",
+        "line": 375
+      },
+      {
+        "name": "fn upsert_cap_state<T>(",
+        "line": 391
+      },
+      {
+        "name": "fn dup_cloexec_fd(fd: std::os::fd::RawFd) -> io::Result<OwnedFd> {",
+        "line": 424
+      },
+      {
+        "name": "fn dup_owned_fd(fd: &OwnedFd) -> io::Result<OwnedFd> {",
+        "line": 432
+      },
+      {
+        "name": "fn dup_hash_map_fd(bpf: &Ebpf, name: &str) -> io::Result<OwnedFd> {",
+        "line": 437
+      },
+      {
+        "name": "fn dup_array_map_fd(bpf: &Ebpf, name: &str) -> io::Result<OwnedFd> {",
+        "line": 449
+      },
+      {
+        "name": "fn ensure_pinned_engine_dirs(paths: &PinnedEnginePaths) -> io::Result<()> {",
+        "line": 460
+      },
+      {
+        "name": "fn pin_loaded_maps(",
+        "line": 467
+      },
+      {
+        "name": "fn pin_pending_links(",
+        "line": 484
+      },
+      {
+        "name": "fn pinned_map_data(paths: &PinnedEnginePaths, name: &str) -> io::Result<MapData> {",
+        "line": 503
+      },
+      {
+        "name": "fn dup_pinned_map_fd(paths: &PinnedEnginePaths, name: &str) -> io::Result<OwnedFd> {",
+        "line": 509
+      },
+      {
+        "name": "fn open_append_lock() -> io::Result<std::fs::File> {",
+        "line": 514
+      },
+      {
+        "name": "fn open_runtime_lock() -> io::Result<std::fs::File> {",
+        "line": 522
+      },
+      {
+        "name": "fn pinned_hash_map<K: aya::Pod, V: aya::Pod>(",
+        "line": 530
+      },
+      {
+        "name": "fn pinned_engine_present(paths: &PinnedEnginePaths) -> io::Result<bool> {",
+        "line": 538
+      },
+      {
+        "name": "fn hash_map_from_fd<K: aya::Pod, V: aya::Pod>(fd: &OwnedFd) -> io::Result<HashMap<MapData, K, V>> {",
+        "line": 571
+      },
+      {
+        "name": "fn clear_hash_map<K: aya::Pod + Copy, V: aya::Pod + Copy>(",
+        "line": 576
+      },
+      {
+        "name": "fn map_get<K: aya::Pod, V: aya::Pod>(",
+        "line": 591
+      },
+      {
+        "name": "fn map_get_optional<K: aya::Pod, V: aya::Pod>(",
+        "line": 600
+      },
+      {
+        "name": "fn ignore_missing_remove(result: Result<(), MapError>, what: &str) -> io::Result<()> {",
+        "line": 612
+      },
+      {
+        "name": "pub fn bind_child_domain(&self, spec: ChildDomainSpec) -> io::Result<()> {",
+        "line": 624
+      },
+      {
+        "name": "fn from_env() -> Self {",
+        "line": 1190
+      },
+      {
+        "name": "fn advanced_tracepoints(self) -> bool {",
+        "line": 1203
+      },
+      {
+        "name": "fn from_config(cfg: &CConfig, reserve: HookReserve) -> Self {",
+        "line": 1218
+      },
+      {
+        "name": "fn has_file_flow(self) -> bool {",
+        "line": 1259
+      },
+      {
+        "name": "fn has_open_rules(self) -> bool {",
+        "line": 1263
+      },
+      {
+        "name": "fn has_file_write(self) -> bool {",
+        "line": 1267
+      },
+      {
+        "name": "fn has_write_rules(self) -> bool {",
+        "line": 1271
+      },
+      {
+        "name": "fn has_connect(self) -> bool {",
+        "line": 1275
+      },
+      {
+        "name": "fn has_recv(self) -> bool {",
+        "line": 1279
+      },
+      {
+        "name": "fn tracepoint_needed(spec: &TracepointSpec, budget: HookBudget, legacy: bool) -> bool {",
+        "line": 1284
+      },
+      {
+        "name": "fn lsm_needed(",
+        "line": 1315
+      },
+      {
+        "name": "fn load_exec_tail_programs(bpf: &mut Ebpf) -> io::Result<()> {",
+        "line": 1339
+      },
+      {
+        "name": "pub fn bpf_lsm_active() -> bool {",
+        "line": 1371
+      },
+      {
+        "name": "fn err(msg: impl Into<String>) -> io::Error {",
+        "line": 1382
+      },
+      {
+        "name": "fn validate_config(cfg: &CConfig) -> io::Result<()> {",
+        "line": 1386
+      },
+      {
+        "name": "fn validate_legacy_config(cfg: &CConfig) -> io::Result<()> {",
+        "line": 1415
+      },
+      {
+        "name": "fn group_legacy_config(cfg: &mut CConfig) -> [u32; 4] {",
+        "line": 1448
+      },
+      {
+        "name": "fn path_match_features(m: u8) -> u32 {",
+        "line": 1466
+      },
+      {
+        "name": "fn config_features(cfg: &CConfig) -> u32 {",
+        "line": 1474
+      },
+      {
+        "name": "fn config_has_file_write(cfg: &CConfig) -> bool {",
+        "line": 1526
+      },
+      {
+        "name": "fn validate_supported_features(cfg: &CConfig, supported: u32, context: &str) -> io::Result<()> {",
+        "line": 1538
+      },
+      {
+        "name": "fn feature_gate_error(context: &str, needed: u32, supported: u32, missing: u32) -> String {",
+        "line": 1547
+      },
+      {
+        "name": "fn runtime_file_delta() -> Self {",
+        "line": 1644
+      },
+      {
+        "name": "fn full_profile() -> Self {",
+        "line": 1651
+      },
+      {
+        "name": "fn empty_config_blob() -> Vec<u8> {",
+        "line": 1665
+      },
+      {
+        "name": "pub fn open_or_install_singleton() -> io::Result<Self> {",
+        "line": 1677
+      },
+      {
+        "name": "pub fn try_lock_runtime(&self) -> io::Result<std::fs::File> {",
+        "line": 1714
+      },
+      {
+        "name": "pub fn protect_pid(&self, pid: i32) -> io::Result<()> {",
+        "line": 1728
+      },
+      {
+        "name": "pub fn reload_handle(&self) -> io::Result<ReloadHandle> {",
+        "line": 1740
+      },
+      {
+        "name": "pub fn domain_handle(&self) -> io::Result<DomainHandle> {",
+        "line": 1753
+      },
+      {
+        "name": "fn seed_global_proc_state(&self, pid: i32, label: u64) -> io::Result<()> {",
+        "line": 1762
+      },
+      {
+        "name": "pub fn seed_label_in_domain(&self, pid: i32, domain_id: u32, label: u64) -> io::Result<()> {",
+        "line": 1783
+      },
+      {
+        "name": "pub fn bind_state(&self, pid: i32, target_id: u32, state: CapState) -> io::Result<()> {",
+        "line": 1806
+      },
+      {
+        "name": "pub fn unbind_pid_from_domain(&self, pid: i32, domain_id: u32) -> io::Result<()> {",
+        "line": 1839
+      },
+      {
+        "name": "pub fn run(&self, stop: &AtomicBool, mut on: impl FnMut(Violation)) -> io::Result<()> {",
+        "line": 1850
+      },
+      {
+        "name": "pub fn load(config_blob: &[u8]) -> io::Result<Self> {",
+        "line": 1889
+      },
+      {
+        "name": "fn load_legacy(config_blob: &[u8]) -> io::Result<Self> {",
+        "line": 1893
+      },
+      {
+        "name": "pub fn load_with_hook_reserve(",
+        "line": 1900
+      },
+      {
+        "name": "fn load_with_pinned_layout(",
+        "line": 1907
+      },
+      {
+        "name": "fn load_inner(",
+        "line": 1915
+      },
+      {
+        "name": "pub fn enforce_mode(&self) -> bool {",
+        "line": 2091
+      },
+      {
+        "name": "pub fn protect_pid(&mut self, pid: i32) -> io::Result<()> {",
+        "line": 2098
+      },
+      {
+        "name": "pub fn reload_handle(&self) -> io::Result<ReloadHandle> {",
+        "line": 2115
+      },
+      {
+        "name": "pub fn domain_handle(&self) -> io::Result<DomainHandle> {",
+        "line": 2143
+      },
+      {
+        "name": "pub fn bind_child_domain(&self, spec: ChildDomainSpec) -> io::Result<()> {",
+        "line": 2153
+      },
+      {
+        "name": "fn seed_global_proc_state(&mut self, pid: i32, label: u64) -> io::Result<()> {",
+        "line": 2157
+      },
+      {
+        "name": "pub fn seed_global_label(&mut self, pid: i32, label: u64) -> io::Result<()> {",
+        "line": 2191
+      },
+      {
+        "name": "pub fn seed_label(&mut self, pid: i32, label: u64) -> io::Result<()> {",
+        "line": 2206
+      },
+      {
+        "name": "pub fn bind_state(&mut self, pid: i32, target_id: u32, state: CapState) -> io::Result<()> {",
+        "line": 2235
+      },
+      {
+        "name": "pub fn submit_delta(&self, req: DeltaRequest) -> io::Result<()> {",
+        "line": 2288
+      },
+      {
+        "name": "pub fn run(&mut self, stop: &AtomicBool, mut on: impl FnMut(Violation)) -> io::Result<()> {",
+        "line": 2324
+      },
+      {
+        "name": "pub fn load(",
+        "line": 2360
+      },
+      {
+        "name": "pub fn run(&mut self, stop: &AtomicBool, on: impl FnMut(Violation)) -> io::Result<()> {",
+        "line": 2372
+      },
+      {
+        "name": "fn populate_update_map(bpf: &mut Ebpf, cfg: &CConfig) -> io::Result<()> {",
+        "line": 2379
+      },
+      {
+        "name": "fn populate_rule_map(bpf: &mut Ebpf, cfg: &CConfig) -> io::Result<()> {",
+        "line": 2393
+      },
+      {
+        "name": "fn policy_mask_set(mask: &mut CapPolicyMask, idx: usize) {",
+        "line": 2407
+      },
+      {
+        "name": "fn populate_policy_mask_map(bpf: &mut Ebpf, cfg: &CConfig) -> io::Result<()> {",
+        "line": 2415
+      },
+      {
+        "name": "fn drop(&mut self) {",
+        "line": 2489
+      },
+      {
+        "name": "fn lock_append_file(&self) -> io::Result<Option<FileLockGuard>> {",
+        "line": 2497
+      },
+      {
+        "name": "fn submit_raw(&self, data: &[u8]) -> io::Result<()> {",
+        "line": 2507
+      },
+      {
+        "name": "fn submit<T: Copy>(&self, val: &T) -> io::Result<()> {",
+        "line": 2528
+      },
+      {
+        "name": "fn count_slot(&self, slot: u32) -> io::Result<u32> {",
+        "line": 2535
+      },
+      {
+        "name": "fn set_count_slot(&self, slot: u32, value: u32) -> io::Result<()> {",
+        "line": 2550
+      },
+      {
+        "name": "fn cap_policy_mask(&self, domain_id: u32) -> io::Result<Option<CapPolicyMask>> {",
+        "line": 2565
+      },
+      {
+        "name": "fn restore_cap_policy_mask(",
+        "line": 2584
+      },
+      {
+        "name": "fn restore_append_state(",
+        "line": 2613
+      },
+      {
+        "name": "pub fn clear_runtime_state(&self) -> io::Result<()> {",
+        "line": 2636
+      },
+      {
+        "name": "fn submit_expect_count<T: Copy>(",
+        "line": 2649
+      },
+      {
+        "name": "pub fn domain_for_pid(&self, pid: i32) -> io::Result<Option<u32>> {",
+        "line": 2675
+      },
+      {
+        "name": "fn append_target_mask(caller_domain: u32, target_id: u32, target_state: &CapState) -> u64 {",
+        "line": 2680
+      },
+      {
+        "name": "fn precheck_append_authority(",
+        "line": 2691
+      },
+      {
+        "name": "pub fn append_policy_delta(",
+        "line": 2745
+      },
+      {
+        "name": "pub fn append_policy_delta_with_rule_id_base(",
+        "line": 2756
+      },
+      {
+        "name": "fn cstr(buf: &[u8]) -> String {",
+        "line": 2874
+      },
+      {
+        "name": "fn decode(e: &Event) -> Violation {",
+        "line": 2879
+      },
+      {
+        "name": "fn abi_sizes() {",
+        "line": 2945
+      },
+      {
+        "name": "fn duplicated_control_fds_are_close_on_exec() {",
+        "line": 2960
+      },
+      {
+        "name": "fn object_is_aligned_elf() {",
+        "line": 2975
+      },
+      {
+        "name": "fn object_has_capability_user_ringbuf_path() {",
+        "line": 2985
+      },
+      {
+        "name": "fn default_hook_budget_keeps_advanced_tracepoints_off() {",
+        "line": 3044
+      },
+      {
+        "name": "fn spec(name: &str) -> &'static TracepointSpec {",
+        "line": 3045
+      },
+      {
+        "name": "fn file_flow_does_not_enable_lsm_file_hooks_without_block_file() {",
+        "line": 3118
+      },
+      {
+        "name": "fn file_delta_requires_file_flow_budget() {",
+        "line": 3178
+      },
+      {
+        "name": "fn block_delta_requires_matching_lsm_hook_profile() {",
+        "line": 3205
+      },
+      {
+        "name": "fn path_matcher_delta_error_explains_loaded_policy_requirement() {",
+        "line": 3229
+      },
+      {
+        "name": "fn argv_sensitive_exec_delta_uses_always_on_exec_tracepoint() {",
+        "line": 3249
+      },
+      {
+        "name": "fn child_domain_state_is_monotonic_subset() {",
+        "line": 3262
+      },
+      {
+        "name": "fn child_domain_state_rejects_authority_widening() {",
+        "line": 3295
+      },
+      {
+        "name": "fn append_struct_layout() {",
+        "line": 3357
+      },
+      {
+        "name": "fn cap_policy_mask_tracks_full_rule_index_range() {",
+        "line": 3369
+      },
+      {
+        "name": "fn set_cstr<const N: usize>(dst: &mut [u8; N], s: &str) {",
+        "line": 3380
+      },
+      {
+        "name": "fn config_blob(cfg: &CConfig) -> Vec<u8> {",
+        "line": 3386
+      },
+      {
+        "name": "fn empty_config_blob() -> Vec<u8> {",
+        "line": 3396
+      },
+      {
+        "name": "fn notify_exec_config_blob(name: &str) -> Vec<u8> {",
+        "line": 3401
+      },
+      {
+        "name": "fn exec_arg_rule_config_blob(name: &str, arg: &str, effect: u8) -> Vec<u8> {",
+        "line": 3412
+      },
+      {
+        "name": "fn source_open_any_config_blob(label: u64) -> Vec<u8> {",
+        "line": 3424
+      },
+      {
+        "name": "fn source_open_exact_config_blob(label: u64, path: &str) -> Vec<u8> {",
+        "line": 3433
+      },
+      {
+        "name": "fn source_open_then_notify_exec_config_blob(path: &str, name: &str, label: u64) -> Vec<u8> {",
+        "line": 3444
+      },
+      {
+        "name": "fn source_open_then_notify_open_config_blob(source: &str, sink: &str, label: u64) -> Vec<u8> {",
+        "line": 3462
+      },
+      {
+        "name": "fn declassify_exec_config_blob(name: &str, label: u64) -> Vec<u8> {",
+        "line": 3481
+      },
+      {
+        "name": "fn source_recv_then_notify_exec_config_blob(ipv4: u32, name: &str, label: u64) -> Vec<u8> {",
+        "line": 3491
+      },
+      {
+        "name": "fn block_recv_endpoint_config_blob(ipv4: u32, label: u64) -> Vec<u8> {",
+        "line": 3509
+      },
+      {
+        "name": "fn notify_exec_if_label_config_blob(name: &str, label: u64) -> Vec<u8> {",
+        "line": 3522
+      },
+      {
+        "name": "fn block_write_paths_and_prefix_config_blob(",
+        "line": 3534
+      },
+      {
+        "name": "fn spawn_stopped_exec(path: &std::path::Path) -> std::process::Child {",
+        "line": 3562
+      },
+      {
+        "name": "fn spawn_stopped_shell(script: &str) -> std::process::Child {",
+        "line": 3572
+      },
+      {
+        "name": "fn wait_until_stopped(child: &std::process::Child) {",
+        "line": 3580
+      },
+      {
+        "name": "fn resume_and_wait(child: &mut std::process::Child) {",
+        "line": 3598
+      },
+      {
+        "name": "fn wait_child_timeout(",
+        "line": 3607
+      },
+      {
+        "name": "fn mmap_shared_writer_script(src: &str, out: &str) -> String {",
+        "line": 3626
+      },
+      {
+        "name": "fn mprotect_shared_writer_script(src: &str, out: &str) -> String {",
+        "line": 3647
+      },
+      {
+        "name": "fn mremap_shared_writer_script(src: &str, out: &str) -> String {",
+        "line": 3684
+      },
+      {
+        "name": "fn mprotect_read_upgrade_exec_script(src: &str, hit: &str) -> String {",
+        "line": 3725
+      },
+      {
+        "name": "fn mprotect_two_mapping_read_upgrade_exec_script(",
+        "line": 3758
+      },
+      {
+        "name": "fn drop(&mut self) {",
+        "line": 3805
+      },
+      {
+        "name": "fn live_bpf_test_guard() -> LiveBpfTestGuard {",
+        "line": 3814
+      },
+      {
+        "name": "fn unseeded_processes_do_not_match_global_policy() {",
+        "line": 3831
+      },
+      {
+        "name": "fn exec_argv_notify_matches_token_smoke() {",
+        "line": 3871
+      },
+      {
+        "name": "fn exec_argv_kill_terminates_post_exec_smoke() {",
+        "line": 3927
+      },
+      {
+        "name": "fn lsm_path_write_hooks_block_unlink_rename_and_truncate_smoke() {",
+        "line": 3986
+      },
+      {
+        "name": "fn lsm_fd_write_after_late_read_propagates_file_label_smoke() {",
+        "line": 4096
+      },
+      {
+        "name": "fn object_label_open_violation_reports_file_provenance_smoke() {",
+        "line": 4170
+      },
+      {
+        "name": "fn lsm_mmap_shared_write_after_late_read_propagates_file_label_smoke() {",
+        "line": 4249
+      },
+      {
+        "name": "fn lsm_mprotect_shared_write_after_late_read_propagates_file_label_smoke() {",
+        "line": 4338
+      },
+      {
+        "name": "fn lsm_mprotect_read_upgrade_source_taints_subject_smoke() {",
+        "line": 4428
+      },
+      {
+        "name": "fn tracepoint_fd_write_after_late_read_propagates_file_label_smoke() {",
+        "line": 4509
+      },
+      {
+        "name": "fn tracepoint_mmap_shared_write_after_late_read_propagates_file_label_smoke() {",
+        "line": 4587
+      },
+      {
+        "name": "fn tracepoint_mprotect_shared_write_after_late_read_propagates_file_label_smoke() {",
+        "line": 4680
+      },
+      {
+        "name": "fn tracepoint_mprotect_read_upgrade_source_taints_subject_smoke() {",
+        "line": 4779
+      },
+      {
+        "name": "fn tracepoint_mmap_exact_start_tracks_multiple_mappings_smoke() {",
+        "line": 4866
+      },
+      {
+        "name": "fn tracepoint_mremap_shared_write_after_late_read_propagates_file_label_smoke() {",
+        "line": 4962
+      },
+      {
+        "name": "fn tracepoint_fcntl_dup_fd_flow_smoke() {",
+        "line": 5061
+      },
+      {
+        "name": "fn tracepoint_sendfile_fd_flow_smoke() {",
+        "line": 5169
+      },
+      {
+        "name": "fn tracepoint_copy_file_range_fd_flow_smoke() {",
+        "line": 5279
+      },
+      {
+        "name": "fn tracepoint_pipe_fork_fd_flow_smoke() {",
+        "line": 5390
+      },
+      {
+        "name": "fn tracepoint_socketpair_fork_fd_flow_smoke() {",
+        "line": 5492
+      },
+      {
+        "name": "fn tracepoint_unix_path_socket_fork_fd_flow_smoke() {",
+        "line": 5595
+      },
+      {
+        "name": "fn tracepoint_unix_abstract_socket_fork_fd_flow_smoke() {",
+        "line": 5715
+      },
+      {
+        "name": "fn tracepoint_unix_dgram_sendto_path_flow_smoke() {",
+        "line": 5831
+      },
+      {
+        "name": "fn tracepoint_unix_dgram_sendmsg_abstract_flow_smoke() {",
+        "line": 5941
+      },
+      {
+        "name": "fn tracepoint_scm_rights_received_fd_flow_smoke() {",
+        "line": 6048
+      },
+      {
+        "name": "fn tracepoint_scm_rights_fifth_fd_flow_smoke() {",
+        "line": 6174
+      },
+      {
+        "name": "fn tracepoint_scm_rights_socketpair_fd_identity_smoke() {",
+        "line": 6304
+      },
+      {
+        "name": "fn tracepoint_recv_endpoint_source_taints_reader_smoke() {",
+        "line": 6426
+      },
+      {
+        "name": "fn tracepoint_udp_recvfrom_endpoint_source_taints_reader_smoke() {",
+        "line": 6527
+      },
+      {
+        "name": "fn tracepoint_udp_recvmsg_endpoint_source_taints_reader_smoke() {",
+        "line": 6642
+      },
+      {
+        "name": "fn tracepoint_splice_fd_flow_smoke() {",
+        "line": 6761
+      },
+      {
+        "name": "fn lsm_recv_endpoint_source_taints_reader_smoke() {",
+        "line": 6879
+      },
+      {
+        "name": "fn lsm_recv_endpoint_block_smoke() {",
+        "line": 6963
+      },
+      {
+        "name": "fn sibling_domain_file_labels_do_not_collide_smoke() {",
+        "line": 7031
+      },
+      {
+        "name": "fn binding_domain_resets_inherited_process_labels_smoke() {",
+        "line": 7142
+      },
+      {
+        "name": "fn local_domain_process_labels_do_not_satisfy_global_rules_smoke() {",
+        "line": 7261
+      },
+      {
+        "name": "fn append_policy_delta_scopes_to_target_domain_and_descendants_smoke() {",
+        "line": 7340
+      },
+      {
+        "name": "fn ancestor_domain_dynamic_labels_apply_in_child_smoke() {",
+        "line": 7440
+      },
+      {
+        "name": "fn domain_handle_binds_subagent_child_domain_smoke() {",
+        "line": 7516
+      },
+      {
+        "name": "fn seeded_parent_can_append_child_source_policy_smoke() {",
+        "line": 7605
+      },
+      {
+        "name": "fn append_policy_delta_admits_self_rule_smoke() {",
+        "line": 7677
+      },
+      {
+        "name": "fn append_policy_delta_admits_domain_local_declassify_smoke() {",
+        "line": 7738
+      }
+    ]
+  },
+  {
+    "repo": "actplane-artifact",
+    "path": "docs/ARTIFACT.md",
+    "commit": "63db86945c9b8618a46aa68c8de214bc4b8343d9",
+    "sha256": "410d5ec7e65e5156bee715a23964feebbc59629ff5f99bc23d702a75a55acfc1",
+    "lines": 205,
+    "url": "https://github.com/eunomia-bpf/ActPlane/blob/63db86945c9b8618a46aa68c8de214bc4b8343d9/docs/ARTIFACT.md",
+    "symbols": []
+  },
+  {
+    "repo": "actplane-artifact",
+    "path": "docs/artifact/verify_results.py",
+    "commit": "63db86945c9b8618a46aa68c8de214bc4b8343d9",
+    "sha256": "59201082ed3090dfced2ba0fcfd2b102a540fa809b42bde296de65b49f169e47",
+    "lines": 476,
+    "url": "https://github.com/eunomia-bpf/ActPlane/blob/63db86945c9b8618a46aa68c8de214bc4b8343d9/docs/artifact/verify_results.py",
+    "symbols": [
+      {
+        "name": "require",
+        "line": 50,
+        "end": 58
+      },
+      {
+        "name": "load_json",
+        "line": 61,
+        "end": 63
+      },
+      {
+        "name": "load_jsonl",
+        "line": 66,
+        "end": 72
+      },
+      {
+        "name": "artifact_path",
+        "line": 75,
+        "end": 79
+      },
+      {
+        "name": "verify_artifact_hygiene",
+        "line": 82,
+        "end": 98
+      },
+      {
+        "name": "verify_rq1",
+        "line": 101,
+        "end": 124
+      },
+      {
+        "name": "load_summarizer_module",
+        "line": 127,
+        "end": 135
+      },
+      {
+        "name": "summarize_rq2_selected",
+        "line": 138,
+        "end": 170
+      },
+      {
+        "name": "verify_rq2",
+        "line": 173,
+        "end": 250
+      },
+      {
+        "name": "verify_rq3",
+        "line": 253,
+        "end": 286
+      },
+      {
+        "name": "count_jsonl",
+        "line": 289,
+        "end": 291
+      },
+      {
+        "name": "count_policy_rules",
+        "line": 294,
+        "end": 301
+      },
+      {
+        "name": "verify_rq4",
+        "line": 304,
+        "end": 370
+      },
+      {
+        "name": "verify_rq5",
+        "line": 373,
+        "end": 452
+      },
+      {
+        "name": "main",
+        "line": 455,
+        "end": 472
+      }
+    ]
+  },
+  {
+    "repo": "actplane-artifact",
+    "path": "docs/artifact/rq4_octobench_ledger.json",
+    "commit": "63db86945c9b8618a46aa68c8de214bc4b8343d9",
+    "sha256": "62dedbcaa969ef81b61383216504881a486edc29ec7b4714c1c6469f5efc5ce4",
+    "lines": 302,
+    "url": "https://github.com/eunomia-bpf/ActPlane/blob/63db86945c9b8618a46aa68c8de214bc4b8343d9/docs/artifact/rq4_octobench_ledger.json",
+    "symbols": []
+  },
+  {
+    "repo": "actplane-artifact",
+    "path": "docs/artifact/rq4_octobench_summary.json",
+    "commit": "63db86945c9b8618a46aa68c8de214bc4b8343d9",
+    "sha256": "1181f8c1436e8180ca3253c03d6f1b74df2ab96715a1af0f096da2780b0766b7",
+    "lines": 33,
+    "url": "https://github.com/eunomia-bpf/ActPlane/blob/63db86945c9b8618a46aa68c8de214bc4b8343d9/docs/artifact/rq4_octobench_summary.json",
+    "symbols": []
+  },
+  {
+    "repo": "actplane-artifact",
+    "path": "docs/artifact/rq5_openagentsafety_ledger.json",
+    "commit": "63db86945c9b8618a46aa68c8de214bc4b8343d9",
+    "sha256": "2d28de986bba5c4b246aa2388583253c1e39762bc7c193aaa643b3c7f47b1f09",
+    "lines": 8617,
+    "url": "https://github.com/eunomia-bpf/ActPlane/blob/63db86945c9b8618a46aa68c8de214bc4b8343d9/docs/artifact/rq5_openagentsafety_ledger.json",
+    "symbols": []
+  },
+  {
+    "repo": "actplane-artifact",
+    "path": "docs/artifact/rq5_openagentsafety_summary.json",
+    "commit": "63db86945c9b8618a46aa68c8de214bc4b8343d9",
+    "sha256": "36b46f14fe7578375e056ea8ce0a64dea32d7ef1d34f808f575728fbfbb7f70e",
+    "lines": 28,
+    "url": "https://github.com/eunomia-bpf/ActPlane/blob/63db86945c9b8618a46aa68c8de214bc4b8343d9/docs/artifact/rq5_openagentsafety_summary.json",
+    "symbols": []
+  },
+  {
+    "repo": "actplane-artifact",
+    "path": "docs/OpenAgentSafety/scripts/generate_remaining_description_policies.py",
+    "commit": "63db86945c9b8618a46aa68c8de214bc4b8343d9",
+    "sha256": "29c28bb8c0d3483e284c46b778f31422db0f111c9db020e05898fe0032fdd239",
+    "lines": 446,
+    "url": "https://github.com/eunomia-bpf/ActPlane/blob/63db86945c9b8618a46aa68c8de214bc4b8343d9/docs/OpenAgentSafety/scripts/generate_remaining_description_policies.py",
+    "symbols": [
+      {
+        "name": "utc_stamp",
+        "line": 99,
+        "end": 100
+      },
+      {
+        "name": "load_final_ids",
+        "line": 103,
+        "end": 105
+      },
+      {
+        "name": "clean_token",
+        "line": 108,
+        "end": 112
+      },
+      {
+        "name": "add_path",
+        "line": 115,
+        "end": 135
+      },
+      {
+        "name": "add_relative_file",
+        "line": 138,
+        "end": 144
+      },
+      {
+        "name": "quoted_paths",
+        "line": 147,
+        "end": 159
+      },
+      {
+        "name": "extract_paths",
+        "line": 162,
+        "end": 169
+      },
+      {
+        "name": "has_any",
+        "line": 172,
+        "end": 173
+      },
+      {
+        "name": "has_destructive_intent",
+        "line": 176,
+        "end": 182
+      },
+      {
+        "name": "add_explicit_destructive_commands",
+        "line": 185,
+        "end": 200
+      },
+      {
+        "name": "add_exec",
+        "line": 203,
+        "end": 204
+      },
+      {
+        "name": "infer_rules",
+        "line": 207,
+        "end": 334
+      },
+      {
+        "name": "yaml_quote",
+        "line": 337,
+        "end": 338
+      },
+      {
+        "name": "render_policy",
+        "line": 341,
+        "end": 373
+      },
+      {
+        "name": "main",
+        "line": 376,
+        "end": 442
+      }
+    ]
+  },
+  {
+    "repo": "actplane-artifact",
+    "path": "docs/OpenAgentSafety/data/remaining_attempt0_description_manifest.json",
+    "commit": "63db86945c9b8618a46aa68c8de214bc4b8343d9",
+    "sha256": "03cbba3bdf17825dea81fea88f2c2d25e09ffdf3fc694790fedd6462016d66bf",
+    "lines": 7186,
+    "url": "https://github.com/eunomia-bpf/ActPlane/blob/63db86945c9b8618a46aa68c8de214bc4b8343d9/docs/OpenAgentSafety/data/remaining_attempt0_description_manifest.json",
+    "symbols": []
+  },
+  {
+    "repo": "actplane-artifact",
+    "path": "docs/OpenAgentSafety/README.md",
+    "commit": "63db86945c9b8618a46aa68c8de214bc4b8343d9",
+    "sha256": "3336fb3fee93cece0f770e6f27d30ac8d2bbe0a81c87f85293e40d3a7773d214",
+    "lines": 102,
+    "url": "https://github.com/eunomia-bpf/ActPlane/blob/63db86945c9b8618a46aa68c8de214bc4b8343d9/docs/OpenAgentSafety/README.md",
+    "symbols": []
+  },
+  {
+    "repo": "actplane-artifact",
+    "path": "docs/OctoBench/README.md",
+    "commit": "63db86945c9b8618a46aa68c8de214bc4b8343d9",
+    "sha256": "17c8b13b5258c84ac9b3be1ef79bb91174af0e2bcd0a196e86809ccbe94d0c91",
+    "lines": 79,
+    "url": "https://github.com/eunomia-bpf/ActPlane/blob/63db86945c9b8618a46aa68c8de214bc4b8343d9/docs/OctoBench/README.md",
+    "symbols": []
+  },
+  {
+    "repo": "actplane-artifact",
+    "path": "docs/OctoBench/run_cases.py",
+    "commit": "63db86945c9b8618a46aa68c8de214bc4b8343d9",
+    "sha256": "f420ae5ba008a969a7dc0e1711a83ca98772ecee8e72153ba758cdde490c5f42",
+    "lines": 1256,
+    "url": "https://github.com/eunomia-bpf/ActPlane/blob/63db86945c9b8618a46aa68c8de214bc4b8343d9/docs/OctoBench/run_cases.py",
+    "symbols": [
+      {
+        "name": "utc_stamp",
+        "line": 62,
+        "end": 63
+      },
+      {
+        "name": "write_json",
+        "line": 66,
+        "end": 68
+      },
+      {
+        "name": "load_cases",
+        "line": 71,
+        "end": 87
+      },
+      {
+        "name": "wait_url",
+        "line": 90,
+        "end": 99
+      },
+      {
+        "name": "kill_process_tree",
+        "line": 102,
+        "end": 134
+      },
+      {
+        "name": "stop_stale_proxy_processes",
+        "line": 137,
+        "end": 195
+      },
+      {
+        "name": "stop_process_tree_with_signal",
+        "line": 198,
+        "end": 211
+      },
+      {
+        "name": "feedback_rule_id",
+        "line": 214,
+        "end": 221
+      },
+      {
+        "name": "summarize_feedback_record",
+        "line": 224,
+        "end": 236
+      },
+      {
+        "name": "FeedbackBodyInjector",
+        "line": 239,
+        "end": 379
+      },
+      {
+        "name": "run_raw_proxy_main",
+        "line": 382,
+        "end": 409
+      },
+      {
+        "name": "run_feedback_proxy_main",
+        "line": 412,
+        "end": 499
+      },
+      {
+        "name": "run_proxy_main",
+        "line": 502,
+        "end": 506
+      },
+      {
+        "name": "start_proxy",
+        "line": 509,
+        "end": 534
+      },
+      {
+        "name": "start_actplane_watch",
+        "line": 537,
+        "end": 561
+      },
+      {
+        "name": "reset_mini_vela_results",
+        "line": 564,
+        "end": 575
+      },
+      {
+        "name": "archive_mini_vela_results",
+        "line": 578,
+        "end": 595
+      },
+      {
+        "name": "parse_official_case_result",
+        "line": 598,
+        "end": 611
+      },
+      {
+        "name": "case_policy_path",
+        "line": 614,
+        "end": 619
+      },
+      {
+        "name": "validate_case_policy",
+        "line": 622,
+        "end": 640
+      },
+      {
+        "name": "merge_claude_settings_script",
+        "line": 643,
+        "end": 656
+      },
+      {
+        "name": "tool_regex_hook_setup_script",
+        "line": 659,
+        "end": 679
+      },
+      {
+        "name": "actplane_feedback_hook_setup_script",
+        "line": 682,
+        "end": 701
+      },
+      {
+        "name": "force_claude_settings",
+        "line": 704,
+        "end": 719
+      },
+      {
+        "name": "load_tool_regex_disallowed_tools",
+        "line": 722,
+        "end": 727
+      },
+      {
+        "name": "build_plain_container_command",
+        "line": 730,
+        "end": 745
+      },
+      {
+        "name": "build_tool_regex_container_command",
+        "line": 748,
+        "end": 776
+      },
+      {
+        "name": "build_actplane_feedback_container_command",
+        "line": 779,
+        "end": 797
+      },
+      {
+        "name": "run_baseline_case",
+        "line": 800,
+        "end": 855
+      },
+      {
+        "name": "run_actplane_case",
+        "line": 858,
+        "end": 984
+      },
+      {
+        "name": "run_tool_regex_case",
+        "line": 987,
+        "end": 1102
+      },
+      {
+        "name": "run_case",
+        "line": 1105,
+        "end": 1138
+      },
+      {
+        "name": "parse_args",
+        "line": 1141,
+        "end": 1155
+      },
+      {
+        "name": "normalize_and_validate_args",
+        "line": 1158,
+        "end": 1180
+      },
+      {
+        "name": "main",
+        "line": 1183,
+        "end": 1242
+      },
+      {
+        "name": "__init__",
+        "line": 240,
+        "end": 244
+      },
+      {
+        "name": "_read_new_feedback",
+        "line": 246,
+        "end": 260
+      },
+      {
+        "name": "_compact_feedback",
+        "line": 263,
+        "end": 287
+      },
+      {
+        "name": "_append_content_text",
+        "line": 290,
+        "end": 296
+      },
+      {
+        "name": "_inject_anthropic_system",
+        "line": 299,
+        "end": 306
+      },
+      {
+        "name": "_inject_chat_system",
+        "line": 308,
+        "end": 317
+      },
+      {
+        "name": "inject",
+        "line": 319,
+        "end": 350
+      },
+      {
+        "name": "_current_instance_id",
+        "line": 352,
+        "end": 356
+      },
+      {
+        "name": "_write_trajectory_record",
+        "line": 358,
+        "end": 379
+      },
+      {
+        "name": "Handler",
+        "line": 438,
+        "end": 490
+      },
+      {
+        "name": "log_message",
+        "line": 441,
+        "end": 442
+      },
+      {
+        "name": "do_GET",
+        "line": 444,
+        "end": 445
+      },
+      {
+        "name": "do_POST",
+        "line": 447,
+        "end": 448
+      },
+      {
+        "name": "do_OPTIONS",
+        "line": 450,
+        "end": 451
+      },
+      {
+        "name": "_forward",
+        "line": 453,
+        "end": 490
+      }
+    ]
+  },
+  {
+    "repo": "actplane-artifact",
+    "path": "docs/OctoBench/data/selected_cases_21.jsonl",
+    "commit": "63db86945c9b8618a46aa68c8de214bc4b8343d9",
+    "sha256": "a2caa03c10cc831318b0fa93a165cb000afa604a834076f5f80cf4e366052020",
+    "lines": 21,
+    "url": "https://github.com/eunomia-bpf/ActPlane/blob/63db86945c9b8618a46aa68c8de214bc4b8343d9/docs/OctoBench/data/selected_cases_21.jsonl",
+    "symbols": []
+  },
+  {
+    "repo": "actplane-artifact",
+    "path": "docs/OctoBench/data/policy_manifest.jsonl",
+    "commit": "63db86945c9b8618a46aa68c8de214bc4b8343d9",
+    "sha256": "93dab3f3844c5aa83b82c45d58c9560f84704d1144609300066f101ffcad5090",
+    "lines": 21,
+    "url": "https://github.com/eunomia-bpf/ActPlane/blob/63db86945c9b8618a46aa68c8de214bc4b8343d9/docs/OctoBench/data/policy_manifest.jsonl",
+    "symbols": []
+  },
+  {
+    "repo": "actplane-artifact",
+    "path": "docs/rq1-expressiveness/README.md",
+    "commit": "63db86945c9b8618a46aa68c8de214bc4b8343d9",
+    "sha256": "3a1832a4952a462b255772adaa9f7620c17de5e98a351139ba253b296ac61912",
+    "lines": 163,
+    "url": "https://github.com/eunomia-bpf/ActPlane/blob/63db86945c9b8618a46aa68c8de214bc4b8343d9/docs/rq1-expressiveness/README.md",
+    "symbols": []
+  },
+  {
+    "repo": "actplane-artifact",
+    "path": "docs/corpus-test/sample_manifest.json",
+    "commit": "63db86945c9b8618a46aa68c8de214bc4b8343d9",
+    "sha256": "79bdfeb5df9ceb59f2ca8bdbcabcfe6c0130be321769c4a9506a615e9a116d69",
+    "lines": 82,
+    "url": "https://github.com/eunomia-bpf/ActPlane/blob/63db86945c9b8618a46aa68c8de214bc4b8343d9/docs/corpus-test/sample_manifest.json",
+    "symbols": []
+  },
+  {
+    "repo": "progent",
+    "path": "LICENSE",
+    "commit": "5be7b63fa96f70bc19b72fbcee81f1c0bcc1a565",
+    "sha256": "edf91d27e4acd6f0db848aae9032bee8674ce0eb85ca380667414e135a39ea0a",
+    "lines": 21,
+    "url": "https://github.com/sunblaze-ucb/progent/blob/5be7b63fa96f70bc19b72fbcee81f1c0bcc1a565/LICENSE",
+    "symbols": []
+  },
+  {
+    "repo": "progent",
+    "path": "secagent/tool.py",
+    "commit": "5be7b63fa96f70bc19b72fbcee81f1c0bcc1a565",
+    "sha256": "59b2cd642a9c29f2459e919720fae935a5f6f99a2a5fa0c17f1ea95e9efbcd52",
+    "lines": 770,
+    "url": "https://github.com/sunblaze-ucb/progent/blob/5be7b63fa96f70bc19b72fbcee81f1c0bcc1a565/secagent/tool.py",
+    "symbols": [
+      {
+        "name": "Tool",
+        "line": 48,
+        "end": 51
+      },
+      {
+        "name": "update_available_tools",
+        "line": 54,
+        "end": 57
+      },
+      {
+        "name": "get_available_tools",
+        "line": 60,
+        "end": 61
+      },
+      {
+        "name": "sort_policy",
+        "line": 64,
+        "end": 69
+      },
+      {
+        "name": "update_always_allowed_tools",
+        "line": 72,
+        "end": 85
+      },
+      {
+        "name": "update_always_blocked_tools",
+        "line": 88,
+        "end": 99
+      },
+      {
+        "name": "get_allowed_tools",
+        "line": 102,
+        "end": 107
+      },
+      {
+        "name": "get_current_config",
+        "line": 110,
+        "end": 111
+      },
+      {
+        "name": "update_security_policy",
+        "line": 114,
+        "end": 118
+      },
+      {
+        "name": "security_policy_type_check",
+        "line": 121,
+        "end": 128
+      },
+      {
+        "name": "get_generated_policy",
+        "line": 133,
+        "end": 142
+      },
+      {
+        "name": "delete_generated_policy",
+        "line": 145,
+        "end": 151
+      },
+      {
+        "name": "reset_security_policy",
+        "line": 154,
+        "end": 160
+      },
+      {
+        "name": "api_request",
+        "line": 167,
+        "end": 257
+      },
+      {
+        "name": "get_SYS_PROMPT",
+        "line": 300,
+        "end": 314
+      },
+      {
+        "name": "get_SYS_PROMPT_2",
+        "line": 356,
+        "end": 372
+      },
+      {
+        "name": "generate_security_policy",
+        "line": 375,
+        "end": 412
+      },
+      {
+        "name": "decide_whether_to_update",
+        "line": 415,
+        "end": 432
+      },
+      {
+        "name": "generate_update_security_policy",
+        "line": 435,
+        "end": 501
+      },
+      {
+        "name": "ValidationError",
+        "line": 504,
+        "end": 505
+      },
+      {
+        "name": "check_arg",
+        "line": 508,
+        "end": 518
+      },
+      {
+        "name": "_check_tool_call",
+        "line": 521,
+        "end": 570
+      },
+      {
+        "name": "check_tool_call",
+        "line": 573,
+        "end": 590
+      },
+      {
+        "name": "check_type_hints",
+        "line": 703,
+        "end": 715
+      },
+      {
+        "name": "secure_tool_wrapper",
+        "line": 718,
+        "end": 759
+      },
+      {
+        "name": "apply_secure_tool_wrapper",
+        "line": 762,
+        "end": 770
+      },
+      {
+        "name": "add_langchain_tools",
+        "line": 594,
+        "end": 604
+      },
+      {
+        "name": "SecAgentLangchainMiddleware",
+        "line": 609,
+        "end": 631
+      },
+      {
+        "name": "openai_tool_wrapper",
+        "line": 635,
+        "end": 654
+      },
+      {
+        "name": "openai_agent_wrapper",
+        "line": 656,
+        "end": 700
+      },
+      {
+        "name": "is_builtin_type",
+        "line": 704,
+        "end": 705
+      },
+      {
+        "name": "is_builtin_type_recursive",
+        "line": 707,
+        "end": 713
+      },
+      {
+        "name": "wrapper",
+        "line": 753,
+        "end": 758
+      },
+      {
+        "name": "awrap_tool_call",
+        "line": 610,
+        "end": 631
+      },
+      {
+        "name": "wrapper",
+        "line": 637,
+        "end": 653
+      },
+      {
+        "name": "get_mcp_tools",
+        "line": 663,
+        "end": 681
+      },
+      {
+        "name": "output_error",
+        "line": 650,
+        "end": 651
+      }
+    ]
+  },
+  {
+    "repo": "progent",
+    "path": "secagent/policy_analysis.py",
+    "commit": "5be7b63fa96f70bc19b72fbcee81f1c0bcc1a565",
+    "sha256": "e4d03f0f77a41e0a464056c03218faabf7a493c742cf69ae3cc507911e954cef",
+    "lines": 441,
+    "url": "https://github.com/sunblaze-ucb/progent/blob/5be7b63fa96f70bc19b72fbcee81f1c0bcc1a565/secagent/policy_analysis.py",
+    "symbols": [
+      {
+        "name": "make_array_from_list",
+        "line": 54,
+        "end": 80
+      },
+      {
+        "name": "build_constraints",
+        "line": 83,
+        "end": 230
+      },
+      {
+        "name": "solve_schema",
+        "line": 233,
+        "end": 329
+      },
+      {
+        "name": "security_policy_analysis",
+        "line": 332,
+        "end": 354
+      },
+      {
+        "name": "security_policy_subset_check",
+        "line": 357,
+        "end": 425
+      },
+      {
+        "name": "convert",
+        "line": 61,
+        "end": 61
+      },
+      {
+        "name": "convert",
+        "line": 64,
+        "end": 64
+      },
+      {
+        "name": "convert",
+        "line": 67,
+        "end": 67
+      },
+      {
+        "name": "convert",
+        "line": 70,
+        "end": 70
+      },
+      {
+        "name": "convert",
+        "line": 73,
+        "end": 73
+      }
+    ]
+  },
+  {
+    "repo": "progent",
+    "path": "secagent/policy_type_check.py",
+    "commit": "5be7b63fa96f70bc19b72fbcee81f1c0bcc1a565",
+    "sha256": "96204e413ed982a723ca171f1bd545fce16a33302c659536f1fc2cce929d4b02",
+    "lines": 113,
+    "url": "https://github.com/sunblaze-ucb/progent/blob/5be7b63fa96f70bc19b72fbcee81f1c0bcc1a565/secagent/policy_type_check.py",
+    "symbols": [
+      {
+        "name": "check_type_specific_keys",
+        "line": 15,
+        "end": 76
+      },
+      {
+        "name": "security_policy_type_check",
+        "line": 79,
+        "end": 98
+      }
+    ]
+  },
+  {
+    "repo": "progent",
+    "path": "secagent/progent_proxy.py",
+    "commit": "5be7b63fa96f70bc19b72fbcee81f1c0bcc1a565",
+    "sha256": "7cbb6cac7f3a86d36f89ea09e4945a739b4151bcf648059586294268eefa8c6c",
+    "lines": 363,
+    "url": "https://github.com/sunblaze-ucb/progent/blob/5be7b63fa96f70bc19b72fbcee81f1c0bcc1a565/secagent/progent_proxy.py",
+    "symbols": [
+      {
+        "name": "proxy_request",
+        "line": 39,
+        "end": 123
+      },
+      {
+        "name": "convert_mcp_tool_to_progent",
+        "line": 126,
+        "end": 133
+      },
+      {
+        "name": "init_policies",
+        "line": 210,
+        "end": 258
+      },
+      {
+        "name": "ListingFilterMiddleware",
+        "line": 262,
+        "end": 290
+      },
+      {
+        "name": "ToolCallFilterMiddleware",
+        "line": 293,
+        "end": 308
+      },
+      {
+        "name": "run_rest_api",
+        "line": 315,
+        "end": 318
+      },
+      {
+        "name": "run_mcp_proxy",
+        "line": 321,
+        "end": 326
+      },
+      {
+        "name": "on_list_tools",
+        "line": 263,
+        "end": 290
+      },
+      {
+        "name": "on_call_tool",
+        "line": 294,
+        "end": 308
+      }
+    ]
+  },
+  {
+    "repo": "fides",
+    "path": "LICENSE",
+    "commit": "669c046c4adbc56ee49c9672fdd30c54937ea062",
+    "sha256": "fd532481d828e13a0b13ccb598e02338a3617740675a862ee6bdc1541b68e93d",
+    "lines": 21,
+    "url": "https://github.com/microsoft/fides/blob/669c046c4adbc56ee49c9672fdd30c54937ea062/LICENSE",
+    "symbols": []
+  },
+  {
+    "repo": "fides",
+    "path": "README.md",
+    "commit": "669c046c4adbc56ee49c9672fdd30c54937ea062",
+    "sha256": "ea8bd3b555bee1092c332fe3910fa9da05c3090d58ded22e6e40eac143043566",
+    "lines": 62,
+    "url": "https://github.com/microsoft/fides/blob/669c046c4adbc56ee49c9672fdd30c54937ea062/README.md",
+    "symbols": []
+  },
+  {
+    "repo": "fides",
+    "path": "Tutorial.ipynb",
+    "commit": "669c046c4adbc56ee49c9672fdd30c54937ea062",
+    "sha256": "1772a3b8604f874974e06c47d2e2e1ebd268f7de6c11a5545f7187f75c35a19c",
+    "lines": 1949,
+    "url": "https://github.com/microsoft/fides/blob/669c046c4adbc56ee49c9672fdd30c54937ea062/Tutorial.ipynb",
+    "symbols": []
+  },
+  {
+    "repo": "camel",
+    "path": "LICENSE",
+    "commit": "f083b6b396399d3b3c7f2ddaf613a5945eaf32d8",
+    "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "lines": 202,
+    "url": "https://github.com/google-research/camel-prompt-injection/blob/f083b6b396399d3b3c7f2ddaf613a5945eaf32d8/LICENSE",
+    "symbols": []
+  },
+  {
+    "repo": "camel",
+    "path": "README.md",
+    "commit": "f083b6b396399d3b3c7f2ddaf613a5945eaf32d8",
+    "sha256": "8f6152538ff3b72461e04b080010a6a08bcf52b3b6f575d6d2ac0fc6e2f71129",
+    "lines": 47,
+    "url": "https://github.com/google-research/camel-prompt-injection/blob/f083b6b396399d3b3c7f2ddaf613a5945eaf32d8/README.md",
+    "symbols": []
+  },
+  {
+    "repo": "camel",
+    "path": "src/camel/security_policy.py",
+    "commit": "f083b6b396399d3b3c7f2ddaf613a5945eaf32d8",
+    "sha256": "e7a060e0192314613494d7a24ca660a39ddf5bdf0f0cc6300fb9bf3cd4dd5b65",
+    "lines": 110,
+    "url": "https://github.com/google-research/camel-prompt-injection/blob/f083b6b396399d3b3c7f2ddaf613a5945eaf32d8/src/camel/security_policy.py",
+    "symbols": [
+      {
+        "name": "Allowed",
+        "line": 27,
+        "end": 30
+      },
+      {
+        "name": "Denied",
+        "line": 34,
+        "end": 38
+      },
+      {
+        "name": "SecurityPolicy",
+        "line": 44,
+        "end": 49
+      },
+      {
+        "name": "base_security_policy",
+        "line": 58,
+        "end": 67
+      },
+      {
+        "name": "SecurityPolicyDeniedError",
+        "line": 70,
+        "end": 70
+      },
+      {
+        "name": "SecurityPolicyEngine",
+        "line": 73,
+        "end": 96
+      },
+      {
+        "name": "NoSecurityPolicyEngine",
+        "line": 99,
+        "end": 110
+      },
+      {
+        "name": "__call__",
+        "line": 45,
+        "end": 49
+      },
+      {
+        "name": "check_policy",
+        "line": 77,
+        "end": 96
+      },
+      {
+        "name": "__init__",
+        "line": 100,
+        "end": 102
+      },
+      {
+        "name": "check_policy",
+        "line": 104,
+        "end": 110
+      }
+    ]
+  },
+  {
+    "repo": "camel",
+    "path": "src/camel/quarantined_llm.py",
+    "commit": "f083b6b396399d3b3c7f2ddaf613a5945eaf32d8",
+    "sha256": "95e62fca524fb18e830f00e95df7c68168fe0b8df2acb2785c4e775cbb1a8b42",
+    "lines": 103,
+    "url": "https://github.com/google-research/camel-prompt-injection/blob/f083b6b396399d3b3c7f2ddaf613a5945eaf32d8/src/camel/quarantined_llm.py",
+    "symbols": [
+      {
+        "name": "NotEnoughInformationError",
+        "line": 25,
+        "end": 25
+      },
+      {
+        "name": "query_quarantined_llm",
+        "line": 37,
+        "end": 103
+      }
+    ]
+  },
+  {
+    "repo": "camel",
+    "path": "src/camel/pipeline_elements/privileged_llm.py",
+    "commit": "f083b6b396399d3b3c7f2ddaf613a5945eaf32d8",
+    "sha256": "848982dc88dea51f15b454f119a8d775f76449ccddd892a208599c5899d58d75",
+    "lines": 483,
+    "url": "https://github.com/google-research/camel-prompt-injection/blob/f083b6b396399d3b3c7f2ddaf613a5945eaf32d8/src/camel/pipeline_elements/privileged_llm.py",
+    "symbols": [
+      {
+        "name": "custom_yaml_dump",
+        "line": 49,
+        "end": 50
+      },
+      {
+        "name": "extract_print_output",
+        "line": 57,
+        "end": 65
+      },
+      {
+        "name": "function_call_from_ad_function_call",
+        "line": 68,
+        "end": 70
+      },
+      {
+        "name": "make_ad_tool_calls",
+        "line": 73,
+        "end": 83
+      },
+      {
+        "name": "format_camel_exception",
+        "line": 86,
+        "end": 111
+      },
+      {
+        "name": "make_error_messages",
+        "line": 114,
+        "end": 137
+      },
+      {
+        "name": "_highlight_exception_code",
+        "line": 140,
+        "end": 191
+      },
+      {
+        "name": "_get_quarantined_llm",
+        "line": 194,
+        "end": 197
+      },
+      {
+        "name": "PrivilegedLLM",
+        "line": 200,
+        "end": 483
+      },
+      {
+        "name": "__init__",
+        "line": 212,
+        "end": 233
+      },
+      {
+        "name": "run_code",
+        "line": 235,
+        "end": 284
+      },
+      {
+        "name": "_generate_and_interpret_code",
+        "line": 286,
+        "end": 400
+      },
+      {
+        "name": "query",
+        "line": 402,
+        "end": 483
+      },
+      {
+        "name": "query_ai_assistant",
+        "line": 419,
+        "end": 425
+      }
+    ]
+  },
+  {
+    "repo": "camel",
+    "path": "src/camel/interpreter/interpreter.py",
+    "commit": "f083b6b396399d3b3c7f2ddaf613a5945eaf32d8",
+    "sha256": "a3af5e3f2a3a06e0ae9635214710574b1740d6cab5c8e9d064c0f10bac0b86cb",
+    "lines": 2716,
+    "url": "https://github.com/google-research/camel-prompt-injection/blob/f083b6b396399d3b3c7f2ddaf613a5945eaf32d8/src/camel/interpreter/interpreter.py",
+    "symbols": [
+      {
+        "name": "CaMeLException",
+        "line": 50,
+        "end": 71
+      },
+      {
+        "name": "_make_not_implemented_error",
+        "line": 78,
+        "end": 79
+      },
+      {
+        "name": "_update_error_with_node",
+        "line": 82,
+        "end": 83
+      },
+      {
+        "name": "FunctionCall",
+        "line": 89,
+        "end": 103
+      },
+      {
+        "name": "EvalResult",
+        "line": 110,
+        "end": 116
+      },
+      {
+        "name": "MetadataEvalMode",
+        "line": 119,
+        "end": 132
+      },
+      {
+        "name": "EvalArgs",
+        "line": 136,
+        "end": 142
+      },
+      {
+        "name": "_eval_formatted_value",
+        "line": 145,
+        "end": 210
+      },
+      {
+        "name": "_eval_starred_iterable",
+        "line": 213,
+        "end": 246
+      },
+      {
+        "name": "_eval_iterable",
+        "line": 249,
+        "end": 289
+      },
+      {
+        "name": "_eval_joined_str",
+        "line": 292,
+        "end": 316
+      },
+      {
+        "name": "_eval_constant",
+        "line": 319,
+        "end": 352
+      },
+      {
+        "name": "_eval_module",
+        "line": 355,
+        "end": 362
+      },
+      {
+        "name": "_eval_name_load",
+        "line": 365,
+        "end": 377
+      },
+      {
+        "name": "get_attr",
+        "line": 380,
+        "end": 381
+      },
+      {
+        "name": "has_attr",
+        "line": 384,
+        "end": 385
+      },
+      {
+        "name": "_eval_attribute_load",
+        "line": 388,
+        "end": 431
+      },
+      {
+        "name": "_eval_subscript_load",
+        "line": 434,
+        "end": 491
+      },
+      {
+        "name": "_eval_list",
+        "line": 494,
+        "end": 518
+      },
+      {
+        "name": "_eval_tuple",
+        "line": 521,
+        "end": 545
+      },
+      {
+        "name": "_eval_set",
+        "line": 548,
+        "end": 572
+      },
+      {
+        "name": "_eval_dict",
+        "line": 575,
+        "end": 636
+      },
+      {
+        "name": "_assign_name",
+        "line": 639,
+        "end": 665
+      },
+      {
+        "name": "_assign_tuple_list",
+        "line": 668,
+        "end": 718
+      },
+      {
+        "name": "set_attr",
+        "line": 721,
+        "end": 722
+      },
+      {
+        "name": "_assign_attribute",
+        "line": 725,
+        "end": 761
+      },
+      {
+        "name": "_assign_subscript",
+        "line": 764,
+        "end": 831
+      },
+      {
+        "name": "_assign",
+        "line": 834,
+        "end": 887
+      },
+      {
+        "name": "_eval_assign",
+        "line": 890,
+        "end": 920
+      },
+      {
+        "name": "_eval_ann_assign",
+        "line": 923,
+        "end": 953
+      },
+      {
+        "name": "_eval_aug_assign",
+        "line": 956,
+        "end": 994
+      },
+      {
+        "name": "_get_assigned_names",
+        "line": 997,
+        "end": 1004
+      },
+      {
+        "name": "_restore_or_delete_variables",
+        "line": 1007,
+        "end": 1022
+      },
+      {
+        "name": "_eval_comprehensions",
+        "line": 1025,
+        "end": 1135
+      },
+      {
+        "name": "_eval_list_comp",
+        "line": 1138,
+        "end": 1167
+      },
+      {
+        "name": "_eval_set_comp",
+        "line": 1170,
+        "end": 1200
+      },
+      {
+        "name": "_eval_dict_comp",
+        "line": 1203,
+        "end": 1234
+      },
+      {
+        "name": "_eval_expr",
+        "line": 1237,
+        "end": 1244
+      },
+      {
+        "name": "_eval_named_expr",
+        "line": 1247,
+        "end": 1272
+      },
+      {
+        "name": "unary",
+        "line": 1285,
+        "end": 1286
+      },
+      {
+        "name": "_eval_unary_op",
+        "line": 1289,
+        "end": 1333
+      },
+      {
+        "name": "_make_error",
+        "line": 1352,
+        "end": 1361
+      },
+      {
+        "name": "is_bound",
+        "line": 1367,
+        "end": 1368
+      },
+      {
+        "name": "_eval_bin_op_inner",
+        "line": 1371,
+        "end": 1468
+      },
+      {
+        "name": "_eval_bin_op",
+        "line": 1471,
+        "end": 1496
+      },
+      {
+        "name": "_eval_bool_op",
+        "line": 1499,
+        "end": 1534
+      },
+      {
+        "name": "cmp",
+        "line": 1537,
+        "end": 1554
+      },
+      {
+        "name": "in_not_in",
+        "line": 1557,
+        "end": 1569
+      },
+      {
+        "name": "_eval_compare",
+        "line": 1575,
+        "end": 1664
+      },
+      {
+        "name": "_eval_if",
+        "line": 1667,
+        "end": 1706
+      },
+      {
+        "name": "_eval_if_exp",
+        "line": 1709,
+        "end": 1750
+      },
+      {
+        "name": "_eval_for",
+        "line": 1753,
+        "end": 1827
+      },
+      {
+        "name": "_eval_stmt_list",
+        "line": 1830,
+        "end": 1850
+      },
+      {
+        "name": "_eval_args",
+        "line": 1853,
+        "end": 1903
+      },
+      {
+        "name": "_eval_keywords",
+        "line": 1906,
+        "end": 1988
+      },
+      {
+        "name": "_eval_call",
+        "line": 1991,
+        "end": 2137
+      },
+      {
+        "name": "_eval_expr_list",
+        "line": 2140,
+        "end": 2159
+      },
+      {
+        "name": "_check_decorators",
+        "line": 2162,
+        "end": 2176
+      },
+      {
+        "name": "_check_bases",
+        "line": 2179,
+        "end": 2180
+      },
+      {
+        "name": "_get_defined_classes",
+        "line": 2183,
+        "end": 2184
+      },
+      {
+        "name": "_parse_data_value_fields",
+        "line": 2187,
+        "end": 2230
+      },
+      {
+        "name": "_eval_class_def",
+        "line": 2233,
+        "end": 2341
+      },
+      {
+        "name": "_eval_raise",
+        "line": 2344,
+        "end": 2384
+      },
+      {
+        "name": "_eval_function_def",
+        "line": 2387,
+        "end": 2400
+      },
+      {
+        "name": "camel_eval",
+        "line": 2403,
+        "end": 2651
+      },
+      {
+        "name": "InvalidOutputError",
+        "line": 2654,
+        "end": 2654
+      },
+      {
+        "name": "extract_code_block",
+        "line": 2657,
+        "end": 2686
+      },
+      {
+        "name": "parse_and_interpret_code",
+        "line": 2689,
+        "end": 2716
+      },
+      {
+        "name": "__hash__",
+        "line": 56,
+        "end": 57
+      },
+      {
+        "name": "get_dependencies",
+        "line": 59,
+        "end": 62
+      },
+      {
+        "name": "__repr__",
+        "line": 64,
+        "end": 71
+      },
+      {
+        "name": "__str__",
+        "line": 128,
+        "end": 129
+      },
+      {
+        "name": "__repr__",
+        "line": 131,
+        "end": 132
+      }
+    ]
+  },
+  {
+    "repo": "agentscope",
+    "path": "UPSTREAM.md",
+    "commit": "fc4e9d5368fecc713830738a7ad5896dcfd00fd8",
+    "sha256": "c8f2af2cfc0ef8c47658247b1b9dff0bcef8e41fca0e0e98f547156cc97afb1c",
+    "lines": 13,
+    "url": null,
+    "symbols": [],
+    "availability": "local_git_only_not_remote_publication"
+  },
+  {
+    "repo": "agentscope",
+    "path": "backend/agentscope_app/history/agent_context.py",
+    "commit": "fc4e9d5368fecc713830738a7ad5896dcfd00fd8",
+    "sha256": "07fa0a8c655d27b5a517884a7676f06ff73bc6e2114223265ec47fc370e7a721",
+    "lines": 284,
+    "url": null,
+    "symbols": [
+      {
+        "name": "live_row",
+        "line": 18,
+        "end": 28
+      },
+      {
+        "name": "choices",
+        "line": 31,
+        "end": 42
+      },
+      {
+        "name": "workspace_fact",
+        "line": 45,
+        "end": 62
+      },
+      {
+        "name": "snapshot",
+        "line": 65,
+        "end": 103
+      },
+      {
+        "name": "resolve",
+        "line": 106,
+        "end": 118
+      },
+      {
+        "name": "revalidate",
+        "line": 121,
+        "end": 133
+      },
+      {
+        "name": "check_pattern",
+        "line": 136,
+        "end": 150
+      },
+      {
+        "name": "bind_targets",
+        "line": 153,
+        "end": 178
+      },
+      {
+        "name": "adapt_version",
+        "line": 181,
+        "end": 216
+      },
+      {
+        "name": "conversation",
+        "line": 219,
+        "end": 236
+      },
+      {
+        "name": "selected_candidate",
+        "line": 239,
+        "end": 273
+      },
+      {
+        "name": "validate_documents",
+        "line": 276,
+        "end": 284
+      }
+    ],
+    "availability": "local_git_only_not_remote_publication"
+  },
+  {
+    "repo": "agentscope",
+    "path": "backend/agentscope_app/history/agent_scene.py",
+    "commit": "fc4e9d5368fecc713830738a7ad5896dcfd00fd8",
+    "sha256": "e9f56e31228200ad3e1a2be8ad224ded10ae31b43eb71eb4eca91d16ad78157f",
+    "lines": 236,
+    "url": null,
+    "symbols": [
+      {
+        "name": "included",
+        "line": 43,
+        "end": 48
+      },
+      {
+        "name": "scan",
+        "line": 51,
+        "end": 62
+      },
+      {
+        "name": "row_for",
+        "line": 65,
+        "end": 80
+      },
+      {
+        "name": "verify",
+        "line": 83,
+        "end": 94
+      },
+      {
+        "name": "create",
+        "line": 97,
+        "end": 126
+      },
+      {
+        "name": "get",
+        "line": 129,
+        "end": 146
+      },
+      {
+        "name": "latest",
+        "line": 149,
+        "end": 155
+      },
+      {
+        "name": "checked_result",
+        "line": 158,
+        "end": 188
+      },
+      {
+        "name": "run",
+        "line": 191,
+        "end": 219
+      },
+      {
+        "name": "bind",
+        "line": 222,
+        "end": 236
+      },
+      {
+        "name": "text",
+        "line": 161,
+        "end": 164
+      }
+    ],
+    "availability": "local_git_only_not_remote_publication"
+  },
+  {
+    "repo": "agentscope",
+    "path": "backend/agentscope_app/history/intent.py",
+    "commit": "fc4e9d5368fecc713830738a7ad5896dcfd00fd8",
+    "sha256": "b1a9e6e148652163c65c03a85a6e425f9985da71a88d27cb3b4f00364da927a5",
+    "lines": 198,
+    "url": null,
+    "symbols": [
+      {
+        "name": "PermissionFields",
+        "line": 19,
+        "end": 26
+      },
+      {
+        "name": "Permission",
+        "line": 29,
+        "end": 30
+      },
+      {
+        "name": "SourcePermission",
+        "line": 33,
+        "end": 35
+      },
+      {
+        "name": "SourceDescription",
+        "line": 38,
+        "end": 40
+      },
+      {
+        "name": "SourceIntent",
+        "line": 43,
+        "end": 45
+      },
+      {
+        "name": "source_material",
+        "line": 48,
+        "end": 54
+      },
+      {
+        "name": "extract",
+        "line": 57,
+        "end": 90
+      },
+      {
+        "name": "normalize",
+        "line": 93,
+        "end": 114
+      },
+      {
+        "name": "lower",
+        "line": 117,
+        "end": 131
+      },
+      {
+        "name": "signature",
+        "line": 134,
+        "end": 136
+      },
+      {
+        "name": "validate",
+        "line": 139,
+        "end": 173
+      },
+      {
+        "name": "overlap",
+        "line": 176,
+        "end": 183
+      },
+      {
+        "name": "check_artifact",
+        "line": 186,
+        "end": 198
+      }
+    ],
+    "availability": "local_git_only_not_remote_publication"
+  },
+  {
+    "repo": "agentscope",
+    "path": "backend/agentscope_app/instances/dsl_policy.py",
+    "commit": "fc4e9d5368fecc713830738a7ad5896dcfd00fd8",
+    "sha256": "7065412fa0c6909aa14e94fdd697f83b47c82b62bb9b2203e7135e32ebccb96f",
+    "lines": 257,
+    "url": null,
+    "symbols": [
+      {
+        "name": "init",
+        "line": 22,
+        "end": 24
+      },
+      {
+        "name": "current",
+        "line": 26,
+        "end": 31
+      },
+      {
+        "name": "ensure_ready",
+        "line": 33,
+        "end": 35
+      },
+      {
+        "name": "documents_for",
+        "line": 37,
+        "end": 42
+      },
+      {
+        "name": "launch_spec",
+        "line": 44,
+        "end": 46
+      },
+      {
+        "name": "live_matches",
+        "line": 48,
+        "end": 50
+      },
+      {
+        "name": "validate_scope",
+        "line": 52,
+        "end": 53
+      },
+      {
+        "name": "target_snapshot",
+        "line": 55,
+        "end": 70
+      },
+      {
+        "name": "unpack",
+        "line": 72,
+        "end": 75
+      },
+      {
+        "name": "propose",
+        "line": 78,
+        "end": 107
+      },
+      {
+        "name": "reject",
+        "line": 110,
+        "end": 119
+      },
+      {
+        "name": "apply",
+        "line": 123,
+        "end": 194
+      },
+      {
+        "name": "record_receipt",
+        "line": 199,
+        "end": 203
+      },
+      {
+        "name": "receipt",
+        "line": 205,
+        "end": 207
+      },
+      {
+        "name": "policy_records",
+        "line": 209,
+        "end": 225
+      },
+      {
+        "name": "detail",
+        "line": 227,
+        "end": 257
+      }
+    ],
+    "availability": "local_git_only_not_remote_publication"
+  },
+  {
+    "repo": "agentscope",
+    "path": "backend/agentscope_app/instances/dsl_api.py",
+    "commit": "fc4e9d5368fecc713830738a7ad5896dcfd00fd8",
+    "sha256": "ac9db1a16113b1925f54e56b379a22a9709765710abad79af48464de65974730",
+    "lines": 122,
+    "url": null,
+    "symbols": [
+      {
+        "name": "LibrarySave",
+        "line": 9,
+        "end": 13
+      },
+      {
+        "name": "LibraryVersion",
+        "line": 14,
+        "end": 15
+      },
+      {
+        "name": "LibrarySelection",
+        "line": 16,
+        "end": 17
+      },
+      {
+        "name": "LibraryProposal",
+        "line": 18,
+        "end": 23
+      },
+      {
+        "name": "library_read",
+        "line": 26,
+        "end": 28
+      },
+      {
+        "name": "library_create",
+        "line": 30,
+        "end": 32
+      },
+      {
+        "name": "library_save",
+        "line": 34,
+        "end": 36
+      },
+      {
+        "name": "library_archive",
+        "line": 38,
+        "end": 40
+      },
+      {
+        "name": "library_propose",
+        "line": 42,
+        "end": 44
+      },
+      {
+        "name": "library_capabilities",
+        "line": 46,
+        "end": 48
+      },
+      {
+        "name": "Candidate",
+        "line": 50,
+        "end": 54
+      },
+      {
+        "name": "system_read",
+        "line": 57,
+        "end": 57
+      },
+      {
+        "name": "system_propose",
+        "line": 59,
+        "end": 59
+      },
+      {
+        "name": "system_confirm",
+        "line": 61,
+        "end": 61
+      },
+      {
+        "name": "agent_read",
+        "line": 63,
+        "end": 63
+      },
+      {
+        "name": "agent_propose",
+        "line": 65,
+        "end": 65
+      },
+      {
+        "name": "agent_confirm",
+        "line": 67,
+        "end": 67
+      },
+      {
+        "name": "directory",
+        "line": 70,
+        "end": 71
+      },
+      {
+        "name": "policies",
+        "line": 73,
+        "end": 73
+      },
+      {
+        "name": "domains",
+        "line": 75,
+        "end": 75
+      },
+      {
+        "name": "kernel",
+        "line": 77,
+        "end": 78
+      },
+      {
+        "name": "traces",
+        "line": 80,
+        "end": 81
+      },
+      {
+        "name": "policy_context",
+        "line": 84,
+        "end": 86
+      },
+      {
+        "name": "SceneSelection",
+        "line": 88,
+        "end": 91
+      },
+      {
+        "name": "policy_scene_create",
+        "line": 94,
+        "end": 96
+      },
+      {
+        "name": "policy_scene_latest",
+        "line": 99,
+        "end": 101
+      },
+      {
+        "name": "policy_scene_get",
+        "line": 104,
+        "end": 106
+      },
+      {
+        "name": "policy_conversation",
+        "line": 109,
+        "end": 111
+      },
+      {
+        "name": "policy_candidate",
+        "line": 114,
+        "end": 116
+      },
+      {
+        "name": "system_reject",
+        "line": 119,
+        "end": 119
+      },
+      {
+        "name": "agent_reject",
+        "line": 122,
+        "end": 122
+      }
+    ],
+    "availability": "local_git_only_not_remote_publication"
+  },
+  {
+    "repo": "agentscope",
+    "path": "backend/agentscope_app/instances/approval_views.py",
+    "commit": "fc4e9d5368fecc713830738a7ad5896dcfd00fd8",
+    "sha256": "7990c3aaaef60b6680a2e94d77ddea1fdfd3d4b2f4ca0b8de8adccb43ce5bfee",
+    "lines": 218,
+    "url": null,
+    "symbols": [
+      {
+        "name": "envelope",
+        "line": 9,
+        "end": 10
+      },
+      {
+        "name": "scopes",
+        "line": 13,
+        "end": 16
+      },
+      {
+        "name": "pending_count",
+        "line": 19,
+        "end": 20
+      },
+      {
+        "name": "project",
+        "line": 23,
+        "end": 57
+      },
+      {
+        "name": "typed_changes",
+        "line": 60,
+        "end": 71
+      },
+      {
+        "name": "typed_project",
+        "line": 74,
+        "end": 104
+      },
+      {
+        "name": "runtime_project",
+        "line": 107,
+        "end": 152
+      },
+      {
+        "name": "directory",
+        "line": 155,
+        "end": 171
+      },
+      {
+        "name": "detail",
+        "line": 174,
+        "end": 187
+      },
+      {
+        "name": "runtime_detail",
+        "line": 190,
+        "end": 200
+      },
+      {
+        "name": "decide",
+        "line": 203,
+        "end": 218
+      }
+    ],
+    "availability": "local_git_only_not_remote_publication"
+  },
+  {
+    "repo": "agentscope",
+    "path": "backend/agentscope_app/instances/sessions.py",
+    "commit": "fc4e9d5368fecc713830738a7ad5896dcfd00fd8",
+    "sha256": "663f35d46c31c92716fc1f2f41ebac0f2d5579cc7954f1b4ca49727d4be01efa",
+    "lines": 286,
+    "url": null,
+    "symbols": [
+      {
+        "name": "init",
+        "line": 23,
+        "end": 23
+      },
+      {
+        "name": "internal_workspace_path",
+        "line": 25,
+        "end": 26
+      },
+      {
+        "name": "native_cwd",
+        "line": 28,
+        "end": 38
+      },
+      {
+        "name": "native_workspace_info",
+        "line": 40,
+        "end": 55
+      },
+      {
+        "name": "native_workspace",
+        "line": 57,
+        "end": 59
+      },
+      {
+        "name": "native_sessions",
+        "line": 61,
+        "end": 83
+      },
+      {
+        "name": "current_agent_pid",
+        "line": 85,
+        "end": 87
+      },
+      {
+        "name": "directory",
+        "line": 90,
+        "end": 124
+      },
+      {
+        "name": "session_context",
+        "line": 126,
+        "end": 136
+      },
+      {
+        "name": "legacy_records",
+        "line": 138,
+        "end": 153
+      },
+      {
+        "name": "policies",
+        "line": 155,
+        "end": 182
+      },
+      {
+        "name": "attach_hits",
+        "line": 184,
+        "end": 199
+      },
+      {
+        "name": "domains",
+        "line": 201,
+        "end": 206
+      },
+      {
+        "name": "collect_kernel",
+        "line": 210,
+        "end": 213
+      },
+      {
+        "name": "_collect_kernel",
+        "line": 215,
+        "end": 229
+      },
+      {
+        "name": "project_kernel",
+        "line": 231,
+        "end": 249
+      },
+      {
+        "name": "kernel_page",
+        "line": 251,
+        "end": 270
+      },
+      {
+        "name": "traces",
+        "line": 272,
+        "end": 286
+      }
+    ],
+    "availability": "local_git_only_not_remote_publication"
+  },
+  {
+    "repo": "agentscope",
+    "path": "backend/broker/instance_runtime.py",
+    "commit": "fc4e9d5368fecc713830738a7ad5896dcfd00fd8",
+    "sha256": "fa1ebbaeb7e7c3085fe3d540cefe4572aa3b7f05887a14d0746d76ff0a517780",
+    "lines": 725,
+    "url": null,
+    "symbols": [
+      {
+        "name": "host_identity",
+        "line": 17,
+        "end": 18
+      },
+      {
+        "name": "initialize",
+        "line": 19,
+        "end": 24
+      },
+      {
+        "name": "heartbeat",
+        "line": 26,
+        "end": 40
+      },
+      {
+        "name": "manifest",
+        "line": 42,
+        "end": 42
+      },
+      {
+        "name": "persist",
+        "line": 44,
+        "end": 51
+      },
+      {
+        "name": "recover",
+        "line": 53,
+        "end": 77
+      },
+      {
+        "name": "shutdown",
+        "line": 79,
+        "end": 82
+      },
+      {
+        "name": "ident",
+        "line": 83,
+        "end": 85
+      },
+      {
+        "name": "run_id",
+        "line": 86,
+        "end": 86
+      },
+      {
+        "name": "inst_lock",
+        "line": 87,
+        "end": 88
+      },
+      {
+        "name": "root",
+        "line": 89,
+        "end": 89
+      },
+      {
+        "name": "identity",
+        "line": 90,
+        "end": 90
+      },
+      {
+        "name": "command",
+        "line": 91,
+        "end": 92
+      },
+      {
+        "name": "iptables",
+        "line": 93,
+        "end": 94
+      },
+      {
+        "name": "network",
+        "line": 96,
+        "end": 130
+      },
+      {
+        "name": "remove_network",
+        "line": 132,
+        "end": 139
+      },
+      {
+        "name": "model_hosts",
+        "line": 141,
+        "end": 168
+      },
+      {
+        "name": "protected_targets",
+        "line": 170,
+        "end": 179
+      },
+      {
+        "name": "policy_dsl",
+        "line": 181,
+        "end": 200
+      },
+      {
+        "name": "compile_documents",
+        "line": 202,
+        "end": 222
+      },
+      {
+        "name": "validate_runtime_capabilities",
+        "line": 224,
+        "end": 230
+      },
+      {
+        "name": "execution_capabilities",
+        "line": 232,
+        "end": 234
+      },
+      {
+        "name": "kernel_events",
+        "line": 236,
+        "end": 263
+      },
+      {
+        "name": "own_tree",
+        "line": 265,
+        "end": 270
+      },
+      {
+        "name": "seal_dsh",
+        "line": 272,
+        "end": 283
+      },
+      {
+        "name": "prepare_home",
+        "line": 285,
+        "end": 333
+      },
+      {
+        "name": "native",
+        "line": 335,
+        "end": 339
+      },
+      {
+        "name": "native_pid",
+        "line": 341,
+        "end": 355
+      },
+      {
+        "name": "gateway",
+        "line": 357,
+        "end": 376
+      },
+      {
+        "name": "processes",
+        "line": 378,
+        "end": 389
+      },
+      {
+        "name": "session_records",
+        "line": 391,
+        "end": 394
+      },
+      {
+        "name": "observe",
+        "line": 396,
+        "end": 418
+      },
+      {
+        "name": "request_relay",
+        "line": 420,
+        "end": 432
+      },
+      {
+        "name": "verify",
+        "line": 434,
+        "end": 512
+      },
+      {
+        "name": "start",
+        "line": 514,
+        "end": 593
+      },
+      {
+        "name": "stop",
+        "line": 595,
+        "end": 613
+      },
+      {
+        "name": "inventory",
+        "line": 615,
+        "end": 641
+      },
+      {
+        "name": "existing_dsh_url",
+        "line": 643,
+        "end": 676
+      },
+      {
+        "name": "dispatch",
+        "line": 678,
+        "end": 725
+      },
+      {
+        "name": "Handler",
+        "line": 359,
+        "end": 373
+      },
+      {
+        "name": "canary",
+        "line": 437,
+        "end": 441
+      },
+      {
+        "name": "visit",
+        "line": 148,
+        "end": 154
+      },
+      {
+        "name": "log_message",
+        "line": 360,
+        "end": 360
+      },
+      {
+        "name": "do_POST",
+        "line": 361,
+        "end": 373
+      },
+      {
+        "name": "NoRedirect",
+        "line": 667,
+        "end": 668
+      },
+      {
+        "name": "redirect_request",
+        "line": 668,
+        "end": 668
+      }
+    ],
+    "availability": "local_git_only_not_remote_publication"
+  },
+  {
+    "repo": "agentscope",
+    "path": "backend/agentscope_app/managed/controller.py",
+    "commit": "fc4e9d5368fecc713830738a7ad5896dcfd00fd8",
+    "sha256": "6f506835cf9efc3bcdb7588da2343070f154b373a2c247d8745ca914e91d5c28",
+    "lines": 1106,
+    "url": null,
+    "symbols": [
+      {
+        "name": "IdentifiedStatement",
+        "line": 13,
+        "end": 19
+      },
+      {
+        "name": "Candidate",
+        "line": 21,
+        "end": 30
+      },
+      {
+        "name": "save",
+        "line": 33,
+        "end": 34
+      },
+      {
+        "name": "load",
+        "line": 36,
+        "end": 39
+      },
+      {
+        "name": "exists",
+        "line": 41,
+        "end": 42
+      },
+      {
+        "name": "event",
+        "line": 44,
+        "end": 45
+      },
+      {
+        "name": "create",
+        "line": 47,
+        "end": 49
+      },
+      {
+        "name": "initialize",
+        "line": 51,
+        "end": 69
+      },
+      {
+        "name": "get",
+        "line": 71,
+        "end": 79
+      },
+      {
+        "name": "policy_details",
+        "line": 81,
+        "end": 87
+      },
+      {
+        "name": "audit_history",
+        "line": 91,
+        "end": 101
+      },
+      {
+        "name": "clarify_startup",
+        "line": 103,
+        "end": 124
+      },
+      {
+        "name": "start",
+        "line": 126,
+        "end": 131
+      },
+      {
+        "name": "_start",
+        "line": 134,
+        "end": 189
+      },
+      {
+        "name": "_publish_startup_regeneration",
+        "line": 193,
+        "end": 218
+      },
+      {
+        "name": "_recover_startup_regeneration",
+        "line": 221,
+        "end": 255
+      },
+      {
+        "name": "reconcile_startup_regenerations",
+        "line": 258,
+        "end": 284
+      },
+      {
+        "name": "regenerate_startup",
+        "line": 287,
+        "end": 359
+      },
+      {
+        "name": "protected_files",
+        "line": 362,
+        "end": 367
+      },
+      {
+        "name": "control_rules",
+        "line": 369,
+        "end": 384
+      },
+      {
+        "name": "identity_guards",
+        "line": 386,
+        "end": 395
+      },
+      {
+        "name": "render",
+        "line": 397,
+        "end": 408
+      },
+      {
+        "name": "task_row",
+        "line": 410,
+        "end": 410
+      },
+      {
+        "name": "lifecycle",
+        "line": 413,
+        "end": 413
+      },
+      {
+        "name": "install",
+        "line": 415,
+        "end": 420
+      },
+      {
+        "name": "_install",
+        "line": 422,
+        "end": 530
+      },
+      {
+        "name": "recover",
+        "line": 532,
+        "end": 546
+      },
+      {
+        "name": "native_admission",
+        "line": 548,
+        "end": 566
+      },
+      {
+        "name": "complete_start",
+        "line": 568,
+        "end": 596
+      },
+      {
+        "name": "verify_execution_storage",
+        "line": 598,
+        "end": 611
+      },
+      {
+        "name": "verify_startup_snapshot",
+        "line": 613,
+        "end": 620
+      },
+      {
+        "name": "confirm_startup",
+        "line": 622,
+        "end": 626
+      },
+      {
+        "name": "_confirm_startup",
+        "line": 629,
+        "end": 645
+      },
+      {
+        "name": "gate",
+        "line": 647,
+        "end": 653
+      },
+      {
+        "name": "read_project_content",
+        "line": 655,
+        "end": 673
+      },
+      {
+        "name": "project_source",
+        "line": 675,
+        "end": 677
+      },
+      {
+        "name": "restriction_authorizations",
+        "line": 679,
+        "end": 709
+      },
+      {
+        "name": "runtime_projection",
+        "line": 711,
+        "end": 716
+      },
+      {
+        "name": "enqueue",
+        "line": 718,
+        "end": 774
+      },
+      {
+        "name": "ingest",
+        "line": 776,
+        "end": 861
+      },
+      {
+        "name": "change",
+        "line": 863,
+        "end": 864
+      },
+      {
+        "name": "validate_candidate",
+        "line": 866,
+        "end": 946
+      },
+      {
+        "name": "finish_job",
+        "line": 948,
+        "end": 983
+      },
+      {
+        "name": "review_change",
+        "line": 986,
+        "end": 1061
+      },
+      {
+        "name": "confirm_expansion",
+        "line": 1064,
+        "end": 1069
+      },
+      {
+        "name": "close",
+        "line": 1071,
+        "end": 1083
+      },
+      {
+        "name": "correlate_tool",
+        "line": 1085,
+        "end": 1093
+      },
+      {
+        "name": "tool_feedback",
+        "line": 1095,
+        "end": 1106
+      },
+      {
+        "name": "mentions",
+        "line": 690,
+        "end": 691
+      }
+    ],
+    "availability": "local_git_only_not_remote_publication"
+  },
+  {
+    "repo": "agentscope",
+    "path": "backend/agentscope_app/managed/worker.py",
+    "commit": "fc4e9d5368fecc713830738a7ad5896dcfd00fd8",
+    "sha256": "0921592e54a7c751e6c59a4be7884b0fcffe52c65485e4acec34a2428621c9c9",
+    "lines": 181,
+    "url": null,
+    "symbols": [
+      {
+        "name": "Worker",
+        "line": 7,
+        "end": 179
+      },
+      {
+        "name": "__init__",
+        "line": 8,
+        "end": 8
+      },
+      {
+        "name": "start",
+        "line": 9,
+        "end": 19
+      },
+      {
+        "name": "stop",
+        "line": 20,
+        "end": 23
+      },
+      {
+        "name": "fail",
+        "line": 24,
+        "end": 38
+      },
+      {
+        "name": "run",
+        "line": 39,
+        "end": 65
+      },
+      {
+        "name": "collect",
+        "line": 66,
+        "end": 81
+      },
+      {
+        "name": "collect_task",
+        "line": 83,
+        "end": 144
+      },
+      {
+        "name": "deliver_task_feedback",
+        "line": 146,
+        "end": 168
+      },
+      {
+        "name": "deliver_feedback",
+        "line": 170,
+        "end": 179
+      }
+    ],
+    "availability": "local_git_only_not_remote_publication"
+  },
+  {
+    "repo": "agentscope",
+    "path": "frontend/src/PolicyApprovals.jsx",
+    "commit": "fc4e9d5368fecc713830738a7ad5896dcfd00fd8",
+    "sha256": "c7fd5a096a6ce7d3aed0c666b900061f266ca187820601676dcc240c97d8c650",
+    "lines": 50,
+    "url": null,
+    "symbols": [],
+    "availability": "local_git_only_not_remote_publication"
+  },
+  {
+    "repo": "agentscope",
+    "path": "docs/acceptance/20261011-policy-source-semantics-dsh/acceptance.json",
+    "commit": "fc4e9d5368fecc713830738a7ad5896dcfd00fd8",
+    "sha256": "4207bb085e8afe2767f7a2c08b6e3efd692e86c73757af7ad9b6f6cc4dffd6f8",
+    "lines": 508,
+    "url": null,
+    "symbols": [],
+    "availability": "local_git_only_not_remote_publication"
+  }
+]

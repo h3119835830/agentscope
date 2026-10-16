@@ -1,0 +1,147 @@
+{
+  "schema": "agentscope.template-agent-workbench.design-validation.v1",
+  "checked_at": "2026-10-14T13:30:00.716272+00:00",
+  "status": "passed",
+  "acceptance_types": [
+    "static_architecture_document_review",
+    "local_synthetic_preview_interactions"
+  ],
+  "production_api_acceptance_performed": false,
+  "runtime_agent_or_model_acceptance_performed": false,
+  "kernel_policy_applied": false,
+  "application_or_dsh_modified": false,
+  "production_deployment_performed_by_this_task": false,
+  "other_thread_messaged_or_modified": false,
+  "remote_push_performed": false,
+  "source_binary_reproducible_build_verified": false,
+  "document_base_commit": "ad428b5eaf8aa44d47d18243c6c87a6c8684dc15",
+  "application_commit": "ffe88eb5aaca10f5b7c675da181be0a6ed068edc",
+  "source_hashes": {
+    "backend/agentscope_app/history/capabilities.py": "55202b110194eb895972b0f268b682cf1f967bb52e75833308d9afcab197ad08",
+    "actplane/bpf/capability.bpf.h": "85a89c0fa972217f686f900a1f2887e805ad0000932c8132cd7da6216ea4e60d",
+    "backend/agentscope_app/instances/dsl_policy.py": "d7b3cf6eda4ee3cd8a6e664da7f7b8b832380a09eddcb5a6817a27c80383f803"
+  },
+  "input_provenance": {
+    "thread_id": "01a1304c-7308-7f23-91c6-c8fd0b9ec09b",
+    "thread_title": "排查服务停机并规划ActPlane价值公告",
+    "state_at_read": "active implementation observed; not acceptance evidence",
+    "image_requirement": "visible per-session safety constraints, parameter forms, dynamic configuration and inspectable outcomes",
+    "concurrent_design_references": [
+      {
+        "source_document": "RFC/RFC-20261014-AgentScope-template-bound-policy-agent.md",
+        "read_sha256": "cf2d871a33375bb1c19267f2cc62199b45482878d49db276338c8f8b439f140a",
+        "archive_status": "not copied into this commit; concurrent review references unfinished evidence"
+      },
+      {
+        "source_document": "REVIEW/REVIEW-20261014-AgentScope-template-bound-policy-agent.md",
+        "read_sha256": "8fcfa5f1c63981fde9f29b97933c8883ee3d2fb918ae32fbbd37123829235a4b",
+        "archive_status": "not copied into this commit; concurrent review references unfinished evidence"
+      }
+    ],
+    "unneeded_reference_imports_removed": [
+      "docs/ADR/ADR-20261011-policy-assistant-approvals.md",
+      "docs/ADR/ADR-20261014-AgentScope-template-configurations.md",
+      "docs/REVIEW/evidence/template-configurations-20261014/template-children-preview.png",
+      "docs/RFC/RFC-20261011-system-policy-studio.md"
+    ]
+  },
+  "prototype": {
+    "name": "template-policy-workbench.html",
+    "sha256": "537d007ee83c401d38deec4b40dce84d49d8f90d8c70459892763ee83c035c93",
+    "bytes": 42745,
+    "data": "synthetic only",
+    "live_connections": false
+  },
+  "preview_validation": {
+    "acceptance_type": "local_synthetic_preview_only",
+    "live_api_or_kernel_acceptance": false,
+    "checks": {
+      "visible_constraints_and_unknowns": true,
+      "approval_acknowledgement_required": true,
+      "approval_keeps_active_v1": true,
+      "separate_application_confirmation": true,
+      "mock_apply_advances_to_v2": true,
+      "session_b_reads_same_employee_rule_and_v2": true,
+      "precise_delete_blocked_without_creating_config": true,
+      "broader_operation_group_requires_new_draft": true,
+      "assistant_and_manual_append_two_independent_drafts": true,
+      "edit_one_child_retains_other_and_active_v2": true,
+      "unsupported_disable_keeps_active_v2": true,
+      "readonly_check_and_collapsible_directory": true,
+      "rejection_recorded_without_active_change": true,
+      "identical_state_echo_modal_regression_fixed": true,
+      "remaining_overview_connection_history_modules_visible": true
+    },
+    "layout_observations": [
+      {
+        "browser_width": 1024,
+        "fragment_width": 992,
+        "fragment_scroll_width": 992,
+        "document_width": 992,
+        "visual_check": "template groups and independent child records inspected"
+      },
+      {
+        "browser_width": 320,
+        "fragment_width": 273,
+        "fragment_scroll_width": 273,
+        "document_width": 273,
+        "form_columns": "219px",
+        "visual_check": "single-column editable form inspected; table uses contained horizontal scroll"
+      }
+    ],
+    "viewport_override_reset": true,
+    "screenshots_visually_inspected": true,
+    "production_page_modified": false,
+    "temporary_preview_tab_closed": true,
+    "temporary_preview_server_stopped": true
+  },
+  "checks": {
+    "relative_links": true,
+    "documentation_only_git_scope": true,
+    "staged_diff_check": true,
+    "prototype_fragment_and_js_syntax": true,
+    "prototype_no_live_api_calls": true,
+    "preview_interactions_passed": true,
+    "source_hashes_stable": true,
+    "application_worktree_clean": true,
+    "central_contract_cas_and_equality": true,
+    "concurrent_index_content_preserved": true,
+    "historical_evidence_unchanged": true,
+    "text_credential_literal_scan": true
+  },
+  "link_check": {
+    "files": 319,
+    "links": 644,
+    "missing": []
+  },
+  "changed_file_count": 8,
+  "before_documents": {
+    "RFC/RFC-20261014-AgentScope-agent-baseline-runtime-policy.md": "23db58407929518953bb942728eb30a93a98419a8a9d4ecf2cccc9d2ae49b575"
+  },
+  "after_documents": {
+    "RFC/RFC-20261014-AgentScope-agent-baseline-runtime-policy.md": "8363c9f788b222c7d6101dbc12ad7808f0a56d135066808f8400dc857339b195",
+    "RFC/RFC-20261014-AgentScope-template-agent-security-workbench.md": "d5b92727a715dd8eb0e41104f39efea7063a916298521dad6676b785b8f282d9",
+    "ADR/ADR-20261014-AgentScope-template-agent-security-workbench.md": "59ddc90f9cfaae3dcaf14210792027035fe448c769bd8c25d2aacaf5ee31ec89",
+    "REVIEW/REVIEW-20261014-AgentScope-template-agent-security-workbench.md": "0d41b3bf0fb08480e19d9bd5b97adb1d56d2e892da8485a1348e5b811eb08c10",
+    "BUG/BUG-20261014-AgentScope-template-agent-security-workbench.md": "03e8e9632e7be5d935584a1da4dfa47db0862edfba86042d731da1e4ea8ae1bb"
+  },
+  "index_documents": {
+    "README.md": "1e3329196be53fe0b1e9788337ae5eefa68f3b3b64018d2e11a68d4452c295e3",
+    "docs/README.md": "15dc53878a2669dc7eae6077b0bcb824fc4fb801dae5286999ca16a3d8da3a98"
+  },
+  "central_index": {
+    "concurrent_changes_since_initial_read": false,
+    "preserved_prepend_base_sha256": "b1d5640055916128c3fdfbde0e47c85e9a6c6087ce32814bb39476aad5bc0bcf",
+    "after_sha256": "7c926edefe5eba699ee029fd69e7df6f4c69a8005ca5ed9dcc8b8d2db6d614a9"
+  },
+  "normative_review": [
+    "Published template selection and schema-bound parameters replace free-form policy invention by the configuration Agent.",
+    "Pre-run and runtime share one candidate service, records, approvals and enforcement coordinator.",
+    "Static template parents and independent child configurations do not imply kernel domain hierarchy.",
+    "Source session differs from approved shared domain target; system and Agent remain fixed baseline owners.",
+    "Actual operation groups, unsupported controls, semantic ambiguity and unknown projection states are explicit.",
+    "Approval, application, kernel effects, feedback delivery and task success remain distinct facts.",
+    "Module function matrix and complete pre-run/runtime paths map the supplied image requirements.",
+    "T01-T12 are future production/API/kernel acceptance requirements; preview checks do not satisfy them."
+  ]
+}

@@ -1,0 +1,3 @@
+- insert:
+    - id: experiment-kernel-feedback
+      name: '@agentscope/dsh-experiment-feedback'

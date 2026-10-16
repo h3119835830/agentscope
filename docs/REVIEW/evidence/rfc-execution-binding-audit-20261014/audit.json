@@ -1,0 +1,1194 @@
+{
+  "schema": "RfcExecutionUnitAudit/1",
+  "date": "2026-10-14",
+  "source_docs_commit": "231b79dc426c13dce59c1ed2d602996d8076aeaf",
+  "application_docs_commit": "ffe88eb",
+  "mode": "documentation_only",
+  "originals": {
+    "RFC/RFC-20261011-AgentScope-policy-control-architecture.md": {
+      "sha256": "f43ceac8fce44d844ac063833404a7191c2dd00caa5c7b0b790859d89211a8d7",
+      "lines": 306
+    },
+    "RFC/RFC-20261012-AgentScope-four-layer-policy.md": {
+      "sha256": "99802cd6cebf363de478a4b58ac1b3276a2340ce8f9f506410d7a6d3677ca4e7",
+      "lines": 124
+    },
+    "ADR/ADR-20261012-AgentScope-four-layer-policy.md": {
+      "sha256": "d8b1a94404d945d9ee47cbb0ebde61a48311f126ce86e6dd2f4ecbfc79a00188",
+      "lines": 23
+    },
+    "RFC/RFC-20261014-AgentScope-session-security-workbench.md": {
+      "sha256": "2c92e5af01948fb00e3a25f3e795047a26dafeb8412737f1f6cccc098079503d",
+      "lines": 82
+    },
+    "ADR/ADR-20261014-AgentScope-session-security-entry.md": {
+      "sha256": "0128162435ff8b628d9ec806d73514711b8e448534beea67165f4b3e8c4b4265",
+      "lines": 21
+    },
+    "RFC/RFC-20261014-AgentScope-hot-policy-lifecycle-proposal.md": {
+      "sha256": "c0e3646fac46d1f4b5a2f8014103973ea708c8769d2a4d158c4230ad998f6a46",
+      "lines": 146
+    },
+    "RFC/RFC-20261014-AgentScope-agent-launch-adapter-research.md": {
+      "sha256": "d5ce1a6e05d605dd114d40f35535dc1d723934f2b5efad6d98a11b49acca1ce6",
+      "lines": 121
+    },
+    "ADR/ADR-20261014-AgentScope-agent-launch-adapter-research.md": {
+      "sha256": "1dc5db9e15456ed8d4f59f13b0d5d36c32c4cc69859adcd65a1ea82837d276c1",
+      "lines": 41
+    },
+    "REVIEW/REVIEW-20261014-AgentScope-agent-launch-adapter-research.md": {
+      "sha256": "00621c984a40b09a080ddd4822b64f49985fcfcb27d9032108e860f12665d129",
+      "lines": 58
+    },
+    "BUG/BUG-20261014-AgentScope-agent-launch-adapter-research.md": {
+      "sha256": "b6988a22d5ee76d75c056b04d69e527e918aca7338e7e3aab3e819e6c1375d97",
+      "lines": 58
+    },
+    "AgentScope-四层策略架构与ActPlane调研-20261012.md": {
+      "sha256": "0dbe994e968733eabd7b5825913693903afae8429b0857b8dd63ffd844535c5c",
+      "lines": 20
+    }
+  },
+  "code_sources": {
+    "capability_map": {
+      "path": "/home/happy/projects/agentscope-session-security-20261014/actplane/bpf/capability.bpf.h",
+      "sha256": "85a89c0fa972217f686f900a1f2887e805ad0000932c8132cd7da6216ea4e60d",
+      "anchors": [
+        {
+          "needle": "} cap_task SEC",
+          "lines": [
+            99
+          ]
+        },
+        {
+          "needle": "cap_domain_for_pid(pid_t pid)",
+          "lines": [
+            522
+          ]
+        },
+        {
+          "needle": "cap_parent_domain(__u32 domain_id)",
+          "lines": [
+            529
+          ]
+        },
+        {
+          "needle": "cap_fork(pid_t ppid, pid_t cpid)",
+          "lines": [
+            572
+          ]
+        }
+      ]
+    },
+    "domain_install": {
+      "path": "/home/happy/projects/agentscope-session-security-20261014/actplane/bpf/src/lib.rs",
+      "sha256": "9051f16cec5d72dfced5bd048f8ec5bef65c6ce506d29f3042b6e4591081911b",
+      "anchors": [
+        {
+          "needle": "pub fn bind_child_domain",
+          "lines": [
+            648,
+            2297
+          ]
+        },
+        {
+          "needle": "pub fn domain_for_pid",
+          "lines": [
+            2819
+          ]
+        }
+      ]
+    },
+    "process_identity": {
+      "path": "/home/happy/projects/agentscope-session-security-20261014/actplane/bpf/process.bpf.c",
+      "sha256": "b81b4440d577e8784cd570735987a6b2ad796f6534c8a5a1236dafc6aa9def7c",
+      "anchors": [
+        {
+          "needle": "pid = te_current_pid_tgid() >> 32;",
+          "lines": [
+            2260,
+            2457,
+            2498,
+            2527,
+            2548
+          ]
+        }
+      ]
+    },
+    "broker_binding": {
+      "path": "/home/happy/projects/agentscope-session-security-20261014/backend/broker/instance_runtime.py",
+      "sha256": "2f6da39ee44ffda53408af577ca425cd06c093c3c47a5030cf7b45fa7f496040",
+      "anchors": [
+        {
+          "needle": "'executor_shared':True",
+          "lines": [
+            486,
+            833,
+            834,
+            877,
+            878
+          ]
+        },
+        {
+          "needle": "control','launch-child",
+          "lines": [
+            663
+          ]
+        },
+        {
+          "needle": "def prepare_home",
+          "lines": [
+            336
+          ]
+        }
+      ]
+    },
+    "local_capability": {
+      "path": "/home/happy/projects/agentscope-session-security-20261014/backend/agentscope_app/instances/policy_targets.py",
+      "sha256": "4123f22c757a71667f5d9a8394c19e3bd4cb9e0572113813a6b727345c291340",
+      "anchors": [
+        {
+          "needle": "def capability",
+          "lines": [
+            32
+          ]
+        },
+        {
+          "needle": "'supported': False",
+          "lines": [
+            36
+          ]
+        }
+      ]
+    },
+    "dsl_composition": {
+      "path": "/home/happy/projects/agentscope-session-security-20261014/backend/agentscope_app/instances/dsl_policy.py",
+      "sha256": "d7b3cf6eda4ee3cd8a6e664da7f7b8b832380a09eddcb5a6817a27c80383f803",
+      "anchors": [
+        {
+          "needle": "def documents_for",
+          "lines": [
+            45
+          ]
+        },
+        {
+          "needle": "for scope in ('system',ident)",
+          "lines": [
+            47
+          ]
+        }
+      ]
+    },
+    "native_dsh_tools": {
+      "path": "/home/happy/projects/agentscope-session-security-20261014/integrations/dsh-instance-runtime/lib/index.js",
+      "sha256": "a3d964ba5bf26deba2ae2c23e3231b4ba0593dc9d313665c25bd1af425d50896",
+      "anchors": [
+        {
+          "needle": "mode:'danger-full-access'",
+          "lines": [
+            23
+          ]
+        },
+        {
+          "needle": "ctx.on('tools/execute'",
+          "lines": [
+            27
+          ]
+        },
+        {
+          "needle": "const result=await next()",
+          "lines": [
+            37
+          ]
+        }
+      ]
+    }
+  },
+  "runtime_identity": {
+    "agentscope-scope-demo-api": {
+      "pid": 500,
+      "executable_source": "/opt/agentscope-session-security-20261014-180615/backend",
+      "actplane_path": "/var/lib/agentscope-scope-demo/bin/actplane",
+      "actplane_sha256": "5e8d43c279d88bd4215f654746675debfd976e28426c9fabdabeca408865d6da"
+    },
+    "agentscope-scope-demo-broker": {
+      "pid": 437,
+      "executable_source": "/opt/agentscope-command-connections-20261014-175212/backend",
+      "actplane_path": "/var/lib/agentscope-scope-demo/bin/actplane",
+      "actplane_sha256": "5e8d43c279d88bd4215f654746675debfd976e28426c9fabdabeca408865d6da"
+    }
+  },
+  "source_binary_provenance": "Runtime binary identity read; reproducible source-to-binary mapping is not newly established. Local source review and runtime enforcement acceptance remain distinct.",
+  "generated_at": "2026-10-14T12:16:07.121062+00:00",
+  "findings": [
+    {
+      "id": "F01",
+      "priority": "P1",
+      "path": "RFC/RFC-20261012-AgentScope-four-layer-policy.md",
+      "lines": [
+        67,
+        69
+      ],
+      "finding": "one native session one DSH worker selected before native recovery/topology validation",
+      "before_sha256": "99802cd6cebf363de478a4b58ac1b3276a2340ce8f9f506410d7a6d3677ca4e7",
+      "before_excerpt": [
+        {
+          "line": 67,
+          "text": "首版采用**一个原生受控会话一个 DSH worker**，为其分配独立进程身份、cgroup、ActPlane 域和回执。AgentInstance 是产品登记身份，ExecutionBinding 是可有多个的运行身份，二者不再一一等同。DSH worker 必须能原生创建/恢复指定会话，并返回可信归属；该适配尚未实现，不能用新的 UI 标签代替。"
+        },
+        {
+          "line": 68,
+          "text": ""
+        },
+        {
+          "line": 69,
+          "text": "四层配置先组合成每会话完整有效包，并在此执行域中保留上层锁定约束。配置四层不强制对应四个活进程或四个内核域；ActPlane 的真实 parent/domain 拓扑另行记录。工作区层与同工作区各会话使用共同配置基线，但会话局部约束不回写共同基线。首版仍由 Broker 在批准后排空旧 worker、完整编译/重建、核验后恢复同一个原生会话，暂不直接开放上游可变 MCP/control 接口给策略 Agent。"
+        }
+      ],
+      "disposition": "normative_document_revised"
+    },
+    {
+      "id": "F02",
+      "priority": "P1",
+      "path": "RFC/RFC-20261012-AgentScope-four-layer-policy.md",
+      "lines": [
+        75,
+        77
+      ],
+      "finding": "worker/cgroup lifecycle assumes exclusive ownership; shared sessions cannot be stopped individually by cgroup kill",
+      "before_sha256": "99802cd6cebf363de478a4b58ac1b3276a2340ce8f9f506410d7a6d3677ca4e7",
+      "before_excerpt": [
+        {
+          "line": 75,
+          "text": "批准应用前关闭相关执行门并排空/终止旧域中的在途工作；新包加载/绑定失败保持相关 worker 暂停，不影响其他会话。不能在共享主执行器上切换临时全局策略模拟并发会话隔离。恢复已批准配置时重新核验原生身份、上层基线、文件/能力摘要与新代次；变化则重新校验，不沿用失效批准。"
+        },
+        {
+          "line": 76,
+          "text": ""
+        },
+        {
+          "line": 77,
+          "text": "会话 idle 是暂停活动，不是结束。明确关闭会话时停止其 cgroup 中全部后代并核验回收，再解除绑定/标记局部运行约束终止；不能留下脱离策略的后台进程。恢复同一未关闭原生会话可复用仍有效的已批准配置，必须重新绑定；新 session_id 不继承旧会话局部规则。跨工作区迁移需要新目标和继承快照，不能静默移动绑定。"
+        }
+      ],
+      "disposition": "normative_document_revised"
+    },
+    {
+      "id": "F03",
+      "priority": "P1",
+      "path": "RFC/RFC-20261014-AgentScope-session-security-workbench.md",
+      "lines": [
+        25,
+        35
+      ],
+      "finding": "session end and rollout prescribe worker termination without conditional ownership",
+      "before_sha256": "2c92e5af01948fb00e3a25f3e795047a26dafeb8412737f1f6cccc098079503d",
+      "before_excerpt": [
+        {
+          "line": 25,
+          "text": "系统或 Agent 继承规则只读，并提供所属配置入口。用户从会话发起上层修改时必须明确展示其实际影响；不得把整个 Agent 的变更写成仅影响当前会话。Agent 动态配置复用相同候选和审批合同，Agent 不能自行批准、扩大权限或调用加载器。会话结束与规则停用分别建模；结束必须终止执行和后代、撤销临时凭据并核验回收。"
+        },
+        {
+          "line": 26,
+          "text": ""
+        },
+        {
+          "line": 27,
+          "text": "## 统一安全视图"
+        },
+        {
+          "line": 28,
+          "text": ""
+        },
+        {
+          "line": 29,
+          "text": "会话身份使用精确 instance_id、session_id 及可信 workspace_id；运行证据另带 generation、domain、加载包摘要和读取时间。每条约束保留原始 constraint_id、owner、目标、来源引用、语义、enforcement_kind、verification_state、版本和已有权威证据引用。此视图是只读投影，不能成为第二套授权库。"
+        },
+        {
+          "line": 30,
+          "text": ""
+        },
+        {
+          "line": 31,
+          "text": "当前生效状态以服务端当前绑定和权威回执为准。系统/Agent 配置、managed 任务、通用指导可由各自适配器汇总；未接入的机制明确标明能力不足。普通业务合同及数据库不为此视图改变。聚合接口需要分页、部分失败及未知计数语义，按实例缓存配置和绑定证据，避免为每个会话重复编译或调用加载器；缓存不得制造新鲜保护结论。"
+        },
+        {
+          "line": 32,
+          "text": ""
+        },
+        {
+          "line": 33,
+          "text": "## 实施边界与顺序"
+        },
+        {
+          "line": 34,
+          "text": ""
+        },
+        {
+          "line": 35,
+          "text": "第一步改真实会话界面和只读聚合，接入现有当前规则、候选、审批与归属入口，使用户可以看清配置及其执行方式；只支持已核验能力的结构化编辑。第二步完善独立原生会话 worker/cgroup/ActPlane domain 和局部加载器，再启用仅当前会话的应用、停用、恢复和结束。原生执行器共享期间可保存局部候选供审查，但不能转为实例级应用。"
+        }
+      ],
+      "disposition": "normative_document_revised"
+    },
+    {
+      "id": "F04",
+      "priority": "P1",
+      "path": "RFC/RFC-20261011-AgentScope-policy-control-architecture.md",
+      "lines": [
+        129,
+        135
+      ],
+      "finding": "bundle/receipt model lacks first-class shared execution unit and engine-qualified domain identity",
+      "before_sha256": "f43ceac8fce44d844ac063833404a7191c2dd00caa5c7b0b790859d89211a8d7",
+      "before_excerpt": [
+        {
+          "line": 129,
+          "text": "PolicyBundle: system_revision, agent_revision, workspace_identity(optional),"
+        },
+        {
+          "line": 130,
+          "text": "              workspace_revision(optional), session_revision(optional),"
+        },
+        {
+          "line": 131,
+          "text": "              effective_dsl, compiler_version, engine_profile, bundle_hash"
+        },
+        {
+          "line": 132,
+          "text": "PolicyApplication: approval_id, target_generation, application_state, failure_reason"
+        },
+        {
+          "line": 133,
+          "text": "ExecutionReceipt: bundle_hash, generation, host_boot_identity, pid_start_identity,"
+        },
+        {
+          "line": 134,
+          "text": "                  workspace_identity(optional), trusted_session_link(optional),"
+        },
+        {
+          "line": 135,
+          "text": "                  domain_binding, loaded_at, verified_at"
+        }
+      ],
+      "disposition": "normative_document_revised"
+    },
+    {
+      "id": "F05",
+      "priority": "P1",
+      "path": "RFC/RFC-20261012-AgentScope-four-layer-policy.md",
+      "lines": [
+        61,
+        93
+      ],
+      "finding": "approval impacts freeze logical target but need explicit physical and availability closure before local rollout",
+      "before_sha256": "99802cd6cebf363de478a4b58ac1b3276a2340ce8f9f506410d7a6d3677ca4e7",
+      "before_excerpt": [
+        {
+          "line": 61,
+          "text": "所有变更，包括收紧、扩权、移除本层规则和推广范围，均需人工确认。保存、编译、提交、批准、加载、当前绑定核验、内核命中、实际阻止与反馈送达分别记录。待审批/拒绝/失败不改变现有授权；审批绑定候选摘要、上层基线、目标集合与上下文摘要。应用前再次核对，重复请求幂等返回原结果。"
+        },
+        {
+          "line": 62,
+          "text": ""
+        },
+        {
+          "line": 63,
+          "text": "上层已应用的强制安全规则在后代中作为 locked 约束保留；局部 preserve/permit 只表示不增加本候选限制，不能放宽继承规则。策略所有者可以经新的审批版本修改自己层的规则，再重新应用受影响后代。可选模板/目录默认值是未选资产，不能与 ActPlane YAML 的可禁用 default binding 混为一谈。"
+        },
+        {
+          "line": 64,
+          "text": ""
+        },
+        {
+          "line": 65,
+          "text": "## 4. 执行方案及不可省略的边界"
+        },
+        {
+          "line": 66,
+          "text": ""
+        },
+        {
+          "line": 67,
+          "text": "首版采用**一个原生受控会话一个 DSH worker**，为其分配独立进程身份、cgroup、ActPlane 域和回执。AgentInstance 是产品登记身份，ExecutionBinding 是可有多个的运行身份，二者不再一一等同。DSH worker 必须能原生创建/恢复指定会话，并返回可信归属；该适配尚未实现，不能用新的 UI 标签代替。"
+        },
+        {
+          "line": 68,
+          "text": ""
+        },
+        {
+          "line": 69,
+          "text": "四层配置先组合成每会话完整有效包，并在此执行域中保留上层锁定约束。配置四层不强制对应四个活进程或四个内核域；ActPlane 的真实 parent/domain 拓扑另行记录。工作区层与同工作区各会话使用共同配置基线，但会话局部约束不回写共同基线。首版仍由 Broker 在批准后排空旧 worker、完整编译/重建、核验后恢复同一个原生会话，暂不直接开放上游可变 MCP/control 接口给策略 Agent。"
+        },
+        {
+          "line": 70,
+          "text": ""
+        },
+        {
+          "line": 71,
+          "text": "共享原生执行器仅可继续承载已明确的实例范围策略或提供局部建议。无法分别绑定工作区/会话时，局部提交返回能力不足，禁止自动转为 Agent 策略。可信 tool_call_tag 只能改善归因，不能让同一个 PID 同时处于两个会话域，也不能约束共享主进程中的全部读写。"
+        },
+        {
+          "line": 72,
+          "text": ""
+        },
+        {
+          "line": 73,
+          "text": "内核继承沿真实 fork/exec 关系传播；子 Agent 可以获分配更窄的子域。跨 cwd 执行不改变所属会话。调用共享守护进程、代理服务或其他执行器不能假定仍在后代进程链中；未建立可信代理合同的路径不得声称有会话隔离覆盖。"
+        },
+        {
+          "line": 74,
+          "text": ""
+        },
+        {
+          "line": 75,
+          "text": "批准应用前关闭相关执行门并排空/终止旧域中的在途工作；新包加载/绑定失败保持相关 worker 暂停，不影响其他会话。不能在共享主执行器上切换临时全局策略模拟并发会话隔离。恢复已批准配置时重新核验原生身份、上层基线、文件/能力摘要与新代次；变化则重新校验，不沿用失效批准。"
+        },
+        {
+          "line": 76,
+          "text": ""
+        },
+        {
+          "line": 77,
+          "text": "会话 idle 是暂停活动，不是结束。明确关闭会话时停止其 cgroup 中全部后代并核验回收，再解除绑定/标记局部运行约束终止；不能留下脱离策略的后台进程。恢复同一未关闭原生会话可复用仍有效的已批准配置，必须重新绑定；新 session_id 不继承旧会话局部规则。跨工作区迁移需要新目标和继承快照，不能静默移动绑定。"
+        },
+        {
+          "line": 78,
+          "text": ""
+        },
+        {
+          "line": 79,
+          "text": "ActPlane 的 scope_id 是整数权限元数据，源码中的大小比较不证明路径集合包含；实际文件范围仍由可信资源映射和编译规则约束。域祖先查询有有界深度（当前普通内核路径 8，legacy 1），不得承诺无限内核层级。有效配置超过可执行深度/规则容量时保守拒绝或由可信控制面完整展开并锁定后代约束；首版采用完整包方案，容量超限拒绝，不压掉规则。"
+        },
+        {
+          "line": 80,
+          "text": ""
+        },
+        {
+          "line": 81,
+          "text": "## 5. 接口、存储和兼容建议（待实现）"
+        },
+        {
+          "line": 82,
+          "text": ""
+        },
+        {
+          "line": 83,
+          "text": "| 接口族 | 保留/新增的合同 |"
+        },
+        {
+          "line": 84,
+          "text": "|---|---|"
+        },
+        {
+          "line": 85,
+          "text": "| 现有 system 与 instance DSL proposal/confirm | 保留现有明确作用域和幂等行为；不承接 workspace/session 候选；既有 Agent 规则不自动迁移或缩小 |"
+        },
+        {
+          "line": 86,
+          "text": "| history inputs/generations | 第一阶段已新增服务端冻结的生成目标：新 agent_context 默认为 session，场景 bind 为 workspace；已加载旧 Agent 文档保留历史范围，缺目标的旧候选禁止新导入；session_id 不能代替独立执行绑定 |"
+        },
+        {
+          "line": 87,
+          "text": "| 新增 workspace DSL 接口族 | 建议位于 `/api/agent-instances/{id}/workspaces/{wid}/dsl`，提供读取、提案、确认/拒绝；归属及独立绑定能力在提交/应用时都校验 |"
+        },
+        {
+          "line": 88,
+          "text": "| 新增 session DSL 接口族 | 建议位于 `/api/agent-instances/{id}/sessions/{sid}/dsl`，冻结 workspace 归属及会话生命周期，禁止共享执行器上静默扩大 |"
+        },
+        {
+          "line": 89,
+          "text": "| console approvals | 复用统一决策；投影精确目标、继承层、影响成员、执行能力和应用回执；新增字段兼容现有客户端，不修改旧审批的历史目标 |"
+        },
+        {
+          "line": 90,
+          "text": ""
+        },
+        {
+          "line": 91,
+          "text": "持久化需要工作区策略版本、会话局部版本、继承基线快照、候选/批准关联及多 ExecutionBinding。复用统一候选/审批与应用编排，不按四个页面建立四套审核器。迁移时现有 system/instance 文档保留原范围；缺失新 scope 元数据的旧记录按其原接口解释，禁止靠生成会话反推并改写历史授权。"
+        },
+        {
+          "line": 92,
+          "text": ""
+        },
+        {
+          "line": 93,
+          "text": "有效包摘要包括四层版本/内容、目标、实际源身份、能力清单、编译产物及绑定代次。parent 更新后，相关候选失效；当前后代由受控协调器重新核验/迁移，新会话先取得最新批准基线再启动。应用中断必须有可恢复的阶段回执，不能把跨进程操作描述为数据库原子事务。"
+        }
+      ],
+      "disposition": "normative_document_revised"
+    },
+    {
+      "id": "F06",
+      "priority": "P2",
+      "path": "RFC/RFC-20261011-AgentScope-policy-control-architecture.md",
+      "lines": [
+        169,
+        173
+      ],
+      "finding": "separate platform term drifts from system_builtin four-scope classification; inheritance is not unrestricted text addition",
+      "before_sha256": "f43ceac8fce44d844ac063833404a7191c2dd00caa5c7b0b790859d89211a8d7",
+      "before_excerpt": [
+        {
+          "line": 169,
+          "text": "EffectivePolicy = 平台不可移除约束 + 系统共同策略 + Agent 专属策略"
+        },
+        {
+          "line": 170,
+          "text": "                  + 已确认工作区策略 + 已确认会话/任务局部增量"
+        },
+        {
+          "line": 171,
+          "text": "```"
+        },
+        {
+          "line": 172,
+          "text": ""
+        },
+        {
+          "line": 173,
+          "text": "局部配置不能移除继承约束。受限环境下缺少能力的条款必须保留为未支持需求或语义指导，不能偷偷降级为“已阻止”。本地层自身规则的合法修改或扩大既有权限，必须由具备相应权限的人确认，并通过完整包与执行域迁移完成。ActPlane 的域继承与 authority/declassification 语义不能被简化为任意文本规则相加。"
+        }
+      ],
+      "disposition": "normative_document_revised"
+    },
+    {
+      "id": "F07",
+      "priority": "P2",
+      "path": "RFC/RFC-20261012-AgentScope-four-layer-policy.md",
+      "lines": [
+        97,
+        101
+      ],
+      "finding": "visualization needs desired per-session constraints and loaded shared policy views with coverage distinction",
+      "before_sha256": "99802cd6cebf363de478a4b58ac1b3276a2340ce8f9f506410d7a6d3677ca4e7",
+      "before_excerpt": [
+        {
+          "line": 97,
+          "text": "沿用 [界面约定](../design/agentscope-ui-design.md)，不增加四层编号徽章或四套导航。系统入口管理系统策略；Agent 助手先选择“Agent 基线/工作区”并按需选原生目标和材料；会话页管理当前运行时候选与继承详情。列表使用记录表、详情按需展开，统一跳转审批中心。"
+        },
+        {
+          "line": 98,
+          "text": ""
+        },
+        {
+          "line": 99,
+          "text": "场景建议默认提交工作区；运行时建议默认提交会话。界面在起草、提交和确认处显示同一实际范围，不只在说明小字中提示扩大影响。审批详情展示继承配置与本次局部变更；无法局部应用时说明需要独立受控执行，不展示可应用按钮。工作区只显示可信原生名称和实际项目路径，无可信信息则不伪造名称。此处允许目标选择，未恢复旧工作区目录/详情导航。"
+        },
+        {
+          "line": 100,
+          "text": ""
+        },
+        {
+          "line": 101,
+          "text": "E1–E13、RQ 编号、内部模型诊断留在研究附件，不进入客户模板标题。系统调用匹配与工具 Trace 分开；无可信关联的内核事件只可表示执行域证据，不补造会话/工具归因。"
+        }
+      ],
+      "disposition": "normative_document_revised"
+    },
+    {
+      "id": "F08",
+      "priority": "P2",
+      "path": "RFC/RFC-20261014-AgentScope-hot-policy-lifecycle-proposal.md",
+      "lines": [
+        9,
+        11,
+        102
+      ],
+      "finding": "hot policy proposal already limits shared sessions; cross-reference scope gate and treat availability closure explicitly",
+      "before_sha256": "c0e3646fac46d1f4b5a2f8014103973ea708c8769d2a4d158c4230ad998f6a46",
+      "before_excerpt": [
+        {
+          "line": 9,
+          "text": "推荐采用“**稳定执行域 + 版本化生效策略快照 + 可信管理员提交**”。Agent 的主 PID、进程开始身份、generation、domain、原生会话和已建立合法上下文保持；策略更新另用 policy_epoch 计数。用户可以按文档逐步增加、修改、停用、恢复和删除，内部编译完整下一版本，然后切换生效快照。每次应用仍由用户确认，批准只保存决定。"
+        },
+        {
+          "line": 10,
+          "text": ""
+        },
+        {
+          "line": 11,
+          "text": "第一版允许应用切换时短暂停顿目标进程树，随后原进程继续执行；不承诺完全无停顿，不用停止/启动执行器冒充热更新。暂停时长必须实测并显示，超出窗口就中止或保持明确暂停，不悄悄重启。新工具门禁不能代替对子进程和后台执行的约束。"
+        },
+        {
+          "line": 12,
+          "text": ""
+        },
+        {
+          "line": 13,
+          "text": "本方案第一版处理现有平台支持的 ActPlane DSL 文档及其结构化配置，不同时改普通业务授权、挂载权限、seccomp 或其他进程启动合同。此类变更不支持热更新时明确拒绝该模式，不自动落回重启应用。"
+        },
+        {
+          "line": 14,
+          "text": ""
+        },
+        {
+          "line": 15,
+          "text": "## 2. 源码研究结论"
+        },
+        {
+          "line": 16,
+          "text": ""
+        },
+        {
+          "line": 17,
+          "text": "研究基线为 AgentScope `1197a7dde986a42d8756aa75304cb1a2566dfe07`，其中 vendored ActPlane tree 为 `3b3e40e3eb4b1c927496aa73759407757a494fb3`。正式使用 `/var/lib/agentscope-scope-demo/bin/actplane`，SHA256 `5e8d43c279d88bd4215f654746675debfd976e28426c9fabdabeca408865d6da`，与本工作树 target/release 二进制及 2026-10-11 验收发布二进制一致。"
+        },
+        {
+          "line": 18,
+          "text": ""
+        },
+        {
+          "line": 19,
+          "text": "`/opt/agentscope/actplane` 的部分源码与本工作树不同，默认 `/opt/agentscope/bin/actplane` 哈希也不同，不能拿默认路径代表正式运行版本。现有记录未提供可重复构建证明；二进制相同不等于已经独立重建证明源码对应。后续隔离构建须补齐源树、工具链、BPF 对象、二进制和内核特征索引。[研究索引](../evidence/hot-policy-plan-20261014/research.json)。"
+        },
+        {
+          "line": 20,
+          "text": ""
+        },
+        {
+          "line": 21,
+          "text": "| 已查事实 | 源码位置 | 对方案的影响 |"
+        },
+        {
+          "line": 22,
+          "text": "| --- | --- | --- |"
+        },
+        {
+          "line": 23,
+          "text": "| CLI 已有 `control delta add`，没有对等通用 delete/replace 子命令 | `actplane/crates/actplane-cli/src/main.rs:269-273,360-388` | 可以复用追加机制做隔离原型，不能宣称增删接口已经齐备 |"
+        },
+        {
+          "line": 24,
+          "text": "| 运行时沿用目标域已有 label 编译，并追加规则及审计元数据 | `actplane/crates/actplane-runtime/src/runtime.rs:541-615,740-779` | 保留稳定标签与来源映射；不重新给旧标签编号 |"
+        },
+        {
+          "line": 25,
+          "text": "| BPF 经能力检查追加 update/rule，各条分别增加可见 counts；用户态有失败回滚 | `actplane/bpf/src/lib.rs:2882-3014`；`actplane/bpf/capability.bpf.h:368-427` | 用户态锁/回滚不是整份策略对并发 syscall 原子发布的证明 |"
+        },
+        {
+          "line": 26,
+          "text": "| 当前 rule 生效绑定使用 cap_policy 位图，但 source/transform/gate update 另行扫描 | `capability.bpf.h:231-261`；`taint_engine.bpf.h:1377-1414,2149-2181` | 只清除 rule 位图不能完整停用一个含来源与状态变换的文档 |"
+        },
+        {
+          "line": 27,
+          "text": "| 标签 64 位、rule 128、update 320，append 会检查剩余容量 | `actplane/bpf/taint.h:65-75`；`bpf/src/lib.rs:2927-2942` | 不可无限追加历史版本，必须设计容量与安全回收 |"
+        },
+        {
+          "line": 28,
+          "text": "| 时序状态按 session/domain，进程与文件标签也有域键 | `taint_engine.bpf.h:251-326,432-483` | 换域/清状态不是无损热更新；停用不能等于清空历史标签 |"
+        },
+        {
+          "line": 29,
+          "text": "| 新 source 由后续事件更新标签，没有自动重放已经发生的 exec/read | `taint_engine.bpf.h:1377-1414` | 新文档 AGENT 别名必须映射稳定身份；过去事件无法凭空补齐 |"
+        },
+        {
+          "line": 30,
+          "text": "| file_permission 对后续 FD 读写有核验路径；mmap/mprotect 钩子检查建立/改权限时机 | `actplane/bpf/process.bpf.c:2756-2806` | FD 和已有 mmap 必须分开验收，不能推导既有写映射可撤销 |"
+        },
+        {
+          "line": 31,
+          "text": "| 网络阻断有 socket_connect，当前未找到 socket_sendmsg 的对应阻断路径 | `process.bpf.c:2853-2871`；`bpf/src/lib.rs:1181-1192` | 新连接限制不能冒充已建立连接禁止发送 |"
+        },
+        {
+          "line": 32,
+          "text": "| AgentScope 现应用走 stop/start，Broker 保护指纹锁定 watch/anchor/pins/cgroup/策略文件 | `instances/dsl_policy.py:159-210`；`broker/instance_runtime.py:47-76` | 必须新增热应用合同和合法 policy_epoch 变更核验，不能套旧 apply |"
+        },
+        {
+          "line": 33,
+          "text": "| Broker 退出会 shutdown 全部实例；恢复入口按旧 manifest 回收旧执行域 | `broker/main.py:965-976`；`instance_runtime.py:89-118` | 首次升级/接管是独立难点，不能通过重启 Broker 部署来实现“Agent 不重启” |"
+        },
+        {
+          "line": 34,
+          "text": ""
+        },
+        {
+          "line": 35,
+          "text": "上述为本地固定源码的结论；官方 [安全模型](https://github.com/eunomia-bpf/ActPlane/blob/master/docs/security_model.md) 与 [runtime 实现](https://github.com/eunomia-bpf/ActPlane/blob/master/crates/actplane-runtime/src/runtime.rs) 可交叉核对，但其 master 会变，不代替本地固定源树。子域不能撤销父域约束这一安全边界必须保留。"
+        },
+        {
+          "line": 36,
+          "text": ""
+        },
+        {
+          "line": 37,
+          "text": "## 3. 交互和权限合同"
+        },
+        {
+          "line": 38,
+          "text": ""
+        },
+        {
+          "line": 39,
+          "text": "| 用户操作 | 控制面动作 | 内核动作 |"
+        },
+        {
+          "line": 40,
+          "text": "| --- | --- | --- |"
+        },
+        {
+          "line": 41,
+          "text": "| 新增/修改 | 保存版本、生成差异候选，保留其余已生效文档 | 应用确认后激活包含新增/修改文档的新快照 |"
+        },
+        {
+          "line": 42,
+          "text": "| 停用 | 候选把目标文档标为 inactive，其他层与文档保留 | 新快照同时排除该文档的 enforcement rules 及来源/变换/gate updates |"
+        },
+        {
+          "line": 43,
+          "text": "| 恢复 | 新候选重新引用明确版本，并重新评估停用期间的状态缺口 | 通过状态/能力检查后激活；不假定缺失期间的历史完整 |"
+        },
+        {
+          "line": 44,
+          "text": "| 删除 | 未生效配置可归档；已生效配置先生成停用/删除候选 | 应用后退出活动集合；旧快照、审批和审计仍保留，之后才回收无引用运行槽 |"
+        },
+        {
+          "line": 45,
+          "text": ""
+        },
+        {
+          "line": 46,
+          "text": "界面始终为“生成候选 → 批准变更 → 单独确认应用”。确认页列出中文策略名、增删差异、运行/停止实例数、预计暂停方式、实际覆盖和不支持原因。审批含现行 base_epoch、目标进程身份、策略快照哈希、编译器/内核能力、状态迁移说明；任何漂移要求重新校验。保存、勾选和批准均不切换内核策略。"
+        },
+        {
+          "line": 47,
+          "text": ""
+        },
+        {
+          "line": 48,
+          "text": "平台不可移除底线单独保存。系统策略由系统策略管理员操作，Agent 本层只能改自己的文档；停用本层不能解除系统/平台约束。必须为可信管理入口增加“替换自己拥有的策略版本”权限检查，Agent 提议者继续只能提议。不能给 Agent 通用删规则、清标签、写 BPF map 或改父域的权力；approved_by 文本本身不构成授权。"
+        },
+        {
+          "line": 49,
+          "text": ""
+        },
+        {
+          "line": 50,
+          "text": "## 4. 引擎建议实现"
+        },
+        {
+          "line": 51,
+          "text": ""
+        },
+        {
+          "line": 52,
+          "text": "### 4.1 发布单位是不可变快照"
+        },
+        {
+          "line": 53,
+          "text": ""
+        },
+        {
+          "line": 54,
+          "text": "为当前执行域增加独立的 `policy_epoch` 与活动快照引用。新快照包含各层文档版本、编译 rules/updates、稳定标签/gate 映射、能力与所有者元数据；平台底线保持独立不可停用。控制器先 stage 新快照，当前执行仍使用旧快照；通过授权检查后 commit 切换活动引用。"
+        },
+        {
+          "line": 55,
+          "text": ""
+        },
+        {
+          "line": 56,
+          "text": "建议接口：`stage_policy_snapshot`、`commit_policy_snapshot(expected_epoch, approval_ref, request_key)`、`policy_status`、`retire_policy_snapshot`。这是新增接口设计，不是已经存在的 ActPlane 命令。普通 append 路径继续保留其子域收紧边界。"
+        },
+        {
+          "line": 57,
+          "text": ""
+        },
+        {
+          "line": 58,
+          "text": "内核一次事件读取并携带同一个快照标识，source/update/rule 判断不得各自重新读取活动版本。跨 tracepoint 与 LSM 的一个操作也要明确记录所属 epoch；不能只换 rules 而让 updates 仍用旧版。系统批次的不同实例各有 watch/执行域，单个域的提交不能称为全系统原子提交。"
+        },
+        {
+          "line": 59,
+          "text": ""
+        },
+        {
+          "line": 60,
+          "text": "实现首选“不可变策略存储 + 单一活动描述符”；存储可采用 map-in-map 或带版本键的规则 bank，先通过 Linux 6.6 verifier/性能原型选择。Linux [map-in-map 文档](https://docs.kernel.org/bpf/map_of_maps.html) 支持快照存储的组成方式，但不提供整组多 map 的事务保证，不能把一次 map update 直接当作完整应用证明。"
+        },
+        {
+          "line": 61,
+          "text": ""
+        },
+        {
+          "line": 62,
+          "text": "旧快照须等内核读者不再引用且审计元数据持久化后回收；回收协议未验证前不重用槽位。不重用仍被进程/文件标签引用的 label 位，不把旧标签位重新解释成新含义。容量不够时提前拒绝，当前保护继续，不先清表再重新装载。"
+        },
+        {
+          "line": 63,
+          "text": ""
+        },
+        {
+          "line": 64,
+          "text": "### 4.2 状态保留与迁移"
+        },
+        {
+          "line": 65,
+          "text": ""
+        },
+        {
+          "line": 66,
+          "text": "- 未变化的来源定义、标签、gates、invalidators 保持身份，已有进程/文件污染事实保留，不用 clear_runtime_state 来更新策略。"
+        },
+        {
+          "line": 67,
+          "text": "- 系统和 Agent 文档中的标准 AGENT 映射稳定、可核验的当前原生主体与后代身份。仅“为每个新文档定义一个新的 exec 标签”可能漏掉已运行主体；迁移只能依据真实绑定/已记录来源，不能伪造 exec 或给不满足来源条件的所有进程加标签。"
+        },
+        {
+          "line": 68,
+          "text": "- 新 source 从激活后的事件开始收集；新规则依赖此前未知的读文件/网络来源历史时，预览必须标明生效起点。要求覆盖未知过去的严格策略拒绝本次无重启应用，不能把标签缺失当作未读过秘密。"
+        },
+        {
+          "line": 69,
+          "text": "- 原测试成功 gate 只有在命令定义、exit 条件和新鲜度要求相同且证据完整时延续；定义改变必须失效。执行过测试不等于测试通过。"
+        },
+        {
+          "line": 70,
+          "text": "- 停用不清洗已存在的秘密标签或抹去审计。恢复遇到采集间隙需要重新判定，不能自动当成干净上下文。"
+        },
+        {
+          "line": 71,
+          "text": ""
+        },
+        {
+          "line": 72,
+          "text": "### 4.3 完整应用事务"
+        },
+        {
+          "line": 73,
+          "text": ""
+        },
+        {
+          "line": 74,
+          "text": "1. 用户批准后的显式应用请求，带候选/批准哈希及冻结目标；Broker 持久化已授权应用意图和幂等键。"
+        },
+        {
+          "line": 75,
+          "text": "2. 在旁路准备新快照，检查继承、容量、hook/profile、句柄及状态迁移。不改生效引用。行为验证在专用隔离验证域进行，不读取真实凭据、不对正式资源运行攻击探针。"
+        },
+        {
+          "line": 76,
+          "text": "3. 关闭目标的新工具门禁，等待既有任务达到安全边界；超时默认中止，继续旧策略，不杀任务冒充成功。后台执行仍在旧策略下，直到正式切换。"
+        },
+        {
+          "line": 77,
+          "text": "4. 第一版短暂冻结目标 cgroup 及后代，确认 `cgroup.events:frozen=1`、成员身份与不可迁移约束；同时设置受保护的内核更新屏障。仅工具门禁不足，freezer 也不能被当成所有异步 I/O 已完成的证明。[Linux freezer 合同](https://docs.kernel.org/admin-guide/cgroup-v2.html#core-interface-files)。"
+        },
+        {
+          "line": 78,
+          "text": "5. 对每个实际执行域提交新 epoch，内核检查可信调用者、文档所有者、不可移除底线和 expected_epoch。批次保持暂停，直到所有目标成功；未运行实例只更新下一次启动配置，不自动启动。"
+        },
+        {
+          "line": 79,
+          "text": "6. 读回内核 epoch/快照哈希/作用域及当前绑定，持久化真实应用回执，再更新控制面投影；恢复原进程，不重发已执行工具请求。暂停长度记录 P50/P95/最大值；首版暂定切换冻结窗口上限 5 秒，须经隔离性能与 8 秒保护期限回归后确定，不能直接宣称已达到。"
+        },
+        {
+          "line": 80,
+          "text": "7. 若提交后状态不明或只有部分目标提交，全部目标保持明确暂停并报告已知 epoch；没有新的人工确认，不自动恢复较宽的旧权限、不自动重启。提交前失败且旧状态核验完整时，可以中止新快照并继续旧策略。"
+        },
+        {
+          "line": 81,
+          "text": ""
+        },
+        {
+          "line": 82,
+          "text": "内核读回是生产每次提交的加载证明；隔离 allow/block 实验是行为证据，两者分别展示。不能为了显示成功而在正式 Agent 上自动跑破坏性探针。"
+        },
+        {
+          "line": 83,
+          "text": ""
+        },
+        {
+          "line": 84,
+          "text": "### 4.4 Broker、审计和保活必须同步"
+        },
+        {
+          "line": 85,
+          "text": ""
+        },
+        {
+          "line": 86,
+          "text": "现保护指纹把任意 pin/watch 文件变化看作故障。热更新需要一个有期限、可核验的策略事务：保活仍持续核对 Agent/watch/cgroup/平台底线，新 epoch 只能来自已批准意图，不能通过暂时关闭保护检查来躲过 watchdog。新策略对象在旁路 stage，不先混进受监控 pins；提交后绑定明确的策略对象清单与快照哈希。"
+        },
+        {
+          "line": 87,
+          "text": ""
+        },
+        {
+          "line": 88,
+          "text": "`generation` 表示进程代次，`policy_epoch` 表示同一代次内的策略版本。加载回执改为至少按 `(instance_id, generation, policy_epoch)` 保存，不能覆盖本代次旧回执。内核事件、工具开始/结果、反馈及监控记录都带 epoch、规则来源与版本；删除后的事件仍能正确还原当时的中文策略名和规则正文。不同版本不因 rule_id 槽位复用而混淆。"
+        },
+        {
+          "line": 89,
+          "text": ""
+        },
+        {
+          "line": 90,
+          "text": "API 短暂离线时，Broker 继续维持已批准且可核验的活动 epoch；新审批等待恢复。恢复后只按已持久化批准意图与当前内核事实协调投影，旧数据库快照/旧 PID 不恢复权限。重复请求只读回同一真实结果，不再次执行工具或切换。"
+        },
+        {
+          "line": 91,
+          "text": ""
+        },
+        {
+          "line": 92,
+          "text": "## 5. 无重启覆盖范围"
+        },
+        {
+          "line": 93,
+          "text": ""
+        },
+        {
+          "line": 94,
+          "text": "| 场景 | 首版目标与限制 |"
+        },
+        {
+          "line": 95,
+          "text": "| --- | --- |"
+        },
+        {
+          "line": 96,
+          "text": "| 已运行 Node/Python 与后台后代，新增文件访问限制 | 对当前主体与已存在后代立即覆盖未来受支持的事件，不能等再次 exec 才生效；必须以真实读取/写入和内核事件验收 |"
+        },
+        {
+          "line": 97,
+          "text": "| 已打开 FD 的后续 read/write/truncate | 使用现有 file_permission 等路径，分别验证写入结果、文件内容及事件，含 dup/继承/跨路径变体；未通过则该类变更不可热应用 |"
+        },
+        {
+          "line": 98,
+          "text": "| 已建立可写 mmap 的后续内存写 | 当前钩子不能可靠撤销已有可写 PTE。首版明确拒绝需要收回此类访问的严格变更；不静默杀子进程或重启 Agent。未来需单独设计映射撤销机制或经用户另行同意回收工具执行域 |"
+        },
+        {
+          "line": 99,
+          "text": "| 网络限制 | 当前支持的是新 connect 等已实现钩子；要求停止已有连接 send 的变更，须新增 socket_sendmsg 等覆盖并验收后才支持，不能只改白名单 |"
+        },
+        {
+          "line": 100,
+          "text": "| 新增秘密来源/跨事件规则 | 保留已知事实；未知过去不能重建。用户明确知晓从哪个时间点生效；严格全历史要求不支持时拒绝，而非伪造完整保护 |"
+        },
+        {
+          "line": 101,
+          "text": "| 单个 Agent 与系统策略 | 单 Agent 只影响本实例；系统批次对全部冻结目标统一协调；子域不能借停用本层解除父域约束 |"
+        },
+        {
+          "line": 102,
+          "text": "| 原生共享会话 | 第一版仍以实际受控执行域为范围，不能用共享 PID 声称实现单会话独立策略 |"
+        }
+      ],
+      "disposition": "cross_reference_strengthened_not_inherent_defect"
+    },
+    {
+      "id": "K01",
+      "priority": "retain",
+      "path": "RFC/RFC-20261012-AgentScope-four-layer-policy.md",
+      "lines": [
+        69,
+        71,
+        79
+      ],
+      "finding": "four config levels not four physical domains; tool tag not isolation; scope integer not path containment are already correct",
+      "before_sha256": "99802cd6cebf363de478a4b58ac1b3276a2340ce8f9f506410d7a6d3677ca4e7",
+      "before_excerpt": [
+        {
+          "line": 69,
+          "text": "四层配置先组合成每会话完整有效包，并在此执行域中保留上层锁定约束。配置四层不强制对应四个活进程或四个内核域；ActPlane 的真实 parent/domain 拓扑另行记录。工作区层与同工作区各会话使用共同配置基线，但会话局部约束不回写共同基线。首版仍由 Broker 在批准后排空旧 worker、完整编译/重建、核验后恢复同一个原生会话，暂不直接开放上游可变 MCP/control 接口给策略 Agent。"
+        },
+        {
+          "line": 70,
+          "text": ""
+        },
+        {
+          "line": 71,
+          "text": "共享原生执行器仅可继续承载已明确的实例范围策略或提供局部建议。无法分别绑定工作区/会话时，局部提交返回能力不足，禁止自动转为 Agent 策略。可信 tool_call_tag 只能改善归因，不能让同一个 PID 同时处于两个会话域，也不能约束共享主进程中的全部读写。"
+        },
+        {
+          "line": 72,
+          "text": ""
+        },
+        {
+          "line": 73,
+          "text": "内核继承沿真实 fork/exec 关系传播；子 Agent 可以获分配更窄的子域。跨 cwd 执行不改变所属会话。调用共享守护进程、代理服务或其他执行器不能假定仍在后代进程链中；未建立可信代理合同的路径不得声称有会话隔离覆盖。"
+        },
+        {
+          "line": 74,
+          "text": ""
+        },
+        {
+          "line": 75,
+          "text": "批准应用前关闭相关执行门并排空/终止旧域中的在途工作；新包加载/绑定失败保持相关 worker 暂停，不影响其他会话。不能在共享主执行器上切换临时全局策略模拟并发会话隔离。恢复已批准配置时重新核验原生身份、上层基线、文件/能力摘要与新代次；变化则重新校验，不沿用失效批准。"
+        },
+        {
+          "line": 76,
+          "text": ""
+        },
+        {
+          "line": 77,
+          "text": "会话 idle 是暂停活动，不是结束。明确关闭会话时停止其 cgroup 中全部后代并核验回收，再解除绑定/标记局部运行约束终止；不能留下脱离策略的后台进程。恢复同一未关闭原生会话可复用仍有效的已批准配置，必须重新绑定；新 session_id 不继承旧会话局部规则。跨工作区迁移需要新目标和继承快照，不能静默移动绑定。"
+        },
+        {
+          "line": 78,
+          "text": ""
+        },
+        {
+          "line": 79,
+          "text": "ActPlane 的 scope_id 是整数权限元数据，源码中的大小比较不证明路径集合包含；实际文件范围仍由可信资源映射和编译规则约束。域祖先查询有有界深度（当前普通内核路径 8，legacy 1），不得承诺无限内核层级。有效配置超过可执行深度/规则容量时保守拒绝或由可信控制面完整展开并锁定后代约束；首版采用完整包方案，容量超限拒绝，不压掉规则。"
+        }
+      ],
+      "disposition": "retained_correct_boundary"
+    },
+    {
+      "id": "K02",
+      "priority": "retain",
+      "path": "RFC/RFC-20261012-AgentScope-four-layer-policy.md",
+      "lines": [
+        59,
+        63
+      ],
+      "finding": "proposal-only Agent, separate approval/apply facts, inherited locked constraints remain valid",
+      "before_sha256": "99802cd6cebf363de478a4b58ac1b3276a2340ce8f9f506410d7a6d3677ca4e7",
+      "before_excerpt": [
+        {
+          "line": 59,
+          "text": "生成 Agent 不持有 Broker、策略确认或审计改写能力。外部材料始终是证据；文档内“忽略系统限制”“批准此规则”等内容不获得控制权。保留当前源动作抽取、独立复核、确定性权限映射与 DSL 校验；不增加只读、文件名或案例专用提示词。材料、否定、例外、目标和环境变更应使候选失效，而不是用旧 IR 自动修补。"
+        },
+        {
+          "line": 60,
+          "text": ""
+        },
+        {
+          "line": 61,
+          "text": "所有变更，包括收紧、扩权、移除本层规则和推广范围，均需人工确认。保存、编译、提交、批准、加载、当前绑定核验、内核命中、实际阻止与反馈送达分别记录。待审批/拒绝/失败不改变现有授权；审批绑定候选摘要、上层基线、目标集合与上下文摘要。应用前再次核对，重复请求幂等返回原结果。"
+        },
+        {
+          "line": 62,
+          "text": ""
+        },
+        {
+          "line": 63,
+          "text": "上层已应用的强制安全规则在后代中作为 locked 约束保留；局部 preserve/permit 只表示不增加本候选限制，不能放宽继承规则。策略所有者可以经新的审批版本修改自己层的规则，再重新应用受影响后代。可选模板/目录默认值是未选资产，不能与 ActPlane YAML 的可禁用 default binding 混为一谈。"
+        }
+      ],
+      "disposition": "retained_correct_boundary"
+    }
+  ],
+  "revised_and_reviewed_documents": {
+    "RFC/RFC-20261011-AgentScope-policy-control-architecture.md": "33ce6637380cc43c08a4dd28a4edc89b132e67da966cae5559f5183eaa58f288",
+    "RFC/RFC-20261012-AgentScope-four-layer-policy.md": "49c0f968df060c1b313cef6da7f311d2e26fc0d125287a8f19fe819dcc95c333",
+    "ADR/ADR-20261012-AgentScope-four-layer-policy.md": "661d04c97e56b8ee134275c286e334350b6042cd1f68f28e163a490a58e97af6",
+    "RFC/RFC-20261014-AgentScope-session-security-workbench.md": "4aa1a1ee6a54fb46f4de45a0a66e43a65d163535e90b8a913067f5136c0b9fe7",
+    "ADR/ADR-20261014-AgentScope-session-security-entry.md": "eb595ea62aa5fcabc61011ddf7d5b043d6c45e41850e6d3ac5585d537bccdd9d",
+    "RFC/RFC-20261014-AgentScope-hot-policy-lifecycle-proposal.md": "a9d814b40b14e2fac8bdd3d3bf70e6a8b555276ac479689c74740785b1d7f02d",
+    "RFC/RFC-20261014-AgentScope-agent-launch-adapter-research.md": "7d6bb80a49326f511464656fb0eb5e36845035ad5e814c0844bcc945e7d9f84d",
+    "ADR/ADR-20261014-AgentScope-agent-launch-adapter-research.md": "1dc5db9e15456ed8d4f59f13b0d5d36c32c4cc69859adcd65a1ea82837d276c1",
+    "REVIEW/REVIEW-20261014-AgentScope-agent-launch-adapter-research.md": "00621c984a40b09a080ddd4822b64f49985fcfcb27d9032108e860f12665d129",
+    "BUG/BUG-20261014-AgentScope-agent-launch-adapter-research.md": "b6988a22d5ee76d75c056b04d69e527e918aca7338e7e3aab3e819e6c1375d97",
+    "AgentScope-四层策略架构与ActPlane调研-20261012.md": "1e619ed9fdadd2da4a80f1cef5e4bcfba10ab497247aa8ec166903595d714961",
+    "RFC/RFC-20261014-AgentScope-execution-binding-rederivation.md": "642ac243bba1ca0bd8c77490f6f5364b4f8b2c8a796c1dbe7029d3fbcd16e5fd",
+    "ADR/ADR-20261014-AgentScope-execution-binding-rederivation.md": "665139afe1cc6247c86d017eb9a27f1a0088ebb4c0181b088a1adf033e61f175",
+    "REVIEW/REVIEW-20261014-AgentScope-rfc-execution-binding-audit.md": "c1d686ace7fab07ccfdbb6c364dc324fd50ea71712c825efd816227c2dd7c904",
+    "BUG/BUG-20261014-AgentScope-rfc-execution-assumptions.md": "57b0c033d0da37a0aaea1d73b79b1d733e60acb5fc2f45f6cb75664f3cea1bc5"
+  },
+  "historical_dependency_imports": {
+    "RFC/RFC-20261013-AgentScope-agent-policy-flow.md": "4296737593eb1e55f714ee27ea30b31aeec737c4f63eb8764a975eb91a60eec3",
+    "BUG/BUG-20261014-AgentScope-session-security-ui-gap.md": "4b49ce58d39f32d2d66cdff35171da4883594a6165d5f11834aa2f34a7d16935",
+    "REVIEW/REVIEW-20261014-AgentScope-session-security-delivery.md": "8765eded0c09084fd610f1700ea939f933d2ae436df9356c8cb09e4c63c5cc0c",
+    "REVIEW/REVIEW-20261014-AgentScope-manual-session-reset-and-lab.md": "772f46515016d71a11030a716b2b7c6da66a5df571c7b40fbaa3f79f7203aaef",
+    "evidence/hot-policy-plan-20261014/research.json": "6dddf4681b700b1aa2721a6dc7108ecd2f868b1f4ced0fce5038c2a0b07c672c",
+    "REVIEW/REVIEW-20261014-AgentScope-policy-activation-audit.md": "b2e2cabe5b68f097fcbba949c48f0a4b9df3993735e663c25d61cc85adce5238",
+    "RFC/RFC-20261014-AgentScope-approval-revalidation.md": "f4d40b1ce003da8e3f0bbbbad20b978c886f28d90e17cea93d0bdfbce03171d6",
+    "BUG/BUG-20261014-AgentScope-policy-reload-continuity-copy.md": "197818495642d66959887f059d4c9f9ec9522c2653c61774aeec90056a445779",
+    "REVIEW/evidence/agent-launch-adapter-research-20261014/research-evidence.json": "dfaa7f9b55d5616393e5f57167ae58bc98ebd1587f93686b0d89a68a946ac6ec",
+    "REVIEW/evidence/agent-launch-adapter-research-20261014/dsh-launcher-help.txt": "71d85d19fa0d358d1a94a063a1658b1e294283a75af1e8b3f89adc83395ecf4e",
+    "REVIEW/evidence/session-security-20261014/deployment.json": "d5bdbcbe82d0d7a8b9a6dd5ff1311004731bd21f9c9ec230fe64701b126ee15f",
+    "REVIEW/evidence/session-security-20261014/directory-collapse-deployment.json": "4b7f4f7b8b816d80d153e17b4ac3f6d6139add8f207b29f4fea6aa20a9e7f611",
+    "REVIEW/REVIEW-20261014-AgentScope-session-domain-count.md": "6e1efbf4aaa102092182da06f2241323ba30e6a32ea7253125bb037204791d3b",
+    "REVIEW/evidence/session-security-20261014/manual-reset-acceptance.json": "bb724f8a8746a3a5bd8975db17dfd3e8c5cd262e1d849150cd299c8a4fed1e98",
+    "REVIEW/evidence/session-security-20261014/manual-lab-guide.jpg": "7e5cb2f8813ff53c1fe89c584b62e286bf1765a6e0de9fe89f540a53be7e574f",
+    "REVIEW/evidence/session-security-20261014/lab-desktop-input-cleanup.json": "50699fb0bbdd2e7629ff031869c0024ba443badf4e79524f878c291ceda3ea92",
+    "REVIEW/evidence/session-security-20261014/lab-wsl-input-cleanup.json": "9119a34299478382afb0798e754e56d5d82a88f6865d3cb7c7095619a09d4e0c",
+    "evidence/policy-activation-audit-20261014/status.json": "d139b0afe728b71ffcd91078d3d8748884cdd5f9f86e091e345e0d357e33af90",
+    "REVIEW/REVIEW-20261014-AgentScope-approval-revalidation.md": "c8648fa8eea4d88ebc802af04ee916bac0fa52310e0e7a2037846f9eda3f49f2",
+    "REVIEW/REVIEW-20261014-AgentScope-policy-controls-and-session-names.md": "62371c747f17ed4b8074dd18ea074af2d01098617d17038bd8a68c93441a1ce5",
+    "RFC/RFC-20261014-AgentScope-policy-controls-and-session-names.md": "01b9bac8bdd4805e2f5d7f4f474a1aa2674c8f60d2d969e2697dd6b8b721d75c",
+    "ADR/ADR-20261014-AgentScope-approval-revalidation.md": "87c27fd00ff5d991a55f9b72f7cf7735fbe3ceedb61e3015aa764809d7900b22",
+    "REVIEW/evidence/session-security-20261014/domain-count-reproduction.json": "dd71d9b7812264cdecb940d0eb3ffd35aef208c191ae01e303be0afd98fa5d33",
+    "REVIEW/evidence/session-security-20261014/domain-count-deployment.json": "4617862939e278048dbe05875348ca47350fee5a81e403f34ea259539ab9180f",
+    "evidence/approval-recovery-20261014/acceptance.json": "a250511756cef76aab02b984b54b3485b00ceb1ae878b1ba81a6a3e82800b38a",
+    "evidence/approval-recovery-20261014/frontend-tests.txt": "cce21ff2c81146d60f357cf3e217e90148cf8646808ed1f4b578ce24d968d2c4",
+    "evidence/approval-recovery-20261014/backend-tests.txt": "ad6a48a2137ec0a1c25d41a96ec3fc6814d01280602dad7791890fcd7d40bf34",
+    "evidence/approval-recovery-20261014/frontend-build.txt": "ccd910715df96e7b68d0a5d980e2ba20b6e8ef318e387ca9a595d704af879cb2",
+    "evidence/approval-recovery-20261014/stale-18003.png": "0739baac6e56bd302c1ea293a5c95ae79307f8c3992c4a9152fb493b8a029654",
+    "evidence/approval-recovery-20261014/preview-18003.png": "05a80ba6b823ec91140309e4d4230c6c1d222891603c02454705ae9665099fd3",
+    "evidence/approval-recovery-20261014/pending-18003.png": "643560b81bf723581c953f3bbff00f69b335080fcc712d53004aed511e9b3588",
+    "evidence/approval-recovery-20261014/approved-isolated.png": "bc42970a4e5331e5398f3cc0bd96e031c89091af96f41164984f4da0d9fdb70f",
+    "evidence/approval-recovery-20261014/applied-isolated.png": "f6768d43df4ef9d06df8df23d639164aaeead12f7a876e8782b85af925eb5fc4",
+    "evidence/approval-recovery-20261014/revalidation-mobile.png": "220c84540b6f08aaf362f61ed42a0cb2dcb9c01be669ce05f92d6e1d160e6656",
+    "evidence/policy-controls-20261014/acceptance.json": "01504c16fd76644306cf09e9ce71079b7ed3a2cc1eec5924773570f35da37a50",
+    "evidence/policy-controls-20261014/frontend-tests.txt": "4adc76a7cfe861f572d7b0cfb6eef4aa2fd005e8a6f1ec223cb890ece1a9b299",
+    "evidence/policy-controls-20261014/backend-tests.txt": "f931d24a89cac0c500b30ab367352a410cf69247688e08f33e19b360d8a1fda9",
+    "evidence/policy-controls-20261014/frontend-build.txt": "dab1e3e8e5c10e2c823cc7902bbe2af45dfe84899c5c67e97bfe143acff2f2e6",
+    "evidence/policy-controls-20261014/approvals-18003-compact.png": "c4c3300ff59bffd4718a7aacf2aad5b975dcd1fb999a3f2f17e83d89be28ec4a",
+    "evidence/policy-controls-20261014/sessions-18003.png": "5e48842a565a7c8a9c729b098c33063d96d56b934d2d57717c3ae9d63e725974",
+    "evidence/policy-controls-20261014/stop-confirmation-18003.png": "84ee2726c53ae07ed9bd0c2752bdca1fcca5cc2e8a976ae902f80b4ea18a0468",
+    "evidence/policy-controls-20261014/isolated-approved.png": "7c126b77815f2c03234933fb7e081c80ba8199d09dabda4691ae06edb6ba3984",
+    "evidence/policy-controls-20261014/isolated-mobile.png": "43c910840336d40139ca8e54bd144b70f37206419260e582e969a3f183bca854",
+    "BUG/BUG-20261014-AgentScope-stale-approval-recovery.md": "c0c76afca3a39b83fa36c98ff4316beeb1128194e087481be4fbeffed480edcd",
+    "REVIEW/REVIEW-20261014-AgentScope-policy-lifecycle.md": "658ce364f822be7848bcbbe7fbe69fb2dadd4ceb89573bb05f30f2157c58b723",
+    "BUG/BUG-20261013-agent-experiment-feedback-and-flow.md": "4a8ae886b804fe307e15f9887ff23e7d51c82e4ae8db9d57bb2cd49a8b058653",
+    "research/four-agent-scenarios-20261013/README.md": "b1b3644135b37a91988f21028d87450e059188d9b3da7e90a6d4e9d67e8a8543",
+    "REVIEW/REVIEW-20261013-AgentScope-agent-policy-flow.md": "b0b452387fc7511c725edd11b3a95bd9767ac5fd69347251956f4fa9aa65f297",
+    "REVIEW/REVIEW-20261013-four-agent-security-experiments.md": "61c9b257521b0cbc4ae1d447bfe56f57dbdf010ab13d7c7f50dfe4e38f191b8b",
+    "research/four-agent-scenarios-20261013/dsh/backup/result.json": "b8b564a9b3ab8c7f967a1d66be494512498ee17236a54d0133d99ccf39d4cba6",
+    "research/four-agent-scenarios-20261013/mini/backup/result.json": "0b2569a17a6a20aabc25a82aa36ed6bb08ff83f887541738490bff32e84ebdaa",
+    "research/four-agent-scenarios-20261013/dsh/ssh/result.json": "a5209544b8db9e2492fbf5e494b54024a199b24354cb9d2c5f2f13a9ba6ff198",
+    "research/four-agent-scenarios-20261013/mini/ssh/result.json": "5ee11d41d8fa29e09dd9911dc3cfdcc9d5a1ce7e38be23c62d467e0ddc189364",
+    "research/four-agent-scenarios-20261013/dsh/flow/result.json": "e88312b02237ac8cf133e88974208ba2e0852b35b23d44045706ac7e8a28ca61",
+    "research/four-agent-scenarios-20261013/mini/flow/result.json": "cff38591dcb73c9df72ab8895c94a6b77eceabbcd1b1fdd0833850bc227e031f",
+    "research/four-agent-scenarios-20261013/dsh/repair/result.json": "4378cce10b57bd3b12533074fed2541954d116b1692ec7688de7f95c34c629f9",
+    "research/four-agent-scenarios-20261013/mini/repair/result.json": "e3131184d8789867bc27130e89a352c842c48a1d9fa50ff23721f4dcb1047f97",
+    "RFC/RFC-20261013-four-agent-security-experiments.md": "3e1f320f1fa2062ffce015f8ab9918dfdda76b5af7573ca8eaaa6d2ee908fad5",
+    "ADR/ADR-20261013-isolated-agent-experiment-feedback.md": "5afdbdeab15fc80b0dcdc0c12c2fbd2bffa39e56c901326b8f9fb3271c190e0d"
+  },
+  "application_document_dependencies": {
+    "examples/manual-session-lab-20261014/preparation-acceptance.json": "e869be03e9ad6453b44cf1c048e8616d6325084d9e8ecf13dbbcbef10739f94f",
+    "examples/manual-session-lab-20261014/开始测试.md": "f01b84812a7e6fcc1395573b3a91bb4787209dea09f06ce62d41e920508e7512"
+  },
+  "notes": [
+    "Original findings use pre-revision line numbers and hashes.",
+    "Originals are private audit backups, not replaced historical acceptance evidence.",
+    "Source semantics verified; source-to-deployed-binary reproducible build provenance not established.",
+    "No Agent run, kernel application, service restart, deployment or remote push performed.",
+    "catalog.json and sync-source-20261012.json remain historical snapshots."
+  ],
+  "index_documents": {
+    "README.md": "e6674883025b99c082cc3eb43679e0cc5fc4c7423891d05414a0b9ee939e0689",
+    "docs/README.md": "a0baab08fc533c7a3cdfa95443a50f6d845d3fd0ae2912d11596931ea105a583"
+  },
+  "dependency_normalization": {
+    "docs/REVIEW/REVIEW-20261014-AgentScope-session-domain-count.md": {
+      "source_sha256": "8a331a0a7665144d91579b159f5be9a5945a2647df12aa6b7ee819793498dffd",
+      "archived_sha256": "6e1efbf4aaa102092182da06f2241323ba30e6a32ea7253125bb037204791d3b",
+      "transformations": [
+        "utf8-lf-trailing-whitespace-only"
+      ],
+      "json_semantics_unchanged": null
+    },
+    "docs/REVIEW/evidence/session-security-20261014/lab-desktop-input-cleanup.json": {
+      "source_sha256": "81c9130a21ee4d4863f92f8a73597110941ef06052fa7f260e4603d5a4d5f4ed",
+      "archived_sha256": "50699fb0bbdd2e7629ff031869c0024ba443badf4e79524f878c291ceda3ea92",
+      "transformations": [
+        "utf8-lf-trailing-whitespace-only"
+      ],
+      "json_semantics_unchanged": true
+    }
+  },
+  "central_supporting_files": {
+    "design/agentscope-ui-design.md": {
+      "sha256": "61a4242d4c9f8c1c60913b8c9a2c729e1ff0747ac4f154e163150b0ce389954e",
+      "source": "unchanged document from the historical docs branch",
+      "reason": "repair referenced design convention missing from central directory"
+    }
+  }
+}

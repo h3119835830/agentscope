@@ -2,9 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import {tmpdir} from 'node:os';
 import {canonicalDirectory,dispatchWorkspaceRequest,generation} from '../lib/index.js';
 
-const root=await fs.mkdtemp('/tmp/atf/bridge-');
+const root=await fs.mkdtemp(path.join(tmpdir(),'agentscope-bridge-'));
 const inside=path.join(root,'project');await fs.mkdir(inside);
 const outside=path.join(root,'outside');await fs.mkdir(outside);
 const calls=[];

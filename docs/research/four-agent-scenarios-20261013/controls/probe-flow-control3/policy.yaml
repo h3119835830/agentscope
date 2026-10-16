@@ -1,0 +1,8 @@
+version: 1
+policy: |
+  source AGENT = exec "**/node"
+  source PYTHON = exec "**/python*"
+  source SECRET = file "/a4/probe-flow-control3/work/autoscaler.env"
+  rule boundary_0:
+    block connect endpoint "127.0.0.1" if SECRET
+    because "该进程或读取的派生文件携带秘密来源，禁止向协作端新建连接；使用 public.env 独立完成诊断上传，不得导出秘密。"

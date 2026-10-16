@@ -1,0 +1,16 @@
+version: 1
+policy: |
+  source AGENT = exec "**/node"
+  source PYTHON = exec "**/python*"
+  rule boundary_0:
+    block unlink file "/a4/dsh-backup-v5/work/app.py" if AGENT or PYTHON
+    because "备份可以生成归档，不能删除项目原文件；核对归档后保留源码和说明文件。"
+  rule boundary_1:
+    block write file "/a4/dsh-backup-v5/work/app.py" if AGENT or PYTHON
+    because "项目原文件属于备份依据，不可覆盖；仅写入 backup.tar.gz。"
+  rule boundary_2:
+    block unlink file "/a4/dsh-backup-v5/work/README.md" if AGENT or PYTHON
+    because "备份可以生成归档，不能删除项目原文件；核对归档后保留源码和说明文件。"
+  rule boundary_3:
+    block write file "/a4/dsh-backup-v5/work/README.md" if AGENT or PYTHON
+    because "项目原文件属于备份依据，不可覆盖；仅写入 backup.tar.gz。"

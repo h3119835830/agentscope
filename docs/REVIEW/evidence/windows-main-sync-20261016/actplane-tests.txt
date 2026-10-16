@@ -1,0 +1,414 @@
+COMMAND ["make", "-C", "actplane/bpf", "test"]
+make: Entering directory '/home/happy/projects/agentscope-windows-main-sync-20261016/actplane/bpf'
+  MKDIR    .output
+  CC       .output/test_taint.o
+  BINARY   test_taint
+Running ActPlane taint tests...
+=== ActPlane taint predicate tests ===
+[[32mPASS[0m] streq: equal
+[[32mPASS[0m] streq: different
+[[32mPASS[0m] streq: prefix is not equal
+[[32mPASS[0m] streq: both empty
+[[32mPASS[0m] prefix: under
+[[32mPASS[0m] prefix: sibling
+[[32mPASS[0m] prefix: shorter
+[[32mPASS[0m] prefix: ip
+[[32mPASS[0m] prefix: ip miss
+[[32mPASS[0m] prefix: empty never matches
+[[32mPASS[0m] match: exact hit
+[[32mPASS[0m] match: exact miss
+[[32mPASS[0m] match: prefix hit
+[[32mPASS[0m] match: suffix hit
+[[32mPASS[0m] match: suffix miss
+[[32mPASS[0m] match: host suffix
+[[32mPASS[0m] match: 63-byte suffix
+[[32mPASS[0m] match: extension suffix
+[[32mPASS[0m] match: trailing extension excluded
+[[32mPASS[0m] match: case-sensitive suffix
+[[32mPASS[0m] match: any
+[[32mPASS[0m] match: contains hit
+[[32mPASS[0m] match: contains miss
+[[32mPASS[0m] match: contains at start
+[[32mPASS[0m] match: contains at end
+[[32mPASS[0m] match: contains no slashes
+[[32mPASS[0m] exec match: comm exact hit
+[[32mPASS[0m] exec match: argv0 exact hit
+[[32mPASS[0m] exec match: full path is not exact
+[[32mPASS[0m] mask: A&B, no C -> ok (violation fires)
+[[32mPASS[0m] mask: only A -> req unmet
+[[32mPASS[0m] mask: A&B but C set -> forbidden
+[[32mPASS[0m] mask: empty req/forbid always ok
+[[32mPASS[0m] mask: UNTRUST & not REVIEWED -> fire
+[[32mPASS[0m] mask: endorsed REVIEWED -> suppressed
+[[32mPASS[0m] arg: push present
+[[32mPASS[0m] arg: --force present
+[[32mPASS[0m] arg: commit absent
+[[32mPASS[0m] arg: partial token not matched
+[[32mPASS[0m] arg: empty token matches anything
+[[32mPASS[0m] arg: commit present
+[[32mPASS[0m] arg: push absent
+
+42 passed, 0 failed
+make: Leaving directory '/home/happy/projects/agentscope-windows-main-sync-20261016/actplane/bpf'
+COMMAND ["cargo", "test", "--manifest-path", "actplane/Cargo.toml", "--workspace"]
+   Compiling proc-macro2 v1.0.106
+   Compiling quote v1.0.45
+   Compiling unicode-ident v1.0.24
+   Compiling serde_core v1.0.229
+   Compiling memchr v2.8.1
+   Compiling cfg-if v1.0.4
+   Compiling libc v0.2.189
+   Compiling equivalent v1.0.2
+   Compiling foldhash v0.2.0
+   Compiling cfg_aliases v0.2.1
+   Compiling serde v1.0.229
+   Compiling itoa v1.0.18
+   Compiling shlex v2.0.1
+   Compiling bytes v1.11.1
+   Compiling crc32fast v1.5.0
+   Compiling nix v0.31.3
+   Compiling once_cell v1.21.4
+   Compiling find-msvc-tools v0.1.9
+   Compiling hashbrown v0.17.1
+   Compiling bitflags v2.12.1
+   Compiling thiserror v2.0.18
+   Compiling object v0.39.1
+   Compiling cc v1.2.63
+   Compiling pin-project-lite v0.2.17
+   Compiling zmij v1.0.21
+   Compiling strsim v0.11.1
+   Compiling pkg-config v0.3.33
+   Compiling log v0.4.31
+   Compiling futures-core v0.3.32
+   Compiling futures-sink v0.3.32
+   Compiling autocfg v1.5.1
+   Compiling ident_case v1.0.1
+   Compiling getrandom v0.4.2
+   Compiling futures-channel v0.3.32
+   Compiling futures-io v0.3.32
+   Compiling ref-cast v1.0.25
+   Compiling slab v0.4.12
+   Compiling unsafe-libyaml v0.2.11
+   Compiling serde_json v1.0.151
+   Compiling ryu v1.0.23
+   Compiling assert_matches v1.5.0
+   Compiling scopeguard v1.2.0
+   Compiling ebpf-ifc-engine v0.1.8 (/home/happy/projects/agentscope-windows-main-sync-20261016/actplane/bpf)
+   Compiling futures-task v0.3.32
+   Compiling num-traits v0.2.19
+   Compiling tracing-core v0.1.36
+   Compiling rmcp v3.2.0
+   Compiling dyn-clone v1.0.20
+   Compiling utf8parse v0.2.2
+   Compiling rustix v1.1.4
+   Compiling syn v2.0.117
+   Compiling syn v3.0.3
+   Compiling anstyle-parse v1.0.0
+   Compiling aho-corasick v1.1.4
+   Compiling linux-raw-sys v0.12.1
+   Compiling is_terminal_polyfill v1.70.2
+   Compiling pastey v0.2.3
+   Compiling regex-syntax v0.8.10
+   Compiling colorchoice v1.0.5
+   Compiling base64 v0.23.1
+   Compiling anstyle-query v1.1.5
+   Compiling anstyle v1.0.14
+   Compiling fastrand v2.4.1
+   Compiling heck v0.5.0
+   Compiling errno v0.3.14
+   Compiling mio v1.2.1
+   Compiling signal-hook-registry v1.4.8
+   Compiling anstream v1.0.0
+   Compiling clap_lex v1.1.0
+   Compiling uuid v1.26.0
+   Compiling clap_builder v4.6.6
+   Compiling jiff v0.2.28
+   Compiling regex-automata v0.4.14
+   Compiling indexmap v2.14.0
+   Compiling libbpf-sys v1.7.0+v1.7.0
+   Compiling tempfile v3.27.0
+   Compiling darling_core v0.24.1
+   Compiling serde_derive_internals v0.29.1
+   Compiling serde_derive v1.0.229
+   Compiling clap_derive v4.6.4
+   Compiling regex v1.12.3
+   Compiling thiserror-impl v2.0.18
+   Compiling futures-macro v0.3.32
+   Compiling ref-cast-impl v1.0.25
+   Compiling tokio-macros v2.7.0
+   Compiling tracing-attributes v0.1.31
+   Compiling env_filter v2.0.0
+   Compiling schemars_derive v1.2.1
+   Compiling env_logger v0.11.11
+   Compiling futures-util v0.3.32
+   Compiling tokio v1.53.1
+   Compiling tracing v0.1.44
+   Compiling clap v4.6.6
+   Compiling darling_macro v0.24.1
+   Compiling darling v0.24.1
+   Compiling rmcp-macros v3.2.0
+   Compiling serde_yaml v0.9.34+deprecated
+   Compiling chrono v0.4.44
+   Compiling aya-obj v0.3.0
+   Compiling schemars v1.2.1
+   Compiling actplane-ifc-compiler v0.1.8 (/home/happy/projects/agentscope-windows-main-sync-20261016/actplane/crates/actplane-ifc-compiler)
+   Compiling futures-executor v0.3.32
+   Compiling futures v0.3.32
+   Compiling aya v0.14.0
+   Compiling tokio-util v0.7.18
+   Compiling actplane-runtime v0.1.8 (/home/happy/projects/agentscope-windows-main-sync-20261016/actplane/crates/actplane-runtime)
+   Compiling actplane v0.1.8 (/home/happy/projects/agentscope-windows-main-sync-20261016/actplane/crates/actplane-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 29.76s
+     Running unittests src/main.rs (actplane/target/debug/deps/actplane-06335cbc617269ad)
+
+running 18 tests
+test doctor::tests::lsm_parser_requires_exact_bpf_token ... ok
+test setup::tests::project_mcp_detection_requires_path_command_and_auto_attach_arg ... ok
+test template_generate::tests::generator_uses_task_hint_without_instruction_files ... ok
+test template_generate::tests::generator_finds_nested_dependency_manifests ... ok
+test template_generate::tests::generator_task_comment_handles_multiline_text ... ok
+test template_generate::tests::generator_selects_templates_from_instructions_and_manifests ... ok
+test setup::tests::codex_hook_detection_parses_nested_json ... ok
+test setup::tests::starter_policy_uses_flat_policy_and_compiles ... ok
+test template_generate::tests::generator_does_not_infer_broad_package_manager_as_test_without_test_phrase ... ok
+test templates::tests::all_templates_compile_as_dsl_and_yaml ... ok
+test template_generate::tests::generator_keeps_push_approval_separate_from_absolute_push_ban ... ok
+test template_generate::tests::generator_selects_dependency_and_protected_push_templates ... ok
+test templates::tests::template_parameters_reject_unknown_duplicate_and_unsafe_values ... ok
+test template_generate::tests::generator_maps_absolute_push_ban_to_no_git_push ... ok
+test templates::tests::dependency_and_protected_push_templates_apply_parameters ... ok
+test templates::tests::template_parameters_render_and_compile ... ok
+test templates::tests::unknown_template_lists_available_ids ... ok
+test template_generate::tests::generator_truncates_large_unicode_instruction_on_char_boundary ... ok
+
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/cli_ux.rs (actplane/target/debug/deps/cli_ux-9b5af60baf5cf235)
+
+running 23 tests
+test attach_help_exposes_existing_process_domain_flags ... ok
+test compile_report_out_requires_report_mode ... ok
+test control_delta_add_help_exposes_delta_inputs ... ok
+test compile_domains_lists_effective_bindings ... ok
+test compile_default_prints_domain_summary ... ok
+test init_generate_writes_candidate_policy ... ok
+test control_help_exposes_already_running_engine_commands ... ok
+test attach_sends_bind_then_child_delta_over_repo_control_socket ... ok
+test compile_json_reports_policy_load_errors_as_json ... ok
+test compile_json_reports_backend_support_and_static_warnings ... ok
+test compile_explain_writes_report_artifact ... ok
+test compile_writes_kernel_blob ... ok
+test control_delta_add_sends_append_delta_over_repo_control_socket ... ok
+test compile_out_respects_force ... ok
+test run_accepts_global_domain_flag_after_subcommand ... ok
+test run_help_exposes_child_domain_delta_flags ... ok
+test run_parent_domain_rejects_runtime_delta_mode ... ok
+test top_level_help_is_engine_focused ... ok
+test watch_help_exposes_parent_domain_flag ... ok
+test init_lists_and_writes_templates_without_templates_command ... ok
+test renamed_control_commands_report_new_command_names_in_errors ... ok
+test parent_domain_control_mutations_are_rejected_before_socket_connect ... ok
+test removed_top_level_commands_are_not_accepted ... ok
+
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/mcp_protocol.rs (actplane/target/debug/deps/mcp_protocol-7db33ee85fab98a8)
+
+running 7 tests
+test mcp_append_delta_requires_configured_approval_privileged ... ignored, requires root/CAP_BPF or passwordless sudo and loads live eBPF programs
+test mcp_background_supervisor_relaunches_on_exit_child_privileged ... ignored, requires root/CAP_BPF or passwordless sudo and loads live eBPF programs
+test mcp_local_control_handles_concurrent_status_privileged ... ignored, requires root/CAP_BPF or passwordless sudo and loads live eBPF programs
+test mcp_restart_adopts_existing_child_and_relaunches_after_exit_privileged ... ignored, requires root/CAP_BPF or passwordless sudo and loads live eBPF programs
+test mcp_stdio_jsonrpc_launches_child_domain_with_delta_privileged ... ignored, requires root/CAP_BPF or passwordless sudo and loads live eBPF programs
+test mcp_stdio_jsonrpc_lists_resources_and_domain_tools ... ok
+test mcp_stdio_jsonrpc_handles_repeated_requests ... ok
+
+test result: ok. 2 passed; 0 failed; 5 ignored; 0 measured; 0 filtered out; finished in 0.12s
+
+     Running tests/watch_control.rs (actplane/target/debug/deps/watch_control-3e5bf03fa670d3ae)
+
+running 1 test
+test watch_exposes_repo_local_control_socket_privileged ... ignored, requires root/CAP_BPF or passwordless sudo and loads live eBPF programs
+
+test result: ok. 0 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (actplane/target/debug/deps/actplane_ifc_compiler-5f2007e0d3625bfe)
+
+running 44 tests
+test dsl::lower::tests::absolute_paths_keep_absolute_semantics ... ok
+test dsl::lower::tests::repo_relative_paths_match_absolute_runtime_paths ... ok
+test dsl::lower::tests::hostname_endpoint_rule_resolves_to_ipv4_matcher ... ok
+test dsl::lower::file_literal_limits::suffix_63_bytes_is_preserved_and_64_is_rejected_in_every_position ... ok
+test dsl::tests::compile_with_labels_preserves_runtime_delta_label_bits ... ok
+test dsl::lower::tests::exec_wildcard_patterns_match_any_comm ... ok
+test dsl::lower::tests::endpoint_sources_lower_to_connect_and_recv_updates ... ok
+test dsl::tests::dnf_or_splits_into_multiple_rules ... ok
+test dsl::tests::duplicate_clause_targets_keep_distinct_source_spans ... ok
+test dsl::tests::e10_pii_egress ... ok
+test dsl::lower::tests::hostname_endpoint_sources_resolve_to_ipv4_updates ... ok
+test dsl::lower::tests::wildcard_hostnames_are_not_resolved_as_exact_hosts ... ok
+test dsl::tests::config_blob_is_fixed_size ... ok
+test dsl::tests::duplicate_rule_names_are_rejected ... ok
+test dsl::tests::e11_destructive_confirm ... ok
+test dsl::tests::e11p_confirm_single_shot_since ... ok
+test dsl::tests::e12_non_interference ... ok
+test dsl::tests::domain_policy_corpus_all_domains_compile ... ok
+test dsl::tests::e13_migrate_check_since ... ok
+test dsl::tests::e14_stdio_channels_are_ifc_files ... ok
+test dsl::tests::e1_secret_no_exfil ... ok
+test dsl::tests::e2_prompt_injection ... ok
+test dsl::tests::e3_mandatory_mediation ... ok
+test dsl::tests::e4_workspace_confinement ... ok
+test dsl::tests::e5_test_before_commit ... ok
+test dsl::tests::e5_test_before_commit_requires_successful_exit ... ok
+test dsl::tests::e5p_test_before_commit_since ... ok
+test dsl::tests::e6_research_readonly ... ok
+test dsl::tests::e7_e8_secret_with_declassify ... ok
+test dsl::tests::e9_cross_tool ... ok
+test dsl::tests::exits_is_only_valid_for_exec_gates ... ok
+test dsl::tests::implicit_basename_matching ... ok
+test dsl::tests::multi_verb_rule_preserves_clause_effects ... ok
+test dsl::tests::old_deny_keyword_is_rejected ... ok
+test dsl::tests::old_label_keyword_is_rejected ... ok
+test dsl::tests::policy_corpus_compile_perf ... ignored, run test/policy-corpus.sh for the release microbench
+test dsl::tests::positional_args_work ... ok
+test dsl::tests::rule_effect_is_metadata_and_kernel_config ... ok
+test dsl::tests::rule_source_metadata_records_marker_span_and_text ... ok
+test dsl::tests::semantic_metadata_preserves_conditions_labels_and_match_kind ... ok
+test dsl::tests::policy_corpus_files_compile ... ok
+test dsl::tests::since_bad_invalidator_op_is_rejected ... ok
+test dsl::tests::since_without_clause_is_v1_latching ... ok
+test dsl::tests::source_labels_are_allocated_for_runner_seeding ... ok
+
+test result: ok. 43 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running unittests src/lib.rs (actplane/target/debug/deps/actplane_runtime-2854e41134bdcac8)
+
+running 40 tests
+test audit::tests::policy_hash_is_stable_and_content_sensitive ... ok
+test audit::tests::process_identity_prefers_peer_uid_gid ... ok
+test audit::tests::audit_appends_jsonl_with_schema_and_timestamp ... ok
+test audit::tests::status_numeric_field_reads_first_status_number ... ok
+test audit::tests::process_identity_uses_proc_start_time_when_available ... ok
+test config::tests::domain_can_disable_default_but_not_locked ... ok
+test config::tests::domain_selection_errors_show_available_domains ... ok
+test config::tests::domain_parent_cycles_are_rejected ... ok
+test config::tests::child_locked_binding_is_mandatory_for_grandchild ... ok
+test config::tests::legacy_policy_source_still_works ... ok
+test config::tests::domain_summaries_include_effective_bindings ... ok
+test config::tests::feedback_paths_include_default_and_custom_audit_log ... ok
+test config::tests::policy_yaml_rejects_removed_fallback_config ... ok
+test config::tests::runtime_append_delta_approval_config_parses ... ok
+test config::tests::runtime_append_delta_approval_rejects_empty_approver ... ok
+test config::tests::invalid_policy_corpus_is_rejected ... ok
+test control::tests::stale_control_state_is_rejected ... ok
+test feedback::tests::block_without_lsm_is_unsupported_not_reported_as_blocked ... ok
+test feedback::tests::notify_payload_is_soft ... ok
+test feedback::tests::payload_has_prefix_and_tag ... ok
+test feedback::tests::payload_includes_taint_provenance ... ok
+test hook::tests::last_block_handles_unsuffixed_feedback ... ok
+test hook::tests::last_block_selects_latest_feedback ... ok
+test mcp::tests::bind_child_domain_args_parse_required_and_optional_fields ... ok
+test mcp::tests::bind_child_domain_args_reject_bad_types_and_ranges ... ok
+test mcp::tests::child_record_json_includes_status_and_log_paths ... ok
+test mcp::tests::child_registry_adopts_running_records_on_load ... ok
+test mcp::tests::child_registry_persists_and_loads_records ... ok
+test mcp::tests::child_relaunch_honors_backoff_and_limit ... ok
+test mcp::tests::read_log_json_returns_bounded_tail ... ok
+test mcp::tests::restart_policy_args_parse_aliases_and_reject_bad_values ... ok
+test report::tests::feedback_context_resolves_domain_local_label_names ... ok
+test report::tests::violation_event_context_writes_structured_jsonl ... ok
+test runtime::tests::append_delta_approval_gate_rejects_missing_and_unknown_approver ... ok
+test runtime::tests::audit_context_id_uses_run_dir_when_available ... ok
+test runtime::tests::policy_audit_meta_records_enforced_approval_chain ... ok
+test runtime::tests::rule_provenance_json_includes_source_text_and_binding_mode ... ok
+test mcp::tests::spawn_stopped_child_can_be_killed_without_stdio_inheritance ... ok
+test control::tests::local_control_round_trips_json_request ... ok
+test control::tests::local_control_handles_concurrent_clients ... ok
+
+test result: ok. 40 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.31s
+
+     Running unittests src/lib.rs (actplane/target/debug/deps/ebpf_ifc_engine-fdd07ad91513aa18)
+
+running 61 tests
+test capability::tests::admits_monotonic_child_delta ... ok
+test open_reservation_tests::read_isolation_hooks_are_explicitly_reserved ... ok
+test tests::ancestor_domain_dynamic_labels_apply_in_child_smoke ... ignored, requires root/CAP_BPF and loads live eBPF programs
+test tests::append_policy_delta_admits_domain_local_declassify_smoke ... ignored, requires root/CAP_BPF and loads live eBPF programs
+test tests::append_policy_delta_admits_self_rule_smoke ... ignored, requires root/CAP_BPF and loads live eBPF programs
+test tests::append_policy_delta_scopes_to_target_domain_and_descendants_smoke ... ignored, requires root/CAP_BPF and loads live eBPF programs
+test capability::tests::rejects_non_monotonic_authority_gaps ... ok
+test tests::append_struct_layout ... ok
+test tests::binding_domain_resets_inherited_process_labels_smoke ... ignored, requires root/CAP_BPF and loads live eBPF programs
+test tests::abi_sizes ... ok
+test tests::arm64_legacy_syscall_hooks_have_explicit_replacements ... ok
+test tests::argv_sensitive_exec_delta_uses_always_on_exec_tracepoint ... ok
+test tests::cap_policy_mask_tracks_full_rule_index_range ... ok
+test tests::child_domain_state_is_monotonic_subset ... ok
+test tests::block_delta_requires_matching_lsm_hook_profile ... ok
+test tests::child_domain_state_rejects_authority_widening ... ok
+test tests::default_hook_budget_keeps_advanced_tracepoints_off ... ok
+test tests::domain_handle_binds_subagent_child_domain_smoke ... ignored, requires root/CAP_BPF and loads live eBPF programs
+test tests::duplicated_control_fds_are_close_on_exec ... ok
+test tests::exec_argv_kill_terminates_post_exec_smoke ... ignored, requires root/CAP_BPF and loads live eBPF programs
+test tests::exec_argv_notify_matches_token_smoke ... ignored, requires root/CAP_BPF and loads live eBPF programs
+test tests::file_delta_requires_file_flow_budget ... ok
+test tests::file_flow_does_not_enable_lsm_file_hooks_without_block_file ... ok
+test tests::local_domain_process_labels_do_not_satisfy_global_rules_smoke ... ignored, requires root/CAP_BPF and loads live eBPF programs
+test tests::lsm_fd_write_after_late_read_propagates_file_label_smoke ... ignored, requires root/CAP_BPF, active BPF LSM, and loads live eBPF programs
+test tests::lsm_mmap_shared_write_after_late_read_propagates_file_label_smoke ... ignored, requires root/CAP_BPF, active BPF LSM, and loads live eBPF programs
+test tests::lsm_mprotect_read_upgrade_source_taints_subject_smoke ... ignored, requires root/CAP_BPF, active BPF LSM, and loads live eBPF programs
+test tests::lsm_mprotect_shared_write_after_late_read_propagates_file_label_smoke ... ignored, requires root/CAP_BPF, active BPF LSM, and loads live eBPF programs
+test tests::lsm_path_write_hooks_block_unlink_rename_and_truncate_smoke ... ignored, requires root/CAP_BPF, active BPF LSM, and loads live eBPF programs
+test tests::lsm_recv_endpoint_block_smoke ... ignored, requires root/CAP_BPF, active BPF LSM, and loads live eBPF programs
+test tests::lsm_recv_endpoint_source_taints_reader_smoke ... ignored, requires root/CAP_BPF, active BPF LSM, and loads live eBPF programs
+test tests::object_is_aligned_elf ... ok
+test tests::object_label_open_violation_reports_file_provenance_smoke ... ignored, requires root/CAP_BPF and loads live eBPF programs
+test tests::path_matcher_delta_error_explains_loaded_policy_requirement ... ok
+test tests::pinned_runtime_budget_reserves_write_rules_but_not_other_matchers ... ok
+test tests::seeded_parent_can_append_child_source_policy_smoke ... ignored, requires root/CAP_BPF and loads live eBPF programs
+test tests::sibling_domain_file_labels_do_not_collide_smoke ... ignored, requires root/CAP_BPF and loads live eBPF programs
+test tests::tracepoint_copy_file_range_fd_flow_smoke ... ignored, requires root/CAP_BPF and loads live eBPF tracepoints
+test tests::tracepoint_fcntl_dup_fd_flow_smoke ... ignored, requires root/CAP_BPF and loads live eBPF tracepoints
+test tests::tracepoint_fd_write_after_late_read_propagates_file_label_smoke ... ignored, requires root/CAP_BPF and loads live eBPF tracepoints
+test tests::tracepoint_mmap_exact_start_tracks_multiple_mappings_smoke ... ignored, requires root/CAP_BPF and loads live eBPF tracepoints
+test tests::tracepoint_mmap_shared_write_after_late_read_propagates_file_label_smoke ... ignored, requires root/CAP_BPF and loads live eBPF tracepoints
+test tests::tracepoint_mprotect_read_upgrade_source_taints_subject_smoke ... ignored, requires root/CAP_BPF and loads live eBPF tracepoints
+test tests::tracepoint_mprotect_shared_write_after_late_read_propagates_file_label_smoke ... ignored, requires root/CAP_BPF and loads live eBPF tracepoints
+test tests::tracepoint_mremap_shared_write_after_late_read_propagates_file_label_smoke ... ignored, requires root/CAP_BPF and loads live eBPF tracepoints
+test tests::tracepoint_pipe_fork_fd_flow_smoke ... ignored, requires root/CAP_BPF and loads live eBPF tracepoints
+test tests::tracepoint_recv_endpoint_source_taints_reader_smoke ... ignored, requires root/CAP_BPF and loads live eBPF tracepoints
+test tests::tracepoint_scm_rights_fifth_fd_flow_smoke ... ignored, requires root/CAP_BPF and loads live eBPF tracepoints
+test tests::tracepoint_scm_rights_received_fd_flow_smoke ... ignored, requires root/CAP_BPF and loads live eBPF tracepoints
+test tests::tracepoint_scm_rights_socketpair_fd_identity_smoke ... ignored, requires root/CAP_BPF and loads live eBPF tracepoints
+test tests::tracepoint_sendfile_fd_flow_smoke ... ignored, requires root/CAP_BPF and loads live eBPF tracepoints
+test tests::tracepoint_socketpair_fork_fd_flow_smoke ... ignored, requires root/CAP_BPF and loads live eBPF tracepoints
+test tests::tracepoint_splice_fd_flow_smoke ... ignored, requires root/CAP_BPF and loads live eBPF tracepoints
+test tests::tracepoint_udp_recvfrom_endpoint_source_taints_reader_smoke ... ignored, requires root/CAP_BPF and loads live eBPF tracepoints
+test tests::tracepoint_udp_recvmsg_endpoint_source_taints_reader_smoke ... ignored, requires root/CAP_BPF and loads live eBPF tracepoints
+test tests::tracepoint_unix_abstract_socket_fork_fd_flow_smoke ... ignored, requires root/CAP_BPF and loads live eBPF tracepoints
+test tests::tracepoint_unix_dgram_sendmsg_abstract_flow_smoke ... ignored, requires root/CAP_BPF and loads live eBPF tracepoints
+test tests::tracepoint_unix_dgram_sendto_path_flow_smoke ... ignored, requires root/CAP_BPF and loads live eBPF tracepoints
+test tests::tracepoint_unix_path_socket_fork_fd_flow_smoke ... ignored, requires root/CAP_BPF and loads live eBPF tracepoints
+test tests::unseeded_processes_do_not_match_global_policy ... ignored, requires root/CAP_BPF and loads live eBPF programs
+test tests::object_has_capability_user_ringbuf_path ... ok
+
+test result: ok. 19 passed; 0 failed; 42 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+   Doc-tests actplane_ifc_compiler
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests actplane_runtime
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests ebpf_ifc_engine
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

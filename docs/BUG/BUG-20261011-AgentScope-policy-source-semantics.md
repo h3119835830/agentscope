@@ -1,5 +1,7 @@
 # BUG：只读候选错误禁止读取的修复闭环
 
+2026-10-12 范围澄清：只读语义修复与真实 OS 操作结果继续有效；该次应用为 Agent 范围，未关闭原生工作区/会话局部隔离缺口。见 [SCOPE-DOC-001 / SCOPE-IMPL-001](BUG-20261012-AgentScope-policy-scope-and-evidence.md)。
+
 日期：2026-10-11。
 
 ## GEN-SEMANTICS-001（已修复）
