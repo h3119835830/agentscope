@@ -1,0 +1,54 @@
+{
+  "published": true,
+  "frontend_only": true,
+  "source_commit": "be373a41e9ad4ccfcab838768eeae01ca4c2df93",
+  "api_release": "/opt/agentscope-template-descriptions-20261016-145034",
+  "backup": "/var/lib/agentscope-scope-demo/release-backups/template-column-resize-20261016-152128",
+  "api_pid": 106545,
+  "broker_pid": 464,
+  "api_process_unchanged": true,
+  "broker_process_unchanged": true,
+  "backend_files_unchanged": true,
+  "policy_authority_unchanged": true,
+  "configuration_and_approval_tables_unchanged": true,
+  "formal_policy_mutations": false,
+  "dsh_code_changed": false,
+  "health_ok": true,
+  "assets_match_build": true,
+  "asset_paths": [
+    "/assets/main-DH45wKx-.js",
+    "/assets/client-2tdd2SJ7.js",
+    "/assets/main-SWO3xnKJ.css"
+  ],
+  "ui_sha256": "7ee94930287500e70c997c8cba67d7cebf0dea06f916c37b8672c8f69833862c",
+  "browser_verified": {
+    "resize_handles": 7,
+    "live_description_width_after_mouse_drag": 400,
+    "toolbar_refresh_widths": [
+      200,
+      300,
+      190,
+      108,
+      88,
+      76,
+      152
+    ],
+    "browser_refresh_widths": [
+      200,
+      300,
+      190,
+      108,
+      88,
+      76,
+      152
+    ],
+    "page_overflow": false,
+    "screenshot": "18003-resizable-headers.jpg",
+    "screenshot_viewport": {
+      "width": 1430,
+      "height": 900
+    },
+    "screenshot_sha256": "88796b3fc76b11043f8fe34502688fe88b3c9690b63c460f3b2fbcd8d092ddfc"
+  },
+  "post_browser_authority_and_approval_tables_unchanged": true
+}
