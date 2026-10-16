@@ -182,22 +182,17 @@ def load(ident, revision=None, con=None):
 
 
 def view(row):
+    from .configuration_approvals import link,state
     base = dsl.current('system' if row['scope'] == 'system' else row['scope_id'])
     applied = next((d for d in base['documents'] if d['id'] == row['id']), None)
     with db.connect() as con:
-        proposal = con.execute('''SELECT p.proposal_id FROM template_configuration_proposals p, json_each(p.selections_json) s
-            WHERE json_extract(s.value,'$.id')=? AND json_extract(s.value,'$.revision')=? ORDER BY p.rowid DESC LIMIT 1''', (row['id'],row['revision'])).fetchone()
+        linked = link(con,row['id'],row['revision'],row['scope_id'],'template')
         versions = con.execute('SELECT revision,payload_json FROM template_configuration_versions WHERE id=? ORDER BY revision DESC', (row['id'],)).fetchall()
     applied_revision = next((v['revision'] for v in versions if json.loads(v['payload_json'])['document'] == applied), None) if applied else None
     active_payload = next((json.loads(v['payload_json']) for v in versions if v['revision'] == applied_revision), None)
     applied_configuration = {k:active_payload[k] for k in ('name','parameters','requested_operations','effective_operations','coverage_warning','effect','note')} if active_payload else None
-    proposal_id = proposal['proposal_id'] if proposal else None
-    approval = None
-    if proposal_id:
-        from .approval_views import detail
-        approval = detail(proposal_id)
     return {**row, 'applied_revision':applied_revision, 'applied_configuration':applied_configuration,'applied':applied_revision == row['revision'],
-            'approval_id':proposal_id, 'status':approval['status'] if approval else 'draft',
+            **linked, 'status':state(linked,'draft'),
             'can_submit':row['scope'] in ('system','agent'),'template_definition':{k:v for k,v in catalog.get(row['template_id'],row['template_version']).items() if k not in ('renderer','system_preset')},
             'scope_label':'全部受控 Agent' if row['scope'] == 'system' else '此 Agent 的全部工作区与会话' if row['scope'] == 'agent' else '当前工作区（独立应用暂不支持）'}
 

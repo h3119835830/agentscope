@@ -134,6 +134,7 @@ def archive(ident,revision):
     return {'id':ident,'archived':True}
 
 def directory():
+    from .configuration_approvals import link,state
     base=dsl.detail('system');applied={d['id']:d for d in base['documents']}
     with db.connect() as con:
         # Legacy pending approvals may introduce complete DSL documents after startup.
@@ -145,6 +146,11 @@ def directory():
             item['records']=[r for r in base['records'] if r['document_id']==item['id']]
             versions=con.execute('SELECT revision,payload_json FROM system_policy_library_versions WHERE id=? ORDER BY revision DESC',(item['id'],)).fetchall()
             item['applied_revision']=next((v['revision'] for v in versions if json.loads(v['payload_json'])['document']==document),None)
+            active = next((json.loads(v['payload_json']) for v in versions if v['revision']==item['applied_revision']), None)
+            item['applied_configuration']={k:active[k] for k in ('name','config') if k in active} if active else None
+            item.update(link(con,item['id'],item['revision'],'system','legacy'))
+    for item in rows:
+        item['status']=state(item,'library')
     return {'catalog':CATALOG,'items':rows,'base_revision':base['revision'],'base_hash':base['document_hash'],'phase':base['phase'],'targets':base['targets']}
 
 def verify_proposal(proposal_id):

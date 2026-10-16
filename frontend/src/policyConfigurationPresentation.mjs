@@ -10,6 +10,20 @@ const values=value=>(Array.isArray(value)?value:String(value??'').split('\n')).m
 const unique=items=>[...new Set(items)];
 const statusLabels={draft:'草案',pending:'待审批',approved:'已批准待应用',applying:'正在应用',stale:'需重新校验',invalid:'校验未通过',rejected:'已拒绝',failed:'应用失败',blocked:'暂不可应用'};
 
+export function configurationRecordActions(row){
+ const inFlight=['pending','approved','applying'].includes(row.status)&&row.approval_current!==false;
+ const applied=!!(row.applied_revision||row.applied||row.has_applied_document);
+ const unsupported=row.scope==='workspace'||!row.can_submit;
+ const submitReason=unsupported?'此配置暂不可提交':inFlight?'已有变更正在审批或等待应用，请查看审批':row.applied&&!row.has_changes?'当前版本已应用': '';
+ const disableReason=unsupported?'此配置暂不可停用':inFlight?'已有变更正在审批或等待应用，请查看审批':!applied?'尚未应用，无需停用':'';
+ return {canSubmit:!submitReason,submitReason,canDisable:!disableReason,disableReason,canView:!!row.approval_id,
+  viewTitle:row.approval_id?(row.approval_revision&&row.approval_revision!==row.revision?'查看配置 v'+row.approval_revision+' 的审批（当前草案 v'+row.revision+'）':'查看此配置的审批与应用回执'):'尚无审批记录'};
+}
+
+export function configurationDisableSnapshot(row){
+ return row.applied_configuration?{...row,...row.applied_configuration}:row;
+}
+
 // Summarize the saved child, never the editable defaults of its parent template.
 export function configurationRecordSummary(row,template={}){
  const definition=row.template_definition||template,parameters=row.parameters||{},config=row.config||{};
