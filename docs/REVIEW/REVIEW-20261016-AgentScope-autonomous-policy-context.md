@@ -22,11 +22,13 @@
 
 ## 正式更新
 
-待受保护 API/UI 更新后补记。发布脚本核对实时应用代码为 `2a026fb666d57e36c034fec39567b26f1037ca0d`，实时 UI 与后续统一目录源工作区构建一致；避免从旧正文读取版本覆盖后续统一目录。仅覆盖应用代码、固定读取程序与界面，Broker、DSH、集成和引擎文件完整保留。
+**已发布并通过正式 HTTP 与保护复核。** 部署代码提交 `5ae0bb404373b8abf4e95e3eb62d5d3ee50c5913`（主功能 `65ddde5`），正式目录 `/opt/agentscope-policy-context-agent-20261016-113618`。仅 API 更新重启，完成健康与身份检查用时 1.361 秒（不是客户端端到端延迟统计）。API PID 50675，Broker PID 443 未变。发布脚本核对此前实时应用代码为 `2a026fb666d57e36c034fec39567b26f1037ca0d`，实时 UI 与后续统一目录源工作区构建一致；没有从旧正文读取版本覆盖后续统一目录。仅覆盖应用代码、固定读取程序与主界面，Broker、DSH、集成和引擎文件完整保留。
 
-发布前还需检查无进行中的生成/租约/策略更新，实际 Broker 保护和队列正常，冻结活跃实例 PID/start ticks、generation、策略与执行域。当前只读检查：2 个受控实例活跃，Broker PID 443，保护新鲜且队列空。发布期间只允许重启控制台 API，禁止停止/重启 Agent、恢复权限或应用策略；不恢复旧数据库快照。
+发布前检查无进行中的生成/租约/策略更新，实际 Broker 保护和队列正常，冻结活跃实例 PID/start ticks、generation、策略与执行域。两个活跃实例 PID **4427 / 4712**、各自 start ticks、generation、policy hash、domain 均未变化；其余非活跃实例也未启动或恢复权限。发布后再次核对 Broker 进程、完整实例权限/DSL 和保护状态与发布前一致，队列空，18000/18004 监听保持不变。未停止/重启 Agent、未恢复权限、未应用新策略，也未恢复数据库快照。
 
 第一次发布阶段 `/opt/agentscope-policy-context-agent-20261016-113510` 的不存在实例探针错误预期 HTTP 404，实际沿用既有 invoke 合同返回 409；探针触发了自动代码/UI 回滚，未恢复数据库。回滚后核对：Broker 进程、全部实例权限与两个活跃实例的 PID/start ticks、generation、策略和执行域完全一致，保护正常。已修正发布探针并新增接口合同测试，新增测试文件现为 **37 passed**。产品代码未因此放宽权限或改 HTTP 合同；完整回归仍为上文的 1,353 项，新增合同测试单独通过。
+
+Windows 侧 `localhost`、`127.0.0.1` 健康接口均 200；主页面及 `main-DzbcrIEj.js` / `main-BXhQ6kVe.css` 均 200，页面入口哈希与构建一致。新目录接口对不存在实例按既有合同返回 409，27 个已发布模板保留。正式实例没有执行模型生成或正文读取；这些验证使用隔离合成项目。发布后 API 的 error 级 journal 无新记录。脱敏发布汇总在 `docs/REVIEW/evidence/policy-context-agent-20261016/publication.json`，同时同步至中央文档 evidence 目录；私有数据库与原始运行快照备份保留在 `/var/lib/agentscope-scope-demo/release-backups/`，不进入 Git 或技术文档。
 
 ## 边界
 
