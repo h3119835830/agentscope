@@ -31,7 +31,7 @@ test('template catalogue describes templates and opens separately labelled child
  const render=await harness('UnifiedPolicyLibrary.jsx',[{catalog:[template],items:[child]},{catalog:[],items:[]}]);
  const props={api(){},post(){},agents:[{id:'a',agent_type:'dsh',mode:'controlled'}],onApprovals(){}};
  let tree=render(props),table=nodes(tree).find(n=>n.type==='table'&&n.props['aria-label']==='策略模板目录');
- assert.deepEqual(nodes(table).filter(n=>n.type==='th').map(n=>n.props.children),['策略模板','说明','配置项','默认动作 / 操作','子配置','操作']);
+ assert.deepEqual(nodes(table).filter(n=>n.type==='th').map(n=>n.props.children),['策略模板','说明','配置项','默认动作','触发操作','子配置','操作']);
  assert.ok(!nodes(tree).some(n=>n.props?.['aria-label']===child.name+'：提交审批'));
  assert.ok(nodes(table).some(n=>n.type==='p'&&n.props.children===template.description));
  tree=templateDetails(render,props);table=nodes(tree).find(n=>n.type==='table'&&n.props['aria-label']==='文件读取限制 的子配置');
@@ -138,9 +138,18 @@ test('description search finds a template and preserves its scoped children',asy
  assert.ok(nodes(tree).some(n=>n.props?.['aria-label']===template.name+'：详情'));tree=templateDetails(render,props);
  assert.ok(nodes(tree).some(n=>n.props?.['aria-label']===child.name+'：提交审批'));
 });
-test('an unconfigured template still opens its parameter definitions and empty child records',async()=>{
+test('the main disclosure arrow opens only child records and stays in sync with details',async()=>{
  const def={...template,parameters:[{key:'target',label:'保护对象路径',type:'path',default:''}]};const render=await harness('UnifiedPolicyLibrary.jsx',[{catalog:[def],items:[]},{catalog:[],items:[]}]);
- const tree=templateDetails(render,{api(){},post(){},onApprovals(){}});
- assert.ok(nodes(tree).some(n=>n.type==='table'&&n.props['aria-label']===template.name+' 的参数定义'));
+ const props={api(){},post(){},onApprovals(){}};let tree=render(props);
+ const toggle=()=>nodes(tree).find(n=>n.props?.['aria-label']===template.name+'：模板详情');
+ const arrow=()=>nodes(toggle()).find(n=>n.props?.className==='upl-catalog-chevron');
+ assert.equal(toggle().props['aria-expanded'],false);assert.equal(arrow().props.children,'▸');
+ toggle().props.onClick();tree=render(props);
+ assert.equal(toggle().props['aria-expanded'],true);assert.equal(arrow().props.children,'▾');
+ assert.ok(!nodes(tree).some(n=>n.props?.className==='upl-template-description'||n.props?.className==='upl-parameter-schema'));
+ assert.equal(nodes(tree).filter(n=>n.type==='p'&&n.props.children===template.description).length,1);
  assert.ok(nodes(tree).some(n=>n.type==='td'&&n.props.children==='暂无子配置，新增后可在此查看、提交审批或停用。'));
+ nodes(tree).find(n=>n.props?.['aria-label']===template.name+'：详情').props.onClick();tree=render(props);
+ assert.equal(toggle().props['aria-expanded'],false);assert.equal(arrow().props.children,'▸');
+ assert.ok(!nodes(tree).some(n=>n.props?.className==='upl-template-detail'));
 });

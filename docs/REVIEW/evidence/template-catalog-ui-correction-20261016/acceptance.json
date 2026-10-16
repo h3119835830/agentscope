@@ -1,0 +1,26 @@
+{
+  "frontend_tests": 321,
+  "frontend_failed": 0,
+  "vite_build": true,
+  "backend_changed": false,
+  "dsh_changed": false,
+  "backend_tests_rerun": false,
+  "preview_real_data_read_only": true,
+  "arrow_and_details_synchronized": true,
+  "expanded_description_and_parameter_schema_removed": true,
+  "default_effect_and_operation_in_separate_columns": true,
+  "table_columns_keep_table_column_display": true,
+  "row_submission_review_cancelled_without_write": true,
+  "viewport_1070": {
+    "outer_width": 933,
+    "outer_scroll_width": 933,
+    "child_width": 873,
+    "child_scroll_width": 873
+  },
+  "viewport_826": {
+    "outer_width": 689,
+    "outer_scroll_width": 920,
+    "page_overflow": false,
+    "positioned_table_cells": 0
+  }
+}
