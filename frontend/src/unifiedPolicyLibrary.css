@@ -1,38 +1,57 @@
 .unified-policy-library .spl-filters{flex-wrap:wrap}
 .unified-policy-library .spl-filters select{max-width:240px}
-.unified-policy-library .upl-grouped-records{overflow-x:auto;border-color:#dfe7f0;border-radius:10px}
-.unified-policy-library .upl-grouped-records>table{min-width:920px;table-layout:fixed}
-.unified-policy-library .upl-col-check{width:42px}
-.unified-policy-library .upl-col-name{width:20%}
-.unified-policy-library .upl-col-scope{width:112px}
-.unified-policy-library .upl-col-effect{width:112px}
-.unified-policy-library .upl-col-state{width:124px}
-.unified-policy-library .upl-col-actions{width:234px}
-.prototype-theme .main[data-page] .unified-policy-library .upl-grouped-records th,
-.prototype-theme .main[data-page] .unified-policy-library .upl-grouped-records td{display:table-cell;width:auto;max-width:none;padding:17px 12px;vertical-align:middle;line-height:1.5;font-size:13px}
-.prototype-theme .main[data-page] .unified-policy-library .upl-grouped-records th{padding:13px 12px;background:#eef3f9;color:#63768e;font-size:12px;font-weight:500}
-.prototype-theme .main[data-page] .unified-policy-library .upl-grouped-records td:first-child,
-.prototype-theme .main[data-page] .unified-policy-library .upl-grouped-records th:first-child{padding-left:18px;padding-right:10px}
-.prototype-theme .main[data-page] .unified-policy-library .upl-grouped-records .upl-template-row td{padding-top:15px;padding-bottom:15px;background:#f7f9fc;border-top:1px solid #e2e8f0;border-bottom:1px solid #e8edf4}
-.prototype-theme .main[data-page] .unified-policy-library .upl-grouped-records tbody:first-of-type .upl-template-row td{border-top:0}
-.prototype-theme .main[data-page] .unified-policy-library .upl-grouped-records .upl-template-row td[colspan]{padding-left:0;padding-right:16px}
-.prototype-theme .main[data-page] .unified-policy-library .upl-grouped-records .upl-policy-row td{background:#fff;border-bottom:1px solid #edf1f6}
-.prototype-theme .main[data-page] .unified-policy-library .upl-grouped-records .upl-policy-row:hover td{background:#fafcff}
-.prototype-theme .main[data-page] .unified-policy-library .upl-grouped-records .upl-policy-row.chosen td{background:#f4f8ff}
-.unified-policy-library .upl-template-heading{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px 18px;align-items:center}
-.unified-policy-library .upl-template-title{display:flex;align-items:center;gap:10px;min-width:0}
-.unified-policy-library .upl-template-title .spl-record-name{font-size:14px;line-height:1.5;font-weight:650;color:#263f60}
-.unified-policy-library .upl-template-title .spl-record-name:disabled{cursor:default;opacity:1}
-.unified-policy-library .upl-template-chevron{display:inline-block;width:19px;color:#7288a4;font-size:12px}
-.unified-policy-library .upl-template-count{border-radius:4px;background:#e8eef7;color:#6f82a0;padding:2px 7px;font-size:11px;white-space:nowrap;font-weight:400}
-.unified-policy-library .upl-template-count.is-empty{background:transparent;color:#9aa7b8;padding-left:0}
-.unified-policy-library .upl-template-meta{grid-column:1;grid-row:2;margin:0;padding-left:19px;font-size:11px;color:#8b99ab;line-height:1.5}
-.unified-policy-library .upl-add-child{grid-column:2;grid-row:1 / span 2;border:1px solid #dce6f3;background:#fff;padding:7px 11px;color:#4675b3;font-size:12px;white-space:nowrap}
+.unified-policy-library .upl-template-library{overflow-x:auto;border-color:#dfe7f0;border-radius:10px}
+.unified-policy-library .upl-template-library>table{min-width:920px;table-layout:fixed}
+.unified-policy-library col.upl-catalog-name{width:18%}
+.unified-policy-library col.upl-catalog-parameters{width:18%}
+.unified-policy-library col.upl-catalog-effect{width:116px}
+.unified-policy-library col.upl-catalog-count{width:88px}
+.unified-policy-library col.upl-catalog-actions{width:152px}
+.prototype-theme .main[data-page] .unified-policy-library .upl-template-library th,
+.prototype-theme .main[data-page] .unified-policy-library .upl-template-library td{display:table-cell;width:auto;max-width:none;padding:17px 12px;vertical-align:middle;line-height:1.55;font-size:13px}
+.prototype-theme .main[data-page] .unified-policy-library .upl-template-library th{padding:13px 12px;background:#eef3f9;color:#63768e;font-size:12px;font-weight:500}
+.prototype-theme .main[data-page] .unified-policy-library .upl-template-library td:first-child,
+.prototype-theme .main[data-page] .unified-policy-library .upl-template-library th:first-child{padding-left:18px}
+.prototype-theme .main[data-page] .unified-policy-library .upl-catalog-row td{background:#fff;border-bottom:1px solid #edf1f6}
+.prototype-theme .main[data-page] .unified-policy-library .upl-catalog-row.is-open td{background:#f5f8fd}
+.unified-policy-library .upl-catalog-name{font-size:14px;font-weight:600;line-height:1.6}
+.prototype-theme .main[data-page] .unified-policy-library .upl-catalog-row td>small{display:block;margin-top:6px;font-size:11px;color:#8998ac}
+.unified-policy-library p.upl-catalog-description{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin:0;color:#63778f;font-size:12px;line-height:1.75}
+.unified-policy-library span.upl-catalog-parameters{display:block;color:#6f829b;font-size:12px;line-height:1.75}
+.unified-policy-library span.upl-catalog-count{display:inline-block;padding:3px 8px;background:#edf3fc;border-radius:4px;color:#5675a5;font-size:12px;white-space:nowrap}
+.unified-policy-library span.upl-catalog-count.is-empty{background:none;color:#9ca8b7}
+.unified-policy-library .upl-catalog-actions{display:flex;align-items:center;gap:12px;white-space:nowrap}
+.unified-policy-library .upl-template-library .spl-effect{padding:4px 7px;font-size:11px;line-height:1.5;font-weight:500;border-radius:5px;white-space:nowrap}
+.prototype-theme .main[data-page] .unified-policy-library .upl-template-detail-row>td{padding:0;background:#f8fafd;border-bottom:1px solid #dfe7f2}
+.unified-policy-library .upl-template-detail{padding:20px}
+.unified-policy-library .upl-template-description{font-size:12px;line-height:1.8;color:#657b96;margin:0 0 15px}
+.unified-policy-library .upl-template-description>strong{font-size:13px;color:#344f70;font-weight:600}
+.unified-policy-library .upl-template-description p{margin:5px 0 0}
+.unified-policy-library .upl-template-description .upl-template-limit{color:#a07a43}
+.unified-policy-library .upl-parameter-schema{border-top:1px solid #e4ebf4;padding:12px 0;margin:0 0 5px;font-size:12px;color:#6b819c}
+.unified-policy-library .upl-parameter-schema summary{cursor:pointer;list-style-position:inside}
+.unified-policy-library .upl-parameter-schema table{margin-top:12px;border:1px solid #e2e9f2;background:#fff}
+.prototype-theme .main[data-page] .unified-policy-library .upl-parameter-schema td{padding:10px 12px;font-size:12px;white-space:pre-wrap}
+.unified-policy-library .upl-configurations-head{display:flex;align-items:center;justify-content:space-between;margin:12px 0;font-size:13px;color:#355273}
+.unified-policy-library .upl-configurations-head strong{font-weight:600}
+.unified-policy-library .upl-configurations-head strong span{margin-left:7px;font-size:11px;color:#91a1b4;font-weight:400}
+.unified-policy-library .upl-configuration-records{border:1px solid #e0e8f2;border-radius:7px;background:#fff}
+.unified-policy-library .upl-configuration-records>table{min-width:860px;table-layout:fixed}
+.unified-policy-library .upl-col-check{width:38px}
+.unified-policy-library .upl-col-name{width:18%}
+.unified-policy-library .upl-col-scope{width:108px}
+.unified-policy-library .upl-col-effect{width:108px}
+.unified-policy-library .upl-col-state{width:116px}
+.unified-policy-library .upl-col-actions{width:218px}
+.prototype-theme .main[data-page] .unified-policy-library .upl-configuration-records th{padding:11px 12px;background:#f0f4fa}
+.prototype-theme .main[data-page] .unified-policy-library .upl-policy-row td{background:#fff;border-bottom:1px solid #edf1f6;padding:15px 12px;font-size:13px}
+.prototype-theme .main[data-page] .unified-policy-library .upl-policy-row:hover td{background:#fafcff}
+.prototype-theme .main[data-page] .unified-policy-library .upl-policy-row.chosen td{background:#f4f8ff}
+.prototype-theme .main[data-page] .unified-policy-library .upl-configurations-empty{text-align:center;padding:28px;font-size:12px;color:#8d9fb5}
 .unified-policy-library .upl-child-name{display:block;font-size:13px;font-weight:600;color:#2a4160;line-height:1.6}
 .unified-policy-library .upl-child-scope{display:inline-block;font-size:12px;line-height:1.6;color:#5d7493}
 .unified-policy-library .upl-child-target{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:12px/1.6 Consolas,monospace;color:#3b526e}
 .prototype-theme .main[data-page] .unified-policy-library .upl-policy-row td>small{display:block;margin-top:5px;font-size:11px;color:#8c9aad;line-height:1.5}
-.unified-policy-library .upl-policy-row .spl-effect{padding:4px 7px;font-size:11px;line-height:1.5;font-weight:500;border-radius:5px;white-space:nowrap}
 .unified-policy-library .upl-child-state{display:inline-flex;align-items:center;gap:5px;border-radius:4px;padding:4px 7px;background:#f1f4f8;color:#77879b;font-size:11px;line-height:1.5;white-space:nowrap}
 .unified-policy-library .upl-child-state:before{content:'●';font-size:5px}
 .unified-policy-library .upl-child-state.applied{color:#32836c;background:#edf7f2}
@@ -47,7 +66,7 @@
 .unified-policy-library .upl-submit:not(:disabled){font-weight:600;color:#326cca}
 .unified-policy-library .upl-row-action:disabled{color:#acb5c1;opacity:1;cursor:not-allowed}
 .unified-policy-library .upl-disable:not(:disabled){color:#b56a61}
-.unified-policy-library .upl-grouped-records footer{font-size:11px;padding:13px 18px}
+.unified-policy-library .upl-template-library footer{font-size:11px;padding:13px 18px}
 .upl-disable-preview{padding:10px 13px;border:1px solid #e1e8f2;border-radius:7px;background:#f8faff;margin:12px 0;font-size:12px}
 .upl-disable-preview p{margin:0 0 10px}
 .upl-disable-preview dl{display:grid;grid-template-columns:110px minmax(0,1fr);gap:8px;margin:0}
@@ -60,7 +79,9 @@
 .spl-template-detail .spl-template-state{margin:14px 0}
 .spl-template-detail .spl-template-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
 @media(max-width:1100px){
- .prototype-theme .main[data-page] .unified-policy-library .upl-grouped-records th:last-child,
- .prototype-theme .main[data-page] .unified-policy-library .upl-grouped-records .upl-policy-row td:last-child{position:sticky;right:0;z-index:1;box-shadow:-1px 0 #e6ecf4}
+ .prototype-theme .main[data-page] .unified-policy-library .upl-template-library>table>thead>tr>th:last-child,
+ .prototype-theme .main[data-page] .unified-policy-library .upl-catalog-row>td:last-child,
+ .prototype-theme .main[data-page] .unified-policy-library .upl-configuration-records th:last-child,
+ .prototype-theme .main[data-page] .unified-policy-library .upl-policy-row td:last-child{position:sticky;right:0;z-index:1;box-shadow:-1px 0 #e6ecf4}
 }
 @media(max-width:700px){.unified-policy-library .spl-filters select{max-width:100%}}

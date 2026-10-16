@@ -15,27 +15,34 @@ async function harness(entry,initial=[],exportName='default'){
  const mod=new Module(join(base,'.unified-catalog-test.cjs'));mod.paths=Module._nodeModulePaths(base);const original=mod.require.bind(mod);mod.require=id=>id==='react'?react:original(id);mod._compile(built.outputFiles[0].text,join(base,'.unified-catalog-test.cjs'));
  return props=>{globalThis.document={activeElement:null};index=0;ref=0;return mod.exports[exportName](props);};
 }
-const template={id:'FILE-READ',version:2,name:'文件读取限制',category:'文件保护',scopes:['system','agent'],parameters:[],operation:'open',effect:'block'};
+const template={description:'场景明确要求隔离无关资料时使用，填写目标路径，不额外禁止修改或删除。',id:'FILE-READ',version:2,name:'文件读取限制',category:'文件保护',scopes:['system','agent'],parameters:[],operation:'open',effect:'block'};
 const child={id:'tc_a',template_id:'FILE-READ',template_version:2,name:'禁止日报读取员工资料',scope_id:'a',scope:'agent',revision:1,parameters:{},status:'draft',can_submit:true};
+function templateDetails(render,props,name=template.name){
+ let tree=render(props);const button=nodes(tree).find(n=>n.props?.['aria-label']===name+'：详情');
+ if(!button.props['aria-expanded'])button.props.onClick();return render(props);
+}
 test('old templates URL resolves to one policy page without a second assistant or library',async()=>{
  const render=await harness('SystemWorkbench.jsx');const tree=render({api(){},post(){},navigation:{systemTab:'templates'},navigate(){}}),all=nodes(tree);
  assert.equal(all.filter(n=>n.props?.role==='tab').length,2);
  assert.equal(all.filter(n=>n.type?.name==='UnifiedPolicyLibrary').length,1);
  assert.ok(!all.some(n=>['AgentPolicyTemplates','TemplatePolicyAssistant'].includes(n.type?.name)));
 });
-test('child records expose six fields and retain the shared template detail',async()=>{
+test('template catalogue describes templates and opens separately labelled child fields only on details',async()=>{
  const render=await harness('UnifiedPolicyLibrary.jsx',[{catalog:[template],items:[child]},{catalog:[],items:[]}]);
  const props={api(){},post(){},agents:[{id:'a',agent_type:'dsh',mode:'controlled'}],onApprovals(){}};
- let tree=render(props);const table=nodes(tree).find(n=>n.type==='table'&&n.props['aria-label']==='系统策略配置库');
- assert.equal(nodes(tree).filter(n=>n.type==='table').length,1);
+ let tree=render(props),table=nodes(tree).find(n=>n.type==='table'&&n.props['aria-label']==='策略模板目录');
+ assert.deepEqual(nodes(table).filter(n=>n.type==='th').map(n=>n.props.children),['策略模板','说明','配置项','默认动作 / 操作','子配置','操作']);
+ assert.ok(!nodes(tree).some(n=>n.props?.['aria-label']===child.name+'：提交审批'));
+ assert.ok(nodes(table).some(n=>n.type==='p'&&n.props.children===template.description));
+ tree=templateDetails(render,props);table=nodes(tree).find(n=>n.type==='table'&&n.props['aria-label']==='文件读取限制 的子配置');
  assert.deepEqual(nodes(table).filter(n=>n.type==='th'&&!n.props.className?.includes('spl-check')).map(n=>n.props.children),['实际策略名称','范围','保护对象 / 操作','动作','状态','操作']);
- nodes(table).find(n=>n.type==='button'&&n.props.children==='详情').props.onClick();tree=render(props);
+ nodes(table).find(n=>n.props?.['aria-label']===child.name+'的详情').props.onClick();tree=render(props);
  const editor=nodes(tree).find(n=>n.type?.name==='TemplateConfigurationDialog');assert.equal(editor.props.item.name,child.name);assert.equal(editor.props.template.id,template.id);
 });
 test('row submit freezes this child and exact Agent without opening the detail or granting approval',async()=>{
  const render=await harness('UnifiedPolicyLibrary.jsx',[{catalog:[template],items:[child]},{catalog:[],items:[]}]),calls=[];
  const props={api:async()=>({revision:4,document_hash:'b'.repeat(64)}),post:async(path,body)=>{calls.push({path,body});return {id:'row-proposal',state:'pending'};},onApprovals:id=>calls.push({opened:id})};
- let tree=render(props);nodes(tree).find(n=>n.props?.['aria-label']===child.name+'：提交审批').props.onClick();tree=render(props);
+ let tree=templateDetails(render,props);nodes(tree).find(n=>n.props?.['aria-label']===child.name+'：提交审批').props.onClick();tree=render(props);
  assert.ok(!nodes(tree).some(n=>n.type?.name==='TemplateConfigurationDialog'));assert.equal(calls.length,0);
  const dialog=nodes(tree).find(n=>n.type?.name==='PolicyLifecycleDialog');assert.equal(dialog.props.confirmLabel,'提交审批');await dialog.props.onConfirm();
  assert.equal(calls[0].path,'/api/policy-template-configurations/proposals');assert.equal(calls[0].body.operation,'apply');assert.equal(calls[0].body.scope_id,'a');assert.deepEqual(calls[0].body.selections,[{id:child.id,revision:1}]);assert.deepEqual(calls[1],{opened:'row-proposal'});
@@ -43,7 +50,7 @@ test('row submit freezes this child and exact Agent without opening the detail o
 test('view approval uses the exact linked ID and never performs a write',async()=>{
  const row={...child,status:'pending',approval_id:'approval-exact',approval_revision:1,approval_current:true};
  const render=await harness('UnifiedPolicyLibrary.jsx',[{catalog:[template],items:[row]},{catalog:[],items:[]}]),calls=[];
- const tree=render({api(){},post:()=>calls.push('write'),onApprovals:id=>calls.push(id)});
+ const tree=templateDetails(render,{api(){},post:()=>calls.push('write'),onApprovals:id=>calls.push(id)});
  assert.equal(nodes(tree).find(n=>n.props?.['aria-label']===child.name+'：提交审批').props.disabled,true);
  nodes(tree).find(n=>n.props?.['aria-label']===child.name+'：查看审批').props.onClick();assert.deepEqual(calls,['approval-exact']);
 });
@@ -52,7 +59,7 @@ test('disable row previews the applied version, preserves draft binding and only
  const def={...template,parameters:[{key:'target',type:'path'}]};
  const render=await harness('UnifiedPolicyLibrary.jsx',[{catalog:[def],items:[row]},{catalog:[],items:[]}]),calls=[];
  const props={api:async()=>({revision:7,document_hash:'c'.repeat(64)}),post:async(path,body)=>{calls.push({path,body});return {id:'off-proposal',state:'pending'};},onApprovals:id=>calls.push({opened:id})};
- let tree=render(props);nodes(tree).find(n=>n.props?.['aria-label']===child.name+'：停用').props.onClick();tree=render(props);
+ let tree=templateDetails(render,props);nodes(tree).find(n=>n.props?.['aria-label']===child.name+'：停用').props.onClick();tree=render(props);
  let dialog=nodes(tree).find(n=>n.type?.name==='PolicyLifecycleDialog');assert.equal(dialog.props.title,'提交停用审批');assert.equal(calls.length,0);
  const text=nodes(dialog).flatMap(n=>[n.props?.children].flat(Infinity).filter(v=>typeof v==='string')).join(' ');assert.match(text,/staff\.csv/);assert.ok(!text.includes('/w/0/new-draft'));assert.match(text,/新版本草案保留/);
  dialog.props.onClose();assert.equal(calls.length,0);tree=render(props);assert.ok(!nodes(tree).some(n=>n.type?.name==='PolicyLifecycleDialog'));
@@ -63,7 +70,7 @@ test('legacy system rows expose exact approval and removal controls without chan
  const row={id:'legacy',name:'全局凭据保护',revision:2,applied:true,has_changes:true,applied_revision:1,approval_id:'legacy-receipt',approval_revision:1,approval_current:false,status:'library',config:{template_id:'env',values:'.env',ops:['open'],effect:'notify'}};
  const def={...template,id:'SYS-env'};const render=await harness('UnifiedPolicyLibrary.jsx',[{catalog:[def],items:[]},{catalog:[],items:[row]}]),calls=[];
  const props={api:async()=>({revision:1,document_hash:'d'.repeat(64)}),post:async(path,body)=>{calls.push({path,body});return {id:'legacy-off',state:'pending'};},onApprovals:id=>calls.push({opened:id})};
- let tree=render(props);const view=nodes(tree).find(n=>n.props?.['aria-label']===row.name+'：查看审批');assert.equal(view.props.disabled,false);assert.match(view.props.title,/v1/);
+ let tree=templateDetails(render,props);const view=nodes(tree).find(n=>n.props?.['aria-label']===row.name+'：查看审批');assert.equal(view.props.disabled,false);assert.match(view.props.title,/v1/);
  nodes(tree).find(n=>n.props?.['aria-label']===row.name+'：停用').props.onClick();tree=render(props);await nodes(tree).find(n=>n.type?.name==='PolicyLifecycleDialog').props.onConfirm();assert.equal(calls[0].body.scope_id,'system');assert.equal(calls[0].body.operation,'disable');
 });
 test('unapplied unsupported and in-flight rows cannot offer misleading lifecycle actions',()=>{
@@ -100,7 +107,7 @@ test('raw DSL without a structured projection stays unknown while mixed record e
 test('batch submit freezes selected instance and never approves or loads on its own',async()=>{
  const render=await harness('UnifiedPolicyLibrary.jsx',[{catalog:[template],items:[child]},{catalog:[],items:[]}]),calls=[];
  const props={agents:[{id:'a',agent_type:'dsh',mode:'controlled'}],api:async()=>({revision:3,document_hash:'a'.repeat(64)}),post:async(path,body)=>{calls.push({path,body});return {id:'proposal',state:'pending'};},onApprovals:id=>calls.push({opened:id})};
- let tree=render(props);nodes(tree).find(n=>n.type==='input'&&n.props['aria-label']==='选择 '+child.name).props.onChange();tree=render(props);
+ let tree=templateDetails(render,props);nodes(tree).find(n=>n.type==='input'&&n.props['aria-label']==='选择 '+child.name).props.onChange();tree=render(props);
  nodes(tree).find(n=>n.type==='button'&&n.props.children==='校验并提交审批 →').props.onClick();tree=render(props);
  await nodes(tree).find(n=>n.type?.name==='PolicyLifecycleDialog').props.onConfirm();
  assert.equal(calls[0].path,'/api/policy-template-configurations/proposals');assert.equal(calls[0].body.scope_id,'a');assert.deepEqual(calls[0].body.selections,[{id:'tc_a',revision:1}]);assert.equal(calls[1].opened,'proposal');assert.ok(calls.every(c=>!c.path||!/(approve|apply|confirm)$/.test(c.path)));
@@ -109,7 +116,7 @@ test('shared mutation access requires an explicit acknowledgement before submiss
  const covered={...child,coverage_warning:'修改与删除共用访问组'};
  const render=await harness('UnifiedPolicyLibrary.jsx',[{catalog:[template],items:[covered]},{catalog:[],items:[]}]),calls=[];
  const props={agents:[],api:async()=>({revision:1,document_hash:'a'.repeat(64)}),post:async(path,body)=>{calls.push({path,body});return {id:'p',state:'pending'};},onApprovals(){}};
- let tree=render(props);nodes(tree).find(n=>n.props?.['aria-label']==='选择 '+child.name).props.onChange();tree=render(props);
+ let tree=templateDetails(render,props);nodes(tree).find(n=>n.props?.['aria-label']==='选择 '+child.name).props.onChange();tree=render(props);
  nodes(tree).find(n=>n.type==='button'&&n.props.children==='校验并提交审批 →').props.onClick();tree=render(props);
  let confirm=nodes(tree).find(n=>n.type?.name==='PolicyLifecycleDialog');assert.equal(confirm.props.confirmDisabled,true);
  await confirm.props.onConfirm();assert.equal(calls.length,0);
@@ -123,4 +130,17 @@ test('legacy system review navigates to approvals without calling confirmation o
  const rules=nodes(tree).find(n=>n.type?.name==='SystemSecurityRules');
  await rules.props.onConfirm({id:'pending-policy'});
  assert.deepEqual(calls,['pending-policy']);
+});
+
+test('description search finds a template and preserves its scoped children',async()=>{
+ const render=await harness('UnifiedPolicyLibrary.jsx',[{catalog:[template],items:[child]},{catalog:[],items:[]}]);const props={api(){},post(){},onApprovals(){}};
+ let tree=render(props);nodes(tree).find(n=>n.props?.['aria-label']==='搜索系统策略').props.onChange({target:{value:'隔离无关资料'}});tree=render(props);
+ assert.ok(nodes(tree).some(n=>n.props?.['aria-label']===template.name+'：详情'));tree=templateDetails(render,props);
+ assert.ok(nodes(tree).some(n=>n.props?.['aria-label']===child.name+'：提交审批'));
+});
+test('an unconfigured template still opens its parameter definitions and empty child records',async()=>{
+ const def={...template,parameters:[{key:'target',label:'保护对象路径',type:'path',default:''}]};const render=await harness('UnifiedPolicyLibrary.jsx',[{catalog:[def],items:[]},{catalog:[],items:[]}]);
+ const tree=templateDetails(render,{api(){},post(){},onApprovals(){}});
+ assert.ok(nodes(tree).some(n=>n.type==='table'&&n.props['aria-label']===template.name+' 的参数定义'));
+ assert.ok(nodes(tree).some(n=>n.type==='td'&&n.props.children==='暂无子配置，新增后可在此查看、提交审批或停用。'));
 });

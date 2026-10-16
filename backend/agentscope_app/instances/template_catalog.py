@@ -1,6 +1,12 @@
 """Published, server-owned configuration contracts; the model cannot add rules."""
 import copy
+import json
+from pathlib import Path
 from .policy_library import CATALOG as SYSTEM_CATALOG
+
+# Selection metadata is shared by people and Agents, not part of immutable DSL
+# definitions or template_hash. Description edits must not invalidate approval.
+DESCRIPTIONS = json.loads(Path(__file__).with_name('template_descriptions.json').read_text())
 
 
 def field(key, label, default='', kind='text', **extra):
@@ -81,4 +87,5 @@ def get(ident, version=1):
 
 
 def public_catalog():
-    return [{k: copy.deepcopy(v) for k, v in t.items() if k not in ('renderer', 'system_preset')} for t in CATALOG]
+    return [{**{k: copy.deepcopy(v) for k, v in t.items() if k not in ('renderer', 'system_preset')},
+             'description':DESCRIPTIONS[t['id']]} for t in CATALOG]

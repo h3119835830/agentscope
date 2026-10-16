@@ -1,0 +1,37 @@
+{
+  "frontend_passed": 321,
+  "backend_passed": 1361,
+  "build": "passed",
+  "description_count": 27,
+  "human_and_model_description_payload_equal": true,
+  "versioned_definitions_unchanged": 54,
+  "model_accuracy_evaluation": false,
+  "browser_preview": "live GET configuration data plus same source-owned description metadata",
+  "main_headers": [
+    "策略模板",
+    "说明",
+    "配置项",
+    "默认动作 / 操作",
+    "子配置",
+    "操作"
+  ],
+  "child_records_hidden_until_details": true,
+  "parameters_and_child_headers_separate": true,
+  "description_search_verified": true,
+  "submit_and_cancel_verified": true,
+  "desktop_1070_client_scroll": [
+    933,
+    933
+  ],
+  "narrow_826_main_client_scroll": [
+    541,
+    920
+  ],
+  "narrow_child_client_scroll": [
+    860,
+    860
+  ],
+  "all_child_actions_visible": true,
+  "formal_policy_mutations": false,
+  "dsh_mutations": false
+}
