@@ -11,7 +11,7 @@ import {readNavigation,navigationTarget} from './navigation.mjs';
 import {generationState,generationHint} from './generationHistory.mjs';
 const require=createRequire(import.meta.url),Module=require('node:module'),base=dirname(fileURLToPath(import.meta.url));
 async function render(file,props,states=[]){
- const built=await build({entryPoints:[join(base,file)],bundle:true,platform:'node',format:'cjs',external:['react','react-dom'],loader:{'.css':'empty'},write:false});
+ const built=await build({entryPoints:[join(base,file)],bundle:true,platform:'node',format:'cjs',external:['react','react-dom'],loader:{'.css':'empty','.html':'text'},write:false});
  globalThis.document={body:{}};let index=0;const hooks={...React,useState:initial=>[index in states?states[index++]:((index++,typeof initial==='function'?initial():initial)),()=>{}]};
  const filename=join(base,'.product-test.cjs'),module=new Module(filename);module.paths=Module._nodeModulePaths(base);const original=module.require.bind(module);module.require=id=>id==='react'?hooks:id==='react-dom'?{...original(id),createPortal:()=>null}:original(id);module._compile(built.outputFiles[0].text,filename);
  return renderToStaticMarkup(React.createElement(module.exports.default,props));
