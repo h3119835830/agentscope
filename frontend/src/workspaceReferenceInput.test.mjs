@@ -117,6 +117,18 @@ test('legacy generation evidence remains readable without the new usage contract
  const html=renderToStaticMarkup(render({target:{id:'agent-a'},scope:'agent',api:async()=>catalog,post:async()=>assert.fail('unexpected write'),onApprovals(){}}));
  assert.match(html,/参考资料：订单资料/);assert.match(html,/README.md/);
 });
+test('each conversation round renders its frozen configuration with a single composer',async()=>{
+ const snapshot={id:'original',revision:1,name:'生成时员工保护',template:{name:'文件读取限制',version:2,parameters:[{key:'target',label:'保护对象的路径',type:'path'}]},parameters:{target:'/w/0/original.csv'},scope:{label:'指定 Agent · 原名称'},approval_status:'draft'};
+ const generations=[{request_id:'round-1',scope:'agent',workspace_id:null,text:'第一轮',items:[{id:'original',revision:1}],questions:[],gaps:[],configuration_snapshots:[snapshot]},
+  {request_id:'round-2',scope:'agent',workspace_id:null,text:'第二轮',items:[{id:'second',revision:1}],questions:[],gaps:[],configuration_snapshots:[{...snapshot,id:'second',name:'生成时预算保护',parameters:{target:'/w/0/budget.csv'}}]}];
+ const catalog={catalog:[],items:[{id:'original',scope:'agent',workspace_id:null,name:'后来编辑的名称',parameters:{target:'/w/0/changed.csv'},origin:'manual'}],generations};
+ const render=await harness('TemplatePolicyAssistant.jsx',[catalog,'',[],'',false,[],false]);
+ const tree=render({target:{id:'agent-a',name:'后来修改的Agent名称'},scope:'agent',api:async()=>catalog,post:async()=>assert.fail('unexpected write'),onApprovals(){}}),html=renderToStaticMarkup(tree);
+ assert.equal(nodes(tree).filter(n=>n.type==='textarea').length,1);
+ assert.equal((html.match(/本轮生成的策略配置/g)||[]).length,2);
+ assert.match(html,/生成时员工保护/);assert.match(html,/生成时预算保护/);assert.match(html,/original.csv/);assert.match(html,/budget.csv/);
+ assert.doesNotMatch(html,/后来编辑的名称|changed.csv|后来修改的Agent名称|手工配置|新增子配置/);
+});
 test('project text is escaped and only displayed inside an expandable evidence section',async()=>{
  const value={...receipt,files:[{...receipt.files[0],text:'<script>doSomething()</script>'}]};
  const render=await harness('WorkspaceReferenceInput.jsx',[data,'workspace-a','README.md',value,false,'']);

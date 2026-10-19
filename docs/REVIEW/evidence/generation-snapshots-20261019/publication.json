@@ -1,0 +1,24 @@
+{
+  "release": "/opt/agentscope-generation-snapshots-20261019-135844",
+  "changed_backend": [
+    "instances/generation_snapshots.py",
+    "instances/template_configurations.py"
+  ],
+  "api_restart_seconds": 1.319,
+  "published": true,
+  "health_ok": true,
+  "authority_unchanged": true,
+  "protected_tables_unchanged": true,
+  "protected_table_count": 10,
+  "broker_unchanged": true,
+  "other_ports_unchanged": true,
+  "ui_index_hash": "e878f5cfd3b149516cc6ec8574ff8c458c51f54aab8a0907fc1cda531eb633c3",
+  "api_pid": "106639",
+  "source_base_commit": "4f72bea4937f8561dcd09df8dde523dc6b871ad1",
+  "changed_backend_hashes": {
+    "instances/generation_snapshots.py": "3d1d553ebf6bda0c24bc2526827e2e9bffa4d3e44d9dd5c5ba9c458faa59f185",
+    "instances/template_configurations.py": "9f71ded207f387162eeacd7a812b36ddc6b89668e43e6ac2efb0060696796e76"
+  },
+  "formal_generation_records_added": 0,
+  "served_bundle_matches_build": true
+}

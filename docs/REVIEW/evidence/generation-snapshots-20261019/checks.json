@@ -1,0 +1,17 @@
+[
+  {
+    "check": "backend",
+    "exit_code": 0,
+    "elapsed_seconds": 104.39
+  },
+  {
+    "check": "frontend",
+    "exit_code": 0,
+    "elapsed_seconds": 1.43
+  },
+  {
+    "check": "build",
+    "exit_code": 0,
+    "elapsed_seconds": 2.98
+  }
+]

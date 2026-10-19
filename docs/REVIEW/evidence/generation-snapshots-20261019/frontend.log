@@ -1,0 +1,1665 @@
+TAP version 13
+# Subtest: reading starts only on an explicit click and cannot save or approve a policy
+ok 1 - reading starts only on an explicit click and cannot save or approve a policy
+  ---
+  duration_ms: 106.623636
+  ...
+# Subtest: adoption checks fresh evidence and only fills the composer
+ok 2 - adoption checks fresh evidence and only fills the composer
+  ---
+  duration_ms: 17.270816
+  ...
+# Subtest: empty, loading, stale and failed states remain readable and cannot be adopted
+ok 3 - empty, loading, stale and failed states remain readable and cannot be adopted
+  ---
+  duration_ms: 62.211517
+  ...
+# Subtest: archive graph renders recorded historical PID without live verification or invented PID
+ok 4 - archive graph renders recorded historical PID without live verification or invented PID
+  ---
+  duration_ms: 13.324846
+  ...
+# Subtest: default live graph keeps excluding processes when graph is not live or observation is stale
+ok 5 - default live graph keeps excluding processes when graph is not live or observation is stale
+  ---
+  duration_ms: 6.020058
+  ...
+# Subtest: archive request paths remain task scoped and encoded
+ok 6 - archive request paths remain task scoped and encoded
+  ---
+  duration_ms: 0.208358
+  ...
+# Subtest: archive graph starts folded with no rendered evidence or API call
+ok 7 - archive graph starts folded with no rendered evidence or API call
+  ---
+  duration_ms: 1.238923
+  ...
+# Subtest: replay domain tab starts expanded but its initial client effects only read the archived task graph
+ok 8 - replay domain tab starts expanded but its initial client effects only read the archived task graph
+  ---
+  duration_ms: 45.060132
+  ...
+# Subtest: history without a replay task keeps native history search and has no fixed research shortcut
+ok 9 - history without a replay task keeps native history search and has no fixed research shortcut
+  ---
+  duration_ms: 50.691102
+  ...
+# Subtest: history filters reset pagination without injecting a research query
+ok 10 - history filters reset pagination without injecting a research query
+  ---
+  duration_ms: 60.547701
+  ...
+# Subtest: replay is a full width task page with scoped page selector and no dialog or live workbench
+ok 11 - replay is a full width task page with scoped page selector and no dialog or live workbench
+  ---
+  duration_ms: 13.845588
+  ...
+# Subtest: replay initial client read uses the explicit selected archive identity only
+ok 12 - replay initial client read uses the explicit selected archive identity only
+  ---
+  duration_ms: 58.281433
+  ...
+# Subtest: policy detail restores four keyboard reachable subpages while DSL remains exact statement
+ok 13 - policy detail restores four keyboard reachable subpages while DSL remains exact statement
+  ---
+  duration_ms: 34.151761
+  ...
+# Subtest: startup retains lazy evidence behind one closed technical disclosure
+ok 14 - startup retains lazy evidence behind one closed technical disclosure
+  ---
+  duration_ms: 14.742852
+  ...
+# Subtest: historical graph only associates loaded operation resources from the same task and version
+ok 15 - historical graph only associates loaded operation resources from the same task and version
+  ---
+  duration_ms: 1.445113
+  ...
+# Subtest: same-name replay selector labels include creation time and exact identity suffix
+ok 16 - same-name replay selector labels include creation time and exact identity suffix
+  ---
+  duration_ms: 111.902622
+  ...
+# Subtest: historical monitor defaults to relationship graph with four distinct internal modes
+ok 17 - historical monitor defaults to relationship graph with four distinct internal modes
+  ---
+  duration_ms: 41.55397
+  ...
+# Subtest: source directories and historical missing materials default to closed disclosures
+ok 18 - source directories and historical missing materials default to closed disclosures
+  ---
+  duration_ms: 57.270967
+  ...
+# Subtest: archive policy restores six-column statement records and audit retains workbench rows
+ok 19 - archive policy restores six-column statement records and audit retains workbench rows
+  ---
+  duration_ms: 55.77962
+  ...
+# Subtest: runtime default reads actual statements and saved Hook triggers; jobs only read in the separate generation collection
+ok 20 - runtime default reads actual statements and saved Hook triggers; jobs only read in the separate generation collection
+  ---
+  duration_ms: 59.5712
+  ...
+# Subtest: live and archived workbench share pure record drawer and monitor components without importing live workbench into replay
+ok 21 - live and archived workbench share pure record drawer and monitor components without importing live workbench into replay
+  ---
+  duration_ms: 1.701001
+  ...
+# Subtest: bootstrap failure is a pure compact notice with factual diagnosis and independently authorized recovery actions
+ok 22 - bootstrap failure is a pure compact notice with factual diagnosis and independently authorized recovery actions
+  ---
+  duration_ms: 16.034729
+  ...
+# Subtest: embedded preparation keeps confirmation and evidence folds without a second strategy table or task summary
+ok 23 - embedded preparation keeps confirmation and evidence folds without a second strategy table or task summary
+  ---
+  duration_ms: 17.2766
+  ...
+# Subtest: startup recovery only reads on mount and explicit candidate action navigates to returned target without confirming
+ok 24 - startup recovery only reads on mount and explicit candidate action navigates to returned target without confirming
+  ---
+  duration_ms: 5.468001
+  ...
+# Subtest: verified recovery readiness is distinct from original failure, while generating link offers navigation only
+ok 25 - verified recovery readiness is distinct from original failure, while generating link offers navigation only
+  ---
+  duration_ms: 21.054695
+  ...
+# Subtest: targetless guidance rows show distinct compact real statements while execution rows keep path titles
+ok 26 - targetless guidance rows show distinct compact real statements while execution rows keep path titles
+  ---
+  duration_ms: 8.484499
+  ...
+# Subtest: selected statement DSL is visible and inherited whole package starts in a separate closed disclosure
+ok 27 - selected statement DSL is visible and inherited whole package starts in a separate closed disclosure
+  ---
+  duration_ms: 5.445969
+  ...
+# Subtest: candidate bundle-only material is never the default statement code block
+ok 28 - candidate bundle-only material is never the default statement code block
+  ---
+  duration_ms: 0.525743
+  ...
+# Subtest: guidance states that no OS rule is generated while output expansion shows only recorded boolean change
+ok 29 - guidance states that no OS rule is generated while output expansion shows only recorded boolean change
+  ---
+  duration_ms: 1.391272
+  ...
+# Subtest: scene evidence remains escaped text and only explicit supplements are labelled as user input
+ok 30 - scene evidence remains escaped text and only explicit supplements are labelled as user input
+  ---
+  duration_ms: 15.706668
+  ...
+# Subtest: long goal starts in a native disclosure without truncating or changing its source text
+ok 31 - long goal starts in a native disclosure without truncating or changing its source text
+  ---
+  duration_ms: 0.68629
+  ...
+# Subtest: short goal stays directly readable while multiline goals can be expanded
+ok 32 - short goal stays directly readable while multiline goals can be expanded
+  ---
+  duration_ms: 0.660525
+  ...
+# Subtest: first two constraints are visible and remaining original constraints start folded
+ok 33 - first two constraints are visible and remaining original constraints start folded
+  ---
+  duration_ms: 0.94229
+  ...
+# Subtest: empty recognition does not invent a goal or require a form field
+ok 34 - empty recognition does not invent a goal or require a form field
+  ---
+  duration_ms: 0.375816
+  ...
+# Subtest: DSL records retain all declared actions, types and independent context/source
+ok 35 - DSL records retain all declared actions, types and independent context/source
+  ---
+  duration_ms: 23.130762
+  ...
+# Subtest: older loading receipts are distinct from current verified bindings
+ok 36 - older loading receipts are distinct from current verified bindings
+  ---
+  duration_ms: 1.484862
+  ...
+# Subtest: source DSL displays literal text safely and preserves line numbers
+ok 37 - source DSL displays literal text safely and preserves line numbers
+  ---
+  duration_ms: 1.384698
+  ...
+# Subtest: session deep links preserve Agent and workspace filters and retire runtime selection
+ok 38 - session deep links preserve Agent and workspace filters and retire runtime selection
+  ---
+  duration_ms: 3.911373
+  ...
+# Subtest: four connection records appear as two products without discarding instance policies
+ok 39 - four connection records appear as two products without discarding instance policies
+  ---
+  duration_ms: 3.533251
+  ...
+# Subtest: an already openable observed instance wins over an inactive controlled instance
+ok 40 - an already openable observed instance wins over an inactive controlled instance
+  ---
+  duration_ms: 0.349599
+  ...
+# Subtest: verified active and openable controlled instance is preferred without aggregating other coverage
+ok 41 - verified active and openable controlled instance is preferred without aggregating other coverage
+  ---
+  duration_ms: 0.194444
+  ...
+# Subtest: stale or unknown records cannot provide an open action or a historical PID
+ok 42 - stale or unknown records cannot provide an open action or a historical PID
+  ---
+  duration_ms: 7.729526
+  ...
+# Subtest: same-name manually registered unknown products retain separate connection identities
+ok 43 - same-name manually registered unknown products retain separate connection identities
+  ---
+  duration_ms: 0.341007
+  ...
+# Subtest: CLI installation is labelled and offers terminal instructions, never a Web open
+ok 44 - CLI installation is labelled and offers terminal instructions, never a Web open
+  ---
+  duration_ms: 0.298017
+  ...
+# Subtest: same product selects the usable Web entry while preserving the CLI entry
+ok 45 - same product selects the usable Web entry while preserving the CLI entry
+  ---
+  duration_ms: 0.366645
+  ...
+# Subtest: OS process observation does not imply a Web or CLI entry and expires without historical PID
+ok 46 - OS process observation does not imply a Web or CLI entry and expires without historical PID
+  ---
+  duration_ms: 0.204116
+  ...
+# Subtest: a stopped configured terminal starts on open, and a running terminal reuses its identity
+ok 47 - a stopped configured terminal starts on open, and a running terminal reuses its identity
+  ---
+  duration_ms: 0.292101
+  ...
+# Subtest: all six curated candidates preserve evidence and do not inherit historical compilation
+ok 48 - all six curated candidates preserve evidence and do not inherit historical compilation
+  ---
+  duration_ms: 4.179744
+  ...
+# Subtest: template arguments reject unsupported quotes, backslashes, control, relative and traversal paths
+ok 49 - template arguments reject unsupported quotes, backslashes, control, relative and traversal paths
+  ---
+  duration_ms: 3.445889
+  ...
+# Subtest: handoff requires exact controlled target and cannot point to system or observed connections
+ok 50 - handoff requires exact controlled target and cannot point to system or observed connections
+  ---
+  duration_ms: 13.54755
+  ...
+# Subtest: import appends to a fresh current snapshot without mutating or replacing existing documents
+ok 51 - import appends to a fresh current snapshot without mutating or replacing existing documents
+  ---
+  duration_ms: 1.129677
+  ...
+# Subtest: import enforces aggregate document and UTF8 byte limits
+ok 52 - import enforces aggregate document and UTF8 byte limits
+  ---
+  duration_ms: 0.502141
+  ...
+# Subtest: DSL or metadata edits and stale current revisions disable application
+ok 53 - DSL or metadata edits and stale current revisions disable application
+  ---
+  duration_ms: 0.237157
+  ...
+# Subtest: new Agent/System aliases and scoped handoff routes retain browser-history and old generation links
+ok 54 - new Agent/System aliases and scoped handoff routes retain browser-history and old generation links
+  ---
+  duration_ms: 7.064248
+  ...
+# Subtest: real DSL editor opens a candidate without writes, only validates on click and hands off to approval on separate explicit click
+ok 55 - real DSL editor opens a candidate without writes, only validates on click and hands off to approval on separate explicit click
+  ---
+  duration_ms: 16.403492
+  ...
+# Subtest: template defaults use the selected Agent real resource and reset when the target changes
+ok 56 - template defaults use the selected Agent real resource and reset when the target changes
+  ---
+  duration_ms: 0.336978
+  ...
+# Subtest: DSH process labels use product and current PID, never a fixture alias or internal ID
+ok 57 - DSH process labels use product and current PID, never a fixture alias or internal ID
+  ---
+  duration_ms: 0.852794
+  ...
+# Subtest: session directory preserves native titles and product identity without workspace or process filters
+ok 58 - session directory preserves native titles and product identity without workspace or process filters
+  ---
+  duration_ms: 20.086263
+  ...
+# Subtest: session details use current Agent context and do not offer internal runtime selection
+ok 59 - session details use current Agent context and do not offer internal runtime selection
+  ---
+  duration_ms: 30.60372
+  ...
+# Subtest: product filter stays available with a single filtered Agent and missing mapping is unknown
+ok 60 - product filter stays available with a single filtered Agent and missing mapping is unknown
+  ---
+  duration_ms: 15.018903
+  ...
+# Subtest: historical policy and audit pane survives refresh without changing current task
+ok 61 - historical policy and audit pane survives refresh without changing current task
+  ---
+  duration_ms: 11.315421
+  ...
+# Subtest: old archive links open startup policies and unknown panes cannot select arbitrary content
+ok 62 - old archive links open startup policies and unknown panes cannot select arbitrary content
+  ---
+  duration_ms: 0.352509
+  ...
+# Subtest: replay domain pane restores task identity and list context without selecting an active workbench task
+ok 63 - replay domain pane restores task identity and list context without selecting an active workbench task
+  ---
+  duration_ms: 7.360968
+  ...
+# Subtest: history route without a replay task remains the list even with a domains pane
+ok 64 - history route without a replay task remains the list even with a domains pane
+  ---
+  duration_ms: 0.243186
+  ...
+# Subtest: history exposes explicit strategy and execution audit tabs with legacy pane migration
+ok 65 - history exposes explicit strategy and execution audit tabs with legacy pane migration
+  ---
+  duration_ms: 2.581049
+  ...
+# Subtest: each statement keeps its exact child ID and text even within the same generation job
+ok 66 - each statement keeps its exact child ID and text even within the same generation job
+  ---
+  duration_ms: 0.7734
+  ...
+# Subtest: failed and statement-less jobs remain honest placeholders without fabricated policy text
+ok 67 - failed and statement-less jobs remain honest placeholders without fabricated policy text
+  ---
+  duration_ms: 0.180574
+  ...
+# Subtest: OS rows show actual operation result and distinguish probe process domain from ancestor rule domain
+ok 68 - OS rows show actual operation result and distinguish probe process domain from ancestor rule domain
+  ---
+  duration_ms: 0.537251
+  ...
+# Subtest: missing generation and review receipts stay explicit and pending is not approved
+ok 69 - missing generation and review receipts stay explicit and pending is not approved
+  ---
+  duration_ms: 0.201444
+  ...
+# Subtest: policy detail reads stored loading receipt without pretending completion alone is loading
+ok 70 - policy detail reads stored loading receipt without pretending completion alone is loading
+  ---
+  duration_ms: 0.16313
+  ...
+# Subtest: 50-row audit batch reveals its last two rows before the next server page
+ok 71 - 50-row audit batch reveals its last two rows before the next server page
+  ---
+  duration_ms: 0.132961
+  ...
+# Subtest: unverified or integrity-failed compilation is never presented as a recorded success
+ok 72 - unverified or integrity-failed compilation is never presented as a recorded success
+  ---
+  duration_ms: 0.129095
+  ...
+# Subtest: whole candidate DSL cannot masquerade as a statement mapping
+ok 73 - whole candidate DSL cannot masquerade as a statement mapping
+  ---
+  duration_ms: 0.247215
+  ...
+# Subtest: a retained clause under a no-change job still shows its own exact DSL
+ok 74 - a retained clause under a no-change job still shows its own exact DSL
+  ---
+  duration_ms: 0.22251
+  ...
+# Subtest: semantic guidance never exports OS DSL and integrity failure cannot show a claimed mapping
+ok 75 - semantic guidance never exports OS DSL and integrity failure cannot show a claimed mapping
+  ---
+  duration_ms: 0.219738
+  ...
+# Subtest: expansion displays recorded permission delta without inventing a removed deny clause
+ok 76 - expansion displays recorded permission delta without inventing a removed deny clause
+  ---
+  duration_ms: 0.281953
+  ...
+# Subtest: stage previews preserve preparation and closure beside a busy execution page without duplicating events
+ok 77 - stage previews preserve preparation and closure beside a busy execution page without duplicating events
+  ---
+  duration_ms: 5.851738
+  ...
+# Subtest: runtime assessment displays its public no-change decision in Chinese
+ok 78 - runtime assessment displays its public no-change decision in Chinese
+  ---
+  duration_ms: 0.334286
+  ...
+# Subtest: archived loaded and legacy active status never claim current enforcement
+ok 79 - archived loaded and legacy active status never claim current enforcement
+  ---
+  duration_ms: 0.188
+  ...
+# Subtest: missing source snapshots remain explicitly unrecorded
+ok 80 - missing source snapshots remain explicitly unrecorded
+  ---
+  duration_ms: 0.155135
+  ...
+# Subtest: archive list defaults to ended tasks and keeps explicit all/active filters
+ok 81 - archive list defaults to ended tasks and keeps explicit all/active filters
+  ---
+  duration_ms: 0.150631
+  ...
+# Subtest: archive list exposes the recorded Agent and workspace without inventing missing identity
+ok 82 - archive list exposes the recorded Agent and workspace without inventing missing identity
+  ---
+  duration_ms: 0.15644
+  ...
+# Subtest: file snapshots form one collapsed evidence batch and stage preview never exceeds five groups
+ok 83 - file snapshots form one collapsed evidence batch and stage preview never exceeds five groups
+  ---
+  duration_ms: 35.172119
+  ...
+# Subtest: policy lifecycle links exact job and version across candidate review compile and load receipts
+ok 84 - policy lifecycle links exact job and version across candidate review compile and load receipts
+  ---
+  duration_ms: 0.23292
+  ...
+# Subtest: missing identity, unrelated jobs and different task versions are not guessed into a policy group
+ok 85 - missing identity, unrelated jobs and different task versions are not guessed into a policy group
+  ---
+  duration_ms: 14.033081
+  ...
+# Subtest: no-change assessments retain their own decision instead of joining a prior loaded version
+ok 86 - no-change assessments retain their own decision instead of joining a prior loaded version
+  ---
+  duration_ms: 0.258959
+  ...
+# Subtest: constraint disclosure presents Chinese field entries without a JSON document
+ok 87 - constraint disclosure presents Chinese field entries without a JSON document
+  ---
+  duration_ms: 0.244105
+  ...
+# Subtest: default stage summary keeps an earlier policy v4 ahead of the latest five probe results without reordering history
+ok 88 - default stage summary keeps an earlier policy v4 ahead of the latest five probe results without reordering history
+  ---
+  duration_ms: 0.282901
+  ...
+# Subtest: operation verification summary names the operation target and recorded classification
+ok 89 - operation verification summary names the operation target and recorded classification
+  ---
+  duration_ms: 0.166644
+  ...
+# Subtest: global highlights seed old v3/v4 receipts beyond the latest fifty probes without changing pagination records
+ok 90 - global highlights seed old v3/v4 receipts beyond the latest fifty probes without changing pagination records
+  ---
+  duration_ms: 3.460763
+  ...
+# Subtest: v4 no-change runtime candidate and resolved events remain assessments outside a true expansion job
+ok 91 - v4 no-change runtime candidate and resolved events remain assessments outside a true expansion job
+  ---
+  duration_ms: 0.280815
+  ...
+# Subtest: different jobs with the same version are never unioned and an ambiguous version-only receipt stays separate
+ok 92 - different jobs with the same version are never unioned and an ambiguous version-only receipt stays separate
+  ---
+  duration_ms: 0.231641
+  ...
+# Subtest: legacy JSON constraints translate duplicate requirements without losing either authority
+ok 93 - legacy JSON constraints translate duplicate requirements without losing either authority
+  ---
+  duration_ms: 14.140846
+  ...
+# Subtest: declared constraints preserve original requirements and exact protected targets
+ok 94 - declared constraints preserve original requirements and exact protected targets
+  ---
+  duration_ms: 0.313228
+  ...
+# Subtest: an operation probe exposes its classification rather than treating recorded as proof of success
+ok 95 - an operation probe exposes its classification rather than treating recorded as proof of success
+  ---
+  duration_ms: 0.625593
+  ...
+# Subtest: stored event provenance never invents an executor and archived loading remains historical
+ok 96 - stored event provenance never invents an executor and archived loading remains historical
+  ---
+  duration_ms: 0.195945
+  ...
+# Subtest: search includes operation targets and deduplicates stable event IDs in reverse chronological order
+ok 97 - search includes operation targets and deduplicates stable event IDs in reverse chronological order
+  ---
+  duration_ms: 0.523736
+  ...
+# Subtest: critical receipts remain available beyond a busy first page and never infer an event from a version
+ok 98 - critical receipts remain available beyond a busy first page and never infer an event from a version
+  ---
+  duration_ms: 0.259445
+  ...
+# Subtest: nested no-change and guidance decisions stay assessments rather than permission changes
+ok 99 - nested no-change and guidance decisions stay assessments rather than permission changes
+  ---
+  duration_ms: 0.308332
+  ...
+# Subtest: historical event lenses retain separate evidence classes without inventing server categories
+ok 100 - historical event lenses retain separate evidence classes without inventing server categories
+  ---
+  duration_ms: 1.842895
+  ...
+# Subtest: history route preserves selected task but cannot mount live workbench or global refresh
+ok 101 - history route preserves selected task but cannot mount live workbench or global refresh
+  ---
+  duration_ms: 0.874435
+  ...
+# Subtest: opening replay resets old list scroll and cancelled frames cannot overwrite it; returning restores list position
+ok 102 - opening replay resets old list scroll and cancelled frames cannot overwrite it; returning restores list position
+  ---
+  duration_ms: 0.309451
+  ...
+# Subtest: retired connection history links fall back to current connections without selecting a task
+ok 103 - retired connection history links fall back to current connections without selecting a task
+  ---
+  duration_ms: 4.401881
+  ...
+# Subtest: older connection event pages merge without losing a receipt or duplicating rows
+ok 104 - older connection event pages merge without losing a receipt or duplicating rows
+  ---
+  duration_ms: 0.512919
+  ...
+# Subtest: unknown transport state and ended binding cannot be described as a verified live connection
+ok 105 - unknown transport state and ended binding cannot be described as a verified live connection
+  ---
+  duration_ms: 0.151988
+  ...
+# Subtest: connection immediately loses green on failure or expired evidence despite active phase
+ok 106 - connection immediately loses green on failure or expired evidence despite active phase
+  ---
+  duration_ms: 0.942824
+  ...
+# Subtest: a delayed check cannot replace the newer request
+ok 107 - a delayed check cannot replace the newer request
+  ---
+  duration_ms: 0.134128
+  ...
+# Subtest: logical task produces one row even when snapshots repeat
+ok 108 - logical task produces one row even when snapshots repeat
+  ---
+  duration_ms: 0.139126
+  ...
+# Subtest: archive navigation preserves workbench agent task and history filters across refresh/back
+ok 109 - archive navigation preserves workbench agent task and history filters across refresh/back
+  ---
+  duration_ms: 1.174348
+  ...
+# Subtest: old task/runtime/agent links migrate to the three modules
+ok 110 - old task/runtime/agent links migrate to the three modules
+  ---
+  duration_ms: 0.165988
+  ...
+# Subtest: instance and workspace remain selected when archive query and browser history change
+ok 111 - instance and workspace remain selected when archive query and browser history change
+  ---
+  duration_ms: 1.045849
+  ...
+# Subtest: history opens with ended filter and all remains explicitly restorable
+ok 112 - history opens with ended filter and all remains explicitly restorable
+  ---
+  duration_ms: 0.389696
+  ...
+# Subtest: pending change wording follows proposal decision and confirmation is distinct from Pi evaluation
+ok 113 - pending change wording follows proposal decision and confirmation is distinct from Pi evaluation
+  ---
+  duration_ms: 0.157105
+  ...
+# Subtest: no-change and guidance rows distinguish unchanged permission from unapplied rejected or expired candidates
+ok 114 - no-change and guidance rows distinguish unchanged permission from unapplied rejected or expired candidates
+  ---
+  duration_ms: 1.035699
+  ...
+# Subtest: workbench selections show current tasks and keep failed history out of the dropdown
+ok 115 - workbench selections show current tasks and keep failed history out of the dropdown
+  ---
+  duration_ms: 1.56523
+  ...
+# Subtest: ended managed instances disappear from connection choices while current registered instances remain unknown
+ok 116 - ended managed instances disappear from connection choices while current registered instances remain unknown
+  ---
+  duration_ms: 0.309103
+  ...
+# Subtest: audit rows preserve operation process domain and distinguish acceptance probes from DSH
+ok 117 - audit rows preserve operation process domain and distinguish acceptance probes from DSH
+  ---
+  duration_ms: 0.331348
+  ...
+# Subtest: two live tasks plus dozens of failed histories keep the current dropdown small and explicit failed remains recoverable
+ok 118 - two live tasks plus dozens of failed histories keep the current dropdown small and explicit failed remains recoverable
+  ---
+  duration_ms: 0.345365
+  ...
+# Subtest: current selector requires managed web evidence and leaves old headless records in history
+ok 119 - current selector requires managed web evidence and leaves old headless records in history
+  ---
+  duration_ms: 0.191813
+  ...
+# Subtest: loaded restriction subtitle follows stored loading receipts without requiring a version field
+ok 120 - loaded restriction subtitle follows stored loading receipts without requiring a version field
+  ---
+  duration_ms: 0.130665
+  ...
+# Subtest: pending review ignores a one-child statement delta and reconstructs the complete job scope
+ok 121 - pending review ignores a one-child statement delta and reconstructs the complete job scope
+  ---
+  duration_ms: 0.348948
+  ...
+# Subtest: frozen parent baseline and process generation outrank current workbench values
+ok 122 - frozen parent baseline and process generation outrank current workbench values
+  ---
+  duration_ms: 0.168771
+  ...
+# Subtest: archive audit attributes by action_source and never interprets a storage table as DSH
+ok 123 - archive audit attributes by action_source and never interprets a storage table as DSH
+  ---
+  duration_ms: 0.274183
+  ...
+# Subtest: stale pending fallback does not invent a baseline from a newer live version
+ok 124 - stale pending fallback does not invent a baseline from a newer live version
+  ---
+  duration_ms: 0.193276
+  ...
+# Subtest: audit reveals every row of a 50-row batch before requesting its older cursor
+ok 125 - audit reveals every row of a 50-row batch before requesting its older cursor
+  ---
+  duration_ms: 0.456713
+  ...
+# Subtest: probe operation labels describe file-descriptor mappings and path mutations
+ok 126 - probe operation labels describe file-descriptor mappings and path mutations
+  ---
+  duration_ms: 0.15081
+  ...
+# Subtest: restored workspace selection waits for an explicitly readable registration before reading files
+ok 127 - restored workspace selection waits for an explicitly readable registration before reading files
+  ---
+  duration_ms: 0.192211
+  ...
+# Subtest: conversation result shows the five requested fields from its snapshot
+ok 128 - conversation result shows the five requested fields from its snapshot
+  ---
+  duration_ms: 7.655161
+  ...
+# Subtest: separate configurations keep different templates, parameters, scopes and approvals
+ok 129 - separate configurations keep different templates, parameters, scopes and approvals
+  ---
+  duration_ms: 1.780001
+  ...
+# Subtest: operation and disposition parameters are readable and escaped
+ok 130 - operation and disposition parameters are readable and escaped
+  ---
+  duration_ms: 1.626333
+  ...
+# Subtest: disable approvals describe disable instead of claiming active protection
+ok 131 - disable approvals describe disable instead of claiming active protection
+  ---
+  duration_ms: 3.54172
+  ...
+# Subtest: empty and unavailable history do not invent template or parameter values
+ok 132 - empty and unavailable history do not invent template or parameter values
+  ---
+  duration_ms: 4.261128
+  ...
+# Subtest: Agent rule list retains editing, labels all workspaces and removes the obsolete baseline field
+ok 133 - Agent rule list retains editing, labels all workspaces and removes the obsolete baseline field
+  ---
+  duration_ms: 19.339944
+  ...
+# Subtest: deleting one rule preserves every other rule, network and original snapshot
+ok 134 - deleting one rule preserves every other rule, network and original snapshot
+  ---
+  duration_ms: 0.719806
+  ...
+# Subtest: editing and adding rules preserve unrelated permissions and captured concurrency guards
+ok 135 - editing and adding rules preserve unrelated permissions and captured concurrency guards
+  ---
+  duration_ms: 0.38537
+  ...
+# Subtest: display paths use exact resource boundaries and do not confuse same-name resources
+ok 136 - display paths use exact resource boundaries and do not confuse same-name resources
+  ---
+  duration_ms: 0.217773
+  ...
+# Subtest: permission expansion review shows the exact deletion and requires explicit confirmation
+ok 137 - permission expansion review shows the exact deletion and requires explicit confirmation
+  ---
+  duration_ms: 6.331687
+  ...
+# Subtest: rule editor restricts invalid action decisions and stale drafts cannot submit
+ok 138 - rule editor restricts invalid action decisions and stale drafts cannot submit
+  ---
+  duration_ms: 8.342961
+  ...
+# Subtest: policy content stays escaped in list and full candidate review
+ok 139 - policy content stays escaped in list and full candidate review
+  ---
+  duration_ms: 1.510435
+  ...
+# Subtest: system rule editor only offers common restrictions and previews before applying
+ok 140 - system rule editor only offers common restrictions and previews before applying
+  ---
+  duration_ms: 0.753482
+  ...
+# Subtest: an existing instance opens its freshly resolved native URL without a start request
+ok 141 - an existing instance opens its freshly resolved native URL without a start request
+  ---
+  duration_ms: 2.099127
+  ...
+# Subtest: explicit start completes before resolving the same instance entry
+ok 142 - explicit start completes before resolving the same instance entry
+  ---
+  duration_ms: 0.297223
+  ...
+# Subtest: blocked popup is reported before starting or contacting an instance
+ok 143 - blocked popup is reported before starting or contacting an instance
+  ---
+  duration_ms: 10.978342
+  ...
+# Subtest: native entry failure closes the blank tab and surfaces the actual error
+ok 144 - native entry failure closes the blank tab and surfaces the actual error
+  ---
+  duration_ms: 2.476948
+  ...
+# Subtest: a start failure cannot navigate or fall through to the open request
+ok 145 - a start failure cannot navigate or fall through to the open request
+  ---
+  duration_ms: 0.306367
+  ...
+# Subtest: malformed and nonlocal entries cannot navigate a popup
+ok 146 - malformed and nonlocal entries cannot navigate a popup
+  ---
+  duration_ms: 0.723374
+  ...
+# Subtest: a user-closed popup reports failure instead of silently claiming an open
+ok 147 - a user-closed popup reports failure instead of silently claiming an open
+  ---
+  duration_ms: 0.341371
+  ...
+# Subtest: localhost console preserves the native port and fresh launch authentication on the same loopback hostname
+ok 148 - localhost console preserves the native port and fresh launch authentication on the same loopback hostname
+  ---
+  duration_ms: 1.545795
+  ...
+# Subtest: loopback alias selection cannot turn an untrusted native address into an allowed one
+ok 149 - loopback alias selection cannot turn an untrusted native address into an allowed one
+  ---
+  duration_ms: 0.473132
+  ...
+# Subtest: numeric and lookalike console hosts do not rewrite the trusted native address
+ok 150 - numeric and lookalike console hosts do not rewrite the trusted native address
+  ---
+  duration_ms: 0.250639
+  ...
+# Subtest: selected UTF-8 files preserve actual body; unsupported or oversized files never partially append
+ok 151 - selected UTF-8 files preserve actual body; unsupported or oversized files never partially append
+  ---
+  duration_ms: 5.432471
+  ...
+# Subtest: dialogue context preserves the prior question and bounds the exact supplied conversation
+ok 152 - dialogue context preserves the prior question and bounds the exact supplied conversation
+  ---
+  duration_ms: 0.858868
+  ...
+# Subtest: scene selection only sends the server-owned context credential
+ok 153 - scene selection only sends the server-owned context credential
+  ---
+  duration_ms: 2.010531
+  ...
+# Subtest: pending, stale and other-target scene evidence cannot enter a generation
+ok 154 - pending, stale and other-target scene evidence cannot enter a generation
+  ---
+  duration_ms: 0.491483
+  ...
+# Subtest: adopted scene adds a reference without smuggling files or granting application authority
+ok 155 - adopted scene adds a reference without smuggling files or granting application authority
+  ---
+  duration_ms: 0.296982
+  ...
+# Subtest: rereading the scene does not carry the previous scenario requirements forward
+ok 156 - rereading the scene does not carry the previous scenario requirements forward
+  ---
+  duration_ms: 4.902551
+  ...
+# Subtest: source uses server verified executor rather than a product-name launcher guess
+ok 157 - source uses server verified executor rather than a product-name launcher guess
+  ---
+  duration_ms: 1.586131
+  ...
+# Subtest: system declarations cover the registered controlled products and deduplicate identical executors
+ok 158 - system declarations cover the registered controlled products and deduplicate identical executors
+  ---
+  duration_ms: 0.428152
+  ...
+# Subtest: generated Agent exec identity is rebound to the exact destination without erasing other source labels
+ok 159 - generated Agent exec identity is rebound to the exact destination without erasing other source labels
+  ---
+  duration_ms: 0.509175
+  ...
+# Subtest: missing and broad executor source declarations cannot silently recreate a generic Agent source
+ok 160 - missing and broad executor source declarations cannot silently recreate a generic Agent source
+  ---
+  duration_ms: 0.28521
+  ...
+# Subtest: workspace candidate uses only the local approval route with its frozen hash
+ok 161 - workspace candidate uses only the local approval route with its frozen hash
+  ---
+  duration_ms: 5.178832
+  ...
+# Subtest: session candidate uses only the local approval route with its frozen hash
+ok 162 - session candidate uses only the local approval route with its frozen hash
+  ---
+  duration_ms: 0.304724
+  ...
+# Subtest: generated scope uses frozen target rather than an Agent-wide label or material path
+ok 163 - generated scope uses frozen target rather than an Agent-wide label or material path
+  ---
+  duration_ms: 9.667279
+  ...
+# Subtest: baseline draft generation persists exact scope without any selected native session or application
+ok 164 - baseline draft generation persists exact scope without any selected native session or application
+  ---
+  duration_ms: 88.417565
+  ...
+# Subtest: unverified baseline permits explicit saving but blocks generation even through form submission
+ok 165 - unverified baseline permits explicit saving but blocks generation even through form submission
+  ---
+  duration_ms: 62.43866
+  ...
+# Subtest: approved detail offers only explicit application and session inheritance stays collapsed
+ok 166 - approved detail offers only explicit application and session inheritance stays collapsed
+  ---
+  duration_ms: 77.892415
+  ...
+# Subtest: compiled candidates blocked by server validation require regeneration and have no submit action
+ok 167 - compiled candidates blocked by server validation require regeneration and have no submit action
+  ---
+  duration_ms: 14.675503
+  ...
+# Subtest: manual child configuration sends only template parameters to the shared API without approving
+ok 168 - manual child configuration sends only template parameters to the shared API without approving
+  ---
+  duration_ms: 16.121715
+  ...
+# Subtest: template assistant uses the parameter generation API even for a stopped Agent and never calls legacy generation
+ok 169 - template assistant uses the parameter generation API even for a stopped Agent and never calls legacy generation
+  ---
+  duration_ms: 21.9945
+  ...
+# Subtest: static template groups independent sibling configurations without displaying internal DSL
+ok 170 - static template groups independent sibling configurations without displaying internal DSL
+  ---
+  duration_ms: 15.633174
+  ...
+# Subtest: templates open as a structured record table, with configuration deferred until a record is selected
+ok 171 - templates open as a structured record table, with configuration deferred until a record is selected
+  ---
+  duration_ms: 20.802067
+  ...
+# Subtest: system configurations are explicit system candidates and cannot be imported as Agent templates
+ok 172 - system configurations are explicit system candidates and cannot be imported as Agent templates
+  ---
+  duration_ms: 1.815638
+  ...
+# Subtest: detail configuration uses the exact selected Agent resource, resets parameters when target changes and writes only on submit
+ok 173 - detail configuration uses the exact selected Agent resource, resets parameters when target changes and writes only on submit
+  ---
+  duration_ms: 9.847367
+  ...
+# Subtest: Agent assistant has a conversation and one composer, without a duplicated template table or write on mount
+ok 174 - Agent assistant has a conversation and one composer, without a duplicated template table or write on mount
+  ---
+  duration_ms: 15.806037
+  ...
+# Subtest: assistant rejects observed targets and missing DSL, while generated DSL remains an exact-target unapplied handoff
+ok 175 - assistant rejects observed targets and missing DSL, while generated DSL remains an exact-target unapplied handoff
+  ---
+  duration_ms: 0.880638
+  ...
+# Subtest: conversation template selection creates a local exact-Agent candidate, can be edited, and never saves or applies on selection
+ok 176 - conversation template selection creates a local exact-Agent candidate, can be edited, and never saves or applies on selection
+  ---
+  duration_ms: 14.094042
+  ...
+# Subtest: follow-up generation receives the selected candidate configuration as context, without pretending it is approved or verified
+ok 177 - follow-up generation receives the selected candidate configuration as context, without pretending it is approved or verified
+  ---
+  duration_ms: 0.555554
+  ...
+# Subtest: an unverified environment disables free-form generation and cannot write even on manual form submission
+ok 178 - an unverified environment disables free-form generation and cannot write even on manual form submission
+  ---
+  duration_ms: 8.477668
+  ...
+# Subtest: Agent/session selection round-trips without putting DSL or environment data into the URL
+ok 179 - Agent/session selection round-trips without putting DSL or environment data into the URL
+  ---
+  duration_ms: 1.171742
+  ...
+# Subtest: strategy selection is a searchable record dialog and never a native template option menu
+ok 180 - strategy selection is a searchable record dialog and never a native template option menu
+  ---
+  duration_ms: 8.690616
+  ...
+# Subtest: incomplete generated candidates remain readable but cannot submit or pretend to have executable DSL
+ok 181 - incomplete generated candidates remain readable but cannot submit or pretend to have executable DSL
+  ---
+  duration_ms: 14.179372
+  ...
+# Subtest: reopening a validated draft preserves its preview and explicit confirmation action
+ok 182 - reopening a validated draft preserves its preview and explicit confirmation action
+  ---
+  duration_ms: 10.743097
+  ...
+# Subtest: submitting a candidate only proposes validated changes, reuses a live matching approval, and never applies
+ok 183 - submitting a candidate only proposes validated changes, reuses a live matching approval, and never applies
+  ---
+  duration_ms: 1.259472
+  ...
+# Subtest: approval details expose change, targets and explicit decisions without writing on viewing or switching tabs
+ok 184 - approval details expose change, targets and explicit decisions without writing on viewing or switching tabs
+  ---
+  duration_ms: 23.514802
+  ...
+# Subtest: approval deep links retain only the record identity
+ok 185 - approval deep links retain only the record identity
+  ---
+  duration_ms: 0.650359
+  ...
+# Subtest: runtime approval shows an exact task scope and readable before/after without applying on view
+ok 186 - runtime approval shows an exact task scope and readable before/after without applying on view
+  ---
+  duration_ms: 8.388151
+  ...
+# Subtest: all approval origins use the same explicit decision endpoint
+ok 187 - all approval origins use the same explicit decision endpoint
+  ---
+  duration_ms: 5.769336
+  ...
+# Subtest: restored approvals based on old configuration cannot confirm until revalidated
+ok 188 - restored approvals based on old configuration cannot confirm until revalidated
+  ---
+  duration_ms: 10.264497
+  ...
+# Subtest: a restored removal proposal remains empty and clearly discloses removal
+ok 189 - a restored removal proposal remains empty and clearly discloses removal
+  ---
+  duration_ms: 9.979261
+  ...
+# Subtest: DSL import uses a real button and reads a file into the local candidate without saving or applying
+ok 190 - DSL import uses a real button and reads a file into the local candidate without saving or applying
+  ---
+  duration_ms: 9.282344
+  ...
+# Subtest: blank DSL drafts use the exact server runtime source and cannot validate a source-only stub
+ok 191 - blank DSL drafts use the exact server runtime source and cannot validate a source-only stub
+  ---
+  duration_ms: 9.67582
+  ...
+# Subtest: a generic imported declaration is preserved for review and explicitly rebound without applying
+ok 192 - a generic imported declaration is preserved for review and explicitly rebound without applying
+  ---
+  duration_ms: 11.963884
+  ...
+# Subtest: unavailable sources never create a generic executor declaration
+ok 193 - unavailable sources never create a generic executor declaration
+  ---
+  duration_ms: 8.542717
+  ...
+# Subtest: a projected stale draft blocks approval handoff even when its raw state is pending
+ok 194 - a projected stale draft blocks approval handoff even when its raw state is pending
+  ---
+  duration_ms: 8.663993
+  ...
+# Subtest: revalidating a stale draft uses the new proposal status and hands off only that proposal
+ok 195 - revalidating a stale draft uses the new proposal status and hands off only that proposal
+  ---
+  duration_ms: 11.293611
+  ...
+# Subtest: approval records show product, PID and native session with exact read navigation
+ok 196 - approval records show product, PID and native session with exact read navigation
+  ---
+  duration_ms: 8.334421
+  ...
+# Subtest: approval search finds native session and both current and historical PID
+ok 197 - approval search finds native session and both current and historical PID
+  ---
+  duration_ms: 3.767953
+  ...
+# Subtest: system approvals present one global audience instead of enumerating every Agent and repeated scope
+ok 198 - system approvals present one global audience instead of enumerating every Agent and repeated scope
+  ---
+  duration_ms: 7.841458
+  ...
+# Subtest: applied removal retains the removed policy name and accurate change count
+ok 199 - applied removal retains the removed policy name and accurate change count
+  ---
+  duration_ms: 6.786323
+  ...
+# Subtest: inactive system policy deletion is explicitly confirmed and uses archive without runtime confirmation
+ok 200 - inactive system policy deletion is explicitly confirmed and uses archive without runtime confirmation
+  ---
+  duration_ms: 11.848228
+  ...
+# Subtest: Agent policy stop creates a reviewed removal candidate and preserves every other document
+ok 201 - Agent policy stop creates a reviewed removal candidate and preserves every other document
+  ---
+  duration_ms: 9.203179
+  ...
+# Subtest: assistant stops only the selected generation and waits for backend cancellation acknowledgement
+ok 202 - assistant stops only the selected generation and waits for backend cancellation acknowledgement
+  ---
+  duration_ms: 12.483857
+  ...
+# Subtest: current baseline draft assistant can cancel its own generation without applying a policy
+ok 203 - current baseline draft assistant can cancel its own generation without applying a policy
+  ---
+  duration_ms: 7.994142
+  ...
+# Subtest: stop confirmation freezes the displayed generation instead of accepting a refreshed identity
+ok 204 - stop confirmation freezes the displayed generation instead of accepting a refreshed identity
+  ---
+  duration_ms: 13.216546
+  ...
+# Subtest: system library review sends separate idempotent approve and apply requests
+ok 205 - system library review sends separate idempotent approve and apply requests
+  ---
+  duration_ms: 13.295858
+  ...
+# Subtest: stale approval exposes revalidation and keeps original record read only
+ok 206 - stale approval exposes revalidation and keeps original record read only
+  ---
+  duration_ms: 8.562006
+  ...
+# Subtest: revalidation previews current versions and creates only a fresh candidate after explicit acknowledgement
+ok 207 - revalidation previews current versions and creates only a fresh candidate after explicit acknowledgement
+  ---
+  duration_ms: 6.185661
+  ...
+# Subtest: product reads use retained projections while writes and original DSL paths preserve contracts
+ok 208 - product reads use retained projections while writes and original DSL paths preserve contracts
+  ---
+  duration_ms: 1.129924
+  ...
+# Subtest: overview reflects current Agent PID and does not promote historical task counters or environment diagnostics
+ok 209 - overview reflects current Agent PID and does not promote historical task counters or environment diagnostics
+  ---
+  duration_ms: 123.280236
+  ...
+# Subtest: workbench uses native Agent sessions without internal runtime identifiers or inferred empty workspace
+ok 210 - workbench uses native Agent sessions without internal runtime identifiers or inferred empty workspace
+  ---
+  duration_ms: 26.661242
+  ...
+# Subtest: workbench displays the native workspace title separately from its project path
+ok 211 - workbench displays the native workspace title separately from its project path
+  ---
+  duration_ms: 37.250681
+  ...
+# Subtest: empty generations do not render diagnostic panels or empty table columns
+ok 212 - empty generations do not render diagnostic panels or empty table columns
+  ---
+  duration_ms: 52.274598
+  ...
+# Subtest: policy search remains editable after a query matches no records
+ok 213 - policy search remains editable after a query matches no records
+  ---
+  duration_ms: 82.767915
+  ...
+# Subtest: failed live refresh withdraws historical PID and verification without inventing a stopped process
+ok 214 - failed live refresh withdraws historical PID and verification without inventing a stopped process
+  ---
+  duration_ms: 24.775377
+  ...
+# Subtest: legacy system generation links converge on one read-only history tab
+ok 215 - legacy system generation links converge on one read-only history tab
+  ---
+  duration_ms: 14.156483
+  ...
+# Subtest: generation history shows readable records with no diagnostic identifiers or review actions
+ok 216 - generation history shows readable records with no diagnostic identifiers or review actions
+  ---
+  duration_ms: 53.650463
+  ...
+# Subtest: history failure is actionable and unknown status never exposes an internal code
+ok 217 - history failure is actionable and unknown status never exposes an internal code
+  ---
+  duration_ms: 0.429504
+  ...
+# Subtest: overview and archive module names remain in navigation without repeated page headings
+ok 218 - overview and archive module names remain in navigation without repeated page headings
+  ---
+  duration_ms: 54.60369
+  ...
+# Subtest: overview first-load failure exits loading and provides a manual retry
+ok 219 - overview first-load failure exits loading and provides a manual retry
+  ---
+  duration_ms: 12.632128
+  ...
+# Subtest: runtime reads bypass cached observations while write transport options are preserved
+ok 220 - runtime reads bypass cached observations while write transport options are preserved
+  ---
+  duration_ms: 9.612853
+  ...
+# Subtest: a hung read leaves loading within its deadline and aborts the transport
+ok 221 - a hung read leaves loading within its deadline and aborts the transport
+  ---
+  duration_ms: 18.480353
+  ...
+# Subtest: the read deadline also covers a response body that never finishes
+ok 222 - the read deadline also covers a response body that never finishes
+  ---
+  duration_ms: 18.020427
+  ...
+# Subtest: slow writes retain their original completion contract
+ok 223 - slow writes retain their original completion contract
+  ---
+  duration_ms: 36.668696
+  ...
+# Subtest: read cancellation preserves caller intent and invalid JSON cannot look like success
+ok 224 - read cancellation preserves caller intent and invalid JSON cannot look like success
+  ---
+  duration_ms: 0.753189
+  ...
+# Subtest: polls and manual retry join one outstanding read, then allow a fresh read
+ok 225 - polls and manual retry join one outstanding read, then allow a fresh read
+  ---
+  duration_ms: 1.113563
+  ...
+# Subtest: a failed flight releases retries without concurrent replacements
+ok 226 - a failed flight releases retries without concurrent replacements
+  ---
+  duration_ms: 0.206429
+  ...
+# Subtest: current Agents render before slow service status or historical counts
+ok 227 - current Agents render before slow service status or historical counts
+  ---
+  duration_ms: 1.330917
+  ...
+# Subtest: first-load failure reaches an error and a subsequent read can recover
+ok 228 - first-load failure reaches an error and a subsequent read can recover
+  ---
+  duration_ms: 0.513036
+  ...
+# Subtest: failure of optional history does not withdraw the live Agent result
+ok 229 - failure of optional history does not withdraw the live Agent result
+  ---
+  duration_ms: 0.3328
+  ...
+# Subtest: Agent counts use exact controlled rows without promoting observed entries
+ok 230 - Agent counts use exact controlled rows without promoting observed entries
+  ---
+  duration_ms: 0.124631
+  ...
+# Subtest: paused, expired, unknown and unverified records never look successful
+ok 231 - paused, expired, unknown and unverified records never look successful
+  ---
+  duration_ms: 1.367607
+  ...
+# Subtest: loading and compilation remain distinct from verification
+ok 232 - loading and compilation remain distinct from verification
+  ---
+  duration_ms: 0.242293
+  ...
+# Subtest: guidance and unknown backend labels cannot imply enforced protection
+ok 233 - guidance and unknown backend labels cannot imply enforced protection
+  ---
+  duration_ms: 0.142295
+  ...
+# Subtest: task ended is neutral and does not claim task success
+ok 234 - task ended is neutral and does not claim task success
+  ---
+  duration_ms: 0.314239
+  ...
+# Subtest: Hook read path remains task scoped with encoded task and opaque cursor
+ok 235 - Hook read path remains task scoped with encoded task and opaque cursor
+  ---
+  duration_ms: 1.362868
+  ...
+# Subtest: HTML fallbacks and current-state responses cannot become historical trigger records
+ok 236 - HTML fallbacks and current-state responses cannot become historical trigger records
+  ---
+  duration_ms: 0.484543
+  ...
+# Subtest: only public trigger identifiers are retained, with zero-valued turns and revisions preserved
+ok 237 - only public trigger identifiers are retained, with zero-valued turns and revisions preserved
+  ---
+  duration_ms: 0.27883
+  ...
+# Subtest: switching tasks and refreshing the same task both isolate delayed request results
+ok 238 - switching tasks and refreshing the same task both isolate delayed request results
+  ---
+  duration_ms: 0.736203
+  ...
+# Subtest: overlapping pages deduplicate receipts while a failed older-page read retains saved rows
+ok 239 - overlapping pages deduplicate receipts while a failed older-page read retains saved rows
+  ---
+  duration_ms: 0.430844
+  ...
+# Subtest: current mechanism starts folded and never manufactures actual historical calls
+ok 240 - current mechanism starts folded and never manufactures actual historical calls
+  ---
+  duration_ms: 17.623199
+  ...
+# Subtest: record detail escapes public source text and leaves hashes and evidence in closed disclosure
+ok 241 - record detail escapes public source text and leaves hashes and evidence in closed disclosure
+  ---
+  duration_ms: 13.03707
+  ...
+# Subtest: list initially displays five saved records with explicit expansion rather than an endless stack
+ok 242 - list initially displays five saved records with explicit expansion rather than an endless stack
+  ---
+  duration_ms: 2.664633
+  ...
+# Subtest: missing trigger material stays unrecorded and initial rendering performs no API or execution action
+ok 243 - missing trigger material stays unrecorded and initial rendering performs no API or execution action
+  ---
+  duration_ms: 10.076265
+  ...
+# Subtest: partial frozen observations retain missing-field status and are not presented as all newly triggered
+ok 244 - partial frozen observations retain missing-field status and are not presented as all newly triggered
+  ---
+  duration_ms: 2.351203
+  ...
+# Subtest: archive runtime list exposes the Hook module without adding it to startup or issuing SSR requests
+ok 245 - archive runtime list exposes the Hook module without adding it to startup or issuing SSR requests
+  ---
+  duration_ms: 4.058721
+  ...
+# Subtest: return focus uses the newly registered button after the list unmounts and remounts
+ok 246 - return focus uses the newly registered button after the list unmounts and remounts
+  ---
+  duration_ms: 0.23794
+  ...
+# Subtest: task changes clear return targets and reject stale ref callbacks and pending focus requests
+ok 247 - task changes clear return targets and reject stale ref callbacks and pending focus requests
+  ---
+  duration_ms: 0.143503
+  ...
+# Subtest: scope tabs default to this Agent and never include another Agent policy
+ok 248 - scope tabs default to this Agent and never include another Agent policy
+  ---
+  duration_ms: 22.580852
+  ...
+# Subtest: system configuration shows editable shared rules and actual aggregate verification
+ok 249 - system configuration shows editable shared rules and actual aggregate verification
+  ---
+  duration_ms: 20.347485
+  ...
+# Subtest: loading and error states never invent or retain verified shared rules
+ok 250 - loading and error states never invent or retain verified shared rules
+  ---
+  duration_ms: 11.230386
+  ...
+# Subtest: system change preview lists the affected Agents and requires explicit confirmation
+ok 251 - system change preview lists the affected Agents and requires explicit confirmation
+  ---
+  duration_ms: 15.18251
+  ...
+# Subtest: current Agent editor uses its own rules and shared restrictions remain separately identified
+ok 252 - current Agent editor uses its own rules and shared restrictions remain separately identified
+  ---
+  duration_ms: 0.898283
+  ...
+# Subtest: observed connections expose no editable Agent policy
+ok 253 - observed connections expose no editable Agent policy
+  ---
+  duration_ms: 0.513811
+  ...
+# Subtest: missing evidence cannot become a verified result or a current protection claim
+ok 254 - missing evidence cannot become a verified result or a current protection claim
+  ---
+  duration_ms: 1.450668
+  ...
+# Subtest: process illustrations cannot keep measured verdicts when their evidence is missing
+ok 255 - process illustrations cannot keep measured verdicts when their evidence is missing
+  ---
+  duration_ms: 19.068714
+  ...
+# Subtest: same destination comparison reuses its experiment, and a failed report remains pending
+ok 256 - same destination comparison reuses its experiment, and a failed report remains pending
+  ---
+  duration_ms: 0.205025
+  ...
+# Subtest: saved sessions retain identity and never borrow the instance PID
+ok 257 - saved sessions retain identity and never borrow the instance PID
+  ---
+  duration_ms: 1.531421
+  ...
+# Subtest: two sessions may share one executor and retain separate names and IDs
+ok 258 - two sessions may share one executor and retain separate names and IDs
+  ---
+  duration_ms: 0.434534
+  ...
+# Subtest: all controlled connections remain configurable without a secondary picker
+ok 259 - all controlled connections remain configurable without a secondary picker
+  ---
+  duration_ms: 0.30624
+  ...
+# Subtest: an observed product keeps its preferred entry when no controlled connection exists
+ok 260 - an observed product keeps its preferred entry when no controlled connection exists
+  ---
+  duration_ms: 0.172463
+  ...
+# Subtest: each saved or live session retains its own native workspace rather than an executor directory
+ok 261 - each saved or live session retains its own native workspace rather than an executor directory
+  ---
+  duration_ms: 0.249427
+  ...
+# Subtest: missing workspace metadata is not inferred from PID or execution mount
+ok 262 - missing workspace metadata is not inferred from PID or execution mount
+  ---
+  duration_ms: 0.208889
+  ...
+# Subtest: structured removal is scoped and never contains approval or application authority
+ok 263 - structured removal is scoped and never contains approval or application authority
+  ---
+  duration_ms: 1.516889
+  ...
+# Subtest: acknowledgement, exact basis and available owner are required
+ok 264 - acknowledgement, exact basis and available owner are required
+  ---
+  duration_ms: 0.392804
+  ...
+# Subtest: read only boundaries cannot produce removal candidates
+ok 265 - read only boundaries cannot produce removal candidates
+  ---
+  duration_ms: 0.129781
+  ...
+# Subtest: guidance preserves text and has no invented file or kernel operation
+ok 266 - guidance preserves text and has no invented file or kernel operation
+  ---
+  duration_ms: 0.144865
+  ...
+# Subtest: filtering does not drop constraints from the authoritative view
+ok 267 - filtering does not drop constraints from the authoritative view
+  ---
+  duration_ms: 4.242584
+  ...
+# Subtest: panel renders all inherited controls by default and marks local application unavailable
+ok 268 - panel renders all inherited controls by default and marks local application unavailable
+  ---
+  duration_ms: 59.701053
+  ...
+# Subtest: domain view distinguishes inherited constraints, empty scopes and incomplete counts
+ok 269 - domain view distinguishes inherited constraints, empty scopes and incomplete counts
+  ---
+  duration_ms: 10.881841
+  ...
+# Subtest: system filter includes builtins and configured rules without a fifth scope
+ok 270 - system filter includes builtins and configured rules without a fifth scope
+  ---
+  duration_ms: 24.041399
+  ...
+# Subtest: recovery prepare and reuse are bound to immutable origin and exact selected candidate without approval
+ok 271 - recovery prepare and reuse are bound to immutable origin and exact selected candidate without approval
+  ---
+  duration_ms: 1.51511
+  ...
+# Subtest: failed startup cannot retry fixed context start, while runtime recovery and explicit startup confirmation remain
+ok 272 - failed startup cannot retry fixed context start, while runtime recovery and explicit startup confirmation remain
+  ---
+  duration_ms: 1.590483
+  ...
+# Subtest: recovery polling is serial, retries GET failure after clearing stale ready data, and ignores unmounted responses
+ok 273 - recovery polling is serial, retries GET failure after clearing stale ready data, and ignores unmounted responses
+  ---
+  duration_ms: 0.487031
+  ...
+# Subtest: literal suffix, filename and directory have distinct boundaries
+ok 274 - literal suffix, filename and directory have distinct boundaries
+  ---
+  duration_ms: 1.853666
+  ...
+# Subtest: 63-byte suffix limit and all effects preserve the generated conditions
+ok 275 - 63-byte suffix limit and all effects preserve the generated conditions
+  ---
+  duration_ms: 0.667574
+  ...
+# Subtest: record search and phase filters keep review separate from historical completion
+ok 276 - record search and phase filters keep review separate from historical completion
+  ---
+  duration_ms: 13.330791
+  ...
+# Subtest: each policy record shows its own compiler rules, without a full-document dump
+ok 277 - each policy record shows its own compiler rules, without a full-document dump
+  ---
+  duration_ms: 0.404845
+  ...
+# Subtest: old templates URL resolves to one policy page without a second assistant or library
+ok 278 - old templates URL resolves to one policy page without a second assistant or library
+  ---
+  duration_ms: 151.715289
+  ...
+# Subtest: template catalogue omits parameter operation values and expands child fields only on the arrow
+ok 279 - template catalogue omits parameter operation values and expands child fields only on the arrow
+  ---
+  duration_ms: 59.825394
+  ...
+# Subtest: row submit freezes this child and exact Agent without opening the detail or granting approval
+ok 280 - row submit freezes this child and exact Agent without opening the detail or granting approval
+  ---
+  duration_ms: 27.72976
+  ...
+# Subtest: view approval uses the exact linked ID and never performs a write
+ok 281 - view approval uses the exact linked ID and never performs a write
+  ---
+  duration_ms: 37.572864
+  ...
+# Subtest: disable row previews the applied version, preserves draft binding and only submits a removal candidate
+ok 282 - disable row previews the applied version, preserves draft binding and only submits a removal candidate
+  ---
+  duration_ms: 27.5882
+  ...
+# Subtest: legacy system rows expose exact approval and removal controls without changing scope
+ok 283 - legacy system rows expose exact approval and removal controls without changing scope
+  ---
+  duration_ms: 30.57188
+  ...
+# Subtest: unapplied unsupported and in-flight rows cannot offer misleading lifecycle actions
+ok 284 - unapplied unsupported and in-flight rows cannot offer misleading lifecycle actions
+  ---
+  duration_ms: 0.430557
+  ...
+# Subtest: legacy child action and target come from saved configuration, not parent defaults
+ok 285 - legacy child action and target come from saved configuration, not parent defaults
+  ---
+  duration_ms: 0.33775
+  ...
+# Subtest: actual child parameters preserve multi-condition context and effective operation coverage
+ok 286 - actual child parameters preserve multi-condition context and effective operation coverage
+  ---
+  duration_ms: 0.272784
+  ...
+# Subtest: approval and historical application never masquerade as current application or kernel enforcement
+ok 287 - approval and historical application never masquerade as current application or kernel enforcement
+  ---
+  duration_ms: 0.235015
+  ...
+# Subtest: raw DSL without a structured projection stays unknown while mixed record effects are preserved
+ok 288 - raw DSL without a structured projection stays unknown while mixed record effects are preserved
+  ---
+  duration_ms: 0.171943
+  ...
+# Subtest: batch submit freezes selected instance and never approves or loads on its own
+ok 289 - batch submit freezes selected instance and never approves or loads on its own
+  ---
+  duration_ms: 19.468949
+  ...
+# Subtest: shared mutation access requires an explicit acknowledgement before submission
+ok 290 - shared mutation access requires an explicit acknowledgement before submission
+  ---
+  duration_ms: 24.703343
+  ...
+# Subtest: legacy system review navigates to approvals without calling confirmation or application
+ok 291 - legacy system review navigates to approvals without calling confirmation or application
+  ---
+  duration_ms: 12.54725
+  ...
+# Subtest: description search finds a template and preserves its scoped children
+ok 292 - description search finds a template and preserves its scoped children
+  ---
+  duration_ms: 15.199323
+  ...
+# Subtest: the arrow expands children while details exclusively opens the template editor
+ok 293 - the arrow expands children while details exclusively opens the template editor
+  ---
+  duration_ms: 17.018985
+  ...
+# Subtest: column drag changes only its column, clamps widths and stops at release without policy writes
+ok 294 - column drag changes only its column, clamps widths and stops at release without policy writes
+  ---
+  duration_ms: 29.439333
+  ...
+# Subtest: template editor saves a template version with synchronized effect defaults, never a child or application
+ok 295 - template editor saves a template version with synchronized effect defaults, never a child or application
+  ---
+  duration_ms: 5.883252
+  ...
+# Subtest: changing to all Agents clears workspace provenance and never posts a policy
+ok 296 - changing to all Agents clears workspace provenance and never posts a policy
+  ---
+  duration_ms: 190.945125
+  ...
+# Subtest: all-Agent scope works without a selected or connected Agent and uses the existing system contract
+ok 297 - all-Agent scope works without a selected or connected Agent and uses the existing system contract
+  ---
+  duration_ms: 37.845862
+  ...
+# Subtest: legacy workspace links cannot mount the generator or promote their candidates
+ok 298 - legacy workspace links cannot mount the generator or promote their candidates
+  ---
+  duration_ms: 31.847761
+  ...
+# Subtest: switching exact Agent identity clears workspace context without deriving a target from its name
+ok 299 - switching exact Agent identity clears workspace context without deriving a target from its name
+  ---
+  duration_ms: 28.538303
+  ...
+# Subtest: configured policy scope is explicit and inherited navigation stays in the unified module
+ok 300 - configured policy scope is explicit and inherited navigation stays in the unified module
+  ---
+  duration_ms: 16.111887
+  ...
+# Subtest: legacy records expose only original approval navigation and explicit fresh configuration
+ok 301 - legacy records expose only original approval navigation and explicit fresh configuration
+  ---
+  duration_ms: 12.287886
+  ...
+# Subtest: workspace browsing has no mutation or generation interface
+ok 302 - workspace browsing has no mutation or generation interface
+  ---
+  duration_ms: 17.24001
+  ...
+# Subtest: workspace association requires a saved identity, never matching names or directories
+ok 303 - workspace association requires a saved identity, never matching names or directories
+  ---
+  duration_ms: 4.539665
+  ...
+# Subtest: duplicate task projections do not produce duplicate associations or imply native execution
+ok 304 - duplicate task projections do not produce duplicate associations or imply native execution
+  ---
+  duration_ms: 0.514356
+  ...
+# Subtest: a complete restrictive sentence preserves every exact target including glob and unicode
+ok 305 - a complete restrictive sentence preserves every exact target including glob and unicode
+  ---
+  duration_ms: 0.31315
+  ...
+# Subtest: guidance, expansion and unknown operations are never rewritten as a deny rule
+ok 306 - guidance, expansion and unknown operations are never rewritten as a deny rule
+  ---
+  duration_ms: 0.159037
+  ...
+# Subtest: stored receipts, compiled candidates and guidance never become current enforcement claims
+ok 307 - stored receipts, compiled candidates and guidance never become current enforcement claims
+  ---
+  duration_ms: 0.329538
+  ...
+# Subtest: reference component never reads body or writes on mount
+ok 308 - reference component never reads body or writes on mount
+  ---
+  duration_ms: 31.783764
+  ...
+# Subtest: explicit read uses the exact Agent and relative selection, without generating or applying
+ok 309 - explicit read uses the exact Agent and relative selection, without generating or applying
+  ---
+  duration_ms: 19.352985
+  ...
+# Subtest: editing a selected file clears evidence and requires a fresh read
+ok 310 - editing a selected file clears evidence and requires a fresh read
+  ---
+  duration_ms: 13.659225
+  ...
+# Subtest: a late body response cannot replace changed file selection
+ok 311 - a late body response cannot replace changed file selection
+  ---
+  duration_ms: 6.83407
+  ...
+# Subtest: read failure keeps the pending requirement and does not fall back silently
+ok 312 - read failure keeps the pending requirement and does not fall back silently
+  ---
+  duration_ms: 17.693152
+  ...
+# Subtest: canceling the reference is an explicit local action without a request
+ok 313 - canceling the reference is an explicit local action without a request
+  ---
+  duration_ms: 4.257846
+  ...
+# Subtest: scenario-only generation delegates bounded context selection to the exact Agent API
+ok 314 - scenario-only generation delegates bounded context selection to the exact Agent API
+  ---
+  duration_ms: 10.099918
+  ...
+# Subtest: scenario input has no mandatory manual file or workspace selection
+ok 315 - scenario input has no mandatory manual file or workspace selection
+  ---
+  duration_ms: 15.278722
+  ...
+# Subtest: system scope does not authorize automatic reading of individual Agent workspaces
+ok 316 - system scope does not authorize automatic reading of individual Agent workspaces
+  ---
+  duration_ms: 13.238718
+  ...
+# Subtest: busy analysis prevents duplicate submits and displays ongoing context work
+ok 317 - busy analysis prevents duplicate submits and displays ongoing context work
+  ---
+  duration_ms: 10.985243
+  ...
+# Subtest: automatic evidence reports actual sources and denied calls inside progressive disclosure
+ok 318 - automatic evidence reports actual sources and denied calls inside progressive disclosure
+  ---
+  duration_ms: 7.47287
+  ...
+# Subtest: directory-only analysis never claims that file bodies were read
+ok 319 - directory-only analysis never claims that file bodies were read
+  ---
+  duration_ms: 5.301058
+  ...
+# Subtest: legacy generation evidence remains readable without the new usage contract
+ok 320 - legacy generation evidence remains readable without the new usage contract
+  ---
+  duration_ms: 8.880888
+  ...
+# Subtest: each conversation round renders its frozen configuration with a single composer
+ok 321 - each conversation round renders its frozen configuration with a single composer
+  ---
+  duration_ms: 12.967115
+  ...
+# Subtest: project text is escaped and only displayed inside an expandable evidence section
+ok 322 - project text is escaped and only displayed inside an expandable evidence section
+  ---
+  duration_ms: 7.110311
+  ...
+# Subtest: scene reads use task-independent encoded workspace and read paths
+ok 323 - scene reads use task-independent encoded workspace and read paths
+  ---
+  duration_ms: 2.405343
+  ...
+# Subtest: confirmed input uses immutable read receipt without requiring manually entered name or prompt
+ok 324 - confirmed input uses immutable read receipt without requiring manually entered name or prompt
+  ---
+  duration_ms: 0.740629
+  ...
+# Subtest: an earlier result cannot be used after switching workspace instance files or supplemental intent
+ok 325 - an earlier result cannot be used after switching workspace instance files or supplemental intent
+  ---
+  duration_ms: 2.073738
+  ...
+# Subtest: a workspace description without a goal remains clarification instead of becoming an execution task
+ok 326 - a workspace description without a goal remains clarification instead of becoming an execution task
+  ---
+  duration_ms: 3.225627
+  ...
+# Subtest: unexpected HTML-shaped or execution-bearing responses cannot enable the read-only scene flow
+ok 327 - unexpected HTML-shaped or execution-bearing responses cannot enable the read-only scene flow
+  ---
+  duration_ms: 8.995679
+  ...
+# Subtest: refresh restores only an existing read pointer and changed material keeps supplement but loses the pointer
+ok 328 - refresh restores only an existing read pointer and changed material keeps supplement but loses the pointer
+  ---
+  duration_ms: 1.2675
+  ...
+# Subtest: editing intent clears the stored read pointer and adopted results cannot create a second task
+ok 329 - editing intent clears the stored read pointer and adopted results cannot create a second task
+  ---
+  duration_ms: 0.277879
+  ...
+# Subtest: pending failed and interrupted reads never provide task creation input
+ok 330 - pending failed and interrupted reads never provide task creation input
+  ---
+  duration_ms: 4.934533
+  ...
+# Subtest: user supplement citations keep their source role without duplicating the entered goal
+ok 331 - user supplement citations keep their source role without duplicating the entered goal
+  ---
+  duration_ms: 0.446758
+  ...
+1..331
+# tests 331
+# suites 0
+# pass 331
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1385.985407

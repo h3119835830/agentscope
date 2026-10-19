@@ -221,7 +221,8 @@ def directory(scope_id=None):
                           'coverage_warning':'当前执行后端共用修改与删除访问组。' if mutation and set(operations) != {'write','unlink'} else '',
                           'effect':config['effect'],'applied':old['applied'] and not old['has_changes'],
                           'status':'library','applied_revision':old['applied_revision'],'revision':old['revision']})
-    return {'catalog':catalog.public_catalog(), 'items':items, 'generations':[json.loads(h['result_json']) for h in reversed(history)]}
+    from .generation_snapshots import project
+    return {'catalog':catalog.public_catalog(), 'items':items, 'generations':[project(json.loads(h['result_json'])) for h in reversed(history)]}
 
 
 def insert(con, ident, scope_id, body, payload, revision=1):
@@ -459,7 +460,8 @@ def generate(scope_id, body, provider=None):
     if saved is not None:
         # Revalidate after releasing the short request-claim transaction.
         for source in saved.get('reference_reads',[]):workspace_refs.verify(scope_id,source['id'])
-        return {**saved,'items':[view(load(x['id'],x['revision'])) for x in saved['items']]}
+        from .generation_snapshots import project
+        return {**project(saved),'items':[view(load(x['id'],x['revision'])) for x in saved['items']]}
     deadline_token=workspace_refs.READ_DEADLINE.set(time.monotonic()+80)
     try:
         from ..history.llm import DeepSeekProvider
@@ -510,19 +512,22 @@ def generate(scope_id, body, provider=None):
                 payload['source_read']=source_bindings[0]
                 payload['source_reads']=source_bindings
         references = [{'id':ident,'revision':1} for ident,_,_ in prepared]
+        from .generation_snapshots import freeze,project
+        for _,_,payload in prepared:
+            payload['origin'] = 'assistant'
         response = {'items':references,'questions':result['questions'],'gaps':result['gaps'],'text':body['text'],
-                    'scope_id':scope_id,'scope':body['scope'],'workspace_id':body.get('workspace_id'),'request_id':uuid.uuid4().hex,'created_at':db.now()}
+                    'scope_id':scope_id,'scope':body['scope'],'workspace_id':body.get('workspace_id'),'request_id':uuid.uuid4().hex,'created_at':db.now(),
+                    'configuration_snapshots':[freeze(ident,1,payload,scope_id,body['scope'],row) for ident,_,payload in prepared]}
         response['context_usage']={**runner.usage(),'provided_files':[{'name':m['name'],'characters':len(m['text'])} for m in body.get('materials',[])]}
         if source_bindings:
             response['reference_read']={k:source_bindings[0][k] for k in ('workspace','paths')}
             response['reference_reads']=source_bindings
         with db.connect() as con:
             for ident,values,payload in prepared:
-                payload['origin'] = 'assistant'
                 insert(con,ident,scope_id,values,payload)
             con.execute('UPDATE template_configuration_requests SET result_json=?,state=? WHERE request_key=?',(json.dumps(response,ensure_ascii=False),'completed',key))
             db.audit(con,None,'template_parameters_generated','authenticated_operator',{'scope_id':scope_id,'count':len(prepared),'llm_run':metadata})
-        return {**response,'items':[view(load(x['id'])) for x in references]}
+        return {**project(response),'items':[view(load(x['id'])) for x in references]}
     except Exception:
         with db.connect() as con:
             con.execute("UPDATE template_configuration_requests SET state='failed' WHERE request_key=?",(key,))

@@ -1,0 +1,21 @@
+{
+  "desktop": {
+    "width": 1280,
+    "height": 720
+  },
+  "mobile": {
+    "width": 390,
+    "height": 760,
+    "pageWidth": 375,
+    "messageClientWidth": 277,
+    "messageScrollWidth": 277
+  },
+  "inputCount": 1,
+  "scopes": [
+    "system",
+    "agent"
+  ],
+  "frozenAfterTemplateAndConfigurationEdit": true,
+  "oldContentPreservedAfterReload": true,
+  "manualEntryAdded": false
+}

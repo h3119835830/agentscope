@@ -1,0 +1,17 @@
+
+> agentscope-ui@0.1.0 build
+> vite build
+
+vite v6.4.3 building for production...
+transforming...
+✓ 140 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/terminal.html                   0.45 kB │ gzip:   0.31 kB
+dist/index.html                      0.53 kB │ gzip:   0.35 kB
+dist/assets/terminal-BlLcbnBV.css    4.82 kB │ gzip:   2.00 kB
+dist/assets/main-_O5Ifdnz.css      256.55 kB │ gzip:  46.64 kB
+dist/assets/client-2tdd2SJ7.js     223.20 kB │ gzip:  69.33 kB
+dist/assets/terminal-DrmujJtr.js   295.23 kB │ gzip:  74.37 kB
+dist/assets/main-CKkKG0MP.js       378.12 kB │ gzip: 112.77 kB
+✓ built in 2.32s
