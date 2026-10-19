@@ -1,0 +1,25 @@
+{
+  "repository": "h3119835830/agentscope",
+  "targets": [
+    "WINDOWS",
+    "main"
+  ],
+  "remote_baseline": "55be2fecb23935b2291a98f6d615800b3ad74eeb",
+  "feature_head": "d0d12487e741cc46a6ef7729870749bec65fa787",
+  "feature_commits": 20,
+  "merge_conflicts": 0,
+  "preserved_remote_files": true,
+  "current_source_files_exact": 30,
+  "tests": {
+    "backend": 1377,
+    "frontend": 325,
+    "integration": 32
+  },
+  "builds": [
+    "DSL adapter release",
+    "Vite",
+    "Python compileall"
+  ],
+  "runtime_switch_or_restart": false,
+  "push_requires_remote_receipt": true
+}

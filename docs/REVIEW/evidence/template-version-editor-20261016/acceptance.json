@@ -1,0 +1,23 @@
+{
+  "frontend_tests": 323,
+  "backend_tests": 1376,
+  "vite_build": true,
+  "isolated_browser_saved_template_version": 3,
+  "isolated_refresh_persistence_verified": true,
+  "existing_child_version": 2,
+  "new_child_uses_new_defaults": true,
+  "history_definition_hashes_unchanged": 54,
+  "main_columns": [
+    "策略模板",
+    "说明",
+    "配置项",
+    "默认动作",
+    "子配置",
+    "操作"
+  ],
+  "details_does_not_expand_children": true,
+  "arrow_only_expands_children": true,
+  "parameter_keys_types_and_add_remove_unsupported": true,
+  "formal_template_test_writes": false,
+  "dsh_changed": false
+}

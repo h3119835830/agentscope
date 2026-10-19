@@ -1,0 +1,28 @@
+{
+  "frontend_tests": 322,
+  "frontend_failed": 0,
+  "vite_build": true,
+  "backend_changed": false,
+  "backend_tests_rerun": false,
+  "dsh_changed": false,
+  "preview_read_only": true,
+  "default_column_widths": [
+    200,
+    300,
+    190,
+    108,
+    88,
+    76,
+    152
+  ],
+  "description_drag_width": 440,
+  "description_min_width": 180,
+  "description_keyboard_width": 190,
+  "filter_preserves_temporary_width": true,
+  "toolbar_refresh_restores_defaults": true,
+  "browser_refresh_restores_defaults": true,
+  "horizontal_keyboard_scroll_left": 39,
+  "page_overflow": false,
+  "child_table_resize_handles": 0,
+  "column_width_persistence": false
+}

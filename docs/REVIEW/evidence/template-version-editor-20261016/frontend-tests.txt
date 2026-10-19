@@ -1,0 +1,35 @@
+  ...
+# Subtest: unexpected HTML-shaped or execution-bearing responses cannot enable the read-only scene flow
+ok 319 - unexpected HTML-shaped or execution-bearing responses cannot enable the read-only scene flow
+  ---
+  duration_ms: 1.292817
+  ...
+# Subtest: refresh restores only an existing read pointer and changed material keeps supplement but loses the pointer
+ok 320 - refresh restores only an existing read pointer and changed material keeps supplement but loses the pointer
+  ---
+  duration_ms: 1.503298
+  ...
+# Subtest: editing intent clears the stored read pointer and adopted results cannot create a second task
+ok 321 - editing intent clears the stored read pointer and adopted results cannot create a second task
+  ---
+  duration_ms: 0.351283
+  ...
+# Subtest: pending failed and interrupted reads never provide task creation input
+ok 322 - pending failed and interrupted reads never provide task creation input
+  ---
+  duration_ms: 0.316962
+  ...
+# Subtest: user supplement citations keep their source role without duplicating the entered goal
+ok 323 - user supplement citations keep their source role without duplicating the entered goal
+  ---
+  duration_ms: 0.30378
+  ...
+1..323
+# tests 323
+# suites 0
+# pass 323
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 938.214877

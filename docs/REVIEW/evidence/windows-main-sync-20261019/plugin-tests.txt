@@ -1,0 +1,170 @@
+TAP version 13
+# Subtest: parallel preflight and post batch completes with serialized bodies
+ok 1 - parallel preflight and post batch completes with serialized bodies
+  ---
+  duration_ms: 18.414498
+  ...
+# Subtest: cancelling queued call settles before running body finishes
+ok 2 - cancelling queued call settles before running body finishes
+  ---
+  duration_ms: 0.439359
+  ...
+# Subtest: failure releases body lane for later calls
+ok 3 - failure releases body lane for later calls
+  ---
+  duration_ms: 0.297754
+  ...
+# Subtest: domain replacement restores public turns without private streams or hidden context
+ok 4 - domain replacement restores public turns without private streams or hidden context
+  ---
+  duration_ms: 1.304703
+  ...
+# Subtest: native question answers enter public context; pending/timeouts do not invent answers
+ok 5 - native question answers enter public context; pending/timeouts do not invent answers
+  ---
+  duration_ms: 0.220273
+  ...
+# Subtest: admitted queue messages cross the seam before turn dispatch
+ok 6 - admitted queue messages cross the seam before turn dispatch
+  ---
+  duration_ms: 0.66971
+  ...
+# Subtest: feedback offers count only after actual native context admission
+ok 7 - feedback offers count only after actual native context admission
+  ---
+  duration_ms: 10.619847
+  ...
+# Subtest: several feedback contexts in one native event keep distinct receipt identities
+ok 8 - several feedback contexts in one native event keep distinct receipt identities
+  ---
+  duration_ms: 0.244758
+  ...
+# Subtest: private reasoning, attempt streams and raw compaction output are excluded
+ok 9 - private reasoning, attempt streams and raw compaction output are excluded
+  ---
+  duration_ms: 9.0155
+  ...
+# Subtest: prompt projection uses current surface including cleared prompts
+ok 10 - prompt projection uses current surface including cleared prompts
+  ---
+  duration_ms: 0.277297
+  ...
+# Subtest: tool observations have no model connection secrets
+ok 11 - tool observations have no model connection secrets
+  ---
+  duration_ms: 0.404183
+  ...
+# Subtest: kernel feedback echo does not retrigger Pi
+ok 12 - kernel feedback echo does not retrigger Pi
+  ---
+  duration_ms: 0.138571
+  ...
+# Subtest: accepted event waits through an outage and retains the same idempotency key
+ok 13 - accepted event waits through an outage and retains the same idempotency key
+  ---
+  duration_ms: 1.733298
+  ...
+# Subtest: authentication failure is never retried or treated as success
+ok 14 - authentication failure is never retried or treated as success
+  ---
+  duration_ms: 0.38043
+  ...
+# Subtest: unrecovered outage reaches a bounded failed-closed deadline
+ok 15 - unrecovered outage reaches a bounded failed-closed deadline
+  ---
+  duration_ms: 0.31142
+  ...
+# Subtest: retired runtime module restores the single workbench and preserves its task
+ok 16 - retired runtime module restores the single workbench and preserves its task
+  ---
+  duration_ms: 1.834691
+  ...
+# Subtest: candidate approval alone cannot create an expansion stage
+ok 17 - candidate approval alone cannot create an expansion stage
+  ---
+  duration_ms: 1.884607
+  ...
+# Subtest: early closure does not invent grant, restriction or expansion
+ok 18 - early closure does not invent grant, restriction or expansion
+  ---
+  duration_ms: 0.714851
+  ...
+# Subtest: output expansion preserves backend-only and protected assets
+ok 19 - output expansion preserves backend-only and protected assets
+  ---
+  duration_ms: 0.127112
+  ...
+# Subtest: approval requires matching scope, message and process with completed analysis
+ok 20 - approval requires matching scope, message and process with completed analysis
+  ---
+  duration_ms: 0.209125
+  ...
+# Subtest: ended or concurrent application cannot offer an approval action
+ok 21 - ended or concurrent application cannot offer an approval action
+  ---
+  duration_ms: 0.09983
+  ...
+# Subtest: approved and loaded without verification is not labeled effective
+ok 22 - approved and loaded without verification is not labeled effective
+  ---
+  duration_ms: 0.098632
+  ...
+# Subtest: rejected restriction still shows a waiting agent
+ok 23 - rejected restriction still shows a waiting agent
+  ---
+  duration_ms: 0.173997
+  ...
+# Subtest: lost execution domain, failure or lost connection is never running
+ok 24 - lost execution domain, failure or lost connection is never running
+  ---
+  duration_ms: 0.11973
+  ...
+# Subtest: logs separate actual approval, rejection, probes and agent claims
+ok 25 - logs separate actual approval, rejection, probes and agent claims
+  ---
+  duration_ms: 0.524655
+  ...
+# Subtest: probe rejections are distinguished by domain and pid; allowed events are excluded
+ok 26 - probe rejections are distinguished by domain and pid; allowed events are excluded
+  ---
+  duration_ms: 0.20468
+  ...
+# Subtest: unresolved restriction prevents expansion approval without preventing guidance review
+ok 27 - unresolved restriction prevents expansion approval without preventing guidance review
+  ---
+  duration_ms: 0.1142
+  ...
+# Subtest: no_change uses the actual API decision enum and does not claim an agent restart
+ok 28 - no_change uses the actual API decision enum and does not claim an agent restart
+  ---
+  duration_ms: 0.095794
+  ...
+# Subtest: a live execution domain without a DSH process cannot imply agent activity
+ok 29 - a live execution domain without a DSH process cannot imply agent activity
+  ---
+  duration_ms: 0.219664
+  ...
+# Subtest: ended or disconnected scope ignores historical running binding and callback evidence
+ok 30 - ended or disconnected scope ignores historical running binding and callback evidence
+  ---
+  duration_ms: 0.162868
+  ...
+# Subtest: a running DSH and an old-generation callback remain separate facts
+ok 31 - a running DSH and an old-generation callback remain separate facts
+  ---
+  duration_ms: 0.129737
+  ...
+# Subtest: connection evidence identifies kernel probes instead of asserting DSH tool execution
+ok 32 - connection evidence identifies kernel probes instead of asserting DSH tool execution
+  ---
+  duration_ms: 0.38129
+  ...
+1..32
+# tests 32
+# suites 0
+# pass 32
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 75.875217

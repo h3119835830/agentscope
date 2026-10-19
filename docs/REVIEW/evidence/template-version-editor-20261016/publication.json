@@ -1,0 +1,46 @@
+{
+  "published": true,
+  "source_commit": "4bcfd225df7f07ea3a71d02ae3371382ca6431c0",
+  "release": "/opt/agentscope-template-editor-20261016-161556",
+  "backup": "/var/lib/agentscope-scope-demo/release-backups/agentscope-template-editor-20261016-161556",
+  "api_restart_seconds": 1.368,
+  "api_pid": 209256,
+  "broker_pid": 464,
+  "broker_process_unchanged": true,
+  "other_ports_unchanged": true,
+  "policy_authority_unchanged": true,
+  "configuration_and_approval_tables_unchanged": true,
+  "existing_catalog_unchanged": true,
+  "historical_version_definitions_unchanged": 54,
+  "formal_template_versions_created": 0,
+  "active_agents_before": 0,
+  "dsh_code_changed": false,
+  "health_ok": true,
+  "assets_match_build": true,
+  "asset_paths": [
+    "/assets/main-sm1mwNta.js",
+    "/assets/client-2tdd2SJ7.js",
+    "/assets/main-CxIpKjKh.css"
+  ],
+  "ui_sha256": "ecb9a73078e78047f12f0390a9bc57254cbc1a70b892a336173373995756dd51",
+  "browser_verified": {
+    "main_columns": [
+      "策略模板",
+      "说明",
+      "配置项",
+      "默认动作",
+      "子配置",
+      "操作"
+    ],
+    "details_has_no_expansion_attribute": true,
+    "details_opens_template_editor": true,
+    "details_from_closed_state_keeps_child_records_hidden": true,
+    "editor_footer_visible": true,
+    "arrow_only_expands_child_records": true,
+    "child_operation_value_retained": "打开文件",
+    "production_save_not_performed": true,
+    "screenshot": "18003-template-editor.jpg",
+    "screenshot_sha256": "8b29af95cd3492fa1c4bb50778f2422dac675bd8c5063727fd0587cdacbf00f7"
+  },
+  "post_browser_authority_and_approval_tables_unchanged": true
+}

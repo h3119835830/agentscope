@@ -1,0 +1,44 @@
+{
+  "frontend_tests": 322,
+  "frontend_failed": 0,
+  "vite_build": true,
+  "backend_changed": false,
+  "backend_tests_rerun": false,
+  "dsh_changed": false,
+  "preview_read_only": true,
+  "before_826": {
+    "outer_width": 541,
+    "child_width": 1000,
+    "child_scroll_width": 1000,
+    "overflow_x": "visible"
+  },
+  "after_826": {
+    "outer_width": 541,
+    "outer_scroll_width": 1114,
+    "child_width": 499,
+    "child_scroll_width": 860,
+    "scrollbar_height": 12,
+    "child_max_scroll_left": 361,
+    "mouse_drag_scroll_left": 361,
+    "outer_scroll_left_after_child_drag": 0,
+    "all_four_actions_visible": true
+  },
+  "parent_independent_scroll": {
+    "outer_scroll_left": 40,
+    "child_scroll_left": 361,
+    "detail_left_matches_visible_region": true
+  },
+  "proposal_review_cancelled_without_write": true,
+  "viewport_390": {
+    "child_width": 261,
+    "scroll_width": 860,
+    "scrollbar_height": 12,
+    "page_overflow": false
+  },
+  "viewport_1430": {
+    "child_width": 1072,
+    "scroll_width": 1072,
+    "scrollbar_height": 0,
+    "page_overflow": false
+  }
+}

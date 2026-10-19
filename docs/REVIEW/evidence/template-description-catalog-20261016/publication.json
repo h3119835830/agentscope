@@ -1,0 +1,53 @@
+{
+  "published": true,
+  "source_commit": "766c68fa1ca186a4c66a42621f7d675e9b5ebca6",
+  "release": "/opt/agentscope-template-descriptions-20261016-145034",
+  "backup": "/var/lib/agentscope-scope-demo/release-backups/agentscope-template-descriptions-20261016-145034",
+  "formal_policy_mutations": false,
+  "dsh_code_changed": false,
+  "active_agent_count_before": 0,
+  "api_restart_seconds": 0.917,
+  "api_pid": 106545,
+  "broker_pid": 464,
+  "broker_process_unchanged": true,
+  "policy_authority_unchanged": true,
+  "configuration_and_approval_tables_unchanged": true,
+  "agent_state_unchanged": true,
+  "other_ports_unchanged": true,
+  "description_count": 27,
+  "description_source_matches_api": true,
+  "versioned_definitions_unchanged": 54,
+  "health_ok": true,
+  "asset_paths": [
+    "/assets/main-ClPice-g.js",
+    "/assets/client-2tdd2SJ7.js",
+    "/assets/main-C8hktCId.css"
+  ],
+  "assets_match_build": true,
+  "ui_sha256": "2eee93bab97941238c5828ee6f9ca03ff45026ff6282b427103dd95217b61cd1",
+  "browser_verified": {
+    "main_headers": [
+      "策略模板",
+      "说明",
+      "配置项",
+      "默认动作 / 操作",
+      "子配置",
+      "操作"
+    ],
+    "no_child_records_before_details": true,
+    "details_shows_description_and_parameter_schema": true,
+    "child_headers": [
+      "实际策略名称",
+      "范围",
+      "保护对象 / 操作",
+      "动作",
+      "状态",
+      "操作"
+    ],
+    "existing_child_notify_preserved": true,
+    "current_template_default_block_preserved": true,
+    "live_description_matches_source": true,
+    "published_assets_observed": true
+  },
+  "post_browser_authority_and_approval_tables_unchanged": true
+}

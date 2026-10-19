@@ -11,3 +11,15 @@
 .policy-context-evidence summary{cursor:pointer;color:#4c74ad}
 .policy-context-evidence ul,.policy-context-evidence ol{padding-left:20px;line-height:1.8;overflow-wrap:anywhere}
 .policy-context-evidence strong{display:block;margin-top:10px}
+.flow-assistant .assistant-v2-composer .field-note{margin:8px 0;font-size:11px;line-height:1.7;color:#899ab1}
+.assistant-attachment-list{list-style:none;display:flex;flex-wrap:wrap;gap:8px;margin:8px 0;padding:0}
+.assistant-attachment-list li{display:flex;align-items:center;gap:8px;max-width:100%;padding:5px 8px;background:#f2f6fd;border:1px solid #e2e9f5;border-radius:6px;color:#54739a;font-size:11px}
+.assistant-attachment-list li span{overflow-wrap:anywhere;min-width:0}
+.assistant-attachment-list li button{border:0;background:none;color:#7c8eaa;padding:0 3px;font-size:17px}
+.flow-assistant .assistant-chat-composer>div.assistant-conversation-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.assistant-conversation-actions input[hidden]{display:none!important}
+.assistant-conversation-actions .assistant-attach-button{border:0;background:none;color:#5178b3;font-size:12px;padding:7px 0}
+.assistant-conversation-actions .assistant-composer-note{margin-left:auto;font-size:10px;color:#93a2b6}
+.assistant-conversation-actions button:disabled{cursor:default;opacity:.55}
+.policy-assistant.flow-assistant .assistant-v2-messages{max-height:none;min-height:120px;flex:1 1 0}
+.policy-assistant.flow-assistant .assistant-v2-composer textarea{height:72px!important;min-height:60px!important;max-height:160px;box-sizing:border-box}

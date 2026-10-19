@@ -1,0 +1,130 @@
+{
+  "real_model": true,
+  "backend": "DeepSeekProvider and WorkspacePolicyAgent bounded tool loop",
+  "cases": [
+    {
+      "scope": "system",
+      "configuration_count": 0,
+      "question_count": 1,
+      "gap_count": 0,
+      "context_usage": {
+        "mode": "none",
+        "round_count": 1,
+        "call_count": 0,
+        "file_count": 0,
+        "total_bytes": 0,
+        "activity": [],
+        "sources": [],
+        "provided_files": [
+          {
+            "name": "agentscope-chat-acceptance.md",
+            "characters": 58
+          }
+        ]
+      }
+    },
+    {
+      "scope": "system",
+      "configuration_count": 1,
+      "question_count": 0,
+      "gap_count": 0,
+      "context_usage": {
+        "mode": "none",
+        "round_count": 1,
+        "call_count": 0,
+        "file_count": 0,
+        "total_bytes": 0,
+        "activity": [],
+        "sources": [],
+        "provided_files": [
+          {
+            "name": "agentscope-chat-acceptance.md",
+            "characters": 58
+          }
+        ]
+      }
+    },
+    {
+      "scope": "agent",
+      "configuration_count": 0,
+      "question_count": 1,
+      "gap_count": 1,
+      "context_usage": {
+        "mode": "auto",
+        "round_count": 2,
+        "call_count": 1,
+        "file_count": 0,
+        "total_bytes": 0,
+        "activity": [
+          {
+            "tool": "list_directory",
+            "workspace": "reference-project",
+            "status": "denied"
+          }
+        ],
+        "sources": [],
+        "provided_files": []
+      }
+    },
+    {
+      "scope": "agent",
+      "configuration_count": 0,
+      "question_count": 0,
+      "gap_count": 0,
+      "context_usage": {
+        "mode": "auto",
+        "round_count": 1,
+        "call_count": 0,
+        "file_count": 0,
+        "total_bytes": 0,
+        "activity": [],
+        "sources": [],
+        "provided_files": []
+      }
+    },
+    {
+      "scope": "agent",
+      "configuration_count": 1,
+      "question_count": 0,
+      "gap_count": 0,
+      "context_usage": {
+        "mode": "auto",
+        "round_count": 3,
+        "call_count": 2,
+        "file_count": 1,
+        "total_bytes": 129,
+        "activity": [
+          {
+            "tool": "list_directory",
+            "workspace": "agentscope-chat-reference-td574m5r",
+            "status": "completed",
+            "path": "",
+            "entry_count": 2,
+            "omitted_count": 1
+          },
+          {
+            "tool": "read_files",
+            "workspace": "agentscope-chat-reference-td574m5r",
+            "status": "completed",
+            "paths": [
+              "README.md"
+            ],
+            "file_count": 1
+          }
+        ],
+        "sources": [
+          {
+            "workspace": "agentscope-chat-reference-td574m5r",
+            "paths": [
+              "/w/0/README.md"
+            ]
+          }
+        ],
+        "provided_files": []
+      }
+    }
+  ],
+  "approval_or_application_count": 0,
+  "formal_data_used": false,
+  "fixture_permission_correction_only": true
+}

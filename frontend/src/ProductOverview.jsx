@@ -1,12 +1,13 @@
 import React from 'react';
 import SecurityNotice from './SecurityNotice.jsx';
+import ValueAnnouncement from './ValueAnnouncement.jsx';
 import RecordBadge from './RecordBadge.jsx';
 import {agentName} from './agentInstancePresentation.mjs';
 export default function ProductOverview({dash,status,error,onRetry,onNav,onSessions}){
  const agents=dash?.agents||[],stats=dash?.stats;
  const checked=value=>value?new Date(value).toLocaleString('zh-CN',{hour12:false}):'暂无核验记录';
  const formalEntry=typeof location!=='undefined'&&location.hostname==='127.0.0.1'?location.href.replace('127.0.0.1','localhost'):null;
- return <div className="content product-overview"><div className="page-head"><div><p>查看 Agent 的连接、保护状态和待处理策略。</p></div><div className="security-notice-actions"><SecurityNotice/><a className="button ghost" href="/value-announcement.html" target="_blank" rel="noreferrer">阅读公告 ↗</a></div></div>
+ return <div className="content product-overview"><div className="page-head"><div><p>查看 Agent 的连接、保护状态和待处理策略。</p></div><div className="security-notice-actions"><SecurityNotice/><ValueAnnouncement/></div></div>
  {error&&<div role="alert" className="inline-notice warning">控制台数据不可达，当前运行与保护状态未知：{error} <button className="button tiny ghost" onClick={onRetry}>重新读取</button>{formalEntry&&<a className="button tiny ghost" href={formalEntry}>打开正式入口</a>}</div>}
  {dash&&<p className="overview-control-state">{error?'等待控制台恢复；上次成功读取':'控制台可达 · 最近读取'}：{checked(dash.observedAt)}。执行保护以各实例的当前核验为准。</p>}
  {!dash?!error&&<p role="status">正在读取 Agent…</p>:<>

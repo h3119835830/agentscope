@@ -113,7 +113,7 @@ function App() {
       <nav id="workspace-navigation" aria-label="工作区导航">
         <NavItem active={page === 'overview'} icon="▦" label="总览" onClick={() => setPage('overview')} />
         <NavItem active={page === 'connections'} icon="⇄" label="Agent连接" onClick={() => navigate({page:'connections',connectionInstance:'',connectionTab:''})} />
-        <div className="nav-connection-children" aria-label="Agent连接下的模块"><NavItem active={page === 'sessions'} icon="▤" label="会话" onClick={() => navigate({page:'sessions',sessionInstance:'',sessionId:'',sessionFilterInstance:'',sessionWorkspace:'',sessionCursor:0})} /></div>
+        <NavItem active={page === 'sessions'} icon="▤" label="会话" onClick={() => navigate({page:'sessions',sessionInstance:'',sessionId:'',sessionFilterInstance:'',sessionWorkspace:'',sessionCursor:0})} />
         <NavItem active={page === 'approvals'} icon="✓" label="审批" count={dash?.stats?.pending_approvals} onClick={() => navigate({page:'approvals',approvalId:''})} />
         <NavItem active={page === 'workbench'} icon="◈" label="Agent" onClick={() => setPage('workbench')} />
         <NavItem active={page === 'strategies'} icon="▤" label="系统" onClick={() => navigate({page:'strategies',systemTab:'policies'})} />

@@ -91,3 +91,70 @@ def test_agent_reference_cannot_be_reused_as_all_agent_generation(reference):
     with pytest.raises(ValueError,match='作用范围'):
         tc.generate('system',{**plan_body(),'scope':'system','reference_read_id':receipt['id']},provider)
     assert not provider.calls and not world.calls
+
+
+@pytest.mark.parametrize('scope_kind,legacy', [('system',False),('agent',False),('system',True)])
+def test_row_disable_http_flow_requires_approval_then_explicit_apply_and_preserves_other_drafts(world,scope_kind,legacy):
+    scope = 'system' if scope_kind=='system' else world.a['id']
+    def post(path, body):
+        response=world.client.post(path,headers=ADMIN,json=body)
+        assert response.status_code==200,response.text
+        return response.json()
+    def listing():
+        data=policy_library.directory() if legacy else tc.directory(scope)
+        return {r['id']:r for r in data['items']}
+    def submit(rows, operation='apply'):
+        body=batch(scope,rows);body['operation']=operation
+        return post('/api/policy-template-configurations/proposals',body)
+    def approve(p):
+        return post('/api/console/approvals/'+p['id']+'/approve',{'proposal_hash':p['proposal_hash'],'request_key':uuid.uuid4().hex})
+    def apply(p,receipt):
+        return post('/api/console/approvals/'+p['id']+'/apply',{'proposal_hash':p['proposal_hash'],'approval_hash':receipt['approval_hash'],'request_key':uuid.uuid4().hex})
+    if legacy:
+        a=policy_library.save({'kind':'structured','config':system_config(mode='exact',values='/w/0/staff.csv'),'base_revision':0})
+        b=policy_library.save({'kind':'structured','config':system_config(mode='exact',values='/w/0/budget.csv',name='预算保护'),'base_revision':0})
+    else:
+        a=tc.save(scope,config(scope=scope_kind));b=tc.save(scope,config(scope=scope_kind,name='预算保护',parameters={'target':'/w/0/budget.csv'}))
+    p=submit([a,b]);assert not world.calls
+    assert listing()[a['id']]['approval_id']==p['id'] and listing()[a['id']]['status']=='pending'
+    receipt=approve(p)
+    assert listing()[a['id']]['status']=='approved' and not dsl.current(scope)['documents'] and not world.calls
+    apply(p,receipt)
+    if legacy:
+        edited=policy_library.save({'kind':'structured','config':{**a['config'],'effect':'notify','values':'/w/0/new-draft.csv'},'base_revision':1},a['id'])
+    else:
+        edited=tc.save(scope,config(scope=scope_kind,base_revision=1,name='未应用新版',parameters={'target':'/w/0/new-draft.csv'}),a['id'])
+    row=listing()[a['id']]
+    assert row['applied_revision']==1 and row['approval_id']==p['id'] and row['approval_revision']==1 and not row['approval_current']
+    assert row['status'] in ('draft','library')
+    assert (row['applied_configuration']['config']['effect'] if legacy else row['applied_configuration']['parameters']['target'])==('block' if legacy else '/w/0/staff.csv')
+    before=dsl.current(scope);other=dsl.current(world.b['id']);calls=list(world.calls)
+    off=submit([edited],'disable')
+    assert {d['id'] for d in off['documents']}=={b['id']}
+    assert listing()[a['id']]['approval_id']==off['id'] and listing()[a['id']]['status']=='pending'
+    assert dsl.current(scope)==before and world.calls==calls
+    unapproved=world.client.post('/api/console/approvals/'+off['id']+'/apply',headers=ADMIN,json={'proposal_hash':off['proposal_hash'],'approval_hash':'0'*64,'request_key':uuid.uuid4().hex})
+    assert unapproved.status_code==409 and dsl.current(scope)==before
+    receipt=approve(off)
+    assert listing()[a['id']]['status']=='approved' and dsl.current(scope)==before and world.calls==calls
+    bad=world.client.post('/api/console/approvals/'+off['id']+'/apply',headers=ADMIN,json={'proposal_hash':off['proposal_hash'],'approval_hash':'0'*64,'request_key':uuid.uuid4().hex})
+    assert bad.status_code==409 and dsl.current(scope)==before
+    apply(off,receipt)
+    assert [d['id'] for d in dsl.current(scope)['documents']]==[b['id']]
+    assert dsl.current(world.b['id'])==other
+    assert (policy_library.get(a['id']) if legacy else tc.load(a['id']))['revision']==2
+    assert listing()[a['id']]['applied_revision'] is None
+
+
+def test_configuration_approval_links_require_exact_identity_scope_and_revision(world):
+    from agentscope_app import db
+    from agentscope_app.instances.configuration_approvals import link
+    a=tc.save(world.a['id'],config());b=tc.save(world.b['id'],config())
+    p=tc.propose_batch(batch(world.a['id'],[a]))
+    with db.connect() as con:
+        assert link(con,a['id'],1,world.a['id'],'template')['approval_id']==p['id']
+        assert link(con,a['id'],1,world.b['id'],'template')['approval_id'] is None
+        assert link(con,b['id'],1,world.b['id'],'template')['approval_id'] is None
+        old=link(con,a['id'],2,world.a['id'],'template')
+        assert old['approval_id']==p['id'] and not old['approval_current'] and old['approval_revision']==1
+    assert not world.calls

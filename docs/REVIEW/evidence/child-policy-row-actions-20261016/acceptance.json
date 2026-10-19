@@ -1,0 +1,37 @@
+{
+  "frontend_passed": 319,
+  "backend_passed": 1358,
+  "focused_backend_passed": 46,
+  "vite_build": "passed",
+  "http_isolated_lifecycle_cases": [
+    "all-Agent template",
+    "specified-Agent template",
+    "legacy system configuration"
+  ],
+  "assertions": [
+    "submit never approves/applies",
+    "approve preserves current authority",
+    "missing or wrong receipt cannot apply",
+    "disable preserves unrelated documents and other Agent",
+    "saved new draft remains after removal",
+    "historical approval link cannot grant current draft state"
+  ],
+  "browser_read_only_live_data_preview": true,
+  "browser_cancel_submits_nothing": true,
+  "normal_width": 1280,
+  "normal_child_client_scroll": [
+    961,
+    961
+  ],
+  "narrow_width": 826,
+  "narrow_record_client_scroll": [
+    541,
+    820
+  ],
+  "narrow_child_client_scroll": [
+    786,
+    786
+  ],
+  "formal_policy_mutations": false,
+  "dsh_code_mutations": false
+}
