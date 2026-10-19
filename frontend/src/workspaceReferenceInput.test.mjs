@@ -63,7 +63,7 @@ test('canceling the reference is an explicit local action without a request',asy
 });
 test('scenario-only generation delegates bounded context selection to the exact Agent API',async()=>{
  const catalog={catalog:[],items:[],generations:[]},calls=[];
- const render=await harness('TemplatePolicyAssistant.jsx',[catalog,'请根据订单说明保护员工文件','','',false,'',[]]);
+ const render=await harness('TemplatePolicyAssistant.jsx',[catalog,'请根据订单说明保护员工文件',[],'',false,[],false]);
  const props={target:{id:'agent-a',agent_type:'dsh'},scope:'agent',workspaceId:null,api:async()=>catalog,post:async(path,body)=>{calls.push({path,body});return {};},onApprovals(){}};
  await nodes(render(props)).find(n=>n.type==='form').props.onSubmit({preventDefault(){}});
  assert.equal(calls.length,1);assert.ok(calls[0].path.endsWith('/template-configurations/generate'));
@@ -74,15 +74,18 @@ test('scenario-only generation delegates bounded context selection to the exact 
 });
 test('scenario input has no mandatory manual file or workspace selection',async()=>{
  const catalog={catalog:[],items:[],generations:[]};
- const render=await harness('TemplatePolicyAssistant.jsx',[catalog,'请保护员工文件','','',false,'',[]]);
+ const render=await harness('TemplatePolicyAssistant.jsx',[catalog,'请保护员工文件',[],'',false,[],false]);
  const props={target:{id:'agent-a'},scope:'agent',api:async()=>catalog,post:async()=>assert.fail('unexpected generation'),onApprovals(){}};
- let tree=render(props);assert.equal(nodes(tree).find(n=>n.type==='button'&&n.props['aria-label']==='生成策略').props.disabled,false);
+ let tree=render(props);assert.equal(nodes(tree).find(n=>n.type==='button'&&n.props['aria-label']==='发送').props.disabled,false);
+ assert.equal(nodes(tree).filter(n=>n.type==='textarea').length,1);
+ assert.ok(!nodes(tree).some(n=>n.props?.['aria-label']==='选择配置模板'));
+ assert.doesNotMatch(renderToStaticMarkup(tree),/手工配置同一模板|按模板生成|补充参考材料/);
  assert.ok(!nodes(tree).some(n=>n.props?.['aria-label']==='参考文件路径'));
  assert.match(renderToStaticMarkup(tree),/无需填写参考文件路径/);
 });
 test('system scope does not authorize automatic reading of individual Agent workspaces',async()=>{
  const catalog={catalog:[],items:[],generations:[]},calls=[];
- const render=await harness('TemplatePolicyAssistant.jsx',[catalog,'请为所有 Agent 保护配置文件','','',false,'',[]]);
+ const render=await harness('TemplatePolicyAssistant.jsx',[catalog,'请为所有 Agent 保护配置文件',[],'',false,[],false]);
  const props={target:{id:'system'},scope:'system',api:async()=>catalog,post:async(path,body)=>{calls.push({path,body});return {};},onApprovals(){}};
  await nodes(render(props)).find(n=>n.type==='form').props.onSubmit({preventDefault(){}});
  assert.equal(calls.length,1);assert.equal(calls[0].path,'/api/policy-template-configurations/generate');
@@ -90,9 +93,9 @@ test('system scope does not authorize automatic reading of individual Agent work
 });
 test('busy analysis prevents duplicate submits and displays ongoing context work',async()=>{
  const catalog={catalog:[],items:[],generations:[]};
- const render=await harness('TemplatePolicyAssistant.jsx',[catalog,'请保护员工文件','','',true,'',[]]);
+ const render=await harness('TemplatePolicyAssistant.jsx',[catalog,'请保护员工文件',[],'',true,[],false]);
  const props={target:{id:'agent-a'},scope:'agent',api:async()=>catalog,post:async()=>assert.fail('unexpected generation'),onApprovals(){}};
- const tree=render(props);assert.ok(nodes(tree).find(n=>n.type==='button'&&n.props['aria-label']==='生成策略').props.disabled);
+ const tree=render(props);assert.ok(nodes(tree).find(n=>n.type==='button'&&n.props['aria-label']==='发送').props.disabled);
  await nodes(tree).find(n=>n.type==='form').props.onSubmit({preventDefault(){}});
  assert.match(renderToStaticMarkup(tree),/按需读取资料/);
 });
@@ -110,7 +113,7 @@ test('directory-only analysis never claims that file bodies were read',async()=>
 });
 test('legacy generation evidence remains readable without the new usage contract',async()=>{
  const catalog={catalog:[],items:[],generations:[{request_id:'old',scope:'agent',workspace_id:null,text:'保护员工资料',items:[],questions:[],gaps:[],reference_read:{workspace:'订单资料',paths:['README.md']}}]};
- const render=await harness('TemplatePolicyAssistant.jsx',[catalog,'','','',false,'',[]]);
+ const render=await harness('TemplatePolicyAssistant.jsx',[catalog,'',[],'',false,[],false]);
  const html=renderToStaticMarkup(render({target:{id:'agent-a'},scope:'agent',api:async()=>catalog,post:async()=>assert.fail('unexpected write'),onApprovals(){}}));
  assert.match(html,/参考资料：订单资料/);assert.match(html,/README.md/);
 });

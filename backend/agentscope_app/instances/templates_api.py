@@ -75,8 +75,14 @@ class Material(Model):
     text: str = Field(min_length=1,max_length=8000)
 
 
+class ConversationMessage(Model):
+    role: Literal['user','assistant']
+    content: str = Field(min_length=1,max_length=3000)
+
+
 class Generate(Model):
-    text: str = Field(min_length=5,max_length=2000)
+    text: str = Field(min_length=1,max_length=2000)
+    conversation: list[ConversationMessage] = Field(default_factory=list,max_length=6)
     scope: Literal['agent','workspace'] = 'agent'
     workspace_id: str | None = Field(default=None,max_length=200)
     materials: list[Material] = Field(default_factory=list,max_length=10)

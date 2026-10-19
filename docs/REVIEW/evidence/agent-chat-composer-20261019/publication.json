@@ -1,0 +1,42 @@
+{
+  "published": true,
+  "release": "/opt/agentscope-chat-input-20261019-132710",
+  "api_pid": "51572",
+  "broker_pid": "464",
+  "restart_seconds": 1.871,
+  "broker_unchanged": true,
+  "other_ports_unchanged": true,
+  "authority_unchanged": true,
+  "protected_tables": {
+    "system_policy_library": "b3545a5f336c2ce35959a2f74f2d549d0f6514f3ffb340a87c93603a3a289532",
+    "system_policy_library_versions": "05e05768a49d5349471381dbd86224e2ea70a91d76fb0bf4e4a302bbdeee4b56",
+    "system_policy_library_proposals": "b9cd01f95d7e55ca8075e2b86ac6750c41358050630a1c6edef723843923a091",
+    "template_configurations": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "template_configuration_versions": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "template_configuration_proposals": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "policy_approval_decisions": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "policy_application_requests": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "policy_template_versions": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "index_sha256": "3ee73f290adfa9ee31f72221462a2f1c6626af915e2a47cb2e6490dc941d47f8",
+  "final_frontend_overlay": true,
+  "final_formal_tables_unchanged": true,
+  "browser": {
+    "desktop": [
+      975,
+      794
+    ],
+    "textareas": 1,
+    "manual_selector": false,
+    "old_generate_button": false,
+    "textarea_height": 72,
+    "narrow": [
+      390,
+      760
+    ],
+    "horizontal_overflow": false,
+    "send_visible": true,
+    "scope_switch_clears_attachments": true,
+    "no_formal_generation_save_approve_apply": true
+  }
+}
