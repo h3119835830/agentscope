@@ -1,0 +1,19 @@
+{
+  "live": {
+    "width": 1072,
+    "height": 794,
+    "pageWidth": 1057,
+    "selected": 5,
+    "clear_current_enabled": true,
+    "clear_selected_enabled": true,
+    "preview_eligible_count": 5,
+    "preview_cancelled": true,
+    "errors": []
+  },
+  "isolated_mobile": {
+    "width": 390,
+    "height": 760,
+    "pageWidth": 375
+  },
+  "formal_cleanup_executed": false
+}

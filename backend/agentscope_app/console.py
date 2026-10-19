@@ -219,13 +219,13 @@ def agent_policy_candidate(ident:str,artifact_id:str):
     return invoke(selected_candidate,ident,artifact_id)
 
 @router.get('/approvals')
-def approval_directory():
-    from .instances.approval_views import directory
-    return invoke(directory)
+def approval_directory(cleared:bool=False):
+    from .instances.approval_clearance import directory
+    return invoke(directory,cleared)
 
 @router.get('/approvals/{ident}')
 def approval_detail(ident:str):
-    from .instances.approval_views import detail
+    from .instances.approval_clearance import detail
     return invoke(detail,ident)
 
 class ApprovalDecision(BaseModel):
@@ -242,6 +242,21 @@ class RevalidationRequest(BaseModel):
     model_config=ConfigDict(extra='forbid')
     plan_hash:str=Field(pattern=r'^[a-f0-9]{64}$')
     request_key:str=Field(min_length=8,max_length=100)
+
+class ClearanceRequest(BaseModel):
+    model_config=ConfigDict(extra='forbid')
+    expected_hash:str=Field(pattern=r'^[a-f0-9]{64}$')
+    request_key:str=Field(min_length=8,max_length=100)
+
+@router.post('/approvals/{ident}/clear')
+def clear_approval_record(ident:str,body:ClearanceRequest):
+    from .instances.approval_clearance import change
+    return invoke(change,ident,'clear',body.expected_hash,body.request_key)
+
+@router.post('/approvals/{ident}/restore')
+def restore_approval_record(ident:str,body:ClearanceRequest):
+    from .instances.approval_clearance import change
+    return invoke(change,ident,'restore',body.expected_hash,body.request_key)
 
 @router.get('/approvals/{ident}/revalidation')
 def revalidation_preview(ident:str):

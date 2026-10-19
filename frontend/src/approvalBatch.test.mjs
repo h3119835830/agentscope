@@ -69,3 +69,30 @@ test('revalidation previews cannot silently switch to another record',async()=>{
  const batch=await prepareApprovalBatch([r],'revalidate',async path=>path.endsWith('/revalidation')?{source_id:'different'}:r);
  assert.match(batch.entries[0].error,/不一致/);
 });
+test('cleanup and restore use visibility hashes and never call approval or execution endpoints',async()=>{
+ let current={...row('one','agent-a','rejected'),can_clear:true,can_restore:false,cleared:false,clearance_hash:'visibility-0'};const calls=[];
+ const api=async()=>current;
+ const clearing=await prepareApprovalBatch([current],'clear',api);
+ const cleared=await executeApprovalBatch(clearing,api,async(path,body)=>{calls.push({path,body});current={...current,cleared:true,can_restore:true,clearance_hash:'visibility-1'};return current;});
+ assert.equal(cleared[0].cleared,true);assert.deepEqual(calls[0],{path:url('one')+'/clear',body:{expected_hash:'visibility-0',request_key:clearing.entries[0].requestKey}});
+ const restoring=await prepareApprovalBatch([current],'restore',api);
+ const restored=await executeApprovalBatch(restoring,api,async(path,body)=>{calls.push({path,body});current={...current,cleared:false,can_restore:false,clearance_hash:'visibility-2'};return current;});
+ assert.equal(restored[0].cleared,false);assert.equal(calls[1].path,url('one')+'/restore');assert.equal(calls[1].body.expected_hash,'visibility-1');
+ assert.ok(calls.every(c=>!('proposal_hash' in c.body)&&!c.path.endsWith('/apply')&&!c.path.endsWith('/reject')));
+});
+test('cleanup excludes actionable records and does not impose approval owner selection rules',async()=>{
+ const records=[{...row('one','shared','rejected'),can_clear:true,clearance_hash:'v1'},
+  {...row('two','shared','applied'),can_clear:true,clearance_hash:'v2'},
+  {...row('pending','shared','pending'),can_clear:false},
+  {...row('approved','shared','approved'),can_clear:false},
+  {...row('applying','shared','applying'),can_clear:false}];
+ const api=async path=>records.find(r=>url(r.id)===path),batch=await prepareApprovalBatch(records,'clear',api),calls=[];
+ assert.ok(batch.entries.slice(0,2).every(e=>!e.error));assert.ok(batch.entries.slice(2).every(e=>e.error));
+ await executeApprovalBatch(batch,api,async path=>calls.push(path));assert.deepEqual(calls,[url('one')+'/clear',url('two')+'/clear']);
+});
+test('changed cleanup visibility revision invalidates the old preview without issuing a write',async()=>{
+ const r={...row('one','agent-a','rejected'),can_clear:true,clearance_hash:'before'};
+ const batch=await prepareApprovalBatch([r],'clear',async()=>r),calls=[];
+ const result=await executeApprovalBatch(batch,async()=>({...r,clearance_hash:'after'}),async()=>calls.push('write'));
+ assert.equal(result[0].outcome,'failed');assert.equal(calls.length,0);
+});

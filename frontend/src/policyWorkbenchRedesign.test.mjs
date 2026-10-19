@@ -420,3 +420,28 @@ test('unsupported bulk recovery keeps its reason and exact configuration destina
  elements(tree).find(e=>e.type==='button'&&e.props.children==='返回所属配置 ↗').props.onClick();assert.deepEqual(navigations,[destination]);
  assert.ok(elements(tree).find(e=>e.type==='button'&&String(e.props.children).includes('确认批量重新校验')).props.disabled);
 });
+test('one-click cleanup freezes only the current tab and search results',async()=>{
+ const records=[{id:'a',name:'员工资料保护',scope_type:'agent',status:'applied',can_clear:true,created_at:'2026-10-19T00:00:00Z'},
+  {id:'b',name:'预算保护',scope_type:'agent',status:'rejected',can_clear:true,created_at:'2026-10-19T00:00:00Z'},
+  {id:'c',name:'员工资料新版',scope_type:'agent',status:'pending',can_clear:false,created_at:'2026-10-19T00:00:00Z'}];
+ const render=await harness('PolicyApprovals.jsx','default',[null,{records},null,'processed','员工','',false,0,[],null,false]),calls=[];
+ const props={api:async()=>({records}),post:async(...args)=>calls.push(args),navigation:{},navigate(){}};
+ let tree=render(props);elements(tree).find(e=>e.type==='button'&&e.props.children==='清理当前结果').props.onClick();tree=render(props);
+ let modal=elements(tree).find(e=>e.type?.name==='ApprovalBatch');assert.equal(modal.props.action,'clear');assert.deepEqual(modal.props.rows.map(r=>r.id),['a']);assert.equal(calls.length,0);
+ modal.props.onClose();tree=render(props);elements(tree).find(e=>e.type==='button'&&e.props.children==='全选当前结果').props.onClick();tree=render(props);
+ elements(tree).find(e=>e.type==='button'&&e.props.children==='清理所选').props.onClick();tree=render(props);modal=elements(tree).find(e=>e.type?.name==='ApprovalBatch');assert.deepEqual(modal.props.rows.map(r=>r.id),['a']);
+});
+test('cleaned records can be selected and restored without an approval or apply action',async()=>{
+ const records=[{id:'a',name:'员工资料保护',scope_type:'agent',status:'applied',can_clear:true,cleared:true,can_restore:true,created_at:'2026-10-19T00:00:00Z'}];
+ const render=await harness('PolicyApprovals.jsx','default',[null,{records,cleared_count:1},null,'processed','','',false,0,[],null,true]);
+ const props={api:async()=>({records}),navigation:{},navigate(){}};let tree=render(props),html=renderToStaticMarkup(tree);
+ assert.match(html,/返回审批列表|正在查看已清理记录/);assert.doesNotMatch(html,/>清理所选<|>批量应用<|>批量批准</);
+ elements(tree).find(e=>e.type==='button'&&e.props.children==='恢复当前结果').props.onClick();tree=render(props);assert.equal(elements(tree).find(e=>e.type?.name==='ApprovalBatch').props.action,'restore');
+});
+test('cleanup confirmation explains retention and requires acknowledgement',async()=>{
+ const data={id:'a',name:'员工资料保护',scope_id:'agent-a',scope_type:'agent',target_name:'DeepSeek Harness',status:'applied',can_clear:true,clearance_hash:'hash'},batch={action:'clear',entries:[{id:'a',data,requestKey:'once'}]};
+ const render=await harness('ApprovalBatch.jsx','default',[batch,'',false,false,null,false]),calls=[];
+ const tree=render({rows:[data],action:'clear',api:async()=>data,post:async()=>calls.push('write'),onClose(){}}),html=renderToStaticMarkup(tree);
+ assert.match(html,/保留原始记录与审计/);assert.match(html,/已生效策略继续执行/);assert.doesNotMatch(html,/查看变更内容/);
+ const button=elements(tree).find(e=>e.type==='button'&&String(e.props.children).includes('确认清理记录'));assert.ok(button.props.disabled);await button.props.onClick();assert.equal(calls.length,0);
+});

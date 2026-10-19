@@ -1,0 +1,25 @@
+{
+  "release": "/opt/agentscope-approval-clearance-20261019-155545",
+  "source_base_commit": "133d8b2cc9b0af2bdcc1e1418b30f4ad9e4cb6aa",
+  "changed_backend": [
+    "console.py",
+    "instances/approval_clearance.py"
+  ],
+  "api_restart_seconds": 1.57,
+  "published": true,
+  "health_ok": true,
+  "authority_unchanged": true,
+  "active_agent_count": 2,
+  "protected_tables_unchanged": true,
+  "protected_table_count": 14,
+  "broker_unchanged": true,
+  "other_ports_unchanged": true,
+  "formal_clearance_mutations": 0,
+  "ui_index_hash": "62eb780674c8b246e0612b5606b9ef6c48c601cb63a04ff0c68470e87a6373ed",
+  "backend_hashes": {
+    "console.py": "5739606f928cb045a8efc66b3a63ec19b3fa5d05c63e8f6ad64956149e75b7a1",
+    "instances/approval_clearance.py": "b3ceff7870603e6b8f4b4eeab971f50f67cc44d84cf4b6d0f061adbb38dd6373"
+  },
+  "served_bundle": "/assets/main-DXdIVckT.js",
+  "served_bundle_matches_build": true
+}
