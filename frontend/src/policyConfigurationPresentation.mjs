@@ -14,7 +14,7 @@ export function configurationRecordActions(row){
  const inFlight=['pending','approved','applying'].includes(row.status)&&row.approval_current!==false;
  const applied=!!(row.applied_revision||row.applied||row.has_applied_document);
  const unsupported=row.scope==='workspace'||!row.can_submit;
- const submitReason=unsupported?'此配置暂不可提交':inFlight?'已有变更正在审批或等待应用，请查看审批':row.applied&&!row.has_changes?'当前版本已应用': '';
+ const submitReason=unsupported?(row.execution_support?.applicable===false?'ActPlane 暂不支持此语义，仅保存参数草案':'此配置暂不可提交'):inFlight?'已有变更正在审批或等待应用，请查看审批':row.applied&&!row.has_changes?'当前版本已应用': '';
  const disableReason=unsupported?'此配置暂不可停用':inFlight?'已有变更正在审批或等待应用，请查看审批':!applied?'尚未应用，无需停用':'';
  return {canSubmit:!submitReason,submitReason,canDisable:!disableReason,disableReason,canView:!!row.approval_id,
   viewTitle:row.approval_id?(row.approval_revision&&row.approval_revision!==row.revision?'查看配置 v'+row.approval_revision+' 的审批（当前草案 v'+row.revision+'）':'查看此配置的审批与应用回执'):'尚无审批记录'};
@@ -46,8 +46,8 @@ export function configurationRecordSummary(row,template={}){
  // from a saved revision, and neither is proof of kernel enforcement.
  const applied=!!row.applied&&!row.has_changes&&!oldApplied;
  const changed=row.has_changes||oldApplied;
- const status=applied?'已应用配置':row.validation_error?'校验未通过':statusLabels[row.status]||(changed?'有未应用修改':row.legacy?'未应用':row.status==='applied'?'未应用':'状态待核验');
- const stateTone=applied?'applied':['invalid','failed','blocked'].includes(row.status)||row.validation_error?'error':['pending','approved','applying','stale'].includes(row.status)||changed?'pending':'saved';
+ const status=row.execution_support?.applicable===false?'暂不支持 · 参数草案':applied?'已应用配置':row.validation_error?'校验未通过':statusLabels[row.status]||(changed?'有未应用修改':row.legacy?'未应用':row.status==='applied'?'未应用':'状态待核验');
+ const stateTone=row.execution_support?.applicable===false?'error':applied?'applied':['invalid','failed','blocked'].includes(row.status)||row.validation_error?'error':['pending','approved','applying','stale'].includes(row.status)||changed?'pending':'saved';
  const note=oldApplied?'旧版仍应用':applied&&row.status==='pending'?'另有待审批变更':'';
  return {target:targetLabel,targetTitle:targets.join('\n')||target,operation:operations.map(operationLabel).join('、')||'操作见详情',effects,status,stateTone,note};
 }

@@ -1,0 +1,1201 @@
+{
+  "scope": "Synthetic Git repositories and isolated ActPlane engines; no DSH, shared Broker, remote network or production policy changes.",
+  "cli_sha256": "5e8d43c279d88bd4215f654746675debfd976e28426c9fabdabeca408865d6da",
+  "cases": [
+    {
+      "template": "GIT-COMMIT",
+      "command": "commit",
+      "mode": "missing",
+      "dsl": "source AGENT = exec \"**/gitprobe\"\nrule config-probe0:\n  notify exec \"git\" \"commit\" if AGENT\n  because \"对 Git commit 参数命中事件记录或终止命中进程。适用于限制所选 Agent 的全部提交执行，不限定仓库或分支。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+      "cli_exit": 0,
+      "observed": [
+        {
+          "command": "commit",
+          "mode": "missing",
+          "returncode": 0,
+          "stdout": "[master 201e184] synthetic\n",
+          "stderr": ""
+        }
+      ],
+      "kernel_events": [
+        {
+          "action": "report",
+          "blocked": false,
+          "comm": "git",
+          "domain_id": 777673718,
+          "effect": "notify",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 324527,
+                  "origin_target": "gitprobe",
+                  "origin_timestamp_ns": 269080034289061
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 324527,
+                "origin_target": "gitprobe",
+                "origin_timestamp_ns": 269080034289061
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "exec",
+          "op_code": 0,
+          "pid": 324618,
+          "ppid": 324527,
+          "process_domain_id": 777673718,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 324527,
+            "origin_target": "gitprobe",
+            "origin_timestamp_ns": 269080034289061
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 3,
+            "clause_hash": "fnv1a64:74c43acbe47521a2",
+            "clause_op": "exec",
+            "clause_source_index": 0,
+            "clause_start_line": 3,
+            "clause_text": "  notify exec \"git\" \"commit\" if AGENT",
+            "effect": "notify",
+            "immutable": false,
+            "kernel_op": "exec",
+            "name": "config-probe0",
+            "ops": [
+              "exec"
+            ],
+            "reason": "对 Git commit 参数命中事件记录或终止命中进程。适用于限制所选 Agent 的全部提交执行，不限定仓库或分支。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+            "source_end_line": 4,
+            "source_hash": "fnv1a64:4a297fa8ea58155a",
+            "source_ref": "rule:config-probe0",
+            "source_start_line": 2,
+            "target_arg": "commit",
+            "target_kind": "exec",
+            "target_pattern": "**/git"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 324527,
+          "taint_label": "0x1",
+          "target": "/usr/bin/git",
+          "timestamp_unix_ns": "1792400002608684967",
+          "tool_call_tag": "0"
+        }
+      ],
+      "event_file_owners": [
+        1000
+      ],
+      "passed": true
+    },
+    {
+      "template": "GIT-PUSH",
+      "command": "push",
+      "mode": "missing",
+      "dsl": "source AGENT = exec \"**/gitprobe\"\nrule config-probe1:\n  notify exec \"git\" \"push\" if AGENT\n  because \"对 Git push 参数命中事件记录或终止命中进程。适用于限制所选 Agent 的全部推送执行，不限定仓库或分支。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+      "cli_exit": 0,
+      "observed": [
+        {
+          "command": "push",
+          "mode": "missing",
+          "returncode": 0,
+          "stdout": "",
+          "stderr": "To /tmp/as-git-ljd70fwd/work/bare-1\n * [new branch]      HEAD -> test\n"
+        }
+      ],
+      "kernel_events": [
+        {
+          "action": "report",
+          "blocked": false,
+          "comm": "git",
+          "domain_id": 45384622,
+          "effect": "notify",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 324648,
+                  "origin_target": "gitprobe",
+                  "origin_timestamp_ns": 269080401353068
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 324648,
+                "origin_target": "gitprobe",
+                "origin_timestamp_ns": 269080401353068
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "exec",
+          "op_code": 0,
+          "pid": 324650,
+          "ppid": 324648,
+          "process_domain_id": 45384622,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 324648,
+            "origin_target": "gitprobe",
+            "origin_timestamp_ns": 269080401353068
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 3,
+            "clause_hash": "fnv1a64:75db344aa26f5bfb",
+            "clause_op": "exec",
+            "clause_source_index": 0,
+            "clause_start_line": 3,
+            "clause_text": "  notify exec \"git\" \"push\" if AGENT",
+            "effect": "notify",
+            "immutable": false,
+            "kernel_op": "exec",
+            "name": "config-probe1",
+            "ops": [
+              "exec"
+            ],
+            "reason": "对 Git push 参数命中事件记录或终止命中进程。适用于限制所选 Agent 的全部推送执行，不限定仓库或分支。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+            "source_end_line": 4,
+            "source_hash": "fnv1a64:614d14e356de2c7a",
+            "source_ref": "rule:config-probe1",
+            "source_start_line": 2,
+            "target_arg": "push",
+            "target_kind": "exec",
+            "target_pattern": "**/git"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 324648,
+          "taint_label": "0x1",
+          "target": "/usr/bin/git",
+          "timestamp_unix_ns": "1792400002980732080",
+          "tool_call_tag": "0"
+        }
+      ],
+      "event_file_owners": [
+        1000
+      ],
+      "passed": true
+    },
+    {
+      "template": "GIT-LOCAL",
+      "command": "clean",
+      "mode": "missing",
+      "dsl": "source AGENT = exec \"**/gitprobe\"\nrule config-probe2:\n  notify exec \"git\" \"clean\" if AGENT\n  because \"按所选 reset、clean、stash 字面参数记录或终止进程。选择 reset 会影响全部 reset，不仅是 --hard；路径和选项组合过滤暂不支持。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+      "cli_exit": 0,
+      "observed": [
+        {
+          "command": "clean",
+          "mode": "missing",
+          "returncode": 0,
+          "stdout": "",
+          "stderr": ""
+        }
+      ],
+      "kernel_events": [
+        {
+          "action": "report",
+          "blocked": false,
+          "comm": "git",
+          "domain_id": 1491814856,
+          "effect": "notify",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 324678,
+                  "origin_target": "gitprobe",
+                  "origin_timestamp_ns": 269080801337882
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 324678,
+                "origin_target": "gitprobe",
+                "origin_timestamp_ns": 269080801337882
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "exec",
+          "op_code": 0,
+          "pid": 324680,
+          "ppid": 324678,
+          "process_domain_id": 1491814856,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 324678,
+            "origin_target": "gitprobe",
+            "origin_timestamp_ns": 269080801337882
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 3,
+            "clause_hash": "fnv1a64:fe854f97e08c2370",
+            "clause_op": "exec",
+            "clause_source_index": 0,
+            "clause_start_line": 3,
+            "clause_text": "  notify exec \"git\" \"clean\" if AGENT",
+            "effect": "notify",
+            "immutable": false,
+            "kernel_op": "exec",
+            "name": "config-probe2",
+            "ops": [
+              "exec"
+            ],
+            "reason": "按所选 reset、clean、stash 字面参数记录或终止进程。选择 reset 会影响全部 reset，不仅是 --hard；路径和选项组合过滤暂不支持。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+            "source_end_line": 4,
+            "source_hash": "fnv1a64:9adb0ae27ce820c1",
+            "source_ref": "rule:config-probe2",
+            "source_start_line": 2,
+            "target_arg": "clean",
+            "target_kind": "exec",
+            "target_pattern": "**/git"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 324678,
+          "taint_label": "0x1",
+          "target": "/usr/bin/git",
+          "timestamp_unix_ns": "1792400003375799773",
+          "tool_call_tag": "0"
+        }
+      ],
+      "event_file_owners": [
+        1000
+      ],
+      "passed": true
+    },
+    {
+      "template": "GIT-LOCAL",
+      "command": "reset",
+      "mode": "missing",
+      "dsl": "source AGENT = exec \"**/gitprobe\"\nrule config-probe3:\n  notify exec \"git\" \"clean\" if AGENT\n  because \"按所选 reset、clean、stash 字面参数记录或终止进程。选择 reset 会影响全部 reset，不仅是 --hard；路径和选项组合过滤暂不支持。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+      "cli_exit": 0,
+      "observed": [
+        {
+          "command": "reset",
+          "mode": "missing",
+          "returncode": 0,
+          "stdout": "",
+          "stderr": ""
+        }
+      ],
+      "kernel_events": [],
+      "event_file_owners": [
+        1000
+      ],
+      "passed": true
+    },
+    {
+      "template": "GIT-BYPASS",
+      "command": "bypass",
+      "mode": "missing",
+      "dsl": "source AGENT = exec \"**/gitprobe\"\nrule config-probe4:\n  notify exec \"git\" \"--no-verify\" if AGENT\n  because \"对 --no-verify 等显式跳过检查的 Git 参数记录或终止进程。短参数 -n 在不同子命令中含义不同，不能将其统一认定为绕过检查。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+      "cli_exit": 0,
+      "observed": [
+        {
+          "command": "bypass",
+          "mode": "missing",
+          "returncode": 0,
+          "stdout": "[master c0b492d] synthetic\n",
+          "stderr": ""
+        }
+      ],
+      "kernel_events": [
+        {
+          "action": "report",
+          "blocked": false,
+          "comm": "git",
+          "domain_id": 988663936,
+          "effect": "notify",
+          "event": "taint_violation",
+          "killed": false,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 324736,
+                  "origin_target": "gitprobe",
+                  "origin_timestamp_ns": 269081504816148
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 324736,
+                "origin_target": "gitprobe",
+                "origin_timestamp_ns": 269081504816148
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "exec",
+          "op_code": 0,
+          "pid": 324738,
+          "ppid": 324736,
+          "process_domain_id": 988663936,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 324736,
+            "origin_target": "gitprobe",
+            "origin_timestamp_ns": 269081504816148
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 3,
+            "clause_hash": "fnv1a64:83c3e27983f9f00c",
+            "clause_op": "exec",
+            "clause_source_index": 0,
+            "clause_start_line": 3,
+            "clause_text": "  notify exec \"git\" \"--no-verify\" if AGENT",
+            "effect": "notify",
+            "immutable": false,
+            "kernel_op": "exec",
+            "name": "config-probe4",
+            "ops": [
+              "exec"
+            ],
+            "reason": "对 --no-verify 等显式跳过检查的 Git 参数记录或终止进程。短参数 -n 在不同子命令中含义不同，不能将其统一认定为绕过检查。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+            "source_end_line": 4,
+            "source_hash": "fnv1a64:5755099f99b631c8",
+            "source_ref": "rule:config-probe4",
+            "source_start_line": 2,
+            "target_arg": "--no-verify",
+            "target_kind": "exec",
+            "target_pattern": "**/git"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 324736,
+          "taint_label": "0x1",
+          "target": "/usr/bin/git",
+          "timestamp_unix_ns": "1792400004077603685",
+          "tool_call_tag": "0"
+        }
+      ],
+      "event_file_owners": [
+        1000
+      ],
+      "passed": true
+    },
+    {
+      "template": "GIT-COMMIT-CHECK",
+      "command": "commit",
+      "mode": "missing",
+      "dsl": "source AGENT = exec \"**/gitprobe\"\nrule config-probe5:\n  kill exec \"git\" \"commit\" if AGENT unless after exec \"gitcheck\" exits 0 since write \"/tmp/as-git-ljd70fwd/work/source.txt\"\n  because \"在 Git commit 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待提交内容测试通过。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+      "cli_exit": 0,
+      "observed": [
+        {
+          "command": "commit",
+          "mode": "missing",
+          "returncode": -9,
+          "stdout": "",
+          "stderr": ""
+        }
+      ],
+      "kernel_events": [
+        {
+          "action": "kill",
+          "blocked": false,
+          "comm": "git",
+          "domain_id": 2062694892,
+          "effect": "kill",
+          "event": "taint_violation",
+          "killed": true,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 324798,
+                  "origin_target": "gitprobe",
+                  "origin_timestamp_ns": 269081864919985
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 324798,
+                "origin_target": "gitprobe",
+                "origin_timestamp_ns": 269081864919985
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "exec",
+          "op_code": 0,
+          "pid": 324800,
+          "ppid": 324798,
+          "process_domain_id": 2062694892,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 324798,
+            "origin_target": "gitprobe",
+            "origin_timestamp_ns": 269081864919985
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 3,
+            "clause_hash": "fnv1a64:7013b6b68fc385a7",
+            "clause_op": "exec",
+            "clause_source_index": 0,
+            "clause_start_line": 3,
+            "clause_text": "  kill exec \"git\" \"commit\" if AGENT unless after exec \"gitcheck\" exits 0 since write \"/tmp/as-git-ljd70fwd/work/source.txt\"",
+            "effect": "kill",
+            "immutable": false,
+            "kernel_op": "exec",
+            "name": "config-probe5",
+            "ops": [
+              "exec"
+            ],
+            "reason": "在 Git commit 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待提交内容测试通过。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+            "source_end_line": 4,
+            "source_hash": "fnv1a64:4d020a028dec7792",
+            "source_ref": "rule:config-probe5",
+            "source_start_line": 2,
+            "target_arg": "commit",
+            "target_kind": "exec",
+            "target_pattern": "**/git"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 324798,
+          "taint_label": "0x1",
+          "target": "/usr/bin/git",
+          "timestamp_unix_ns": "1792400004439720795",
+          "tool_call_tag": "0"
+        }
+      ],
+      "event_file_owners": [
+        1000
+      ],
+      "passed": true
+    },
+    {
+      "template": "GIT-COMMIT-CHECK",
+      "command": "commit",
+      "mode": "success",
+      "dsl": "source AGENT = exec \"**/gitprobe\"\nrule config-probe6:\n  kill exec \"git\" \"commit\" if AGENT unless after exec \"gitcheck\" exits 0 since write \"/tmp/as-git-ljd70fwd/work/source.txt\"\n  because \"在 Git commit 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待提交内容测试通过。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+      "cli_exit": 0,
+      "observed": [
+        {
+          "command": "commit",
+          "mode": "success",
+          "returncode": 0,
+          "stdout": "[master c0b492d] synthetic\n",
+          "stderr": ""
+        }
+      ],
+      "kernel_events": [],
+      "event_file_owners": [
+        1000
+      ],
+      "passed": true
+    },
+    {
+      "template": "GIT-COMMIT-CHECK",
+      "command": "commit",
+      "mode": "failed",
+      "dsl": "source AGENT = exec \"**/gitprobe\"\nrule config-probe7:\n  kill exec \"git\" \"commit\" if AGENT unless after exec \"gitcheck\" exits 0 since write \"/tmp/as-git-ljd70fwd/work/source.txt\"\n  because \"在 Git commit 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待提交内容测试通过。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+      "cli_exit": 0,
+      "observed": [
+        {
+          "command": "commit",
+          "mode": "failed",
+          "returncode": -9,
+          "stdout": "",
+          "stderr": ""
+        }
+      ],
+      "kernel_events": [
+        {
+          "action": "kill",
+          "blocked": false,
+          "comm": "git",
+          "domain_id": 189917830,
+          "effect": "kill",
+          "event": "taint_violation",
+          "killed": true,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 324863,
+                  "origin_target": "gitprobe",
+                  "origin_timestamp_ns": 269082576318798
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 324863,
+                "origin_target": "gitprobe",
+                "origin_timestamp_ns": 269082576318798
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "exec",
+          "op_code": 0,
+          "pid": 324866,
+          "ppid": 324863,
+          "process_domain_id": 189917830,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 324863,
+            "origin_target": "gitprobe",
+            "origin_timestamp_ns": 269082576318798
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 3,
+            "clause_hash": "fnv1a64:7013b6b68fc385a7",
+            "clause_op": "exec",
+            "clause_source_index": 0,
+            "clause_start_line": 3,
+            "clause_text": "  kill exec \"git\" \"commit\" if AGENT unless after exec \"gitcheck\" exits 0 since write \"/tmp/as-git-ljd70fwd/work/source.txt\"",
+            "effect": "kill",
+            "immutable": false,
+            "kernel_op": "exec",
+            "name": "config-probe7",
+            "ops": [
+              "exec"
+            ],
+            "reason": "在 Git commit 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待提交内容测试通过。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+            "source_end_line": 4,
+            "source_hash": "fnv1a64:50e8fba128872980",
+            "source_ref": "rule:config-probe7",
+            "source_start_line": 2,
+            "target_arg": "commit",
+            "target_kind": "exec",
+            "target_pattern": "**/git"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 324863,
+          "taint_label": "0x1",
+          "target": "/usr/bin/git",
+          "timestamp_unix_ns": "1792400005151821570",
+          "tool_call_tag": "0"
+        }
+      ],
+      "event_file_owners": [
+        1000
+      ],
+      "passed": true
+    },
+    {
+      "template": "GIT-COMMIT-CHECK",
+      "command": "commit",
+      "mode": "changed",
+      "dsl": "source AGENT = exec \"**/gitprobe\"\nrule config-probe8:\n  kill exec \"git\" \"commit\" if AGENT unless after exec \"gitcheck\" exits 0 since write \"/tmp/as-git-ljd70fwd/work/source.txt\"\n  because \"在 Git commit 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待提交内容测试通过。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+      "cli_exit": 0,
+      "observed": [
+        {
+          "command": "commit",
+          "mode": "changed",
+          "returncode": -9,
+          "stdout": "",
+          "stderr": ""
+        }
+      ],
+      "kernel_events": [
+        {
+          "action": "kill",
+          "blocked": false,
+          "comm": "git",
+          "domain_id": 1258249736,
+          "effect": "kill",
+          "event": "taint_violation",
+          "killed": true,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 324894,
+                  "origin_target": "gitprobe",
+                  "origin_timestamp_ns": 269082938283047
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 324894,
+                "origin_target": "gitprobe",
+                "origin_timestamp_ns": 269082938283047
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "exec",
+          "op_code": 0,
+          "pid": 324897,
+          "ppid": 324894,
+          "process_domain_id": 1258249736,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 324894,
+            "origin_target": "gitprobe",
+            "origin_timestamp_ns": 269082938283047
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 3,
+            "clause_hash": "fnv1a64:7013b6b68fc385a7",
+            "clause_op": "exec",
+            "clause_source_index": 0,
+            "clause_start_line": 3,
+            "clause_text": "  kill exec \"git\" \"commit\" if AGENT unless after exec \"gitcheck\" exits 0 since write \"/tmp/as-git-ljd70fwd/work/source.txt\"",
+            "effect": "kill",
+            "immutable": false,
+            "kernel_op": "exec",
+            "name": "config-probe8",
+            "ops": [
+              "exec"
+            ],
+            "reason": "在 Git commit 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待提交内容测试通过。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+            "source_end_line": 4,
+            "source_hash": "fnv1a64:6323977952ad4c43",
+            "source_ref": "rule:config-probe8",
+            "source_start_line": 2,
+            "target_arg": "commit",
+            "target_kind": "exec",
+            "target_pattern": "**/git"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 324894,
+          "taint_label": "0x1",
+          "target": "/usr/bin/git",
+          "timestamp_unix_ns": "1792400005513130926",
+          "tool_call_tag": "0"
+        }
+      ],
+      "event_file_owners": [
+        1000
+      ],
+      "passed": true
+    },
+    {
+      "template": "GIT-PUSH-CHECK",
+      "command": "push",
+      "mode": "missing",
+      "dsl": "source AGENT = exec \"**/gitprobe\"\nrule config-probe9:\n  kill exec \"git\" \"push\" if AGENT unless after exec \"gitcheck\" exits 0 since write \"/tmp/as-git-ljd70fwd/work/source.txt\"\n  because \"在 Git push 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待推送内容测试通过。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+      "cli_exit": 0,
+      "observed": [
+        {
+          "command": "push",
+          "mode": "missing",
+          "returncode": -9,
+          "stdout": "",
+          "stderr": ""
+        }
+      ],
+      "kernel_events": [
+        {
+          "action": "kill",
+          "blocked": false,
+          "comm": "git",
+          "domain_id": 829550526,
+          "effect": "kill",
+          "event": "taint_violation",
+          "killed": true,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 324925,
+                  "origin_target": "gitprobe",
+                  "origin_timestamp_ns": 269083300875546
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 324925,
+                "origin_target": "gitprobe",
+                "origin_timestamp_ns": 269083300875546
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "exec",
+          "op_code": 0,
+          "pid": 324927,
+          "ppid": 324925,
+          "process_domain_id": 829550526,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 324925,
+            "origin_target": "gitprobe",
+            "origin_timestamp_ns": 269083300875546
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 3,
+            "clause_hash": "fnv1a64:c6f00cbaf1ef9b0a",
+            "clause_op": "exec",
+            "clause_source_index": 0,
+            "clause_start_line": 3,
+            "clause_text": "  kill exec \"git\" \"push\" if AGENT unless after exec \"gitcheck\" exits 0 since write \"/tmp/as-git-ljd70fwd/work/source.txt\"",
+            "effect": "kill",
+            "immutable": false,
+            "kernel_op": "exec",
+            "name": "config-probe9",
+            "ops": [
+              "exec"
+            ],
+            "reason": "在 Git push 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待推送内容测试通过。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+            "source_end_line": 4,
+            "source_hash": "fnv1a64:e8d2d8e670fcb173",
+            "source_ref": "rule:config-probe9",
+            "source_start_line": 2,
+            "target_arg": "push",
+            "target_kind": "exec",
+            "target_pattern": "**/git"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 324925,
+          "taint_label": "0x1",
+          "target": "/usr/bin/git",
+          "timestamp_unix_ns": "1792400005876078737",
+          "tool_call_tag": "0"
+        }
+      ],
+      "event_file_owners": [
+        1000
+      ],
+      "passed": true
+    },
+    {
+      "template": "GIT-PUSH-CHECK",
+      "command": "push",
+      "mode": "success",
+      "dsl": "source AGENT = exec \"**/gitprobe\"\nrule config-probe10:\n  kill exec \"git\" \"push\" if AGENT unless after exec \"gitcheck\" exits 0 since write \"/tmp/as-git-ljd70fwd/work/source.txt\"\n  because \"在 Git push 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待推送内容测试通过。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+      "cli_exit": 0,
+      "observed": [
+        {
+          "command": "push",
+          "mode": "success",
+          "returncode": 0,
+          "stdout": "",
+          "stderr": "To /tmp/as-git-ljd70fwd/work/bare-10\n * [new branch]      HEAD -> test\n"
+        }
+      ],
+      "kernel_events": [],
+      "event_file_owners": [
+        1000
+      ],
+      "passed": true
+    },
+    {
+      "template": "GIT-PUSH-CHECK",
+      "command": "push",
+      "mode": "failed",
+      "dsl": "source AGENT = exec \"**/gitprobe\"\nrule config-probe11:\n  kill exec \"git\" \"push\" if AGENT unless after exec \"gitcheck\" exits 0 since write \"/tmp/as-git-ljd70fwd/work/source.txt\"\n  because \"在 Git push 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待推送内容测试通过。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+      "cli_exit": 0,
+      "observed": [
+        {
+          "command": "push",
+          "mode": "failed",
+          "returncode": -9,
+          "stdout": "",
+          "stderr": ""
+        }
+      ],
+      "kernel_events": [
+        {
+          "action": "kill",
+          "blocked": false,
+          "comm": "git",
+          "domain_id": 1882460178,
+          "effect": "kill",
+          "event": "taint_violation",
+          "killed": true,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 325004,
+                  "origin_target": "gitprobe",
+                  "origin_timestamp_ns": 269084008344738
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 325004,
+                "origin_target": "gitprobe",
+                "origin_timestamp_ns": 269084008344738
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "exec",
+          "op_code": 0,
+          "pid": 325007,
+          "ppid": 325004,
+          "process_domain_id": 1882460178,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 325004,
+            "origin_target": "gitprobe",
+            "origin_timestamp_ns": 269084008344738
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 3,
+            "clause_hash": "fnv1a64:c6f00cbaf1ef9b0a",
+            "clause_op": "exec",
+            "clause_source_index": 0,
+            "clause_start_line": 3,
+            "clause_text": "  kill exec \"git\" \"push\" if AGENT unless after exec \"gitcheck\" exits 0 since write \"/tmp/as-git-ljd70fwd/work/source.txt\"",
+            "effect": "kill",
+            "immutable": false,
+            "kernel_op": "exec",
+            "name": "config-probe11",
+            "ops": [
+              "exec"
+            ],
+            "reason": "在 Git push 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待推送内容测试通过。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+            "source_end_line": 4,
+            "source_hash": "fnv1a64:c29aef6bbb1be85c",
+            "source_ref": "rule:config-probe11",
+            "source_start_line": 2,
+            "target_arg": "push",
+            "target_kind": "exec",
+            "target_pattern": "**/git"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 325004,
+          "taint_label": "0x1",
+          "target": "/usr/bin/git",
+          "timestamp_unix_ns": "1792400006586580534",
+          "tool_call_tag": "0"
+        }
+      ],
+      "event_file_owners": [
+        1000
+      ],
+      "passed": true
+    },
+    {
+      "template": "GIT-PUSH-CHECK",
+      "command": "push",
+      "mode": "changed",
+      "dsl": "source AGENT = exec \"**/gitprobe\"\nrule config-probe12:\n  kill exec \"git\" \"push\" if AGENT unless after exec \"gitcheck\" exits 0 since write \"/tmp/as-git-ljd70fwd/work/source.txt\"\n  because \"在 Git push 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待推送内容测试通过。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+      "cli_exit": 0,
+      "observed": [
+        {
+          "command": "push",
+          "mode": "changed",
+          "returncode": -9,
+          "stdout": "",
+          "stderr": ""
+        }
+      ],
+      "kernel_events": [
+        {
+          "action": "kill",
+          "blocked": false,
+          "comm": "git",
+          "domain_id": 1463048550,
+          "effect": "kill",
+          "event": "taint_violation",
+          "killed": true,
+          "matched_label": "0x1",
+          "matched_label_details": [
+            {
+              "causal_chain": [
+                {
+                  "label": "AGENT",
+                  "label_mask": "0x1",
+                  "origin_op": "exec",
+                  "origin_pid": 325036,
+                  "origin_target": "gitprobe",
+                  "origin_timestamp_ns": 269084373216093
+                }
+              ],
+              "causal_chain_complete": false,
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "provenance": {
+                "label": "AGENT",
+                "label_mask": "0x1",
+                "origin_op": "exec",
+                "origin_pid": 325036,
+                "origin_target": "gitprobe",
+                "origin_timestamp_ns": 269084373216093
+              },
+              "provenance_status": "reported_first_origin"
+            }
+          ],
+          "matched_label_name": "AGENT",
+          "matched_label_names": [
+            "AGENT"
+          ],
+          "matched_labels": "0x1",
+          "op": "exec",
+          "op_code": 0,
+          "pid": 325039,
+          "ppid": 325036,
+          "process_domain_id": 1463048550,
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 325036,
+            "origin_target": "gitprobe",
+            "origin_timestamp_ns": 269084373216093
+          },
+          "provenance_model": {
+            "causal_chain_scope": "single_hop_origin",
+            "full_causal_chain": false,
+            "matched_labels_enumerated": true,
+            "reported_origin_available": true,
+            "reported_origin_scope": "first_available_matched_label"
+          },
+          "rule": {
+            "clause_end_line": 3,
+            "clause_hash": "fnv1a64:c6f00cbaf1ef9b0a",
+            "clause_op": "exec",
+            "clause_source_index": 0,
+            "clause_start_line": 3,
+            "clause_text": "  kill exec \"git\" \"push\" if AGENT unless after exec \"gitcheck\" exits 0 since write \"/tmp/as-git-ljd70fwd/work/source.txt\"",
+            "effect": "kill",
+            "immutable": false,
+            "kernel_op": "exec",
+            "name": "config-probe12",
+            "ops": [
+              "exec"
+            ],
+            "reason": "在 Git push 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待推送内容测试通过。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+            "source_end_line": 4,
+            "source_hash": "fnv1a64:a115cff51acf3213",
+            "source_ref": "rule:config-probe12",
+            "source_start_line": 2,
+            "target_arg": "push",
+            "target_kind": "exec",
+            "target_pattern": "**/git"
+          },
+          "rule_id": 0,
+          "schema": "actplane.violation.v1",
+          "session_root": 325036,
+          "taint_label": "0x1",
+          "target": "/usr/bin/git",
+          "timestamp_unix_ns": "1792400006949460129",
+          "tool_call_tag": "0"
+        }
+      ],
+      "event_file_owners": [
+        1000
+      ],
+      "passed": true
+    }
+  ],
+  "test_pin_root_removed": true,
+  "passed": true
+}

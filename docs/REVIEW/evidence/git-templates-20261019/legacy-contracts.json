@@ -1,0 +1,276 @@
+{
+  "passed": true,
+  "checked": 54,
+  "definitions": [
+    {
+      "id": "RQ1-ENV",
+      "version": 1,
+      "unchanged": true
+    },
+    {
+      "id": "RQ1-ENV",
+      "version": 2,
+      "unchanged": true
+    },
+    {
+      "id": "RQ1-CONTRACT",
+      "version": 1,
+      "unchanged": true
+    },
+    {
+      "id": "RQ1-CONTRACT",
+      "version": 2,
+      "unchanged": true
+    },
+    {
+      "id": "FILE-READ",
+      "version": 1,
+      "unchanged": true
+    },
+    {
+      "id": "FILE-READ",
+      "version": 2,
+      "unchanged": true
+    },
+    {
+      "id": "FILE-CHANGE",
+      "version": 1,
+      "unchanged": true
+    },
+    {
+      "id": "FILE-CHANGE",
+      "version": 2,
+      "unchanged": true
+    },
+    {
+      "id": "WRITE-BOUNDARY",
+      "version": 1,
+      "unchanged": true
+    },
+    {
+      "id": "WRITE-BOUNDARY",
+      "version": 2,
+      "unchanged": true
+    },
+    {
+      "id": "RQ1-GENERATED",
+      "version": 1,
+      "unchanged": true
+    },
+    {
+      "id": "RQ1-GENERATED",
+      "version": 2,
+      "unchanged": true
+    },
+    {
+      "id": "RQ1-CHECK",
+      "version": 1,
+      "unchanged": true
+    },
+    {
+      "id": "RQ1-CHECK",
+      "version": 2,
+      "unchanged": true
+    },
+    {
+      "id": "RQ1-DELETE",
+      "version": 1,
+      "unchanged": true
+    },
+    {
+      "id": "RQ1-DELETE",
+      "version": 2,
+      "unchanged": true
+    },
+    {
+      "id": "RQ1-GIT",
+      "version": 1,
+      "unchanged": true
+    },
+    {
+      "id": "RQ1-GIT",
+      "version": 2,
+      "unchanged": true
+    },
+    {
+      "id": "EXEC-BLOCK",
+      "version": 1,
+      "unchanged": true
+    },
+    {
+      "id": "EXEC-BLOCK",
+      "version": 2,
+      "unchanged": true
+    },
+    {
+      "id": "EXEC-AUDIT",
+      "version": 1,
+      "unchanged": true
+    },
+    {
+      "id": "EXEC-AUDIT",
+      "version": 2,
+      "unchanged": true
+    },
+    {
+      "id": "NET-BLOCK",
+      "version": 1,
+      "unchanged": true
+    },
+    {
+      "id": "NET-BLOCK",
+      "version": 2,
+      "unchanged": true
+    },
+    {
+      "id": "NET-AUDIT",
+      "version": 1,
+      "unchanged": true
+    },
+    {
+      "id": "NET-AUDIT",
+      "version": 2,
+      "unchanged": true
+    },
+    {
+      "id": "SECRET-EGRESS",
+      "version": 1,
+      "unchanged": true
+    },
+    {
+      "id": "SECRET-EGRESS",
+      "version": 2,
+      "unchanged": true
+    },
+    {
+      "id": "REMOTE-EXEC",
+      "version": 1,
+      "unchanged": true
+    },
+    {
+      "id": "REMOTE-EXEC",
+      "version": 2,
+      "unchanged": true
+    },
+    {
+      "id": "SYS-env",
+      "version": 1,
+      "unchanged": true
+    },
+    {
+      "id": "SYS-env",
+      "version": 2,
+      "unchanged": true
+    },
+    {
+      "id": "SYS-ssh",
+      "version": 1,
+      "unchanged": true
+    },
+    {
+      "id": "SYS-ssh",
+      "version": 2,
+      "unchanged": true
+    },
+    {
+      "id": "SYS-cloud",
+      "version": 1,
+      "unchanged": true
+    },
+    {
+      "id": "SYS-cloud",
+      "version": 2,
+      "unchanged": true
+    },
+    {
+      "id": "SYS-system-files",
+      "version": 1,
+      "unchanged": true
+    },
+    {
+      "id": "SYS-system-files",
+      "version": 2,
+      "unchanged": true
+    },
+    {
+      "id": "SYS-policy-store",
+      "version": 1,
+      "unchanged": true
+    },
+    {
+      "id": "SYS-policy-store",
+      "version": 2,
+      "unchanged": true
+    },
+    {
+      "id": "SYS-audit-store",
+      "version": 1,
+      "unchanged": true
+    },
+    {
+      "id": "SYS-audit-store",
+      "version": 2,
+      "unchanged": true
+    },
+    {
+      "id": "SYS-privilege",
+      "version": 1,
+      "unchanged": true
+    },
+    {
+      "id": "SYS-privilege",
+      "version": 2,
+      "unchanged": true
+    },
+    {
+      "id": "SYS-network-audit",
+      "version": 1,
+      "unchanged": true
+    },
+    {
+      "id": "SYS-network-audit",
+      "version": 2,
+      "unchanged": true
+    },
+    {
+      "id": "SYS-process-audit",
+      "version": 1,
+      "unchanged": true
+    },
+    {
+      "id": "SYS-process-audit",
+      "version": 2,
+      "unchanged": true
+    },
+    {
+      "id": "SYS-instructions",
+      "version": 1,
+      "unchanged": true
+    },
+    {
+      "id": "SYS-instructions",
+      "version": 2,
+      "unchanged": true
+    },
+    {
+      "id": "SYS-secret-egress",
+      "version": 1,
+      "unchanged": true
+    },
+    {
+      "id": "SYS-secret-egress",
+      "version": 2,
+      "unchanged": true
+    },
+    {
+      "id": "SYS-remote-exec",
+      "version": 1,
+      "unchanged": true
+    },
+    {
+      "id": "SYS-remote-exec",
+      "version": 2,
+      "unchanged": true
+    }
+  ]
+}

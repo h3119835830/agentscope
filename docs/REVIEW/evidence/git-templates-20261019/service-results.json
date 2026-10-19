@@ -1,0 +1,663 @@
+{
+  "production_writes": false,
+  "real_provider": true,
+  "preview": {
+    "pid": 327203,
+    "start_ticks": "26918810",
+    "state": "/tmp/as-git-preview-iqfl7yar",
+    "port": 18169
+  },
+  "agent_id": "instance-27a9710b3d41426c",
+  "passed": true,
+  "generation": {
+    "items": [
+      {
+        "id": "tc_c86aa24a02594d51b0d75cec19713ab9",
+        "template_id": "GIT-COMMIT",
+        "scope_id": "system",
+        "scope": "system",
+        "workspace_id": null,
+        "revision": 1,
+        "archived": 0,
+        "created_at": "2026-10-19T08:55:13.906842+00:00",
+        "updated_at": "2026-10-19T08:55:13.906842+00:00",
+        "latest_revision": 1,
+        "execution_support": {
+          "status": "limited",
+          "applicable": true,
+          "event_type": "单事件",
+          "supported": [
+            "将 Git 程序和 commit 参数写入实际 DSL。",
+            "动作可选记录并提醒或终止命中进程。"
+          ],
+          "unsupported": [
+            "按仓库、远端、分支或提交内容选择性放行。",
+            "执行前按参数阻断。"
+          ],
+          "boundary": [
+            "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。",
+            "仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。",
+            "作用于所选 Agent 的共享执行域；不按仓库或会话隔离。"
+          ]
+        },
+        "template_version": 2,
+        "template_hash": "80e7fdaab938b641b8a3a36196d46fb207d868c288f17d32e903775d9ef8250c",
+        "resource_hash": null,
+        "name": "Git 提交执行记录",
+        "reason": "记录并提醒所有 Agent 执行 git commit 的事件，作用范围为全部 Agent，不限定仓库或分支。",
+        "execution_reason": "记录并提醒所有 Agent 执行 git commit 的事件，作用范围为全部 Agent，不限定仓库或分支。",
+        "parameters": {
+          "program": "git",
+          "effect": "notify"
+        },
+        "document": {
+          "id": "tc_c86aa24a02594d51b0d75cec19713ab9",
+          "name": "Git 提交执行记录",
+          "original_dsl": "rule config-tc_c86aa24a02594d51b0d75cec19713ab9:\n  notify exec \"git\" \"commit\" if AGENT\n  because \"记录并提醒所有 Agent 执行 git commit 的事件，作用范围为全部 Agent，不限定仓库或分支。\"",
+          "metadata": {
+            "config-tc_c86aa24a02594d51b0d75cec19713ab9": {
+              "statement": "Git 提交执行记录",
+              "context_requirement": "self_contained",
+              "context_reason": ""
+            }
+          },
+          "managed_identity": true
+        },
+        "requested_operations": [
+          "exec"
+        ],
+        "effective_operations": [
+          "exec"
+        ],
+        "coverage_warning": "",
+        "effect": "notify",
+        "note": "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。 仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。 作用于所选 Agent 的共享执行域；不按仓库或会话隔离。",
+        "origin": "assistant",
+        "applied_revision": null,
+        "applied_configuration": null,
+        "applied": false,
+        "approval_id": null,
+        "approval_revision": null,
+        "approval_current": false,
+        "status": "draft",
+        "can_submit": true,
+        "template_definition": {
+          "id": "GIT-COMMIT",
+          "version": 2,
+          "name": "Git 提交执行约束",
+          "category": "Git 操作",
+          "summary": "对 Git commit 参数命中事件记录或终止命中进程。适用于限制所选 Agent 的全部提交执行，不限定仓库或分支。",
+          "parameters": [
+            {
+              "key": "program",
+              "label": "Git 可执行程序名或路径",
+              "default": "git",
+              "type": "program",
+              "help": "按程序及参数字面值匹配，不解析 Git 别名；不按当前目录区分仓库。"
+            },
+            {
+              "key": "effect",
+              "label": "匹配后的动作",
+              "default": "kill",
+              "type": "effect"
+            }
+          ],
+          "effect": "kill",
+          "operation": "exec",
+          "scopes": [
+            "system",
+            "agent"
+          ],
+          "note": "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。 仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。 作用于所选 Agent 的共享执行域；不按仓库或会话隔离。",
+          "reason": "对 Git commit 参数命中事件记录或终止命中进程。适用于限制所选 Agent 的全部提交执行，不限定仓库或分支。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+          "command": "commit",
+          "allowed_effects": [
+            "notify",
+            "kill"
+          ],
+          "execution_support": {
+            "status": "limited",
+            "applicable": true,
+            "event_type": "单事件",
+            "supported": [
+              "将 Git 程序和 commit 参数写入实际 DSL。",
+              "动作可选记录并提醒或终止命中进程。"
+            ],
+            "unsupported": [
+              "按仓库、远端、分支或提交内容选择性放行。",
+              "执行前按参数阻断。"
+            ],
+            "boundary": [
+              "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。",
+              "仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。",
+              "作用于所选 Agent 的共享执行域；不按仓库或会话隔离。"
+            ]
+          }
+        },
+        "scope_label": "全部受控 Agent"
+      },
+      {
+        "id": "tc_e9c8ccbfc1034644b05dfdc13dab6149",
+        "template_id": "GIT-PUSH",
+        "scope_id": "system",
+        "scope": "system",
+        "workspace_id": null,
+        "revision": 1,
+        "archived": 0,
+        "created_at": "2026-10-19T08:55:13.907376+00:00",
+        "updated_at": "2026-10-19T08:55:13.907376+00:00",
+        "latest_revision": 1,
+        "execution_support": {
+          "status": "limited",
+          "applicable": true,
+          "event_type": "单事件",
+          "supported": [
+            "将 Git 程序和 push 参数写入实际 DSL。",
+            "动作可选记录并提醒或终止命中进程。"
+          ],
+          "unsupported": [
+            "按仓库、远端、分支或提交内容选择性放行。",
+            "执行前按参数阻断。"
+          ],
+          "boundary": [
+            "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。",
+            "仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。",
+            "作用于所选 Agent 的共享执行域；不按仓库或会话隔离。"
+          ]
+        },
+        "template_version": 2,
+        "template_hash": "f1cf29897a4b1488c675737960352ab1393e713d52622241a767376af3349008",
+        "resource_hash": null,
+        "name": "Git 推送执行记录",
+        "reason": "记录并提醒所有 Agent 执行 git push 的事件，作用范围为全部 Agent，不限定仓库、分支或远端。",
+        "execution_reason": "记录并提醒所有 Agent 执行 git push 的事件，作用范围为全部 Agent，不限定仓库、分支或远端。",
+        "parameters": {
+          "program": "git",
+          "effect": "notify"
+        },
+        "document": {
+          "id": "tc_e9c8ccbfc1034644b05dfdc13dab6149",
+          "name": "Git 推送执行记录",
+          "original_dsl": "rule config-tc_e9c8ccbfc1034644b05dfdc13dab6149:\n  notify exec \"git\" \"push\" if AGENT\n  because \"记录并提醒所有 Agent 执行 git push 的事件，作用范围为全部 Agent，不限定仓库、分支或远端。\"",
+          "metadata": {
+            "config-tc_e9c8ccbfc1034644b05dfdc13dab6149": {
+              "statement": "Git 推送执行记录",
+              "context_requirement": "self_contained",
+              "context_reason": ""
+            }
+          },
+          "managed_identity": true
+        },
+        "requested_operations": [
+          "exec"
+        ],
+        "effective_operations": [
+          "exec"
+        ],
+        "coverage_warning": "",
+        "effect": "notify",
+        "note": "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。 仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。 作用于所选 Agent 的共享执行域；不按仓库或会话隔离。",
+        "origin": "assistant",
+        "applied_revision": null,
+        "applied_configuration": null,
+        "applied": false,
+        "approval_id": null,
+        "approval_revision": null,
+        "approval_current": false,
+        "status": "draft",
+        "can_submit": true,
+        "template_definition": {
+          "id": "GIT-PUSH",
+          "version": 2,
+          "name": "Git 推送执行约束",
+          "category": "Git 操作",
+          "summary": "对 Git push 参数命中事件记录或终止命中进程。适用于限制所选 Agent 的全部推送执行，不限定仓库或分支。",
+          "parameters": [
+            {
+              "key": "program",
+              "label": "Git 可执行程序名或路径",
+              "default": "git",
+              "type": "program",
+              "help": "按程序及参数字面值匹配，不解析 Git 别名；不按当前目录区分仓库。"
+            },
+            {
+              "key": "effect",
+              "label": "匹配后的动作",
+              "default": "kill",
+              "type": "effect"
+            }
+          ],
+          "effect": "kill",
+          "operation": "exec",
+          "scopes": [
+            "system",
+            "agent"
+          ],
+          "note": "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。 仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。 作用于所选 Agent 的共享执行域；不按仓库或会话隔离。",
+          "reason": "对 Git push 参数命中事件记录或终止命中进程。适用于限制所选 Agent 的全部推送执行，不限定仓库或分支。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+          "command": "push",
+          "allowed_effects": [
+            "notify",
+            "kill"
+          ],
+          "execution_support": {
+            "status": "limited",
+            "applicable": true,
+            "event_type": "单事件",
+            "supported": [
+              "将 Git 程序和 push 参数写入实际 DSL。",
+              "动作可选记录并提醒或终止命中进程。"
+            ],
+            "unsupported": [
+              "按仓库、远端、分支或提交内容选择性放行。",
+              "执行前按参数阻断。"
+            ],
+            "boundary": [
+              "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。",
+              "仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。",
+              "作用于所选 Agent 的共享执行域；不按仓库或会话隔离。"
+            ]
+          }
+        },
+        "scope_label": "全部受控 Agent"
+      }
+    ],
+    "questions": [],
+    "gaps": [],
+    "text": "只保存两条 Git 事件策略草案：第一条记录并提醒 git commit 执行，第二条记录并提醒 git push 执行。Git 程序名都是 git。作用范围为所有 Agent；不限制仓库、分支或远端，不要求 CI 或提交内容校验。",
+    "scope_id": "system",
+    "scope": "system",
+    "workspace_id": null,
+    "request_id": "bbb9232ec4c1407c99ef837d7f0720ae",
+    "created_at": "2026-10-19T08:55:13.906653+00:00",
+    "configuration_snapshots": [
+      {
+        "id": "tc_c86aa24a02594d51b0d75cec19713ab9",
+        "revision": 1,
+        "name": "Git 提交执行记录",
+        "configuration_hash": "f5fe5532102312d24ac5d43837294b71bd0f32f2dc0338084fb7b7200ebb21cc",
+        "template": {
+          "id": "GIT-COMMIT",
+          "version": 2,
+          "name": "Git 提交执行约束",
+          "parameters": [
+            {
+              "key": "program",
+              "label": "Git 可执行程序名或路径",
+              "type": "program"
+            },
+            {
+              "key": "effect",
+              "label": "匹配后的动作",
+              "type": "effect"
+            }
+          ]
+        },
+        "parameters": {
+          "program": "git",
+          "effect": "notify"
+        },
+        "execution_support": {
+          "status": "limited",
+          "applicable": true,
+          "event_type": "单事件",
+          "supported": [
+            "将 Git 程序和 commit 参数写入实际 DSL。",
+            "动作可选记录并提醒或终止命中进程。"
+          ],
+          "unsupported": [
+            "按仓库、远端、分支或提交内容选择性放行。",
+            "执行前按参数阻断。"
+          ],
+          "boundary": [
+            "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。",
+            "仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。",
+            "作用于所选 Agent 的共享执行域；不按仓库或会话隔离。"
+          ]
+        },
+        "scope": {
+          "id": "system",
+          "type": "system",
+          "label": "所有 Agent"
+        },
+        "approval_status": "draft",
+        "approval_operation": "apply"
+      },
+      {
+        "id": "tc_e9c8ccbfc1034644b05dfdc13dab6149",
+        "revision": 1,
+        "name": "Git 推送执行记录",
+        "configuration_hash": "6d8203589c0da519696b593952c27d3480d1b8f2734867c7a5dc13d7ebf7e03c",
+        "template": {
+          "id": "GIT-PUSH",
+          "version": 2,
+          "name": "Git 推送执行约束",
+          "parameters": [
+            {
+              "key": "program",
+              "label": "Git 可执行程序名或路径",
+              "type": "program"
+            },
+            {
+              "key": "effect",
+              "label": "匹配后的动作",
+              "type": "effect"
+            }
+          ]
+        },
+        "parameters": {
+          "program": "git",
+          "effect": "notify"
+        },
+        "execution_support": {
+          "status": "limited",
+          "applicable": true,
+          "event_type": "单事件",
+          "supported": [
+            "将 Git 程序和 push 参数写入实际 DSL。",
+            "动作可选记录并提醒或终止命中进程。"
+          ],
+          "unsupported": [
+            "按仓库、远端、分支或提交内容选择性放行。",
+            "执行前按参数阻断。"
+          ],
+          "boundary": [
+            "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。",
+            "仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。",
+            "作用于所选 Agent 的共享执行域；不按仓库或会话隔离。"
+          ]
+        },
+        "scope": {
+          "id": "system",
+          "type": "system",
+          "label": "所有 Agent"
+        },
+        "approval_status": "draft",
+        "approval_operation": "apply"
+      }
+    ],
+    "context_usage": {
+      "mode": "none",
+      "round_count": 1,
+      "call_count": 0,
+      "file_count": 0,
+      "total_bytes": 0,
+      "activity": [],
+      "sources": [],
+      "provided_files": []
+    }
+  },
+  "manual": {
+    "id": "tc_86f7b2810c2b45cfbfc42ac5a6773a3b",
+    "template_id": "GIT-COMMIT-CHECK",
+    "scope_id": "instance-27a9710b3d41426c",
+    "scope": "agent",
+    "workspace_id": null,
+    "revision": 1,
+    "archived": 0,
+    "created_at": "2026-10-19T08:55:13.920723+00:00",
+    "updated_at": "2026-10-19T08:55:13.920723+00:00",
+    "latest_revision": 1,
+    "execution_support": {
+      "status": "limited",
+      "applicable": true,
+      "event_type": "跨事件",
+      "supported": [
+        "检查程序退出码和代码写入后的失效条件实际写入 DSL。",
+        "缺少有效检查事件时记录或终止命中进程。"
+      ],
+      "unsupported": [
+        "检查结果与暂存区、待推送提交 SHA 的一致性。",
+        "指定测试命令参数、可信 CI 结果或多会话独立检查。",
+        "执行前按参数阻断。"
+      ],
+      "boundary": [
+        "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。",
+        "仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。",
+        "作用于所选 Agent 的共享执行域；不按仓库或会话隔离。"
+      ]
+    },
+    "template_version": 2,
+    "template_hash": "63ac07f29c731d1ff24fe063e93b638880cb0b763a8e2dd09866b1c70215cd06",
+    "resource_hash": "913314c6ab81824b4722401aaa1112960072feeb777d3efb1e2351e4ee955aa6",
+    "name": "订单代码提交前检查事件",
+    "reason": "在 Git commit 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待提交内容测试通过。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+    "execution_reason": "在 Git commit 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待提交内容测试通过。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+    "parameters": {
+      "program": "git",
+      "target": "/w/0/src/**",
+      "checker": "gitcheck",
+      "exit_code": 0,
+      "effect": "kill"
+    },
+    "document": {
+      "id": "tc_86f7b2810c2b45cfbfc42ac5a6773a3b",
+      "name": "订单代码提交前检查事件",
+      "original_dsl": "rule config-tc_86f7b2810c2b45cfbfc42ac5a6773a3b:\n  kill exec \"git\" \"commit\" if AGENT unless after exec \"gitcheck\" exits 0 since write \"/w/0/src/**\"\n  because \"在 Git commit 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待提交内容测试通过。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+      "metadata": {
+        "config-tc_86f7b2810c2b45cfbfc42ac5a6773a3b": {
+          "statement": "订单代码提交前检查事件",
+          "context_requirement": "self_contained",
+          "context_reason": ""
+        }
+      },
+      "managed_identity": true
+    },
+    "requested_operations": [
+      "exec"
+    ],
+    "effective_operations": [
+      "exec"
+    ],
+    "coverage_warning": "",
+    "effect": "kill",
+    "note": "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。 仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。 作用于所选 Agent 的共享执行域；不按仓库或会话隔离。",
+    "origin": "manual",
+    "applied_revision": null,
+    "applied_configuration": null,
+    "applied": false,
+    "approval_id": null,
+    "approval_revision": null,
+    "approval_current": false,
+    "status": "draft",
+    "can_submit": true,
+    "template_definition": {
+      "id": "GIT-COMMIT-CHECK",
+      "version": 2,
+      "name": "Git 提交前检查事件",
+      "category": "Git 操作",
+      "summary": "在 Git commit 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待提交内容测试通过。",
+      "parameters": [
+        {
+          "key": "program",
+          "label": "Git 可执行程序名或路径",
+          "default": "git",
+          "type": "program",
+          "help": "按程序及参数字面值匹配，不解析 Git 别名；不按当前目录区分仓库。"
+        },
+        {
+          "key": "target",
+          "label": "使检查失效的代码路径",
+          "default": "",
+          "type": "path",
+          "help": "此路径是检查失效条件，不是 Git 仓库匹配条件。"
+        },
+        {
+          "key": "checker",
+          "label": "检查程序名或路径",
+          "default": "",
+          "type": "program",
+          "help": "仅匹配程序，不校验脚本参数、测试用例或可信 CI 身份。"
+        },
+        {
+          "key": "exit_code",
+          "label": "检查成功退出码",
+          "default": "0",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        {
+          "key": "effect",
+          "label": "匹配后的动作",
+          "default": "kill",
+          "type": "effect"
+        }
+      ],
+      "effect": "kill",
+      "operation": "exec",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。 仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。 作用于所选 Agent 的共享执行域；不按仓库或会话隔离。",
+      "reason": "在 Git commit 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待提交内容测试通过。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+      "command": "commit",
+      "allowed_effects": [
+        "notify",
+        "kill"
+      ],
+      "execution_support": {
+        "status": "limited",
+        "applicable": true,
+        "event_type": "跨事件",
+        "supported": [
+          "检查程序退出码和代码写入后的失效条件实际写入 DSL。",
+          "缺少有效检查事件时记录或终止命中进程。"
+        ],
+        "unsupported": [
+          "检查结果与暂存区、待推送提交 SHA 的一致性。",
+          "指定测试命令参数、可信 CI 结果或多会话独立检查。",
+          "执行前按参数阻断。"
+        ],
+        "boundary": [
+          "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。",
+          "仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。",
+          "作用于所选 Agent 的共享执行域；不按仓库或会话隔离。"
+        ]
+      }
+    },
+    "scope_label": "此 Agent 的全部工作区与会话"
+  },
+  "unsupported": {
+    "id": "tc_e4b98f8209f44dbb8ec69062981b597b",
+    "template_id": "GIT-PUSH-TARGET",
+    "scope_id": "system",
+    "scope": "system",
+    "workspace_id": null,
+    "revision": 1,
+    "archived": 0,
+    "created_at": "2026-10-19T08:55:13.926265+00:00",
+    "updated_at": "2026-10-19T08:55:13.926265+00:00",
+    "latest_revision": 1,
+    "execution_support": {
+      "status": "unsupported",
+      "applicable": false,
+      "event_type": "单事件",
+      "supported": [],
+      "unsupported": [
+        "解析实际远端 URL、refspec、默认推送配置与分支。",
+        "区分正常更新、强推及引用删除并选择性阻止。"
+      ],
+      "boundary": [
+        "参数草案不生成 DSL；服务端拒绝单项、批量审批及重新校验应用。"
+      ]
+    },
+    "template_version": 2,
+    "template_hash": "e542b2be0ff31d52ecca282ba27975a12786bab6ae9e015716767ec3b317fdb1",
+    "resource_hash": null,
+    "name": "订单仓库只允许任务分支推送",
+    "reason": "限制推送的远端、目标分支及强推或删除行为。需要解析 Git 实际目标和引用更新，普通参数或网络地址匹配不能替代，目前仅能保存需求参数。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+    "execution_reason": "限制推送的远端、目标分支及强推或删除行为。需要解析 Git 实际目标和引用更新，普通参数或网络地址匹配不能替代，目前仅能保存需求参数。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+    "parameters": {
+      "repository": "/synthetic/orders",
+      "remote": "https://example.invalid/orders.git",
+      "branches": "refs/heads/task/*",
+      "forbidden_updates": [
+        "delete",
+        "force"
+      ]
+    },
+    "document": null,
+    "requested_operations": [
+      "exec"
+    ],
+    "effective_operations": [
+      "exec"
+    ],
+    "coverage_warning": "",
+    "effect": "block",
+    "note": "ActPlane 当前暂不支持此语义；只能保存参数草案，不能提交审批或应用。",
+    "origin": "manual",
+    "applied_revision": null,
+    "applied_configuration": null,
+    "applied": false,
+    "approval_id": null,
+    "approval_revision": null,
+    "approval_current": false,
+    "status": "draft",
+    "can_submit": false,
+    "template_definition": {
+      "id": "GIT-PUSH-TARGET",
+      "version": 2,
+      "name": "Git 推送目标限制",
+      "category": "Git 操作",
+      "summary": "限制推送的远端、目标分支及强推或删除行为。需要解析 Git 实际目标和引用更新，普通参数或网络地址匹配不能替代，目前仅能保存需求参数。",
+      "parameters": [
+        {
+          "key": "repository",
+          "label": "目标仓库路径",
+          "default": "",
+          "type": "path"
+        },
+        {
+          "key": "remote",
+          "label": "允许的远端仓库地址",
+          "default": "",
+          "type": "text"
+        },
+        {
+          "key": "branches",
+          "label": "允许的目标分支（每行一个）",
+          "default": "",
+          "type": "lines"
+        },
+        {
+          "key": "forbidden_updates",
+          "label": "禁止的引用更新",
+          "default": "force,delete",
+          "type": "choices",
+          "options": [
+            "force",
+            "delete"
+          ]
+        }
+      ],
+      "effect": "block",
+      "operation": "exec",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "ActPlane 当前暂不支持此语义；只能保存参数草案，不能提交审批或应用。",
+      "reason": "限制推送的远端、目标分支及强推或删除行为。需要解析 Git 实际目标和引用更新，普通参数或网络地址匹配不能替代，目前仅能保存需求参数。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+      "allowed_effects": [
+        "block"
+      ],
+      "execution_support": {
+        "status": "unsupported",
+        "applicable": false,
+        "event_type": "单事件",
+        "supported": [],
+        "unsupported": [
+          "解析实际远端 URL、refspec、默认推送配置与分支。",
+          "区分正常更新、强推及引用删除并选择性阻止。"
+        ],
+        "boundary": [
+          "参数草案不生成 DSL；服务端拒绝单项、批量审批及重新校验应用。"
+        ]
+      }
+    },
+    "scope_label": "全部受控 Agent"
+  }
+}

@@ -18,6 +18,7 @@ def freeze(ident, revision, payload, scope_id, scope, agent=None):
         'template': {'id': template['id'], 'version': template['version'], 'name': template['name'],
                      'parameters': [{k: p[k] for k in ('key', 'label', 'type')} for p in template['parameters']]},
         'parameters': payload['parameters'],
+        **({'execution_support': payload['execution_support']} if 'execution_support' in payload else {}),
         'scope': {'id': scope_id, 'type': scope,
                   'label': '所有 Agent' if scope == 'system' else
                            '历史工作区范围（独立应用暂不支持）' if scope == 'workspace' else

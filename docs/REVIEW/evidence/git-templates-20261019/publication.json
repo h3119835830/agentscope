@@ -1,0 +1,303 @@
+{
+  "release": "/opt/agentscope-git-templates-20261019-170149",
+  "previous_release": "/opt/agentscope-approval-clearance-20261019-155545",
+  "authority_before": {
+    "agents": {
+      "instance-1f4469579e8947f4": {
+        "policy_hash": "9c5fa9fbb63c9bcd71da29007179d6c9fed00b23ac9b9f4e41165a76b92425c1",
+        "generation": "3e17d889b7f74f55b95ff7ab6cbd5815",
+        "pid": 192987,
+        "domain_id": 1266195691,
+        "active": true
+      },
+      "instance-c0dd272b6a734a34": {
+        "policy_hash": "f930aa4e9f224e24588a51a652d773cf022a74fa8be0b379ed4e80023c58ad87",
+        "generation": "947b1b6dd3334b3c9a2a250bd3705832",
+        "pid": null,
+        "domain_id": null,
+        "active": false
+      },
+      "instance-bb171d3176b644a2": {
+        "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+        "generation": "566ddd5edaad438f9473d4ea08ec1cc1",
+        "pid": null,
+        "domain_id": null,
+        "active": false
+      },
+      "instance-cc444fe38c094cbb": {
+        "policy_hash": "c3371a12d813cbf8c4e13bfc39ac8caa8868b6d394f8a7dbebcd74afa15b2cfe",
+        "generation": "a99c4b602e4743ec8239b0b42c467f87",
+        "pid": 193658,
+        "domain_id": 1209142397,
+        "active": true
+      }
+    },
+    "dsl_scopes": {
+      "system": {
+        "revision": 6,
+        "document_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "document_count": 0,
+        "phase": "ready"
+      },
+      "instance-1f4469579e8947f4": {
+        "revision": 0,
+        "document_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "document_count": 0,
+        "phase": "ready"
+      },
+      "instance-c0dd272b6a734a34": {
+        "revision": 0,
+        "document_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "document_count": 0,
+        "phase": "ready"
+      },
+      "instance-bb171d3176b644a2": {
+        "revision": 3,
+        "document_hash": "71c7dcce2e8f6cdaba1a3d48962b0eb9182e11dd5149ac267e78299ff52974e2",
+        "document_count": 2,
+        "phase": "ready"
+      },
+      "instance-cc444fe38c094cbb": {
+        "revision": 1,
+        "document_hash": "c38f0ad8b80dbf9fa9a8c80c8b22b9e8821ecd237585f7a5f639d903e5370e29",
+        "document_count": 1,
+        "phase": "ready"
+      }
+    },
+    "system": {
+      "revision": 0,
+      "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815"
+    }
+  },
+  "protected_before": {
+    "instance_dsl_scopes": {
+      "count": 3,
+      "hash": "ec4dc0e9bb13fb98e3e0c62679e646d4b6ed1f7b4d59ea8a057e700b1c2f162f"
+    },
+    "instance_dsl_proposals": {
+      "count": 15,
+      "hash": "632a5c7c72323df3d45b51c298ea579fa511bc58057179d6f14147794cca60b2"
+    },
+    "policy_approval_decisions": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "policy_application_requests": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "template_configurations": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "template_configuration_versions": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "template_configuration_proposals": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "template_configuration_requests": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "policy_template_versions": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "system_policy_library": {
+      "count": 7,
+      "hash": "b3545a5f336c2ce35959a2f74f2d549d0f6514f3ffb340a87c93603a3a289532"
+    },
+    "system_policy_library_versions": {
+      "count": 8,
+      "hash": "05e05768a49d5349471381dbd86224e2ea70a91d76fb0bf4e4a302bbdeee4b56"
+    },
+    "system_policy_library_proposals": {
+      "count": 2,
+      "hash": "b9cd01f95d7e55ca8075e2b86ac6750c41358050630a1c6edef723843923a091"
+    },
+    "system_security_policy": {
+      "count": 1,
+      "hash": "07feb95f297756f48f55195455257a740d806bfe4f403e445587ab8eb38c2e45"
+    },
+    "console_retained_records": {
+      "count": 308,
+      "hash": "424e9094687610890e79d73200f6ff71fcd188df185323bb01370c37bb37a8a9"
+    }
+  },
+  "restart_seconds": 1.42,
+  "published": true,
+  "authority_after": {
+    "agents": {
+      "instance-1f4469579e8947f4": {
+        "policy_hash": "9c5fa9fbb63c9bcd71da29007179d6c9fed00b23ac9b9f4e41165a76b92425c1",
+        "generation": "3e17d889b7f74f55b95ff7ab6cbd5815",
+        "pid": 192987,
+        "domain_id": 1266195691,
+        "active": true
+      },
+      "instance-c0dd272b6a734a34": {
+        "policy_hash": "f930aa4e9f224e24588a51a652d773cf022a74fa8be0b379ed4e80023c58ad87",
+        "generation": "947b1b6dd3334b3c9a2a250bd3705832",
+        "pid": null,
+        "domain_id": null,
+        "active": false
+      },
+      "instance-bb171d3176b644a2": {
+        "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+        "generation": "566ddd5edaad438f9473d4ea08ec1cc1",
+        "pid": null,
+        "domain_id": null,
+        "active": false
+      },
+      "instance-cc444fe38c094cbb": {
+        "policy_hash": "c3371a12d813cbf8c4e13bfc39ac8caa8868b6d394f8a7dbebcd74afa15b2cfe",
+        "generation": "a99c4b602e4743ec8239b0b42c467f87",
+        "pid": 193658,
+        "domain_id": 1209142397,
+        "active": true
+      }
+    },
+    "dsl_scopes": {
+      "system": {
+        "revision": 6,
+        "document_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "document_count": 0,
+        "phase": "ready"
+      },
+      "instance-1f4469579e8947f4": {
+        "revision": 0,
+        "document_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "document_count": 0,
+        "phase": "ready"
+      },
+      "instance-c0dd272b6a734a34": {
+        "revision": 0,
+        "document_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "document_count": 0,
+        "phase": "ready"
+      },
+      "instance-bb171d3176b644a2": {
+        "revision": 3,
+        "document_hash": "71c7dcce2e8f6cdaba1a3d48962b0eb9182e11dd5149ac267e78299ff52974e2",
+        "document_count": 2,
+        "phase": "ready"
+      },
+      "instance-cc444fe38c094cbb": {
+        "revision": 1,
+        "document_hash": "c38f0ad8b80dbf9fa9a8c80c8b22b9e8821ecd237585f7a5f639d903e5370e29",
+        "document_count": 1,
+        "phase": "ready"
+      }
+    },
+    "system": {
+      "revision": 0,
+      "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815"
+    }
+  },
+  "protected_after": {
+    "instance_dsl_scopes": {
+      "count": 3,
+      "hash": "ec4dc0e9bb13fb98e3e0c62679e646d4b6ed1f7b4d59ea8a057e700b1c2f162f"
+    },
+    "instance_dsl_proposals": {
+      "count": 15,
+      "hash": "632a5c7c72323df3d45b51c298ea579fa511bc58057179d6f14147794cca60b2"
+    },
+    "policy_approval_decisions": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "policy_application_requests": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "template_configurations": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "template_configuration_versions": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "template_configuration_proposals": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "template_configuration_requests": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "policy_template_versions": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "system_policy_library": {
+      "count": 7,
+      "hash": "b3545a5f336c2ce35959a2f74f2d549d0f6514f3ffb340a87c93603a3a289532"
+    },
+    "system_policy_library_versions": {
+      "count": 8,
+      "hash": "05e05768a49d5349471381dbd86224e2ea70a91d76fb0bf4e4a302bbdeee4b56"
+    },
+    "system_policy_library_proposals": {
+      "count": 2,
+      "hash": "b9cd01f95d7e55ca8075e2b86ac6750c41358050630a1c6edef723843923a091"
+    },
+    "system_security_policy": {
+      "count": 1,
+      "hash": "07feb95f297756f48f55195455257a740d806bfe4f403e445587ab8eb38c2e45"
+    },
+    "console_retained_records": {
+      "count": 308,
+      "hash": "424e9094687610890e79d73200f6ff71fcd188df185323bb01370c37bb37a8a9"
+    }
+  },
+  "broker_unchanged": true,
+  "other_ports_unchanged": true,
+  "git_templates": [
+    {
+      "id": "GIT-COMMIT",
+      "capability": "limited"
+    },
+    {
+      "id": "GIT-COMMIT-CHECK",
+      "capability": "limited"
+    },
+    {
+      "id": "GIT-PUSH",
+      "capability": "limited"
+    },
+    {
+      "id": "GIT-PUSH-CHECK",
+      "capability": "limited"
+    },
+    {
+      "id": "GIT-LOCAL",
+      "capability": "limited"
+    },
+    {
+      "id": "GIT-BYPASS",
+      "capability": "limited"
+    },
+    {
+      "id": "GIT-CONTENT",
+      "capability": "unsupported"
+    },
+    {
+      "id": "GIT-PUSH-TARGET",
+      "capability": "unsupported"
+    },
+    {
+      "id": "GIT-PUSH-APPROVAL",
+      "capability": "unsupported"
+    },
+    {
+      "id": "GIT-MERGE-GATE",
+      "capability": "unsupported"
+    }
+  ],
+  "index_sha256": "d7ec25c95c96840168a891cfbda406a905024d209a13baa562b89b23ec92937b"
+}

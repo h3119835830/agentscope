@@ -197,7 +197,12 @@ def test_all_published_contracts_materialize_and_real_compiler_reports_limits(wo
             elif p['type']=='program':params[p['key']]='checker'
             elif p['type']=='endpoint':params[p['key']]='127.0.0.1'
             elif p['type']=='lines' and not params[p['key']]:params[p['key']]='/actual-store'
+            elif p['type']=='text' and not params[p['key']]:params[p['key']]='explicit-scenario-value'
         scope='system' if t['scopes']==['system'] else 'agent'
         row=tc.save('system' if scope=='system' else world.a['id'],config(t['id'],scope=scope,parameters=params))
-        assert prepare([{**row['document'],'scope_id':'system' if scope=='system' else world.a['id']}],world.a['resources'],'**/node')
+        if t.get('execution_support',{}).get('applicable') is False:
+            assert row['document'] is None and not row['can_submit']
+            with pytest.raises(ValueError,match='暂不支持'):proposal(row)
+        else:
+            assert prepare([{**row['document'],'scope_id':'system' if scope=='system' else world.a['id']}],world.a['resources'],'**/node')
     assert not world.calls

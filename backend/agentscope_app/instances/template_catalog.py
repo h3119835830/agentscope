@@ -68,6 +68,10 @@ for preset in SYSTEM_CATALOG:
                     'scopes': ['system'], 'reason': preset['reason'], 'system_preset': preset['id']})
 
 
+from . import git_templates
+CATALOG.extend(git_templates.definitions(template, field))
+DESCRIPTIONS.update({t['id']: t['summary'] for t in CATALOG if t['id'].startswith('GIT-')})
+
 HISTORICAL = {(t['id'], t['version']): copy.deepcopy(t) for t in CATALOG}
 for item in CATALOG:
     item['version'] = 2
@@ -97,6 +101,17 @@ def public_catalog():
     for published in CATALOG:
         saved=latest.get(published['id'])
         definition=saved['definition'] if saved else published
-        result.append({**{k:copy.deepcopy(v) for k,v in definition.items() if k not in ('renderer','system_preset')},
-                       'description':saved['description'] if saved else DESCRIPTIONS[published['id']]})
+        result.append(public_definition(definition, saved['description'] if saved else DESCRIPTIONS[published['id']]))
     return result
+
+
+def public_definition(definition, description=None):
+    item = {k:copy.deepcopy(v) for k,v in definition.items() if k not in ('renderer','system_preset')}
+    support = git_templates.presentation(definition)
+    if support:
+        item['execution_support'] = support
+    if definition['id'] in git_templates.RETIRED:
+        item.update(retired=True, replacements=git_templates.RETIRED[definition['id']])
+    if description is not None:
+        item['description'] = description
+    return item

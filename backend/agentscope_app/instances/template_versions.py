@@ -47,7 +47,7 @@ def edited_definition(base,body):
     definition['name']=text(body['name'],'模板名称',120)
     description=text(body['description'],'模板说明',3000,paragraph=True)
     effect=body['effect']
-    if effect not in ('block','notify','kill'):
+    if effect not in base.get('allowed_effects', ('block','notify','kill')):
         raise ValueError('请选择有效的默认动作')
     fields=body['parameters']
     if not isinstance(fields,list) or len(fields)!=len(base['parameters']) or {p.get('key') for p in fields}!={p['key'] for p in base['parameters']}:
@@ -64,7 +64,10 @@ def edited_definition(base,body):
         if not isinstance(default,str) or len(default)>10000 or '\x00' in default:
             raise ValueError('请填写有效的配置项默认值')
         kind=parameter['type']
-        if kind=='effect':
+        if kind in ('choices','integer'):
+            from .git_templates import validate_parameter
+            validate_parameter(parameter,default)
+        elif kind=='effect':
             if default!=effect:raise ValueError('匹配动作默认值须与模板默认动作一致')
         elif kind=='operations':
             operations=default.split(',')
@@ -109,4 +112,4 @@ def save(ident,body):
             con.execute('INSERT INTO policy_template_versions VALUES(?,?,?,?,?,?,?)',(ident,definition['version'],json.dumps(definition,ensure_ascii=False),description,request_key,request_hash,db.now()))
             db.audit(con,None,'template.version_saved','admin',{'template_id':ident,'version':definition['version']})
             saved={'definition':definition,'description':description}
-    return {**{k:v for k,v in saved['definition'].items() if k not in ('renderer','system_preset')},'description':saved['description']}
+    return catalog.public_definition(saved['definition'], saved['description'])

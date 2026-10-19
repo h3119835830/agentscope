@@ -6,7 +6,7 @@ import time
 from pathlib import Path, PurePosixPath
 from fastapi import HTTPException
 from .. import db
-from . import template_catalog as catalog, dsl_policy as dsl, policy_library, store
+from . import template_catalog as catalog, dsl_policy as dsl, policy_library, store, git_templates
 from .policy import digest
 from .system_policy import lifecycle
 
@@ -97,7 +97,9 @@ def materialize(ident, scope_id, body):
     normalized = {}
     for p in t['parameters']:
         value = params[p['key']]
-        if p['type'] == 'path':
+        if p['type'] in ('choices', 'integer'):
+            value = git_templates.validate_parameter(p, value)
+        elif p['type'] == 'path':
             value = path_parameter(value, row)
         elif p['type'] == 'operations':
             value = value.split(',') if isinstance(value, str) else value
@@ -105,7 +107,7 @@ def materialize(ident, scope_id, body):
                 raise ValueError('请选择模板支持的触发操作')
             value = sorted(value)
         elif p['type'] == 'effect':
-            if value not in ('block','notify','kill'):
+            if value not in t.get('allowed_effects', ('block','notify','kill')):
                 raise ValueError('请选择模板支持的处置动作')
         elif p['type'] == 'program':
             if not isinstance(value, str) or not re.fullmatch(r'[a-zA-Z0-9_./-]{1,63}', value):
@@ -124,7 +126,11 @@ def materialize(ident, scope_id, body):
     q = lambda value: json.dumps(value, ensure_ascii=False)
     kind = t['renderer']; effect = normalized.get('effect',t['effect']); sources = []; clauses = []
     requested = normalized.get('operations', [t['operation']])
-    if kind == 'system':
+    if effect not in t.get('allowed_effects', ('block','notify','kill')):
+        raise ValueError('此模板不支持所选处置动作')
+    if kind == 'unsupported':
+        document = None
+    elif kind == 'system':
         preset = next(p for p in policy_library.CATALOG if p['id'] == t['system_preset'])
         document, _ = policy_library.structured(ident, {**{k:preset[k] for k in ('mode','ops','effect')},'ops':normalized.get('operations',preset['ops']),'effect':effect,
                                                        'values':normalized['values'],'name':name,'reason':reason})
@@ -151,6 +157,10 @@ def materialize(ident, scope_id, body):
             clauses = [effect + ' exec "git" "commit" if AGENT and CODE unless after exec ' + q(normalized['checker']) + ' since write ' + obj]
         elif kind == 'git':
             clauses = [effect + ' exec "git" ' + q(arg) + ' if AGENT' for arg in ('reset','clean','stash','--no-verify')]
+        elif kind in ('git-command', 'git-check', 'git-tokens'):
+            tokens = normalized['tokens'] if kind == 'git-tokens' else [t['command']]
+            gate = (' unless after exec ' + q(normalized['checker']) + ' exits ' + str(normalized['exit_code']) + ' since write ' + obj) if kind == 'git-check' else ''
+            clauses = [effect + ' exec ' + q(normalized['program']) + ' ' + q(token) + ' if AGENT' + gate for token in tokens]
         else:
             raise ValueError('模板执行类型未实现')
         rule = 'config-' + ident
@@ -165,7 +175,8 @@ def materialize(ident, scope_id, body):
         if not last.startswith('  because '):
             raise ValueError('模板反馈结构不完整')
         document['original_dsl'] = prefix + '\n  because ' + q(execution_reason)
-    return {'template_id':t['id'],'template_version':t['version'],'template_hash':digest(t),'resource_hash':digest(row['resources']) if row else None,'name':name,
+    support = {'execution_support':t['execution_support']} if 'execution_support' in t else {}
+    return {**support,'template_id':t['id'],'template_version':t['version'],'template_hash':digest(t),'resource_hash':digest(row['resources']) if row else None,'name':name,
             'reason':reason,'execution_reason':execution_reason,'parameters':normalized,'document':document,'requested_operations':requested,
             'effective_operations':effective,'coverage_warning':coverage,'effect':effect,'note':t['note']}
 
@@ -193,9 +204,11 @@ def view(row):
     applied_revision = next((v['revision'] for v in versions if json.loads(v['payload_json'])['document'] == applied), None) if applied else None
     active_payload = next((json.loads(v['payload_json']) for v in versions if v['revision'] == applied_revision), None)
     applied_configuration = {k:active_payload[k] for k in ('name','parameters','requested_operations','effective_operations','coverage_warning','effect','note')} if active_payload else None
-    return {**row, 'applied_revision':applied_revision, 'applied_configuration':applied_configuration,'applied':applied_revision == row['revision'],
+    definition = catalog.get(row['template_id'],row['template_version'])
+    support = git_templates.presentation(definition)
+    return {**row, **({'execution_support':support} if support else {}), 'applied_revision':applied_revision, 'applied_configuration':applied_configuration,'applied':applied_revision == row['revision'],
             **linked, 'status':state(linked,'draft'),
-            'can_submit':row['scope'] in ('system','agent'),'template_definition':{k:v for k,v in catalog.get(row['template_id'],row['template_version']).items() if k not in ('renderer','system_preset')},
+            'can_submit':row['scope'] in ('system','agent') and (support or {}).get('applicable',True),'template_definition':catalog.public_definition(definition),
             'scope_label':'全部受控 Agent' if row['scope'] == 'system' else '此 Agent 的全部工作区与会话' if row['scope'] == 'agent' else '当前工作区（独立应用暂不支持）'}
 
 
@@ -281,6 +294,7 @@ def verify_proposal(proposal_id,read_sources=True):
 
 
 def verify_current(item,read_source=True,full_read=True):
+    git_templates.ensure_applicable(catalog.get(item['template_id'],item['template_version']))
     row = target(item['scope_id'],item['scope'],item['workspace_id'])
     if row and digest(row['resources']) != item.get('resource_hash'):
         raise ValueError('配置库版本已变化：资源映射已经变化，请编辑并核对原始对象后保存新版本。')
@@ -467,7 +481,7 @@ def generate(scope_id, body, provider=None):
         from ..history.llm import DeepSeekProvider
         from .mapping import resource_records
         provider = provider or DeepSeekProvider(timeout=75)
-        templates = [t for t in catalog.public_catalog() if body['scope'] in t['scopes'] and not t.get('assistant_alias')]
+        templates = [t for t in catalog.public_catalog() if body['scope'] in t['scopes'] and not t.get('assistant_alias') and not t.get('retired')]
         from .policy_context_agent import WorkspacePolicyAgent
         def check_basis():
             if basis != generation_basis(store.get(scope_id) if scope_id!='system' else None):
@@ -503,6 +517,11 @@ def generate(scope_id, body, provider=None):
             ident = 'tc_' + uuid.uuid4().hex
             values = {**item,'scope':body['scope'],'workspace_id':body.get('workspace_id')}
             prepared.append((ident,values,materialize(ident,scope_id,values)))
+        for _,_,payload in prepared:
+            if not payload.get('execution_support',{}).get('applicable',True):
+                message = catalog.get(payload['template_id'],payload['template_version'])['name'] + '：ActPlane 暂不支持，只保存参数草案，不能提交审批或应用。'
+                if message not in result['gaps']:
+                    result['gaps'].append(message)
         if basis != generation_basis(store.get(scope_id) if scope_id!='system' else None):
             raise ValueError('生成期间资源、策略或模板发生变化，请重新生成')
         source_bindings=runner.source_bindings()

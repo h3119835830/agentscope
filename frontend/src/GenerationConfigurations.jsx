@@ -9,7 +9,7 @@ function parameter(value,type){
  return Array.isArray(value)?value.join('、'):String(value);
 }
 function approval(row){
- const status=statuses[row.approval_status]||'审批状态暂不可用';
+ const status=row.execution_support?.applicable===false?'暂不支持 · 仅参数草案':statuses[row.approval_status]||'审批状态暂不可用';
  return row.approval_operation==='disable'?(row.approval_status==='applied'?'已停用':'停用 · '+status):status;
 }
 export default function GenerationConfigurations({generation}){

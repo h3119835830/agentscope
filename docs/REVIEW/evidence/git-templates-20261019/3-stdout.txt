@@ -1,0 +1,1 @@
+{"command": "reset", "mode": "missing", "returncode": 0, "stdout": "", "stderr": ""}

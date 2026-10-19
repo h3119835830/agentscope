@@ -1,0 +1,23 @@
+{
+  "passed": true,
+  "saved_child_revision": 2,
+  "child_template_version": 2,
+  "child_exit_code": 2,
+  "new_parent_version": 3,
+  "new_parent_exit_code_default": 3,
+  "unsupported_submit_enabled": false,
+  "unsupported_dsl": null,
+  "mobile": {
+    "requested_width": 390,
+    "actual_inner_width": 390,
+    "document_width": 375,
+    "child_width": 261,
+    "child_scroll_width": 860,
+    "overflow_x": "auto",
+    "dialog_width": 374
+  },
+  "live_script": "/assets/main-Cf70r2sY.js",
+  "live_git_templates": 10,
+  "production_record_writes": false,
+  "viewport_override_reset": true
+}

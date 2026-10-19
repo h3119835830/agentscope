@@ -1,0 +1,5 @@
+🚫 VIOLATION: process 'git' (pid 324738, ppid 324736) — /usr/bin/git
+   effect: notify
+   reason: 对 --no-verify 等显式跳过检查的 Git 参数记录或终止进程。短参数 -n 在不同子命令中含义不同，不能将其统一认定为绕过检查。 请在允许的范围内继续任务，必要时提交最小变更需求。
+   provenance: pid 324736 exec gitprobe -> label AGENT
+{"command": "bypass", "mode": "missing", "returncode": 0, "stdout": "[master c0b492d] synthetic\n", "stderr": ""}

@@ -8,7 +8,7 @@ from test_template_configurations import clean_templates,config,Provider,plan_bo
 
 def test_every_published_template_exposes_the_same_description_to_human_api_and_agent(world):
     public=catalog.public_catalog()
-    assert len(public)==27 and {t['id'] for t in public}==set(catalog.DESCRIPTIONS)
+    assert len(public)==len(catalog.CATALOG) and {t['id'] for t in public}==set(catalog.DESCRIPTIONS)
     api=world.client.get('/api/policy-templates',headers=ADMIN).json()['catalog']
     assert {t['id']:t['description'] for t in api}==catalog.DESCRIPTIONS
     assert all(40<=len(t['description'])<=600 for t in public)
