@@ -1,0 +1,21 @@
+{
+  "desktop_live": {
+    "width": 1072,
+    "height": 794,
+    "pageWidth": 1057,
+    "selected": 5,
+    "batchEnabled": true,
+    "errors": []
+  },
+  "mobile": {
+    "width": 390,
+    "height": 760,
+    "pageWidth": 375,
+    "dialogWidth": 370.5,
+    "tableClientWidth": 332,
+    "tableScrollWidth": 580,
+    "horizontalScrollVerified": 248
+  },
+  "same_scope_confirmation_disabled": true,
+  "formal_mutations_executed": 0
+}

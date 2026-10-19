@@ -387,3 +387,36 @@ test('revalidation previews current versions and creates only a fresh candidate 
  tree=render(props);await elements(tree).find(e=>e.type==='button'&&e.props.children==='校验并生成新候选').props.onClick();
  assert.equal(calls.length,1);assert.equal(calls[0][0],'/api/console/approvals/old/revalidate');assert.equal(calls[0][1].plan_hash,plan.plan_hash);assert.ok(calls[0][1].request_key);assert.deepEqual(created,['new']);
 });
+
+test('approval selection is limited to current filtered results and clears across tabs',async()=>{
+ const records=[{id:'a',name:'员工保护',scope_id:'agent-a',scope_type:'agent',status:'pending',can_approve:true,created_at:'2026-10-19T00:00:00Z'},
+  {id:'b',name:'订单保护',scope_id:'agent-b',scope_type:'agent',status:'pending',can_approve:true,created_at:'2026-10-19T00:00:00Z'},
+  {id:'c',name:'过期配置',scope_id:'agent-c',scope_type:'agent',status:'stale',created_at:'2026-10-19T00:00:00Z'}];
+ const render=await harness('PolicyApprovals.jsx','default',[null,{records},null,'pending','','',false,0,[],null]),calls=[];
+ const props={api:async()=>({records}),post:async(...args)=>calls.push(args),navigation:{},navigate(){}};
+ let tree=render(props);assert.ok(elements(tree).find(e=>e.type==='button'&&e.props.children==='批量批准').props.disabled);
+ elements(tree).find(e=>e.type==='button'&&e.props.children==='全选当前结果').props.onClick();tree=render(props);
+ elements(tree).find(e=>e.type==='button'&&e.props.children==='批量批准').props.onClick();tree=render(props);
+ const batch=elements(tree).find(e=>e.type?.name==='ApprovalBatch');assert.deepEqual(batch.props.rows.map(r=>r.id),['a','b']);assert.equal(calls.length,0);
+ batch.props.onClose();tree=render(props);elements(tree).find(e=>e.props?.role==='tab'&&String(e.props.children).includes('需要处理')).props.onClick();tree=render(props);
+ assert.match(renderToStaticMarkup(tree),/应用未完成和暂不能应用/);assert.ok(elements(tree).find(e=>e.type==='button'&&e.props.children==='批量重新校验').props.disabled);
+});
+test('bulk approval confirmation is disabled until the displayed contents are acknowledged',async()=>{
+ const data={id:'a',name:'员工资料保护',scope_id:'agent-a',scope_type:'agent',target_name:'DeepSeek Harness',status:'pending',documents:[],records:[],targets:[]};
+ const batch={action:'approve',entries:[{id:'a',data,binding:'frozen',requestKey:'once'}]};
+ const render=await harness('ApprovalBatch.jsx','default',[batch,'',false,false,null,false]),calls=[];
+ const props={rows:[data],action:'approve',api:async()=>data,post:async(...args)=>calls.push(args),onClose(){},onFinished(){},onOpenRecord(){}};
+ let tree=render(props);const confirm=elements(tree).find(e=>e.type==='button'&&String(e.props.children).includes('确认批量批准'));
+ assert.ok(confirm.props.disabled);await confirm.props.onClick();assert.equal(calls.length,0);
+ elements(tree).find(e=>e.type==='input'&&e.props.type==='checkbox').props.onChange({target:{checked:true}});tree=render(props);
+ assert.equal(elements(tree).find(e=>e.type==='button'&&String(e.props.children).includes('确认批量批准')).props.disabled,false);
+});
+test('unsupported bulk recovery keeps its reason and exact configuration destination',async()=>{
+ const destination={page:'sessions',sessionInstance:'agent-a',sessionId:'original-session',sessionTab:'policies',approvalId:''};
+ const data={id:'a',name:'会话权限',scope_type:'session',status:'blocked',revalidation:{available:false,destination}},batch={action:'revalidate',entries:[{id:'a',data,error:'缺少可信会话执行目标，请返回所属配置重新生成。'}]};
+ const render=await harness('ApprovalBatch.jsx','default',[batch,'',false,false,null,false]),navigations=[];
+ const tree=render({rows:[data],action:'revalidate',onClose(){},onReturnConfig:value=>navigations.push(value)});
+ assert.match(renderToStaticMarkup(tree),/缺少可信会话执行目标/);
+ elements(tree).find(e=>e.type==='button'&&e.props.children==='返回所属配置 ↗').props.onClick();assert.deepEqual(navigations,[destination]);
+ assert.ok(elements(tree).find(e=>e.type==='button'&&String(e.props.children).includes('确认批量重新校验')).props.disabled);
+});

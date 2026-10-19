@@ -1,0 +1,22 @@
+{
+  "published": true,
+  "source_base_commit": "811de68940fec542bfad3184c72c0925e55b05f0",
+  "ui_index_before": "e878f5cfd3b149516cc6ec8574ff8c458c51f54aab8a0907fc1cda531eb633c3",
+  "ui_index_after": "8761e071eb6fefbe12c709a7ec66fe703f9f7c0c7386a7499a0d498e7416d603",
+  "api_restarted": false,
+  "api_identity_unchanged": true,
+  "broker_identity_unchanged": true,
+  "authority_unchanged": true,
+  "protected_tables_unchanged": true,
+  "protected_table_count": 11,
+  "other_ports_unchanged": true,
+  "formal_decisions_changed": 0,
+  "ui_source_hashes": {
+    "frontend/src/PolicyApprovals.jsx": "b450fa860c9c20826da67b2c28ec021f6606695ad358d45c9c53cfa06ce59cf1",
+    "frontend/src/ApprovalBatch.jsx": "48e0810221f2ec0a9a18f4db35437836df7e35be67a91696e4e81dfdc474b460",
+    "frontend/src/approvalBatch.mjs": "60cd9774bdeb9bd1888d7591d16ac1ab05d875d9eead6e97908ce5f0a777e205",
+    "frontend/src/approvalBatch.css": "3fd93afb204632bc99a52b866a5661b49a52f37a875dad4a4123206da5b8cd6b"
+  },
+  "served_bundle_matches_build": true,
+  "served_bundle": "/assets/main-orboJPbv.js"
+}

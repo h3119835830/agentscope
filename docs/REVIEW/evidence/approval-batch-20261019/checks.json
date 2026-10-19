@@ -1,0 +1,21 @@
+{
+  "frontend": {
+    "passed": 344
+  },
+  "build": {
+    "passed": true
+  },
+  "backend_contracts": {
+    "passed": true,
+    "seconds": 10.53,
+    "files": [
+      "test_approval_locations.py",
+      "test_approval_reads.py",
+      "test_approval_recovery.py",
+      "test_policy_approvals.py",
+      "test_two_phase_approvals.py",
+      "test_unified_approvals.py"
+    ],
+    "passed_count": 56
+  }
+}

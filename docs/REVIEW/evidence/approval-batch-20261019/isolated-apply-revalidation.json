@@ -1,0 +1,11 @@
+{
+  "applied_decisions": 2,
+  "approved_pending_decisions": 0,
+  "applied_scopes": 2,
+  "applications": 2,
+  "fresh_revalidation_count": 3,
+  "fresh_states": {
+    "invalid": 1,
+    "pending": 2
+  }
+}
