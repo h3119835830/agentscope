@@ -26,4 +26,10 @@ main 基线 151d39d。仅修改 `frontend/src/recordVisuals.css` 与 `frontend/s
 
 发布脚本逐字节验证新 CSS 相对线上旧 CSS 只包含主内容全宽、助手外框全宽、移除通用 1440px 上限和模板表 min-width 的指定变换。保留所有生产 JS、终端和其他资源，更新前核对 index 固定哈希；不重启服务或 Agent，不应用策略，不推送远端。
 
-当前隔离验收通过，主服务发布结果将在实际发布后补记。
+## 18003 发布与复验
+
+- main 功能提交 `a67dbd6`；2026-10-20 19:10:16 仅发布 CSS。JS 仍为 `main-CRIh8RoI.js`，CSS 为 `main-CXG-2KhO.css`，SHA-256 `0ecf7cd7fa62cca1310968070dbf01c4e925ceec2bdb399f0a8b93a03508aa4d`。
+- index SHA-256 `0b66a0a8e46a9d510063a146e62dfc1f3e91307d2f69dc7d0fc2764c5d7daa26`；备份及发布回执 `/var/lib/agentscope-scope-demo/release-backups/layout-width-20261020-191016/`。
+- 发布前后 API/Broker 进程身份、Agent/策略权威状态、引擎和已有 JavaScript 均通过不变检查。工作期间另一项 Pi 读取器任务已有独立本地提交及 API 发布，不归为本次 CSS 行为，不声称整段任务期间服务均未变化。
+- 18003 全部七个模块逐页复验：1920px 视口下 content 与 main 均为 1704px，未出现页面横向溢出；线上策略记录加载完成后截图为 `published-system-1920.png`，测量为 `published-measurements.json`。
+- 未重启服务或 Agent、未生成/审批/应用策略、未推送远端。
