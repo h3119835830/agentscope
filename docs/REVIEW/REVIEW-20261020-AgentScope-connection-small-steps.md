@@ -29,13 +29,22 @@
 - main 400/400 前端测试与构建通过；线上基线加本次六文件覆盖的精确发布包 382/382 原有测试与构建通过。
 - 浏览器：列表打开 → `/open` 409 → `/check` 200 → 确认；取消；抽屉打开 → 同一确认；600px 对话框宽 470px、无横向溢出；Esc 取消。不点击确认重启，不发送 start/stop/配置/策略写入。实际成功启动链路由隔离单元测试验证，不声称主服务重新启动验收。
 - 发布不使用 main 的完整 build。每个文件核对生产基线或六文件 allowlist，保留 `0d526d2` 未发布；本地 `ProductOverview.jsx`、`productConsole.test.mjs`、设计规范的并行修改未纳入本提交/包。
-- 当前：第二项验收通过，独立发布待执行。
+- 当前：第二项已独立发布，见下方结果。
 
 ### 并行发布保护检查
 
 打开入口提交 `a476533` 后，第一次发布被 index 哈希检查阻止，尚未写入线上资源。另一项工作已把线上 JS 改为 `main-CUSNOPOG.js`（总览恢复 SecurityNotice）。
 
 只读核对该发布源码相对 b37b4fd 仅改变 `ProductOverview.jsx`；在我方临时目录独立重建，JS SHA-256 与线上 `4c6cd0cbb36b0b378c3da3bac304bba8a731475aed1716aabceccdca4a44a7ad` 完全相同。新版发布包保留此已上线文件的固定 SHA-256，不提交它的并行源码改动，再覆盖本次连接六文件。不会将已有线上功能退回，也不复制整个 main 构建。更新后的精确包 382/382 回归再次通过。
+
+### 最终发布结果
+
+- 源码功能提交：`f7d62f0`（布局）、`a476533`（打开与恢复确认）；发布基线保护提交：`eb3a663`。
+- 第二项发布时间：2026-10-20 18:37:46；静态资源 `main-BlhRh--D.js`，SHA-256 `be0f22af1b2c6d4753623bbc4101f306c0cf4a64db5432efb60b48718591ac30`。
+- index SHA-256 `70b769a17402f71910dd74b1a6bbb3a90499c254e0caa1b66421725f7862bc73`。API/Broker 身份、当次发布前后 Agent/策略权威状态及 ActPlane 哈希均不变；保留此前 CSS 和所有已有资源。未推送远端。
+- 18003 浏览器复验：运行中实例“打开”、未知受控实例“打开”、明确未运行实例“启动并打开”。截图 `published-open-18003.png` 与 `published-layout-18003.png`。
+- 本次任务没有发送 Agent start/stop/配置保存/策略应用请求。工作期间其他操作曾改变 RQ5 DSH 运行状态，不能把整段任务期间的变化归为本次发布；不声称所有实例整个任务期间均未变化。
+- 回滚备份：`/var/lib/agentscope-scope-demo/release-backups/connection-layout-20261020-182717/` 和 `connection-entry-20261020-183746/`，保留旧 index、资源及结果。
 
 ## ActPlane 核对
 
