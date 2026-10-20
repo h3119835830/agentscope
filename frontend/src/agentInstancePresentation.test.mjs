@@ -86,3 +86,12 @@ test('a stopped configured terminal starts on open, and a running terminal reuse
  assert.deepEqual(entryAction(row),{label:'启动并打开',action:'start'});
  assert.deepEqual(entryAction({...row,status:'running',connected:true}),{label:'打开',action:'open'});
 });
+
+test('unknown controlled connections retain an open check without granting start authority',()=>{
+ for(const kind of ['web','terminal'])for(const state of ['unknown','failed']){
+  const row={id:'same-instance',mode:'controlled',entry:{kind},status:'unknown',connected:false,product_status:{runtime:{state}}};
+  assert.deepEqual(entryAction(row),{label:'打开',action:'check'});
+  assert.equal(canStart(row),false);
+  assert.equal(canOpen(row),false);
+ }
+});

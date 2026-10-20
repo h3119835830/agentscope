@@ -8,8 +8,8 @@ import ProductStatus from './ProductStatus.jsx';
 import {invalidateAgent} from './productStatus.mjs';
 import {tabKeys} from './consoleState.mjs';
 import {timeLabel} from './taskPresentation.mjs';
-import {agentTypes as types,agentName,processLabel,visibleAgentInstances,canOpen,canStart,entryLabel,entryAction,connectionStatus as status} from './agentInstancePresentation.mjs';
-import {openAgentPage} from './openAgentPage.mjs';
+import {agentTypes as types,agentName,processLabel,visibleAgentInstances,canOpen,canStart,canCheckEntry,entryLabel,entryAction,connectionStatus as status} from './agentInstancePresentation.mjs';
+import {openConnection,restartConnection} from './connectionOpen.mjs';
 import './taskConsole.css';
 import './connections.css';
 import './agentInstances.css';
@@ -48,7 +48,7 @@ export function Drawer({id,api,post,onClose,onChanged,onOpen,onSessions,onConfig
  const [stopping,setStopping]=useState(null);
  const controlled=row?.mode==='controlled'; const pending=proposals.filter(p=>p.state==='pending'&&p.classification==='expand'&&p.generation===row?.generation&&p.base_hash===row?.policy_hash);
  return <dialog ref={dialog} className="record-drawer instance-drawer" aria-label="Agent 配置" onCancel={e=>{e.preventDefault();onClose();}}>
- <div className="record-drawer-head"><h2>{row?agentName(row):'读取 Agent…'}</h2><div className="actions">{row&&(canOpen(row)||canStart(row))&&<button type="button" className="button tiny primary" disabled={!!busy} onClick={()=>act(canStart(row)?'启动并打开 Agent':'打开 Agent',()=>onOpen(row))}>{entryAction(row).label}</button>}<button type="button" className="button tiny ghost" onClick={onClose}>关闭</button></div></div>
+ <div className="record-drawer-head"><h2>{row?agentName(row):'读取 Agent…'}</h2><div className="actions">{row&&(canOpen(row)||canStart(row)||canCheckEntry(row))&&<button type="button" className="button tiny primary" disabled={!!busy} onClick={()=>act(canStart(row)?'启动并打开 Agent':'打开 Agent',()=>onOpen(row))}>{entryAction(row).label}</button>}<button type="button" className="button tiny ghost" onClick={onClose}>关闭</button></div></div>
  <div className="record-drawer-tabs" role="tablist" aria-label="Agent 配置内容">{tabs.map(([key,label])=><button type="button" id={'instance-tab-'+key} key={key} role="tab" aria-controls={'instance-pane-'+key} aria-selected={tab===key} tabIndex={tab===key?0:-1} onClick={()=>setTab(key)} onKeyDown={e=>tabKeys(e,tabs.map(t=>t[0]),tab,setTab)}>{label}</button>)}<button type="button" onClick={()=>{onClose();onSessions?.(id);}}>查看会话 ↗</button><button type="button" onClick={()=>{onClose();onConfiguration?.(id);}}>到系统查看配置 ↗</button></div>
  <div className="record-drawer-body" role="tabpanel" id={'instance-pane-'+tab} aria-labelledby={'instance-tab-'+tab}>
  {error&&<p role="alert" className="inline-notice warning">{error}</p>}{busy&&<p role="status">{busy}…</p>}
@@ -85,8 +85,9 @@ export default function AgentInstances(props){
  function refresh(){if(inFlight.current)return inFlight.current;const n=++seq.current;inFlight.current=(async()=>{try{const r=await api('/api/agent-instances');if(n===seq.current){setRows(r.instances||[]);setLoaded(true);setError('');}}catch(e){if(n===seq.current){setLoaded(true);setError(e.message);setRows(old=>old.map(invalidateAgent));}}finally{inFlight.current=null;}})();return inFlight.current;}
  useEffect(()=>{if(!active)return;refresh();const t=setInterval(refresh,5000);return()=>{seq.current++;clearInterval(t);};},[active,api]);
  async function act(id,label,fn){setBusy(id);try{await fn();await refresh();}catch(e){notify(e.message);setError(e.message);}finally{setBusy('');}}
- const open=(row,start)=>openAgentPage({id:row.id,start,post});
- const openInstance=row=>{const action=entryAction(row).action;if(action==='instructions'){configure(row.id);return;}if(action==='processes'){props.onSessions?.(row.id);return;}return act(row.id,'打开',()=>open(row,action==='start'));};
+ const [recovering,setRecovering]=useState(null);
+ const open=row=>openConnection({row,post,onRecovery:setRecovering});
+ const openInstance=row=>{const action=entryAction(row).action;if(action==='instructions'){configure(row.id);return;}if(action==='processes'){props.onSessions?.(row.id);return;}return act(row.id,'打开',()=>open(row));};
 
  return <div className="content task-console agent-connections agent-instance-console">
  <div className="connection-toolbar"><h2 className="connection-current-title">当前连接</h2><div className="actions"><button type="button" className="button ghost" disabled={!!busy} onClick={()=>act('discover','发现 Agent',async()=>{const r=await post('/api/agent-instances/discover');await refresh();})}>发现 Agent</button><button type="button" className="button primary" onClick={()=>setAdding(true)}>添加连接</button></div></div>
@@ -99,6 +100,12 @@ export default function AgentInstances(props){
  ])} empty={loaded?(error?"当前观测不可用，请重新检查。":"添加 Agent 后可查看连接。") :"正在读取 Agent…"}/>
 
  {adding&&active&&<Add api={api} post={post} onClose={()=>setAdding(false)} onCreated={r=>{setAdding(false);configure(r.id);refresh();}}/>}
- {selected&&active&&<Drawer key={selected+detailTab+props.policyScope} id={selected} initialTab={detailTab} policyScope={props.policyScope} api={api} post={post} onSessions={props.onSessions} onConfiguration={props.onConfiguration} onOpen={row=>open(row,canStart(row))} onChanged={refresh} onClose={()=>{setSelected('');props.onContext?.({connectionInstance:'',connectionTab:''});}}/>}
+ {selected&&active&&<Drawer key={selected+detailTab+props.policyScope} id={selected} initialTab={detailTab} policyScope={props.policyScope} api={api} post={post} onSessions={props.onSessions} onConfiguration={props.onConfiguration} onOpen={open} onChanged={refresh} onClose={()=>{setSelected('');props.onContext?.({connectionInstance:'',connectionTab:''});}}/>}
+ {recovering&&active&&<PolicyLifecycleDialog title="重新启动并打开 Agent？" confirmLabel="确认重新启动并打开" onClose={()=>setRecovering(null)} onConfirm={async()=>{
+  await restartConnection({snapshot:recovering.row,post});setRecovering(null);await refresh();
+ }}>
+  <p>{agentName(recovering.row)}</p><p>暂时无法打开现有入口。重新启动会中断这个 Agent 的共享会话和正在执行的任务，并按现有配置重新加载保护。</p>
+  <p>尚未执行重启；取消不会改变 Agent。</p>
+ </PolicyLifecycleDialog>}
  </div>
 }

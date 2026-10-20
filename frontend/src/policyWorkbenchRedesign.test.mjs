@@ -352,6 +352,28 @@ test('stop confirmation freezes the displayed generation instead of accepting a 
  await modal.props.onConfirm();assert.deepEqual(calls,[['/api/agent-instances/'+row.id+'/stop',{generation:identity.generation,policy_hash:'a'.repeat(64)}]]);
 });
 
+test('unknown controlled connection drawer retains Open with the exact selected target',async()=>{
+ const row={...target,status:'unknown',connected:false,gate:'open',policy_hash:'p1',proposals:[],policy:{rules:[],network:'model_only'},product_status:{runtime:{state:'unknown'}}};
+ const render=await harness('AgentInstances.jsx','Drawer',[0,'connection',row,'','','','',null,'',[]]),opened=[],writes=[];
+ const props={id:row.id,api:async()=>row,post:async(...args)=>writes.push(args),onChanged(){},onOpen:async value=>opened.push(value.id)};
+ const tree=render(props),button=elements(tree).find(e=>e.type==='button'&&e.props.children==='打开');
+ assert.ok(button);await button.props.onClick();
+ assert.deepEqual(opened,[row.id]);assert.deepEqual(writes,[]);
+});
+
+test('connection recovery requires a visible impact confirmation and cancel never starts',async()=>{
+ const row={...target,status:'unknown',connected:false,product_status:{runtime:{state:'unknown'}}};
+ const render=await harness('AgentInstances.jsx','default',[[row],true,'','','','connection',false,{row,reason:'入口不可用'}]),writes=[];
+ const props={active:true,api:async()=>({instances:[row]}),post:async(...args)=>writes.push(args),notify(){}};
+ let tree=render(props),modal=elements(tree).find(e=>e.type?.name==='PolicyLifecycleDialog');
+ assert.equal(modal.props.confirmLabel,'确认重新启动并打开');
+ assert.match(renderToStaticMarkup(modal.props.children),/共享会话/);
+ assert.match(renderToStaticMarkup(modal.props.children),/尚未执行重启/);
+ modal.props.onClose();tree=render(props);
+ assert.equal(elements(tree).some(e=>e.type?.name==='PolicyLifecycleDialog'),false);
+ assert.deepEqual(writes,[]);
+});
+
 test('system library review sends separate idempotent approve and apply requests',async()=>{
  const pending={id:'system-review',scope_type:'system',status:'pending',proposal_hash:'a'.repeat(64),documents:[],records:[],targets:[],agents:[],total_affected_count:0,can_approve:true,can_apply:false,created_at:'2026-10-14T00:00:00Z'};
  const approved={...pending,status:'approved',can_approve:false,can_apply:true,approval_hash:'b'.repeat(64)};

@@ -7,9 +7,12 @@ export const processLabel=row=>row.pid&&['running','discovered'].includes(row.st
 export const observedProcesses=row=>processLabel(row)==='—'?[]:[{pid:row.pid,ppid:row.ppid,role:'observed process',domain_verified:false}];
 export const canOpen=row=>['web','terminal'].includes(entryKind(row))&&!['unknown','stale'].includes(row.status)&&Boolean(row.connected||row.can_open);
 export const canStart=row=>['web','terminal'].includes(entryKind(row))&&row.mode==='controlled'&&!canOpen(row)&&row.product_status?.runtime?.state==='stopped';
+// An unknown observation must not remove the read-only entry check, or imply a start.
+export const canCheckEntry=row=>row.mode==='controlled'&&Boolean(row.id)&&['web','terminal'].includes(entryKind(row));
 export function entryAction(row){
  if(canOpen(row))return {label:'打开',action:'open'};
  if(canStart(row))return {label:'启动并打开',action:'start'};
+ if(canCheckEntry(row))return {label:'打开',action:'check'};
  if(['cli','cli_install'].includes(entryKind(row)))return {label:'CLI 启动方式',action:'instructions'};
  if(entryKind(row)==='desktop')return {label:'查看桌面入口',action:'instructions'};
  if(entryKind(row)==='web')return {label:'查看入口',action:'instructions'};
