@@ -16,6 +16,6 @@ export function TemplateParameterInput({definition:p,value,onChange,label=p.labe
   const selected=Array.isArray(value)?value:String(value??'').split(',');
   return <div className="spl-checks" role="group" aria-label={label}>{p.options.map(option=><label key={option}><input type="checkbox" aria-label={label+' '+option} checked={selected.includes(option)} onChange={e=>onChange((e.target.checked?[...selected.filter(Boolean),option]:selected.filter(v=>v!==option)).sort().join(','))}/>{option}</label>)}</div>;
  }
- if(p.type==='lines')return <textarea aria-label={label} required rows={3} maxLength={10000} value={value??''} onChange={e=>onChange(e.target.value)}/>;
- return <input aria-label={label} readOnly={p.readOnly} required type={p.type==='integer'?'number':'text'} min={p.minimum} max={p.maximum} step={p.type==='integer'?1:undefined} maxLength={1000} value={value??''} onChange={e=>onChange(e.target.value)} placeholder={p.type==='path'?'/w/0/实际文件或目录':undefined}/>;
+ if(p.type==='lines')return <textarea aria-label={label} required={p.required!==false} rows={3} maxLength={10000} value={value??''} onChange={e=>onChange(e.target.value)}/>;
+ return <input aria-label={label} readOnly={p.readOnly} required={p.required!==false} type={p.type==='integer'?'number':'text'} min={p.minimum} max={p.maximum} step={p.type==='integer'?1:undefined} maxLength={1000} value={value??''} onChange={e=>onChange(e.target.value)} placeholder={p.type==='path'?'/w/0/实际文件或目录':undefined}/>;
 }

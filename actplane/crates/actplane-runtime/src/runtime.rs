@@ -171,9 +171,9 @@ pub async fn watch_policy_for_pid(
             }
         };
         let _ = ready_tx.send(Ok((rh, dh)));
-        let run_result = engine.run(&stop_thread, |v| {
+        let run_result = engine.run_with_transitions(&stop_thread, |v| {
             run_catalog.append_outputs(&to_violation(&v), &fb, &ev);
-        });
+        }, |v| run_catalog.append_transition(&v, &ev));
         if let Err(e) = cleanup.clear_runtime_state() {
             eprintln!("ActPlane: failed to clear singleton runtime state: {e}");
         }
@@ -436,6 +436,14 @@ impl RuntimePolicyCatalog {
                 report::append_violation_event_context(inner.rules.get(v.rule_id()), v, event_file);
             }
             Err(e) => eprintln!("ActPlane: policy metadata lock poisoned: {e}"),
+        }
+    }
+
+    fn append_transition(&self,v:&ebpf_ifc_engine::LabelTransition,path:&Path) {
+        if let Ok(inner)=self.inner.read() {
+            if let Some(labels)=inner.domain_labels.get(&v.domain) {
+                report::append_label_transition(labels,v,path);
+            }
         }
     }
 }
@@ -1034,9 +1042,9 @@ pub fn start_mcp_auto_attach(cli: &PolicyInput) -> Result<AttachGuard> {
             }
         };
         let _ = ready_tx.send(Ok((rh, dh)));
-        let run_result = engine.run(&stop_thread, |v| {
+        let run_result = engine.run_with_transitions(&stop_thread, |v| {
             run_catalog.append_outputs(&to_violation(&v), &fb, &ev);
-        });
+        }, |v| run_catalog.append_transition(&v, &ev));
         if let Err(e) = cleanup.clear_runtime_state() {
             eprintln!("ActPlane: failed to clear singleton runtime state: {e}");
         }
@@ -1215,7 +1223,7 @@ async fn run_legacy_command(
     let (failure_tx, mut failure_rx) = tokio::sync::oneshot::channel();
     let feedback_file = feedback.feedback.clone();
     let poller = std::thread::spawn(move || {
-        let result = loader.run(&stop_thread, |v| {
+        let result = loader.run_with_transitions(&stop_thread, |v| {
             report(
                 &compiled.meta,
                 &compiled.labels,
@@ -1223,7 +1231,7 @@ async fn run_legacy_command(
                 Some(&feedback.feedback),
                 Some(&feedback.events),
             )
-        });
+        }, |v| report::append_label_transition(&compiled.labels,&v,&feedback.events));
         if let Err(error) = result {
             let _ = failure_tx.send(format!("compatibility event loop failed: {error}"));
             while !stop_thread.load(Ordering::SeqCst) {
@@ -1383,11 +1391,11 @@ pub async fn run_command(cli: &PolicyInput, cmd: &[String], parent_domain: bool)
             }
         };
         let _ = ready_tx.send(Ok(()));
-        let run_result = engine.run(&stop_thread, |v| {
+        let run_result = engine.run_with_transitions(&stop_thread, |v| {
             if v.domain_id == target_domain_id {
                 report(&meta, &labels, &to_violation(&v), Some(&fb), Some(&ev));
             }
-        });
+        }, |v| { if v.domain == target_domain_id { report::append_label_transition(&labels,&v,&ev); } });
         if let Err(e) = cleanup.clear_runtime_state() {
             eprintln!("ActPlane: failed to clear singleton runtime state: {e}");
         }
@@ -1545,9 +1553,9 @@ pub async fn run_child_command(
             }
         };
         let _ = ready_tx.send(Ok((rh, dh)));
-        let run_result = engine.run(&stop_thread, |v| {
+        let run_result = engine.run_with_transitions(&stop_thread, |v| {
             run_catalog.append_outputs(&to_violation(&v), &fb, &ev);
-        });
+        }, |v| run_catalog.append_transition(&v, &ev));
         if let Err(e) = cleanup.clear_runtime_state() {
             eprintln!("ActPlane: failed to clear singleton runtime state: {e}");
         }

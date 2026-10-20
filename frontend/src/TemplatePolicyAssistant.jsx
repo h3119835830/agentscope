@@ -14,7 +14,7 @@ export default function TemplatePolicyAssistant({target,scope,workspaceId,api,po
  useEffect(()=>{alive.current=true;load().catch(e=>{if(alive.current)setError(e.message);});if(scope!=='system')api('/api/agent-instances/'+encodeURIComponent(target.id)+'/policy-drafts?'+new URLSearchParams({scope,...(workspaceId?{workspace_id:workspaceId}:{})})).then(v=>{if(alive.current)setLegacy(v.records||[]);}).catch(()=>{});return()=>{alive.current=false;};},[api,path,scope,workspaceId]);
  useEffect(()=>{inputCache.set(identity,text);},[identity,text]);
  const catalog=(data?.catalog||[]).filter(t=>t.scopes.includes(scope)),items=(data?.items||[]).filter(i=>i.scope===scope&&(i.workspace_id||null)===(workspaceId||null));
- const controls=useConfigurationControls({catalog,agents:[target],targetId:target.id,scope,workspaceId,post,onChanged:load,onApprovals});
+ const controls=useConfigurationControls({catalog,agents:[target],targetId:target.id,scope,workspaceId,api,post,onChanged:load,onApprovals});
  async function attach(e){const files=[...e.target.files];e.target.value='';setReading(true);setError('');try{const value=await readAttachments(files,attachments);if(alive.current)setAttachments(value);}catch(e){if(alive.current)setError(e.message);}finally{if(alive.current)setReading(false);}}
  async function generate(e){e.preventDefault();if(busy||reading||!data||(!text.trim()&&!attachments.length))return;setBusy(true);setError('');try{
   const input={text:text.trim()||'请阅读附件，提取明确的安全约束并起草配置；缺少信息时请询问。',scope,workspace_id:workspaceId||null,context_mode:scope==='agent'?'auto':'none',materials:attachments,conversation:conversationFor(history)};

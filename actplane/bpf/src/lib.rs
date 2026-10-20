@@ -284,6 +284,75 @@ pub struct Violation {
     pub timestamp_ns: u64,
 }
 
+#[repr(C)]
+#[derive(Debug, Clone, Copy, Default)]
+pub struct FlowNode {
+    pub birth: u64,
+    pub ino: u64,
+    pub kind: u32,
+    pub pid: u32,
+    pub dev: u32,
+    pub generation: u32,
+}
+
+#[repr(C)]
+#[derive(Clone, Copy)]
+struct FlowEvent {
+    event_type: u32,
+    operation: u32,
+    id: u64,
+    predecessor: u64,
+    timestamp_ns: u64,
+    label: u64,
+    lost: u64,
+    tool_call_tag: u64,
+    from: FlowNode,
+    to: FlowNode,
+    domain: u32,
+    process_domain: u32,
+    flags: u32,
+    rule_id: u32,
+    outcome: u32,
+    pad: u32,
+    hook: [u8; 64],
+    target: [u8; FILENAME_LEN],
+}
+
+#[derive(Debug, Clone)]
+pub struct LabelTransition {
+    pub stream_id: u32,
+    pub operation: u32,
+    pub id: u64,
+    pub predecessor: u64,
+    pub timestamp_ns: u64,
+    pub label: u64,
+    pub lost: u64,
+    pub tool_call_tag: u64,
+    pub from: FlowNode,
+    pub to: FlowNode,
+    pub domain: u32,
+    pub process_domain: u32,
+    pub flags: u32,
+    pub rule_id: u32,
+    pub outcome: u32,
+    pub hook: String,
+    pub target: String,
+}
+
+fn drain_flows<T: std::borrow::Borrow<MapData>>(
+    ring: &mut RingBuf<T>, stream_id: u32, on: &mut impl FnMut(LabelTransition),
+) {
+    while let Some(item) = ring.next() {
+        if item.len() != std::mem::size_of::<FlowEvent>() { continue; }
+        let e: FlowEvent = unsafe { std::ptr::read_unaligned(item.as_ptr().cast()) };
+        if e.event_type != 4 { continue; }
+        on(LabelTransition { stream_id, operation:e.operation, id:e.id, predecessor:e.predecessor,
+            timestamp_ns:e.timestamp_ns, label:e.label, lost:e.lost, tool_call_tag:e.tool_call_tag,
+            from:e.from, to:e.to, domain:e.domain, process_domain:e.process_domain, flags:e.flags,
+            rule_id:e.rule_id, outcome:e.outcome, hook:cstr(&e.hook), target:cstr(&e.target) });
+    }
+}
+
 /// Parameters for creating a child runtime policy domain and binding a pid to it.
 #[derive(Debug, Clone, Copy)]
 pub struct ChildDomainSpec {
@@ -1949,12 +2018,22 @@ impl PinnedEngine {
     }
 
     pub fn run(&self, stop: &AtomicBool, mut on: impl FnMut(Violation)) -> io::Result<()> {
+        self.run_with_transitions(stop, &mut on, |_| {})
+    }
+
+    pub fn run_with_transitions(&self, stop: &AtomicBool, mut on: impl FnMut(Violation),
+        mut on_flow: impl FnMut(LabelTransition)) -> io::Result<()> {
+        let flow_data = pinned_map_data(&self.paths, "flow_rb").ok();
+        let stream_id = flow_data.as_ref().and_then(|d|d.info().ok()).map_or(0,|i|i.id());
+        let mut flows = flow_data.map(|d|RingBuf::try_from(Map::RingBuf(d)))
+            .transpose().map_err(|e|err(format!("flow rb: {e}")))?;
         let data = pinned_map_data(&self.paths, "rb")?;
         let mut ring =
             RingBuf::try_from(Map::RingBuf(data)).map_err(|e| err(format!("pinned rb: {e}")))?;
         let fd = ring.as_raw_fd();
 
         while !stop.load(Ordering::Relaxed) {
+            if let Some(ring) = flows.as_mut() { drain_flows(ring, stream_id, &mut on_flow); }
             let mut pfd = libc::pollfd {
                 fd,
                 events: libc::POLLIN,
@@ -1980,6 +2059,7 @@ impl PinnedEngine {
                 on(decode(&e));
             }
         }
+        if let Some(ring) = flows.as_mut() { drain_flows(ring, stream_id, &mut on_flow); }
         Ok(())
     }
 }
@@ -2466,11 +2546,20 @@ impl Loader {
     }
 
     pub fn run(&mut self, stop: &AtomicBool, mut on: impl FnMut(Violation)) -> io::Result<()> {
+        self.run_with_transitions(stop, &mut on, |_| {})
+    }
+
+    pub fn run_with_transitions(&mut self, stop: &AtomicBool, mut on: impl FnMut(Violation),
+        mut on_flow: impl FnMut(LabelTransition)) -> io::Result<()> {
+        let flow_map = self.bpf.take_map("flow_rb");
+        let stream_id = match &flow_map { Some(Map::RingBuf(d)) => d.info().ok().map_or(0,|i|i.id()), _ => 0 };
+        let mut flows = flow_map.map(RingBuf::try_from).transpose().map_err(|e|err(format!("flow rb: {e}")))?;
         let mut ring = RingBuf::try_from(self.bpf.map_mut("rb").ok_or_else(|| err("rb missing"))?)
             .map_err(|e| err(format!("rb: {e}")))?;
         let fd = ring.as_raw_fd();
 
         while !stop.load(Ordering::Relaxed) {
+            if let Some(ring) = flows.as_mut() { drain_flows(ring, stream_id, &mut on_flow); }
             let mut pfd = libc::pollfd {
                 fd,
                 events: libc::POLLIN,
@@ -2496,6 +2585,7 @@ impl Loader {
                 on(decode(&e));
             }
         }
+        if let Some(ring) = flows.as_mut() { drain_flows(ring, stream_id, &mut on_flow); }
         Ok(())
     }
 }
@@ -2515,6 +2605,11 @@ impl CompatibilityLoader {
 
     pub fn run(&mut self, stop: &AtomicBool, on: impl FnMut(Violation)) -> io::Result<()> {
         self.0.run(stop, on)
+    }
+
+    pub fn run_with_transitions(&mut self, stop: &AtomicBool, on: impl FnMut(Violation),
+        on_flow: impl FnMut(LabelTransition)) -> io::Result<()> {
+        self.0.run_with_transitions(stop, on, on_flow)
     }
 }
 
@@ -3089,6 +3184,8 @@ mod tests {
     // with. These are the documented sizes from bpf/taint.h.
     #[test]
     fn abi_sizes() {
+        assert_eq!(std::mem::size_of::<FlowNode>(), 32);
+        assert_eq!(std::mem::size_of::<FlowEvent>(), 336);
         assert_eq!(std::mem::size_of::<ProcState>(), 16);
         assert_eq!(std::mem::size_of::<CapState>(), 56);
         assert_eq!(std::mem::size_of::<DeltaRequest>(), 48);

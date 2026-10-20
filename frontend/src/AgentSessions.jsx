@@ -1,4 +1,5 @@
 import SessionDomainView from './SessionDomainView.jsx';
+import SessionInformationFlow from './SessionInformationFlow.jsx';
 import SessionSecurityPanel from './SessionSecurityPanel.jsx';
 import SessionDirectorySidebar from './SessionDirectorySidebar.jsx';
 import SessionCandidateReview from './SessionCandidateReview.jsx';
@@ -11,7 +12,7 @@ import {sessionProcessRow} from './sessionProcesses.mjs';
 import {agentTypes as products,agentName,agentProcessLabel} from './agentInstancePresentation.mjs';
 import './agentSessions.css';
 
-const tabs=[['policies','安全配置'],['domains','策略域'],['syscalls','系统调用匹配记录'],['traces','工具拦截 Trace']];
+const tabs=[['policies','安全配置'],['domains','策略域'],['flow','信息流'],['syscalls','系统调用匹配记录'],['traces','工具拦截 Trace']];
 const resultLabel=r=>r.killed?'进程已终止':r.blocked?'操作已阻止':['notify','report'].includes(r.actual_action)?'匹配已上报 · 操作继续':r.actual_action==='unsupported'?'处置未获支持':'实际处置未记录';
 const when=value=>{const v=typeof value==='string'&&/^\d+$/.test(value)?Number(value):value;return typeof v==='number'?new Date(v>1e15?v/1e6:v).toLocaleString('zh-CN',{hour12:false}):v?new Date(v).toLocaleString('zh-CN',{hour12:false}):'未记录';};
 function EventDetails({event,onClose}){
@@ -46,7 +47,7 @@ export default function AgentSessions({api,post,navigation:n,navigate,onConfigur
   const request=++seq.current;setError('');setLoading(true);setData(null);setDirectory(null);setDetail(null);setEvent(null);setLocalCandidate(null);setPicker(false);expanded.current=false;
   async function load(){try{
    if(!selected){const params=new URLSearchParams({agent_type:n.sessionAgent||'',instance_id:n.sessionFilterInstance||'',q:n.sessionQuery||'',workspace:n.sessionWorkspace||'',cursor:String(n.sessionCursor||0)});const value=await api('/api/sessions?'+params);if(request===seq.current)setDirectory(value);}
-   else{const endpoint={policies:'policies',domains:'domains',syscalls:'kernel-events',traces:'tool-traces'}[tab];const meta=await api(root+'/policies');const value=tab==='policies'?meta:await api(root+'/'+endpoint);if(request===seq.current){setSummary({...meta,_key:root});setData({...value,_key:viewKey});}}
+   else{const endpoint={policies:'policies',domains:'domains',syscalls:'kernel-events',traces:'tool-traces'}[tab];const meta=await api(root+'/policies');const value=tab==='policies'||tab==='flow'?meta:await api(root+'/'+endpoint);if(request===seq.current){setSummary({...meta,_key:root});setData({...value,_key:viewKey});}}
    if(request===seq.current)setError('');
   }catch(e){if(request===seq.current){setError(e.message);setData(null);setSummary(null);if(!selected)setDirectory(null);}}finally{if(request===seq.current)setLoading(false);}}
   load();const timer=setInterval(()=>{if(!expanded.current)load();},7000);return()=>{seq.current++;clearInterval(timer);};
@@ -59,6 +60,7 @@ export default function AgentSessions({api,post,navigation:n,navigate,onConfigur
     {tab==='policies'&&<SessionSecurityPanel key={root} data={data} loading={pending&&!data} error={error} post={post} root={root} onRefresh={()=>setRevision(r=>r+1)} onApprovals={id=>navigate({page:'approvals',approvalId:id})} onDetail={setDetail} onConfigure={scope=>onConfigure(scope,n.sessionInstance)}/>}
   {tab==='domains'&&(pending&&!data?<p role="status">正在读取策略作用范围…</p>:!error&&<SessionDomainView data={data} onPolicies={()=>navigate({sessionTab:'policies'})} onConfigure={scope=>onConfigure(scope,n.sessionInstance)}/>)}
 {(tab==='syscalls'||tab==='traces')&&<EventTable data={data} tab={tab} loading={pending} onDetail={setEvent} onMore={more}/>}
+ {tab==='flow'&&<SessionInformationFlow key={root} root={root} api={api}/>}
  </section>{localCandidate&&<SessionCandidateReview key={localCandidate.id} candidate={localCandidate} api={api} post={post} onClose={()=>setLocalCandidate(null)} onSubmitted={id=>{setLocalCandidate(null);navigate({page:'approvals',approvalId:id});}}/>}{picker&&<GeneratedPolicyPicker instanceId={n.sessionInstance} sessionId={n.sessionId} api={api} onClose={()=>setPicker(false)} onHandoff={c=>{if(c.targetId!==n.sessionInstance||c.sessionId!==n.sessionId)throw Error('候选不属于当前实例与会话');setPicker(false);setLocalCandidate(c);}}/>}
  {detail&&<PolicyDetail editLabel="前往所属配置" record={detail} onClose={()=>setDetail(null)} onEdit={configure}/>} {event&&<EventDetails event={event} onClose={()=>setEvent(null)}/>} {renaming&&<SessionNameDialog session={renaming} busy={nameBusy} onClose={()=>setRenaming(null)} onSave={rename}/>}</div></div></div>;
 }

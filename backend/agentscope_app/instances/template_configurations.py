@@ -25,6 +25,8 @@ CREATE TABLE IF NOT EXISTS template_configuration_proposals(
 
 def init(con):
     con.executescript(SCHEMA)
+    from . import label_sources
+    label_sources.init(con)
     from . import template_versions
     template_versions.init(con)
     from .workspace_references import init as init_references
@@ -134,8 +136,9 @@ def render_document(t, normalized, ident, name, reason):
         elif kind in ('exec','endpoint'):
             clauses = [effect + (' exec ' + q(normalized['program']) if kind == 'exec' else ' connect endpoint ' + q(normalized['endpoint'])) + ' if AGENT']
         elif kind == 'flow':
-            sources = ['source SENSITIVE = file ' + obj]
-            clauses = [effect + ' connect endpoint ' + q(normalized['endpoint']) + ' if AGENT and SENSITIVE']
+            source_label = t.get('source_label','SENSITIVE')
+            sources = ['source ' + source_label + ' = file ' + obj]
+            clauses = [effect + ' connect endpoint ' + q(normalized['endpoint']) + ' if AGENT and ' + source_label]
         elif kind == 'remote':
             sources = ['source REMOTE = endpoint "*"']
             clauses = [effect + ' exec ' + q(normalized['program']) + ' if AGENT and REMOTE']
@@ -156,6 +159,8 @@ def render_document(t, normalized, ident, name, reason):
         rule = 'config-' + ident
         document = {'id':ident,'name':name,'original_dsl':'\n'.join([*sources, 'rule ' + rule + ':', *['  ' + c for c in clauses], '  because ' + q(reason)]),
                     'metadata':{rule:{'statement':name,'context_requirement':'self_contained','context_reason':''}},'managed_identity':True}
+    if kind == 'system' and t.get('source_label') == 'SECRET':
+        document['original_dsl'] = document['original_dsl'].replace('source SENSITIVE =','source SECRET =').replace('and SENSITIVE','and SECRET')
     mutation = any(op in ('write','unlink') for op in requested)
     effective = ['write','unlink'] if mutation else requested
     coverage = '当前执行后端将修改与删除作为同一访问组；此配置实际影响两者。' if mutation and set(requested) != {'write','unlink'} else ''
@@ -168,11 +173,16 @@ def render_document(t, normalized, ident, name, reason):
     return document,requested,effective,coverage,execution_reason,effect
 
 
-def materialize(ident, scope_id, body):
-    allowed = {'template_id','template_version','scope','workspace_id','name','reason','parameters','base_revision','request_key'}
+def materialize(ident, scope_id, body, *, preview_effect=None):
+    allowed = {'template_id','template_version','scope','workspace_id','name','reason','parameters','base_revision','request_key','label_source_refs'}
     if not isinstance(body, dict) or set(body) - allowed:
         raise ValueError('模板配置不能包含 DSL 或未声明字段')
     t = catalog.get(body['template_id'], body['template_version'])
+    if preview_effect is not None:
+        # Internal read-only preview option, never accepted in saved bodies.
+        if preview_effect not in t.get('allowed_effects',('block','notify','kill')):
+            raise ValueError('此模板不支持所选处置动作')
+        t={**t,'effect':preview_effect}
     scope = body['scope']
     if scope not in t['scopes']:
         raise ValueError('此模板不适用于所选层级，不能自动扩大范围')
@@ -180,15 +190,61 @@ def materialize(ident, scope_id, body):
     params = body.get('parameters', {})
     if not isinstance(params, dict) or set(params) != {p['key'] for p in t['parameters']}:
         raise ValueError('请完整填写模板参数，不能添加模板之外的参数')
-    normalized = {p['key']:normalize_parameter(p,params[p['key']],t,row) for p in t['parameters']}
+    label_enabled = t.get('label_contract') == 'explicit-secret-sources.v1'
+    refs = body.get('label_source_refs',[])
+    if refs and not label_enabled:
+        raise ValueError('此模板不支持引用标签来源，普通保护模板不会产生 SECRET')
+    normalized = {p['key']:normalize_parameter(p,params[p['key']],t,row)
+                  for p in t['parameters'] if not (label_enabled and refs and p['key'] in ('target','values') and params[p['key']]=='')}
+    sources = []
+    if label_enabled:
+        from . import label_sources
+        specs = []
+        if normalized.get('target'):
+            path = normalized['target']
+            specs = [label_sources.specification(scope_id,'pattern' if re.search(r'[*?\[]',path) else 'exact',path)]
+        if normalized.get('values'):
+            # System preset retains its historical suffix input contract.
+            for suffix in policy_library.lines(normalized['values']):
+                if scope_id == 'system':
+                    specs.append(label_sources.specification(scope_id,'suffix',suffix))
+                else:
+                    from .mapping import resource_records
+                    if not re.fullmatch(r'\.[^/\\*?\[\]\x00-\x20"]{1,60}',suffix):
+                        raise ValueError('后缀填写 .env 这样的字面值')
+                    for mount in resource_records(row['resources']):
+                        specs.append(label_sources.specification(scope_id,'pattern',mount['execution']+'/**/*'+suffix))
+        sources = label_sources.resolve(scope_id,refs,specs)
+        if not sources:
+            raise ValueError('请填写敏感来源或明确选择已登记来源')
+        # The renderer needs a valid seed; the complete explicit source set is
+        # substituted below, never the whole registry.
+        normalized.setdefault('target',sources[0]['patterns'][0])
+        if t['renderer']=='system':
+            normalized.setdefault('values','.__selected_source__')
     name = text_parameter(body.get('name') if t['version'] >= 2 else body.get('name') or t['name'], '场景中的实际策略名称', 120)
     reason = text_parameter(body.get('reason') or t['reason'], '反馈说明')
     document,requested,effective,coverage,execution_reason,effect = render_document(t,normalized,ident,name,reason)
+    if label_enabled:
+        patterns = sorted({p for source in sources for p in source['patterns']})
+        lines = document['original_dsl'].splitlines()
+        document['original_dsl'] = '\n'.join(
+            ['source SECRET = file '+json.dumps(p) for p in patterns] +
+            [line for line in lines if not line.startswith('source SECRET =')])
+        # Keep the user's empty input when references supplied the sources.
+        for key in ('target','values'):
+            if key in params:
+                normalized[key] = params[key] if params[key]=='' else normalized[key]
+        if t['renderer']=='system':
+            normalized.pop('target',None)
+        document['label_sources'] = sources
     from .template_support import presentation
     support = {'execution_support':presentation(t)}
     return {**support,'template_id':t['id'],'template_version':t['version'],'template_hash':digest(t),'resource_hash':digest(row['resources']) if row else None,'name':name,
             'reason':reason,'execution_reason':execution_reason,'parameters':normalized,'document':document,'requested_operations':requested,
-            'effective_operations':effective,'coverage_warning':coverage,'effect':effect,'note':t['note']}
+            'effective_operations':effective,'coverage_warning':coverage,'effect':effect,'note':t['note'],
+            **({'label_sources':sources,'label_source_refs':[{'id':s['id'],'version':s['version']} for s in sources],
+                'selected_label_source_refs':refs,'label_contract':t['label_contract']} if label_enabled else {})}
 
 
 def load(ident, revision=None, con=None):
@@ -250,6 +306,12 @@ def directory(scope_id=None):
 
 
 def insert(con, ident, scope_id, body, payload, revision=1):
+    if payload.get('label_sources'):
+        from .label_sources import persist
+        sources = persist(con,payload['label_sources'])
+        payload['label_sources'] = sources
+        payload['label_source_refs'] = [{'id':s['id'],'version':s['version']} for s in sources]
+        payload['document']['label_sources'] = sources
     now = db.now()
     if revision == 1:
         con.execute('INSERT INTO template_configurations VALUES(?,?,?,?,?,?,0,?,?)',
@@ -316,8 +378,15 @@ def verify_current(item,read_source=True,full_read=True):
     if row and digest(row['resources']) != item.get('resource_hash'):
         raise ValueError('配置库版本已变化：资源映射已经变化，请编辑并核对原始对象后保存新版本。')
     for field in catalog.get(item['template_id'],item['template_version'])['parameters']:
-        if field['type'] == 'path':
+        if field['type'] == 'path' and item['parameters'][field['key']]:
             path_parameter(item['parameters'][field['key']],row)
+    if item.get('label_sources'):
+        from . import label_sources
+        actual = label_sources.resolve(item['scope_id'],item['label_source_refs'],allow_archived=True)
+        if actual != item['label_sources']:
+            raise ValueError('标签来源版本快照不一致')
+        for source in actual:
+            label_sources.specification(item['scope_id'],source['matcher'],source['value'])
     sources=item.get('source_reads') or ([item['source_read']] if item.get('source_read') else [])
     if read_source and sources:
         from .workspace_references import verify,verify_metadata
@@ -563,6 +632,7 @@ def generate(scope_id, body, provider=None):
         with db.connect() as con:
             for ident,values,payload in prepared:
                 insert(con,ident,scope_id,values,payload)
+            response['configuration_snapshots']=[freeze(ident,1,payload,scope_id,body['scope'],row) for ident,_,payload in prepared]
             con.execute('UPDATE template_configuration_requests SET result_json=?,state=? WHERE request_key=?',(json.dumps(response,ensure_ascii=False),'completed',key))
             db.audit(con,None,'template_parameters_generated','authenticated_operator',{'scope_id':scope_id,'count':len(prepared),'llm_run':metadata})
         return {**project(response),'items':[view(load(x['id'])) for x in references]}

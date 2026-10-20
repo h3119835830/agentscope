@@ -45,7 +45,7 @@ def owned(path,uid,gid):
  os.chown(path,uid,gid);return path
 
 def main():
- parser=argparse.ArgumentParser();parser.add_argument('--output',required=True);parser.add_argument('--only',default='');args=parser.parse_args()
+ parser=argparse.ArgumentParser();parser.add_argument('--output',required=True);parser.add_argument('--only',default='');parser.add_argument('--engine',default='/var/lib/agentscope-scope-demo/bin/actplane');args=parser.parse_args()
  import fcntl
  acceptance_lock=open('/var/tmp/agentscope-template-runtime-acceptance.lock','a')
  fcntl.flock(acceptance_lock,fcntl.LOCK_EX)
@@ -66,7 +66,7 @@ def main():
   shutil.copy2(source,tools/name)
  operator=state/'operation.py';operator.write_text(OPERATOR)
  runner=state/'runner.py';runner.write_text(RUNNER)
- engine=Path('/var/lib/agentscope-scope-demo/bin/actplane')
+ engine=Path(args.engine).resolve(strict=True)
  pin=Path('/sys/fs/bpf')/('asrt-'+uuid.uuid4().hex);assert not pin.exists()
  env={'PATH':'/usr/bin:/bin','HOME':owner.pw_dir,'SUDO_UID':str(uid),'SUDO_GID':str(gid),'ACTPLANE_BPF_PIN_ROOT':str(pin),
       'ACTPLANE_RESERVE_OPEN_RULES':'1','ACTPLANE_RESERVE_PATH_SUFFIX':'1','ACTPLANE_RESERVE_FILE_FLOW':'1','ACTPLANE_HOOK_PROFILE':'full'}
@@ -174,6 +174,8 @@ def main():
   observations=[json.loads(l[7:]) for l in result.stdout.splitlines() if l.startswith('RESULT=')]
   event_paths=list(home.glob('.actplane/runs/*/events.jsonl'))
   events=[json.loads(l) for p in event_paths for l in p.read_text().splitlines() if l.strip()]
+  transitions=[e for e in events if e.get('event')=='label_transition']
+  events=[e for e in events if e.get('event')=='taint_violation']
   after={'exists':target.exists(),'text':target.read_text() if target.is_file() else None,'received':received[before['received']:]}
   if git_mode:
    git_after={'head':git('rev-parse','HEAD'),'untracked_exists':untracked.exists(),'remote_ref':subprocess.run(['/usr/bin/git','--git-dir',str(bare),'rev-parse','--verify','refs/heads/test'],capture_output=True,text=True).stdout.strip()}

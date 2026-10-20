@@ -12,7 +12,7 @@ def canonical_documents(values):
     if not isinstance(values,list) or len(values)>20: raise ValueError('最多导入 20 个 DSL 文档')
     out=[]; ids=set(); size=0
     for raw in values:
-        if not isinstance(raw,dict) or set(raw)-{'id','name','original_dsl','metadata','generation_binding','managed_identity'}: raise ValueError('DSL 文档字段不合法')
+        if not isinstance(raw,dict) or set(raw)-{'id','name','original_dsl','metadata','generation_binding','managed_identity','label_sources'}: raise ValueError('DSL 文档字段不合法')
         ident=raw.get('id',''); text=raw.get('original_dsl',''); name=raw.get('name','')
         if not isinstance(ident,str) or not ident or len(ident)>80 or not all(c.isascii() and (c.isalnum() or c in '_-') for c in ident) or ident in ids: raise ValueError('DSL 文档 ID 不合法或重复')
         if not isinstance(text,str) or not text.strip() or '\x00' in text: raise ValueError('请填写 UTF-8 DSL 文本')
@@ -25,6 +25,22 @@ def canonical_documents(values):
             if value.get('context_requirement','self_contained') not in ('self_contained','project','task'): raise ValueError('上下文需求不合法')
             if any(not isinstance(value.get(k,''),str) or len(value.get(k,''))>2000 for k in ('statement','context_reason')): raise ValueError('策略说明过长')
         doc=dict(id=ident,name=name or ident,original_dsl=text,metadata=metadata)
+        if 'label_sources' in raw:
+            sources=raw['label_sources']
+            if not isinstance(sources,list) or not 1<=len(sources)<=16:
+                raise ValueError('标签来源快照格式不合法')
+            for source in sources:
+                if not isinstance(source,dict) or set(source)!={'id','version','label','scope_id','matcher','value','patterns','snapshot_hash'}:
+                    raise ValueError('标签来源快照字段不合法')
+                if source['label']!='SECRET' or type(source['version']) is not int or source['version']<1:
+                    raise ValueError('标签来源版本或标签不合法')
+                if any(not isinstance(source[k],str) or len(source[k])>1000 for k in ('id','scope_id','matcher','value','snapshot_hash')):
+                    raise ValueError('标签来源字段过长')
+                if not isinstance(source['patterns'],list) or not 1<=len(source['patterns'])<=2 or any(not isinstance(p,str) or len(p.encode())>63 for p in source['patterns']):
+                    raise ValueError('标签来源路径不合法')
+                if digest({k:v for k,v in source.items() if k!='snapshot_hash'})!=source['snapshot_hash']:
+                    raise ValueError('标签来源快照校验失败')
+            doc['label_sources']=sources
         if 'managed_identity' in raw:
             if raw['managed_identity'] is not True:raise ValueError('托管身份标记不合法')
             doc['managed_identity']=True

@@ -1,5 +1,6 @@
 import React,{useEffect,useRef,useState} from 'react';
 import {DslCode} from './DslCode.jsx';
+import {LabelSourceSummary} from './LabelManagement.jsx';
 import {approvalLabel,disposition} from './policyExperience.mjs';
 import {operationLabel} from './policyRecordPresentation.mjs';
 import {approvalTitle,processLabel} from './approvalPresentation.mjs';
@@ -11,6 +12,7 @@ function Content({entry}){
  const changed=data.documents?.filter(d=>!previous?.some(p=>p.id===d.id&&p.original_dsl===d.original_dsl))||[];
  const records=previous?data.records?.filter(r=>changed.some(d=>d.id===r.document_id)):data.records;
  return <details className="approval-batch-content"><summary>查看变更内容</summary>
+ <LabelSourceSummary documents={data.documents||[]} scopeLabel={data.scope_label}/>
  {plan?plan.comparisons.map((c,i)=><section key={i}><strong>{c.name}</strong><p>{c.before_version?'原 v'+c.before_version:'原候选'} → {c.after_version?'本次 v'+c.after_version:c.removal?'停用':'保留原内容'} · {c.same_content?'内容一致':'内容已变化，请核对'}</p><p>{c.after_summary}</p>{c.before_dsl&&<details><summary>查看原文对照</summary><small>原候选</small><DslCode text={c.before_dsl}/><small>本次采用</small><DslCode text={c.after_dsl||'移除此文档'}/></details>}</section>):<>
  {(data.change_items||[]).map((c,i)=><p key={i}><strong>{c.label}</strong>：{c.before} → {c.after}</p>)}
  {(records||[]).map(r=><section key={r.id}><strong>{r.statement}</strong>{r.clauses.map((c,i)=><p key={i}>{disposition(c.effect)} · {operationLabel(c.operation)} · {c.target}</p>)}</section>)}

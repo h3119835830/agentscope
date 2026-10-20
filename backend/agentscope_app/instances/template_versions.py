@@ -17,6 +17,26 @@ CREATE TABLE IF NOT EXISTS policy_template_versions(
 def init(con):
     con.executescript(SCHEMA)
     publish_fixed_git(con)
+    publish_secret_sources(con)
+
+
+def publish_secret_sources(con):
+    """Append, never relabel historical SENSITIVE definitions or approvals."""
+    from . import template_catalog as catalog
+    for built_in in catalog.CATALOG:
+        if built_in['id'] not in ('SECRET-EGRESS','SYS-secret-egress'):
+            continue
+        row=con.execute('SELECT * FROM policy_template_versions WHERE template_id=? ORDER BY version DESC LIMIT 1',(built_in['id'],)).fetchone()
+        previous=unpack(row) if row else {'definition':built_in,'description':catalog.DESCRIPTIONS[built_in['id']]}
+        definition=copy.deepcopy(previous['definition'])
+        if definition.get('label_contract')=='explicit-secret-sources.v1':
+            continue
+        definition.update(version=definition['version']+1,label_contract='explicit-secret-sources.v1',source_label='SECRET')
+        con.execute('INSERT INTO policy_template_versions VALUES(?,?,?,?,?,?,?)',
+                    (definition['id'],definition['version'],json.dumps(definition,ensure_ascii=False),previous['description'],
+                     'builtin:explicit-secret-sources.v1:'+definition['id']+':'+str(definition['version']),digest(definition),db.now()))
+        db.audit(con,None,'template.contract_published','system',
+                 {'template_id':definition['id'],'version':definition['version'],'contract':definition['label_contract']})
 
 
 def publish_fixed_git(con):

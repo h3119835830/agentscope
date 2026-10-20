@@ -89,6 +89,16 @@ def propose(scope,body):
     validate_scope(scope)
     if system.current()['phase']!='ready':raise ValueError('请先恢复系统共享权限配置')
     docs=canonical_documents(body['documents']);base=current(scope)
+    from . import label_sources
+    for document in docs:
+        if document.get('label_sources'):
+            refs=[{'id':s['id'],'version':s['version']} for s in document['label_sources']]
+            if label_sources.resolve(scope,refs,allow_archived=True)!=document['label_sources']:
+                raise ValueError('标签来源不属于此配置范围或快照不一致')
+            declared=set(__import__('re').findall(r'^source SECRET = file ("[^"\n]+")$',document['original_dsl'],__import__('re').M))
+            expected={json.dumps(pattern) for s in document['label_sources'] for pattern in s['patterns']}
+            if declared!=expected:
+                raise ValueError('标签来源快照与 DSL 声明不一致')
     request_hash=digest({'documents':docs,'base_hash':body['base_hash'],'base_revision':body['base_revision']})
     with db.connect() as con:
         old=con.execute('SELECT * FROM instance_dsl_proposals WHERE scope_id=? AND request_key=?',(scope,body['request_key'])).fetchone()

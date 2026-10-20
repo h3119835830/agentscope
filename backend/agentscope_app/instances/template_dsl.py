@@ -82,5 +82,16 @@ def preview_definition(definition, parameters=None, effect=None, reason=None):
 def preview(ident, body):
     from . import template_catalog
     t=template_catalog.get(ident,body['template_version'])
+    if t.get('label_contract')=='explicit-secret-sources.v1' and body.get('scope_id'):
+        from .template_configurations import materialize
+        try:
+            payload=materialize('preview',body['scope_id'],{
+                'template_id':ident,'template_version':t['version'],'scope':'system' if body['scope_id']=='system' else 'agent',
+                'name':t['name'],'reason':body.get('reason') or t['reason'],'parameters':body['parameters'],
+                'label_source_refs':body.get('label_source_refs',[])},preview_effect=body.get('effect'))
+            return {'state':'complete','dsl':payload['document']['original_dsl'],'label_sources':payload['label_sources'],
+                    'errors':[],'missing':[],'preview_only':True,'template_id':ident,'template_version':t['version']}
+        except ValueError as exc:
+            return {'state':'invalid','dsl':None,'errors':[str(exc)],'missing':[],'preview_only':True}
     result=preview_definition(t,body.get('parameters'),body.get('effect'),body.get('reason'))
     return {**result,'template_id':ident,'template_version':t['version']}

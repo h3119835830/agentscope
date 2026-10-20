@@ -19,6 +19,7 @@ def freeze(ident, revision, payload, scope_id, scope, agent=None):
                      **({'fixed_fields':template['fixed_fields']} if 'fixed_fields' in template else {}),
                      'parameters': [{k: p[k] for k in ('key', 'label', 'type')} for p in template['parameters']]},
         'parameters': payload['parameters'],
+        **({'label_sources':payload['label_sources']} if payload.get('label_sources') else {}),
         **({'execution_support': payload['execution_support']} if 'execution_support' in payload else {}),
         'scope': {'id': scope_id, 'type': scope,
                   'label': '所有 Agent' if scope == 'system' else

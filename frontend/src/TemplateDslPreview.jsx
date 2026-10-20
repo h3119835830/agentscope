@@ -1,5 +1,6 @@
 import React,{useEffect,useRef,useState} from 'react';
 import {DslCode} from './DslCode.jsx';
+import {LabelSourceSummary} from './LabelManagement.jsx';
 
 export function FixedTemplateCommand({template}){
  const fixed=template.fixed_fields;
@@ -11,9 +12,9 @@ export function UnavailableTemplateEffects({template}){
  return Object.entries(template.disabled_effects||{}).map(([effect,reason])=><label key={effect} className="tpl-unavailable-action" title={reason}><input type="radio" disabled aria-label={effect+' 暂不支持'}/><strong>{effect}</strong><span>暂不支持</span></label>);
 }
 
-export default function TemplateDslPreview({template,parameters,effect,reason,post}){
+export default function TemplateDslPreview({template,parameters,effect,reason,post,scopeId,labelSourceRefs}){
  const [result,setResult]=useState(null),sequence=useRef(0);
- const input=JSON.stringify({template_version:template.version,parameters,effect,reason});
+ const input=JSON.stringify({template_version:template.version,parameters,effect,reason,...(labelSourceRefs?{scope_id:scopeId,label_source_refs:labelSourceRefs}:{})});
  useEffect(()=>{
   const n=++sequence.current;setResult(null);
   const timer=setTimeout(()=>post('/api/policy-templates/'+encodeURIComponent(template.id)+'/preview',JSON.parse(input))
@@ -26,6 +27,7 @@ export default function TemplateDslPreview({template,parameters,effect,reason,po
    <p className="spl-note">{result.state==='unsupported'?'ActPlane 暂不支持此执行语义，不生成可执行 DSL；仅能保存参数草案。':result.state==='invalid'?'参数未通过校验，请修改后再预览。':result.state==='incomplete'?'模板规则已固定；待填写：'+result.missing.join('、')+'。双花括号表示尚未填写的参数。':'根据当前动作和参数生成，仅供预览；保存、编译、审批和应用仍分别执行。'}</p>
    {result.errors?.length>0&&<p role="alert" className="spl-error">{result.errors.join('；')}</p>}
    {result.dsl&&<DslCode text={result.dsl}/>}
+   <LabelSourceSummary sources={result.label_sources}/>
   </>}
  </section>;
 }

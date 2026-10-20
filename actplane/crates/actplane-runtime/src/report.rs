@@ -6,6 +6,41 @@ use crate::audit;
 use crate::{dsl, feedback};
 use serde_json::json;
 
+/// No file contents or process arguments. Kernel identities survive exit and
+/// are scoped by boot + map lifetime, not the collector's restart time.
+pub fn append_label_transition(labels: &HashMap<String,u64>, v: &ebpf_ifc_engine::LabelTransition, path: &Path) {
+    static BOOT: std::sync::OnceLock<String> = std::sync::OnceLock::new();
+    let boot=BOOT.get_or_init(||std::fs::read_to_string("/proc/sys/kernel/random/boot_id")
+        .unwrap_or_else(|_|"unknown".into()).trim().to_owned());
+    let stream=format!("{boot}:map:{}",v.stream_id);
+    let node=|n:&ebpf_ifc_engine::FlowNode| json!({
+        "kind":match n.kind {1=>"process",2=>"file",3=>"endpoint",_=>"operation"},
+        "pid":n.pid, "start_boottime_ns":n.birth.to_string(),
+        "inode":n.ino.to_string(), "device":n.dev, "inode_generation":n.generation,
+        "address":if n.kind==3 {Some(std::net::Ipv4Addr::from((n.ino as u32).to_ne_bytes()).to_string())}else{None},
+    });
+    let names=label_names_for_mask(labels,v.label);
+    let mut record=json!({
+        "event":"label_transition", "schema_version":1, "stream_id":stream,
+        "event_id":format!("{stream}:{}",v.id), "sequence":v.id.to_string(),
+        "predecessor_event_id":if v.predecessor==0 {None}else{Some(format!("{stream}:{}",v.predecessor))},
+        "monotonic_ns":v.timestamp_ns.to_string(), "domain_id":v.domain,
+        "process_domain_id":v.process_domain, "tool_call_tag":v.tool_call_tag.to_string(),
+        "subject":node(&v.from), "object":node(&v.to), "target":v.target,
+        "operation":match v.operation {1=>"source_introduced",2=>"file_to_process",3=>"process_to_file",4=>"fork_inherit",5=>"exec_inherit",6=>"rule_match",_=>"unknown"},
+        "label_mask":format!("0x{:x}",v.label), "label_names":names,
+        "label_change":if v.outcome>0||v.operation==5 {"observed"}else{"first_acquired"},
+        "root_source":v.flags&1!=0, "identity_complete":v.flags&2==0 && boot!="unknown" && v.stream_id!=0,
+        "lost_total":v.lost.to_string(), "hook":v.hook,
+        "rule_id":if v.outcome>0 {Some(v.rule_id)}else{None},
+        "outcome":match v.outcome {0=>"propagated",1=>"report",2=>"block",3=>"kill",_=>"unknown"},
+        "evidence_semantics":"observed_engine_label_transition_not_byte_flow",
+    });
+    if let Err(error)=audit::append_with_schema(path,"RuntimeLabelTransition/1",&mut record) {
+        eprintln!("ActPlane: writing label transition {}: {}",path.display(),error);
+    }
+}
+
 #[derive(Clone)]
 pub struct RuleFeedbackContext {
     pub meta: dsl::RuleMeta,

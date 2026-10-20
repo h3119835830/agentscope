@@ -10,18 +10,21 @@ from .policy import digest
 from . import git_templates
 
 _EVIDENCE=Path(__file__).with_name('template_runtime_acceptance.json')
+_LABEL_EVIDENCE=Path(__file__).with_name('label_runtime_acceptance.json')
 def contract(definition):
-    keys=('id','renderer','operation','system_preset','command','fixed_fields','dsl_clause_template','allowed_operations','allowed_effects')
+    keys=('id','renderer','operation','system_preset','command','fixed_fields','dsl_clause_template','allowed_operations','allowed_effects','label_contract','source_label')
     value={k:copy.deepcopy(definition[k]) for k in keys if k in definition}
     value['parameters']=[{k:copy.deepcopy(p[k]) for k in ('key','type','options','minimum','maximum') if k in p} for p in definition['parameters']]
     return digest(value)
 
 def evidence(definition):
-    if not _EVIDENCE.exists():return None
-    report=json.loads(_EVIDENCE.read_text())
-    row=report.get('templates',{}).get(definition['id'])
-    if not row or row.get('contract_hash')!=contract(definition):return None
-    return {**row,'date':report['date'],'kernel_release':report['kernel_release'],'binary_sha256':report['binary_sha256']}
+    for source in (_LABEL_EVIDENCE,_EVIDENCE):
+        if not source.exists():continue
+        report=json.loads(source.read_text())
+        row=report.get('templates',{}).get(definition['id'])
+        if row and row.get('contract_hash')==contract(definition):
+            return {**row,'date':report['date'],'kernel_release':report['kernel_release'],'binary_sha256':report['binary_sha256']}
+    return None
 
 def presentation(definition):
     previous=git_templates.presentation(definition)

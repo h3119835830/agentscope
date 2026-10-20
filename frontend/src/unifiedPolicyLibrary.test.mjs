@@ -23,7 +23,7 @@ function templateDetails(render,props,name=template.name){
 }
 test('old templates URL resolves to one policy page without a second assistant or library',async()=>{
  const render=await harness('SystemWorkbench.jsx');const tree=render({api(){},post(){},navigation:{systemTab:'templates'},navigate(){}}),all=nodes(tree);
- assert.equal(all.filter(n=>n.props?.role==='tab').length,2);
+ assert.equal(all.filter(n=>n.props?.role==='tab').length,3);
  assert.equal(all.filter(n=>n.type?.name==='UnifiedPolicyLibrary').length,1);
  assert.ok(!all.some(n=>['AgentPolicyTemplates','TemplatePolicyAssistant'].includes(n.type?.name)));
 });

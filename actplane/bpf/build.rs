@@ -29,6 +29,7 @@ fn main() {
             "process.h",
             "taint.h",
             "taint_engine.bpf.h",
+            "flow_trace.bpf.h",
             "capability.bpf.h",
             "channel.bpf.h",
             "Makefile",

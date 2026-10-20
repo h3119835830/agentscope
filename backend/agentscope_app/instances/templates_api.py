@@ -30,6 +30,49 @@ class DslPreview(Model):
     parameters: dict = Field(default_factory=dict)
     effect: Literal['block','notify','kill'] | None = None
     reason: str | None = Field(default=None,max_length=600)
+    scope_id: str | None = Field(default=None,max_length=100)
+    label_source_refs: list[dict] = Field(default_factory=list,max_length=16)
+
+class LabelSourceRef(Model):
+    id: str = Field(min_length=1,max_length=80)
+    version: int = Field(ge=1)
+
+
+class LabelSourceSave(Model):
+    label: Literal['SECRET'] = 'SECRET'
+    scope_id: str = Field(min_length=1,max_length=100)
+    matcher: Literal['exact','directory','pattern','suffix']
+    value: str = Field(min_length=1,max_length=1000)
+    base_version: int = Field(default=0,ge=0)
+    request_key: str = Field(min_length=8,max_length=100)
+
+
+class LabelSourceArchive(Model):
+    version: int = Field(ge=1)
+
+
+@router.get('/api/security/labels')
+def labels(scope_id: str | None = Query(None,max_length=100)):
+    from . import label_sources
+    return invoke(label_sources.directory,scope_id)
+
+
+@router.post('/api/security/label-sources')
+def source_create(body: LabelSourceSave):
+    from . import label_sources
+    return invoke(label_sources.save,body.model_dump())
+
+
+@router.post('/api/security/label-sources/{ident}/versions')
+def source_update(ident: str,body: LabelSourceSave):
+    from . import label_sources
+    return invoke(label_sources.save,body.model_dump(),ident)
+
+
+@router.post('/api/security/label-sources/{ident}/archive')
+def source_archive(ident: str,body: LabelSourceArchive):
+    from . import label_sources
+    return invoke(label_sources.archive,ident,body.version)
 
 
 class Configuration(Model):
@@ -40,6 +83,7 @@ class Configuration(Model):
     name: str = Field(default='',max_length=120)
     reason: str = Field(default='',max_length=600)
     parameters: dict
+    label_source_refs: list[LabelSourceRef] = Field(default_factory=list,max_length=16)
     base_revision: int = Field(default=0,ge=0)
     request_key: str = Field(min_length=8,max_length=100)
 

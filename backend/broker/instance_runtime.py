@@ -17,6 +17,17 @@ REGEX=re.compile(r'^instance-[a-f0-9]{16}$')
 RUNS={}; LOCKS={}; LOCK=threading.RLock()
 B=None
 HEARTBEAT_STOP=threading.Event()
+def monitor_socket_directory(runtime):
+    """Root-owned short AF_UNIX parent, separate from Agent scratch files."""
+    directory=Path(runtime)/'sockets'
+    directory.mkdir(mode=0o700,exist_ok=True)
+    info=directory.lstat()
+    if directory.is_symlink() or not stat.S_ISDIR(info.st_mode) or info.st_uid!=0 or info.st_mode&0o077:
+        raise ValueError('Untrusted monitor socket directory')
+    if len(os.fsencode(directory))+60>=108:
+        raise ValueError('Broker runtime path is too long for monitor control sockets')
+    return directory
+
 def host_identity():
     return {'host_id':hashlib.sha256(Path('/etc/machine-id').read_bytes().strip()).hexdigest()[:24],'boot_id':Path('/proc/sys/kernel/random/boot_id').read_text().strip()}
 def initialize(b):
@@ -272,9 +283,11 @@ def execution_capabilities():
 
 def kernel_events(record,cursor=None):
     """Read bounded root-owned NDJSON, never a user-supplied log path."""
+    from broker.policy_capabilities import loaded_flow_status
+    flow_status=loaded_flow_status(record)
     eventpath=Path(record['workspace'])/'.actplane/events.jsonl'
     if eventpath.parent.is_symlink() or eventpath.parent.stat().st_uid!=0 or eventpath.parent.stat().st_mode&0o022:raise ValueError('Invalid kernel audit directory')
-    if not eventpath.exists():return {'events':[],'cursor':cursor,'generation':record['generation']}
+    if not eventpath.exists():return {'events':[],'cursor':cursor,'generation':record['generation'],**flow_status}
     fd=os.open(eventpath,os.O_RDONLY|os.O_NOFOLLOW)
     try:
         info=os.fstat(fd)
@@ -291,11 +304,14 @@ def kernel_events(record,cursor=None):
                 if not line or not line.endswith(b'\n'):stream.seek(begin);break
                 try:raw=json.loads(line)
                 except ValueError:continue
-                if raw.get('event')!='taint_violation':continue
+                if raw.get('event') not in ('taint_violation','label_transition'):continue
                 if raw.get('process_domain_id',raw.get('domain_id'))!=record['domain_id']:continue
+                if raw.get('event')=='label_transition':
+                    raw={**raw,'generation':record['generation'],
+                         'policy_hash':record.get('policy_artifact',{}).get('bundle_hash')}
                 events.append({'offset':begin,'event':raw})
             offset=stream.tell()
-        return {'events':events,'cursor':{'file':identity,'offset':offset},'generation':record['generation'],
+        return {'events':events,'cursor':{'file':identity,'offset':offset},'generation':record['generation'],**flow_status,
             'bundle_hash':record.get('policy_artifact',{}).get('bundle_hash'),'domain_id':record['domain_id']}
     finally:os.close(fd)
 
@@ -623,7 +639,11 @@ def start(message):
         if dsl_fingerprint(documents,resources)!=message.get('dsl_hash'):raise ValueError('DSL launch fingerprint mismatch')
         compiled,artifact=compile_documents(value,resources,policy,documents,agent_type,launch)
         env=B.child_env(task_id=key)
-        env.update(ACTPLANE_ATTACH_PID='0',ACTPLANE_RESERVE_FILE_FLOW='1',ACTPLANE_ENABLE_ADVANCED_HOOKS='1',SUDO_UID='0',SUDO_GID='0',TMPDIR=str(temp))
+        # The privileged monitor's Unix socket belongs to the trusted runtime,
+        # not the long, Agent-writable per-instance scratch path. Linux AF_UNIX
+        # paths have a 108-byte limit. Agent TMPDIR remains unchanged in runner.
+        monitor_tmp=monitor_socket_directory(B.RUNTIME)
+        env.update(ACTPLANE_ATTACH_PID='0',ACTPLANE_RESERVE_FILE_FLOW='1',ACTPLANE_ENABLE_ADVANCED_HOOKS='1',SUDO_UID='0',SUDO_GID='0',TMPDIR=str(monitor_tmp))
         anchor=subprocess.Popen(['/usr/bin/sleep','infinity'],start_new_session=True)
         env['ACTPLANE_ATTACH_PID']=str(anchor.pid)
         logfile=B.LOG_DIR/(key+'-instance-watch.log');logfile.parent.mkdir(parents=True,exist_ok=True)

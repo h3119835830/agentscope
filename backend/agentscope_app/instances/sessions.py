@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS instance_kernel_events(id INTEGER PRIMARY KEY AUTOINC
  generation TEXT NOT NULL,source_key TEXT NOT NULL,bundle_hash TEXT,domain_id INTEGER,event_json TEXT NOT NULL,
  created_at TEXT NOT NULL,UNIQUE(instance_id,generation,source_key));
 CREATE INDEX IF NOT EXISTS instance_kernel_by_generation ON instance_kernel_events(instance_id,generation,id);
+CREATE INDEX IF NOT EXISTS instance_flow_event_identity ON instance_kernel_events(instance_id,generation,json_extract(event_json,'$.event_id'));
 CREATE TABLE IF NOT EXISTS instance_session_task_bindings(instance_id TEXT NOT NULL,generation TEXT NOT NULL,
  session_id TEXT NOT NULL,task_id TEXT NOT NULL,managed_session_id TEXT NOT NULL,
  PRIMARY KEY(instance_id,generation,session_id));
@@ -194,7 +195,7 @@ def policies(ident,sid,generation=None):
 
 def attach_hits(records,row,generation,session_id=None):
     saved=dsl_policy.receipt(row['id'],generation)
-    with db.connect() as con:raws=con.execute('SELECT * FROM instance_kernel_events WHERE instance_id=? AND generation=? ORDER BY id DESC LIMIT 300',(row['id'],generation)).fetchall()
+    with db.connect() as con:raws=con.execute("SELECT * FROM instance_kernel_events WHERE instance_id=? AND generation=? AND COALESCE(json_extract(event_json,'$.event'),'')!='label_transition' ORDER BY id DESC LIMIT 300",(row['id'],generation)).fetchall()
     events=[project_kernel(row,saved,r) for r in raws]
     if session_id is not None:
         events=[e for e in events if e['session_id']==session_id and e['attribution']=='trusted_tool_tag']
@@ -238,7 +239,7 @@ def _collect_kernel(row):
                 con.execute('INSERT OR IGNORE INTO instance_kernel_events(instance_id,generation,source_key,bundle_hash,domain_id,event_json,created_at) VALUES(?,?,?,?,?,?,?)',
                     (row['id'],gen,result['cursor']['file']+':'+str(record['offset']),result.get('bundle_hash'),result.get('domain_id'),json.dumps(raw),db.now()))
             con.execute('INSERT OR REPLACE INTO instance_kernel_cursors VALUES(?,?,?)',(row['id'],gen,json.dumps(result['cursor'])))
-    return {'available':True}
+    return {'available':True,'transitions_supported':result.get('transitions_supported'),'lost_events':result.get('lost_events')}
 
 def project_kernel(row,saved,raw):
     event=json.loads(raw['event_json']);rule=event.get('rule',{});matched=[]
@@ -272,6 +273,7 @@ def kernel_page(ident,sid,generation=None,before=None,limit=30,session_only=Fals
             rows=con.execute('SELECT * FROM instance_kernel_events WHERE instance_id=? AND generation=? AND (? IS NULL OR id<?) ORDER BY id DESC LIMIT 200',(ident,gen,cursor,cursor)).fetchall()
             if not rows:break
             for raw in rows:
+                if json.loads(raw['event_json']).get('event')=='label_transition':continue
                 event=project_kernel(row,saved,raw)
                 if event['session_id']==sid or not session_only and event['session_id'] is None:accepted.append(event)
                 if len(accepted)>limit:break
@@ -286,7 +288,7 @@ def traces(ident,sid,generation=None,before=None,limit=30):
     with db.connect() as con:
         groups=con.execute("SELECT call_id,MAX(seq) AS last_seq FROM instance_events WHERE instance_id=? AND generation=? AND session_id=? AND call_id IS NOT NULL GROUP BY call_id HAVING (? IS NULL OR MAX(seq)<?) ORDER BY last_seq DESC LIMIT ?",(ident,gen,sid,before,before,limit+1)).fetchall()
         saved=dsl_policy.receipt(ident,gen)
-        kernels=[project_kernel(row,saved,r) for r in con.execute('SELECT * FROM instance_kernel_events WHERE instance_id=? AND generation=? ORDER BY id DESC LIMIT 1000',(ident,gen))]
+        kernels=[project_kernel(row,saved,r) for r in con.execute("SELECT * FROM instance_kernel_events WHERE instance_id=? AND generation=? AND COALESCE(json_extract(event_json,'$.event'),'')!='label_transition' ORDER BY id DESC LIMIT 1000",(ident,gen))]
         records=[]
         for g in groups[:limit]:
             events=[dict(e) for e in con.execute('SELECT * FROM instance_events WHERE instance_id=? AND generation=? AND session_id=? AND call_id=? ORDER BY seq',(ident,gen,sid,g['call_id']))]

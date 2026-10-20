@@ -1,0 +1,39 @@
+{
+  "binary_sha256": "fc5570b6fbf029a822264f0c132c42f2d8bc47f0c1b5842b9b746c845685b5c3",
+  "kernel_release": "6.6.114.1-microsoft-standard-WSL2",
+  "schema": "agentscope.template-runtime-evidence.v1",
+  "date": "2026-10-20",
+  "evidence_sha256": "28f9969c615f091e8066f7a4f7d829674d501adedf9519449df9871774b871bf",
+  "templates": {
+    "SECRET-EGRESS": {
+      "contract_hash": "3d3c3f716750326903b6ed1e1f0d73a9763707f74fd12be0dd5653851e698014",
+      "cases": 3,
+      "effects": [
+        "block",
+        "kill",
+        "notify"
+      ],
+      "case_ids": [
+        "secret-egress-block-default",
+        "secret-egress-notify-default",
+        "secret-egress-kill-default"
+      ],
+      "kind": "runtime"
+    },
+    "SYS-secret-egress": {
+      "contract_hash": "a8fe770ef71ce8c9d0a4a7b863c2386bdeef8b0975a3cb1635d42de0c604ae84",
+      "cases": 3,
+      "effects": [
+        "block",
+        "kill",
+        "notify"
+      ],
+      "case_ids": [
+        "sys-secret-egress-block-default-connect",
+        "sys-secret-egress-notify-default-connect",
+        "sys-secret-egress-kill-default-connect"
+      ],
+      "kind": "runtime"
+    }
+  }
+}
