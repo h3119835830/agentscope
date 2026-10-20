@@ -24,8 +24,16 @@ function templateDetails(render,props,name=template.name){
 test('old templates URL resolves to one policy page without a second assistant or library',async()=>{
  const render=await harness('SystemWorkbench.jsx');const tree=render({api(){},post(){},navigation:{systemTab:'templates'},navigate(){}}),all=nodes(tree);
  assert.equal(all.filter(n=>n.props?.role==='tab').length,3);
+ assert.deepEqual(all.filter(n=>n.props?.role==='tab').map(n=>n.props.children),['策略与配置','标签管理','生成记录']);
  assert.equal(all.filter(n=>n.type?.name==='UnifiedPolicyLibrary').length,1);
  assert.ok(!all.some(n=>['AgentPolicyTemplates','TemplatePolicyAssistant'].includes(n.type?.name)));
+});
+test('an Agent configuration link opens the unified System library at that exact scope',async()=>{
+ const other={...child,id:'tc_b',scope_id:'b',name:'另一个 Agent 的配置'};
+ const render=await harness('UnifiedPolicyLibrary.jsx',[{catalog:[template],items:[child,other]},{catalog:[],items:[]}]);
+ const props={targetId:'a',agents:[{id:'a',agent_type:'dsh',mode:'controlled'},{id:'b',agent_type:'dsh',mode:'controlled'}],api(){},post(){},onApprovals(){}};
+ let tree=render(props);assert.equal(nodes(tree).find(n=>n.props?.['aria-label']==='配置范围').props.value,'a');
+ tree=templateDetails(render,props);assert.ok(nodes(tree).some(n=>n.props?.['aria-label']===child.name+'：提交审批'));assert.ok(!nodes(tree).some(n=>n.props?.['aria-label']===other.name+'：提交审批'));
 });
 test('template catalogue omits parameter operation values and expands child fields only on the arrow',async()=>{
  const render=await harness('UnifiedPolicyLibrary.jsx',[{catalog:[template],items:[child]},{catalog:[],items:[]}]);

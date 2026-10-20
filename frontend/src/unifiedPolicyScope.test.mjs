@@ -25,7 +25,7 @@ test('changing to all Agents clears workspace provenance and never posts a polic
  scope.props.onChange({target:{value:'system'}});
  assert.deepEqual(changes,[{policyScope:'system',policyWorkspace:'',policySession:'',agentPolicyTab:'assistant'}]);
  const assistant=nodes(tree).find(n=>n.type?.name==='TemplatePolicyAssistant');
- assert.equal(assistant.props.scope,'agent');assert.equal(assistant.props.workspaceId,null);assert.equal(assistant.props.referenceWorkspaceId,'old-workspace');
+ assert.equal(assistant.props.scope,'agent');assert.equal(assistant.props.workspaceId,null);assert.equal(assistant.props.referenceWorkspaceId,null);
 });
 test('all-Agent scope works without a selected or connected Agent and uses the existing system contract',async()=>{
  const render=await harness('AgentPolicyWorkbench.jsx',[[],'',0,null]);
@@ -48,12 +48,11 @@ test('switching exact Agent identity clears workspace context without deriving a
  nodes(tree).find(n=>n.type==='select'&&n.props['aria-label']==='策略目标 Agent').props.onChange({target:{value:'agent-two'}});
  assert.deepEqual(changes,[{policyAgent:'agent-two',policyWorkspace:'',policySession:'',policyScope:'agent'}]);
 });
-test('configured policy scope is explicit and inherited navigation stays in the unified module',async()=>{
- const render=await harness('AgentPolicyWorkbench.jsx',[[target],'',0,null]),changes=[];
- const tree=render(props({agentPolicyTab:'policies'},p=>changes.push(p)));
- const list=nodes(tree).find(n=>n.type?.name==='ActPlanePolicies');
- assert.equal(list.props.scopeId,target.id);assert.match(list.props.recordScopeLabel,/指定 Agent/);
- list.props.onInherited();assert.equal(changes[0].policyScope,'system');assert.equal(changes[0].page,undefined);
+test('legacy Agent configuration links return to the preflight assistant',async()=>{
+ const render=await harness('AgentPolicyWorkbench.jsx',[[target],'',0,null]);
+ const tree=render(props({agentPolicyTab:'policies'}));
+ assert.ok(nodes(tree).some(n=>n.type?.name==='TemplatePolicyAssistant'));
+ assert.ok(!nodes(tree).some(n=>n.type?.name==='ActPlanePolicies'));
 });
 test('legacy records expose only original approval navigation and explicit fresh configuration',async()=>{
  const render=await harness('LegacyWorkspacePolicies.jsx',[{configs:[{id:'c',name:'原工作区限制',approval_id:'approval-old'}],drafts:[]},'',0]),opened=[];
@@ -62,18 +61,24 @@ test('legacy records expose only original approval navigation and explicit fresh
  nodes(tree).find(n=>n.type==='button'&&n.props.children==='查看原审批').props.onClick();
  assert.deepEqual(opened,['approval-old']);
 });
-test('workspace browsing has no mutation or generation interface',async()=>{
+test('legacy workspace tab links return to automatic preflight context selection',async()=>{
  const render=await harness('AgentPolicyWorkbench.jsx',[[target],'',0,null]);
  const tree=render(props({agentPolicyTab:'workspaces'}));
- const browser=nodes(tree).find(n=>n.type?.name==='NativeAgentWorkspaces');
- assert.equal(browser.props.id,target.id);assert.ok(!('post' in browser.props));
- assert.ok(!nodes(tree).some(n=>n.type?.name==='TemplatePolicyAssistant'));
+ const assistant=nodes(tree).find(n=>n.type?.name==='TemplatePolicyAssistant');
+ assert.equal(assistant.props.referenceWorkspaceId,null);
+ assert.ok(!nodes(tree).some(n=>n.type?.name==='NativeAgentWorkspaces'));
 });
-test('Agent policy tabs separate preflight runtime configuration and verified loads',async()=>{
+test('Agent policy tabs retain only generation runtime and verified load facts',async()=>{
  const render=await harness('AgentPolicyWorkbench.jsx',[[target],'',0,null]);
  const tree=render(props({agentPolicyTab:'assistant'})),labels=nodes(tree).filter(n=>n.props?.role==='tab').map(n=>n.props.children);
- assert.deepEqual(labels,['运行前策略助手','运行时策略','策略配置','已加载策略','参考工作区']);
- assert.ok(nodes(tree).some(n=>n.type?.name==='PolicyReferenceWorkspaceSelect'));
+ assert.deepEqual(labels,['运行前策略助手','运行时策略','当前加载记录']);
+ assert.ok(!nodes(tree).some(n=>['PolicyReferenceWorkspaceSelect','ActPlanePolicies','NativeAgentWorkspaces'].includes(n.type?.name)));
+});
+test('Agent page sends configuration management to the System module with the exact target',async()=>{
+ const render=await harness('AgentPolicyWorkbench.jsx',[[target],'',0,null]),changes=[];
+ const tree=render(props({},patch=>changes.push(patch)));
+ nodes(tree).find(n=>n.type==='button'&&n.props.children==='管理策略配置 ↗').props.onClick();
+ assert.deepEqual(changes,[{page:'strategies',systemTab:'policies',policyAgent:target.id}]);
 });
 test('runtime Hook list keeps source semantics without exposing raw session identities',async()=>{
  const events=[{seq:9,kind:'tool_start',generation:'generation-a',tool:'read_file',session_id:'private-session-uuid',created_at:'2026-10-20T00:00:00Z'}];

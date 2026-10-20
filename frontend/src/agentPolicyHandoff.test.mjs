@@ -43,9 +43,10 @@ test('DSL or metadata edits and stale current revisions disable application',()=
 });
 test('new Agent/System aliases and scoped handoff routes retain browser-history and old generation links',()=>{
  assert.equal(readNavigation('http://localhost/?view=agent').page,'workbench');assert.equal(readNavigation('http://localhost/?view=system').page,'strategies');
- const href='http://localhost'+navigationTarget('http://localhost/?view=system',{page:'agent',policyAgent:target.id,agentPolicyTab:'policies'});
- const n=readNavigation(href);assert.equal(n.policyAgent,target.id);assert.equal(n.agentPolicyTab,'policies');assert.equal(readNavigation('http://localhost/?view=strategies&section=audit').systemTab,'generations');
- for(const tab of ['assistant','runtime','policies','loaded','workspaces'])assert.equal(readNavigation('http://localhost/?view=workbench&agentPolicyTab='+tab).agentPolicyTab,tab);
+ const href='http://localhost'+navigationTarget('http://localhost/?view=system',{page:'agent',policyAgent:target.id,agentPolicyTab:'loaded'});
+ const n=readNavigation(href);assert.equal(n.policyAgent,target.id);assert.equal(n.agentPolicyTab,'loaded');assert.equal(readNavigation('http://localhost/?view=strategies&section=audit').systemTab,'generations');
+ for(const tab of ['assistant','runtime','loaded'])assert.equal(readNavigation('http://localhost/?view=workbench&agentPolicyTab='+tab).agentPolicyTab,tab);
+ for(const removed of ['policies','workspaces'])assert.equal(readNavigation('http://localhost/?view=workbench&agentPolicyTab='+removed).agentPolicyTab,'assistant');
  assert.equal(readNavigation('http://localhost/?view=system&systemTab=unknown').systemTab,'policies');
 });
 const require=createRequire(import.meta.url),Module=require('node:module'),base=dirname(fileURLToPath(import.meta.url));

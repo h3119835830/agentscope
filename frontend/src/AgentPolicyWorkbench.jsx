@@ -1,26 +1,23 @@
 import React,{useEffect,useState} from 'react';
-import NativeAgentWorkspaces from './NativeAgentWorkspaces.jsx';
-import ActPlanePolicies from './ActPlanePolicies.jsx';
 import TemplatePolicyAssistant from './TemplatePolicyAssistant.jsx';
 import LegacyWorkspacePolicies from './LegacyWorkspacePolicies.jsx';
-import PolicyReferenceWorkspaceSelect from './PolicyReferenceWorkspaceSelect.jsx';
 import AgentRuntimePolicyAssistant from './AgentRuntimePolicyAssistant.jsx';
 import AgentLoadedPolicies from './AgentLoadedPolicies.jsx';
-import {agentName,agentProcessLabel,visibleAgentInstances} from './agentInstancePresentation.mjs';
+import {agentProcessLabel,visibleAgentInstances} from './agentInstancePresentation.mjs';
 import {tabKeys} from './consoleState.mjs';
 import './policyFlow.css';
 
-export default function AgentPolicyWorkbench({api,post,navigation:n,navigate,candidate,onConsumed}){
+export default function AgentPolicyWorkbench({api,post,navigation:n,navigate}){
  const [agents,setAgents]=useState(null),[error,setError]=useState(''),[revision,setRevision]=useState(0),[detail,setDetail]=useState(null);
  // Historical workspace links remain read-only; they never become Agent candidates.
  const legacy=n.policyScope==='workspace',scope=n.policyScope==='system'?'system':'agent';
- const workspace=n.policyWorkspace||'',targetId=n.policyAgent||'',tab=n.agentPolicyTab||'assistant';
+ const workspace=n.policyWorkspace||'',targetId=n.policyAgent||'',requestedTab=n.agentPolicyTab||'assistant',tab=['assistant','runtime','loaded'].includes(requestedTab)?requestedTab:'assistant';
  useEffect(()=>{let alive=true,inflight=false;async function load(){if(inflight)return;inflight=true;try{const value=await api('/api/console/agents');if(alive){setAgents(value.instances||[]);setError('');}}catch(e){if(alive){setAgents(null);setError(e.message);}}finally{inflight=false;}}load();const timer=setInterval(load,7000);return()=>{alive=false;clearInterval(timer);};},[api,revision]);
  const choices=visibleAgentInstances(agents||[]),row=agents?.find(a=>a.id===targetId);
  useEffect(()=>{if(scope==='agent'&&!legacy&&agents&&!targetId&&choices.length)navigate({policyAgent:choices.find(a=>a.mode==='controlled')?.id||choices[0].id,policyScope:'agent',policyWorkspace:'',policySession:''});},[agents,targetId,navigate,scope,legacy]);
  useEffect(()=>{let alive=true;setDetail(null);if(targetId&&scope==='agent')api('/api/agent-instances/'+encodeURIComponent(targetId)).then(value=>{if(alive)setDetail({...value,_target:targetId});}).catch(()=>{});return()=>{alive=false;};},[api,targetId,scope,revision,row?.generation]);
  const target=row?(detail?._target===targetId?{...row,...detail,policy_source:row.policy_source}:row):null;
- const tabs=[['assistant','运行前策略助手'],['runtime','运行时策略'],['policies','策略配置'],['loaded','已加载策略'],['workspaces','参考工作区']];
+ const tabs=[['assistant','运行前策略助手'],['runtime','运行时策略'],['loaded','当前加载记录']];
  const selectScope=value=>navigate({policyScope:value,policyWorkspace:'',policySession:'',agentPolicyTab:'assistant'});
  return <div className="content task-console policy-workbench agent-policy-flow">
   <div className="policy-target-bar">
@@ -28,7 +25,7 @@ export default function AgentPolicyWorkbench({api,post,navigation:n,navigate,can
     <option value="system">全部受控 Agent</option><option value="agent">指定 Agent</option>{legacy&&<option value="workspace" disabled>历史工作区草案 · 只读</option>}
    </select></label>
    {scope==='agent'&&<label>指定 Agent<select aria-label="策略目标 Agent" value={targetId} onChange={e=>navigate({policyAgent:e.target.value,policyWorkspace:'',policySession:'',policyScope:'agent'})}><option value="" disabled>请选择 Agent</option>{choices.map(a=><option key={a.id} value={a.id}>{agentProcessLabel(a)}{a.mode!=='controlled'?' · 仅观测':''}</option>)}</select></label>}
-   <button className="button tiny ghost" onClick={()=>setRevision(v=>v+1)}>刷新</button><button className="assistant-text-button" onClick={()=>navigate({page:'approvals',approvalId:''})}>查看审批 ↗</button>
+   <button className="button tiny ghost" onClick={()=>setRevision(v=>v+1)}>刷新</button><button className="assistant-text-button" onClick={()=>navigate({page:'strategies',systemTab:'policies',policyAgent:scope==='agent'?targetId:''})}>管理策略配置 ↗</button><button className="assistant-text-button" onClick={()=>navigate({page:'approvals',approvalId:''})}>查看审批 ↗</button>
   </div>
   {scope==='system'?<TemplatePolicyAssistant key="system" target={{id:'system',name:'所有 Agent'}} scope="system" api={api} post={post} onApprovals={id=>navigate({page:'approvals',approvalId:id})}/>:<>
    {error&&<p role="alert" className="inline-notice warning">{error} <button className="button tiny ghost" onClick={()=>setRevision(v=>v+1)}>重新读取</button></p>}
@@ -36,10 +33,10 @@ export default function AgentPolicyWorkbench({api,post,navigation:n,navigate,can
    {agents&&!choices.length&&<p className="task-empty">尚未登记 Agent，请先到 Agent 连接添加。</p>}
    {agents&&targetId&&!row&&<p role="alert">当前 Agent 不存在或不可读取，请重新选择目标。</p>}
    {legacy?<LegacyWorkspacePolicies key={targetId+':'+workspace} targetId={targetId} workspaceId={workspace} api={api} onApprovals={id=>navigate({page:'approvals',approvalId:id})} onCreate={()=>selectScope('agent')}/>:<>
-    <p className="policy-scope-note">运行前策略与运行时单调增量都作用于此 Agent 的共享执行域；工作区和会话只记录来源，不创建独立策略范围。运行时只可自动新增或收紧，不能撤销继承规则。</p>
+    <p className="policy-scope-note">运行前助手负责起草，运行时页展示自动闭环，当前加载记录只展示运行事实。草案、模板和手工配置统一在“系统 › 策略与配置”管理；工作区由助手按权限读取，只记录资料来源。</p>
     <div className="agent-workbench-bar"><div role="tablist" className="policy-page-tabs" aria-label="Agent 页面">{tabs.map(([k,title])=><button key={k} role="tab" aria-selected={tab===k} aria-controls={'agent-policy-panel-'+k} id={'agent-policy-tab-'+k} tabIndex={tab===k?0:-1} onClick={()=>navigate({agentPolicyTab:k})} onKeyDown={e=>tabKeys(e,tabs.map(t=>t[0]),tab,key=>navigate({agentPolicyTab:key}))}>{title}</button>)}</div></div>
     {target&&<section role="tabpanel" id={'agent-policy-panel-'+tab} aria-labelledby={'agent-policy-tab-'+tab}>
-     {tab==='workspaces'?<><p className="field-note">这里可浏览原生工作区目录。助手只会读取允许的 UTF-8 正文；`.env`、凭据、私钥和运行私有目录不会进入模型上下文。</p><NativeAgentWorkspaces id={targetId} api={api}/></>:tab==='loaded'?<AgentLoadedPolicies id={targetId} api={api}/>:target.mode!=='controlled'?<p className="task-empty">此连接仅用于观测，受控接入后可配置策略。</p>:tab==='runtime'?<AgentRuntimePolicyAssistant target={target} api={api}/>:tab==='assistant'?<><PolicyReferenceWorkspaceSelect agentId={targetId} value={workspace} api={api} onChange={value=>navigate({policyWorkspace:value})}/><TemplatePolicyAssistant key={targetId+':'+workspace} target={target} scope="agent" workspaceId={null} referenceWorkspaceId={workspace||null} api={api} post={post} onApprovals={id=>navigate({page:'approvals',approvalId:id||''})}/></>:<ActPlanePolicies key={targetId} ownedOnly scopeId={targetId} scopeLabel={agentName(target)} recordScopeLabel={'指定 Agent · '+agentName(target)} api={api} post={post} candidate={candidate} onCandidateConsumed={onConsumed?.consume} onApprovals={id=>navigate({page:'approvals',approvalId:id})} onInherited={()=>selectScope('system')}/>}
+     {tab==='loaded'?<AgentLoadedPolicies id={targetId} api={api}/>:target.mode!=='controlled'?<p className="task-empty">此连接仅用于观测，受控接入后可生成或加载策略。</p>:tab==='runtime'?<AgentRuntimePolicyAssistant target={target} api={api}/>:<TemplatePolicyAssistant key={targetId} target={target} scope="agent" workspaceId={null} referenceWorkspaceId={null} api={api} post={post} onApprovals={id=>navigate({page:'approvals',approvalId:id||''})}/>}
     </section>}
    </>}
   </>}

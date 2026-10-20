@@ -3,8 +3,8 @@ import UnifiedPolicyLibrary from './UnifiedPolicyLibrary.jsx';
 import ProductGenerationHistory from './ProductGenerationHistory.jsx';
 import LabelManagement from './LabelManagement.jsx';
 import {tabKeys} from './consoleState.mjs';
-const tabs=[['policies','系统策略'],['labels','标签管理'],['generations','生成记录']];
-export default function SystemWorkbench({api,post,navigation:n,navigate,onHandoff}){
+const tabs=[['policies','策略与配置'],['labels','标签管理'],['generations','生成记录']];
+export default function SystemWorkbench({api,post,navigation:n,navigate}){
  const [agents,setAgents]=useState(null),[error,setError]=useState('');
  const tab=n.systemTab||'policies',selected=tab==='labels'?'labels':['generate','records','generations'].includes(tab)?'generations':'policies';
  useEffect(()=>{if(selected==='generations')return;let alive=true;async function load(){try{const d=await api('/api/agent-instances');if(alive){setAgents(d.instances||[]);setError('');}}catch{if(alive){setAgents(null);setError('暂时无法读取 Agent 连接，正在重试。');}}}load();const timer=setInterval(load,7000);return()=>{alive=false;clearInterval(timer);};},[api,selected]);
