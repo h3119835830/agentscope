@@ -8,6 +8,16 @@ import {changeRequest,visibleControls,impact} from './sessionSecurity.mjs';
 const rule={id:'typed-a',kind:'typed',scope:'agent',rule:{action:'tool',effect:'deny',target:'bash',text:'保护工具'},title:'工具使用',target:'bash',method:'工具准入',status:'工具准入检查已配置',can_configure:true,can_disable:true};
 const view={basis_hash:'hash-a',can_propose:true,controls:[rule],checks:[],coverage_complete:true,session_local_reason:'共享执行器暂不支持局部应用'};
 const draft={basisHash:'hash-a',control:rule,operation:'disable'};
+test('loaded policy detail shows readable rules without runtime identifiers or raw DSL',async()=>{
+ const require=createRequire(import.meta.url),Module=require('node:module'),source=new URL('./SessionSecurityPanel.jsx',import.meta.url).pathname;
+ const built=await build({entryPoints:[source],bundle:true,platform:'node',format:'cjs',external:['react'],loader:{'.css':'empty'},write:false});
+ const mod=new Module(source);mod.paths=Module._nodeModulePaths(new URL('.',import.meta.url).pathname);mod._compile(built.outputFiles[0].text,source);globalThis.document={activeElement:null};
+ const record={name:'配置文件保护',scope:'agent',configuration_revision:2,document_id:'internal-document',original_dsl:'internal-raw-dsl',evidence:{generation:'internal-run',pid:34567,domain_id:91,bundle_hash:'internal-hash'},clauses:[{operation:'read',effect:'block',target:'/w/0/protected.txt'}]};
+ const html=renderToStaticMarkup(React.createElement(mod.exports.LoadedPolicyDetails,{record,onClose(){}}));
+ assert.match(html,/配置文件保护/);assert.match(html,/当前加载配置 v2/);assert.match(html,/protected.txt/);
+ assert.doesNotMatch(html,/运行代次|执行域|PID|策略哈希|internal-run|internal-hash|internal-raw-dsl|internal-document|34567/);
+ assert.equal(record.evidence.generation,'internal-run');
+});
 test('structured removal is scoped and never contains approval or application authority',()=>{
  const request=changeRequest(view,draft,{ack:true},'test-request');
  assert.deepEqual(request,{scope:'agent',operation:'disable',basis_hash:'hash-a',constraint_id:'typed-a',request_key:'test-request',acknowledge_scope:true});

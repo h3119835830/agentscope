@@ -31,26 +31,3 @@ def loaded_features(record):
         if isinstance(value,dict):return value.get('value')
         return int.from_bytes(bytes(int(x,16) if isinstance(x,str) else x for x in value),'little')
     except (ValueError,KeyError,TypeError):return None
-
-
-def loaded_flow_status(record):
-    """Kernel map presence/counters, never capability claims from the browser."""
-    import subprocess
-    pin=record.get('pin_root')
-    if not pin:
-        return {'transitions_supported':None}
-    root=Path(pin)/'maps'
-    if not (root/'flow_rb').exists():
-        return {'transitions_supported':False}
-    result={'transitions_supported':True,'lost_events':None}
-    try:
-        output=subprocess.run(['/usr/sbin/bpftool','-j','map','lookup','pinned',str(root/'flow_counters'),
-                               'key','hex','01','00','00','00'],capture_output=True,text=True,timeout=2)
-        if output.returncode:
-            return result
-        value=json.loads(output.stdout)['value']
-        if isinstance(value,dict):value=value.get('value')
-        result['lost_events']=value if isinstance(value,int) else int.from_bytes(bytes(int(x,16) if isinstance(x,str) else x for x in value),'little')
-    except (OSError,ValueError,TypeError,KeyError,subprocess.TimeoutExpired):
-        pass
-    return result

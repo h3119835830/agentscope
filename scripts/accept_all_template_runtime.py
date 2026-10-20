@@ -174,7 +174,6 @@ def main():
   observations=[json.loads(l[7:]) for l in result.stdout.splitlines() if l.startswith('RESULT=')]
   event_paths=list(home.glob('.actplane/runs/*/events.jsonl'))
   events=[json.loads(l) for p in event_paths for l in p.read_text().splitlines() if l.strip()]
-  transitions=[e for e in events if e.get('event')=='label_transition']
   events=[e for e in events if e.get('event')=='taint_violation']
   after={'exists':target.exists(),'text':target.read_text() if target.is_file() else None,'received':received[before['received']:]}
   if git_mode:

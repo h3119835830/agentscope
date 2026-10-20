@@ -18,13 +18,10 @@ export function LoadedPolicyDetails({record,onClose}){
   <div className="record-drawer-body">
    <p className="field-note">此快照是打开详情时核验的加载版本。同一 Agent 进程内的会话共享策略，不代表本会话已触发。</p>
    {record.description&&<p>{record.description}</p>}
-   <p>{record.configuration_revision?'当前加载配置 v'+record.configuration_revision:'加载快照未唯一对应配置版本，原始内容见技术证据。'}</p><h3>策略内容</h3>
+   <p>{record.configuration_revision?'当前加载配置 v'+record.configuration_revision:'未记录对应的配置版本。'}</p><h3>策略内容</h3>
    {record.clauses.map((c,i)=><section className="loaded-policy-clause" key={c.clause_hash+':'+i}><b>{operations[c.operation]||c.operation} · {effects[c.effect]||c.effect}</b><code>{[c.target,c.argument].filter(Boolean).join(' ')}</code>{c.reason&&<p>{c.reason}</p>}<details><summary>完整条件</summary><pre>{c.condition}</pre></details></section>)}
    {record.label_sources?.length>0&&<section><h3>引用的标签来源</h3>{record.label_sources.map(s=><p key={s.id+':'+s.version}><b>{s.label}</b> · 来源版本 {s.version}<code>{s.value}</code></p>)}</section>}
-   <details className="session-security-evidence"><summary>DSL 与加载证据</summary>
-    <dl className="session-security-facts">{[['配置 ID',record.document_id],['运行代次',record.evidence.generation],['执行域',record.evidence.domain_id],['进程 PID',record.evidence.pid],['策略哈希',record.evidence.bundle_hash],['加载时间',record.evidence.loaded_at],['核验时间',record.evidence.checked_at]].filter(([,v])=>v!==null&&v!==undefined).map(([k,v])=><React.Fragment key={k}><dt>{k}</dt><dd>{v}</dd></React.Fragment>)}</dl>
-    <pre>{record.original_dsl}</pre>
-   </details>
+
   </div>
  </dialog>;
 }

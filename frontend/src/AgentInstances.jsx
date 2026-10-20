@@ -54,7 +54,6 @@ export function Drawer({id,api,post,onClose,onChanged,onOpen,onSessions,onConfig
  {error&&<p role="alert" className="inline-notice warning">{error}</p>}{busy&&<p role="status">{busy}…</p>}
  {row&&tab==='connection'&&<>
   <Fields values={[["Agent",agentName(row)],["运行状态",<ProductStatus value={row.product_status?.runtime} dimension="runtime"/>],["加载核验",<ProductStatus value={row.product_status?.loading}/>]]}/>
-  <details><summary>运行身份与核验时间</summary><Fields values={[["进程",row.pid],["运行代次",row.generation],["执行域",row.domain_id],["观察时间",row.product_status?.loading?.observed_at],["失效时间",row.product_status?.loading?.expires_at]]}/></details>
 
   {controlled?<form className="instance-form" onSubmit={e=>{e.preventDefault();act('保存启动配置',()=>api(endpoint(id),{method:'PUT',body:JSON.stringify({name,launch:{command:launch.command,cwd:launch.cwd,kind:launch.kind,web_url:launch.web_url},expected_launch_hash:row.launch?.hash||null,expected_policy_hash:row.policy_hash})}));}}>
     {launch&&<AgentLaunchFields type={row.agent_type} value={launch} onChange={setLaunch} disabled={!!busy||!['closed','failed'].includes(row.gate)}/>}

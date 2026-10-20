@@ -96,25 +96,21 @@ rule protect:
         done.set();thread.join(3);server.close()
     files=list(folder.rglob('events.jsonl'))
     events=[json.loads(line) for path in files for line in path.read_text().splitlines() if line]
-    transitions=[e for e in events if e.get('event')=='label_transition' and 'SECRET' in e.get('label_names',[])]
-    sinks=[e for e in transitions if e['operation']=='rule_match' and e['outcome']=='block']
-    by_id={e['event_id']:e for e in transitions}
-    chain=[];current=sinks[-1] if sinks else None
-    while current and current['event_id'] not in {e['event_id'] for e in chain}:
-        chain.append(current)
-        current=by_id.get(current.get('predecessor_event_id'))
+    violations=[e for e in events if e.get('event')=='taint_violation' and 'SECRET' in e.get('matched_label_names',[])]
+    sinks=[e for e in violations if e.get('op')=='connect' and e.get('action')=='block']
     expected=[] if scenario=='inheritance' else [b'public-control',b'public-replacement'] if scenario=='replacement' else [b'public-control']
-    required={'source_introduced','fork_inherit','exec_inherit','rule_match'} if scenario=='inheritance' else {'source_introduced','process_to_file','file_to_process','rule_match'}
+    provenance_ok=all(e.get('provenance',{}).get('origin_target')==str(folder/'secret.txt') and
+                      e.get('provenance_model',{}).get('causal_chain_scope')=='single_hop_origin' and
+                      e.get('provenance_model',{}).get('full_causal_chain') is False for e in sinks)
     passed=(result.returncode==0 and received==expected and
-            (not sinks if scenario=='replacement' else required<={e['operation'] for e in chain}
-             and all(e['identity_complete'] for e in chain) and all(int(e['lost_total'])==0 for e in chain)))
+            (not sinks if scenario=='replacement' else bool(sinks) and provenance_ok))
     (folder/'collector-stderr.log').write_text(result.stderr)
     report={'passed':passed,'scenario':scenario,'returncode':result.returncode,'elapsed_seconds':elapsed,
             'receiver_matches_expected':received==expected,'receiver_connections':len(received),
-            'events':len(events),'secret_transitions':len(transitions),
-            'chain_operations':[e['operation'] for e in reversed(chain)],
-            'chain_identity_complete':all(e['identity_complete'] for e in chain) if chain else None,
-            'max_lost':max((int(e['lost_total']) for e in transitions),default=0),
+            'events':len(events),'native_secret_violations':len(violations),
+            'actions':[e.get('action') for e in sinks],
+            'provenance_targets':[e.get('provenance',{}).get('origin_target') for e in sinks],
+            'single_hop_provenance':provenance_ok if sinks else None,
             'stdout':result.stdout,'stderr_head':result.stderr[:800],'stderr_tail':result.stderr[-1800:],
             'evidence_directory':str(folder),'pin_root':pin}
     (folder/'acceptance.json').write_text(json.dumps(report,indent=2))

@@ -118,10 +118,9 @@ def traces(ident:str,sid:str,generation:str|None=None,before:int|None=Query(None
 @router.get('/api/agent-instances/{ident}/sessions/{sid}/information-flow')
 def information_flow(ident: str,sid: str,view: Literal['session','shared_domain']='session',
                      generation: str | None = Query(None,max_length=100),label: str | None = Query(None,max_length=160),
-                     anchor: str | None = Query(None,max_length=200),cursor: str | None = Query(None,max_length=200),
-                     limit: int = Query(24,ge=1,le=64)):
+                     cursor: int | None = Query(None,ge=1),limit: int = Query(24,ge=1,le=100)):
     from .information_flow import query
-    return invoke(query,ident,sid,view,generation,label,anchor,cursor,limit)
+    return invoke(query,ident,sid,view,generation,label,cursor,limit)
 
 @router.get('/api/agent-instances/{ident}/policy-context')
 def policy_context(ident:str,session_id:str|None=Query(None,max_length=200),scope:Literal['agent','workspace']|None=None,workspace_id:str|None=Query(None,max_length=200)):

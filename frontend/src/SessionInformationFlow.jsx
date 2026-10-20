@@ -1,73 +1,70 @@
 import React,{useEffect,useId,useRef,useState} from 'react';
 import {LabelSourceSummary} from './LabelManagement.jsx';
+import RecordBadge from './RecordBadge.jsx';
 import {flowTime as date} from './informationFlowPresentation.mjs';
 import './informationFlow.css';
 
-const operations={source_introduced:'引入来源标签',file_to_process:'文件 → 进程',process_to_file:'进程 → 文件',fork_inherit:'派生进程继承',exec_inherit:'执行时保留标签',rule_match:'策略命中'};
-const outcomes={propagated:'引擎观察到标签传播',report:'已报告 · 不代表操作成功',block:'操作已阻止',kill:'命中后终止进程'};
-const statuses={empty:'当前范围暂无带标签的策略命中。可切换到 Agent 共享执行域查看未归属单会话的记录。',legacy:'仅有历史命中回执，缺少逐跳传播记录，无法还原完整链。',unsupported:'此运行版本不支持逐跳传播采集。',collection_failed:'传播事件采集失败，请重试；不能据此判断没有传播。'};
-const reasonNames={identity_or_predecessor_missing:'对象身份或前驱未完整记录',label_mapping_missing:'缺少执行标签映射',collector_loss:'采集器报告丢事件',missing_origin:'缺少来源事件',missing_predecessor:'前驱回执尚未入库或已丢失',conflicting_duplicate:'重复事件内容不一致',shared_context_not_in_session:'上游事件属于共享域，未可信关联到本会话',unverified_receipt:'回执与运行绑定不一致',predecessor_identity_mismatch:'前驱对象、标签或代次不一致',cycle:'前驱形成循环',chain_limit:'链路超过查询上限'};
+const operations={connect:'连接',open:'打开文件',read:'读取',write:'写入',exec:'执行',sendmsg:'发送数据',file_read:'读取文件',file_write:'写入文件'};
+const actions={block:'已阻止',report:'已报告',notify:'已通知',kill:'已终止'};
+const actionTones={block:'bad',kill:'bad',report:'info',notify:'warning'};
+
+function operation(value){return operations[value]||value||'操作未记录';}
+function sourceLabel(record){return record.provenance_state==='reported_first_origin'&&record.provenance?.origin_target?record.provenance.origin_target:'来源未由 ActPlane 报告';}
+function scopeLabel(binding){return binding?.attribution==='trusted_tool_tag'?'当前会话':'Agent 共享执行域';}
+function configurationNames(record){return record.source_configuration?.names?.join('、')||'配置名称未记录';}
 
 export function FlowScopeControl({value,onChange}){
  const id=useId();
- return <div className="flow-scope-control"><div className="flow-scope-heading"><label htmlFor={id}>查看范围</label><details key={value} className="flow-scope-help"><summary aria-label="查看范围说明">ⓘ</summary><p>{value==='shared_domain'?'可能包含其他会话和共享进程的传播，不代表当前会话独有行为。':'只显示可信关联到当前会话的事件，不按时间或 PID 猜测归属。'}</p></details></div><select id={id} value={value} onChange={e=>onChange(e.target.value)}><option value="session">当前会话</option><option value="shared_domain">Agent 共享执行域</option></select></div>;
+ return <div className="flow-scope-control"><div className="flow-scope-heading"><label htmlFor={id}>查看范围</label><details key={value} className="flow-scope-help"><summary aria-label="查看范围说明">ⓘ</summary><p>{value==='shared_domain'?'可能包含其他会话和共享进程的命中，不代表当前会话独有行为。':'只显示由唯一可信工具标签关联到当前会话的命中，不按时间、PID 或路径猜测归属。'}</p></details></div><select id={id} value={value} onChange={e=>onChange(e.target.value)}><option value="session">当前会话</option><option value="shared_domain">Agent 共享执行域</option></select></div>;
 }
 
-function FlowDetail({detail,onClose}){
- const dialog=useRef(null),origin=useRef(document.activeElement);
+export function NativeEvidenceStatus({state,collection,view}){
+ if(state==='collection_failed')return <p role="alert" className="inline-notice warning">ActPlane 事件采集失败，请重试；不能据此判断没有信息流。</p>;
+ if(state==='empty')return <p className="task-empty">{view==='shared_domain'?'此 Agent 共享执行域暂无原生策略命中证据。':'当前会话暂无可信归属的原生策略命中。可切换到 Agent 共享执行域查看未归属单会话的记录。'}</p>;
+ if(collection?.available===false)return <p role="alert" className="inline-notice warning">最新事件采集失败，以下仅为此前已保存的证据，不能代表当前采集完整。</p>;
+ return null;
+}
+
+export function EvidenceTable({records,onDetail}){
+ if(!records.length)return null;
+ return <div className="table-scroll flow-evidence-shell"><table className="task-record-table flow-evidence-table" aria-label="ActPlane 原生命中证据"><thead><tr><th>时间 / 标签</th><th>首个可用来源</th><th>当前命中</th><th>策略 / 处置</th><th>归属范围</th><th>操作</th></tr></thead><tbody>{records.map(record=><tr key={record.id}>
+  <td><time>{date(record.time)}</time><small>{record.labels?.join('、')||'标签未映射'}</small></td>
+  <td><span className={record.provenance_state==='reported_first_origin'?'flow-origin':'flow-origin flow-origin-missing'}>{sourceLabel(record)}</span>{record.provenance?.origin_op&&<small>{operation(record.provenance.origin_op)}</small>}</td>
+  <td><strong>{operation(record.match?.operation)}</strong><code>{record.match?.target||'目标未记录'}</code></td>
+  <td><span>{record.match?.policy_name||record.match?.rule_name||'策略名称未记录'}</span><small><RecordBadge tone={actionTones[record.match?.actual_action]}>{actions[record.match?.actual_action]||record.match?.actual_action||'处置未记录'}</RecordBadge></small></td>
+  <td><span>{scopeLabel(record.binding)}</span><small>{record.binding?.session_id?'可信工具标签关联':'未归属单会话'}</small></td>
+  <td><button className="button tiny ghost" onClick={()=>onDetail(record)}>查看详情</button></td>
+ </tr>)}</tbody></table></div>;
+}
+
+export function FlowDetail({record,onClose}){
+ const dialog=useRef(null),origin=useRef(typeof document==='undefined'?null:document.activeElement);
  useEffect(()=>{dialog.current?.showModal();return()=>{dialog.current?.close();origin.current?.isConnected&&origin.current.focus();};},[]);
- const edge=detail.evidence;
- return <dialog ref={dialog} className="record-drawer" aria-label="信息流证据详情" onCancel={e=>{e.preventDefault();onClose();}}><header className="record-drawer-head"><h2>{detail.node?.title||operations[edge.operation]}</h2><button className="button ghost" onClick={onClose}>关闭</button></header><div className="record-drawer-body">
- <dl className="security-facts"><dt>观察时间</dt><dd>{date(edge.time)}</dd><dt>操作</dt><dd>{operations[edge.operation]||edge.operation}</dd><dt>标签</dt><dd>{edge.source_mapping.map(s=>s.label).join('、')||'映射缺失'}</dd><dt>实际处置</dt><dd>{outcomes[edge.outcome]||'处置未记录'}</dd><dt>来源配置</dt><dd>{edge.source_mapping.map(s=>s.configuration_name).filter(Boolean).join('、')||'未记录'}</dd></dl>
- <LabelSourceSummary sources={edge.source_mapping.flatMap(s=>s.sources||[])}/>
- <details><summary>技术证据</summary><dl className="security-facts"><dt>实际 Hook</dt><dd><code>{edge.hook||'未记录'}</code></dd><dt>审计回执</dt><dd>{edge.evidence_ref}</dd><dt>运行代次</dt><dd><code>{edge.generation}</code></dd><dt>执行域</dt><dd>{edge.domain_id}</dd><dt>策略哈希</dt><dd><code>{edge.policy_hash}</code></dd>{detail.node?.identity&&Object.entries(detail.node.identity).filter(([,v])=>v!==null&&v!==undefined&&v!==0).map(([k,v])=><React.Fragment key={k}><dt>{k}</dt><dd><code>{String(v)}</code></dd></React.Fragment>)}</dl></details>
+ const docs=record.source_configuration?.documents||[],sources=docs.flatMap(item=>item.sources||[]);
+ return <dialog ref={dialog} className="record-drawer flow-evidence-drawer" aria-label="信息流命中证据详情" onCancel={event=>{event.preventDefault();onClose();}}><header className="record-drawer-head"><div><small>ActPlane 原生命中证据</small><h2>{operation(record.match?.operation)} · {record.match?.target||'目标未记录'}</h2></div><button className="button ghost" onClick={onClose}>关闭</button></header><div className="record-drawer-body">
+  <p className="flow-native-notice">ActPlane 原生证据只报告当前命中和首个可用来源，不代表完整逐跳传播链。</p>
+  <h3>首个可用来源</h3>{record.provenance_state==='reported_first_origin'?<dl className="security-facts"><dt>标签</dt><dd>{record.provenance?.label||record.labels?.join('、')||'未记录'}</dd><dt>来源</dt><dd><code>{record.provenance?.origin_target||'目标未记录'}</code></dd><dt>来源操作</dt><dd>{operation(record.provenance?.origin_op)}</dd><dt>来源进程</dt><dd>{record.provenance?.origin_pid??'未记录'}</dd><dt>内核单调时间</dt><dd>{record.provenance?.origin_timestamp_ns?<><code>{record.provenance.origin_timestamp_ns}</code> ns</>:'未记录'}</dd></dl>:<p className="inline-notice">此命中已由内核报告，但来源未由 ActPlane 报告；AgentScope 不根据 PID、时间或路径推断来源。</p>}
+  <h3>当前规则命中</h3><dl className="security-facts"><dt>观察时间</dt><dd>{date(record.time)}</dd><dt>标签</dt><dd>{record.labels?.join('、')||'标签未映射'}</dd><dt>操作与目标</dt><dd>{operation(record.match?.operation)} · <code>{record.match?.target||'目标未记录'}</code></dd><dt>策略</dt><dd>{record.match?.policy_name||configurationNames(record)}</dd><dt>规则</dt><dd>{record.match?.rule_name||'规则名称未记录'}</dd><dt>实际处置</dt><dd>{actions[record.match?.actual_action]||record.match?.actual_action||'处置未记录'}</dd><dt>归属范围</dt><dd>{scopeLabel(record.binding)}{record.binding?.session_id?' · '+record.binding.session_id:' · 未归属单会话'}</dd></dl>
+  <h3>来源配置引用</h3>{docs.length?<ul className="flow-configuration-list">{docs.map(item=><li key={item.id}><strong>{item.name||'配置名称未记录'}</strong><small>{(item.labels||[item.label]).filter(Boolean).join('、')||'标签未映射'} · 该配置引用 {item.sources?.length||0} 个来源；不表示某一条就是此次精确来源。</small></li>)}</ul>:<p className="task-empty">当前应用快照未提供可展示的来源配置引用。</p>}
+  <LabelSourceSummary sources={sources}/>
+  <details className="record-note"><summary>技术证据</summary><dl className="security-facts"><dt>证据编号</dt><dd>{record.evidence_ref}</dd><dt>规则编号</dt><dd>{record.match?.rule_id??'未记录'}</dd><dt>进程</dt><dd>{record.match?.pid??'未记录'}</dd><dt>执行域</dt><dd>{record.binding?.domain_id??'未记录'}</dd><dt>策略包摘要</dt><dd><code>{record.binding?.bundle_hash||'未记录'}</code></dd><dt>provenance</dt><dd>{record.provenance_state==='reported_first_origin'?'ActPlane 已报告首个来源':'ActPlane 未报告来源'}</dd></dl></details>
  </div></dialog>;
 }
 
-export function FlowStatus({integrity,view}){
- return <>{statuses[integrity.state]&&<p className="task-empty">{integrity.state==='empty'&&view==='shared_domain'?'此 Agent 共享执行域暂无带标签的策略命中。':statuses[integrity.state]}</p>}
- {integrity.state==='incomplete'&&<div className="inline-notice warning"><strong>链路不完整</strong><p>{integrity.reasons.map(r=>reasonNames[r]||'证据缺失').join('；')}。只展示已核验的边。</p></div>}</>;
-}
-
-export function WitnessGraph({data,onDetail}){
- const byId=Object.fromEntries(data.nodes.map(n=>[n.id,n]));
- const edges=data.edges;
- if(!edges.length)return null;
- const processNames=new Map();
- const nodes=[byId[edges[0].from],...edges.map(e=>byId[e.to])].map(node=>{
-  if(node.kind!=='process')return node;
-  if(!processNames.has(node.id))processNames.set(node.id,'进程 '+(processNames.size+1));
-  return {...node,title:processNames.get(node.id)};
- });
- const step=180, nodeWidth=140, width=nodes.length*step;
- return <div className="flow-canvas" role="region" aria-label="真实传播来源链" tabIndex={0}>
- <svg width={width} height="190" role="img" aria-label="按回执先后排列的单条信息流链">
- <defs><marker id="flow-arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="#64748b"/></marker></defs>
- {edges.map((e,i)=><g key={e.id}><line x1={i*step+20+nodeWidth} x2={(i+1)*step+20} y1="82" y2="82" stroke="#64748b" markerEnd="url(#flow-arrow)"/><foreignObject x={i*step+100} y="124" width="155" height="60"><button className={'flow-edge '+e.outcome} onClick={()=>onDetail({evidence:e})}>{operations[e.operation]||e.operation}<small>{e.outcome==='block'?'已阻止':'查看回执'}</small></button></foreignObject></g>)}
- {nodes.map((node,i)=><foreignObject key={i+':'+node.id} x={i*step+20} y="32" width={nodeWidth} height="100"><button className={'flow-node '+node.kind} onClick={()=>onDetail({node,evidence:edges[Math.max(0,i-1)]})}><small>{{file:'文件',process:'进程',endpoint:'连接目标',operation:'操作'}[node.kind]}</small><strong>{node.title}</strong></button></foreignObject>)}
- </svg></div>;
-}
-
 export default function SessionInformationFlow({api,root}){
- const [view,setView]=useState('session'),[label,setLabel]=useState(''),[anchor,setAnchor]=useState(''),[data,setData]=useState(null),[error,setError]=useState(''),[busy,setBusy]=useState(false),[detail,setDetail]=useState(null),[revision,setRevision]=useState(0);
+ const [view,setView]=useState('session'),[label,setLabel]=useState(''),[data,setData]=useState(null),[error,setError]=useState(''),[busy,setBusy]=useState(false),[detail,setDetail]=useState(null),[revision,setRevision]=useState(0);
  const sequence=useRef(0);
  useEffect(()=>{let alive=true;const n=++sequence.current;setData(null);setError('');setBusy(true);setDetail(null);
-  const params=new URLSearchParams({view,...(label?{label}:{}),...(anchor?{anchor}:{})});
-  api(root+'/information-flow?'+params).then(v=>{if(alive&&n===sequence.current)setData(v);}).catch(()=>{if(alive)setError('无法读取传播记录，请检查连接后刷新重试。不能据此判断没有传播。');}).finally(()=>{if(alive)setBusy(false);});
+  const params=new URLSearchParams({view,...(label?{label}:{})});
+  api(root+'/information-flow?'+params).then(value=>{if(alive&&n===sequence.current)setData(value);}).catch(()=>{if(alive&&n===sequence.current)setError('无法读取 ActPlane 命中证据，请检查连接后刷新重试。不能据此判断没有信息流。');}).finally(()=>{if(alive&&n===sequence.current)setBusy(false);});
   return()=>{alive=false;sequence.current++;};
- },[api,root,view,label,anchor,revision]);
- async function more(){const n=sequence.current;setBusy(true);try{const params=new URLSearchParams({view,anchor:data.anchor,cursor:data.next_cursor,generation:data.generation,...(label?{label}:{})});const value=await api(root+'/information-flow?'+params);if(n!==sequence.current)return;
-  setData(old=>({...value,anchors:old.anchors,nodes:[...new Map([...old.nodes,...value.nodes].map(x=>[x.id,x])).values()],edges:[...value.edges,...old.edges],integrity:{state:old.integrity.state==='incomplete'||value.integrity.state==='incomplete'?'incomplete':value.integrity.state,reasons:[...new Set([...old.integrity.reasons,...value.integrity.reasons])]}}));
- }catch(e){if(n===sequence.current)setError('更早的来源暂时无法读取，请刷新重试。当前仅展示已取得的回执。');}finally{if(n===sequence.current)setBusy(false);}}
- return <section className="information-flow"><div className="flow-toolbar"><FlowScopeControl value={view} onChange={value=>{setView(value);setAnchor('');setLabel('');}}/><label>标签<select value={label} onChange={e=>{setLabel(e.target.value);setAnchor('');}}><option value="">全部已记录标签</option>{(data?.available_labels||[label].filter(Boolean)).map(l=><option key={l} value={l}>{l}{['SENSITIVE','REMOTE','CODE'].includes(l)?'（历史）':''}</option>)}</select></label><button className="button ghost" disabled={busy} onClick={()=>setRevision(v=>v+1)}>刷新</button></div>
- {busy&&!data&&<p role="status">正在读取传播回执…</p>}{error&&<p role="alert" className="inline-notice warning">{error}</p>}
- {data&&<>{data.historical&&<p className="session-coverage">历史运行代次 · 不代表当前运行状态</p>}
- {data.anchors.length>0&&<label className="flow-anchor">策略命中<select value={data.anchor||anchor} onChange={e=>setAnchor(e.target.value)}>{data.anchors.map(a=><option key={a.event_id} value={a.event_id}>{a.configuration_names?.join('、')||'策略名称未记录'} · {date(a.time)} · {outcomes[a.outcome]} · {a.labels.join('、')||'标签映射缺失'} · {a.target}</option>)}</select></label>}
- <FlowStatus integrity={data.integrity} view={view}/>
- <WitnessGraph data={data} onDetail={setDetail}/>
- {data.edges.length>0&&<p className="session-coverage">每条边对应一条审计回执；记录的是引擎标签传播，不推断文件正文或未观察的操作成功。</p>}
- {data.next_cursor&&<button className="button ghost" disabled={busy} onClick={more}>展开更早来源</button>}
- </>}
- {detail&&<FlowDetail detail={detail} onClose={()=>setDetail(null)}/>}
- </section>;
+ },[api,root,view,label,revision]);
+ async function more(){const n=sequence.current;setBusy(true);setError('');try{const params=new URLSearchParams({view,cursor:data.next_cursor,generation:data.generation,...(label?{label}:{})});const value=await api(root+'/information-flow?'+params);if(n!==sequence.current)return;
+  setData(old=>({...value,records:[...old.records,...value.records],available_labels:[...new Set([...old.available_labels,...value.available_labels])]}));
+ }catch{if(n===sequence.current)setError('更早的命中证据暂时无法读取，请刷新重试。当前仅展示已取得的记录。');}finally{if(n===sequence.current)setBusy(false);}}
+ return <section className="information-flow"><div className="flow-toolbar"><FlowScopeControl value={view} onChange={value=>{setView(value);setLabel('');}}/><label>标签<select value={label} onChange={event=>setLabel(event.target.value)}><option value="">全部已记录标签</option>{(data?.available_labels||[label].filter(Boolean)).map(value=><option key={value} value={value}>{value}{['SENSITIVE','REMOTE','CODE'].includes(value)?'（历史）':''}</option>)}</select></label><button className="button ghost" disabled={busy} onClick={()=>setRevision(value=>value+1)}>刷新</button></div>
+ <p className="flow-native-notice">ActPlane 原生证据只报告当前命中和首个可用来源，不代表完整逐跳传播链。</p>
+ {busy&&!data&&<p role="status">正在读取 ActPlane 命中证据…</p>}{error&&<p role="alert" className="inline-notice warning">{error}</p>}
+ {data&&<>{data.historical&&<p className="session-coverage">历史代次 · 不代表当前运行状态</p>}<NativeEvidenceStatus state={data.state} collection={data.collection} view={view}/><EvidenceTable records={data.records||[]} onDetail={setDetail}/>{data.next_cursor&&<button className="button ghost flow-more" disabled={busy} onClick={more}>{busy?'正在读取…':'加载更早记录'}</button>}</>}
+ {detail&&<FlowDetail record={detail} onClose={()=>setDetail(null)}/>}</section>;
 }

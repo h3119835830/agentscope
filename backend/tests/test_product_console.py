@@ -141,7 +141,8 @@ def test_unattributed_events_cannot_starve_later_trusted_session_pages(client,mo
     with db.connect() as con:
         ids=[]
         for n in range(205):
-            e={'op':'read','target':'/a','process_domain_id':900,'tool_call_tag':91 if n in (0,1) else 0,'effect':'notify','action':'report'}
+            e={'event':'taint_violation','op':'read','target':'/a','process_domain_id':900,
+               'tool_call_tag':91 if n in (0,1) else 0,'effect':'notify','action':'report'}
             cur=con.execute('INSERT INTO instance_kernel_events(instance_id,generation,source_key,bundle_hash,domain_id,event_json,created_at) VALUES(?,?,?,?,?,?,?)',
                 (row['id'],row['generation'],str(n),'bundle',900,json.dumps(e),db.now()));ids.append(cur.lastrowid)
     first=sessions.kernel_page(row['id'],'s',limit=1,session_only=True)

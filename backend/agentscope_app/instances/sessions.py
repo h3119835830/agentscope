@@ -199,7 +199,7 @@ def policies(ident,sid,generation=None):
 
 def attach_hits(records,row,generation,session_id=None):
     saved=dsl_policy.receipt(row['id'],generation)
-    with db.connect() as con:raws=con.execute("SELECT * FROM instance_kernel_events WHERE instance_id=? AND generation=? AND COALESCE(json_extract(event_json,'$.event'),'')!='label_transition' ORDER BY id DESC LIMIT 300",(row['id'],generation)).fetchall()
+    with db.connect() as con:raws=con.execute("SELECT * FROM instance_kernel_events WHERE instance_id=? AND generation=? AND json_extract(event_json,'$.event')='taint_violation' ORDER BY id DESC LIMIT 300",(row['id'],generation)).fetchall()
     events=[project_kernel(row,saved,r) for r in raws]
     if session_id is not None:
         events=[e for e in events if e['session_id']==session_id and e['attribution']=='trusted_tool_tag']
@@ -243,7 +243,7 @@ def _collect_kernel(row):
                 con.execute('INSERT OR IGNORE INTO instance_kernel_events(instance_id,generation,source_key,bundle_hash,domain_id,event_json,created_at) VALUES(?,?,?,?,?,?,?)',
                     (row['id'],gen,result['cursor']['file']+':'+str(record['offset']),result.get('bundle_hash'),result.get('domain_id'),json.dumps(raw),db.now()))
             con.execute('INSERT OR REPLACE INTO instance_kernel_cursors VALUES(?,?,?)',(row['id'],gen,json.dumps(result['cursor'])))
-    return {'available':True,'transitions_supported':result.get('transitions_supported'),'lost_events':result.get('lost_events')}
+    return {'available':True}
 
 def project_kernel(row,saved,raw):
     event=json.loads(raw['event_json']);rule=event.get('rule',{});matched=[]
@@ -256,7 +256,7 @@ def project_kernel(row,saved,raw):
         with db.connect() as con:starts=con.execute("SELECT session_id,call_id,detail_json FROM instance_events WHERE instance_id=? AND generation=? AND kind='tool_start'",(row['id'],raw['generation'])).fetchall()
         links=[r for r in starts if str(json.loads(r['detail_json']).get('kernel_call_tag',''))==tag and json.loads(r['detail_json']).get('domain_id')==event.get('process_domain_id')]
         if len({(r['session_id'],r['call_id']) for r in links})==1:sid,call_id=links[0]['session_id'],links[0]['call_id']
-    names={r['rule_name'] for r in dsl_policy.policy_records(saved['artifact']) if any(m['source_ref']==r.get('source_ref') for m in matched)} if saved and matched else set()
+    names={r['document_name'] for r in dsl_policy.policy_records(saved['artifact']) if any(m['source_ref']==r.get('source_ref') for m in matched)} if saved and matched else set()
     return {'id':raw['id'],'time':event.get('timestamp_unix_ns') or raw['created_at'],'instance_id':row['id'],'generation':raw['generation'],
         'session_id':sid,'call_id':call_id,'attribution':'trusted_tool_tag' if sid else 'shared_executor_unattributed',
         'operation':event.get('op'),'syscall':event.get('syscall'),'target':event.get('target'),'pid':event.get('pid'),
@@ -274,10 +274,9 @@ def kernel_page(ident,sid,generation=None,before=None,limit=30,session_only=Fals
     accepted=[];cursor=before
     with db.connect() as con:
         while len(accepted)<=limit:
-            rows=con.execute('SELECT * FROM instance_kernel_events WHERE instance_id=? AND generation=? AND (? IS NULL OR id<?) ORDER BY id DESC LIMIT 200',(ident,gen,cursor,cursor)).fetchall()
+            rows=con.execute("SELECT * FROM instance_kernel_events WHERE instance_id=? AND generation=? AND json_extract(event_json,'$.event')='taint_violation' AND (? IS NULL OR id<?) ORDER BY id DESC LIMIT 200",(ident,gen,cursor,cursor)).fetchall()
             if not rows:break
             for raw in rows:
-                if json.loads(raw['event_json']).get('event')=='label_transition':continue
                 event=project_kernel(row,saved,raw)
                 if event['session_id']==sid or not session_only and event['session_id'] is None:accepted.append(event)
                 if len(accepted)>limit:break
@@ -292,7 +291,7 @@ def traces(ident,sid,generation=None,before=None,limit=30):
     with db.connect() as con:
         groups=con.execute("SELECT call_id,MAX(seq) AS last_seq FROM instance_events WHERE instance_id=? AND generation=? AND session_id=? AND call_id IS NOT NULL GROUP BY call_id HAVING (? IS NULL OR MAX(seq)<?) ORDER BY last_seq DESC LIMIT ?",(ident,gen,sid,before,before,limit+1)).fetchall()
         saved=dsl_policy.receipt(ident,gen)
-        kernels=[project_kernel(row,saved,r) for r in con.execute("SELECT * FROM instance_kernel_events WHERE instance_id=? AND generation=? AND COALESCE(json_extract(event_json,'$.event'),'')!='label_transition' ORDER BY id DESC LIMIT 1000",(ident,gen))]
+        kernels=[project_kernel(row,saved,r) for r in con.execute("SELECT * FROM instance_kernel_events WHERE instance_id=? AND generation=? AND json_extract(event_json,'$.event')='taint_violation' ORDER BY id DESC LIMIT 1000",(ident,gen))]
         records=[]
         for g in groups[:limit]:
             events=[dict(e) for e in con.execute('SELECT * FROM instance_events WHERE instance_id=? AND generation=? AND session_id=? AND call_id=? ORDER BY seq',(ident,gen,sid,g['call_id']))]

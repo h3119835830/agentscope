@@ -171,10 +171,7 @@ static __noinline int taint_contains(const char *text, const char *pat)
 
 /* Keep the actual path tail, not the first 64 bytes. A scratch map avoids
  * adding PATH_MAX bytes to the BPF stack. Pattern ABI stays unchanged. */
-/* The word-wise comparison below requires word alignment. Explicit alignment
- * also prevents clang lowering every word to eight byte loads, which exceeds
- * verifier complexity when file-flow audit and all reserved hooks are enabled. */
-struct te_path_cmp_scratch { char text[TE_PATH_BUFFER_LEN], pat[TAINT_PAT_LEN], tail[TAINT_PAT_LEN]; } __attribute__((aligned(8)));
+struct te_path_cmp_scratch { char text[TE_PATH_BUFFER_LEN], pat[TAINT_PAT_LEN], tail[TAINT_PAT_LEN]; };
 struct { __uint(type, BPF_MAP_TYPE_PERCPU_ARRAY); __uint(max_entries, 1); __type(key, __u32); __type(value, struct te_path_cmp_scratch); } ts_path_cmp SEC(".maps");
 
 static __always_inline __u64 te_path_mask(int n)
@@ -294,10 +291,10 @@ struct sess_domain_id {
 };
 
 /* File object identity (Layer A, docs/rule-language.md §1.10). A real
- * (dev, inode, inode generation) when the hook or a post-syscall fdtable lookup can reach the
+ * (dev, inode) when the hook or a post-syscall fdtable lookup can reach the
  * file object. Otherwise (0, fnv1a(path)) preserves tracepoint path-keyed
- * fallback behavior. _pad now carries i_generation while retaining the 16-byte
- * key ABI. Fallback keys initialize it to zero; their audit identity is incomplete. */
+ * fallback behavior. Used as a HASH key, so it MUST be fully zero-initialized
+ * (incl _pad) before use. */
 struct file_id {
 	__u64 ino;
 	__u32 dev;
@@ -320,8 +317,6 @@ struct file_state {
 	__u32 last_write_epoch;
 	__u32 _pad;
 };
-
-#include "flow_trace.bpf.h"
 
 struct endp_domain_id {
 	__u32 ip;
@@ -754,24 +749,6 @@ static __always_inline __u64 te_labels_for_domain(pid_t pid, __u32 domain_id)
 static __always_inline __u64 te_labels(pid_t pid)
 {
 	return te_labels_for_domain(pid, cap_domain_for_pid(pid));
-}
-
-static __noinline void te_flow_exec(pid_t pid)
-{
-	for (int i = 0; i < CAP_DOMAIN_DEPTH; i++) {
-		__u32 domain = te_domain_for_depth(pid, i);
-		if (i > 0 && !domain)
-			break;
-		__u64 labels = te_labels_for_domain(pid, domain);
-		if (labels) {
-			struct flow_ctx *flow = flow_begin();
-			if (flow) {
-				flow->from = flow_process(pid); flow->to = flow->from;
-				flow->domain = domain; flow->labels = labels; flow->operation = 5;
-				flow_emit();
-			}
-		}
-	}
 }
 
 static __always_inline void te_copy_target(char *dst, const char *src)
@@ -1335,18 +1312,6 @@ static __always_inline void te_copy_proc_domain_state(pid_t from, pid_t to,
 	}
 	if (ns.labels)
 		te_copy_proc_prov(from, to, domain_id, ns.labels);
-	if (ns.labels) {
-		__u32 child = to;
-		__u64 *birth = bpf_map_lookup_elem(&flow_births, &child);
-		__u64 child_birth = birth ? *birth : 0;
-		struct flow_ctx *flow = flow_begin();
-		if (flow) {
-			flow->from = flow_process(from);
-			flow->to.kind = 1; flow->to.pid = to; flow->to.birth = child_birth;
-			flow->labels = ns.labels; flow->domain = domain_id; flow->operation = 4;
-			flow_emit();
-		}
-	}
 }
 
 /* fork: child inherits labels + lineage gates in every active domain; root carries down. */
@@ -1896,30 +1861,11 @@ static __always_inline void te_read_domain(pid_t pid, struct file_id *fid,
 
 	te_collect_file_updates(&u);
 	__u64 src_labels = u.add;
-	__u64 before = te_labels_for_domain(pid, domain_id);
 	te_add_labels_domain(pid, domain_id, file_labels | src_labels);
 	if (file_labels)
 		te_copy_file_prov_to_proc(pid, fdom, file_labels);
 	if (src_labels)
 		te_record_proc_prov_mask(pid, domain_id, src_labels, TOP_OPEN, path, 0);
-	__u64 introduced = src_labels & ~before;
-	__u64 propagated = file_labels & ~before & ~src_labels;
-	if (introduced) {
-		struct flow_ctx *flow = flow_begin();
-		if (flow) {
-			flow->from = flow_file(fid); flow->to = flow_process(pid);
-			flow->labels = introduced; flow->domain = domain_id; flow->operation = 1; flow->flags = 1;
-			flow_target(flow, path); flow_emit();
-		}
-	}
-	if (propagated) {
-		struct flow_ctx *flow = flow_begin();
-		if (flow) {
-			flow->from = flow_file(fid); flow->to = flow_process(pid);
-			flow->labels = propagated; flow->domain = domain_id; flow->operation = 2;
-			flow_target(flow, path); flow_emit();
-		}
-	}
 	if (u.gates || u.invals) {
 		pid_t r = te_root(pid);
 		te_stamp(r, domain_id, te_tick(r, domain_id), u.gates, u.invals);
@@ -1966,7 +1912,6 @@ static __always_inline void te_write_flow_domain(pid_t pid, struct file_id *fid,
 			return;
 		te_file_domain_key_for(domain_id, fid, fdom);
 		struct file_state *fs = bpf_map_lookup_elem(&ts_file, fdom);
-		__u64 added = pl & ~(fs ? fs->labels : 0);
 		if (fs) {
 			fs->labels |= pl;
 			fs->last_write_epoch = ep;
@@ -1975,14 +1920,6 @@ static __always_inline void te_write_flow_domain(pid_t pid, struct file_id *fid,
 			bpf_map_update_elem(&ts_file, fdom, &ns, BPF_ANY);
 		}
 		te_copy_proc_prov_to_file(pid, fdom, pl);
-		if (added) {
-			struct flow_ctx *flow = flow_begin();
-			if (flow) {
-				flow->from = flow_process(pid); flow->to = flow_file(fid);
-				flow->labels = added; flow->domain = domain_id; flow->operation = 3;
-				flow_target(flow, path); flow_emit();
-			}
-		}
 	}
 }
 

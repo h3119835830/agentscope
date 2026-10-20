@@ -1,188 +1,214 @@
-"""Bounded witness queries. No edge is inferred from paths, PID or chronology."""
+"""Project native ActPlane rule matches and single-hop provenance.
+
+ActPlane propagates labels in the kernel, but its supported audit contract emits
+rule matches with at most the first available origin for one matched label. This
+module deliberately does not reconstruct a causal chain from paths, PIDs or time.
+"""
 import json
 import re
+
 from .. import db
-from . import sessions,dsl_policy
-from .policy import digest
+from . import dsl_policy, sessions
 
 
-def node_key(event, node):
-    kind=node.get('kind')
-    if kind=='process':
-        identity=[kind,node.get('pid'),node.get('start_boottime_ns')]
-    elif kind=='file':
-        identity=[kind,node.get('device'),node.get('inode'),node.get('inode_generation')]
-    elif kind=='endpoint':
-        identity=[kind,node.get('address')]
-    else:
-        identity=['operation',event['event_id']]
-    return digest([event.get('stream_id'),event.get('domain_id'),identity])
+PUBLIC_LABELS = ('AGENT', 'SECRET', 'SENSITIVE', 'REMOTE', 'CODE')
+MAX_SCAN = 1000
+LABEL_SCAN = 500
 
 
 def mappings(saved):
-    mapping={}
+    result = {}
     if not saved:
-        return mapping
-    for doc in saved['artifact'].get('documents',[]):
-        names=re.findall(r'^source ([a-zA-Z0-9_]+) =',doc.get('effective_dsl',''),re.M)
+        return result
+    for doc in saved['artifact'].get('documents', []):
+        names = re.findall(r'^source ([a-zA-Z0-9_]+) =', doc.get('effective_dsl', ''), re.M)
         for name in names:
-            public=next((label for label in ('AGENT','SECRET','SENSITIVE','REMOTE','CODE') if name.endswith('_'+label)),name)
-            mapping[name]={'label':public,'document_id':doc['id'],'configuration_name':doc.get('name'),
-                           'sources':doc.get('label_sources',[]) if public=='SECRET' else [],
-                           'historical':public in ('SENSITIVE','REMOTE','CODE')}
-    return mapping
+            public = next((label for label in PUBLIC_LABELS if name == label or name.endswith('_' + label)), name)
+            result[name] = {
+                'label': public,
+                'document_id': doc['id'],
+                'configuration_name': doc.get('name'),
+                'sources': doc.get('label_sources', []) if public == 'SECRET' else [],
+                'historical': public in ('SENSITIVE', 'REMOTE', 'CODE'),
+            }
+    return result
 
 
-def matched_names(saved, event):
-    """Resolve the actual rule id against this receipt, not the source label."""
-    if event.get('rule_id') is None or not saved:
-        return []
-    artifact=saved['artifact']
-    refs=[r for r in artifact.get('compile',{}).get('rules',[])
-          if r.get('rule_id') == event['rule_id']]
-    return list(dict.fromkeys(doc['name'] for doc in artifact.get('documents',[])
-        if any(rule.get('compiled_name') == ref.get('name')
-               and rule.get('source_ref') == ref.get('source_ref')
-               for rule in doc.get('rules',[]) for ref in refs)))
+def raw_label_names(event):
+    names = event.get('matched_label_names')
+    if isinstance(names, list):
+        return list(dict.fromkeys(str(name) for name in names if isinstance(name, str) and name))
+    name = event.get('matched_label_name')
+    if isinstance(name, str) and name:
+        return [name]
+    details = event.get('matched_label_details')
+    if isinstance(details, list):
+        return list(dict.fromkeys(str(item['label']) for item in details
+                                  if isinstance(item, dict) and isinstance(item.get('label'), str) and item['label']))
+    return []
 
 
-def attribution(con,ident,gen,event):
-    tag=str(event.get('tool_call_tag') or '')
-    if tag in ('','0'):
+def public_label(name, mapping):
+    return mapping.get(name, {}).get('label', name)
+
+
+def source_configuration(names, mapping):
+    documents = []
+    by_id = {}
+    for name in names:
+        value = mapping.get(name)
+        if not value:
+            continue
+        key = value['document_id']
+        document = by_id.get(key)
+        if document is None:
+            document = {'id': key, 'name': value.get('configuration_name'), 'labels': [],
+                        'sources': [], 'historical': False}
+            by_id[key] = document
+            documents.append(document)
+        if value['label'] not in document['labels']:
+            document['labels'].append(value['label'])
+        known = {(source.get('id'), source.get('version')) for source in document['sources']}
+        document['sources'].extend(source for source in value.get('sources', [])
+                                   if (source.get('id'), source.get('version')) not in known)
+        document['historical'] = document['historical'] or value.get('historical', False)
+    return {
+        'names': list(dict.fromkeys(doc.get('name') for doc in documents if doc.get('name'))),
+        'documents': documents,
+    }
+
+
+def native_provenance(event, mapping):
+    value = event.get('provenance')
+    if not isinstance(value, dict):
+        return 'not_reported', None
+    return 'reported_first_origin', {
+        'label': public_label(value.get('label'), mapping) if isinstance(value.get('label'), str) else value.get('label'),
+        'origin_pid': value.get('origin_pid'),
+        'origin_op': value.get('origin_op'),
+        'origin_target': value.get('origin_target'),
+        'origin_timestamp_ns': str(value['origin_timestamp_ns']) if value.get('origin_timestamp_ns') is not None else None,
+    }
+
+
+def project(row, saved, raw):
+    event = json.loads(raw['event_json'])
+    if event.get('event') != 'taint_violation':
         return None
-    rows=con.execute("""SELECT session_id,call_id,detail_json FROM instance_events
-        WHERE instance_id=? AND generation=? AND kind='tool_start'
-        AND CAST(json_extract(detail_json,'$.kernel_call_tag') AS TEXT)=?""",(ident,gen,tag)).fetchall()
-    matches={(r['session_id'],r['call_id']) for r in rows if json.loads(r['detail_json']).get('domain_id')==event.get('process_domain_id')}
-    return next(iter(matches))[0] if len(matches)==1 else None
+    match = sessions.project_kernel(row, saved, raw)
+    # Product evidence must bind to the exact loaded generation, bundle,
+    # process domain and compiled clause.
+    if not match.get('source_refs'):
+        return None
+    mapping = mappings(saved)
+    names = raw_label_names(event)
+    labels = list(dict.fromkeys(public_label(name, mapping) for name in names))
+    provenance_state, provenance = native_provenance(event, mapping)
+    return {
+        'id': raw['id'],
+        'time': event.get('timestamp_unix_ns') or raw['created_at'],
+        'labels': labels,
+        'raw_label_names': names,
+        'provenance_state': provenance_state,
+        'provenance': provenance,
+        'match': {
+            'operation': match.get('operation'),
+            'target': match.get('target'),
+            'pid': match.get('pid'),
+            'rule_id': match.get('rule_id'),
+            'rule_name': match.get('rule_name'),
+            'policy_name': match.get('policy_name'),
+            'effect': match.get('effect'),
+            'actual_action': match.get('actual_action'),
+            'blocked': match.get('blocked', False),
+            'killed': match.get('killed', False),
+        },
+        'binding': {
+            'domain_id': match.get('domain_id'),
+            'bundle_hash': match.get('bundle_hash'),
+            'session_id': match.get('session_id'),
+            'attribution': match.get('attribution'),
+        },
+        'source_configuration': source_configuration(names, mapping),
+        'evidence_ref': raw['id'],
+    }
 
 
-def project(con,raw,saved,ident,gen):
-    event=json.loads(raw['event_json'])
-    if event.get('event')!='label_transition' or event.get('schema_version')!=1:
-        return None
-    if not saved or raw['generation']!=saved['generation'] or raw['bundle_hash']!=saved['bundle_hash']:
-        return None
-    binding=saved['artifact'].get('binding',{})
-    if event.get('generation')!=gen or event.get('policy_hash')!=raw['bundle_hash'] or event.get('process_domain_id')!=raw['domain_id'] or raw['domain_id']!=binding.get('domain_id'):
-        return None
-    if not isinstance(event.get('event_id'),str) or not isinstance(event.get('stream_id'),str):
-        return None
-    if not all(isinstance(event.get(k),dict) for k in ('subject','object')):
-        return None
-    mapping=mappings(saved)
-    names=event.get('label_names',[])
-    mapped=[mapping[n] for n in names if n in mapping]
-    # Unknown label mappings remain inspectable but can never be a complete chain.
-    return {**event,'audit_id':raw['id'],'time':event.get('timestamp_unix_ns') or raw['created_at'],
-            'session_id':attribution(con,ident,gen,event),'source_mapping':mapped,
-            'mapping_complete':bool(names) and len(mapped)==len(names)}
+def visible(record, sid, view):
+    return record is not None and (view == 'shared_domain' or record['binding']['session_id'] == sid)
 
 
-def query(ident,sid,view='session',generation=None,label=None,anchor=None,cursor=None,limit=24):
-    row,session,gen,active=sessions.session_context(ident,sid,generation)
-    collection=sessions.collect_kernel(row) if gen==row.get('generation') else {'available':True,'historical':True}
-    saved=dsl_policy.receipt(ident,gen)
-    base={'view':view,'generation':gen,'historical':bool(session.get('historical') or gen!=row.get('generation')),'collection':collection,'nodes':[],'edges':[],
-          'anchors':[],'available_labels':[],'next_cursor':None,'integrity':{'state':'empty','reasons':[]},
-          'scope_label':'当前会话 · 仅可信关联事件' if view=='session' else 'Agent 共享执行域 · 不代表当前会话独有行为'}
-    if view not in ('session','shared_domain'):
+def recent_labels(con, row, saved, ident, gen, sid, view):
+    labels = []
+    rows = con.execute("""SELECT * FROM instance_kernel_events
+        WHERE instance_id=? AND generation=?
+        AND json_extract(event_json,'$.event')='taint_violation'
+        ORDER BY id DESC LIMIT ?""", (ident, gen, LABEL_SCAN)).fetchall()
+    for raw in rows:
+        record = project(row, saved, raw)
+        if not visible(record, sid, view):
+            continue
+        for label in record['labels']:
+            if label not in labels:
+                labels.append(label)
+    return labels
+
+
+def query(ident, sid, view='session', generation=None, label=None, cursor=None, limit=24):
+    if view not in ('session', 'shared_domain'):
         raise ValueError('信息流范围不合法')
-    def visible(e):
-        return e and (view=='shared_domain' or e['session_id']==sid)
+    if cursor is not None and (type(cursor) is not int or cursor < 1):
+        raise ValueError('信息流游标不合法')
+    if type(limit) is not int or not 1 <= limit <= 100:
+        raise ValueError('信息流分页大小不合法')
+
+    row, session, gen, _active = sessions.session_context(ident, sid, generation)
+    historical = bool(session.get('historical') or gen != row.get('generation'))
+    collection = sessions.collect_kernel(row) if gen == row.get('generation') else {'available': True, 'historical': True}
+    saved = dsl_policy.receipt(ident, gen)
+    records = []
+    scanned = 0
+    before = cursor
+
     with db.connect() as con:
-        rows=con.execute("""SELECT * FROM instance_kernel_events WHERE instance_id=? AND generation=?
-            AND json_extract(event_json,'$.event')='label_transition'
-            AND json_extract(event_json,'$.operation')='rule_match'
-            ORDER BY id DESC LIMIT 500""",(ident,gen)).fetchall()
-        seen=set()
-        for raw in rows:
-            e=project(con,raw,saved,ident,gen)
-            if not visible(e) or e['event_id'] in seen:
-                continue
-            seen.add(e['event_id'])
-            mapped=e['source_mapping']
-            for name in [m['label'] for m in mapped]:
-                if name not in base['available_labels']:
-                    base['available_labels'].append(name)
-            if label and label not in e.get('label_names',[]) and label not in {m['label'] for m in mapped}:
-                continue
-            base['anchors'].append({'event_id':e['event_id'],'label_names':e.get('label_names',[]),
-                                    'labels':[m['label'] for m in mapped],'time':e['time'],'outcome':e['outcome'],
-                                    'configuration_names':matched_names(saved,e),
-                                    'target':e.get('target') or e['object'].get('address','')})
-            # Bound anchor output, but collect label choices from the complete
-            # bounded event window, independently of the selected label.
-            base['anchors']=base['anchors'][:50]
-        if not anchor and base['anchors']:
-            anchor=base['anchors'][0]['event_id']
-        if not anchor:
-            legacy=con.execute("""SELECT 1 FROM instance_kernel_events WHERE instance_id=? AND generation=?
-                AND json_extract(event_json,'$.event')='taint_violation' LIMIT 1""",(ident,gen)).fetchone()
-            # Modern shared-domain receipts are not legacy just because none can
-            # be attributed to this session (or match the selected label).
-            modern=con.execute("""SELECT 1 FROM instance_kernel_events WHERE instance_id=? AND generation=?
-                AND json_extract(event_json,'$.event')='label_transition'
-                AND json_extract(event_json,'$.schema_version')=1 LIMIT 1""",(ident,gen)).fetchone()
-            base['integrity']['state']='collection_failed' if collection.get('error') else 'legacy' if legacy and not modern else 'unsupported' if collection.get('transitions_supported') is False or not collection.get('available') else 'empty'
-            return base
-        def lookup(event_id):
-            raw_rows=con.execute("""SELECT * FROM instance_kernel_events WHERE instance_id=? AND generation=?
-                AND json_extract(event_json,'$.event_id')=? ORDER BY id LIMIT 1001""",(ident,gen,event_id)).fetchall()
-            if not raw_rows:
-                return None,'missing_predecessor'
-            if len(raw_rows)>1000:
-                return None,'duplicate_limit'
-            if len({digest(json.loads(r['event_json'])) for r in raw_rows})!=1:
-                return None,'conflicting_duplicate'
-            value=project(con,raw_rows[0],saved,ident,gen)
-            if not visible(value):
-                return None,'shared_context_not_in_session' if value else 'unverified_receipt'
-            return value,None
-        selected,problem=lookup(anchor)
-        if problem or selected.get('operation')!='rule_match':
-            raise ValueError('锚点不属于此运行代次、范围或可信策略命中')
-        base['anchor']=anchor
-        # Cursor is validated by walking from this anchor (bounded), never an
-        # arbitrary event shortcut. A page cannot switch label/domain/stream.
-        current=selected;visited=set();reasons=['collector_loss'] if collection.get('lost_events') else [];edges=[];nodes={};skipping=bool(cursor)
-        for _ in range(512):
-            if current['event_id'] in visited:
-                reasons.append('cycle');break
-            visited.add(current['event_id'])
-            if current['event_id']==cursor:skipping=False
-            if not skipping:
-                if len(edges)>=limit:
-                    base['next_cursor']=current['event_id'];break
-                if not current.get('identity_complete'):reasons.append('identity_or_predecessor_missing')
-                if not current.get('mapping_complete'):reasons.append('label_mapping_missing')
-                if int(current.get('lost_total','0')):reasons.append('collector_loss')
-                a=node_key(current,current['subject']);b=node_key(current,current['object'])
-                for key,node in ((a,current['subject']),(b,current['object'])):
-                    title=current['target'] if node['kind']=='file' else node.get('address') if node['kind']=='endpoint' else '进程 '+str(node.get('pid')) if node['kind']=='process' else '策略命中'
-                    nodes.setdefault(key,{'id':key,'kind':node['kind'],'title':title or node['kind'],'identity':node})
-                edges.append({'id':current['event_id'],'from':a,'to':b,'operation':current['operation'],
-                              'hook':current.get('hook'),'outcome':current.get('outcome'),'time':current['time'],
-                              'label_names':current.get('label_names',[]),'source_mapping':current['source_mapping'],
-                              'policy_hash':current['policy_hash'],'domain_id':current['domain_id'],
-                              'evidence_ref':current['audit_id'],'session_id':current['session_id'],
-                              'generation':gen,'monotonic_ns':current['monotonic_ns']})
-            parent_id=current.get('predecessor_event_id')
-            if not parent_id:
-                if not current.get('root_source'):reasons.append('missing_origin')
-                if skipping:raise ValueError('游标不属于此锚点的来源链')
+        available_labels = recent_labels(con, row, saved, ident, gen, sid, view)
+        while len(records) <= limit and scanned < MAX_SCAN:
+            rows = con.execute("""SELECT * FROM instance_kernel_events
+                WHERE instance_id=? AND generation=?
+                AND json_extract(event_json,'$.event')='taint_violation'
+                AND (? IS NULL OR id<?)
+                ORDER BY id DESC LIMIT 200""", (ident, gen, before, before)).fetchall()
+            if not rows:
                 break
-            parent,problem=lookup(parent_id)
-            if problem:
-                reasons.append(problem);break
-            if any(parent.get(k)!=current.get(k) for k in ('stream_id','domain_id','label_mask')) or node_key(parent,parent['object'])!=node_key(current,current['subject']) or int(parent['monotonic_ns'])>int(current['monotonic_ns']):
-                reasons.append('predecessor_identity_mismatch');break
-            current=parent
-        else:
-            reasons.append('chain_limit')
-        if skipping:
-            raise ValueError('游标无法在当前可信来源链中核验')
-        base.update(nodes=list(nodes.values()),edges=list(reversed(edges)),
-                    integrity={'state':'incomplete' if reasons else 'paged' if base['next_cursor'] else 'complete',
-                               'reasons':sorted(set(reasons))})
-    return base
+            for raw in rows:
+                scanned += 1
+                record = project(row, saved, raw)
+                if not visible(record, sid, view):
+                    continue
+                if label and label not in record['labels'] and label not in record['raw_label_names']:
+                    continue
+                records.append(record)
+                if len(records) > limit:
+                    break
+            before = rows[-1]['id']
+            if len(rows) < 200 or len(records) > limit:
+                break
+
+    more = len(records) > limit
+    records = records[:limit]
+    state = 'collection_failed' if not collection.get('available') else 'available' if records else 'empty'
+    for record in records:
+        # Raw compiler label names are used only for exact filtering. The
+        # product contract exposes the mapped labels and native provenance.
+        record.pop('raw_label_names', None)
+    return {
+        'view': view,
+        'generation': gen,
+        'historical': historical,
+        'collection': collection,
+        'state': state,
+        'available_labels': available_labels,
+        'records': records,
+        'next_cursor': records[-1]['id'] if more and records else None,
+        'coverage': 'ActPlane 原生事件仅证明当前规则命中及首个可用来源，不代表完整逐跳传播链。',
+    }

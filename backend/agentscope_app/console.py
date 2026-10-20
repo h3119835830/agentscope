@@ -163,9 +163,9 @@ def directory(agent_type:str='',instance_id:str='',q:str=Query('',max_length=200
     return invoke(directory,agent_type,instance_id,q,cursor,limit,workspace,console=True)
 
 @router.get('/agents/{ident}/sessions/{sid}/{section}')
-def session_read(ident:str,sid:str,section:str,before:int|None=Query(None,ge=1),limit:int=Query(30,ge=1,le=100),
+def session_read(ident:str,sid:str,section:str,before:int|None=Query(None,ge=1),limit:int|None=Query(None,ge=1,le=100),
                  view:Literal['session','shared_domain']='session',generation:str|None=None,
-                 label:str|None=Query(None,max_length=100),anchor:str|None=Query(None,max_length=200),cursor:str|None=Query(None,max_length=200)):
+                 label:str|None=Query(None,max_length=100),cursor:int|None=Query(None,ge=1)):
     from .instances import sessions
     require_visible('agent',ident)
     if section=='policies':
@@ -181,11 +181,11 @@ def session_read(ident:str,sid:str,section:str,before:int|None=Query(None,ge=1),
     if section=='domains':
         data=invoke(sessions.domains,ident,sid)
         return {k:data[k] for k in ('active','executor_shared','nodes','edges','coverage_complete','notice')}
-    if section=='kernel-events':return invoke(sessions.kernel_page,ident,sid,before=before,limit=limit,session_only=True)
-    if section=='tool-traces':return invoke(sessions.traces,ident,sid,before=before,limit=limit)
+    if section=='kernel-events':return invoke(sessions.kernel_page,ident,sid,before=before,limit=limit or 30,session_only=True)
+    if section=='tool-traces':return invoke(sessions.traces,ident,sid,before=before,limit=limit or 30)
     if section=='information-flow':
         from .instances import information_flow
-        return invoke(information_flow.query,ident,sid,view,generation,label,anchor,cursor,limit)
+        return invoke(information_flow.query,ident,sid,view,generation,label,cursor,limit or 24)
     raise HTTPException(404,'没有此会话页面')
 
 @router.get('/history/records')

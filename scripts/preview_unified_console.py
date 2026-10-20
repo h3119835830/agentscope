@@ -44,7 +44,7 @@ mode={'value':'fresh'}
 controller.observer.snapshot=lambda:[]
 sessions.native_sessions=lambda row:{'mapping_available':True,'executor_shared':True,'sessions':[
     {'id':'preview-session','name':'合成会话 · 界面验收','historical':False,'status':'stored'}]}
-sessions.collect_kernel=lambda row:{'available':True,'transitions_supported':True}
+sessions.collect_kernel=lambda row:{'available':True}
 
 # Explicit synthetic receipt tests the exact production projection; no compiler
 # or kernel result is claimed by this preview. All page responses are labelled.
@@ -52,7 +52,9 @@ agent=agents[0]
 generation='synthetic-ui-run'
 identity=dict(generation=generation,pid=1001,start_ticks='synthetic-birth',
               boot_id='synthetic-boot',host_id='synthetic-host',domain_id=900)
-doc=saved[0]['document']
+source_snapshot={'id':'preview-secret-source','version':1,'scope_id':agent['id'],'value':'/fixture/demo-secret.txt'}
+doc={**saved[0]['document'],'effective_dsl':'source preview_SECRET = file "/fixture/demo-secret.txt"\n'+saved[0]['document']['effective_dsl'],
+     'label_sources':[source_snapshot]}
 compiled_name='preview-protect'
 artifact=dict(loaded=True,bundle_hash='synthetic-ui-bundle',dsl_hash='synthetic-ui-dsl',effective_dsl=doc['original_dsl'],
     documents=[dict(doc,scope_id=agent['id'],namespace='preview',rules=[
@@ -62,6 +64,17 @@ artifact=dict(loaded=True,bundle_hash='synthetic-ui-bundle',dsl_hash='synthetic-
 runtime={**identity,'verified':True,'dsl_hash':'synthetic-ui-dsl','policy_artifact':artifact}
 dsl.record_receipt(agent['id'],generation,runtime)
 store.update(agent['id'],generation=generation,gate='open',runtime=runtime)
+store.event(agent['id'],'tool_start',{'kernel_call_tag':'777','domain_id':900},generation,'preview-session','preview-call','read')
+native_event={'schema':'actplane.violation.v1','event':'taint_violation','pid':1001,'process_domain_id':900,'domain_id':900,
+    'rule_id':1,'effect':'block','action':'block','blocked':True,'killed':False,'op':'file_read','target':'/w/0/private.txt',
+    'tool_call_tag':'777','matched_label_names':['preview_SECRET'],
+    'provenance_model':{'reported_origin_scope':'first_available_matched_label','causal_chain_scope':'single_hop_origin','full_causal_chain':False},
+    'provenance':{'label':'preview_SECRET','origin_pid':1001,'origin_op':'open','origin_target':'/fixture/demo-secret.txt','origin_timestamp_ns':'1792475035000000000'},
+    'rule':{'name':compiled_name,'source_ref':'preview-source','clause_hash':'synthetic-clause','effect':'block','target_pattern':'/w/0/private.txt'},
+    'timestamp_unix_ns':'1792475035675378404'}
+with db.connect() as con:
+    con.execute('INSERT INTO instance_kernel_events(instance_id,generation,source_key,bundle_hash,domain_id,event_json,created_at) VALUES(?,?,?,?,?,?,?)',
+                (agent['id'],generation,'synthetic-native-hit','synthetic-ui-bundle',900,json.dumps(native_event),db.now()))
 def snapshot():
     now=datetime.now(timezone.utc)-timedelta(seconds=9 if mode['value']=='expired' else 0)
     return [{**identity,'id':agent['id'],'connected':True,'verified':True,'status':'running',

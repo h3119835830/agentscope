@@ -17,6 +17,18 @@ async function harness(entry,initial=[],exportName='default'){
 }
 const template={description:'场景明确要求隔离无关资料时使用，填写目标路径，不额外禁止修改或删除。',id:'FILE-READ',version:2,name:'文件读取限制',category:'文件保护',scopes:['system','agent'],parameters:[],operation:'open',effect:'block'};
 const child={id:'tc_a',template_id:'FILE-READ',template_version:2,name:'禁止日报读取员工资料',scope_id:'a',scope:'agent',revision:1,parameters:{},status:'draft',can_submit:true};
+test('expanded catalogue has one add action and keeps target parameters only in details',async()=>{
+ const def={...template,parameters:[{key:'target',label:'保护对象路径',type:'path'}]},item={...child,parameters:{target:'/w/0/only-in-details.txt'}};
+ const render=await harness('UnifiedPolicyLibrary.jsx',[{catalog:[def],items:[item]},{catalog:[],items:[]}]),props={api(){},post(){},onApprovals(){}};
+ let tree=templateDetails(render,props),all=nodes(tree);
+ assert.equal(all.filter(n=>n.type==='button'&&n.props['aria-label']?.includes('新增子配置')).length,1);
+ assert.ok(!all.some(n=>n.props?.className==='upl-child-target'));
+ const table=all.find(n=>n.type==='table'&&n.props['aria-label']===template.name+' 的子配置');
+ assert.equal(nodes(table).filter(n=>n.type==='col').length,6);
+ assert.ok(!nodes(table).some(n=>n.props?.children===item.parameters.target));
+ all.find(n=>n.props?.['aria-label']===child.name+'的详情').props.onClick();tree=render(props);
+ assert.equal(nodes(tree).find(n=>n.type?.name==='TemplateConfigurationDialog').props.item.parameters.target,item.parameters.target);
+});
 function templateDetails(render,props,name=template.name){
  let tree=render(props);const button=nodes(tree).find(n=>n.props?.['aria-label']===name+'：子配置');
  if(!button.props['aria-expanded'])button.props.onClick();return render(props);
@@ -52,7 +64,7 @@ test('template catalogue omits parameter operation values and expands child fiel
  assert.ok(!nodes(tree).some(n=>n.props?.['aria-label']===child.name+'：提交审批'));
  assert.ok(nodes(table).some(n=>n.type==='p'&&n.props.children===template.description));
  tree=templateDetails(render,props);table=nodes(tree).find(n=>n.type==='table'&&n.props['aria-label']==='文件读取限制 的子配置');
- assert.deepEqual(nodes(table).filter(n=>n.type==='th'&&!n.props.className?.includes('spl-check')).map(n=>n.props.children),['实际策略名称','范围','保护对象 / 操作','动作','配置进度','操作']);
+ assert.deepEqual(nodes(table).filter(n=>n.type==='th'&&!n.props.className?.includes('spl-check')).map(n=>n.props.children),['实际策略名称','范围','动作','配置进度','操作']);
  nodes(table).find(n=>n.props?.['aria-label']===child.name+'的详情').props.onClick();tree=render(props);
  const editor=nodes(tree).find(n=>n.type?.name==='TemplateConfigurationDialog');assert.equal(editor.props.item.name,child.name);assert.equal(editor.props.template.id,template.id);
 });

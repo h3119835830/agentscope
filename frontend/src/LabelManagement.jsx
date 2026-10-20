@@ -95,11 +95,12 @@ function LabelNotice({onClose}){
 
 export function LabelUsageContent(){
  return <section aria-label="标签与信息流使用说明">
+ <p>此处展示本期已开放的标签，不是 ActPlane 的全部标签。ActPlane 标签名由策略定义。</p>
  <p><strong>AGENT</strong>：执行身份，由可信启动流程赋予。只读，不用于给普通文件手工分类。</p>
  <p><strong>SECRET</strong>：管理员登记敏感文件来源，配置编写者明确选择引用；已批准并应用后，引擎自动传播。</p>
  <p>登记 → 配置引用 → 批准 → 单独应用。标签本身不代表禁止读取或外发，限制来自获批规则。</p>
  <p>来源编辑生成新版本，旧配置不自动更新。历史 SENSITIVE、REMOTE、CODE 原样保留。</p>
- <p>本期不开放 UNTRUSTED、REVIEWED、脱敏和审核背书。信息流仅表示已观察的传播，不等于秘密正文流向证明。</p>
- <p>逐跳信息流需要新版运行采集器；旧回执不补画传播链。能力是否在当前实例可用，以会话页面实收的回执和完整性状态为准。</p>
+ <p>本期不开放 UNTRUSTED、REVIEWED、脱敏和审核背书。信息流仅表示 ActPlane 原生标签传播产生的规则命中，不等于秘密正文流向证明。</p>
+ <p>原生证据只报告当前命中和首个可用来源，不代表完整逐跳传播链。旧的自定义传播记录仅历史留存，不进入产品投影。</p>
  </section>;
 }

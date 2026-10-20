@@ -38,13 +38,12 @@
 .unified-policy-library .upl-configuration-records::-webkit-scrollbar-track{background:#eef3f9;border-top:1px solid #e0e8f2}
 .unified-policy-library .upl-configuration-records::-webkit-scrollbar-thumb{background:#a5b6cd;border:2px solid #eef3f9;border-radius:8px}
 .unified-policy-library .upl-configuration-records::-webkit-scrollbar-thumb:hover{background:#829abb}
-.unified-policy-library .upl-configuration-records>table{min-width:860px;table-layout:fixed}
-.unified-policy-library .upl-col-check{width:38px}
-.unified-policy-library .upl-col-name{width:18%}
-.unified-policy-library .upl-col-scope{width:156px}
-.unified-policy-library .upl-col-effect{width:108px}
-.unified-policy-library .upl-col-state{width:116px}
-.unified-policy-library .upl-col-actions{width:218px}
+.unified-policy-library .upl-configuration-records>table{width:100%;min-width:660px;table-layout:fixed}
+.unified-policy-library .upl-col-check{width:36px}
+.unified-policy-library .upl-col-scope{width:22%}
+.unified-policy-library .upl-col-effect{width:90px}
+.unified-policy-library .upl-col-state{width:96px}
+.unified-policy-library .upl-col-actions{width:156px}
 .prototype-theme .main[data-page] .unified-policy-library .upl-configuration-records th{padding:11px 12px;background:#f0f4fa}
 .prototype-theme .main[data-page] .unified-policy-library .upl-policy-row td{background:#fff;border-bottom:1px solid #edf1f6;padding:15px 12px;font-size:13px}
 .prototype-theme .main[data-page] .unified-policy-library .upl-policy-row:hover td{background:#fafcff}
@@ -61,7 +60,7 @@
 .unified-policy-library .upl-child-state.error{color:#b75e5e;background:#fff0ef}
 .prototype-theme .main[data-page] .unified-policy-library .upl-policy-row .upl-child-state-note{font-size:10px;color:#a17a37}
 .unified-policy-library .upl-child-muted{color:#8a9bb2;font-size:12px}
-.unified-policy-library .upl-child-actions{display:flex;align-items:center;gap:11px;white-space:nowrap}
+.unified-policy-library .upl-child-actions{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px}
 .unified-policy-library .upl-row-action{border:0;background:none;padding:4px 0;color:#5279ad;font-family:inherit;font-size:12px;line-height:1.5;cursor:pointer;white-space:nowrap}
 .unified-policy-library .upl-row-action:hover:not(:disabled){color:#2463cc;text-decoration:underline;text-underline-offset:4px}
 .unified-policy-library .upl-row-action:focus-visible{outline:2px solid #8cb2fb;outline-offset:3px;border-radius:2px}

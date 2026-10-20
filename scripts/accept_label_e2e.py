@@ -200,10 +200,19 @@ def main():
             'base_revision':0,'request_key':uuid.uuid4().hex})
         report['configuration_id']=saved['id'];report['source_refs']=saved['label_source_refs']
         assert not call('/api/agent-instances/'+ident+'/dsl')['documents']
-        p=call('/api/policy-template-configurations/'+saved['id']+'/proposals',
-               {'revision':saved['revision'],'operation':'apply','request_key':uuid.uuid4().hex,'acknowledge_coverage':False})
+        # Native provenance reports the first available *matched* label. The
+        # production template also matches AGENT, so this isolated provenance
+        # acceptance uses the same frozen SECRET source but a SECRET-only rule.
+        # It remains a normal manually approved DSL candidate.
+        current=call('/api/agent-instances/'+ident+'/dsl')
+        document=dict(saved['document'])
+        assert 'if AGENT and SECRET' in document['original_dsl']
+        document['original_dsl']=document['original_dsl'].replace('if AGENT and SECRET','if SECRET')
+        p=call('/api/agent-instances/'+ident+'/dsl/proposals',
+               {'documents':[document],'base_hash':current['document_hash'],'base_revision':current['revision'],
+                'request_key':uuid.uuid4().hex})
         report['approval_id']=p['id'];approve(p['id'])
-        report['checks'].append('source registration, explicit references, separate approval and application')
+        report['checks'].append('source registration, explicit frozen source, separate approval and application, SECRET-only provenance fixture')
         active=call('/api/agent-instances/'+ident+'/start',{})
         assert active['active'],active.get('security')
         report['generation']=active['generation']
@@ -222,15 +231,18 @@ def main():
         data=None
         for _ in range(30):
             data=call(root+'/information-flow?view=shared_domain&label=SECRET')
-            if data['integrity']['state']=='complete':break
+            if data['state']=='available':break
             time.sleep(.3)
         report['flow']=data
-        assert data['integrity']['state']=='complete',data['integrity']
-        assert {'source_introduced','process_to_file','file_to_process','rule_match'}<={e['operation'] for e in data['edges']}
+        assert data['state']=='available',data
+        assert any(r['labels']==['SECRET'] and r['provenance_state']=='reported_first_origin'
+                   and r['provenance']['origin_target'].endswith('/secret.txt')
+                   and r['match']['operation']=='connect' and r['match']['target']=='127.0.0.1'
+                   and r['match']['actual_action']=='block' for r in data['records']),data
         assert received==[b'public-control'],{'receiver_connections':len(received)}
         report['receiver_public_only']=True
         report['current_session_flow']=call(root+'/information-flow?view=session&label=SECRET')
-        report['checks'].append('real native tool, kernel propagation, root audit, broker collection and flow API')
+        report['checks'].append('real native tool, kernel propagation, native single-hop provenance, root audit, broker collection and evidence API')
         report.update(passed=True,preview_url=base+'/?view=sessions&sessionInstance='+ident+'&sessionId='+session_id+'&sessionTab=flow')
         success=True
     except Exception as error:

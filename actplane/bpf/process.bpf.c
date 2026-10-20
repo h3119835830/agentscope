@@ -98,13 +98,6 @@ static __always_inline __u64 te_current_pid_tgid(void)
 	return ((__u64)tgid << 32) | (__u32)pid;
 }
 
-struct {
-    __uint(type, BPF_MAP_TYPE_HASH);
-    __uint(max_entries, 16384);
-    __type(key, pid_t);
-    __type(value, __u64);
-} audit_call SEC(".maps");
-
 #include "taint_engine.bpf.h"
 
 #ifndef EPERM
@@ -262,6 +255,13 @@ struct {
 	__type(key, pid_t);
 	__type(value, __u32);
 } te_protected_pids SEC(".maps");
+
+struct {
+    __uint(type, BPF_MAP_TYPE_HASH);
+    __uint(max_entries, 16384);
+    __type(key, pid_t);
+    __type(value, __u64);
+} audit_call SEC(".maps");
 
 static __always_inline int te_pid_protected(pid_t pid)
 {
@@ -647,7 +647,7 @@ static __always_inline void te_fd_key(pid_t pid, int fd, struct fd_key *out)
 static __always_inline int te_file_id_equal(const struct file_id *a,
 					    const struct file_id *b)
 {
-	return a->ino == b->ino && a->dev == b->dev && a->_pad == b->_pad;
+	return a->ino == b->ino && a->dev == b->dev;
 }
 
 static __noinline void te_store_fileptr_ref(struct file *file,
@@ -808,7 +808,6 @@ static __always_inline int te_resolve_file_id_from_file(struct file *file,
 		return -1;
 	fid->ino = BPF_CORE_READ(inode, i_ino);
 	fid->dev = BPF_CORE_READ(inode, i_sb, s_dev);
-	fid->_pad = BPF_CORE_READ(inode, i_generation);
 	return fid->ino ? 0 : -1;
 }
 
@@ -1161,16 +1160,6 @@ static __always_inline void emit_violation(pid_t pid, unsigned int rule_id,
 					   unsigned int killed,
 					   unsigned int effect)
 {
-	if (matched_labels) {
-		struct flow_ctx *flow = flow_begin();
-		if (flow) {
-			flow->from = flow_process(pid);
-			flow->to.kind = conn_ip ? 3 : 4; flow->to.ino = conn_ip;
-			flow->labels = matched_labels; flow->domain = domain_id; flow->operation = 6;
-			flow->rule_id = rule_id; flow->outcome = killed ? 3 : blocked ? 2 : 1;
-			flow_target(flow, target); flow_emit();
-		}
-	}
 	struct task_struct *task = (struct task_struct *)bpf_get_current_task();
 	struct event *v = bpf_ringbuf_reserve(&rb, sizeof(*v), 0);
 	if (!v)
@@ -1815,7 +1804,6 @@ static __always_inline void te_resolve_file_id(__u32 ref_kind, const void *a,
 	if (inode) {
 		fid->ino = BPF_CORE_READ(inode, i_ino);
 		fid->dev = BPF_CORE_READ(inode, i_sb, s_dev);
-		fid->_pad = BPF_CORE_READ(inode, i_generation);
 	}
 	if (!fid->ino)
 		fid->ino = te_fnv1a(path);
@@ -2762,14 +2750,12 @@ static __always_inline int te_handle_exec(__u32 ref_kind, const void *a,
 SEC("lsm/bprm_check_security")
 int BPF_PROG(enforce_bprm_check_security, struct linux_binprm *bprm)
 {
-	flow_set_hook("lsm/bprm_check_security");
 	return te_handle_exec(TE_REF_BPRM, bprm, 0, TE_MODE_BLOCK);
 }
 
 SEC("lsm/file_open")
 int BPF_PROG(enforce_file_open, struct file *file)
 {
-	flow_set_hook("lsm/file_open");
 	return te_handle_file(TE_REF_FILE, file, 0,
 			      te_access_from_open_flags(BPF_CORE_READ(file, f_flags)),
 			      TE_MODE_BLOCK);
@@ -2778,7 +2764,6 @@ int BPF_PROG(enforce_file_open, struct file *file)
 SEC("lsm/file_permission")
 int BPF_PROG(enforce_file_permission, struct file *file, int mask)
 {
-	flow_set_hook("lsm/file_permission");
 	return te_handle_file_permission(file, te_access_from_perm_mask(mask),
 					 TE_MODE_BLOCK);
 }
@@ -2786,7 +2771,6 @@ int BPF_PROG(enforce_file_permission, struct file *file, int mask)
 SEC("lsm/file_truncate")
 int BPF_PROG(enforce_file_truncate, struct file *file)
 {
-	flow_set_hook("lsm/file_truncate");
 	return te_handle_file_permission(file, TE_ACCESS_WRITE, TE_MODE_BLOCK);
 }
 
@@ -2794,7 +2778,6 @@ SEC("lsm/mmap_file")
 int BPF_PROG(enforce_mmap_file, struct file *file, unsigned long reqprot,
 	     unsigned long prot, unsigned long flags)
 {
-	flow_set_hook("lsm/mmap_file");
 	(void)reqprot;
 	if (!file)
 		return 0;
@@ -2806,7 +2789,6 @@ SEC("lsm/file_mprotect")
 int BPF_PROG(enforce_file_mprotect, struct vm_area_struct *vma,
 	     unsigned long reqprot, unsigned long prot)
 {
-	flow_set_hook("lsm/file_mprotect");
 	struct file *file;
 	unsigned long vm_flags;
 	unsigned long map_flags;
@@ -2827,7 +2809,6 @@ int BPF_PROG(enforce_file_mprotect, struct vm_area_struct *vma,
 SEC("lsm/path_truncate")
 int BPF_PROG(enforce_path_truncate, const struct path *path_arg)
 {
-	flow_set_hook("lsm/path_truncate");
 	return te_handle_file(TE_REF_PATH, path_arg, 0, TE_ACCESS_WRITE,
 			      TE_MODE_BLOCK);
 }
@@ -2835,7 +2816,6 @@ int BPF_PROG(enforce_path_truncate, const struct path *path_arg)
 SEC("lsm/path_unlink")
 int BPF_PROG(enforce_path_unlink, const struct path *dir, struct dentry *dentry)
 {
-	flow_set_hook("lsm/path_unlink");
 	return te_handle_file(TE_REF_PATH_DENTRY, dir, dentry, TE_ACCESS_WRITE,
 			      TE_MODE_BLOCK);
 }
@@ -2846,7 +2826,6 @@ SEC("lsm/path_link")
 int BPF_PROG(enforce_path_link, struct dentry *old_dentry,
              const struct path *new_dir, struct dentry *new_dentry)
 {
-	flow_set_hook("lsm/path_link");
     struct path old_path = {};
     bpf_core_read(&old_path.mnt, sizeof(old_path.mnt), &new_dir->mnt);
     old_path.dentry = old_dentry;
@@ -2862,7 +2841,6 @@ int BPF_PROG(enforce_path_rename, const struct path *old_dir,
 	     struct dentry *old_dentry, const struct path *new_dir,
 	     struct dentry *new_dentry, unsigned int flags)
 {
-	flow_set_hook("lsm/path_rename");
 	(void)flags;
 	int rc = te_handle_file(TE_REF_PATH_DENTRY, old_dir, old_dentry,
 				TE_ACCESS_WRITE, TE_MODE_BLOCK);
@@ -2876,7 +2854,6 @@ SEC("lsm/socket_connect")
 int BPF_PROG(enforce_socket_connect, struct socket *sock, struct sockaddr *address,
 	     int addrlen)
 {
-	flow_set_hook("lsm/socket_connect");
 	(void)sock;
 	(void)addrlen;
 	return te_handle_net(TE_REF_SOCKADDR_KERN, address, 0,
@@ -2887,7 +2864,6 @@ SEC("lsm/socket_recvmsg")
 int BPF_PROG(enforce_socket_recvmsg, struct socket *sock, struct msghdr *msg,
 	     int size, int flags)
 {
-	flow_set_hook("lsm/socket_recvmsg");
 	(void)msg;
 	(void)size;
 	(void)flags;
@@ -2915,7 +2891,6 @@ SEC("lsm/task_kill")
 int BPF_PROG(enforce_task_kill, struct task_struct *target,
 	     struct kernel_siginfo *info, int sig, const struct cred *cred)
 {
-	flow_set_hook("lsm/task_kill");
 	(void)info;
 	(void)cred;
 	if (sig == 0)
@@ -2927,7 +2902,6 @@ SEC("lsm/ptrace_access_check")
 int BPF_PROG(enforce_ptrace_access_check, struct task_struct *child,
 	     unsigned int mode)
 {
-	flow_set_hook("lsm/ptrace_access_check");
 	(void)mode;
 	return te_protect_control_pid(child);
 }
@@ -2936,7 +2910,6 @@ SEC("lsm/bpf")
 int BPF_PROG(enforce_bpf_syscall, int cmd, union bpf_attr *attr,
 	     unsigned int size, bool privileged)
 {
-	flow_set_hook("lsm/bpf");
 	pid_t caller = te_current_pid_tgid() >> 32;
 
 	(void)attr;
@@ -2965,7 +2938,6 @@ int BPF_PROG(enforce_bpf_syscall, int cmd, union bpf_attr *attr,
 SEC("raw_tp/sched_process_fork")
 int handle_fork(struct bpf_raw_tracepoint_args *ctx)
 {
-	flow_set_hook("raw_tp/sched_process_fork");
 	/* Raw tracepoint arguments have a stable two-pointer ABI. Avoid CO-RE
 	 * indexing into the zero-length args[] declaration in older kernel BTF. */
 	struct { __u64 parent; __u64 child; } *args = (void *)ctx;
@@ -2980,11 +2952,6 @@ int handle_fork(struct bpf_raw_tracepoint_args *ctx)
 	 * leader's state; recording TIDs leaks entries until PID reuse. */
 	if (child_pid != te_task_tgid(child))
 		return 0;
-	if (!te_pid_active(parent_tgid))
-		return 0;
-	__u32 birth_pid = child_pid;
-	__u64 birth = BPF_CORE_READ(child, start_boottime);
-	bpf_map_update_elem(&flow_births, &birth_pid, &birth, BPF_ANY);
 	__u64 *tag = bpf_map_lookup_elem(&audit_call, &parent_tgid);
 	if (tag) { __u64 inherited = *tag; bpf_map_update_elem(&audit_call, &child_pid, &inherited, BPF_ANY); }
 	te_fork(parent_tgid, child_pid);
@@ -2995,8 +2962,6 @@ int handle_fork(struct bpf_raw_tracepoint_args *ctx)
 SEC("tp/sched/sched_process_exec")
 int handle_exec(struct trace_event_raw_sched_process_exec *ctx)
 {
-	flow_set_hook("tp/sched/sched_process_exec");
-	te_flow_exec(te_current_pid_tgid() >> 32);
 	pid_t pid = te_current_pid_tgid() >> 32;
 	struct task_struct *task = (struct task_struct *)bpf_get_current_task();
 	struct exec_scratch *scratch = exec_scratch_buf();
@@ -3034,8 +2999,6 @@ int handle_exec(struct trace_event_raw_sched_process_exec *ctx)
 SEC("tp/sched/sched_process_exec")
 int handle_exec_args(struct trace_event_raw_sched_process_exec *ctx)
 {
-	flow_set_hook("tp/sched/sched_process_exec");
-	te_flow_exec(te_current_pid_tgid() >> 32);
 	pid_t pid = te_current_pid_tgid() >> 32;
 #ifndef ACTPLANE_LEGACY_KERNEL
 	struct task_struct *task = (struct task_struct *)bpf_get_current_task();
@@ -3086,7 +3049,6 @@ int handle_exec_args(struct trace_event_raw_sched_process_exec *ctx)
 SEC("tp/sched/sched_process_exec")
 int exec_tp_update_simple(struct trace_event_raw_sched_process_exec *ctx)
 {
-	flow_set_hook("tp/sched/sched_process_exec");
 	exec_pipe_collect_updates(0);
 	bpf_tail_call(ctx, &exec_tail, EXEC_TAIL_UPDATE_PREFIX);
 	return 0;
@@ -3095,7 +3057,6 @@ int exec_tp_update_simple(struct trace_event_raw_sched_process_exec *ctx)
 SEC("tp/sched/sched_process_exec")
 int exec_tp_update_prefix(struct trace_event_raw_sched_process_exec *ctx)
 {
-	flow_set_hook("tp/sched/sched_process_exec");
 #ifndef ACTPLANE_LEGACY_KERNEL
 	exec_pipe_collect_updates(1);
 #endif
@@ -3107,7 +3068,6 @@ int exec_tp_update_prefix(struct trace_event_raw_sched_process_exec *ctx)
 SEC("tp/sched/sched_process_exec")
 int exec_tp_rule_simple(struct trace_event_raw_sched_process_exec *ctx)
 {
-	flow_set_hook("tp/sched/sched_process_exec");
 	exec_pipe_scan_rules(0);
 	bpf_tail_call(ctx, &exec_tail, EXEC_TAIL_RULE_COMPLEX);
 	return 0;
@@ -3116,7 +3076,6 @@ int exec_tp_rule_simple(struct trace_event_raw_sched_process_exec *ctx)
 SEC("tp/sched/sched_process_exec")
 int exec_tp_rule_complex(struct trace_event_raw_sched_process_exec *ctx)
 {
-	flow_set_hook("tp/sched/sched_process_exec");
 	(void)ctx;
 #ifndef ACTPLANE_LEGACY_KERNEL
 	exec_pipe_scan_rules(1);
@@ -3128,7 +3087,6 @@ int exec_tp_rule_complex(struct trace_event_raw_sched_process_exec *ctx)
 SEC("tp/sched/sched_process_exit")
 int handle_exit(struct trace_event_raw_sched_process_template *ctx)
 {
-	flow_set_hook("tp/sched/sched_process_exit");
 	u64 id = te_current_pid_tgid();
 	pid_t pid = id >> 32;
 	struct task_struct *task = (struct task_struct *)bpf_get_current_task();
@@ -3147,7 +3105,6 @@ int handle_exit(struct trace_event_raw_sched_process_template *ctx)
 	te_delete_mmaps(pid);
 	bpf_map_delete_elem(&te_protected_pids, &pid);
 	bpf_map_delete_elem(&audit_call, &pid);
-	bpf_map_delete_elem(&flow_births, &pid);
 	return 0;
 }
 
@@ -3374,28 +3331,24 @@ static __always_inline int handle_accept_exit(long ret)
 SEC("tp/syscalls/sys_enter_openat")
 int trace_openat(struct trace_event_raw_sys_enter *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_enter_openat");
 	return stash_open((const void *)ctx->args[1], (unsigned int)ctx->args[2], 1);
 }
 
 SEC("tp/syscalls/sys_exit_openat")
 int trace_openat_exit(struct trace_event_raw_sys_exit *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_exit_openat");
 	return handle_open_exit(ctx->ret);
 }
 
 SEC("tp/syscalls/sys_enter_open")
 int trace_open(struct trace_event_raw_sys_enter *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_enter_open");
 	return stash_open((const void *)ctx->args[0], (unsigned int)ctx->args[1], 1);
 }
 
 SEC("tp/syscalls/sys_exit_open")
 int trace_open_exit(struct trace_event_raw_sys_exit *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_exit_open");
 	return handle_open_exit(ctx->ret);
 }
 
@@ -3404,7 +3357,6 @@ int trace_open_exit(struct trace_event_raw_sys_exit *ctx)
 SEC("tp/syscalls/sys_enter_openat2")
 int trace_openat2(struct trace_event_raw_sys_enter *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_enter_openat2");
 	struct open_how how = {};
 	bpf_probe_read_user(&how, sizeof(how), (void *)ctx->args[2]);
 	return stash_open((const void *)ctx->args[1], (unsigned int)how.flags, 1);
@@ -3412,7 +3364,6 @@ int trace_openat2(struct trace_event_raw_sys_enter *ctx)
 SEC("tp/syscalls/sys_exit_openat2")
 int trace_openat2_exit(struct trace_event_raw_sys_exit *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_exit_openat2");
 	return handle_open_exit(ctx->ret);
 }
 
@@ -3420,13 +3371,11 @@ int trace_openat2_exit(struct trace_event_raw_sys_exit *ctx)
 SEC("tp/syscalls/sys_enter_creat")
 int trace_creat(struct trace_event_raw_sys_enter *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_enter_creat");
 	return stash_open((const void *)ctx->args[0], O_WRONLY | O_CREAT | O_TRUNC, 1);
 }
 SEC("tp/syscalls/sys_exit_creat")
 int trace_creat_exit(struct trace_event_raw_sys_exit *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_exit_creat");
 	return handle_open_exit(ctx->ret);
 }
 
@@ -3434,13 +3383,11 @@ int trace_creat_exit(struct trace_event_raw_sys_exit *ctx)
 SEC("tp/syscalls/sys_enter_truncate")
 int trace_truncate(struct trace_event_raw_sys_enter *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_enter_truncate");
 	return stash_open((const void *)ctx->args[0], O_WRONLY, 0);
 }
 SEC("tp/syscalls/sys_exit_truncate")
 int trace_truncate_exit(struct trace_event_raw_sys_exit *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_exit_truncate");
 	return handle_open_exit(ctx->ret);
 }
 /* renameat2 is already hooked below (sys_enter_renameat2 -> write on new path). */
@@ -3448,49 +3395,42 @@ int trace_truncate_exit(struct trace_event_raw_sys_exit *ctx)
 SEC("tp/syscalls/sys_enter_pipe")
 int trace_pipe(struct trace_event_raw_sys_enter *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_enter_pipe");
 	return stash_pipe((const void *)ctx->args[0]);
 }
 
 SEC("tp/syscalls/sys_exit_pipe")
 int trace_pipe_exit(struct trace_event_raw_sys_exit *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_exit_pipe");
 	return handle_pipe_exit(ctx->ret);
 }
 
 SEC("tp/syscalls/sys_enter_pipe2")
 int trace_pipe2(struct trace_event_raw_sys_enter *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_enter_pipe2");
 	return stash_pipe((const void *)ctx->args[0]);
 }
 
 SEC("tp/syscalls/sys_exit_pipe2")
 int trace_pipe2_exit(struct trace_event_raw_sys_exit *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_exit_pipe2");
 	return handle_pipe_exit(ctx->ret);
 }
 
 SEC("tp/syscalls/sys_enter_socketpair")
 int trace_socketpair(struct trace_event_raw_sys_enter *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_enter_socketpair");
 	return stash_socketpair((const void *)ctx->args[3], (int)ctx->args[0]);
 }
 
 SEC("tp/syscalls/sys_exit_socketpair")
 int trace_socketpair_exit(struct trace_event_raw_sys_exit *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_exit_socketpair");
 	return handle_socketpair_exit(ctx->ret);
 }
 
 SEC("tp/syscalls/sys_enter_bind")
 int trace_bind(struct trace_event_raw_sys_enter *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_enter_bind");
 	return stash_unixsock((int)ctx->args[0], (const void *)ctx->args[1],
 			      (int)ctx->args[2]);
 }
@@ -3498,56 +3438,48 @@ int trace_bind(struct trace_event_raw_sys_enter *ctx)
 SEC("tp/syscalls/sys_exit_bind")
 int trace_bind_exit(struct trace_event_raw_sys_exit *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_exit_bind");
 	return handle_unixsock_exit(ctx->ret);
 }
 
 SEC("tp/syscalls/sys_enter_accept")
 int trace_accept(struct trace_event_raw_sys_enter *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_enter_accept");
 	return stash_accept((int)ctx->args[0]);
 }
 
 SEC("tp/syscalls/sys_exit_accept")
 int trace_accept_exit(struct trace_event_raw_sys_exit *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_exit_accept");
 	return handle_accept_exit(ctx->ret);
 }
 
 SEC("tp/syscalls/sys_enter_accept4")
 int trace_accept4(struct trace_event_raw_sys_enter *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_enter_accept4");
 	return stash_accept((int)ctx->args[0]);
 }
 
 SEC("tp/syscalls/sys_exit_accept4")
 int trace_accept4_exit(struct trace_event_raw_sys_exit *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_exit_accept4");
 	return handle_accept_exit(ctx->ret);
 }
 
 SEC("tp/syscalls/sys_enter_unlink")
 int trace_unlink(struct trace_event_raw_sys_enter *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_enter_unlink");
 	return te_handle_file(TE_REF_USER_PATH, (const void *)ctx->args[0], 0,
 			      TE_ACCESS_WRITE, te_tracepoint_mode());
 }
 SEC("tp/syscalls/sys_enter_unlinkat")
 int trace_unlinkat(struct trace_event_raw_sys_enter *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_enter_unlinkat");
 	return te_handle_file(TE_REF_USER_PATH, (const void *)ctx->args[1], 0,
 			      TE_ACCESS_WRITE, te_tracepoint_mode());
 }
 SEC("tp/syscalls/sys_enter_rename")
 int trace_rename(struct trace_event_raw_sys_enter *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_enter_rename");
 	return te_stash_rename_user_paths((const void *)ctx->args[0],
 					  (const void *)ctx->args[1],
 					  0,
@@ -3556,7 +3488,6 @@ int trace_rename(struct trace_event_raw_sys_enter *ctx)
 SEC("tp/syscalls/sys_exit_rename")
 int trace_rename_exit(struct trace_event_raw_sys_exit *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_exit_rename");
 	return te_handle_rename_exit(ctx->ret, te_tracepoint_mode());
 }
 
@@ -3564,14 +3495,12 @@ int trace_rename_exit(struct trace_event_raw_sys_exit *ctx)
 SEC("tp/syscalls/sys_exit_rename")
 int trace_rename_exit_flow(struct trace_event_raw_sys_exit *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_exit_rename");
 	return te_handle_rename_flow_exit(ctx->ret);
 }
 #endif
 SEC("tp/syscalls/sys_enter_renameat")
 int trace_renameat(struct trace_event_raw_sys_enter *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_enter_renameat");
 	return te_stash_rename_user_paths((const void *)ctx->args[1],
 					  (const void *)ctx->args[3],
 					  0,
@@ -3580,7 +3509,6 @@ int trace_renameat(struct trace_event_raw_sys_enter *ctx)
 SEC("tp/syscalls/sys_exit_renameat")
 int trace_renameat_exit(struct trace_event_raw_sys_exit *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_exit_renameat");
 	return te_handle_rename_exit(ctx->ret, te_tracepoint_mode());
 }
 
@@ -3588,14 +3516,12 @@ int trace_renameat_exit(struct trace_event_raw_sys_exit *ctx)
 SEC("tp/syscalls/sys_exit_renameat")
 int trace_renameat_exit_flow(struct trace_event_raw_sys_exit *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_exit_renameat");
 	return te_handle_rename_flow_exit(ctx->ret);
 }
 #endif
 SEC("tp/syscalls/sys_enter_renameat2")
 int trace_renameat2(struct trace_event_raw_sys_enter *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_enter_renameat2");
 	return te_stash_rename_user_paths((const void *)ctx->args[1],
 					  (const void *)ctx->args[3],
 					  (__u32)ctx->args[4],
@@ -3604,7 +3530,6 @@ int trace_renameat2(struct trace_event_raw_sys_enter *ctx)
 SEC("tp/syscalls/sys_exit_renameat2")
 int trace_renameat2_exit(struct trace_event_raw_sys_exit *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_exit_renameat2");
 	return te_handle_rename_exit(ctx->ret, te_tracepoint_mode());
 }
 
@@ -3612,7 +3537,6 @@ int trace_renameat2_exit(struct trace_event_raw_sys_exit *ctx)
 SEC("tp/syscalls/sys_exit_renameat2")
 int trace_renameat2_exit_flow(struct trace_event_raw_sys_exit *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_exit_renameat2");
 	return te_handle_rename_flow_exit(ctx->ret);
 }
 #endif
@@ -3649,7 +3573,6 @@ static __always_inline int handle_connect_exit(long ret)
 SEC("tp/syscalls/sys_enter_connect")
 int trace_connect(struct trace_event_raw_sys_enter *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_enter_connect");
 	stash_connect((int)ctx->args[0], (const void *)ctx->args[1]);
 	stash_unixsock((int)ctx->args[0], (const void *)ctx->args[1],
 		       (int)ctx->args[2]);
@@ -3660,7 +3583,6 @@ int trace_connect(struct trace_event_raw_sys_enter *ctx)
 SEC("tp/syscalls/sys_exit_connect")
 int trace_connect_exit(struct trace_event_raw_sys_exit *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_exit_connect");
 	handle_connect_exit(ctx->ret);
 	return handle_unixsock_exit(ctx->ret);
 }
@@ -4100,35 +4022,30 @@ static __always_inline int handle_io_enter(int fd, __u32 access)
 SEC("tp/syscalls/sys_enter_read")
 int trace_read(struct trace_event_raw_sys_enter *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_enter_read");
 	return handle_io_enter((int)ctx->args[0], TE_ACCESS_READ);
 }
 
 SEC("tp/syscalls/sys_exit_read")
 int trace_read_exit(struct trace_event_raw_sys_exit *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_exit_read");
 	return handle_io_exit_read(ctx->ret);
 }
 
 SEC("tp/syscalls/sys_enter_write")
 int trace_write(struct trace_event_raw_sys_enter *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_enter_write");
 	return handle_io_enter((int)ctx->args[0], TE_ACCESS_WRITE);
 }
 
 SEC("tp/syscalls/sys_exit_write")
 int trace_write_exit(struct trace_event_raw_sys_exit *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_exit_write");
 	return handle_io_exit_write(ctx->ret);
 }
 
 SEC("tp/syscalls/sys_enter_mmap")
 int trace_mmap(struct trace_event_raw_sys_enter *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_enter_mmap");
 	return handle_mmap_enter((int)ctx->args[4], ctx->args[2], ctx->args[3],
 				 ctx->args[1]);
 }
@@ -4136,56 +4053,48 @@ int trace_mmap(struct trace_event_raw_sys_enter *ctx)
 SEC("tp/syscalls/sys_exit_mmap")
 int trace_mmap_exit(struct trace_event_raw_sys_exit *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_exit_mmap");
 	return handle_mmap_exit(ctx->ret);
 }
 
 SEC("tp/syscalls/sys_enter_mprotect")
 int trace_mprotect(struct trace_event_raw_sys_enter *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_enter_mprotect");
 	return handle_mprotect_enter(ctx->args[0], ctx->args[1], ctx->args[2]);
 }
 
 SEC("tp/syscalls/sys_exit_mprotect")
 int trace_mprotect_exit(struct trace_event_raw_sys_exit *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_exit_mprotect");
 	return handle_mprotect_exit(ctx->ret);
 }
 
 SEC("tp/syscalls/sys_enter_mremap")
 int trace_mremap(struct trace_event_raw_sys_enter *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_enter_mremap");
 	return handle_mremap_enter(ctx->args[0], ctx->args[1], ctx->args[2]);
 }
 
 SEC("tp/syscalls/sys_exit_mremap")
 int trace_mremap_exit(struct trace_event_raw_sys_exit *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_exit_mremap");
 	return handle_mremap_exit(ctx->ret);
 }
 
 SEC("tp/syscalls/sys_enter_munmap")
 int trace_munmap(struct trace_event_raw_sys_enter *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_enter_munmap");
 	return handle_munmap_enter(ctx->args[0], ctx->args[1]);
 }
 
 SEC("tp/syscalls/sys_exit_munmap")
 int trace_munmap_exit(struct trace_event_raw_sys_exit *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_exit_munmap");
 	return handle_munmap_exit(ctx->ret);
 }
 
 SEC("tp/syscalls/sys_enter_sendto")
 int trace_sendto(struct trace_event_raw_sys_enter *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_enter_sendto");
 	return handle_io_enter_addr((int)ctx->args[0], TE_ACCESS_WRITE,
 				    (const void *)ctx->args[4],
 				    TE_IO_ADDR_SOCKADDR, (int)ctx->args[5]);
@@ -4194,14 +4103,12 @@ int trace_sendto(struct trace_event_raw_sys_enter *ctx)
 SEC("tp/syscalls/sys_exit_sendto")
 int trace_sendto_exit(struct trace_event_raw_sys_exit *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_exit_sendto");
 	return handle_io_exit_addr(ctx->ret, TE_ACCESS_WRITE);
 }
 
 SEC("tp/syscalls/sys_enter_recvfrom")
 int trace_recvfrom(struct trace_event_raw_sys_enter *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_enter_recvfrom");
 	return handle_io_enter_addr((int)ctx->args[0], TE_ACCESS_READ,
 				    (const void *)ctx->args[4],
 				    TE_IO_ADDR_SOCKADDR, 0);
@@ -4210,14 +4117,12 @@ int trace_recvfrom(struct trace_event_raw_sys_enter *ctx)
 SEC("tp/syscalls/sys_exit_recvfrom")
 int trace_recvfrom_exit(struct trace_event_raw_sys_exit *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_exit_recvfrom");
 	return handle_io_exit_addr(ctx->ret, TE_ACCESS_READ);
 }
 
 SEC("tp/syscalls/sys_enter_sendmsg")
 int trace_sendmsg(struct trace_event_raw_sys_enter *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_enter_sendmsg");
 	return handle_io_enter_addr((int)ctx->args[0], TE_ACCESS_WRITE,
 				    (const void *)ctx->args[1],
 				    TE_IO_ADDR_USER_MSGHDR, 0);
@@ -4226,14 +4131,12 @@ int trace_sendmsg(struct trace_event_raw_sys_enter *ctx)
 SEC("tp/syscalls/sys_exit_sendmsg")
 int trace_sendmsg_exit(struct trace_event_raw_sys_exit *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_exit_sendmsg");
 	return handle_io_exit_addr(ctx->ret, TE_ACCESS_WRITE);
 }
 
 SEC("tp/syscalls/sys_enter_recvmsg")
 int trace_recvmsg(struct trace_event_raw_sys_enter *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_enter_recvmsg");
 	return handle_io_enter_addr((int)ctx->args[0], TE_ACCESS_READ,
 				    (const void *)ctx->args[1],
 				    TE_IO_ADDR_USER_MSGHDR, 0);
@@ -4242,7 +4145,6 @@ int trace_recvmsg(struct trace_event_raw_sys_enter *ctx)
 SEC("tp/syscalls/sys_exit_recvmsg")
 int trace_recvmsg_exit(struct trace_event_raw_sys_exit *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_exit_recvmsg");
 	return handle_io_exit_addr(ctx->ret, TE_ACCESS_READ);
 }
 
@@ -4278,7 +4180,6 @@ static __always_inline int handle_dup_exit(long ret)
 SEC("tp/syscalls/sys_enter_close")
 int trace_close(struct trace_event_raw_sys_enter *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_enter_close");
 	pid_t pid = te_current_pid_tgid() >> 32;
 	if (te_pid_active(pid))
 		te_delete_fd(pid, (int)ctx->args[0]);
@@ -4288,49 +4189,42 @@ int trace_close(struct trace_event_raw_sys_enter *ctx)
 SEC("tp/syscalls/sys_enter_dup")
 int trace_dup(struct trace_event_raw_sys_enter *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_enter_dup");
 	return stash_dup((int)ctx->args[0]);
 }
 
 SEC("tp/syscalls/sys_exit_dup")
 int trace_dup_exit(struct trace_event_raw_sys_exit *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_exit_dup");
 	return handle_dup_exit(ctx->ret);
 }
 
 SEC("tp/syscalls/sys_enter_dup2")
 int trace_dup2(struct trace_event_raw_sys_enter *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_enter_dup2");
 	return stash_dup((int)ctx->args[0]);
 }
 
 SEC("tp/syscalls/sys_exit_dup2")
 int trace_dup2_exit(struct trace_event_raw_sys_exit *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_exit_dup2");
 	return handle_dup_exit(ctx->ret);
 }
 
 SEC("tp/syscalls/sys_enter_dup3")
 int trace_dup3(struct trace_event_raw_sys_enter *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_enter_dup3");
 	return stash_dup((int)ctx->args[0]);
 }
 
 SEC("tp/syscalls/sys_exit_dup3")
 int trace_dup3_exit(struct trace_event_raw_sys_exit *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_exit_dup3");
 	return handle_dup_exit(ctx->ret);
 }
 
 SEC("tp/syscalls/sys_enter_fcntl")
 int trace_fcntl(struct trace_event_raw_sys_enter *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_enter_fcntl");
 	int cmd = (int)ctx->args[1];
 	if (cmd == F_DUPFD || cmd == F_DUPFD_CLOEXEC)
 		return stash_dup((int)ctx->args[0]);
@@ -4340,7 +4234,6 @@ int trace_fcntl(struct trace_event_raw_sys_enter *ctx)
 SEC("tp/syscalls/sys_exit_fcntl")
 int trace_fcntl_exit(struct trace_event_raw_sys_exit *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_exit_fcntl");
 	return handle_dup_exit(ctx->ret);
 }
 
@@ -4387,49 +4280,42 @@ static __always_inline int handle_fd_copy_exit(long ret)
 SEC("tp/syscalls/sys_enter_sendfile64")
 int trace_sendfile64(struct trace_event_raw_sys_enter *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_enter_sendfile64");
 	return stash_fd_copy((int)ctx->args[0], (int)ctx->args[1]);
 }
 
 SEC("tp/syscalls/sys_exit_sendfile64")
 int trace_sendfile64_exit(struct trace_event_raw_sys_exit *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_exit_sendfile64");
 	return handle_fd_copy_exit(ctx->ret);
 }
 
 SEC("tp/syscalls/sys_enter_copy_file_range")
 int trace_copy_file_range(struct trace_event_raw_sys_enter *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_enter_copy_file_range");
 	return stash_fd_copy((int)ctx->args[2], (int)ctx->args[0]);
 }
 
 SEC("tp/syscalls/sys_exit_copy_file_range")
 int trace_copy_file_range_exit(struct trace_event_raw_sys_exit *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_exit_copy_file_range");
 	return handle_fd_copy_exit(ctx->ret);
 }
 
 SEC("tp/syscalls/sys_enter_splice")
 int trace_splice(struct trace_event_raw_sys_enter *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_enter_splice");
 	return stash_fd_copy((int)ctx->args[2], (int)ctx->args[0]);
 }
 
 SEC("tp/syscalls/sys_exit_splice")
 int trace_splice_exit(struct trace_event_raw_sys_exit *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_exit_splice");
 	return handle_fd_copy_exit(ctx->ret);
 }
 
 SEC("tp/syscalls/sys_enter_getpid")
 int cap_drain_tick(struct trace_event_raw_sys_enter *ctx)
 {
-	flow_set_hook("tp/syscalls/sys_enter_getpid");
 	(void)ctx;
 	cap_drain_current();
 	return 0;

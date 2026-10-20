@@ -1,54 +1,59 @@
-# AgentScope label sources and witnessed information flow
+# AgentScope label sources and native ActPlane information-flow evidence
 
 Implementation baseline: `a18229153913c38a736b167a11397a8a56e7dbec`.
-Implemented and accepted in an isolated worktree; not deployed.
+Implemented and accepted in an isolated worktree; not deployed or pushed.
 
-## Contracts
+## Native boundary
 
-- Public AGENT is reserved execution identity. Public SECRET is a source category,
-  not one global execution label shared by every configuration.
-- Sources are scope-isolated, immutable versioned metadata. Configuration refs pin
-  ID/version and snapshots. Registration/editing does not approve or apply rules.
-- New versions of SECRET-EGRESS and SYS-secret-egress use SECRET. Old definitions,
-  approvals and SENSITIVE/REMOTE/CODE DSL remain unchanged. Compiler document
-  namespaces and actual label-count limits remain authoritative.
-- `RuntimeLabelTransition/1` contains kernel identities and exact predecessor IDs.
-  Boot/map/sequence identifies events; process birth and file dev/inode/generation
-  prevent path/PID joins. Broker binds trusted generation/domain/bundle hash.
-- Session flow requires trusted tool attribution; otherwise use the explicitly
-  marked shared-domain view. No inferred edges, byte-flow claims or secret bodies.
-- Separate 4 MiB audit ring, bounded LRU witnesses and explicit loss/gap states.
-  Existing enforcement remains authoritative. Network coverage is not expanded.
-- System label management and session flow are the two new UI entries. Existing
-  preview/approval screens receive compact frozen source summaries.
+AgentScope does not maintain an ActPlane information-flow fork. The ActPlane DSL
+compiler, BPF propagation, runtime, event ABI, capability checker and prebuilt
+objects remain byte-for-byte at the baseline above. AgentScope consumes native
+`taint_violation`, matched label/rule metadata and `provenance_model` only.
+
+ActPlane's authoritative contract is `first_available_matched_label`,
+`single_hop_origin`, and `full_causal_chain=false`. A product record therefore
+means “first origin reported by ActPlane -> current policy match”; it is not a
+complete causal chain. There is no custom ring, transition ABI, predecessor graph
+or associated performance claim.
+
+## Product contracts
+
+- Label sources are scope-isolated immutable versions. Configuration references
+  pin ID/version and snapshots; registration does not approve or apply policy.
+- A configuration may reference multiple sources. Those references are displayed
+  as configuration context, never as the exact origin of an event.
+- Exact origin is accepted only from native `provenance.origin_target`. A match
+  without provenance remains visible as “source not reported by ActPlane”.
+- Generation, bundle hash, domain and compiled clause must all match before a
+  native event is bound to the current applied configuration.
+- A session receives an event only with one trusted tool tag for the same domain
+  and generation. Missing, conflicting or cross-domain tags remain in the Agent
+  shared execution-domain view.
+- Historical `label_transition` rows are retained but never read by the new
+  projection. There is no destructive migration.
+- Collection states are only `available`, `empty`, and `collection_failed`.
+
+Both GET routes accept `view=session|shared_domain`, optional `generation`,
+optional `label`, an event-row `cursor`, and `limit` 1..100 (default 24). They
+return record pagination, not chain anchors.
+
+The UI is a compact evidence table plus details drawer. It permanently states
+that native evidence reports only the current match and first available origin,
+not a complete hop-by-hop chain. Empty, failed collection, historical generation,
+unreported origin and shared-domain attribution are distinct states.
 
 ## Acceptance
 
-Backend 1446 passed / 12 skipped; frontend 359 passed and production build;
-ActPlane workspace tests, C tests 42, DSL adapter tests 5 passed.
-Privileged Rust ignored tests are not claimed as executed.
-Real complete-template suite 164/164 and new label-template cases 6/6 passed.
-Real chain, rename, replacement, fork/exec and isolated API/Broker/native DSH
-tool/kernel/collector/query acceptance passed. Independent loopback receiver
-observed only the expected public controls. The DSH caller was deterministic,
-test-only, with no model requests.
+- `git diff --exit-code a182291 -- actplane`: passed with no differences.
+- AgentScope backend: 1507 passed; final route regression: 27 passed.
+- Frontend: 378 passed; production build passed (148 modules).
+- ActPlane C/workspace suites passed; ignored privileged tests are not claimed.
+- An isolated native scenario read synthetic secret data, blocked a real loopback
+  connect, produced native `taint_violation`, and showed one matching API/UI
+  evidence record. The receiver did not observe the restricted connection.
+- Browser acceptance verified the shared-domain table, drawer content, monotonic
+  timestamp wording and focus restoration.
 
-Identity collision, missing events, conflicting duplicate, reordered/reconnected
-delivery and generation checks use deterministic receipt tests; no claim of
-forcing actual OS PID reuse. Browser screenshots document real registry version
-isolation, preview/approval, shared flow, evidence drawer and request failure.
-
-Bounded 3x2000-file sample: all SECRET file witnesses received, reported loss 0;
-median workload 0.11361s vs baseline 0.11230s (~1.2% difference). This is not a
-production capacity or long-running loss guarantee; ~4.33 MB audit per sample.
-
-Runtime SHA256:
-`fc5570b6fbf029a822264f0c132c42f2d8bc47f0c1b5842b9b746c845685b5c3`.
-
-Reproduction scripts: `accept_label_flow.py`, `accept_label_e2e.py`,
-`benchmark_label_flow.py`; separate named BPF pin cleanup after identity-checked
-service teardown is provided in `cleanup_label_acceptance.py`.
-
-Authoritative Chinese RFC, ADR, REVIEW and BUG records and sanitized evidence:
-`C:\Users\happy\Desktop\归纳梳理\技术文档`.
-No deployed service restart or remote push is authorized by this acceptance.
+The final evidence is under
+`C:\Users\happy\Desktop\归纳梳理\技术文档\REVIEW\evidence\agentscope-native-information-flow-20261020`.
+No deployed service was restarted and no remote push was performed.

@@ -283,11 +283,9 @@ def execution_capabilities():
 
 def kernel_events(record,cursor=None):
     """Read bounded root-owned NDJSON, never a user-supplied log path."""
-    from broker.policy_capabilities import loaded_flow_status
-    flow_status=loaded_flow_status(record)
     eventpath=Path(record['workspace'])/'.actplane/events.jsonl'
     if eventpath.parent.is_symlink() or eventpath.parent.stat().st_uid!=0 or eventpath.parent.stat().st_mode&0o022:raise ValueError('Invalid kernel audit directory')
-    if not eventpath.exists():return {'events':[],'cursor':cursor,'generation':record['generation'],**flow_status}
+    if not eventpath.exists():return {'events':[],'cursor':cursor,'generation':record['generation']}
     fd=os.open(eventpath,os.O_RDONLY|os.O_NOFOLLOW)
     try:
         info=os.fstat(fd)
@@ -304,14 +302,11 @@ def kernel_events(record,cursor=None):
                 if not line or not line.endswith(b'\n'):stream.seek(begin);break
                 try:raw=json.loads(line)
                 except ValueError:continue
-                if raw.get('event') not in ('taint_violation','label_transition'):continue
+                if raw.get('event')!='taint_violation':continue
                 if raw.get('process_domain_id',raw.get('domain_id'))!=record['domain_id']:continue
-                if raw.get('event')=='label_transition':
-                    raw={**raw,'generation':record['generation'],
-                         'policy_hash':record.get('policy_artifact',{}).get('bundle_hash')}
                 events.append({'offset':begin,'event':raw})
             offset=stream.tell()
-        return {'events':events,'cursor':{'file':identity,'offset':offset},'generation':record['generation'],**flow_status,
+        return {'events':events,'cursor':{'file':identity,'offset':offset},'generation':record['generation'],
             'bundle_hash':record.get('policy_artifact',{}).get('bundle_hash'),'domain_id':record['domain_id']}
     finally:os.close(fd)
 
