@@ -83,7 +83,8 @@ print(json.dumps({'api_uid':os.geteuid(),'api_gid':os.getegid(),'groups':os.getg
 def stage():
     assert os.geteuid() == 0
     idle()
-    assert not git('status', '--porcelain').strip(), 'Commit reviewed source before deployment'
+    # Parallel UI work is unrelated and must not be staged, overwritten or shipped.
+    assert not git('status', '--porcelain', '--', *OVERLAY, 'scripts/deploy_reference_reader.py').strip(), 'Commit reviewed reader source before deployment'
     assert not git('diff', 'a182291', '--', 'actplane').strip(), 'ActPlane boundary changed'
     before = service(API);broker = service(BROKER);live = Path(before['WorkingDirectory'])
     assert live.parent == Path('/opt') and not DROP.exists()
