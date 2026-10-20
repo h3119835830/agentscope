@@ -3,6 +3,7 @@ import {Editor as ExistingEditor} from './SystemPolicyLibrary.jsx';
 import TemplateConfigurationDialog from './TemplateConfigurationDialog.jsx';
 import TemplateDefinitionDialog from './TemplateDefinitionDialog.jsx';
 import PolicyLifecycleDialog from './PolicyLifecycleDialog.jsx';
+import WritePermissionDialog from './WritePermissionDialog.jsx';
 import ActPlanePolicies,{PolicyDetail} from './ActPlanePolicies.jsx';
 import {visibleAgentInstances} from './agentInstancePresentation.mjs';
 import {effectLabel,operationLabel} from './policyRecordPresentation.mjs';
@@ -35,6 +36,7 @@ export default function UnifiedPolicyLibrary({api,post,agents=[],targetId='',con
  const [columnWidths,setColumnWidths]=useState(()=>CATALOG_COLUMNS.map(c=>c.width)),[resizingColumn,setResizingColumn]=useState(null),columnDrag=useRef(null);
  const [templateEditing,setTemplateEditing]=useState(null);
  const [showUnavailable,setShowUnavailable]=useState(false);
+ const [writeTarget,setWriteTarget]=useState(null);
  const resizeColumn=(index,width)=>setColumnWidths(previous=>previous.map((value,i)=>i===index?Math.max(CATALOG_COLUMNS[i].min,Math.min(CATALOG_COLUMNS[i].max,width)):value));
  function startColumnResize(e,index){
   if(e.button!==0)return;e.preventDefault();e.stopPropagation();e.currentTarget.focus();e.currentTarget.setPointerCapture(e.pointerId);
@@ -78,6 +80,8 @@ export default function UnifiedPolicyLibrary({api,post,agents=[],targetId='',con
   <div className="spl-filters"><input type="search" aria-label="搜索系统策略" placeholder="搜索模板、说明、子配置名称…" value={q} onChange={e=>setQ(e.target.value)}/><select aria-label="策略分类" value={category} onChange={e=>setCategory(e.target.value)}><option value="">全部类型</option>{[...new Set(groups.map(t=>t.category))].map(c=><option key={c}>{c}</option>)}</select><select aria-label="配置范围" value={scope} onChange={e=>{setScope(e.target.value);setSelected(new Set());setDslTarget('');}}><option value="all">全部范围</option><option value="system">全部受控 Agent</option>{scope!=='all'&&scope!=='system'&&!scopedAgent&&<option value={scope} disabled>目标失效，请重新选择</option>}{instances.map(a=><option value={a.id} key={a.id}>{configurationAgentLabel(a,agents)}</option>)}</select><span>{rows.length} 个模板</span></div>
   {error&&<p role="alert" className="spl-error">{error} <button className="button tiny ghost" onClick={refresh}>重试</button></p>}{notice&&<p role="status" className="spl-success">{notice}</p>}
   {configurationId&&data&&!located&&<p role="alert" className="inline-notice warning">此范围未找到对应配置；可能已归档或目标失效。不会切换范围或显示其他 Agent 的配置。</p>}
+  {scopedAgent&&<div className="spl-intro"><span>目录写权限单独审批；不会以允许规则抵消已有禁止。</span><button className="button tiny ghost" onClick={()=>setWriteTarget(scopedAgent)}>申请目录写权限</button></div>}
+  {writeTarget&&<WritePermissionDialog key={writeTarget.id} agent={writeTarget} agents={agents} api={api} post={post} onClose={()=>setWriteTarget(null)} onApprovals={onApprovals}/>}
   {dslAgent&&<section className="upl-agent-dsl-shell" aria-label="Agent DSL 管理"><div className="upl-agent-dsl-head"><div><strong>{configurationAgentLabel(dslAgent,agents)} · 原始 DSL</strong><p>兼容已有 Agent 文档的高级入口；保存校验、审批和应用仍是分开的操作。</p></div><button className="button tiny ghost" onClick={()=>setDslTarget('')}>收起</button></div><ActPlanePolicies key={dslAgent.id} ownedOnly scopeId={dslAgent.id} scopeLabel={configurationAgentLabel(dslAgent,agents)} recordScopeLabel={'指定 Agent · '+configurationAgentLabel(dslAgent,agents)} api={api} post={post} onChanged={refresh} onApprovals={onApprovals} onInherited={()=>{setDslTarget('');setScope('system');}}/></section>}
   <div className="spl-records upl-template-library" tabIndex={0} role="region" aria-label="策略模板表格"><table aria-label="策略模板目录" style={{width:columnWidths.reduce((sum,width)=>sum+width,0)}} className={resizingColumn!==null?'is-resizing-columns':undefined}>
    <colgroup>{CATALOG_COLUMNS.map((column,index)=><col key={column.key} className={'upl-catalog-'+column.key} style={{width:columnWidths[index]}}/>)}</colgroup>

@@ -162,7 +162,9 @@ def list_files(ident,workspace_id,path='',cursor=0):
   except ValueError:omitted+=1;continue
   entries.append({k:entry[k] for k in ('name','relative_path','kind','byte_size')})
  if context(ident)[1]!=binding:raise ValueError('浏览期间 Agent、资源或策略发生变化，请重新分析场景')
- return {'instance_id':ident,'workspace_id':workspace_id,'path':path,'entries':entries,'omitted_count':omitted,
+ return {'instance_id':ident,'workspace_id':workspace_id,'path':path,
+  'execution_path':mount['execution']+('/'+path if path else ''),
+  'entries':[{**entry,'execution_path':mount['execution']+'/'+entry['relative_path']} for entry in entries],'omitted_count':omitted,
   'next_cursor':result['next_cursor'],'truncated':result['truncated'],'read_only':True}
 
 def snapshot(ident,workspace_id,paths,max_total_bytes=None):

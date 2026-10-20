@@ -51,6 +51,12 @@ class Proposal(Model):
     base_hash:str=Field(pattern=r'^[a-f0-9]{64}$')
     request_key:str=Field(min_length=8,max_length=100)
     policy:dict
+class WritePermissionRequest(Model):
+    generation:str|None=None
+    base_hash:str=Field(pattern=r'^[a-f0-9]{64}$')
+    request_key:str=Field(min_length=8,max_length=100)
+    paths:list[str]=Field(min_length=1,max_length=16)
+    reason:str=Field(min_length=1,max_length=1000)
 class Confirm(Model):
     proposal_hash:str=Field(pattern=r'^[a-f0-9]{64}$')
 class Lease(Model):
@@ -129,6 +135,14 @@ def policy(ident:str):
     return {k:row.get(k) for k in ('policy','policy_hash','generation','gate','policy_records','proposals')}
 @router.post('/api/agent-instances/{ident}/policy/proposals')
 def proposal(ident:str,body:Proposal): return invoke(c.proposals,ident,body.model_dump())
+@router.get('/api/agent-instances/{ident}/write-permissions')
+def write_permissions(ident:str):
+    from .write_permissions import detail
+    return invoke(detail,ident)
+@router.post('/api/agent-instances/{ident}/write-permissions/proposals')
+def request_write_permissions(ident:str,body:WritePermissionRequest):
+    from .write_permissions import propose
+    return invoke(propose,ident,body.model_dump())
 @router.post('/api/agent-instances/{ident}/policy/proposals/{pid}/confirm')
 def confirm(ident:str,pid:str,body:Confirm):
     from .approval_decisions import confirm_scoped

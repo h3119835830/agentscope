@@ -44,10 +44,13 @@ class WorkspacePolicyAgent:
 
  def remember(self,reference):
   row=refs.load(self.ident,reference['read_id']);value=row['snapshot']
+  if self.enabled and value['workspace_id'] not in self.workspaces:
+   raise ToolContractError('此前读取依据不属于当前参考工作区')
   for source in value['files']:
    key=(value['workspace_id'],source['relative_path'])
    if key in self.selected:raise ToolContractError('相同参考文件不能重复读取')
    self.selected.add(key);self.total_bytes+=source['byte_size']
+   self.discovered.add(key);self.discovered_sizes[key]=source['byte_size']
   if len(self.selected)>MAX_FILES or self.total_bytes>MAX_BYTES:raise ToolContractError('本次资料超过累计读取限额')
   self.references.append(reference)
 
@@ -74,6 +77,14 @@ class WorkspacePolicyAgent:
    else:
     paths=refs.paths_checked(args['paths'])
     if any((workspace,path) not in self.discovered for path in paths):raise DirectoryConfirmationRequired('先查看对应目录，再选择已列出的正文文件')
+    if all((workspace,path) in self.selected for path in paths):
+     # Idempotent reads return only previously verified bodies, never a guess
+     # based on a matching basename in a different registered root.
+     files=[f for r in self.references if refs.load(self.ident,r['read_id'])['snapshot']['workspace_id']==workspace
+            for f in r['untrusted_project_files'] if f['relative_path'] in paths]
+     event.update(paths=paths,file_count=len(files),reused=True)
+     self.events.append(event)
+     return {'tool':tool,'arguments':args,'result':{'untrusted_project_files':files,'reused':True}}
     if len(self.selected)+len(paths)>MAX_FILES:raise ToolContractError('本次资料超过累计文件数量上限')
     if any((workspace,path) in self.selected for path in paths):raise ValueError('该文件正文已经在本次上下文中，请使用已读取资料')
     if self.total_bytes+sum(self.discovered_sizes[(workspace,p)] for p in paths)>MAX_BYTES:raise ToolContractError('本次资料超过累计读取限额')

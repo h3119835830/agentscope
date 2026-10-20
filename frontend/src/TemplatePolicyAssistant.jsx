@@ -3,12 +3,13 @@ import {configurationRecordSummary} from './policyConfigurationPresentation.mjs'
 import {agentName} from './agentInstancePresentation.mjs';
 import PolicyContextEvidence from './PolicyContextEvidence.jsx';
 import GenerationConfigurations from './GenerationConfigurations.jsx';
-import {attachmentTypes,readAttachments,conversationFor} from './policyConversationInput.mjs';
+import {attachmentTypes,readAttachments} from './policyConversationInput.mjs';
 import './templateConfigurations.css';
 const inputCache=new Map();
 export default function TemplatePolicyAssistant({target,scope,workspaceId,referenceWorkspaceId,referenceWorkspaceName,stage='preflight',runtimeEventSeq,api,post,onApprovals,onConfiguration}){
  const runtime=stage==='runtime',selectedReference=!!referenceWorkspaceId,referenceLabel=referenceWorkspaceName||'所选参考工作区',identity=target.id+':'+scope+':'+(workspaceId||'')+':'+stage+':'+(referenceWorkspaceId||''),request=useRef(null),alive=useRef(true),fileInput=useRef(null);
  const [data,setData]=useState(null),[text,setText]=useState(inputCache.get(identity)||''),[attachments,setAttachments]=useState([]),[error,setError]=useState(''),[busy,setBusy]=useState(false),[legacy,setLegacy]=useState([]),[reading,setReading]=useState(false);
+ const [fresh,setFresh]=useState(false);
  const path='/api/policy-templates?scope_id='+encodeURIComponent(target.id);
  async function load(){try{const value=await api(path);if(alive.current)setData(value);}catch(e){if(alive.current)setData(null);throw e;}}
  useEffect(()=>{alive.current=true;load().catch(e=>{if(alive.current)setError(e.message);});if(scope!=='system')api('/api/agent-instances/'+encodeURIComponent(target.id)+'/policy-drafts?'+new URLSearchParams({scope,...(workspaceId?{workspace_id:workspaceId}:{})})).then(v=>{if(alive.current)setLegacy(v.records||[]);}).catch(()=>{});return()=>{alive.current=false;};},[api,path,scope,workspaceId]);
@@ -18,15 +19,17 @@ export default function TemplatePolicyAssistant({target,scope,workspaceId,refere
  async function generate(e){e.preventDefault();if(busy||reading||!data||(!text.trim()&&!attachments.length))return;setBusy(true);setError('');try{
   const input={text:text.trim()||'请阅读附件，提取明确的安全约束并起草配置；缺少信息时请询问。',scope,workspace_id:workspaceId||null,
    reference_workspace_id:referenceWorkspaceId||null,stage,runtime_event_seq:runtimeEventSeq||null,
-   context_mode:scope==='agent'?'auto':'none',materials:attachments,conversation:conversationFor(history)};
+   context_mode:scope==='agent'?'auto':'none',materials:attachments,
+   parent_request_id:!fresh&&history.at(-1)?.generation_basis?history.at(-1).request_id:null,
+   conversation:[]};
   const fingerprint=JSON.stringify(input);if(request.current?.fingerprint!==fingerprint)request.current={fingerprint,key:crypto.randomUUID()};
   const value=await post(scope==='system'?'/api/policy-template-configurations/generate':'/api/agent-instances/'+encodeURIComponent(target.id)+'/template-configurations/generate',{...input,...(scope==='system'?{scope_id:'system'}:{}),request_key:request.current.key});
-  if(alive.current){await load();setText('');request.current=null;}
+  if(alive.current){await load();setText('');setFresh(false);request.current=null;}
  }catch(e){if(alive.current)setError(e.message);}finally{if(alive.current)setBusy(false);}}
  const history=(data?.generations||[]).filter(g=>g.scope===scope&&(g.workspace_id||null)===(workspaceId||null)&&(g.stage||'preflight')===stage&&(!referenceWorkspaceId||(g.reference_workspace_id||null)===referenceWorkspaceId));
  const assistantItems=items.filter(row=>row.origin===(runtime?'runtime_assistant':'assistant'));
  const fill=value=>setText(value);
- return <><section className={'policy-assistant assistant-v2 flow-assistant'+(!history.length?' assistant-empty':'')} aria-label={runtime?'运行时策略助手对话':'运行前策略助手对话'}><div className="assistant-chat-messages assistant-v2-messages" aria-live="polite">
+ return <><div className="assistant-conversation-actions"><span>{fresh?'新场景：不沿用此前资料':history.at(-1)?.generation_basis?'继续当前场景：服务端复核并恢复已读文件和配置':'此前记录仅供查看；本轮重新读取场景'}</span><button className="assistant-text-button" disabled={busy||reading} onClick={()=>{setFresh(true);request.current=null;setAttachments([]);setError('');}}>开始新场景</button></div><section className={'policy-assistant assistant-v2 flow-assistant'+(!history.length?' assistant-empty':'')} aria-label={runtime?'运行时策略助手对话':'运行前策略助手对话'}><div className="assistant-chat-messages assistant-v2-messages" aria-live="polite">
  {!history.length&&<div className="assistant-v2-welcome"><span>✦</span><h2>{runtime?'根据当前运行情况生成哪些策略？':'需要为'+(scope==='system'?'所有 Agent':agentName(target))+'配置哪些约束？'}</h2><p>{runtime?(runtimeEventSeq?'已选择一条真实 Hook 记录。描述希望增加或调整的约束，助手只从已发布模板中选择并起草。':'可以直接描述运行中发现的风险，也可以先从下方选择一条 Hook 记录。'):'描述场景即可；助手可读取'+(selectedReference?referenceLabel:'此 Agent 有权限的工作区')+'中的 AGENTS.md 与相关文件，再从已发布模板起草。'}</p>{!runtime&&scope==='agent'&&<div className="assistant-preflight-facts"><span>作用于此 Agent 的全部会话</span><span>{selectedReference?'仅参考 '+referenceLabel:'助手按需读取已授权资料'}</span><span>不会读取 .env、密钥或凭据文件</span></div>}<div className="flow-quick-start">{runtime?<button type="button" onClick={()=>fill('请结合当前运行时 Hook 和已加载策略，选择合适模板生成需要新增的约束；若信息不足请先询问。')}>分析当前 Hook</button>:<><button type="button" onClick={()=>fill('请读取相关 AGENTS.md 与工作区文件，结合当前已加载策略，选择模板生成运行前策略；缺少信息时请询问。')}>读取相关约定并生成</button><button type="button" onClick={()=>fill('请识别工作区中的敏感文件与发布边界，选择合适模板起草保护策略。')}>保护敏感文件</button></>}</div></div>}
  {history.map(g=><div className="assistant-v2-turn" key={g.request_id}><article className="assistant-v2-user"><p>{g.text}</p><span>你</span></article><article className="assistant-v2-answer"><span className="assistant-v2-message-icon">✦</span><div><p>{g.items.length?'本轮起草 '+g.items.length+' 项配置。':g.questions.length?'需要你补充一些信息：':g.gaps.length?'这项需求目前有能力限制：':'请继续描述需要配置的约束。'}</p><GenerationConfigurations generation={g}/>{g.context_usage?<PolicyContextEvidence usage={g.context_usage}/>:g.reference_read&&<p>参考资料：{g.reference_read.workspace} · {g.reference_read.paths.join('、')}</p>}{g.questions.map((v,i)=><p key={'q'+i}>需补充：{v}</p>)}{g.gaps.map((v,i)=><p key={'g'+i}>暂不支持：{v}</p>)}</div></article></div>)}
  {busy&&<p role="status">{runtime?'正在结合 Hook 与当前策略选择模板…':scope==='agent'?'正在分析场景并按需读取资料…':'正在分析你的需求…'}</p>}{!data&&!error&&<p role="status">正在读取模板与配置…</p>}

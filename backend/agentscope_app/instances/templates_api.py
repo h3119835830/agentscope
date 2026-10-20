@@ -133,6 +133,7 @@ class ConversationMessage(Model):
 
 class Generate(Model):
     text: str = Field(min_length=1,max_length=2000)
+    parent_request_id: str | None = Field(default=None,pattern=r'^[a-f0-9]{32}$')
     conversation: list[ConversationMessage] = Field(default_factory=list,max_length=6)
     scope: Literal['agent','workspace'] = 'agent'
     workspace_id: str | None = Field(default=None,max_length=200)

@@ -73,6 +73,34 @@ test('scenario-only generation delegates bounded context selection to the exact 
  assert.equal(calls[0].body.reference_read_id,undefined);assert.equal(calls[0].body.paths,undefined);
  assert.deepEqual(calls[0].body.materials,[]);assert.equal(calls[0].body.files,undefined);assert.equal(calls[0].body.workspace_reference,undefined);
 });
+test('followup sends an authoritative parent ID, not a lossy browser conversation',async()=>{
+ const turn={request_id:'a'.repeat(32),generation_basis:'b'.repeat(64),scope:'agent',stage:'preflight',text:'read scene',questions:[],gaps:[],items:[]};
+ const catalog={catalog:[],items:[],generations:[turn]},calls=[];
+ const render=await harness('TemplatePolicyAssistant.jsx',[catalog,'继续读取',[],'',false,[],false,false]);
+ const props={target:{id:'agent-a'},scope:'agent',api:async()=>catalog,post:async(p,b)=>{calls.push(b);return {};},onApprovals(){}};
+ await nodes(render(props)).find(n=>n.type==='form').props.onSubmit({preventDefault(){}});
+ assert.equal(calls[0].parent_request_id,turn.request_id);assert.deepEqual(calls[0].conversation,[]);
+});
+test('new scene clears lineage without deleting history or applying anything',async()=>{
+ const turn={request_id:'a'.repeat(32),generation_basis:'b'.repeat(64),scope:'agent',text:'old',questions:[],gaps:[],items:[]};
+ const catalog={catalog:[],items:[],generations:[turn]},calls=[];
+ const render=await harness('TemplatePolicyAssistant.jsx',[catalog,'新任务',[],'',false,[],false,false]);
+ const props={target:{id:'agent-a'},scope:'agent',api:async()=>catalog,post:async(p,b)=>{calls.push(b);return {};},onApprovals(){}};
+ nodes(render(props)).find(n=>n.type==='button'&&n.props.children==='开始新场景').props.onClick();
+ const tree=render(props);
+ assert.match(renderToStaticMarkup(tree),/old/);
+ await nodes(tree).find(n=>n.type==='form').props.onSubmit({preventDefault(){}});
+ assert.equal(calls[0].parent_request_id,null);assert.equal(calls.length,1);
+});
+test('write permission dialog submits only an operator proposal for the exact target',async()=>{
+ const data={instance_id:'agent-a',generation:'g',policy_hash:'h',effective_policy:{rules:[]},limits:{write_ranges_per_resource:1,exact_path_bytes:63}};
+ const render=await harness('WritePermissionDialog.jsx',[data,'/w/0/src','必要源码', '',true,false]),calls=[],approvals=[];
+ const props={agent:{id:'agent-a',name:'A'},agents:[],api:async()=>data,post:async(p,b)=>{calls.push({p,b});return {approval_id:'instance:p'};},onClose(){},onApprovals:id=>approvals.push(id)};
+ const tree=render(props);await tree.props.onConfirm();
+ assert.equal(calls.length,1);assert.equal(calls[0].p,'/api/agent-instances/agent-a/write-permissions/proposals');
+ assert.deepEqual(calls[0].b.paths,['/w/0/src']);assert.equal(calls[0].b.policy,undefined);
+ assert.deepEqual(approvals,['instance:p']);
+});
 test('selected workspace is sent as a bounded reference source rather than policy scope',async()=>{
  const catalog={catalog:[],items:[],generations:[]},calls=[];
  const render=await harness('TemplatePolicyAssistant.jsx',[catalog,'读取相关约定生成策略',[],'',false,[],false]);
