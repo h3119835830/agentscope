@@ -73,6 +73,7 @@ test('Agent policy tabs retain only generation runtime and verified load facts',
  const tree=render(props({agentPolicyTab:'assistant'})),labels=nodes(tree).filter(n=>n.props?.role==='tab').map(n=>n.props.children);
  assert.deepEqual(labels,['运行前策略助手','运行时策略','当前加载记录']);
  assert.ok(!nodes(tree).some(n=>['PolicyReferenceWorkspaceSelect','ActPlanePolicies','NativeAgentWorkspaces'].includes(n.type?.name)));
+ assert.doesNotMatch(renderToStaticMarkup(tree),/参考工作区/);
 });
 test('Agent page sends configuration management to the System module with the exact target',async()=>{
  const render=await harness('AgentPolicyWorkbench.jsx',[[target],'',0,null]),changes=[];
