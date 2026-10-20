@@ -186,12 +186,14 @@ def policies(ident,sid,generation=None):
                 records.append({**record,'scope_type':'session','scope_id':sid,'context_requirement':record.get('context_scope','task'),'editable':False})
     info=native_workspace_info(row,session)
     from .session_security import build as security_view
+    from .session_loaded_policies import build as loaded_view
     return {'session':{**session,'workspace':info['path'] if info else None,'workspace_name':info['name'] if info else None},'instance':{'id':ident,'name':row['name'],'mode':row['mode'],'agent_type':row['agent_type']},
         'generation':gen,'generations':generations,'active':active,'executor_shared':True,'pid':row.get('pid') if active else None,
         'agent_pid':current_agent_pid(row),
         'domain_id':row.get('domain_id') if active else None,'records':records,'bundle_hash':saved['bundle_hash'] if saved else None,
         'effective_dsl':saved['artifact']['effective_dsl'] if saved else None,'task_binding_available':bool(binding),
-        'security':security_view(row,session,gen,active,records,saved)}
+        'security':security_view(row,session,gen,active,records,saved),
+        'loaded_policies':loaded_view(row,session,gen,saved)}
 
 def attach_hits(records,row,generation,session_id=None):
     saved=dsl_policy.receipt(row['id'],generation)
@@ -214,9 +216,9 @@ def attach_hits(records,row,generation,session_id=None):
 
 def domains(ident,sid,generation=None):
     data=policies(ident,sid,generation)
-    from .session_security import domain_view
+    from .session_loaded_policies import domains as domain_view
     return {**{k:data[k] for k in ('generation','active','executor_shared','pid','domain_id','bundle_hash')},
-            **domain_view(data['security'],data['active'])}
+            **domain_view(data['loaded_policies'])}
 
 _collection_lock=threading.RLock()
 

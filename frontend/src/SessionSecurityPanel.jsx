@@ -1,53 +1,50 @@
 import React,{useEffect,useRef,useState} from 'react';
 import RecordBadge from './RecordBadge.jsx';
-import PolicyLifecycleDialog from './PolicyLifecycleDialog.jsx';
-import {scopeNames,actionNames,effectNames,impact,changeRequest,visibleControls} from './sessionSecurity.mjs';
 import './sessionSecurity.css';
 
-export function SecurityChangeDialog({view,draft,busy,onClose,onSubmit}){
- const c=draft.control,network=c?.kind==='network_mode',disabling=draft.operation==='disable';
- const [input,setInput]=useState({scope:c?.scope||'agent',action:c?.rule?.action||'write',
-  effect:c?.rule?.effect||'deny',target:c?.rule?.target||'',text:c?.rule?.text||'',network:c?.mode||'model_only',ack:false});
- const scope=c?.scope||input.scope,stale=view?.basis_hash!==draft.basisHash;
- const update=patch=>setInput(old=>{const next={...old,...patch,ack:false};if(next.action==='behavior')next.effect='deny';if(next.action==='network'||next.scope==='system'&&next.effect==='allow')next.effect='deny';return next;});
- return <PolicyLifecycleDialog title={disabling?'停用所属层的约束':network?'配置网络范围':'可视化配置安全约束'} onClose={onClose} busy={busy} confirmLabel="提交候选，前往核对" onConfirm={async()=>{if(stale)throw Error('配置已有更新，请关闭后重新编辑。');await onSubmit(input);}}>
-  <div className="session-security-form">
-   {c?<p className="session-security-owner">归属：<strong>{scopeNames[scope]}</strong></p>:<label>配置归属<select aria-label="配置归属" value={scope} onChange={e=>update({scope:e.target.value})}><option value="agent">Agent 基线 · 全部会话继承</option><option value="system">系统策略 · 全部受控 Agent</option><option disabled value="workspace">工作区 · 暂不支持独立应用</option><option disabled value="session">当前会话 · 暂不支持独立应用</option></select></label>}
-   {disabling?<><p>将停用：<strong>{c.title}</strong></p><code>{c.target}</code>{c.kind==='dsl'&&<p className="inline-notice warning">此操作移除该规则所属的整个 DSL 文档，文档内其他规则也会停用。审批中会展示完整差异。</p>}</>:network?<label>网络范围<select aria-label="网络范围" value={input.network} onChange={e=>update({network:e.target.value})}><option value="model_only">本机控制端、DNS 和模型地址</option><option value="disabled">仅保留本机控制端</option></select></label>:<>
-    <div className="session-security-form-pair"><label>操作<select aria-label="约束操作" value={input.action} onChange={e=>update({action:e.target.value})}>{Object.entries(actionNames).map(([k,v])=><option key={k} value={k}>{v}</option>)}</select></label>{input.action!=='behavior'&&<label>处置<select aria-label="约束处置" value={input.effect} onChange={e=>update({effect:e.target.value})}>{scope==='agent'&&input.action!=='network'&&<option value="allow">允许</option>}<option value="deny">禁止</option>{input.action==='tool'&&<option value="confirm">确认后允许</option>}</select></label>}</div>
-    {input.action!=='behavior'&&<label>{input.action==='network'?'IPv4 地址':input.action==='tool'?'原生工具名称':'文件或目录'}<input aria-label="约束对象" maxLength={1000} value={input.target} onChange={e=>update({target:e.target.value})} placeholder={input.action==='network'?'例如 203.0.113.8':input.action==='tool'?'例如 bash':'已登记资源内的实际路径，例如 /w/0/tests'}/></label>}
-    <label>{input.action==='behavior'?'行为约定':'补充说明'}<textarea aria-label="约束说明" rows={3} maxLength={2000} value={input.text} onChange={e=>update({text:e.target.value})}/></label>
-    {input.action==='write'&&<label className="session-security-operation-note"><input type="checkbox" checked readOnly/>包含写入、修改和删除；当前后端将它们作为同一操作组。</label>}
-    {input.action==='behavior'&&<p className="field-note">行为指导不作内核强制执行声明。</p>}
-   </>}
-   <p className="session-security-impact">实际影响：<strong>{impact(scope)}</strong>。提交只创建候选；批准后仍须显式应用。</p>
-   <label className="session-security-ack"><input type="checkbox" checked={input.ack} onChange={e=>setInput(old=>({...old,ack:e.target.checked}))}/>已核对约束内容与全部影响范围</label>
-   {stale&&<p role="alert" className="inline-notice warning">配置或运行代次已变化，请关闭后重新读取。</p>}
+export const loadedScopeNames={system:'系统策略',agent:'Agent 策略'};
+const operations={read:'读取',write:'写入／修改',unlink:'删除',exec:'执行程序',connect:'建立连接'};
+const effects={block:'阻断',kill:'终止进程',notify:'通知',report:'上报'};
+const unique=values=>[...new Set(values.filter(Boolean))];
+const targets=record=>unique(record.clauses.map(c=>[c.target,c.argument].filter(Boolean).join(' ')));
+
+export function LoadedPolicyDetails({record,onClose}){
+ const dialog=useRef(null),origin=useRef(document.activeElement);
+ useEffect(()=>{dialog.current?.showModal();return()=>{dialog.current?.close();origin.current?.isConnected&&origin.current.focus();};},[]);
+ return <dialog ref={dialog} className="record-drawer loaded-policy-detail" aria-label="已加载策略详情" onCancel={e=>{e.preventDefault();onClose();}}>
+  <header className="record-drawer-head"><div><small>{loadedScopeNames[record.scope]} · 加载快照</small><h2>{record.name}</h2></div><button className="button tiny ghost" onClick={onClose}>关闭</button></header>
+  <div className="record-drawer-body">
+   <p className="field-note">此快照是打开详情时核验的加载版本。同一 Agent 进程内的会话共享策略，不代表本会话已触发。</p>
+   {record.description&&<p>{record.description}</p>}
+   <h3>策略内容</h3>
+   {record.clauses.map((c,i)=><section className="loaded-policy-clause" key={c.clause_hash+':'+i}><b>{operations[c.operation]||c.operation} · {effects[c.effect]||c.effect}</b><code>{[c.target,c.argument].filter(Boolean).join(' ')}</code>{c.reason&&<p>{c.reason}</p>}<details><summary>完整条件</summary><pre>{c.condition}</pre></details></section>)}
+   {record.label_sources?.length>0&&<section><h3>引用的标签来源</h3>{record.label_sources.map(s=><p key={s.id+':'+s.version}><b>{s.label}</b> · 来源版本 {s.version}<code>{s.value}</code></p>)}</section>}
+   <details className="session-security-evidence"><summary>DSL 与加载证据</summary>
+    <dl className="session-security-facts">{[['配置 ID',record.document_id],['运行代次',record.evidence.generation],['执行域',record.evidence.domain_id],['进程 PID',record.evidence.pid],['策略哈希',record.evidence.bundle_hash],['加载时间',record.evidence.loaded_at],['核验时间',record.evidence.checked_at]].filter(([,v])=>v!==null&&v!==undefined).map(([k,v])=><React.Fragment key={k}><dt>{k}</dt><dd>{v}</dd></React.Fragment>)}</dl>
+    <pre>{record.original_dsl}</pre>
+   </details>
   </div>
- </PolicyLifecycleDialog>;
+ </dialog>;
 }
 
-export default function SessionSecurityPanel({data,loading,error,post,root,onRefresh,onApprovals,onDetail,onConfigure}){
- const view=data?.security,[scope,setScope]=useState(''),[draft,setDraft]=useState(null),[info,setInfo]=useState(null),[check,setCheck]=useState(false),[busy,setBusy]=useState(false),[submitted,setSubmitted]=useState(null);
- const alive=useRef(true);useEffect(()=>{alive.current=true;return()=>{alive.current=false;};},[]);
+export default function SessionSecurityPanel({data,loading,error}){
+ const view=data?.loaded_policies,[scope,setScope]=useState(''),[detail,setDetail]=useState(null);
  if(error)return null;
- if(loading&&!view)return <p role="status" className="task-empty">正在汇总当前会话的安全约束…</p>;
- if(!view)return <p role="alert" className="inline-notice warning">未取得完整安全视图，请刷新重试；不能将缺少数据解释为没有约束。</p>;
- const controls=visibleControls(view,{scope});
- const edit=(control=null,operation='add')=>{setDraft({control,operation,basisHash:view.basis_hash,requestKey:crypto.randomUUID()});};
- async function submit(input){if(busy)return;const body=changeRequest(view,draft,input,draft.requestKey);setBusy(true);try{const value=await post(root+'/security/proposals',body);if(alive.current){setSubmitted(value);setDraft(null);}}finally{if(alive.current)setBusy(false);}}
- function detail(c){const record=[...(data.records||[]),...(view.evidence_records||[])].find(r=>r.id===c.record_id);if(record){onDetail(record);return;}setInfo(c);}
+ if(loading&&!view)return <p role="status" className="task-empty">正在核验当前已加载策略…</p>;
+ if(!view)return <p role="alert" className="inline-notice warning">未取得当前加载证据，请刷新重试；不会用已保存配置代替加载结果。</p>;
+ const records=['verified','incomplete'].includes(view.state)?view.records.filter(r=>r.status==='loaded'&&Object.hasOwn(loadedScopeNames,r.scope)):[];
+ const shown=records.filter(r=>!scope||r.scope===scope);
  return <div className="session-security-panel">
-  <div className="session-security-toolbar"><div><strong>当前安全约束</strong><span>{view.controls.length} 项已接入约束</span></div><div className="actions"><button className="button ghost" onClick={()=>{setCheck(true);onRefresh();}}>检查当前配置</button><button className="button primary" disabled={!view.can_propose||!post} onClick={()=>edit()}>添加约束</button></div></div>
-  {!view.coverage_complete&&<p role="alert" className="inline-notice warning">安全详情不完整或当前连接仅用于观测，请展开检查结果；未核验内容不计为当前保护。</p>}
-  {check&&<section className="session-security-check" aria-label="安全检查结果"><div className="session-security-section-heading"><strong>安全检查结果 · 只读</strong><button className="button tiny ghost" onClick={()=>setCheck(false)}>收起</button></div><dl>{view.checks.map(c=><React.Fragment key={c.name}><dt>{c.name}</dt><dd><span>{c.ok?'已读取／核验':'需要注意'}</span>{c.message}</dd></React.Fragment>)}</dl></section>}
-  <div className="session-security-filter"><label>约束归属<select aria-label="筛选约束归属" value={scope} onChange={e=>setScope(e.target.value)}><option value="">全部当前约束</option>{Object.entries(scopeNames).map(([k,v])=><option value={k} key={k}>{v}</option>)}</select></label><span>候选和未应用的变更单独处理</span></div>
-  <div className="session-security-table-wrap"><table className="session-security-table" aria-label="当前会话全部已接入安全约束"><thead><tr><th>约束与对象</th><th>归属</th><th>执行方式</th><th>当前状态</th><th>操作</th></tr></thead><tbody>{controls.map(c=><tr key={c.id}><td><strong>{c.title}</strong><code>{c.target}</code>{c.effect&&c.kind==='typed'&&<small>{effectNames[c.effect]||c.effect}</small>}</td><td>{scopeNames[c.scope]||c.scope}{c.system_builtin&&<small>系统内置保护</small>}</td><td>{c.method}</td><td><RecordBadge tone={c.status.includes('未核验')||c.status.includes('不完整')?'warn':'neutral'}>{c.status}</RecordBadge></td><td><div className="session-security-row-actions"><button className="button tiny ghost" onClick={()=>detail(c)}>详情</button>{c.can_configure&&<button className="button tiny ghost" onClick={()=>edit(c,'replace')}>配置</button>}{c.can_disable&&<button className="button tiny ghost" onClick={()=>edit(c,'disable')}>{c.kind==='dsl'?'停用文档':'停用'}</button>}{!c.can_configure&&!c.can_disable&&<small>只读</small>}</div></td></tr>)}{!controls.length&&<tr><td colSpan={5}>没有此归属的已接入约束；不代表其他机制没有约束。</td></tr>}</tbody></table></div>
-  <div className="session-security-capability"><strong>会话独立配置与停用：暂不支持</strong><p>{view.session_local_reason} 系统和 Agent 规则可以在本面板提交所属层变更，影响范围会明确展示。</p></div>
-  {submitted&&<section className="session-security-submitted" aria-label="已提交候选"><strong>候选已提交 · 当前运行配置未改变</strong><span>{impact(submitted.scope)}</span><button className="button primary" onClick={()=>onApprovals(submitted.approval_id)}>查看差异与审批</button></section>}
-  {view.pending_changes?.length>0&&<section className="session-security-pending" aria-label="从此会话提交的待处理候选"><strong>从此会话提交的待处理候选</strong>{view.pending_changes.map(p=><div key={p.id}><span>{p.name||'安全配置变更'}<small>{scopeNames[p.scope_type]} · {({pending:'待审批',approved:'已批准 · 待应用',stale:'需重新校验',failed:'应用未完成',blocked:'暂不能应用',applying:'正在应用'})[p.status]||'需要处理'}</small></span><button className="button tiny ghost" onClick={()=>onApprovals(p.id)}>查看审批</button></div>)}</section>}
-  <details className="session-security-evidence"><summary>DSL 与执行证据 · {(data.records?.length||0)+(view.evidence_records?.length||0)} 条规则记录</summary><p>完整 DSL、编译映射及实际命中保留在对应规则详情。系统调用匹配与工具 Trace 分别查看，未关联事件不算作本会话命中。</p><div className="actions"><button className="button ghost" onClick={()=>onConfigure('system')}>查看系统配置</button><button className="button ghost" onClick={()=>onConfigure('agent')}>查看 Agent 配置</button></div></details>
-  {draft&&<SecurityChangeDialog view={view} draft={draft} busy={busy} onClose={()=>!busy&&setDraft(null)} onSubmit={submit}/>}
-  {info&&<PolicyLifecycleDialog title="安全约束详情" confirmLabel="关闭" onClose={()=>setInfo(null)} onConfirm={()=>setInfo(null)}><dl className="session-security-facts">{[['约束',info.title],['保护对象',info.target],['归属',scopeNames[info.scope]],['执行方式',info.method],['当前状态',info.status],['说明',info.description||info.reason]].map(([k,v])=><React.Fragment key={k}><dt>{k}</dt><dd>{v}</dd></React.Fragment>)}</dl>{info.document_id&&<p>此文档的加载映射尚不完整，请前往所属配置核对。</p>}</PolicyLifecycleDialog>}
+  <div className="session-security-toolbar"><div><strong>当前已加载策略</strong><span>{view.coverage_complete?records.length+' 项策略':records.length?'已核验 '+records.length+' 项 · 清单不完整':'暂未确认'}</span></div><label className="loaded-policy-filter">策略归属<select aria-label="筛选策略归属" value={scope} onChange={e=>setScope(e.target.value)}><option value="">全部策略</option>{Object.entries(loadedScopeNames).map(([k,v])=><option key={k} value={k}>{v}</option>)}</select></label></div>
+  <p className="session-coverage">{view.notice}</p>
+  {view.message&&<p role={view.state==='unverified'||view.state==='incomplete'?'alert':'status'} className="inline-notice warning">{view.message}</p>}
+  {shown.length>0?<div className="session-security-table-wrap"><table className="session-security-table loaded-policy-table" aria-label="当前已加载到 ActPlane 的策略"><thead><tr><th>策略名称／对象</th><th>归属</th><th>操作／处置</th><th>状态</th><th>操作</th></tr></thead><tbody>{shown.map(r=><tr key={r.id}>
+   <td><strong>{r.name}</strong>{targets(r).slice(0,2).map(t=><code key={t}>{t}</code>)}{targets(r).length>2&&<small>另 {targets(r).length-2} 个对象，见详情</small>}{r.label_sources?.length>0&&<small>{r.label_sources[0].label} 来源：{r.label_sources[0].value}{r.label_sources.length>1?' 等 '+r.label_sources.length+' 项':''}</small>}</td>
+   <td>{loadedScopeNames[r.scope]}{r.source_kind==='startup'&&<small>启动规则</small>}</td>
+   <td>{unique(r.clauses.map(c=>(operations[c.operation]||c.operation)+' · '+(effects[c.effect]||c.effect))).map(t=><div key={t}>{t}</div>)}</td>
+   <td><RecordBadge tone="good">已加载</RecordBadge></td>
+   <td><button className="button tiny ghost" onClick={()=>setDetail(r)}>详情</button></td>
+  </tr>)}</tbody></table></div>:<p className="task-empty">{view.coverage_complete?(scope?'此归属当前没有已加载策略。':'当前没有已加载策略。'):'仅展示能够核验的当前内核加载结果。'}</p>}
+  {detail&&<LoadedPolicyDetails record={detail} onClose={()=>setDetail(null)}/>}
  </div>;
 }

@@ -38,12 +38,19 @@ test('session details use current Agent context and do not offer internal runtim
  const root='/api/agent-instances/'+instance.id+'/sessions/native-session';
  const summary={_key:root,session:{name:'修复登录表单',resource:'/projects/one'},instance,agent_pid:42,pid:42,active:true,domain_id:7,executor_shared:true,generations:[{generation:'generation-internal'}],records:[]};
  const html=render({sessionInstance:instance.id,sessionId:'native-session',sessionTab:'policies',sessionGeneration:'old'},[null,summary,{...summary,_key:root+'policies'},'',false]);
- for(const text of ['修复登录表单','DeepSeek Harness','PID 42','继承的 Agent 保护已核验'])assert.ok(html.includes(text),text);
+ for(const text of ['修复登录表单','DeepSeek Harness','PID 42','已加载策略','未取得当前加载证据'])assert.ok(html.includes(text),text);
+ assert.doesNotMatch(html,/查看 Agent 基线|选择生成策略|继承的 Agent 保护已核验|添加约束|执行方式/);
  assert.doesNotMatch(html,/RQ5 fixture|instance-internal|generation-internal|运行代次|当前代次/);
 });
 
 test('product filter stays available with a single filtered Agent and missing mapping is unknown',()=>{
  const directory={records:[],connections:[{id:'h',agent_type:'hermes'}],errors:[],count_complete:false,total:0};
- const html=render({sessionAgent:'hermes'},[directory,null,null,'',false,0,null,null,'',[{id:'d',agent_type:'dsh'},{id:'h',agent_type:'hermes'}]]);
+ const html=render({sessionAgent:'hermes'},[directory,null,null,'',false,0,null,[{id:'d',agent_type:'dsh'},{id:'h',agent_type:'hermes'}]]);
  assert.match(html,/DeepSeek Harness/);assert.match(html,/<option value="hermes" selected="">Hermes/);assert.match(html,/尚未取得会话映射，数量未知/);assert.doesNotMatch(html,/没有匹配的会话/);
+});
+test('network errors are actionable Chinese notices while service validation remains exact',()=>{
+ const filename=join(base,'.session-errors.cjs'),module=new Module(filename);module.paths=Module._nodeModulePaths(base);
+ module._compile(built.outputFiles[0].text,filename);
+ assert.equal(module.exports.sessionReadError(new TypeError('Failed to fetch')),'记录读取失败，请检查连接后刷新重试。');
+ assert.equal(module.exports.sessionReadError(new Error('会话不属于此连接')),'会话不属于此连接');
 });

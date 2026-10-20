@@ -11,3 +11,22 @@
 
 .session-domain-view{container-type:inline-size}.session-domain-view .session-domain-chain{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));align-items:stretch;gap:12px;margin:24px 0}.session-domain-view .session-domain-node{padding:18px 15px;gap:10px;min-height:145px}.session-domain-view .session-domain-node b{font-size:16px;line-height:1.6}.session-domain-view .session-domain-node small{line-height:1.7}.session-domain-view .scope-workspace,.session-domain-view .scope-session{background:#f8fafc;color:#61758f;border-color:#e0e7ef}
 @container(max-width:747px){.session-domain-view .session-domain-node::before{display:none}}
+
+.loaded-policy-filter{display:flex;align-items:center;gap:10px;font-size:12px;color:#71849f}
+.loaded-policy-filter select{border:1px solid #dce5f1;border-radius:6px;padding:7px 10px;color:#3c5879;background:#fff;font:inherit}
+.loaded-policy-table th:first-child{width:37%}
+.loaded-policy-table th:nth-child(2){width:15%}
+.loaded-policy-table th:nth-child(3){width:23%}
+.loaded-policy-table th:nth-child(4){width:15%}
+.loaded-policy-table th:last-child{width:10%}
+.loaded-policy-detail{max-width:640px}
+.loaded-policy-detail h2{overflow-wrap:anywhere}
+.loaded-policy-detail code,.loaded-policy-detail pre{display:block;white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.8 Consolas,monospace}
+.loaded-policy-detail h3{font-size:14px;margin-top:24px}
+.loaded-policy-clause{padding:14px 0;border-bottom:1px solid #e6edf5;font-size:12px;line-height:1.8}
+.loaded-policy-clause b{font-weight:500}
+.loaded-policy-clause p{color:#71849f}
+.loaded-policy-clause summary{cursor:pointer;color:#71849f}
+.session-domain-view .session-domain-node::before{display:none}
+@media(max-width:760px){.loaded-policy-table td:nth-child(3)::before{content:'操作／处置：'}}
+@container(max-width:600px){.loaded-policy-table td:nth-child(3)::before{content:'操作／处置：'}}

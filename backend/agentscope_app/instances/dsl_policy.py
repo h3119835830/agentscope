@@ -229,7 +229,7 @@ APPLYING=threading.local()
 def record_receipt(ident,generation,runtime):
     artifact=runtime.get('policy_artifact')
     if not artifact:return
-    artifact={**artifact,'binding':{'generation':generation,'domain_id':runtime.get('domain_id'),'pid':runtime.get('pid')}}
+    artifact={**artifact,'binding':{'generation':generation,**{key:runtime.get(key) for key in ('domain_id','pid','start_ticks','boot_id','host_id')}}}
     with db.connect() as con:con.execute('INSERT OR REPLACE INTO instance_policy_receipts VALUES(?,?,?,?,?,?)',(ident,generation,runtime.get('dsl_hash'),artifact['bundle_hash'],json.dumps(artifact),db.now()))
 
 def receipt(ident,generation):

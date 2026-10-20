@@ -33,32 +33,37 @@ test('filtering does not drop constraints from the authoritative view',()=>{
  const system={...rule,id:'system',scope:'system'};const original={...view,controls:[rule,system]};
  assert.deepEqual(visibleControls(original,{scope:'system'}),[system]);assert.equal(original.controls.length,2);
 });
-test('panel renders all inherited controls by default and marks local application unavailable',async()=>{
+test('panel renders only current loaded policy names and never legacy controls or edit actions',async()=>{
  const require=createRequire(import.meta.url),Module=require('node:module');
  const source=new URL('./SessionSecurityPanel.jsx',import.meta.url).pathname;
  const built=await build({entryPoints:[source],bundle:true,platform:'node',format:'cjs',external:['react'],loader:{'.css':'empty'},write:false});
  const mod=new Module(source);mod.paths=Module._nodeModulePaths(new URL('.',import.meta.url).pathname);mod._compile(built.outputFiles[0].text,source);
- const html=renderToStaticMarkup(React.createElement(mod.exports.default,{data:{security:view,records:[]},post(){},onRefresh(){},onConfigure(){}}));
- assert.match(html,/当前会话全部已接入安全约束/);assert.match(html,/工具使用/);assert.match(html,/会话独立配置与停用：暂不支持/);
- assert.ok(!html.includes('继承约束 ·'));assert.match(html,/>停用<\/button>/);assert.ok(!html.includes('应用策略'));
+ const loaded={state:'verified',coverage_complete:true,records:[{id:'doc',name:'保护配置文件',scope:'agent',status:'loaded',source_kind:'configuration',clauses:[{operation:'read',effect:'block',target:'/w/0/.env'}]}],notice:'同一 Agent 进程内的会话共享策略'};
+ const html=renderToStaticMarkup(React.createElement(mod.exports.default,{data:{security:view,loaded_policies:loaded}}));
+ for(const text of ['保护配置文件','/w/0/.env','Agent 策略','读取','阻断','已加载','共享策略'])assert.ok(html.includes(text),text);
+ for(const text of ['工具使用','执行方式','添加约束','检查当前配置','工作区继承','本会话','>停用<','>配置<'])assert.ok(!html.includes(text),text);
+ assert.equal((html.match(/<option /g)||[]).length,3);
+ const missing=renderToStaticMarkup(React.createElement(mod.exports.default,{data:{security:view}}));
+ assert.match(missing,/未取得当前加载证据/);assert.ok(!missing.includes('工具使用'));
 });
-test('domain view distinguishes inherited constraints, empty scopes and incomplete counts',async()=>{
+test('domain view only displays two owners of a shared domain, including unknown counts',async()=>{
  const require=createRequire(import.meta.url),Module=require('node:module');
  const source=new URL('./SessionDomainView.jsx',import.meta.url).pathname;
  const built=await build({entryPoints:[source],bundle:true,platform:'node',format:'cjs',external:['react'],write:false});
  const mod=new Module(source);mod.paths=Module._nodeModulePaths(new URL('.',import.meta.url).pathname);mod._compile(built.outputFiles[0].text,source);
- const data={coverage_complete:false,notice:'没有额外约束不表示停用',nodes:[
-  {id:'system',title:'系统策略',count:2,count_label:'2 项已接入约束',status:'继承约束已核验'},
-  {id:'agent',title:'Agent 策略',count:15,count_label:'15 项已接入约束',status:'继承约束已核验'},
+ const data={coverage_complete:false,notice:'同一 Agent 进程共享策略',nodes:[
+  {id:'system',title:'系统策略',count:2,count_label:'2 项已加载策略',status:'加载快照已核验'},
+  {id:'agent',title:'Agent 策略',count:null,count_label:'加载数量尚未完整核验',status:'当前加载证据不完整'},
   {id:'workspace',title:'工作区约束',count:0,count_label:'无独立约束',status:'暂不支持独立应用'},
   {id:'session',title:'会话约束',count:null,count_label:'数量未完整取得',status:'暂不支持独立应用'}]};
  const html=renderToStaticMarkup(React.createElement(mod.exports.default,{data}));
- for(const text of ['2 项已接入约束','15 项已接入约束','无独立约束','数量未完整取得','暂不支持独立应用'])assert.ok(html.includes(text));
- assert.equal((html.match(/class="session-domain-node scope-/g)||[]).length,4);assert.ok(!html.includes('平台底线'));
- assert.ok(!html.includes('0 条策略')&&!html.includes('null 条策略'));assert.match(html,/约束信息尚不完整/);
+ for(const text of ['2 项已加载策略','加载数量尚未完整核验'])assert.ok(html.includes(text));
+ assert.equal((html.match(/class="session-domain-node scope-/g)||[]).length,2);
+ for(const text of ['工作区约束','会话约束','无独立约束','暂不支持独立应用','0 条策略','null 条策略'])assert.ok(!html.includes(text));
+ assert.match(html,/当前加载证据不完整/);
 });
 
-test('system filter includes builtins and configured rules without a fifth scope',async()=>{
+test('unverified loading never falls back to configured builtins or a green status',async()=>{
  const require=createRequire(import.meta.url),Module=require('node:module');
  const source=new URL('./SessionSecurityPanel.jsx',import.meta.url).pathname;
  const built=await build({entryPoints:[source],bundle:true,platform:'node',format:'cjs',external:['react'],loader:{'.css':'empty'},write:false});
@@ -67,8 +72,7 @@ test('system filter includes builtins and configured rules without a fifth scope
  const configured={...rule,id:'sys',scope:'system'};const data={...view,controls:[builtin,configured,rule]};
  assert.deepEqual(visibleControls(data,{scope:'system'}),[builtin,configured]);
  assert.throws(()=>changeRequest(data,{basisHash:'hash-a',control:builtin,operation:'disable'},{ack:true},'key'),/不能停用/);
- const html=renderToStaticMarkup(React.createElement(mod.exports.default,{data:{security:data,records:[]},post(){},onRefresh(){},onConfigure(){}}));
- assert.match(html,/系统内置保护/);assert.ok(!html.includes('平台底线')&&!html.includes('value="platform"'));
- const fixedRow=html.match(/<tr><td><strong>保护控制目录[\s\S]*?<\/tr>/)[0];
- assert.ok(fixedRow.includes('只读')&&!fixedRow.includes('>停用<')&&!fixedRow.includes('>配置<'));
+ const html=renderToStaticMarkup(React.createElement(mod.exports.default,{data:{security:data,loaded_policies:{state:'unverified',coverage_complete:false,records:[],message:'当前加载证据尚未核验'}}}));
+ assert.match(html,/当前加载证据尚未核验/);assert.match(html,/暂未确认/);
+ assert.ok(!html.includes('保护控制目录')&&!html.includes('record-badge good'));
 });

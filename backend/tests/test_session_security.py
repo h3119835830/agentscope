@@ -64,7 +64,7 @@ def test_default_mount_network_and_system_builtins_are_visible_without_user_dsl(
     assert store.get(panel.a['id']) == before and not panel.calls
 
 
-def test_domain_counts_match_all_security_controls_and_do_not_imply_disabled_scope(panel):
+def test_domain_endpoint_uses_current_loaded_projection_not_legacy_controls(panel):
     install_rule(panel, {'action': 'tool', 'target': 'bash', 'effect': 'deny', 'text': ''})
     before = store.get(panel.a['id'])
     security = view(panel)
@@ -72,15 +72,11 @@ def test_domain_counts_match_all_security_controls_and_do_not_imply_disabled_sco
     projected = panel.client.get('/api/console/agents/' + panel.a['id'] + '/sessions/s1/domains', headers=ADMIN).json()
     assert raw['nodes'] == projected['nodes']
     nodes = {n['id']:n for n in projected['nodes']}
-    assert sum(n['count'] for n in nodes.values()) == len(security['controls']) == 4
-    assert list(nodes) == ['system', 'agent', 'workspace', 'session']
-    assert nodes['system']['count'] == 1 and nodes['agent']['count'] == 3
-    assert nodes['system']['count_label'] == '1 项已接入约束'
-    assert nodes['system']['status'] == '继承约束已核验'
-    assert raw['edges'] == [{'from': 'system', 'to': 'agent'}, {'from': 'agent', 'to': 'workspace'}, {'from': 'workspace', 'to': 'session'}]
-    assert nodes['session']['count_label'] == '无独立约束'
-    assert nodes['session']['status'] == nodes['workspace']['status'] == '暂不支持独立应用'
-    assert '没有额外约束不表示停用' in projected['notice']
+    assert len(security['controls']) == 4  # Legacy proposal API remains compatible.
+    assert list(nodes) == ['system', 'agent']
+    assert all(n['count'] is None for n in nodes.values())  # No load receipt.
+    assert not raw['edges'] and not raw['coverage_complete']
+    assert '共享' in projected['notice']
     assert store.get(panel.a['id']) == before and not panel.calls
 
 
