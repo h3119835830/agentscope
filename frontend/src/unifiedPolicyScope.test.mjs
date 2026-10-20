@@ -68,12 +68,23 @@ test('legacy workspace tab links return to automatic preflight context selection
  assert.equal(assistant.props.referenceWorkspaceId,null);
  assert.ok(!nodes(tree).some(n=>n.type?.name==='NativeAgentWorkspaces'));
 });
-test('Agent policy tabs retain only generation runtime and verified load facts',async()=>{
+test('Agent policy tabs retain assistant and runtime but no duplicate load view',async()=>{
  const render=await harness('AgentPolicyWorkbench.jsx',[[target],'',0,null]);
  const tree=render(props({agentPolicyTab:'assistant'})),labels=nodes(tree).filter(n=>n.props?.role==='tab').map(n=>n.props.children);
- assert.deepEqual(labels,['策略助手','运行事件','当前加载记录']);
- assert.ok(!nodes(tree).some(n=>['PolicyReferenceWorkspaceSelect','ActPlanePolicies','NativeAgentWorkspaces'].includes(n.type?.name)));
+ assert.deepEqual(labels,['策略助手','运行事件']);
+ assert.ok(!nodes(tree).some(n=>['PolicyReferenceWorkspaceSelect','ActPlanePolicies','NativeAgentWorkspaces','AgentLoadedPolicies'].includes(n.type?.name)));
  assert.doesNotMatch(renderToStaticMarkup(tree),/参考工作区/);
+});
+test('removed load tab cannot mount a second load panel and runtime remains unchanged',async()=>{
+ const render=await harness('AgentPolicyWorkbench.jsx',[[target],'',0,null]),changes=[];
+ const tree=render(props({agentPolicyTab:'loaded'},patch=>changes.push(patch)));
+ assert.ok(!nodes(tree).some(n=>n.type?.name==='AgentLoadedPolicies'));
+ assert.ok(nodes(tree).some(n=>n.type?.name==='TemplatePolicyAssistant'));
+ const tabs=nodes(tree).filter(n=>n.props?.role==='tab');
+ tabs[0].props.onKeyDown({key:'ArrowRight',currentTarget:{},preventDefault(){}});
+ assert.deepEqual(changes,[{agentPolicyTab:'runtime'}]);
+ const runtime=render(props({agentPolicyTab:'runtime'}));
+ assert.ok(nodes(runtime).some(n=>n.type?.name==='AgentRuntimePolicyAssistant'));
 });
 test('Agent page sends configuration management to the System module with the exact target',async()=>{
  const render=await harness('AgentPolicyWorkbench.jsx',[[target],'',0,null]),changes=[];

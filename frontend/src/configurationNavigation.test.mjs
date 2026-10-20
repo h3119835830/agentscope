@@ -28,3 +28,27 @@ test('old session evidence links keep their evidence class without inventing a w
  assert.equal(tools.sessionTab,'events');assert.equal(tools.sessionEventKind,'tools');
  assert.equal(readNavigation('http://localhost/?view=sessions&sessionTab=domains').sessionTab,'policies');
 });
+test('old Agent load links select the exact instance directory and discard stale session selections',()=>{
+ for(const view of ['workbench','agent']){
+  const result=readNavigation('http://localhost/?view='+view+'&agentPolicyTab=loaded&policyScope=agent&policyAgent=agent-a&sessionFilterInstance=agent-b&sessionInstance=agent-b&sessionId=other-session&sessionAgent=hermes&sessionQuery=old&sessionWorkspace=old&sessionCursor=30&sessionTab=flow');
+  assert.equal(result.page,'sessions');assert.equal(result.sessionFilterInstance,'agent-a');
+  for(const key of ['sessionInstance','sessionId','sessionAgent','sessionQuery','sessionWorkspace'])assert.equal(result[key],'');
+  assert.equal(result.sessionCursor,0);assert.equal(result.sessionTab,'policies');
+  const canonical='http://localhost'+navigationTarget('http://localhost/',result);
+  assert.deepEqual(readNavigation(canonical),result);
+ }
+});
+test('missing or historical load-link targets never expand to every Agent or change historical scope',()=>{
+ for(const query of ['policyScope=agent','policyScope=system&policyAgent=agent-a','policyScope=workspace&policyAgent=agent-a&policyWorkspace=original-workspace']){
+  const result=readNavigation('http://localhost/?view=workbench&agentPolicyTab=loaded&'+query);
+  assert.equal(result.page,'workbench');assert.equal(result.agentPolicyTab,'assistant');
+  assert.equal(result.sessionFilterInstance,'');
+  if(result.policyScope==='workspace')assert.equal(result.policyWorkspace,'original-workspace');
+ }
+});
+test('stale loaded query on other modules does not redirect or replace selected session evidence',()=>{
+ const result=readNavigation('http://localhost/?view=sessions&agentPolicyTab=loaded&policyAgent=agent-a&sessionInstance=agent-b&sessionId=selected&sessionTab=events');
+ assert.equal(result.page,'sessions');assert.equal(result.sessionInstance,'agent-b');assert.equal(result.sessionId,'selected');assert.equal(result.sessionTab,'events');
+ const missing=readNavigation('http://localhost/?view=workbench&agentPolicyTab=loaded&policyScope=agent&policyAgent=deleted-agent');
+ assert.equal(missing.sessionFilterInstance,'deleted-agent');assert.equal(missing.sessionInstance,'');assert.equal(missing.sessionId,'');
+});
