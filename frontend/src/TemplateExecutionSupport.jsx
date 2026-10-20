@@ -1,12 +1,13 @@
 import React from 'react';
 
 export default function TemplateExecutionSupport({template}){
- const support=template.execution_support;
+ const support=template.execution_support,proof=support?.verification;
  if(!support)return null;
  return <section className="tpl-execution-support" aria-label="模板实际执行能力">
   <h3>实际执行能力 <small>{support.event_type}</small></h3>
   <p className="spl-note spl-attention">{support.status==='unsupported'?'ActPlane 暂不支持 · 仅可保存参数草案，不能提交审批或应用':support.status==='legacy'?'历史模板 · 已由专用 Git 模板替代，已有配置保持原版本':'有限支持 · 按下列边界执行，提交时仍需通过实际编译和目标核验'}</p>
-  <details><summary>查看已支持能力与限制</summary><dl>{[['supported','已支持'],['unsupported','暂不支持'],['boundary','执行边界']].map(([key,label])=>support[key]?.length?<div key={key}><dt>{label}</dt><dd><ul>{support[key].map(value=><li key={value}>{value}</li>)}</ul></dd></div>:null)}</dl></details>
+  {proof&&<p className="spl-note">{proof.state==='rejected'?'已实测拒绝提交与应用 · 暂不支持运行拦截':proof.state==='verified'?'真实运行验收 · '+proof.cases+' 项通过 · '+proof.effects.join(' / '):'尚无匹配当前模板执行合同的真实运行验收记录'}</p>}
+  <details><summary>查看已支持能力与限制</summary><dl>{[['supported','已支持'],['unsupported','暂不支持'],['boundary','执行边界']].map(([key,label])=>support[key]?.length?<div key={key}><dt>{label}</dt><dd><ul>{support[key].map(value=><li key={value}>{value}</li>)}</ul></dd></div>:null)}</dl>{['verified','rejected'].includes(proof?.state)&&<p className="spl-note">{proof.date} · {proof.scope} 实测记录不代表当前 Agent 已加载或生效。</p>}</details>
  </section>;
 }
 

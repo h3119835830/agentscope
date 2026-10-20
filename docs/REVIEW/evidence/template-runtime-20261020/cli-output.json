@@ -1,0 +1,658 @@
+{
+  "rq1-env-block-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 11576, \\\"operation\\\": \\\"open\\\", \\\"value\\\": \\\"PUBLIC\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 11577, ppid 11366) — /var/tmp/asrt-szr8prpt/c0/w/protected\n   effect: block\n   reason: Synthetic acceptance RQ1-ENV\n   provenance: pid 11366 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 11577, \\\"operation\\\": \\\"open\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 11366 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c0/.actplane/runs/run-11349-1792471199218685445/feedback.txt\n\n"
+  },
+  "rq1-env-notify-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 11627, \\\"operation\\\": \\\"open\\\", \\\"value\\\": \\\"PUBLIC\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'python3' (pid 11628, ppid 11625) — /var/tmp/asrt-szr8prpt/c1/w/protected\n   effect: notify\n   reason: Synthetic acceptance RQ1-ENV\n   provenance: pid 11625 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 11628, \\\"operation\\\": \\\"open\\\", \\\"value\\\": \\\"ORIGINAL\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 11625 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c1/.actplane/runs/run-11608-1792471206063599648/feedback.txt\n\n"
+  },
+  "rq1-env-kill-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 11651, \\\"operation\\\": \\\"open\\\", \\\"value\\\": \\\"PUBLIC\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'python3' (pid 11661, ppid 11646) — /var/tmp/asrt-szr8prpt/c2/w/protected\n   effect: kill\n   reason: Synthetic acceptance RQ1-ENV\n   provenance: pid 11646 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 11646 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c2/.actplane/runs/run-11629-1792471206428899068/feedback.txt\n\n"
+  },
+  "rq1-contract-block-default-write": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 11759, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 11760, ppid 11757) — /var/tmp/asrt-szr8prpt/c3/w/protected\n   effect: block\n   reason: Synthetic acceptance RQ1-CONTRACT 当前执行访问组同时限制修改与删除。\n   provenance: pid 11757 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 11760, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 11757 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c3/.actplane/runs/run-11740-1792471206805459291/feedback.txt\n\n"
+  },
+  "rq1-contract-block-default-unlink": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 11780, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 11781, ppid 11778) — /var/tmp/asrt-szr8prpt/c4/w/protected\n   effect: block\n   reason: Synthetic acceptance RQ1-CONTRACT 当前执行访问组同时限制修改与删除。\n   provenance: pid 11778 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 11781, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 11778 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c4/.actplane/runs/run-11761-1792471207175644757/feedback.txt\n\n"
+  },
+  "rq1-contract-notify-default-write": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 11801, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'python3' (pid 11804, ppid 11799) — /var/tmp/asrt-szr8prpt/c5/w/protected\n   effect: notify\n   reason: Synthetic acceptance RQ1-CONTRACT 当前执行访问组同时限制修改与删除。\n   provenance: pid 11799 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 11804, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 11799 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c5/.actplane/runs/run-11782-1792471207548331448/feedback.txt\n\n"
+  },
+  "rq1-contract-notify-default-unlink": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 11827, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'python3' (pid 11828, ppid 11825) — /var/tmp/asrt-szr8prpt/c6/w/protected\n   effect: notify\n   reason: Synthetic acceptance RQ1-CONTRACT 当前执行访问组同时限制修改与删除。\n   provenance: pid 11825 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 11828, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 11825 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c6/.actplane/runs/run-11808-1792471207917642529/feedback.txt\n\n"
+  },
+  "rq1-contract-kill-default-write": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 11852, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'python3' (pid 11853, ppid 11850) — /var/tmp/asrt-szr8prpt/c7/w/protected\n   effect: kill\n   reason: Synthetic acceptance RQ1-CONTRACT 当前执行访问组同时限制修改与删除。\n   provenance: pid 11850 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 11850 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c7/.actplane/runs/run-11833-1792471208290249712/feedback.txt\n\n"
+  },
+  "rq1-contract-kill-default-unlink": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 11891, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'python3' (pid 11910, ppid 11889) — /var/tmp/asrt-szr8prpt/c8/w/protected\n   effect: kill\n   reason: Synthetic acceptance RQ1-CONTRACT 当前执行访问组同时限制修改与删除。\n   provenance: pid 11889 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 11889 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c8/.actplane/runs/run-11872-1792471208662274590/feedback.txt\n\n"
+  },
+  "file-read-block-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 11942, \\\"operation\\\": \\\"open\\\", \\\"value\\\": \\\"PUBLIC\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 11943, ppid 11940) — /var/tmp/asrt-szr8prpt/c9/w/protected\n   effect: block\n   reason: Synthetic acceptance FILE-READ\n   provenance: pid 11940 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 11943, \\\"operation\\\": \\\"open\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 11940 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c9/.actplane/runs/run-11923-1792471209040275706/feedback.txt\n\n"
+  },
+  "file-read-notify-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 11981, \\\"operation\\\": \\\"open\\\", \\\"value\\\": \\\"PUBLIC\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'python3' (pid 11982, ppid 11979) — /var/tmp/asrt-szr8prpt/c10/w/protected\n   effect: notify\n   reason: Synthetic acceptance FILE-READ\n   provenance: pid 11979 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 11982, \\\"operation\\\": \\\"open\\\", \\\"value\\\": \\\"ORIGINAL\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 11979 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c10/.actplane/runs/run-11962-1792471209407469304/feedback.txt\n\n"
+  },
+  "file-read-kill-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 12002, \\\"operation\\\": \\\"open\\\", \\\"value\\\": \\\"PUBLIC\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'python3' (pid 12003, ppid 12000) — /var/tmp/asrt-szr8prpt/c11/w/protected\n   effect: kill\n   reason: Synthetic acceptance FILE-READ\n   provenance: pid 12000 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 12000 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c11/.actplane/runs/run-11983-1792471209777999795/feedback.txt\n\n"
+  },
+  "file-change-block-default-write": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 12023, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 12024, ppid 12021) — /var/tmp/asrt-szr8prpt/c12/w/protected\n   effect: block\n   reason: Synthetic acceptance FILE-CHANGE 当前执行访问组同时限制修改与删除。\n   provenance: pid 12021 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 12024, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 12021 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c12/.actplane/runs/run-12004-1792471210142293041/feedback.txt\n\n"
+  },
+  "file-change-block-default-unlink": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 12044, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 12049, ppid 12042) — /var/tmp/asrt-szr8prpt/c13/w/protected\n   effect: block\n   reason: Synthetic acceptance FILE-CHANGE 当前执行访问组同时限制修改与删除。\n   provenance: pid 12042 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 12049, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 12042 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c13/.actplane/runs/run-12025-1792471210506711446/feedback.txt\n\n"
+  },
+  "file-change-notify-default-write": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 12120, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'python3' (pid 12121, ppid 12117) — /var/tmp/asrt-szr8prpt/c14/w/protected\n   effect: notify\n   reason: Synthetic acceptance FILE-CHANGE 当前执行访问组同时限制修改与删除。\n   provenance: pid 12117 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 12121, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 12117 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c14/.actplane/runs/run-12100-1792471210876989694/feedback.txt\n\n"
+  },
+  "file-change-notify-default-unlink": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 12141, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'python3' (pid 12142, ppid 12139) — /var/tmp/asrt-szr8prpt/c15/w/protected\n   effect: notify\n   reason: Synthetic acceptance FILE-CHANGE 当前执行访问组同时限制修改与删除。\n   provenance: pid 12139 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 12142, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 12139 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c15/.actplane/runs/run-12122-1792471211244590815/feedback.txt\n\n"
+  },
+  "file-change-kill-default-write": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 12162, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'python3' (pid 12163, ppid 12160) — /var/tmp/asrt-szr8prpt/c16/w/protected\n   effect: kill\n   reason: Synthetic acceptance FILE-CHANGE 当前执行访问组同时限制修改与删除。\n   provenance: pid 12160 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 12160 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c16/.actplane/runs/run-12143-1792471211607190633/feedback.txt\n\n"
+  },
+  "file-change-kill-default-unlink": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 12195, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'python3' (pid 12196, ppid 12193) — /var/tmp/asrt-szr8prpt/c17/w/protected\n   effect: kill\n   reason: Synthetic acceptance FILE-CHANGE 当前执行访问组同时限制修改与删除。\n   provenance: pid 12193 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 12193 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c17/.actplane/runs/run-12175-1792471211973097124/feedback.txt\n\n"
+  },
+  "write-boundary-block-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 12262, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 12265, ppid 12250) — /var/tmp/asrt-szr8prpt/c18/w/protected\n   effect: block\n   reason: Synthetic acceptance WRITE-BOUNDARY\n   provenance: pid 12250 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 12265, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 12250 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c18/.actplane/runs/run-12231-1792471212340816441/feedback.txt\n\n"
+  },
+  "write-boundary-notify-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 12318, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'python3' (pid 12326, ppid 12304) — /var/tmp/asrt-szr8prpt/c19/w/protected\n   effect: notify\n   reason: Synthetic acceptance WRITE-BOUNDARY\n   provenance: pid 12304 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 12326, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 12304 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c19/.actplane/runs/run-12283-1792471212709457144/feedback.txt\n\n"
+  },
+  "write-boundary-kill-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 12358, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'python3' (pid 12359, ppid 12356) — /var/tmp/asrt-szr8prpt/c20/w/protected\n   effect: kill\n   reason: Synthetic acceptance WRITE-BOUNDARY\n   provenance: pid 12356 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 12356 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c20/.actplane/runs/run-12339-1792471213081867058/feedback.txt\n\n"
+  },
+  "rq1-generated-block-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 12379, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 12380, ppid 12377) — /var/tmp/asrt-szr8prpt/c21/w/protected\n   effect: block\n   reason: Synthetic acceptance RQ1-GENERATED 当前执行访问组同时限制修改与删除。\n   provenance: pid 12377 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 12380, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\nRESULT={\"phase\": \"control-after\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 12381, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 12377 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c21/.actplane/runs/run-12360-1792471213450509819/feedback.txt\n\n"
+  },
+  "rq1-generated-notify-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 12441, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'python3' (pid 12456, ppid 12424) — /var/tmp/asrt-szr8prpt/c22/w/protected\n   effect: notify\n   reason: Synthetic acceptance RQ1-GENERATED 当前执行访问组同时限制修改与删除。\n   provenance: pid 12424 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 12456, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\nRESULT={\"phase\": \"control-after\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 12469, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 12424 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c22/.actplane/runs/run-12406-1792471213822812606/feedback.txt\n\n"
+  },
+  "rq1-generated-kill-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 12507, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'python3' (pid 12520, ppid 12498) — /var/tmp/asrt-szr8prpt/c23/w/protected\n   effect: kill\n   reason: Synthetic acceptance RQ1-GENERATED 当前执行访问组同时限制修改与删除。\n   provenance: pid 12498 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\nRESULT={\"phase\": \"control-after\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 12521, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 12498 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c23/.actplane/runs/run-12481-1792471214205109414/feedback.txt\n\n"
+  },
+  "rq1-check-notify-missing": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"?? untracked\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'git' (pid 19166, ppid 18970) — /usr/bin/git\n   effect: notify\n   reason: Synthetic acceptance RQ1-CHECK\n   provenance: pid 18970 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"[master 45f8780] synthetic\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 18970 under COMMAND label 0x1; feedback /var/tmp/asrt-u30a0628/c0/.actplane/runs/run-18953-1792471307619797677/feedback.txt\n\n"
+  },
+  "rq1-check-notify-success": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"?? untracked\\n\", \"stderr\": \"\"}\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"[master e3df5b5] synthetic\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 19262 under COMMAND label 0x1; feedback /var/tmp/asrt-u30a0628/c1/.actplane/runs/run-19245-1792471312746671303/feedback.txt\n\n"
+  },
+  "rq1-check-notify-failed": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"?? untracked\\n\", \"stderr\": \"\"}\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"[master c88309c] synthetic\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 19305 under COMMAND label 0x1; feedback /var/tmp/asrt-u30a0628/c2/.actplane/runs/run-19288-1792471313089178487/feedback.txt\n\n"
+  },
+  "rq1-check-notify-changed": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"?? untracked\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'git' (pid 19344, ppid 19340) — /usr/bin/git\n   effect: notify\n   reason: Synthetic acceptance RQ1-CHECK\n   provenance: pid 19340 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"[master c88309c] synthetic\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 19340 under COMMAND label 0x1; feedback /var/tmp/asrt-u30a0628/c3/.actplane/runs/run-19323-1792471313446160057/feedback.txt\n\n"
+  },
+  "rq1-check-kill-missing": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"?? untracked\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'git' (pid 19382, ppid 19379) — /usr/bin/git\n   effect: kill\n   reason: Synthetic acceptance RQ1-CHECK\n   provenance: pid 19379 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 19379 under COMMAND label 0x1; feedback /var/tmp/asrt-u30a0628/c4/.actplane/runs/run-19362-1792471313804891611/feedback.txt\n\n"
+  },
+  "rq1-check-kill-success": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"?? untracked\\n\", \"stderr\": \"\"}\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"[master dc0767e] synthetic\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 19412 under COMMAND label 0x1; feedback /var/tmp/asrt-u30a0628/c5/.actplane/runs/run-19394-1792471314178004070/feedback.txt\n\n"
+  },
+  "rq1-check-kill-failed": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"?? untracked\\n\", \"stderr\": \"\"}\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"[master dc0767e] synthetic\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 19524 under COMMAND label 0x1; feedback /var/tmp/asrt-u30a0628/c6/.actplane/runs/run-19507-1792471314523127324/feedback.txt\n\n"
+  },
+  "rq1-check-kill-changed": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"?? untracked\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'git' (pid 19564, ppid 19559) — /usr/bin/git\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n   effect: kill\n   reason: Synthetic acceptance RQ1-CHECK\n   provenance: pid 19559 exec asprobe -> label AGENT\n",
+    "stderr": "ActPlane: running pid 19559 under COMMAND label 0x1; feedback /var/tmp/asrt-u30a0628/c7/.actplane/runs/run-19542-1792471314865852462/feedback.txt\n\n"
+  },
+  "rq1-delete-block-default-write": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 12865, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 12866, ppid 12863) — /var/tmp/asrt-szr8prpt/c32/w/protected\n   effect: block\n   reason: Synthetic acceptance RQ1-DELETE 当前执行访问组同时限制修改与删除。\n   provenance: pid 12863 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 12866, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 12863 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c32/.actplane/runs/run-12846-1792471217451133510/feedback.txt\n\n"
+  },
+  "rq1-delete-block-default-unlink": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 12891, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 12892, ppid 12889) — /var/tmp/asrt-szr8prpt/c33/w/protected\n   effect: block\n   reason: Synthetic acceptance RQ1-DELETE 当前执行访问组同时限制修改与删除。\n   provenance: pid 12889 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 12892, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 12889 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c33/.actplane/runs/run-12872-1792471217838193196/feedback.txt\n\n"
+  },
+  "rq1-delete-notify-default-write": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 12936, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'python3' (pid 12937, ppid 12934) — /var/tmp/asrt-szr8prpt/c34/w/protected\n   effect: notify\n   reason: Synthetic acceptance RQ1-DELETE 当前执行访问组同时限制修改与删除。\n   provenance: pid 12934 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 12937, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 12934 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c34/.actplane/runs/run-12917-1792471218215691257/feedback.txt\n\n"
+  },
+  "rq1-delete-notify-default-unlink": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 12984, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'python3' (pid 12985, ppid 12982) — /var/tmp/asrt-szr8prpt/c35/w/protected\n   effect: notify\n   reason: Synthetic acceptance RQ1-DELETE 当前执行访问组同时限制修改与删除。\n   provenance: pid 12982 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 12985, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 12982 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c35/.actplane/runs/run-12965-1792471218606181888/feedback.txt\n\n"
+  },
+  "rq1-delete-kill-default-write": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13024, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'python3' (pid 13025, ppid 13022) — /var/tmp/asrt-szr8prpt/c36/w/protected\n   effect: kill\n   reason: Synthetic acceptance RQ1-DELETE 当前执行访问组同时限制修改与删除。\n   provenance: pid 13022 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 13022 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c36/.actplane/runs/run-13005-1792471218980612621/feedback.txt\n\n"
+  },
+  "rq1-delete-kill-default-unlink": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13067, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'python3' (pid 13068, ppid 13065) — /var/tmp/asrt-szr8prpt/c37/w/protected\n   effect: kill\n   reason: Synthetic acceptance RQ1-DELETE 当前执行访问组同时限制修改与删除。\n   provenance: pid 13065 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 13065 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c37/.actplane/runs/run-13048-1792471219354062025/feedback.txt\n\n"
+  },
+  "rq1-git-notify-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"?? untracked\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'git' (pid 13109, ppid 13106) — /usr/bin/git\n   effect: notify\n   reason: Synthetic acceptance RQ1-GIT\n   provenance: pid 13106 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"Removing untracked\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 13106 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c38/.actplane/runs/run-13089-1792471219763982247/feedback.txt\n\n"
+  },
+  "rq1-git-kill-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"?? untracked\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'git' (pid 13142, ppid 13139) — /usr/bin/git\n   effect: kill\n   reason: Synthetic acceptance RQ1-GIT\n   provenance: pid 13139 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 13139 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c39/.actplane/runs/run-13122-1792471220130291047/feedback.txt\n\n"
+  },
+  "exec-block-block-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13164, \\\"operation\\\": \\\"exec\\\", \\\"exec_pid\\\": 13165, \\\"exec_returncode\\\": 0, \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 13167, ppid 13166) — /var/tmp/asrt-szr8prpt/bin/aschild\n   effect: block\n   reason: Synthetic acceptance EXEC-BLOCK\n   provenance: pid 13162 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13166, \\\"operation\\\": \\\"exec\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 13162 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c40/.actplane/runs/run-13145-1792471220469068389/feedback.txt\n\n"
+  },
+  "exec-block-notify-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13191, \\\"operation\\\": \\\"exec\\\", \\\"exec_pid\\\": 13192, \\\"exec_returncode\\\": 0, \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'aschild' (pid 13194, ppid 13193) — /var/tmp/asrt-szr8prpt/bin/aschild\n   effect: notify\n   reason: Synthetic acceptance EXEC-BLOCK\n   provenance: pid 13189 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13193, \\\"operation\\\": \\\"exec\\\", \\\"exec_pid\\\": 13194, \\\"exec_returncode\\\": 0, \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 13189 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c41/.actplane/runs/run-13172-1792471220843478527/feedback.txt\n\n"
+  },
+  "exec-block-kill-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13232, \\\"operation\\\": \\\"exec\\\", \\\"exec_pid\\\": 13233, \\\"exec_returncode\\\": 0, \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'aschild' (pid 13235, ppid 13234) — /var/tmp/asrt-szr8prpt/bin/aschild\n   effect: kill\n   reason: Synthetic acceptance EXEC-BLOCK\n   provenance: pid 13230 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13234, \\\"operation\\\": \\\"exec\\\", \\\"exec_pid\\\": 13235, \\\"exec_returncode\\\": -9, \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 13230 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c42/.actplane/runs/run-13213-1792471221211892213/feedback.txt\n\n"
+  },
+  "exec-audit-block-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13283, \\\"operation\\\": \\\"exec\\\", \\\"exec_pid\\\": 13284, \\\"exec_returncode\\\": 0, \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 13286, ppid 13285) — /var/tmp/asrt-szr8prpt/bin/aschild\n   effect: block\n   reason: Synthetic acceptance EXEC-AUDIT\n   provenance: pid 13281 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13285, \\\"operation\\\": \\\"exec\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 13281 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c43/.actplane/runs/run-13264-1792471221590620561/feedback.txt\n\n"
+  },
+  "exec-audit-notify-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13307, \\\"operation\\\": \\\"exec\\\", \\\"exec_pid\\\": 13308, \\\"exec_returncode\\\": 0, \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'aschild' (pid 13310, ppid 13309) — /var/tmp/asrt-szr8prpt/bin/aschild\n   effect: notify\n   reason: Synthetic acceptance EXEC-AUDIT\n   provenance: pid 13305 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13309, \\\"operation\\\": \\\"exec\\\", \\\"exec_pid\\\": 13310, \\\"exec_returncode\\\": 0, \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 13305 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c44/.actplane/runs/run-13288-1792471221969373664/feedback.txt\n\n"
+  },
+  "exec-audit-kill-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13330, \\\"operation\\\": \\\"exec\\\", \\\"exec_pid\\\": 13331, \\\"exec_returncode\\\": 0, \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'aschild' (pid 13333, ppid 13332) — /var/tmp/asrt-szr8prpt/bin/aschild\n   effect: kill\n   reason: Synthetic acceptance EXEC-AUDIT\n   provenance: pid 13328 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13332, \\\"operation\\\": \\\"exec\\\", \\\"exec_pid\\\": 13333, \\\"exec_returncode\\\": -9, \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 13328 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c45/.actplane/runs/run-13311-1792471222339170345/feedback.txt\n\n"
+  },
+  "net-block-block-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13353, \\\"operation\\\": \\\"connect\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 13354, ppid 13351) — 127.0.0.2\n   effect: block\n   reason: Synthetic acceptance NET-BLOCK\n   provenance: pid 13351 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13354, \\\"operation\\\": \\\"connect\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 13351 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c46/.actplane/runs/run-13334-1792471222705913651/feedback.txt\n\n"
+  },
+  "net-block-notify-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13445, \\\"operation\\\": \\\"connect\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'python3' (pid 13447, ppid 13443) — 127.0.0.2\n   effect: notify\n   reason: Synthetic acceptance NET-BLOCK\n   provenance: pid 13443 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13447, \\\"operation\\\": \\\"connect\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 13443 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c47/.actplane/runs/run-13426-1792471223073573648/feedback.txt\n\n"
+  },
+  "net-block-kill-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13467, \\\"operation\\\": \\\"connect\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'python3' (pid 13468, ppid 13465) — 127.0.0.2\n   effect: kill\n   reason: Synthetic acceptance NET-BLOCK\n   provenance: pid 13465 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 13465 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c48/.actplane/runs/run-13448-1792471223444120506/feedback.txt\n\n"
+  },
+  "net-audit-block-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13510, \\\"operation\\\": \\\"connect\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 13511, ppid 13508) — 127.0.0.2\n   effect: block\n   reason: Synthetic acceptance NET-AUDIT\n   provenance: pid 13508 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13511, \\\"operation\\\": \\\"connect\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 13508 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c49/.actplane/runs/run-13491-1792471223815813387/feedback.txt\n\n"
+  },
+  "net-audit-notify-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13539, \\\"operation\\\": \\\"connect\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'python3' (pid 13540, ppid 13537) — 127.0.0.2\n   effect: notify\n   reason: Synthetic acceptance NET-AUDIT\n   provenance: pid 13537 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13540, \\\"operation\\\": \\\"connect\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 13537 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c50/.actplane/runs/run-13520-1792471224182920998/feedback.txt\n\n"
+  },
+  "net-audit-kill-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13639, \\\"operation\\\": \\\"connect\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'python3' (pid 13640, ppid 13637) — 127.0.0.2\n   effect: kill\n   reason: Synthetic acceptance NET-AUDIT\n   provenance: pid 13637 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 13637 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c51/.actplane/runs/run-13620-1792471224554912461/feedback.txt\n\n"
+  },
+  "secret-egress-block-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13688, \\\"operation\\\": \\\"connect\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 13690, ppid 13685) — 127.0.0.2\n   effect: block\n   reason: Synthetic acceptance SECRET-EGRESS\n   provenance: pid 13685 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13690, \\\"operation\\\": \\\"connect\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 13685 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c52/.actplane/runs/run-13668-1792471224926309246/feedback.txt\n\n"
+  },
+  "secret-egress-notify-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13710, \\\"operation\\\": \\\"connect\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'python3' (pid 13711, ppid 13708) — 127.0.0.2\n   effect: notify\n   reason: Synthetic acceptance SECRET-EGRESS\n   provenance: pid 13708 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13711, \\\"operation\\\": \\\"connect\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 13708 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c53/.actplane/runs/run-13691-1792471225296212495/feedback.txt\n\n"
+  },
+  "secret-egress-kill-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13731, \\\"operation\\\": \\\"connect\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'python3' (pid 13732, ppid 13729) — 127.0.0.2\n   effect: kill\n   reason: Synthetic acceptance SECRET-EGRESS\n   provenance: pid 13729 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 13729 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c54/.actplane/runs/run-13712-1792471225668471272/feedback.txt\n\n"
+  },
+  "remote-exec-block-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13770, \\\"operation\\\": \\\"exec\\\", \\\"exec_pid\\\": 13771, \\\"exec_returncode\\\": 0, \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 13774, ppid 13772) — /var/tmp/asrt-szr8prpt/bin/aschild\n   effect: block\n   reason: Synthetic acceptance REMOTE-EXEC\n   provenance: pid 13768 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13772, \\\"operation\\\": \\\"exec\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 13768 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c55/.actplane/runs/run-13751-1792471226038555179/feedback.txt\n\n"
+  },
+  "remote-exec-notify-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13800, \\\"operation\\\": \\\"exec\\\", \\\"exec_pid\\\": 13801, \\\"exec_returncode\\\": 0, \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'aschild' (pid 13808, ppid 13803) — /var/tmp/asrt-szr8prpt/bin/aschild\n   effect: notify\n   reason: Synthetic acceptance REMOTE-EXEC\n   provenance: pid 13798 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13803, \\\"operation\\\": \\\"exec\\\", \\\"exec_pid\\\": 13808, \\\"exec_returncode\\\": 0, \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 13798 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c56/.actplane/runs/run-13781-1792471226710252724/feedback.txt\n\n"
+  },
+  "remote-exec-kill-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13844, \\\"operation\\\": \\\"exec\\\", \\\"exec_pid\\\": 13845, \\\"exec_returncode\\\": 0, \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'aschild' (pid 13847, ppid 13846) — /var/tmp/asrt-szr8prpt/bin/aschild\n   effect: kill\n   reason: Synthetic acceptance REMOTE-EXEC\n   provenance: pid 13842 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13846, \\\"operation\\\": \\\"exec\\\", \\\"exec_pid\\\": 13847, \\\"exec_returncode\\\": -9, \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 13842 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c57/.actplane/runs/run-13825-1792471227385168999/feedback.txt\n\n"
+  },
+  "sys-env-block-default-open": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13867, \\\"operation\\\": \\\"open\\\", \\\"value\\\": \\\"PUBLIC\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 13868, ppid 13865) — /var/tmp/asrt-szr8prpt/c58/w/private.env\n   effect: block\n   reason: Synthetic acceptance SYS-env\n   provenance: pid 13865 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13868, \\\"operation\\\": \\\"open\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 13865 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c58/.actplane/runs/run-13848-1792471228059016322/feedback.txt\n\n"
+  },
+  "sys-env-block-default-write": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13906, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 13907, ppid 13904) — /var/tmp/asrt-szr8prpt/c59/w/private.env\n   effect: block\n   reason: Synthetic acceptance SYS-env 当前执行访问组同时限制修改与删除。\n   provenance: pid 13904 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13907, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 13904 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c59/.actplane/runs/run-13887-1792471228438315157/feedback.txt\n\n"
+  },
+  "sys-env-block-default-unlink": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13993, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 13994, ppid 13987) — /var/tmp/asrt-szr8prpt/c60/w/private.env\n   effect: block\n   reason: Synthetic acceptance SYS-env 当前执行访问组同时限制修改与删除。\n   provenance: pid 13987 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 13994, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 13987 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c60/.actplane/runs/run-13970-1792471228807069397/feedback.txt\n\n"
+  },
+  "sys-env-notify-default-open": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14015, \\\"operation\\\": \\\"open\\\", \\\"value\\\": \\\"PUBLIC\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'python3' (pid 14016, ppid 14013) — /var/tmp/asrt-szr8prpt/c61/w/private.env\n   effect: notify\n   reason: Synthetic acceptance SYS-env\n   provenance: pid 14013 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14016, \\\"operation\\\": \\\"open\\\", \\\"value\\\": \\\"ORIGINAL\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 14013 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c61/.actplane/runs/run-13996-1792471229177253020/feedback.txt\n\n"
+  },
+  "sys-env-notify-default-write": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14054, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'python3' (pid 14055, ppid 14052) — /var/tmp/asrt-szr8prpt/c62/w/private.env\n   effect: notify\n   reason: Synthetic acceptance SYS-env 当前执行访问组同时限制修改与删除。\n   provenance: pid 14052 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14055, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 14052 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c62/.actplane/runs/run-14035-1792471229549624257/feedback.txt\n\n"
+  },
+  "sys-env-notify-default-unlink": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14079, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'python3' (pid 14082, ppid 14077) — /var/tmp/asrt-szr8prpt/c63/w/private.env\n   effect: notify\n   reason: Synthetic acceptance SYS-env 当前执行访问组同时限制修改与删除。\n   provenance: pid 14077 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14082, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 14077 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c63/.actplane/runs/run-14060-1792471229924289099/feedback.txt\n\n"
+  },
+  "sys-env-kill-default-open": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14110, \\\"operation\\\": \\\"open\\\", \\\"value\\\": \\\"PUBLIC\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'python3' (pid 14111, ppid 14108) — /var/tmp/asrt-szr8prpt/c64/w/private.env\n   effect: kill\n   reason: Synthetic acceptance SYS-env\n   provenance: pid 14108 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 14108 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c64/.actplane/runs/run-14091-1792471230296246303/feedback.txt\n\n"
+  },
+  "sys-env-kill-default-write": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14131, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'python3' (pid 14132, ppid 14129) — /var/tmp/asrt-szr8prpt/c65/w/private.env\n   effect: kill\n   reason: Synthetic acceptance SYS-env 当前执行访问组同时限制修改与删除。\n   provenance: pid 14129 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 14129 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c65/.actplane/runs/run-14112-1792471230667167895/feedback.txt\n\n"
+  },
+  "sys-env-kill-default-unlink": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14152, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'python3' (pid 14153, ppid 14150) — /var/tmp/asrt-szr8prpt/c66/w/private.env\n   effect: kill\n   reason: Synthetic acceptance SYS-env 当前执行访问组同时限制修改与删除。\n   provenance: pid 14150 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 14150 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c66/.actplane/runs/run-14133-1792471231416382333/feedback.txt\n\n"
+  },
+  "sys-ssh-block-default-open": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14174, \\\"operation\\\": \\\"open\\\", \\\"value\\\": \\\"PUBLIC\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 14175, ppid 14172) — /var/tmp/asrt-szr8prpt/c67/w/.ssh/id_rsa\n   effect: block\n   reason: Synthetic acceptance SYS-ssh\n   provenance: pid 14172 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14175, \\\"operation\\\": \\\"open\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 14172 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c67/.actplane/runs/run-14155-1792471231784971357/feedback.txt\n\n"
+  },
+  "sys-ssh-block-default-write": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14213, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 14214, ppid 14211) — /var/tmp/asrt-szr8prpt/c68/w/.ssh/id_rsa\n   effect: block\n   reason: Synthetic acceptance SYS-ssh 当前执行访问组同时限制修改与删除。\n   provenance: pid 14211 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14214, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 14211 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c68/.actplane/runs/run-14194-1792471232160152288/feedback.txt\n\n"
+  },
+  "sys-ssh-block-default-unlink": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14234, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 14235, ppid 14232) — /var/tmp/asrt-szr8prpt/c69/w/.ssh/id_rsa\n   effect: block\n   reason: Synthetic acceptance SYS-ssh 当前执行访问组同时限制修改与删除。\n   provenance: pid 14232 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14235, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 14232 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c69/.actplane/runs/run-14215-1792471232532489025/feedback.txt\n\n"
+  },
+  "sys-ssh-notify-default-open": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14259, \\\"operation\\\": \\\"open\\\", \\\"value\\\": \\\"PUBLIC\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'python3' (pid 14260, ppid 14257) — /var/tmp/asrt-szr8prpt/c70/w/.ssh/id_rsa\n   effect: notify\n   reason: Synthetic acceptance SYS-ssh\n   provenance: pid 14257 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14260, \\\"operation\\\": \\\"open\\\", \\\"value\\\": \\\"ORIGINAL\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 14257 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c70/.actplane/runs/run-14240-1792471232903653428/feedback.txt\n\n"
+  },
+  "sys-ssh-notify-default-write": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14289, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'python3' (pid 14290, ppid 14287) — /var/tmp/asrt-szr8prpt/c71/w/.ssh/id_rsa\n   effect: notify\n   reason: Synthetic acceptance SYS-ssh 当前执行访问组同时限制修改与删除。\n   provenance: pid 14287 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14290, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 14287 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c71/.actplane/runs/run-14270-1792471233265798960/feedback.txt\n\n"
+  },
+  "sys-ssh-notify-default-unlink": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14310, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'python3' (pid 14311, ppid 14308) — /var/tmp/asrt-szr8prpt/c72/w/.ssh/id_rsa\n   effect: notify\n   reason: Synthetic acceptance SYS-ssh 当前执行访问组同时限制修改与删除。\n   provenance: pid 14308 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14311, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 14308 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c72/.actplane/runs/run-14291-1792471233638807573/feedback.txt\n\n"
+  },
+  "sys-ssh-kill-default-open": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14349, \\\"operation\\\": \\\"open\\\", \\\"value\\\": \\\"PUBLIC\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'python3' (pid 14350, ppid 14347) — /var/tmp/asrt-szr8prpt/c73/w/.ssh/id_rsa\n   effect: kill\n   reason: Synthetic acceptance SYS-ssh\n   provenance: pid 14347 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 14347 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c73/.actplane/runs/run-14330-1792471234006486063/feedback.txt\n\n"
+  },
+  "sys-ssh-kill-default-write": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14388, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'python3' (pid 14389, ppid 14384) — /var/tmp/asrt-szr8prpt/c74/w/.ssh/id_rsa\n   effect: kill\n   reason: Synthetic acceptance SYS-ssh 当前执行访问组同时限制修改与删除。\n   provenance: pid 14384 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 14384 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c74/.actplane/runs/run-14357-1792471234377363167/feedback.txt\n\n"
+  },
+  "sys-ssh-kill-default-unlink": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14409, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'python3' (pid 14410, ppid 14407) — /var/tmp/asrt-szr8prpt/c75/w/.ssh/id_rsa\n   effect: kill\n   reason: Synthetic acceptance SYS-ssh 当前执行访问组同时限制修改与删除。\n   provenance: pid 14407 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 14407 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c75/.actplane/runs/run-14390-1792471234745273096/feedback.txt\n\n"
+  },
+  "sys-cloud-block-default-open": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14430, \\\"operation\\\": \\\"open\\\", \\\"value\\\": \\\"PUBLIC\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 14431, ppid 14428) — /var/tmp/asrt-szr8prpt/c76/w/.aws/credentials\n   effect: block\n   reason: Synthetic acceptance SYS-cloud\n   provenance: pid 14428 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14431, \\\"operation\\\": \\\"open\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 14428 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c76/.actplane/runs/run-14411-1792471235117858026/feedback.txt\n\n"
+  },
+  "sys-cloud-block-default-write": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14451, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 14452, ppid 14449) — /var/tmp/asrt-szr8prpt/c77/w/.aws/credentials\n   effect: block\n   reason: Synthetic acceptance SYS-cloud 当前执行访问组同时限制修改与删除。\n   provenance: pid 14449 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14452, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 14449 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c77/.actplane/runs/run-14432-1792471235495953130/feedback.txt\n\n"
+  },
+  "sys-cloud-block-default-unlink": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14476, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 14483, ppid 14474) — /var/tmp/asrt-szr8prpt/c78/w/.aws/credentials\n   effect: block\n   reason: Synthetic acceptance SYS-cloud 当前执行访问组同时限制修改与删除。\n   provenance: pid 14474 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14483, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 14474 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c78/.actplane/runs/run-14457-1792471235865262634/feedback.txt\n\n"
+  },
+  "sys-cloud-notify-default-open": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14523, \\\"operation\\\": \\\"open\\\", \\\"value\\\": \\\"PUBLIC\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'python3' (pid 14525, ppid 14515) — /var/tmp/asrt-szr8prpt/c79/w/.aws/credentials\n   effect: notify\n   reason: Synthetic acceptance SYS-cloud\n   provenance: pid 14515 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14525, \\\"operation\\\": \\\"open\\\", \\\"value\\\": \\\"ORIGINAL\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 14515 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c79/.actplane/runs/run-14497-1792471236238135591/feedback.txt\n\n"
+  },
+  "sys-cloud-notify-default-write": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14545, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'python3' (pid 14546, ppid 14543) — /var/tmp/asrt-szr8prpt/c80/w/.aws/credentials\n   effect: notify\n   reason: Synthetic acceptance SYS-cloud 当前执行访问组同时限制修改与删除。\n   provenance: pid 14543 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14546, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 14543 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c80/.actplane/runs/run-14526-1792471236614465668/feedback.txt\n\n"
+  },
+  "sys-cloud-notify-default-unlink": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14566, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'python3' (pid 14571, ppid 14564) — /var/tmp/asrt-szr8prpt/c81/w/.aws/credentials\n   effect: notify\n   reason: Synthetic acceptance SYS-cloud 当前执行访问组同时限制修改与删除。\n   provenance: pid 14564 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14571, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 14564 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c81/.actplane/runs/run-14547-1792471236985643708/feedback.txt\n\n"
+  },
+  "sys-cloud-kill-default-open": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14591, \\\"operation\\\": \\\"open\\\", \\\"value\\\": \\\"PUBLIC\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'python3' (pid 14592, ppid 14589) — /var/tmp/asrt-szr8prpt/c82/w/.aws/credentials\n   effect: kill\n   reason: Synthetic acceptance SYS-cloud\n   provenance: pid 14589 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 14589 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c82/.actplane/runs/run-14572-1792471237357564500/feedback.txt\n\n"
+  },
+  "sys-cloud-kill-default-write": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14615, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'python3' (pid 14616, ppid 14613) — /var/tmp/asrt-szr8prpt/c83/w/.aws/credentials\n   effect: kill\n   reason: Synthetic acceptance SYS-cloud 当前执行访问组同时限制修改与删除。\n   provenance: pid 14613 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 14613 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c83/.actplane/runs/run-14596-1792471237726005982/feedback.txt\n\n"
+  },
+  "sys-cloud-kill-default-unlink": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14636, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'python3' (pid 14637, ppid 14634) — /var/tmp/asrt-szr8prpt/c84/w/.aws/credentials\n   effect: kill\n   reason: Synthetic acceptance SYS-cloud 当前执行访问组同时限制修改与删除。\n   provenance: pid 14634 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 14634 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c84/.actplane/runs/run-14617-1792471238091350155/feedback.txt\n\n"
+  },
+  "sys-system-files-block-default-open": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14676, \\\"operation\\\": \\\"open\\\", \\\"value\\\": \\\"PUBLIC\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 14677, ppid 14674) — /var/tmp/asrt-szr8prpt/c85/w/protected\n   effect: block\n   reason: Synthetic acceptance SYS-system-files\n   provenance: pid 14674 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14677, \\\"operation\\\": \\\"open\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 14674 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c85/.actplane/runs/run-14657-1792471238459681272/feedback.txt\n\n"
+  },
+  "sys-system-files-block-default-write": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14720, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 14721, ppid 14699) — /var/tmp/asrt-szr8prpt/c86/w/protected\n   effect: block\n   reason: Synthetic acceptance SYS-system-files 当前执行访问组同时限制修改与删除。\n   provenance: pid 14699 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14721, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 14699 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c86/.actplane/runs/run-14682-1792471238828389781/feedback.txt\n\n"
+  },
+  "sys-system-files-block-default-unlink": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14742, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 14743, ppid 14739) — /var/tmp/asrt-szr8prpt/c87/w/protected\n   effect: block\n   reason: Synthetic acceptance SYS-system-files 当前执行访问组同时限制修改与删除。\n   provenance: pid 14739 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14743, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 14739 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c87/.actplane/runs/run-14722-1792471239197344702/feedback.txt\n\n"
+  },
+  "sys-system-files-notify-default-open": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14790, \\\"operation\\\": \\\"open\\\", \\\"value\\\": \\\"PUBLIC\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'python3' (pid 14791, ppid 14788) — /var/tmp/asrt-szr8prpt/c88/w/protected\n   effect: notify\n   reason: Synthetic acceptance SYS-system-files\n   provenance: pid 14788 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14791, \\\"operation\\\": \\\"open\\\", \\\"value\\\": \\\"ORIGINAL\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 14788 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c88/.actplane/runs/run-14771-1792471239572866251/feedback.txt\n\n"
+  },
+  "sys-system-files-notify-default-write": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14811, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'python3' (pid 14812, ppid 14809) — /var/tmp/asrt-szr8prpt/c89/w/protected\n   effect: notify\n   reason: Synthetic acceptance SYS-system-files 当前执行访问组同时限制修改与删除。\n   provenance: pid 14809 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14812, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 14809 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c89/.actplane/runs/run-14792-1792471239945491373/feedback.txt\n\n"
+  },
+  "sys-system-files-notify-default-unlink": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14832, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'python3' (pid 14833, ppid 14830) — /var/tmp/asrt-szr8prpt/c90/w/protected\n   effect: notify\n   reason: Synthetic acceptance SYS-system-files 当前执行访问组同时限制修改与删除。\n   provenance: pid 14830 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14833, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 14830 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c90/.actplane/runs/run-14813-1792471240318005369/feedback.txt\n\n"
+  },
+  "sys-system-files-kill-default-open": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14853, \\\"operation\\\": \\\"open\\\", \\\"value\\\": \\\"PUBLIC\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'python3' (pid 14854, ppid 14851) — /var/tmp/asrt-szr8prpt/c91/w/protected\n   effect: kill\n   reason: Synthetic acceptance SYS-system-files\n   provenance: pid 14851 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 14851 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c91/.actplane/runs/run-14834-1792471240689226432/feedback.txt\n\n"
+  },
+  "sys-system-files-kill-default-write": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14874, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'python3' (pid 14875, ppid 14872) — /var/tmp/asrt-szr8prpt/c92/w/protected\n   effect: kill\n   reason: Synthetic acceptance SYS-system-files 当前执行访问组同时限制修改与删除。\n   provenance: pid 14872 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 14872 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c92/.actplane/runs/run-14855-1792471241058392069/feedback.txt\n\n"
+  },
+  "sys-system-files-kill-default-unlink": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14895, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'python3' (pid 14896, ppid 14893) — /var/tmp/asrt-szr8prpt/c93/w/protected\n   effect: kill\n   reason: Synthetic acceptance SYS-system-files 当前执行访问组同时限制修改与删除。\n   provenance: pid 14893 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 14893 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c93/.actplane/runs/run-14876-1792471241429086519/feedback.txt\n\n"
+  },
+  "sys-policy-store-block-default-open": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14920, \\\"operation\\\": \\\"open\\\", \\\"value\\\": \\\"PUBLIC\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 14921, ppid 14918) — /var/tmp/asrt-szr8prpt/c94/w/guarded/file\n   effect: block\n   reason: Synthetic acceptance SYS-policy-store\n   provenance: pid 14918 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14921, \\\"operation\\\": \\\"open\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 14918 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c94/.actplane/runs/run-14901-1792471241808297212/feedback.txt\n\n"
+  },
+  "sys-policy-store-block-default-write": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14944, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 14955, ppid 14939) — /var/tmp/asrt-szr8prpt/c95/w/guarded/file\n   effect: block\n   reason: Synthetic acceptance SYS-policy-store 当前执行访问组同时限制修改与删除。\n   provenance: pid 14939 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14955, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 14939 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c95/.actplane/runs/run-14922-1792471242192891015/feedback.txt\n\n"
+  },
+  "sys-policy-store-block-default-unlink": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14983, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 14984, ppid 14981) — /var/tmp/asrt-szr8prpt/c96/w/guarded/file\n   effect: block\n   reason: Synthetic acceptance SYS-policy-store 当前执行访问组同时限制修改与删除。\n   provenance: pid 14981 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 14984, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 14981 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c96/.actplane/runs/run-14964-1792471242601008527/feedback.txt\n\n"
+  },
+  "sys-policy-store-notify-default-open": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15004, \\\"operation\\\": \\\"open\\\", \\\"value\\\": \\\"PUBLIC\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'python3' (pid 15005, ppid 15002) — /var/tmp/asrt-szr8prpt/c97/w/guarded/file\n   effect: notify\n   reason: Synthetic acceptance SYS-policy-store\n   provenance: pid 15002 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15005, \\\"operation\\\": \\\"open\\\", \\\"value\\\": \\\"ORIGINAL\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 15002 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c97/.actplane/runs/run-14985-1792471242974603136/feedback.txt\n\n"
+  },
+  "sys-policy-store-notify-default-write": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15025, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'python3' (pid 15026, ppid 15023) — /var/tmp/asrt-szr8prpt/c98/w/guarded/file\n   effect: notify\n   reason: Synthetic acceptance SYS-policy-store 当前执行访问组同时限制修改与删除。\n   provenance: pid 15023 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15026, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 15023 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c98/.actplane/runs/run-15006-1792471243344636106/feedback.txt\n\n"
+  },
+  "sys-policy-store-notify-default-unlink": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15046, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'python3' (pid 15047, ppid 15044) — /var/tmp/asrt-szr8prpt/c99/w/guarded/file\n   effect: notify\n   reason: Synthetic acceptance SYS-policy-store 当前执行访问组同时限制修改与删除。\n   provenance: pid 15044 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15047, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 15044 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c99/.actplane/runs/run-15027-1792471243714493077/feedback.txt\n\n"
+  },
+  "sys-policy-store-kill-default-open": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15085, \\\"operation\\\": \\\"open\\\", \\\"value\\\": \\\"PUBLIC\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'python3' (pid 15086, ppid 15083) — /var/tmp/asrt-szr8prpt/c100/w/guarded/file\n   effect: kill\n   reason: Synthetic acceptance SYS-policy-store\n   provenance: pid 15083 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 15083 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c100/.actplane/runs/run-15066-1792471244085634625/feedback.txt\n\n"
+  },
+  "sys-policy-store-kill-default-write": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15124, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'python3' (pid 15125, ppid 15122) — /var/tmp/asrt-szr8prpt/c101/w/guarded/file\n   effect: kill\n   reason: Synthetic acceptance SYS-policy-store 当前执行访问组同时限制修改与删除。\n   provenance: pid 15122 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 15122 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c101/.actplane/runs/run-15105-1792471244455921591/feedback.txt\n\n"
+  },
+  "sys-policy-store-kill-default-unlink": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15149, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'python3' (pid 15150, ppid 15147) — /var/tmp/asrt-szr8prpt/c102/w/guarded/file\n   effect: kill\n   reason: Synthetic acceptance SYS-policy-store 当前执行访问组同时限制修改与删除。\n   provenance: pid 15147 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 15147 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c102/.actplane/runs/run-15130-1792471244826723740/feedback.txt\n\n"
+  },
+  "sys-audit-store-block-default-open": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15170, \\\"operation\\\": \\\"open\\\", \\\"value\\\": \\\"PUBLIC\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 15171, ppid 15168) — /var/tmp/asrt-szr8prpt/c103/w/guarded/file\n   effect: block\n   reason: Synthetic acceptance SYS-audit-store\n   provenance: pid 15168 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15171, \\\"operation\\\": \\\"open\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 15168 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c103/.actplane/runs/run-15151-1792471245194508177/feedback.txt\n\n"
+  },
+  "sys-audit-store-block-default-write": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15199, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 15200, ppid 15197) — /var/tmp/asrt-szr8prpt/c104/w/guarded/file\n   effect: block\n   reason: Synthetic acceptance SYS-audit-store 当前执行访问组同时限制修改与删除。\n   provenance: pid 15197 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15200, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 15197 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c104/.actplane/runs/run-15180-1792471245563907251/feedback.txt\n\n"
+  },
+  "sys-audit-store-block-default-unlink": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15238, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 15239, ppid 15228) — /var/tmp/asrt-szr8prpt/c105/w/guarded/file\n   effect: block\n   reason: Synthetic acceptance SYS-audit-store 当前执行访问组同时限制修改与删除。\n   provenance: pid 15228 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15239, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 15228 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c105/.actplane/runs/run-15207-1792471245934580407/feedback.txt\n\n"
+  },
+  "sys-audit-store-notify-default-open": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15259, \\\"operation\\\": \\\"open\\\", \\\"value\\\": \\\"PUBLIC\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'python3' (pid 15261, ppid 15257) — /var/tmp/asrt-szr8prpt/c106/w/guarded/file\n   effect: notify\n   reason: Synthetic acceptance SYS-audit-store\n   provenance: pid 15257 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15261, \\\"operation\\\": \\\"open\\\", \\\"value\\\": \\\"ORIGINAL\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 15257 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c106/.actplane/runs/run-15240-1792471246313914650/feedback.txt\n\n"
+  },
+  "sys-audit-store-notify-default-write": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15281, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'python3' (pid 15282, ppid 15279) — /var/tmp/asrt-szr8prpt/c107/w/guarded/file\n   effect: notify\n   reason: Synthetic acceptance SYS-audit-store 当前执行访问组同时限制修改与删除。\n   provenance: pid 15279 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15282, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 15279 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c107/.actplane/runs/run-15262-1792471246687356331/feedback.txt\n\n"
+  },
+  "sys-audit-store-notify-default-unlink": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15302, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'python3' (pid 15303, ppid 15300) — /var/tmp/asrt-szr8prpt/c108/w/guarded/file\n   effect: notify\n   reason: Synthetic acceptance SYS-audit-store 当前执行访问组同时限制修改与删除。\n   provenance: pid 15300 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15303, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 15300 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c108/.actplane/runs/run-15283-1792471247056035011/feedback.txt\n\n"
+  },
+  "sys-audit-store-kill-default-open": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15323, \\\"operation\\\": \\\"open\\\", \\\"value\\\": \\\"PUBLIC\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'python3' (pid 15324, ppid 15321) — /var/tmp/asrt-szr8prpt/c109/w/guarded/file\n   effect: kill\n   reason: Synthetic acceptance SYS-audit-store\n   provenance: pid 15321 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 15321 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c109/.actplane/runs/run-15304-1792471247427737059/feedback.txt\n\n"
+  },
+  "sys-audit-store-kill-default-write": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15348, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'python3' (pid 15349, ppid 15346) — /var/tmp/asrt-szr8prpt/c110/w/guarded/file\n   effect: kill\n   reason: Synthetic acceptance SYS-audit-store 当前执行访问组同时限制修改与删除。\n   provenance: pid 15346 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 15346 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c110/.actplane/runs/run-15329-1792471247797803116/feedback.txt\n\n"
+  },
+  "sys-audit-store-kill-default-unlink": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15369, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'python3' (pid 15370, ppid 15367) — /var/tmp/asrt-szr8prpt/c111/w/guarded/file\n   effect: kill\n   reason: Synthetic acceptance SYS-audit-store 当前执行访问组同时限制修改与删除。\n   provenance: pid 15367 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 15367 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c111/.actplane/runs/run-15350-1792471248166336572/feedback.txt\n\n"
+  },
+  "sys-privilege-block-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15416, \\\"operation\\\": \\\"exec\\\", \\\"exec_pid\\\": 15417, \\\"exec_returncode\\\": 0, \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 15419, ppid 15418) — /var/tmp/asrt-szr8prpt/bin/aschild\n   effect: block\n   reason: Synthetic acceptance SYS-privilege\n   provenance: pid 15414 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15418, \\\"operation\\\": \\\"exec\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 15414 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c112/.actplane/runs/run-15397-1792471248538803494/feedback.txt\n\n"
+  },
+  "sys-privilege-notify-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15457, \\\"operation\\\": \\\"exec\\\", \\\"exec_pid\\\": 15458, \\\"exec_returncode\\\": 0, \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'aschild' (pid 15460, ppid 15459) — /var/tmp/asrt-szr8prpt/bin/aschild\n   effect: notify\n   reason: Synthetic acceptance SYS-privilege\n   provenance: pid 15455 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15459, \\\"operation\\\": \\\"exec\\\", \\\"exec_pid\\\": 15460, \\\"exec_returncode\\\": 0, \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 15455 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c113/.actplane/runs/run-15438-1792471248909808567/feedback.txt\n\n"
+  },
+  "sys-privilege-kill-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15480, \\\"operation\\\": \\\"exec\\\", \\\"exec_pid\\\": 15481, \\\"exec_returncode\\\": 0, \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'aschild' (pid 15483, ppid 15482) — /var/tmp/asrt-szr8prpt/bin/aschild\n   effect: kill\n   reason: Synthetic acceptance SYS-privilege\n   provenance: pid 15478 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15482, \\\"operation\\\": \\\"exec\\\", \\\"exec_pid\\\": 15483, \\\"exec_returncode\\\": -9, \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 15478 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c114/.actplane/runs/run-15461-1792471249279081062/feedback.txt\n\n"
+  },
+  "sys-network-audit-block-default-connect": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15521, \\\"operation\\\": \\\"connect\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 15522, ppid 15519) — 127.0.0.2\n   effect: block\n   reason: Synthetic acceptance SYS-network-audit\n   provenance: pid 15519 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15522, \\\"operation\\\": \\\"connect\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 15519 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c115/.actplane/runs/run-15502-1792471249649048338/feedback.txt\n\n"
+  },
+  "sys-network-audit-notify-default-connect": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15542, \\\"operation\\\": \\\"connect\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'python3' (pid 15543, ppid 15540) — 127.0.0.2\n   effect: notify\n   reason: Synthetic acceptance SYS-network-audit\n   provenance: pid 15540 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15543, \\\"operation\\\": \\\"connect\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 15540 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c116/.actplane/runs/run-15523-1792471250024931291/feedback.txt\n\n"
+  },
+  "sys-network-audit-kill-default-connect": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15567, \\\"operation\\\": \\\"connect\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'python3' (pid 15568, ppid 15565) — 127.0.0.2\n   effect: kill\n   reason: Synthetic acceptance SYS-network-audit\n   provenance: pid 15565 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 15565 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c117/.actplane/runs/run-15548-1792471250394187874/feedback.txt\n\n"
+  },
+  "sys-process-audit-block-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15592, \\\"operation\\\": \\\"exec\\\", \\\"exec_pid\\\": 15593, \\\"exec_returncode\\\": 0, \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 15595, ppid 15594) — /var/tmp/asrt-szr8prpt/bin/aschild\n   effect: block\n   reason: Synthetic acceptance SYS-process-audit\n   provenance: pid 15589 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15594, \\\"operation\\\": \\\"exec\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 15589 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c118/.actplane/runs/run-15570-1792471250764871748/feedback.txt\n\n"
+  },
+  "sys-process-audit-notify-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15615, \\\"operation\\\": \\\"exec\\\", \\\"exec_pid\\\": 15616, \\\"exec_returncode\\\": 0, \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'aschild' (pid 15618, ppid 15617) — /var/tmp/asrt-szr8prpt/bin/aschild\n   effect: notify\n   reason: Synthetic acceptance SYS-process-audit\n   provenance: pid 15613 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15617, \\\"operation\\\": \\\"exec\\\", \\\"exec_pid\\\": 15618, \\\"exec_returncode\\\": 0, \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 15613 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c119/.actplane/runs/run-15596-1792471251137674387/feedback.txt\n\n"
+  },
+  "sys-process-audit-kill-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15646, \\\"operation\\\": \\\"exec\\\", \\\"exec_pid\\\": 15647, \\\"exec_returncode\\\": 0, \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'aschild' (pid 15649, ppid 15648) — /var/tmp/asrt-szr8prpt/bin/aschild\n   effect: kill\n   reason: Synthetic acceptance SYS-process-audit\n   provenance: pid 15644 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15648, \\\"operation\\\": \\\"exec\\\", \\\"exec_pid\\\": 15649, \\\"exec_returncode\\\": -9, \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 15644 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c120/.actplane/runs/run-15627-1792471251536806497/feedback.txt\n\n"
+  },
+  "sys-instructions-block-default-open": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15670, \\\"operation\\\": \\\"open\\\", \\\"value\\\": \\\"PUBLIC\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 15671, ppid 15668) — /var/tmp/asrt-szr8prpt/c121/w/AGENTS.md\n   effect: block\n   reason: Synthetic acceptance SYS-instructions\n   provenance: pid 15668 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15671, \\\"operation\\\": \\\"open\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 15668 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c121/.actplane/runs/run-15651-1792471251906477422/feedback.txt\n\n"
+  },
+  "sys-instructions-block-default-write": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15691, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 15692, ppid 15689) — /var/tmp/asrt-szr8prpt/c122/w/AGENTS.md\n   effect: block\n   reason: Synthetic acceptance SYS-instructions 当前执行访问组同时限制修改与删除。\n   provenance: pid 15689 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15692, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 15689 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c122/.actplane/runs/run-15672-1792471252273719803/feedback.txt\n\n"
+  },
+  "sys-instructions-block-default-unlink": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15712, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 15713, ppid 15710) — /var/tmp/asrt-szr8prpt/c123/w/AGENTS.md\n   effect: block\n   reason: Synthetic acceptance SYS-instructions 当前执行访问组同时限制修改与删除。\n   provenance: pid 15710 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15713, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 15710 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c123/.actplane/runs/run-15693-1792471252645777030/feedback.txt\n\n"
+  },
+  "sys-instructions-notify-default-open": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15733, \\\"operation\\\": \\\"open\\\", \\\"value\\\": \\\"PUBLIC\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'python3' (pid 15734, ppid 15731) — /var/tmp/asrt-szr8prpt/c124/w/AGENTS.md\n   effect: notify\n   reason: Synthetic acceptance SYS-instructions\n   provenance: pid 15731 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15734, \\\"operation\\\": \\\"open\\\", \\\"value\\\": \\\"ORIGINAL\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 15731 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c124/.actplane/runs/run-15714-1792471253015210571/feedback.txt\n\n"
+  },
+  "sys-instructions-notify-default-write": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15754, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'python3' (pid 15755, ppid 15752) — /var/tmp/asrt-szr8prpt/c125/w/AGENTS.md\n   effect: notify\n   reason: Synthetic acceptance SYS-instructions 当前执行访问组同时限制修改与删除。\n   provenance: pid 15752 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15755, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 15752 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c125/.actplane/runs/run-15735-1792471253389901964/feedback.txt\n\n"
+  },
+  "sys-instructions-notify-default-unlink": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15780, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'python3' (pid 15781, ppid 15775) — /var/tmp/asrt-szr8prpt/c126/w/AGENTS.md\n   effect: notify\n   reason: Synthetic acceptance SYS-instructions 当前执行访问组同时限制修改与删除。\n   provenance: pid 15775 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15781, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 15775 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c126/.actplane/runs/run-15757-1792471253762622104/feedback.txt\n\n"
+  },
+  "sys-instructions-kill-default-open": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15819, \\\"operation\\\": \\\"open\\\", \\\"value\\\": \\\"PUBLIC\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'python3' (pid 15820, ppid 15817) — /var/tmp/asrt-szr8prpt/c127/w/AGENTS.md\n   effect: kill\n   reason: Synthetic acceptance SYS-instructions\n   provenance: pid 15817 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 15817 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c127/.actplane/runs/run-15800-1792471254135132875/feedback.txt\n\n"
+  },
+  "sys-instructions-kill-default-write": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15866, \\\"operation\\\": \\\"write\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'python3' (pid 15867, ppid 15852) — /var/tmp/asrt-szr8prpt/c128/w/AGENTS.md\n   effect: kill\n   reason: Synthetic acceptance SYS-instructions 当前执行访问组同时限制修改与删除。\n   provenance: pid 15852 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 15852 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c128/.actplane/runs/run-15829-1792471254509178167/feedback.txt\n\n"
+  },
+  "sys-instructions-kill-default-unlink": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15887, \\\"operation\\\": \\\"unlink\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'python3' (pid 15888, ppid 15885) — /var/tmp/asrt-szr8prpt/c129/w/AGENTS.md\n   effect: kill\n   reason: Synthetic acceptance SYS-instructions 当前执行访问组同时限制修改与删除。\n   provenance: pid 15885 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 15885 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c129/.actplane/runs/run-15868-1792471254882823487/feedback.txt\n\n"
+  },
+  "sys-secret-egress-block-default-connect": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15908, \\\"operation\\\": \\\"connect\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 15909, ppid 15906) — 127.0.0.2\n   effect: block\n   reason: Synthetic acceptance SYS-secret-egress\n   provenance: pid 15906 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15909, \\\"operation\\\": \\\"connect\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 15906 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c130/.actplane/runs/run-15889-1792471255256682939/feedback.txt\n\n"
+  },
+  "sys-secret-egress-notify-default-connect": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15929, \\\"operation\\\": \\\"connect\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'python3' (pid 15930, ppid 15927) — 127.0.0.2\n   effect: notify\n   reason: Synthetic acceptance SYS-secret-egress\n   provenance: pid 15927 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15930, \\\"operation\\\": \\\"connect\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 15927 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c131/.actplane/runs/run-15910-1792471255629403693/feedback.txt\n\n"
+  },
+  "sys-secret-egress-kill-default-connect": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15969, \\\"operation\\\": \\\"connect\\\", \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'python3' (pid 15970, ppid 15967) — 127.0.0.2\n   effect: kill\n   reason: Synthetic acceptance SYS-secret-egress\n   provenance: pid 15967 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 15967 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c132/.actplane/runs/run-15950-1792471256003989458/feedback.txt\n\n"
+  },
+  "sys-remote-exec-block-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15990, \\\"operation\\\": \\\"exec\\\", \\\"exec_pid\\\": 15991, \\\"exec_returncode\\\": 0, \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 BLOCKED: process 'python3' (pid 15996, ppid 15992) — /var/tmp/asrt-szr8prpt/bin/aschild\n   effect: block\n   reason: Synthetic acceptance SYS-remote-exec\n   provenance: pid 15988 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 15992, \\\"operation\\\": \\\"exec\\\", \\\"ok\\\": false, \\\"errno\\\": 1, \\\"error\\\": \\\"PermissionError\\\"}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 15988 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c133/.actplane/runs/run-15971-1792471256381367280/feedback.txt\n\n"
+  },
+  "sys-remote-exec-notify-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 16021, \\\"operation\\\": \\\"exec\\\", \\\"exec_pid\\\": 16022, \\\"exec_returncode\\\": 0, \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'aschild' (pid 16024, ppid 16023) — /var/tmp/asrt-szr8prpt/bin/aschild\n   effect: notify\n   reason: Synthetic acceptance SYS-remote-exec\n   provenance: pid 16019 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 16023, \\\"operation\\\": \\\"exec\\\", \\\"exec_pid\\\": 16024, \\\"exec_returncode\\\": 0, \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 16019 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c134/.actplane/runs/run-16002-1792471257057858620/feedback.txt\n\n"
+  },
+  "sys-remote-exec-kill-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 16052, \\\"operation\\\": \\\"exec\\\", \\\"exec_pid\\\": 16053, \\\"exec_returncode\\\": 0, \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'aschild' (pid 16055, ppid 16054) — /var/tmp/asrt-szr8prpt/bin/aschild\n   effect: kill\n   reason: Synthetic acceptance SYS-remote-exec\n   provenance: pid 16050 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"OP={\\\"pid\\\": 16054, \\\"operation\\\": \\\"exec\\\", \\\"exec_pid\\\": 16055, \\\"exec_returncode\\\": -9, \\\"ok\\\": true}\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 16050 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c135/.actplane/runs/run-16033-1792471257732883329/feedback.txt\n\n"
+  },
+  "git-commit-notify-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"?? untracked\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'git' (pid 16104, ppid 16101) — /usr/bin/git\n   effect: notify\n   reason: Synthetic acceptance GIT-COMMIT\n   provenance: pid 16101 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"[master 95f98a2] synthetic\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 16101 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c136/.actplane/runs/run-16076-1792471258467791475/feedback.txt\n\n"
+  },
+  "git-commit-kill-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"?? untracked\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'git' (pid 16138, ppid 16135) — /usr/bin/git\n   effect: kill\n   reason: Synthetic acceptance GIT-COMMIT\n   provenance: pid 16135 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 16135 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c137/.actplane/runs/run-16118-1792471258844475495/feedback.txt\n\n"
+  },
+  "git-commit-check-notify-missing": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"?? untracked\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'git' (pid 16188, ppid 16185) — /usr/bin/git\n   effect: notify\n   reason: Synthetic acceptance GIT-COMMIT-CHECK\n   provenance: pid 16185 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"[master 0723b51] synthetic\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 16185 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c138/.actplane/runs/run-16168-1792471259203275417/feedback.txt\n\n"
+  },
+  "git-commit-check-notify-success": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"?? untracked\\n\", \"stderr\": \"\"}\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"[master 0723b51] synthetic\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 16237 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c139/.actplane/runs/run-16220-1792471259580889969/feedback.txt\n\n"
+  },
+  "git-commit-check-notify-failed": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"?? untracked\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'git' (pid 16286, ppid 16282) — /usr/bin/git\n   effect: notify\n   reason: Synthetic acceptance GIT-COMMIT-CHECK\n   provenance: pid 16282 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"[master 0723b51] synthetic\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 16282 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c140/.actplane/runs/run-16265-1792471259927438581/feedback.txt\n\n"
+  },
+  "git-commit-check-notify-changed": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"?? untracked\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'git' (pid 16321, ppid 16317) — /usr/bin/git\n   effect: notify\n   reason: Synthetic acceptance GIT-COMMIT-CHECK\n   provenance: pid 16317 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"[master 5d10178] synthetic\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 16317 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c141/.actplane/runs/run-16300-1792471260296238046/feedback.txt\n\n"
+  },
+  "git-commit-check-kill-missing": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"?? untracked\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'git' (pid 16383, ppid 16380) — /usr/bin/git\n   effect: kill\n   reason: Synthetic acceptance GIT-COMMIT-CHECK\n   provenance: pid 16380 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 16380 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c142/.actplane/runs/run-16363-1792471260678417436/feedback.txt\n\n"
+  },
+  "git-commit-check-kill-success": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"?? untracked\\n\", \"stderr\": \"\"}\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"[master 31aedd7] synthetic\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 16412 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c143/.actplane/runs/run-16395-1792471261057963958/feedback.txt\n\n"
+  },
+  "git-commit-check-kill-failed": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"?? untracked\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'git' (pid 16451, ppid 16447) — /usr/bin/git\n   effect: kill\n   reason: Synthetic acceptance GIT-COMMIT-CHECK\n   provenance: pid 16447 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 16447 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c144/.actplane/runs/run-16430-1792471261412719366/feedback.txt\n\n"
+  },
+  "git-commit-check-kill-changed": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"?? untracked\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'git' (pid 16484, ppid 16480) — /usr/bin/git\n   effect: kill\n   reason: Synthetic acceptance GIT-COMMIT-CHECK\n   provenance: pid 16480 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 16480 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c145/.actplane/runs/run-16463-1792471261801141930/feedback.txt\n\n"
+  },
+  "git-push-notify-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"?? untracked\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'git' (pid 16516, ppid 16513) — /usr/bin/git\n   effect: notify\n   reason: Synthetic acceptance GIT-PUSH\n   provenance: pid 16513 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"\", \"stderr\": \"To /var/tmp/asrt-szr8prpt/c146/w/bare\\n * [new branch]      HEAD -> test\\n\"}\n",
+    "stderr": "ActPlane: running pid 16513 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c146/.actplane/runs/run-16496-1792471262191670549/feedback.txt\n\n"
+  },
+  "git-push-kill-default": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"?? untracked\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'git' (pid 16559, ppid 16556) — /usr/bin/git\n   effect: kill\n   reason: Synthetic acceptance GIT-PUSH\n   provenance: pid 16556 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 16556 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c147/.actplane/runs/run-16539-1792471262572129659/feedback.txt\n\n"
+  },
+  "git-push-check-notify-missing": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"?? untracked\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'git' (pid 20546, ppid 20450) — /usr/bin/git\n   effect: notify\n   reason: Synthetic acceptance GIT-PUSH-CHECK\n   provenance: pid 20450 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"\", \"stderr\": \"To /var/tmp/asrt-uds7yrp7/c0/w/bare\\n * [new branch]      HEAD -> test\\n\"}\n",
+    "stderr": "ActPlane: running pid 20450 under COMMAND label 0x1; feedback /var/tmp/asrt-uds7yrp7/c0/.actplane/runs/run-20432-1792471336610611512/feedback.txt\n\n"
+  },
+  "git-push-check-notify-success": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"?? untracked\\n\", \"stderr\": \"\"}\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"\", \"stderr\": \"To /var/tmp/asrt-uds7yrp7/c1/w/bare\\n * [new branch]      HEAD -> test\\n\"}\n",
+    "stderr": "ActPlane: running pid 20593 under COMMAND label 0x1; feedback /var/tmp/asrt-uds7yrp7/c1/.actplane/runs/run-20576-1792471341815773953/feedback.txt\n\n"
+  },
+  "git-push-check-notify-failed": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"?? untracked\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'git' (pid 20641, ppid 20637) — /usr/bin/git\n   effect: notify\n   reason: Synthetic acceptance GIT-PUSH-CHECK\n   provenance: pid 20637 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"\", \"stderr\": \"To /var/tmp/asrt-uds7yrp7/c2/w/bare\\n * [new branch]      HEAD -> test\\n\"}\n",
+    "stderr": "ActPlane: running pid 20637 under COMMAND label 0x1; feedback /var/tmp/asrt-uds7yrp7/c2/.actplane/runs/run-20620-1792471342161416936/feedback.txt\n\n"
+  },
+  "git-push-check-notify-changed": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"?? untracked\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'git' (pid 20685, ppid 20681) — /usr/bin/git\n   effect: notify\n   reason: Synthetic acceptance GIT-PUSH-CHECK\n   provenance: pid 20681 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"\", \"stderr\": \"To /var/tmp/asrt-uds7yrp7/c3/w/bare\\n * [new branch]      HEAD -> test\\n\"}\n",
+    "stderr": "ActPlane: running pid 20681 under COMMAND label 0x1; feedback /var/tmp/asrt-uds7yrp7/c3/.actplane/runs/run-20664-1792471342527511834/feedback.txt\n\n"
+  },
+  "git-push-check-kill-missing": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"?? untracked\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'git' (pid 20736, ppid 20733) — /usr/bin/git\n   effect: kill\n   reason: Synthetic acceptance GIT-PUSH-CHECK\n   provenance: pid 20733 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 20733 under COMMAND label 0x1; feedback /var/tmp/asrt-uds7yrp7/c4/.actplane/runs/run-20716-1792471342899281393/feedback.txt\n\n"
+  },
+  "git-push-check-kill-success": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"?? untracked\\n\", \"stderr\": \"\"}\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"\", \"stderr\": \"To /var/tmp/asrt-uds7yrp7/c5/w/bare\\n * [new branch]      HEAD -> test\\n\"}\n",
+    "stderr": "ActPlane: running pid 20765 under COMMAND label 0x1; feedback /var/tmp/asrt-uds7yrp7/c5/.actplane/runs/run-20748-1792471343267637304/feedback.txt\n\n"
+  },
+  "git-push-check-kill-failed": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"?? untracked\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'git' (pid 20814, ppid 20810) — /usr/bin/git\n   effect: kill\n   reason: Synthetic acceptance GIT-PUSH-CHECK\n   provenance: pid 20810 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 20810 under COMMAND label 0x1; feedback /var/tmp/asrt-uds7yrp7/c6/.actplane/runs/run-20793-1792471343611036330/feedback.txt\n\n"
+  },
+  "git-push-check-kill-changed": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"?? untracked\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'git' (pid 20851, ppid 20847) — /usr/bin/git\n   effect: kill\n   reason: Synthetic acceptance GIT-PUSH-CHECK\n   provenance: pid 20847 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 20847 under COMMAND label 0x1; feedback /var/tmp/asrt-uds7yrp7/c7/.actplane/runs/run-20830-1792471343972197517/feedback.txt\n\n"
+  },
+  "git-local-notify-default-reset": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"?? untracked\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'git' (pid 20908, ppid 20905) — /usr/bin/git\n   effect: notify\n   reason: Synthetic acceptance GIT-LOCAL\n   provenance: pid 20905 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 20905 under COMMAND label 0x1; feedback /var/tmp/asrt-uds7yrp7/c8/.actplane/runs/run-20888-1792471344341980277/feedback.txt\n\n"
+  },
+  "git-local-notify-default-clean": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"?? untracked\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'git' (pid 20942, ppid 20939) — /usr/bin/git\n   effect: notify\n   reason: Synthetic acceptance GIT-LOCAL\n   provenance: pid 20939 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"Removing untracked\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 20939 under COMMAND label 0x1; feedback /var/tmp/asrt-uds7yrp7/c9/.actplane/runs/run-20922-1792471344702215672/feedback.txt\n\n"
+  },
+  "git-local-notify-default-stash": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"?? untracked\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'git' (pid 20977, ppid 20974) — /usr/bin/git\n   effect: notify\n   reason: Synthetic acceptance GIT-LOCAL\n   provenance: pid 20974 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 20974 under COMMAND label 0x1; feedback /var/tmp/asrt-uds7yrp7/c10/.actplane/runs/run-20957-1792471345075545055/feedback.txt\n\n"
+  },
+  "git-local-kill-default-reset": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"?? untracked\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'git' (pid 21027, ppid 21024) — /usr/bin/git\n   effect: kill\n   reason: Synthetic acceptance GIT-LOCAL\n   provenance: pid 21024 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 21024 under COMMAND label 0x1; feedback /var/tmp/asrt-uds7yrp7/c11/.actplane/runs/run-21007-1792471345440209317/feedback.txt\n\n"
+  },
+  "git-local-kill-default-clean": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"?? untracked\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'git' (pid 21067, ppid 21064) — /usr/bin/git\n   effect: kill\n   reason: Synthetic acceptance GIT-LOCAL\n   provenance: pid 21064 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 21064 under COMMAND label 0x1; feedback /var/tmp/asrt-uds7yrp7/c12/.actplane/runs/run-21047-1792471345797875910/feedback.txt\n\n"
+  },
+  "git-local-kill-default-stash": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"?? untracked\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'git' (pid 21118, ppid 21115) — /usr/bin/git\n   effect: kill\n   reason: Synthetic acceptance GIT-LOCAL\n   provenance: pid 21115 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 21115 under COMMAND label 0x1; feedback /var/tmp/asrt-uds7yrp7/c13/.actplane/runs/run-21098-1792471346167704485/feedback.txt\n\n"
+  },
+  "git-bypass-notify-default---no-verify": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"?? untracked\\n\", \"stderr\": \"\"}\n🚫 VIOLATION: process 'git' (pid 17166, ppid 17163) — /usr/bin/git\n   effect: notify\n   reason: Synthetic acceptance GIT-BYPASS\n   provenance: pid 17163 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": 0, \"stdout\": \"[master f8a1da3] synthetic\\n\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 17163 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c162/.actplane/runs/run-17146-1792471266240467937/feedback.txt\n\n"
+  },
+  "git-bypass-kill-default---no-verify": {
+    "stdout": "RESULT={\"phase\": \"control\", \"returncode\": 0, \"stdout\": \"?? untracked\\n\", \"stderr\": \"\"}\n🚫 KILLED: process 'git' (pid 17206, ppid 17198) — /usr/bin/git\n   effect: kill\n   reason: Synthetic acceptance GIT-BYPASS\n   provenance: pid 17198 exec asprobe -> label AGENT\nRESULT={\"phase\": \"match\", \"returncode\": -9, \"stdout\": \"\", \"stderr\": \"\"}\n",
+    "stderr": "ActPlane: running pid 17198 under COMMAND label 0x1; feedback /var/tmp/asrt-szr8prpt/c163/.actplane/runs/run-17180-1792471266616747532/feedback.txt\n\n"
+  }
+}

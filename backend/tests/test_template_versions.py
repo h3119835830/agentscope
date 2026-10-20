@@ -71,7 +71,7 @@ def test_api_is_admin_only_and_validates_defaults_and_type_contract(world):
 
 @pytest.mark.parametrize('ident,parameters',[('WRITE-BOUNDARY',{'target':'/w/0','exception':'/w/0/reports'}),
  ('RQ1-GENERATED',{'target':'/w/0/out','producer':'python'}),('SECRET-EGRESS',{'target':'/w/0/staff.csv','endpoint':'*'}),
- ('REMOTE-EXEC',{'program':'bash'}),('RQ1-CHECK',{'target':'/w/0','checker':'pytest'}),('RQ1-GIT',{})])
+ ('REMOTE-EXEC',{'program':'bash'})])
 def test_new_default_effect_is_reflected_by_each_fixed_renderer(world,ident,parameters):
     versions.save(ident,edit(ident))
     row=tc.save(world.a['id'],config(ident,template_version=3,parameters=parameters))

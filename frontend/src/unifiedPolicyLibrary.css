@@ -103,3 +103,5 @@
 .spl-template-detail>form{height:100%;width:100%;min-height:0;display:flex;flex-direction:column}
 
 .spl-dialog input[readonly]{background:#f7f9fc;color:#647a97;cursor:default}
+
+.tpl-readonly-fields{border:0;margin:0;padding:0;min-width:0;display:flex;flex-direction:column;gap:18px}

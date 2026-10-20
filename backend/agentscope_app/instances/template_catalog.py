@@ -107,7 +107,8 @@ def public_catalog():
 
 def public_definition(definition, description=None):
     item = {k:copy.deepcopy(v) for k,v in definition.items() if k not in ('renderer','system_preset')}
-    support = git_templates.presentation(definition)
+    from .template_support import presentation
+    support = presentation(definition)
     if support:
         item['execution_support'] = support
     if definition['id'] in git_templates.RETIRED:

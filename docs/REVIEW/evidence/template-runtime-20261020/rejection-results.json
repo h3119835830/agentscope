@@ -1,0 +1,103 @@
+{
+  "scope": "isolated database; no shared Broker or DSH; negative paths must not start a child",
+  "cases": [
+    {
+      "template_id": "GIT-CONTENT",
+      "checks": {
+        "draft_only": true,
+        "single_rejected": true,
+        "batch_rejected": true,
+        "revalidate_rejected": true
+      },
+      "errors": {
+        "single": "ActPlane 暂不支持“Git 提交内容限制”的执行语义；参数草案已保留，不能提交审批或应用。",
+        "batch": "ActPlane 暂不支持“Git 提交内容限制”的执行语义；参数草案已保留，不能提交审批或应用。",
+        "revalidate": "ActPlane 暂不支持“Git 提交内容限制”的执行语义；参数草案已保留，不能提交审批或应用。"
+      },
+      "passed": true
+    },
+    {
+      "template_id": "GIT-PUSH-TARGET",
+      "checks": {
+        "draft_only": true,
+        "single_rejected": true,
+        "batch_rejected": true,
+        "revalidate_rejected": true
+      },
+      "errors": {
+        "single": "ActPlane 暂不支持“Git 推送目标限制”的执行语义；参数草案已保留，不能提交审批或应用。",
+        "batch": "ActPlane 暂不支持“Git 推送目标限制”的执行语义；参数草案已保留，不能提交审批或应用。",
+        "revalidate": "ActPlane 暂不支持“Git 推送目标限制”的执行语义；参数草案已保留，不能提交审批或应用。"
+      },
+      "passed": true
+    },
+    {
+      "template_id": "GIT-PUSH-APPROVAL",
+      "checks": {
+        "draft_only": true,
+        "single_rejected": true,
+        "batch_rejected": true,
+        "revalidate_rejected": true
+      },
+      "errors": {
+        "single": "ActPlane 暂不支持“Git 单次推送授权”的执行语义；参数草案已保留，不能提交审批或应用。",
+        "batch": "ActPlane 暂不支持“Git 单次推送授权”的执行语义；参数草案已保留，不能提交审批或应用。",
+        "revalidate": "ActPlane 暂不支持“Git 单次推送授权”的执行语义；参数草案已保留，不能提交审批或应用。"
+      },
+      "passed": true
+    },
+    {
+      "template_id": "GIT-MERGE-GATE",
+      "checks": {
+        "draft_only": true,
+        "single_rejected": true,
+        "batch_rejected": true,
+        "revalidate_rejected": true
+      },
+      "errors": {
+        "single": "ActPlane 暂不支持“Git 保护分支合并检查”的执行语义；参数草案已保留，不能提交审批或应用。",
+        "batch": "ActPlane 暂不支持“Git 保护分支合并检查”的执行语义；参数草案已保留，不能提交审批或应用。",
+        "revalidate": "ActPlane 暂不支持“Git 保护分支合并检查”的执行语义；参数草案已保留，不能提交审批或应用。"
+      },
+      "passed": true
+    },
+    {
+      "template_id": "RQ1-CHECK",
+      "checks": {
+        "create_rejected": true,
+        "template_edit_rejected": true
+      },
+      "errors": {
+        "create": "历史模板已停用新建与编辑入口，请选择对应的新版 Git 模板；原配置和审批记录保留。",
+        "edit": "历史模板已停用新建与编辑入口，请选择对应的新版 Git 模板；原配置和审批记录保留。"
+      },
+      "passed": true
+    },
+    {
+      "template_id": "RQ1-GIT",
+      "checks": {
+        "create_rejected": true,
+        "template_edit_rejected": true
+      },
+      "errors": {
+        "create": "历史模板已停用新建与编辑入口，请选择对应的新版 Git 模板；原配置和审批记录保留。",
+        "edit": "历史模板已停用新建与编辑入口，请选择对应的新版 Git 模板；原配置和审批记录保留。"
+      },
+      "passed": true
+    }
+  ],
+  "legacy_broker_rejected": true,
+  "legacy_broker_error": "策略中含 ActPlane 当前不支持的子句：[{\"clause_index\": 0, \"condition_warnings\": [], \"effect\": \"block\", \"limitations\": [\"use kill exec for post-exec termination\"], \"mode\": \"none\", \"op\": \"exec\", \"pre_op\": false, \"reason\": \"argv is only available after exec, so this cannot block pre-exec\", \"rule\": \"config-legacy\", \"status\": \"unsupported\", \"supported\": false, \"target_arg\": \"commit\", \"target_kind\": \"exec\", \"target_pattern\": \"**/git\"}]",
+  "legacy_raw_cli_observation": {
+    "returncode": 0,
+    "stdout": "[master bcd79c0] synthetic\nMATCH_RETURN=0\n",
+    "stderr": "ActPlane: running pid 18636 under COMMAND label 0x1; feedback /var/tmp/asrt-reject-moukh54x/.actplane/runs/run-18619-1792471299473907143/feedback.txt\n\n",
+    "dsl": "source AGENT = exec \"**/asprobe\"\nsource CODE = file \"/var/tmp/asrt-reject-moukh54x/repo/code\"\nrule config-legacy:\n  block exec \"git\" \"commit\" if AGENT and CODE unless after exec \"ascheck\" since write \"/var/tmp/asrt-reject-moukh54x/repo/code\"\n  because \"Synthetic unsupported observation\"",
+    "events": [],
+    "before_head": "364199bc4d2ab7def452a03d81518c94440f4a9a",
+    "after_head": "bcd79c0b53427993e90f8dc352c428d756d0d7e5",
+    "classification": "unsupported block is NOT enforced by raw CLI; AgentScope Broker validator and retired-template API must reject it",
+    "confirmed": true
+  },
+  "passed": true
+}

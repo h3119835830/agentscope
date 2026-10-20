@@ -94,7 +94,7 @@ def test_unsupported_has_no_dsl_and_template_defaults_change_preview_not_authori
     for t in catalog.public_catalog():
         p=t['dsl_preview']
         assert p['preview_only']
-        if t.get('execution_support',{}).get('applicable') is False:assert p['state']=='unsupported' and p['dsl'] is None
+        if t.get('execution_support',{}).get('status')=='unsupported':assert p['state']=='unsupported' and p['dsl'] is None
         else:assert p['dsl']
     t=latest('GIT-PUSH-CHECK')
     result=preview.preview_definition(catalog.get(t['id'],t['version']),{'checker':'check','target':'/w/0/src/**','exit_code':'2','effect':'notify'},effect='notify')

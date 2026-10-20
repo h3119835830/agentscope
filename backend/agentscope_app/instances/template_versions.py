@@ -127,6 +127,8 @@ def save(ident,body):
             row=con.execute('SELECT * FROM policy_template_versions WHERE template_id=? ORDER BY version DESC LIMIT 1',(ident,)).fetchone()
             base=unpack(row)['definition'] if row else copy.deepcopy(built_in)
             if base['version']!=body['base_version']:raise HTTPException(409,'模板已有新版本，请刷新后重新编辑')
+            from .template_support import ensure_editable
+            ensure_editable(base)
             definition,description=edited_definition(base,body)
             definition['version']=base['version']+1
             con.execute('INSERT INTO policy_template_versions VALUES(?,?,?,?,?,?,?)',(ident,definition['version'],json.dumps(definition,ensure_ascii=False),description,request_key,request_hash,db.now()))

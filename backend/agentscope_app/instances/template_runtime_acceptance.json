@@ -1,0 +1,589 @@
+{
+  "schema": "agentscope.template-runtime-evidence.v1",
+  "date": "2026-10-20",
+  "kernel_release": "6.6.114.1-microsoft-standard-WSL2",
+  "binary_sha256": "5e8d43c279d88bd4215f654746675debfd976e28426c9fabdabeca408865d6da",
+  "evidence_sha256": "911460b7c8c7387b99e6fa00d2c178a51402bdfbae67c5f7a23a55fe88411c56",
+  "templates": {
+    "RQ1-ENV": {
+      "contract_hash": "8e3baa59da4a9c7b6d717137ed016ca627420e6da91c3122a3849c4e82ac80b5",
+      "cases": 3,
+      "effects": [
+        "block",
+        "kill",
+        "notify"
+      ],
+      "case_ids": [
+        "rq1-env-block-default",
+        "rq1-env-notify-default",
+        "rq1-env-kill-default"
+      ],
+      "kind": "runtime"
+    },
+    "RQ1-CONTRACT": {
+      "contract_hash": "96a7320ab797c0415fe16f8b481a240ae373eb772b4dadf7f97fd32529a264b3",
+      "cases": 6,
+      "effects": [
+        "block",
+        "kill",
+        "notify"
+      ],
+      "case_ids": [
+        "rq1-contract-block-default-write",
+        "rq1-contract-block-default-unlink",
+        "rq1-contract-notify-default-write",
+        "rq1-contract-notify-default-unlink",
+        "rq1-contract-kill-default-write",
+        "rq1-contract-kill-default-unlink"
+      ],
+      "kind": "runtime"
+    },
+    "FILE-READ": {
+      "contract_hash": "8d8d5e2678d7dd17498ffe63616a0d0ca70d9aded0703f24da353ddd3f4473c0",
+      "cases": 3,
+      "effects": [
+        "block",
+        "kill",
+        "notify"
+      ],
+      "case_ids": [
+        "file-read-block-default",
+        "file-read-notify-default",
+        "file-read-kill-default"
+      ],
+      "kind": "runtime"
+    },
+    "FILE-CHANGE": {
+      "contract_hash": "65d4b1df55d580d12b92bc25396108f7c4413369c8060d377e2e2aaa1b649d98",
+      "cases": 6,
+      "effects": [
+        "block",
+        "kill",
+        "notify"
+      ],
+      "case_ids": [
+        "file-change-block-default-write",
+        "file-change-block-default-unlink",
+        "file-change-notify-default-write",
+        "file-change-notify-default-unlink",
+        "file-change-kill-default-write",
+        "file-change-kill-default-unlink"
+      ],
+      "kind": "runtime"
+    },
+    "WRITE-BOUNDARY": {
+      "contract_hash": "5488388776fc0a7a3bb402f60e225868449b33cd9546537ead2c0aaad37a08cd",
+      "cases": 3,
+      "effects": [
+        "block",
+        "kill",
+        "notify"
+      ],
+      "case_ids": [
+        "write-boundary-block-default",
+        "write-boundary-notify-default",
+        "write-boundary-kill-default"
+      ],
+      "kind": "runtime"
+    },
+    "RQ1-GENERATED": {
+      "contract_hash": "df2fa1533e1e9d0df47fd94365e0ad34abbfb2408fffac34af446baf8e83b802",
+      "cases": 3,
+      "effects": [
+        "block",
+        "kill",
+        "notify"
+      ],
+      "case_ids": [
+        "rq1-generated-block-default",
+        "rq1-generated-notify-default",
+        "rq1-generated-kill-default"
+      ],
+      "kind": "runtime"
+    },
+    "RQ1-CHECK": {
+      "contract_hash": "b0b2a861fb6d3874dd3748f120bc03608b0e87bbbacaddf289caa21bd6d7b014",
+      "cases": 8,
+      "effects": [
+        "kill",
+        "notify"
+      ],
+      "case_ids": [
+        "rq1-check-notify-missing",
+        "rq1-check-notify-success",
+        "rq1-check-notify-failed",
+        "rq1-check-notify-changed",
+        "rq1-check-kill-missing",
+        "rq1-check-kill-success",
+        "rq1-check-kill-failed",
+        "rq1-check-kill-changed"
+      ],
+      "kind": "legacy"
+    },
+    "RQ1-DELETE": {
+      "contract_hash": "12bc13f4a2bc13189a05d3c298588e975595e69362c49b9bec0306f90e16c700",
+      "cases": 6,
+      "effects": [
+        "block",
+        "kill",
+        "notify"
+      ],
+      "case_ids": [
+        "rq1-delete-block-default-write",
+        "rq1-delete-block-default-unlink",
+        "rq1-delete-notify-default-write",
+        "rq1-delete-notify-default-unlink",
+        "rq1-delete-kill-default-write",
+        "rq1-delete-kill-default-unlink"
+      ],
+      "kind": "runtime"
+    },
+    "RQ1-GIT": {
+      "contract_hash": "2f51d785eefa62474d5b2d4ebbd567e5e1106cd84102b87fb4fee7283ba55bba",
+      "cases": 2,
+      "effects": [
+        "kill",
+        "notify"
+      ],
+      "case_ids": [
+        "rq1-git-notify-default",
+        "rq1-git-kill-default"
+      ],
+      "kind": "legacy"
+    },
+    "EXEC-BLOCK": {
+      "contract_hash": "940d83097f2550d2017f29a1cdcd5bf4bbc10c92682f1c6790b2c39a9cbd4de4",
+      "cases": 3,
+      "effects": [
+        "block",
+        "kill",
+        "notify"
+      ],
+      "case_ids": [
+        "exec-block-block-default",
+        "exec-block-notify-default",
+        "exec-block-kill-default"
+      ],
+      "kind": "runtime"
+    },
+    "EXEC-AUDIT": {
+      "contract_hash": "08275f8b18307b67dce5c133f355491bc1418f2fb624effe968f9230446afc65",
+      "cases": 3,
+      "effects": [
+        "block",
+        "kill",
+        "notify"
+      ],
+      "case_ids": [
+        "exec-audit-block-default",
+        "exec-audit-notify-default",
+        "exec-audit-kill-default"
+      ],
+      "kind": "runtime"
+    },
+    "NET-BLOCK": {
+      "contract_hash": "775a990c758835b05b2dbcc97b838f88c8b3bd4be41f585d5d3e950d16e76c1f",
+      "cases": 3,
+      "effects": [
+        "block",
+        "kill",
+        "notify"
+      ],
+      "case_ids": [
+        "net-block-block-default",
+        "net-block-notify-default",
+        "net-block-kill-default"
+      ],
+      "kind": "runtime"
+    },
+    "NET-AUDIT": {
+      "contract_hash": "09d714046e318ce8f8909db9d23d436d379d19f94b060dab024c408b2c1ebd67",
+      "cases": 3,
+      "effects": [
+        "block",
+        "kill",
+        "notify"
+      ],
+      "case_ids": [
+        "net-audit-block-default",
+        "net-audit-notify-default",
+        "net-audit-kill-default"
+      ],
+      "kind": "runtime"
+    },
+    "SECRET-EGRESS": {
+      "contract_hash": "5e997e6f13395ef95bb5746b8c8cfeab83409d5df7bb6d2dca36463d2e576fc8",
+      "cases": 3,
+      "effects": [
+        "block",
+        "kill",
+        "notify"
+      ],
+      "case_ids": [
+        "secret-egress-block-default",
+        "secret-egress-notify-default",
+        "secret-egress-kill-default"
+      ],
+      "kind": "runtime"
+    },
+    "REMOTE-EXEC": {
+      "contract_hash": "96948d2afa407b413f8d82ef372949a7905df954f03c6430fbc6c478673553ac",
+      "cases": 3,
+      "effects": [
+        "block",
+        "kill",
+        "notify"
+      ],
+      "case_ids": [
+        "remote-exec-block-default",
+        "remote-exec-notify-default",
+        "remote-exec-kill-default"
+      ],
+      "kind": "runtime"
+    },
+    "SYS-env": {
+      "contract_hash": "9abe2adc86f53a46ce18a709f7e0a8aff3ce25d589f5433c38410ceb26faf265",
+      "cases": 9,
+      "effects": [
+        "block",
+        "kill",
+        "notify"
+      ],
+      "case_ids": [
+        "sys-env-block-default-open",
+        "sys-env-block-default-write",
+        "sys-env-block-default-unlink",
+        "sys-env-notify-default-open",
+        "sys-env-notify-default-write",
+        "sys-env-notify-default-unlink",
+        "sys-env-kill-default-open",
+        "sys-env-kill-default-write",
+        "sys-env-kill-default-unlink"
+      ],
+      "kind": "runtime"
+    },
+    "SYS-ssh": {
+      "contract_hash": "092008b1a92881cbea93cf613b01336b83803196e69669d27113a9d42d0f1cb7",
+      "cases": 9,
+      "effects": [
+        "block",
+        "kill",
+        "notify"
+      ],
+      "case_ids": [
+        "sys-ssh-block-default-open",
+        "sys-ssh-block-default-write",
+        "sys-ssh-block-default-unlink",
+        "sys-ssh-notify-default-open",
+        "sys-ssh-notify-default-write",
+        "sys-ssh-notify-default-unlink",
+        "sys-ssh-kill-default-open",
+        "sys-ssh-kill-default-write",
+        "sys-ssh-kill-default-unlink"
+      ],
+      "kind": "runtime"
+    },
+    "SYS-cloud": {
+      "contract_hash": "6ca086cd30478a545fcbd529af12e83f47ec82d38d93b187e1ada29cdcdd1067",
+      "cases": 9,
+      "effects": [
+        "block",
+        "kill",
+        "notify"
+      ],
+      "case_ids": [
+        "sys-cloud-block-default-open",
+        "sys-cloud-block-default-write",
+        "sys-cloud-block-default-unlink",
+        "sys-cloud-notify-default-open",
+        "sys-cloud-notify-default-write",
+        "sys-cloud-notify-default-unlink",
+        "sys-cloud-kill-default-open",
+        "sys-cloud-kill-default-write",
+        "sys-cloud-kill-default-unlink"
+      ],
+      "kind": "runtime"
+    },
+    "SYS-system-files": {
+      "contract_hash": "134f5be339f52e3c22ff85a11101330f2dba6235638a2b52a797f81a7ef65f28",
+      "cases": 9,
+      "effects": [
+        "block",
+        "kill",
+        "notify"
+      ],
+      "case_ids": [
+        "sys-system-files-block-default-open",
+        "sys-system-files-block-default-write",
+        "sys-system-files-block-default-unlink",
+        "sys-system-files-notify-default-open",
+        "sys-system-files-notify-default-write",
+        "sys-system-files-notify-default-unlink",
+        "sys-system-files-kill-default-open",
+        "sys-system-files-kill-default-write",
+        "sys-system-files-kill-default-unlink"
+      ],
+      "kind": "runtime"
+    },
+    "SYS-policy-store": {
+      "contract_hash": "95e94ffd0b18c911a9e17da39b346e5e445a7ad8ef0eb81af0d7d7811efb1cba",
+      "cases": 9,
+      "effects": [
+        "block",
+        "kill",
+        "notify"
+      ],
+      "case_ids": [
+        "sys-policy-store-block-default-open",
+        "sys-policy-store-block-default-write",
+        "sys-policy-store-block-default-unlink",
+        "sys-policy-store-notify-default-open",
+        "sys-policy-store-notify-default-write",
+        "sys-policy-store-notify-default-unlink",
+        "sys-policy-store-kill-default-open",
+        "sys-policy-store-kill-default-write",
+        "sys-policy-store-kill-default-unlink"
+      ],
+      "kind": "runtime"
+    },
+    "SYS-audit-store": {
+      "contract_hash": "379cf91cd0383d2d9e4b5d33cb3913c20713034c55dc0f4a166fc324cc89e90b",
+      "cases": 9,
+      "effects": [
+        "block",
+        "kill",
+        "notify"
+      ],
+      "case_ids": [
+        "sys-audit-store-block-default-open",
+        "sys-audit-store-block-default-write",
+        "sys-audit-store-block-default-unlink",
+        "sys-audit-store-notify-default-open",
+        "sys-audit-store-notify-default-write",
+        "sys-audit-store-notify-default-unlink",
+        "sys-audit-store-kill-default-open",
+        "sys-audit-store-kill-default-write",
+        "sys-audit-store-kill-default-unlink"
+      ],
+      "kind": "runtime"
+    },
+    "SYS-privilege": {
+      "contract_hash": "1e682493b7c19c621cfdf91d0e2dc0d6c6a429cdbabd7775ef31c8ec969fb0eb",
+      "cases": 3,
+      "effects": [
+        "block",
+        "kill",
+        "notify"
+      ],
+      "case_ids": [
+        "sys-privilege-block-default",
+        "sys-privilege-notify-default",
+        "sys-privilege-kill-default"
+      ],
+      "kind": "runtime"
+    },
+    "SYS-network-audit": {
+      "contract_hash": "32f860cadf41551d54dc5cb66ce1b2951aa115cbfc68deb098e82fc024366b1e",
+      "cases": 3,
+      "effects": [
+        "block",
+        "kill",
+        "notify"
+      ],
+      "case_ids": [
+        "sys-network-audit-block-default-connect",
+        "sys-network-audit-notify-default-connect",
+        "sys-network-audit-kill-default-connect"
+      ],
+      "kind": "runtime"
+    },
+    "SYS-process-audit": {
+      "contract_hash": "9c89b7f55e01fe20098f1d4ffd5a2d411e67c7c8ebbc84c12e02932a83e7aedf",
+      "cases": 3,
+      "effects": [
+        "block",
+        "kill",
+        "notify"
+      ],
+      "case_ids": [
+        "sys-process-audit-block-default",
+        "sys-process-audit-notify-default",
+        "sys-process-audit-kill-default"
+      ],
+      "kind": "runtime"
+    },
+    "SYS-instructions": {
+      "contract_hash": "834d30108f1173ea20f937c128d7f2c6f4369b7597d167e5d0574521eddfb0ec",
+      "cases": 9,
+      "effects": [
+        "block",
+        "kill",
+        "notify"
+      ],
+      "case_ids": [
+        "sys-instructions-block-default-open",
+        "sys-instructions-block-default-write",
+        "sys-instructions-block-default-unlink",
+        "sys-instructions-notify-default-open",
+        "sys-instructions-notify-default-write",
+        "sys-instructions-notify-default-unlink",
+        "sys-instructions-kill-default-open",
+        "sys-instructions-kill-default-write",
+        "sys-instructions-kill-default-unlink"
+      ],
+      "kind": "runtime"
+    },
+    "SYS-secret-egress": {
+      "contract_hash": "a4197f918fc613c6f8e7ae603b501e524f6909e71a0ee3a4f1ccce0f27454063",
+      "cases": 3,
+      "effects": [
+        "block",
+        "kill",
+        "notify"
+      ],
+      "case_ids": [
+        "sys-secret-egress-block-default-connect",
+        "sys-secret-egress-notify-default-connect",
+        "sys-secret-egress-kill-default-connect"
+      ],
+      "kind": "runtime"
+    },
+    "SYS-remote-exec": {
+      "contract_hash": "dbc495a39de8ebc48ecc936908b24f4337cee3b58b52e4486f25e6a089e620dd",
+      "cases": 3,
+      "effects": [
+        "block",
+        "kill",
+        "notify"
+      ],
+      "case_ids": [
+        "sys-remote-exec-block-default",
+        "sys-remote-exec-notify-default",
+        "sys-remote-exec-kill-default"
+      ],
+      "kind": "runtime"
+    },
+    "GIT-COMMIT": {
+      "contract_hash": "029e594af5f479bb1b28b379f0371a28734e3dbe442b67bb199404c92609a8e3",
+      "cases": 2,
+      "effects": [
+        "kill",
+        "notify"
+      ],
+      "case_ids": [
+        "git-commit-notify-default",
+        "git-commit-kill-default"
+      ],
+      "kind": "runtime"
+    },
+    "GIT-COMMIT-CHECK": {
+      "contract_hash": "fc4c506def30ea8f61237e8ce20d79a112add4ba1235b1b0f810fc90c030c1ae",
+      "cases": 8,
+      "effects": [
+        "kill",
+        "notify"
+      ],
+      "case_ids": [
+        "git-commit-check-notify-missing",
+        "git-commit-check-notify-success",
+        "git-commit-check-notify-failed",
+        "git-commit-check-notify-changed",
+        "git-commit-check-kill-missing",
+        "git-commit-check-kill-success",
+        "git-commit-check-kill-failed",
+        "git-commit-check-kill-changed"
+      ],
+      "kind": "runtime"
+    },
+    "GIT-PUSH": {
+      "contract_hash": "c0029637bd62020e4e3bfb37bd598f60066a6edcdb33c7cb9cc0daf1b2bc9521",
+      "cases": 2,
+      "effects": [
+        "kill",
+        "notify"
+      ],
+      "case_ids": [
+        "git-push-notify-default",
+        "git-push-kill-default"
+      ],
+      "kind": "runtime"
+    },
+    "GIT-PUSH-CHECK": {
+      "contract_hash": "4c74cf2ea96479ec35d4af760cc5c3982f9f7b8e7cf8555965e38ec4501a1673",
+      "cases": 8,
+      "effects": [
+        "kill",
+        "notify"
+      ],
+      "case_ids": [
+        "git-push-check-notify-missing",
+        "git-push-check-notify-success",
+        "git-push-check-notify-failed",
+        "git-push-check-notify-changed",
+        "git-push-check-kill-missing",
+        "git-push-check-kill-success",
+        "git-push-check-kill-failed",
+        "git-push-check-kill-changed"
+      ],
+      "kind": "runtime"
+    },
+    "GIT-LOCAL": {
+      "contract_hash": "b11c5d9112e772ac68ec470797bd8ca804f7fde9637fb254e62551e9c54a872c",
+      "cases": 6,
+      "effects": [
+        "kill",
+        "notify"
+      ],
+      "case_ids": [
+        "git-local-notify-default-reset",
+        "git-local-notify-default-clean",
+        "git-local-notify-default-stash",
+        "git-local-kill-default-reset",
+        "git-local-kill-default-clean",
+        "git-local-kill-default-stash"
+      ],
+      "kind": "runtime"
+    },
+    "GIT-BYPASS": {
+      "contract_hash": "d3d5cab7715d5e1dec99a23c29d6ea59efab8244800106e787dfd007082339ea",
+      "cases": 2,
+      "effects": [
+        "kill",
+        "notify"
+      ],
+      "case_ids": [
+        "git-bypass-notify-default---no-verify",
+        "git-bypass-kill-default---no-verify"
+      ],
+      "kind": "runtime"
+    },
+    "GIT-CONTENT": {
+      "contract_hash": "842a93627f9604c11d043a1e2ef738dae8e6e4041bbbbbc90d3aa97403794268",
+      "cases": 4,
+      "effects": [],
+      "case_ids": [],
+      "kind": "unsupported"
+    },
+    "GIT-PUSH-TARGET": {
+      "contract_hash": "aa79c2eb3c159e645e0bd20beaf005a31d63c633fc14415ea8962b8596afa003",
+      "cases": 4,
+      "effects": [],
+      "case_ids": [],
+      "kind": "unsupported"
+    },
+    "GIT-PUSH-APPROVAL": {
+      "contract_hash": "05ebb9b1a5476e42dcb6824dcde0fbb751f359c71bf45ad3cc0d82fb71f7ea83",
+      "cases": 4,
+      "effects": [],
+      "case_ids": [],
+      "kind": "unsupported"
+    },
+    "GIT-MERGE-GATE": {
+      "contract_hash": "feca4fb7781e45e768aebcbaa6c44d4046663db9b44c0c984a14a970d009714f",
+      "cases": 4,
+      "effects": [],
+      "case_ids": [],
+      "kind": "unsupported"
+    }
+  }
+}

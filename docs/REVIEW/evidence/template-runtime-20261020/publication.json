@@ -1,0 +1,295 @@
+{
+  "published": true,
+  "release": "/opt/agentscope-policy-semantics-20261020-124843",
+  "before_records": {
+    "system_security_policy": {
+      "rows": 1,
+      "sha256": "5df44a8339eb384e74aa92c7acb7b19c67281226543cff20fae3446f4d6552f2"
+    },
+    "instance_dsl_scopes": {
+      "rows": 3,
+      "sha256": "eb8276ad3e64ed8fb1407147a45818465e08f9e5d1b3e9d699883af6c0854dc2"
+    },
+    "instance_dsl_proposals": {
+      "rows": 15,
+      "sha256": "f3625added69b021e3addeeabbb76e4b6e0521d2320f86b1d7b803d48dd9ad49"
+    },
+    "system_policy_library": {
+      "rows": 7,
+      "sha256": "4b207fc1db4255cc6a7c211138fbe833734ff6e0a274e71279f274b42ca9b9f4"
+    },
+    "system_policy_library_versions": {
+      "rows": 8,
+      "sha256": "d28ef793acfd26fb44a5e1a5d056c84e706aaa0d786e0a6a83ce4d94319abf08"
+    },
+    "system_policy_library_proposals": {
+      "rows": 2,
+      "sha256": "8e41467a071e5371950efc20ad6648f1e861308f58a01570b5f543c59e579701"
+    },
+    "policy_approval_baselines": {
+      "rows": 1,
+      "sha256": "701538f226104522d24d010c2b145547155b5ad291c6110cddd4495eafa9d80b"
+    },
+    "policy_approval_decisions": {
+      "rows": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "policy_approval_revalidations": {
+      "rows": 1,
+      "sha256": "e09c8dd99c84ff4a8c25fc3398950285a93a9fdb6511b426d2e49b38a3a575c3"
+    },
+    "template_configurations": {
+      "rows": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "template_configuration_versions": {
+      "rows": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "template_configuration_requests": {
+      "rows": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "template_configuration_proposals": {
+      "rows": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "policy_template_versions": {
+      "rows": 6,
+      "sha256": "2f8a73a0b0da5a5207915f0fe984765ec150dd4514d5a51530caf6f8d59c0803"
+    }
+  },
+  "broker_before": {
+    "MainPID": "424",
+    "WorkingDirectory": "/opt/agentscope-command-connections-20261014-175212",
+    "argv": [
+      "/opt/agentscope/.venv/bin/python",
+      "/opt/agentscope-command-connections-20261014-175212/backend/broker/main.py"
+    ],
+    "start_ticks": "24479"
+  },
+  "authority_before": {
+    "agents": {
+      "instance-1f4469579e8947f4": {
+        "policy_hash": "9c5fa9fbb63c9bcd71da29007179d6c9fed00b23ac9b9f4e41165a76b92425c1",
+        "generation": "3e17d889b7f74f55b95ff7ab6cbd5815",
+        "pid": null,
+        "domain_id": null,
+        "active": false
+      },
+      "instance-c0dd272b6a734a34": {
+        "policy_hash": "f930aa4e9f224e24588a51a652d773cf022a74fa8be0b379ed4e80023c58ad87",
+        "generation": "947b1b6dd3334b3c9a2a250bd3705832",
+        "pid": null,
+        "domain_id": null,
+        "active": false
+      },
+      "instance-bb171d3176b644a2": {
+        "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+        "generation": "566ddd5edaad438f9473d4ea08ec1cc1",
+        "pid": null,
+        "domain_id": null,
+        "active": false
+      },
+      "instance-cc444fe38c094cbb": {
+        "policy_hash": "c3371a12d813cbf8c4e13bfc39ac8caa8868b6d394f8a7dbebcd74afa15b2cfe",
+        "generation": "a99c4b602e4743ec8239b0b42c467f87",
+        "pid": null,
+        "domain_id": null,
+        "active": false
+      }
+    },
+    "system": {
+      "revision": 0,
+      "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815"
+    },
+    "dsl_scopes": {
+      "system": {
+        "revision": 6,
+        "document_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "document_count": 0,
+        "phase": "ready"
+      },
+      "instance-1f4469579e8947f4": {
+        "revision": 0,
+        "document_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "document_count": 0,
+        "phase": "ready"
+      },
+      "instance-c0dd272b6a734a34": {
+        "revision": 0,
+        "document_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "document_count": 0,
+        "phase": "ready"
+      },
+      "instance-bb171d3176b644a2": {
+        "revision": 3,
+        "document_hash": "71c7dcce2e8f6cdaba1a3d48962b0eb9182e11dd5149ac267e78299ff52974e2",
+        "document_count": 2,
+        "phase": "ready"
+      },
+      "instance-cc444fe38c094cbb": {
+        "revision": 1,
+        "document_hash": "c38f0ad8b80dbf9fa9a8c80c8b22b9e8821ecd237585f7a5f639d903e5370e29",
+        "document_count": 1,
+        "phase": "ready"
+      }
+    }
+  },
+  "restart_seconds": 1.118,
+  "authority_after": {
+    "agents": {
+      "instance-1f4469579e8947f4": {
+        "policy_hash": "9c5fa9fbb63c9bcd71da29007179d6c9fed00b23ac9b9f4e41165a76b92425c1",
+        "generation": "3e17d889b7f74f55b95ff7ab6cbd5815",
+        "pid": null,
+        "domain_id": null,
+        "active": false
+      },
+      "instance-c0dd272b6a734a34": {
+        "policy_hash": "f930aa4e9f224e24588a51a652d773cf022a74fa8be0b379ed4e80023c58ad87",
+        "generation": "947b1b6dd3334b3c9a2a250bd3705832",
+        "pid": null,
+        "domain_id": null,
+        "active": false
+      },
+      "instance-bb171d3176b644a2": {
+        "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+        "generation": "566ddd5edaad438f9473d4ea08ec1cc1",
+        "pid": null,
+        "domain_id": null,
+        "active": false
+      },
+      "instance-cc444fe38c094cbb": {
+        "policy_hash": "c3371a12d813cbf8c4e13bfc39ac8caa8868b6d394f8a7dbebcd74afa15b2cfe",
+        "generation": "a99c4b602e4743ec8239b0b42c467f87",
+        "pid": null,
+        "domain_id": null,
+        "active": false
+      }
+    },
+    "system": {
+      "revision": 0,
+      "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815"
+    },
+    "dsl_scopes": {
+      "system": {
+        "revision": 6,
+        "document_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "document_count": 0,
+        "phase": "ready"
+      },
+      "instance-1f4469579e8947f4": {
+        "revision": 0,
+        "document_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "document_count": 0,
+        "phase": "ready"
+      },
+      "instance-c0dd272b6a734a34": {
+        "revision": 0,
+        "document_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "document_count": 0,
+        "phase": "ready"
+      },
+      "instance-bb171d3176b644a2": {
+        "revision": 3,
+        "document_hash": "71c7dcce2e8f6cdaba1a3d48962b0eb9182e11dd5149ac267e78299ff52974e2",
+        "document_count": 2,
+        "phase": "ready"
+      },
+      "instance-cc444fe38c094cbb": {
+        "revision": 1,
+        "document_hash": "c38f0ad8b80dbf9fa9a8c80c8b22b9e8821ecd237585f7a5f639d903e5370e29",
+        "document_count": 1,
+        "phase": "ready"
+      }
+    }
+  },
+  "after_records": {
+    "system_security_policy": {
+      "rows": 1,
+      "sha256": "5df44a8339eb384e74aa92c7acb7b19c67281226543cff20fae3446f4d6552f2"
+    },
+    "instance_dsl_scopes": {
+      "rows": 3,
+      "sha256": "eb8276ad3e64ed8fb1407147a45818465e08f9e5d1b3e9d699883af6c0854dc2"
+    },
+    "instance_dsl_proposals": {
+      "rows": 15,
+      "sha256": "f3625added69b021e3addeeabbb76e4b6e0521d2320f86b1d7b803d48dd9ad49"
+    },
+    "system_policy_library": {
+      "rows": 7,
+      "sha256": "4b207fc1db4255cc6a7c211138fbe833734ff6e0a274e71279f274b42ca9b9f4"
+    },
+    "system_policy_library_versions": {
+      "rows": 8,
+      "sha256": "d28ef793acfd26fb44a5e1a5d056c84e706aaa0d786e0a6a83ce4d94319abf08"
+    },
+    "system_policy_library_proposals": {
+      "rows": 2,
+      "sha256": "8e41467a071e5371950efc20ad6648f1e861308f58a01570b5f543c59e579701"
+    },
+    "policy_approval_baselines": {
+      "rows": 1,
+      "sha256": "701538f226104522d24d010c2b145547155b5ad291c6110cddd4495eafa9d80b"
+    },
+    "policy_approval_decisions": {
+      "rows": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "policy_approval_revalidations": {
+      "rows": 1,
+      "sha256": "e09c8dd99c84ff4a8c25fc3398950285a93a9fdb6511b426d2e49b38a3a575c3"
+    },
+    "template_configurations": {
+      "rows": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "template_configuration_versions": {
+      "rows": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "template_configuration_requests": {
+      "rows": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "template_configuration_proposals": {
+      "rows": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "policy_template_versions": {
+      "rows": 6,
+      "sha256": "2f8a73a0b0da5a5207915f0fe984765ec150dd4514d5a51530caf6f8d59c0803"
+    }
+  },
+  "broker_unchanged": true,
+  "other_ports_unchanged": true,
+  "current_api": {
+    "MainPID": "57415",
+    "WorkingDirectory": "/opt/agentscope-policy-semantics-20261020-124843",
+    "argv": [
+      "/opt/agentscope/.venv/bin/python",
+      "-m",
+      "uvicorn",
+      "agentscope_app.main:app",
+      "--host",
+      "127.0.0.1",
+      "--port",
+      "18003",
+      "--timeout-graceful-shutdown",
+      "3"
+    ],
+    "start_ticks": "96791"
+  },
+  "index_sha256": "b9e590465bad923a894fd81dacfc2d517a90597904ac865b009c49356bf00c86",
+  "templates": 37,
+  "source_base_head": "f301b30fe9bd4f828ea2883a156430e1dcf96d27",
+  "source_overlay_sha256": {
+    "backend/agentscope_app/instances/template_support.py": "eda5f7008e491fc5025d725f11544ec4d663b237bc081c507aa4a4bf67c9c996",
+    "backend/agentscope_app/instances/template_runtime_acceptance.json": "843dd2f315b69f2dbcccabb9b37ada1e9a84a9a9ef72be9882fade63221793e3",
+    "backend/agentscope_app/instances/template_catalog.py": "d7ade2b8a9a4b6e46650142af5d32ac72f87af3a189a466cce68c6656a12d2dc",
+    "backend/agentscope_app/instances/template_configurations.py": "4a2c16ec397c9354144dbceaa34769e933d58edadfb3a9363dd23072c4c6449b",
+    "backend/agentscope_app/instances/template_versions.py": "6f910a1ae14f7092fb8084b994d50adf568e964f7df66a5bb4909d5b28597830"
+  }
+}

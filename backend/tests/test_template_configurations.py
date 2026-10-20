@@ -191,6 +191,7 @@ def test_chat_attachment_and_followup_reach_model_without_approval_authority(wor
 def test_all_published_contracts_materialize_and_real_compiler_reports_limits(world):
     from dsl_documents import prepare
     for t in catalog.public_catalog():
+        if t.get('retired'):continue
         params={p['key']:p['default'] for p in t['parameters']}
         for p in t['parameters']:
             if p['type']=='path':params[p['key']]='/w/0/out/**' if p['key']=='exception' else '/w/0/input/**'

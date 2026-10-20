@@ -184,7 +184,8 @@ def materialize(ident, scope_id, body):
     name = text_parameter(body.get('name') if t['version'] >= 2 else body.get('name') or t['name'], '场景中的实际策略名称', 120)
     reason = text_parameter(body.get('reason') or t['reason'], '反馈说明')
     document,requested,effective,coverage,execution_reason,effect = render_document(t,normalized,ident,name,reason)
-    support = {'execution_support':t['execution_support']} if 'execution_support' in t else {}
+    from .template_support import presentation
+    support = {'execution_support':presentation(t)}
     return {**support,'template_id':t['id'],'template_version':t['version'],'template_hash':digest(t),'resource_hash':digest(row['resources']) if row else None,'name':name,
             'reason':reason,'execution_reason':execution_reason,'parameters':normalized,'document':document,'requested_operations':requested,
             'effective_operations':effective,'coverage_warning':coverage,'effect':effect,'note':t['note']}
@@ -214,10 +215,11 @@ def view(row):
     active_payload = next((json.loads(v['payload_json']) for v in versions if v['revision'] == applied_revision), None)
     applied_configuration = {k:active_payload[k] for k in ('name','parameters','requested_operations','effective_operations','coverage_warning','effect','note')} if active_payload else None
     definition = catalog.get(row['template_id'],row['template_version'])
-    support = git_templates.presentation(definition)
+    from .template_support import presentation
+    support = presentation(definition)
     return {**row, **({'execution_support':support} if support else {}), 'applied_revision':applied_revision, 'applied_configuration':applied_configuration,'applied':applied_revision == row['revision'],
             **linked, 'status':state(linked,'draft'),
-            'can_submit':row['scope'] in ('system','agent') and (support or {}).get('applicable',True),'template_definition':catalog.public_definition(definition),
+            'can_submit':row['scope'] in ('system','agent') and (support or {}).get('applicable',True), 'read_only':definition['id'] in git_templates.RETIRED,'template_definition':catalog.public_definition(definition),
             'scope_label':'全部受控 Agent' if row['scope'] == 'system' else '此 Agent 的全部工作区与会话' if row['scope'] == 'agent' else '当前工作区（独立应用暂不支持）'}
 
 
@@ -284,6 +286,8 @@ def save(scope_id, body, ident=None):
         raise ValueError('新子配置的基准版本应为零')
     ident = ident or 'tc_' + uuid.uuid4().hex
     from .template_dsl import verify_git_save
+    from .template_support import ensure_editable
+    ensure_editable(catalog.get(body['template_id'],body['template_version']))
     verify_git_save(catalog.get(body['template_id'],body['template_version']),old,body.get('parameters'))
     payload = materialize(ident,scope_id,body)
     payload['origin']='manual'
@@ -306,7 +310,8 @@ def verify_proposal(proposal_id,read_sources=True):
 
 
 def verify_current(item,read_source=True,full_read=True):
-    git_templates.ensure_applicable(catalog.get(item['template_id'],item['template_version']))
+    from .template_support import ensure_applicable
+    ensure_applicable(catalog.get(item['template_id'],item['template_version']),item['effect'],removing=not read_source)
     row = target(item['scope_id'],item['scope'],item['workspace_id'])
     if row and digest(row['resources']) != item.get('resource_hash'):
         raise ValueError('配置库版本已变化：资源映射已经变化，请编辑并核对原始对象后保存新版本。')
