@@ -1,4 +1,4 @@
-import React,{useEffect,useRef,useState} from 'react';
+import React,{useEffect,useId,useRef,useState} from 'react';
 import {LabelSourceSummary} from './LabelManagement.jsx';
 import {flowTime as date} from './informationFlowPresentation.mjs';
 import './informationFlow.css';
@@ -7,6 +7,11 @@ const operations={source_introduced:'引入来源标签',file_to_process:'文件
 const outcomes={propagated:'引擎观察到标签传播',report:'已报告 · 不代表操作成功',block:'操作已阻止',kill:'命中后终止进程'};
 const statuses={empty:'当前范围暂无带标签的策略命中。可切换到 Agent 共享执行域查看未归属单会话的记录。',legacy:'仅有历史命中回执，缺少逐跳传播记录，无法还原完整链。',unsupported:'此运行版本不支持逐跳传播采集。',collection_failed:'传播事件采集失败，请重试；不能据此判断没有传播。'};
 const reasonNames={identity_or_predecessor_missing:'对象身份或前驱未完整记录',label_mapping_missing:'缺少执行标签映射',collector_loss:'采集器报告丢事件',missing_origin:'缺少来源事件',missing_predecessor:'前驱回执尚未入库或已丢失',conflicting_duplicate:'重复事件内容不一致',shared_context_not_in_session:'上游事件属于共享域，未可信关联到本会话',unverified_receipt:'回执与运行绑定不一致',predecessor_identity_mismatch:'前驱对象、标签或代次不一致',cycle:'前驱形成循环',chain_limit:'链路超过查询上限'};
+
+export function FlowScopeControl({value,onChange}){
+ const id=useId();
+ return <div className="flow-scope-control"><div className="flow-scope-heading"><label htmlFor={id}>查看范围</label><details key={value} className="flow-scope-help"><summary aria-label="查看范围说明">ⓘ</summary><p>{value==='shared_domain'?'可能包含其他会话和共享进程的传播，不代表当前会话独有行为。':'只显示可信关联到当前会话的事件，不按时间或 PID 猜测归属。'}</p></details></div><select id={id} value={value} onChange={e=>onChange(e.target.value)}><option value="session">当前会话</option><option value="shared_domain">Agent 共享执行域</option></select></div>;
+}
 
 function FlowDetail({detail,onClose}){
  const dialog=useRef(null),origin=useRef(document.activeElement);
@@ -49,8 +54,7 @@ export default function SessionInformationFlow({api,root}){
  async function more(){const n=sequence.current;setBusy(true);try{const params=new URLSearchParams({view,anchor:data.anchor,cursor:data.next_cursor,generation:data.generation,...(label?{label}:{})});const value=await api(root+'/information-flow?'+params);if(n!==sequence.current)return;
   setData(old=>({...value,anchors:old.anchors,nodes:[...new Map([...old.nodes,...value.nodes].map(x=>[x.id,x])).values()],edges:[...value.edges,...old.edges],integrity:{state:old.integrity.state==='incomplete'||value.integrity.state==='incomplete'?'incomplete':value.integrity.state,reasons:[...new Set([...old.integrity.reasons,...value.integrity.reasons])]}}));
  }catch(e){if(n===sequence.current)setError('更早的来源暂时无法读取，请刷新重试。当前仅展示已取得的回执。');}finally{if(n===sequence.current)setBusy(false);}}
- return <section className="information-flow"><div className="flow-toolbar"><label>查看范围<select value={view} onChange={e=>{setView(e.target.value);setAnchor('');}}><option value="session">当前会话</option><option value="shared_domain">Agent 共享执行域</option></select></label><label>标签<select value={label} onChange={e=>{setLabel(e.target.value);setAnchor('');}}><option value="">全部已记录标签</option>{['SECRET','AGENT','SENSITIVE','REMOTE','CODE'].map(l=><option key={l} value={l}>{l}{['SENSITIVE','REMOTE','CODE'].includes(l)?'（历史）':''}</option>)}</select></label><button className="button ghost" disabled={busy} onClick={()=>setRevision(v=>v+1)}>刷新</button></div>
- <p className={view==='shared_domain'?'inline-notice warning':'session-coverage'}>{view==='shared_domain'?'Agent 共享执行域：可能包含其他会话和共享进程的传播，不代表当前会话独有行为。':'当前会话只显示可信关联事件，不按时间或 PID 猜测归属。'}</p>
+ return <section className="information-flow"><div className="flow-toolbar"><FlowScopeControl value={view} onChange={value=>{setView(value);setAnchor('');}}/><label>标签<select value={label} onChange={e=>{setLabel(e.target.value);setAnchor('');}}><option value="">全部已记录标签</option>{['SECRET','AGENT','SENSITIVE','REMOTE','CODE'].map(l=><option key={l} value={l}>{l}{['SENSITIVE','REMOTE','CODE'].includes(l)?'（历史）':''}</option>)}</select></label><button className="button ghost" disabled={busy} onClick={()=>setRevision(v=>v+1)}>刷新</button></div>
  {busy&&!data&&<p role="status">正在读取传播回执…</p>}{error&&<p role="alert" className="inline-notice warning">{error}</p>}
  {data&&<>{data.historical&&<p className="session-coverage">历史运行代次 · 不代表当前运行状态</p>}
  {data.anchors.length>0&&<label className="flow-anchor">策略命中<select value={data.anchor||anchor} onChange={e=>setAnchor(e.target.value)}>{data.anchors.map(a=><option key={a.event_id} value={a.event_id}>{date(a.time)} · {a.labels.join('、')||'标签映射缺失'} · {outcomes[a.outcome]} · {a.target}</option>)}</select></label>}

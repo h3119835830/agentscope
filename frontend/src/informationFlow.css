@@ -1,1 +1,10 @@
 .information-flow{padding:20px 0}.flow-toolbar{display:flex;gap:16px;align-items:end;flex-wrap:wrap}.flow-toolbar label,.flow-anchor{display:flex;flex-direction:column;gap:6px;font-size:13px}.flow-toolbar select,.flow-anchor select{padding:9px 12px;border:1px solid #dbe2ea;border-radius:8px;background:#fff;color:#253349}.flow-anchor{max-width:900px;margin:16px 0}.flow-canvas{overflow-x:auto;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;margin-top:20px}.flow-node{width:140px;height:100px;display:flex;flex-direction:column;align-items:start;justify-content:center;gap:8px;padding:12px;background:white;border:1px solid #cbd5e1;border-radius:10px;text-align:left;color:#253349;cursor:pointer}.flow-node strong{font-size:12px;line-height:1.4;overflow-wrap:anywhere;max-height:52px;overflow:hidden}.flow-node small{color:#64748b}.flow-node.process{border-color:#93c5fd;background:#eff6ff}.flow-node.endpoint{border-color:#fca5a5;background:#fff7f7}.flow-edge{width:100%;font-size:11px;color:#475569;border:0;background:transparent;cursor:pointer}.flow-edge small{display:block;margin-top:4px}.flow-edge.block{color:#b91c1c}.flow-node:focus-visible,.flow-edge:focus-visible{outline:2px solid #2563eb;outline-offset:2px}
+.flow-scope-control{display:flex;flex-direction:column;gap:6px;font-size:13px}
+.information-flow .flow-toolbar label,.information-flow .flow-toolbar select{margin:0}
+.information-flow .flow-anchor{display:flex;margin:16px 0}
+.flow-scope-heading{display:flex;align-items:center;gap:7px}
+.flow-scope-help{position:relative;line-height:1}
+.flow-scope-help summary{list-style:none;cursor:pointer;color:#71849f;font-size:14px;padding:2px}
+.flow-scope-help summary::-webkit-details-marker{display:none}
+.flow-scope-help summary:focus-visible{outline:2px solid #2563eb;outline-offset:2px;border-radius:3px}
+.flow-scope-help p{position:absolute;z-index:5;top:100%;left:0;width:min(280px,calc(100vw - 90px));box-sizing:border-box;margin:7px 0 0;padding:10px 12px;border:1px solid #dbe2ea;border-radius:8px;background:#fff;box-shadow:0 4px 16px #25334914;color:#52657e;font-size:12px;line-height:1.7}

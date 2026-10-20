@@ -38,3 +38,22 @@ test('rendered evidence statuses distinguish old, empty, failed, unsupported and
  }
  assert.equal(renderToStaticMarkup(React.createElement(mod.exports.WitnessGraph,{data:{nodes:[],edges:[]},onDetail(){}})),'');
 });
+test('scope explanation is closed inline help, not a permanent warning banner',async()=>{
+ const require=createRequire(import.meta.url),Module=require('node:module');
+ const source=new URL('./SessionInformationFlow.jsx',import.meta.url).pathname;
+ const built=await build({entryPoints:[source],bundle:true,platform:'node',format:'cjs',external:['react'],loader:{'.css':'empty'},write:false});
+ const mod=new Module(source);mod.paths=Module._nodeModulePaths(new URL('.',import.meta.url).pathname);mod._compile(built.outputFiles[0].text,source);
+ for(const value of ['session','shared_domain']){
+  const html=renderToStaticMarkup(React.createElement(mod.exports.FlowScopeControl,{value,onChange(){}}));
+  assert.match(html,/<details class="flow-scope-help">/);
+  assert.match(html,/aria-label="查看范围说明"/);
+  assert.doesNotMatch(html,/<details[^>]*\bopen\b|inline-notice|warning/);
+  assert.match(html,value==='shared_domain'?/不代表当前会话独有行为/:/可信关联到当前会话/);
+  assert.match(html,/<label for="([^"]+)">查看范围<\/label>/);
+ }
+ const page=readFileSync(source,'utf8');
+ assert.doesNotMatch(page,/<p className=\{view===/);
+ // Actual missing-evidence/collection errors must remain visible.
+ assert.match(page,/链路不完整/);
+ assert.match(page,/role="alert" className="inline-notice warning"/);
+});
