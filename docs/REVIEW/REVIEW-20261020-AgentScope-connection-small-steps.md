@@ -9,7 +9,9 @@
 - 浏览器只读验收：运行实例 PID 942863；另一个 DSH 与 Hermes 为“—”。分别点击两条 DSH 的配置，详情准确对应不同登记实例；没有配置保存、打开、启动、停止或策略请求。
 - 1280px 与 1050px 列表完整可见，1050px 表宽/滚动宽均 928px；600px 页面宽 600px、表容器宽 512px/内容宽 660px，表内滚动可达配置按钮，无页面溢出。console error/warn 为空。
 - 截图：指定文档目录 `REVIEW/evidence/connection-list-20261020/` 中 preview-desktop、preview-1050、preview-600、second-target-detail。
-- 当前：预览验收通过；用户已明确允许静态更新 18003。发布与线上复验结果另补，不以预览代替上线事实。
+- 发布：源码本地 main 提交 `2e9b1d1`；2026-10-20 18:54:43 更新 18003，浏览器已确认加载 `main-CRIh8RoI.js` 并显示上述五列。截图 `published-18003.png`。
+- 发布后 index SHA-256 `3fdd68b075d0577a251aa086b3ed36c55db18c7df0130f658be0e31039f8931a`；JS SHA-256 `375e755525f8102d7f96b22edab7a98ed98db5deae93d8398a22aa7ed1e6b223`。发布检查确认 API/Broker 进程身份、策略权威状态、ActPlane 二进制及已有其他资源不变；未推送远端。
+- 回滚入口及发布结果：`/var/lib/agentscope-scope-demo/release-backups/connection-entry-20261020-185443/`；保留旧静态资源。不重启服务或 Agent。
 
 ## 第一项：已有连接紧凑布局
 
