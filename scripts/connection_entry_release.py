@@ -16,13 +16,14 @@ from deploy_policy_semantics import authority, service, sha, guard, api, files
 from connection_layout_release import ROOT, UI, API, BROKER, ENGINE, git
 
 LIVE_BASE = 'b37b4fd'
-EXPECTED_INDEX = 'ef1e2ef27e81980937efe0a2e9da8259c9107bf335f2c941ef2daab52bfaa79f'
+EXPECTED_INDEX = '70b769a17402f71910dd74b1a6bbb3a90499c254e0caa1b66421725f7862bc73'
 # A separate notice release landed after our CSS publication. Preserve, not merge, it.
 RETAINED = {'src/ProductOverview.jsx': '649a8f07c70444385767c4ccd6049e92e9ac5e3c94191453ff191308dc7a976a'}
-RETAINED_SOURCE = Path('/tmp/agentscope-notice-release-LemnwD/frontend')
-LIVE_JS_SHA = '4c6cd0cbb36b0b378c3da3bac304bba8a731475aed1716aabceccdca4a44a7ad'
+PUBLISHED_SOURCE = '0584530'
+LIVE_JS_SHA = 'be0f22af1b2c6d4753623bbc4101f306c0cf4a64db5432efb60b48718591ac30'
 OVERLAYS = ('src/agentInstances.css', 'src/AgentInstances.jsx', 'src/AgentLaunchFields.jsx',
             'src/agentInstancePresentation.mjs', 'src/openAgentPage.mjs', 'src/connectionOpen.mjs')
+LIST_CHANGES = ('src/AgentInstances.jsx', 'src/agentInstancePresentation.mjs')
 
 
 def sources(path):
@@ -36,10 +37,12 @@ def stage(prove_baseline=False):
     subprocess.run(['tar', '-x', '-C', str(root)], stdin=archive.stdout, check=True)
     assert archive.wait() == 0
     for rel, digest in RETAINED.items():
-        assert sha(RETAINED_SOURCE/rel) == digest
-        shutil.copyfile(RETAINED_SOURCE/rel, root/'frontend'/rel)
-    for rel in (() if prove_baseline else OVERLAYS):
-        shutil.copyfile(ROOT/'frontend'/rel, root/'frontend'/rel)
+        data = git('show', PUBLISHED_SOURCE+':frontend/'+rel)
+        assert hashlib.sha256(data).hexdigest() == digest
+        (root/'frontend'/rel).write_bytes(data)
+    for rel in OVERLAYS:
+        data = git('show', PUBLISHED_SOURCE+':frontend/'+rel) if prove_baseline or rel not in LIST_CHANGES else (ROOT/'frontend'/rel).read_bytes()
+        (root/'frontend'/rel).write_bytes(data)
     manifest = {'baseline': LIVE_BASE, 'retained': RETAINED, 'overlays': {rel: sha(ROOT/'frontend'/rel) for rel in OVERLAYS},
                 'sources': sources(root/'frontend')}
     (root/'frontend/node_modules').symlink_to((ROOT/'frontend/node_modules').resolve())
@@ -67,7 +70,10 @@ def verify(root, committed=False):
         if rel in RETAINED:
             assert digest == RETAINED[rel], 'Previously published notice changed'
             continue
-        expected = (git('show', 'HEAD:frontend/'+rel) if committed else (ROOT/'frontend'/rel).read_bytes()) if rel in OVERLAYS else git('show', LIVE_BASE+':frontend/'+rel)
+        if rel in LIST_CHANGES:
+            expected = git('show', 'HEAD:frontend/'+rel) if committed else (ROOT/'frontend'/rel).read_bytes()
+        else:
+            expected = git('show', (PUBLISHED_SOURCE if rel in OVERLAYS else LIVE_BASE)+':frontend/'+rel)
         assert hashlib.sha256(expected).hexdigest() == digest, 'Unreviewed source: '+rel
     return root/'frontend/dist'
 
@@ -111,12 +117,12 @@ def preview(root):
 def publish(root):
     assert os.geteuid() == 0 and git('branch', '--show-current').strip() == b'main'
     # Parallel work on unrelated files is preserved and never copied to this package.
-    assert not git('diff', 'HEAD', '--', *('frontend/'+rel for rel in OVERLAYS),
+    assert not git('diff', 'HEAD', '--', *('frontend/'+rel for rel in LIST_CHANGES),
                    'scripts/connection_entry_release.py').strip(), 'Connection changes must be committed first'
     dist = verify(root, committed=True)
     assert sha(UI/'index.html') == EXPECTED_INDEX
     original = (UI/'index.html').read_bytes()
-    assert sha(UI/'assets/main-CUSNOPOG.js') == LIVE_JS_SHA
+    assert sha(UI/'assets/main-BlhRh--D.js') == LIVE_JS_SHA
     new_index = (dist/'index.html').read_bytes()
     pattern = rb'/assets/main-[a-zA-Z0-9_-]+\.js'
     old_js, new_js = re.findall(pattern, original), re.findall(pattern, new_index)
@@ -132,7 +138,8 @@ def publish(root):
     shutil.copy2(UI/'index.html', backup/'index.html')
     result = dict(published=False, source_commit=git('rev-parse', 'HEAD').decode().strip(),
                   baseline=LIVE_BASE, retained=RETAINED, overlays=list(OVERLAYS), service_restart=False,
-                  agent_actions=False, policy_application=False, withheld_commit='0d526d2')
+                  incremental_changes=list(LIST_CHANGES), agent_actions=False,
+                  policy_application=False, withheld_commit='0d526d2')
     try:
         name = new_js[0].decode().lstrip('/')
         if (UI/name).exists():

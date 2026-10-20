@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {groupAgentInstances,canOpen,canStart,processLabel,entryAction,entryLabel,observedProcesses} from './agentInstancePresentation.mjs';
+import {groupAgentInstances,canOpen,canStart,processLabel,entryAction,entryLabel,observedProcesses,agentName,connectionName,connectionPid} from './agentInstancePresentation.mjs';
 
 test('four connection records appear as two products without discarding instance policies',()=>{
  const rows=[
@@ -94,4 +94,30 @@ test('unknown controlled connections retain an open check without granting start
   assert.equal(canStart(row),false);
   assert.equal(canOpen(row),false);
  }
+});
+
+test('connection list uses product names without changing registered or historical names',()=>{
+ for(const [type,name] of [['dsh','DeepSeek Harness'],['hermes','Hermes'],['codex','Codex'],['other','其他 Agent']]){
+  const row={id:'instance-test',agent_type:type,name:'RQ5 验收实例',display_name:'登记名 · 产品名'};
+  assert.equal(connectionName(row),name);
+  assert.equal(agentName(row),'登记名 · 产品名');
+  assert.equal(row.name,'RQ5 验收实例');
+ }
+ assert.equal(connectionName({agent_type:'new-type',name:'internal-name'}),'Agent');
+});
+
+test('running PID requires fresh runtime observation, not a gate or loaded policy alone',()=>{
+ const now=Date.parse('2026-10-20T11:00:00Z'),expires_at=new Date(now+8000).toISOString();
+ const row={pid:12345,connected:true,product_status:{runtime:{state:'running',fresh:true,expires_at}}};
+ assert.equal(connectionPid(row,now),12345);
+ assert.equal(connectionPid({...row,product_status:{runtime:{state:'paused',fresh:true,expires_at}}},now),12345);
+ for(const change of [{connected:false},{pid:null},{pid:0},{pid:-1},{pid:'12345'},
+  {product_status:{runtime:{state:'running',fresh:false,expires_at}}},
+  {product_status:{runtime:{state:'running',fresh:true}}},
+  {product_status:{runtime:{state:'stopped',fresh:true,expires_at}}},
+  {product_status:{loading:{state:'loaded'}}}]){
+  assert.equal(connectionPid({...row,...change},now),'—');
+ }
+ assert.equal(connectionPid(row,now+8000),'—');
+ assert.equal(connectionPid({pid:12345,gate:'open',status:'running'},now),'—');
 });

@@ -1,5 +1,14 @@
+import {currentStatus} from './productStatus.mjs';
+
 export const agentTypes={dsh:'DeepSeek Harness',hermes:'Hermes',codex:'Codex',other:'其他 Agent','hermes-desktop':'Hermes Desktop'};
 export const agentName=row=>row.display_name||[row.name,agentTypes[row.agent_type]||'Agent'].filter((v,i,a)=>v&&a.indexOf(v)===i).join(' · ')+(row.id?' · '+String(row.id).replace(/^instance-/,'').slice(0,8):'');
+// Connection-list presentation only; stored names and authority IDs stay unchanged.
+export const connectionName=row=>agentTypes[row.agent_type]||'Agent';
+export function connectionPid(row,now=Date.now()){
+ const runtime=row.product_status?.runtime,state=currentStatus(runtime,'runtime',now).state;
+ return row.connected===true&&runtime?.fresh===true&&['running','paused'].includes(state)
+  &&Number.isSafeInteger(row.pid)&&row.pid>0?row.pid:'—';
+}
 export const agentProcessLabel=agentName;
 export const entryKind=row=>row.entry?.kind||(row.mode==='controlled'&&['dsh','hermes'].includes(row.agent_type)?'web':'process');
 export const entryLabel=row=>row.entry?.label||({terminal:'终端',web:'Web',cli:'CLI',cli_install:'CLI 安装入口',desktop:'桌面应用',process:'进程观测'})[entryKind(row)]||'进程观测';

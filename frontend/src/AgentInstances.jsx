@@ -4,11 +4,11 @@ import RecordBadge from './RecordBadge.jsx';
 import PolicyLifecycleDialog from './PolicyLifecycleDialog.jsx';
 import React,{useEffect,useRef,useState} from 'react';
 import AgentWorkspaces from './AgentWorkspaces.jsx';
-import ProductStatus from './ProductStatus.jsx';
+import ProductStatus,{useEvidenceClock} from './ProductStatus.jsx';
 import {invalidateAgent} from './productStatus.mjs';
 import {tabKeys} from './consoleState.mjs';
 import {timeLabel} from './taskPresentation.mjs';
-import {agentTypes as types,agentName,processLabel,visibleAgentInstances,canOpen,canStart,canCheckEntry,entryLabel,entryAction,connectionStatus as status} from './agentInstancePresentation.mjs';
+import {agentTypes as types,agentName,connectionName,connectionPid,processLabel,visibleAgentInstances,canOpen,canStart,canCheckEntry,entryLabel,entryAction,connectionStatus as status} from './agentInstancePresentation.mjs';
 import {openConnection,restartConnection} from './connectionOpen.mjs';
 import './taskConsole.css';
 import './connections.css';
@@ -21,6 +21,10 @@ function PagedRecords(props){
 }
 const kinds={registered:'登记连接',configured:'修改连接',starting:'启动 Agent',verified:'保护核验通过',verification_failed:'保护核验失败',start_failed:'启动失败',stopped:'停止 Agent',policy_proposed:'提出策略变更',gate_closed:'暂停全部会话',quiesced:'终止旧执行进程',policy_applied:'应用共享策略',policy_apply_failed:'策略应用失败',tool_start:'工具执行前检查',tool_result:'工具执行结果',tool_denied:'工具被拒绝'};
 function Fields({values}){return <dl className="task-fields">{values.map(([k,v])=><React.Fragment key={k}><dt>{k}</dt><dd>{v??'—'}</dd></React.Fragment>)}</dl>}
+export function ConnectionPid({row}){
+ const now=useEvidenceClock(row.product_status?.runtime?.expires_at);
+ return <>{connectionPid(row,Math.max(now,Date.now()))}</>;
+}
 function Records({labels,rows,empty='暂无记录'}){if(!rows.length)return <p className="task-empty">{empty}</p>;return <div className="table-scroll" tabIndex={0}><table className="task-record-table instance-record-table"><thead><tr>{labels.map(label=><th key={label}>{label}</th>)}</tr></thead><tbody>{rows.map((row,i)=><tr key={i}>{row.map((value,n)=><td key={n}>{value}</td>)}</tr>)}{!rows.length&&<tr><td colSpan={labels.length} className="task-empty">{empty}</td></tr>}</tbody></table></div>}
 export function Drawer({id,api,post,onClose,onChanged,onOpen,onSessions,onConfiguration,policyScope,initialTab='connection'}){
  const dialog=useRef(null),origin=useRef(document.activeElement),seq=useRef(0),initialized=useRef(false);
@@ -79,7 +83,7 @@ export default function AgentInstances(props){
  const {api,post,notify,active,workspaceSeed}=props;
  const [rows,setRows]=useState([]),[loaded,setLoaded]=useState(false),[error,setError]=useState(''),[busy,setBusy]=useState(''),[selected,setSelected]=useState(''),[detailTab,setDetailTab]=useState('connection'),[adding,setAdding]=useState(false);
  const seq=useRef(0),inFlight=useRef(null);
- const visibleRows=visibleAgentInstances(rows),hasWorkspaces=visibleRows.some(r=>r.workspace_records?.length);
+ const visibleRows=visibleAgentInstances(rows);
  useEffect(()=>{if(props.configurationId){setSelected(props.configurationId);setDetailTab(['resources','workspaces','events'].includes(props.configurationTab)?props.configurationTab:'connection');}},[props.configurationId,props.configurationTab,props.policyScope]);
  function configure(id,tab='connection'){setDetailTab(tab);setSelected(id);}
  function refresh(){if(inFlight.current)return inFlight.current;const n=++seq.current;inFlight.current=(async()=>{try{const r=await api('/api/agent-instances');if(n===seq.current){setRows(r.instances||[]);setLoaded(true);setError('');}}catch(e){if(n===seq.current){setLoaded(true);setError(e.message);setRows(old=>old.map(invalidateAgent));}}finally{inFlight.current=null;}})();return inFlight.current;}
@@ -92,9 +96,9 @@ export default function AgentInstances(props){
  return <div className="content task-console agent-connections agent-instance-console">
  <div className="connection-toolbar"><h2 className="connection-current-title">当前连接</h2><div className="actions"><button type="button" className="button ghost" disabled={!!busy} onClick={()=>act('discover','发现 Agent',async()=>{const r=await post('/api/agent-instances/discover');await refresh();})}>发现 Agent</button><button type="button" className="button primary" onClick={()=>setAdding(true)}>添加连接</button></div></div>
  {error&&<p role="alert" className="inline-notice warning">{error}</p>}
- <Records labels={['Agent',...(hasWorkspaces?['工作区']:[]),'运行状态','加载核验','操作']} rows={visibleRows.map(row=>[
- <span className={"record-agent brand-"+row.agent_type}><span className="record-agent-icon" aria-hidden="true">{agentName(row).slice(0,1)}</span><span><b>{agentName(row)}</b></span></span>,
- ...(hasWorkspaces?[row.workspace_records?.length?<div className="connection-workspaces">{row.workspace_records.map(w=><div key={w.path}>{(w.display_name||w.name)&&<strong>{w.display_name||w.name}</strong>}<code title={w.path}>{w.path}</code></div>)}</div>:null]:[]),
+ <Records labels={['Agent','运行 PID','运行状态','加载核验','操作']} rows={visibleRows.map(row=>[
+ <span className={"record-agent brand-"+row.agent_type}><span className="record-agent-icon" aria-hidden="true">{connectionName(row).slice(0,1)}</span><span><b>{connectionName(row)}</b></span></span>,
+ <ConnectionPid row={row}/>,
  <ProductStatus value={row.product_status?.runtime} dimension="runtime"/>,<ProductStatus value={row.product_status?.loading}/>,
  <div className="actions"><button type="button" className="button tiny ghost" disabled={!!busy} onClick={()=>openInstance(row)}>{busy===row.id?'正在处理…':entryAction(row).label}</button><button type="button" className="button tiny ghost" onClick={()=>configure(row.id)}>配置</button></div>
  ])} empty={loaded?(error?"当前观测不可用，请重新检查。":"添加 Agent 后可查看连接。") :"正在读取 Agent…"}/>

@@ -374,6 +374,25 @@ test('connection recovery requires a visible impact confirmation and cancel neve
  assert.deepEqual(writes,[]);
 });
 
+test('connection list replaces workspace with live PID and keeps same-type instances separately targeted',async()=>{
+ const make=(id,pid)=>({id,agent_type:'dsh',mode:'controlled',name:'RQ5 内部验收 '+id,display_name:'内部名字 '+id,
+  pid,connected:true,status:'running',workspace_records:[{name:'internal-workspace',path:'/internal/workspace'}],
+  product_status:{runtime:{state:'running',fresh:true,expires_at:new Date(Date.now()+8000).toISOString()}}});
+ const rows=[make('first',1001),make('second',1002)];
+ const render=await harness('AgentInstances.jsx','default',[rows,true]),props={active:true,api:async()=>({instances:rows}),post(){throw Error('No writes expected')},notify(){}};
+ let tree=render(props),table=elements(tree).find(e=>e.type?.name==='Records');
+ assert.deepEqual(table.props.labels,['Agent','运行 PID','运行状态','加载核验','操作']);
+ const html=renderToStaticMarkup(tree);
+ assert.equal((html.match(/DeepSeek Harness/g)||[]).length,2);
+ assert.match(html,/1001/);assert.match(html,/1002/);
+ assert.doesNotMatch(html,/RQ5|内部名字|internal-workspace|\/internal\/workspace|工作区/);
+ for(let i=0;i<2;i++){
+  elements(table.props.rows[i].at(-1)).find(e=>e.type==='button'&&e.props.children==='配置').props.onClick();
+  tree=render(props);
+  assert.equal(elements(tree).find(e=>e.type?.name==='Drawer').props.id,rows[i].id);
+ }
+});
+
 test('system library review sends separate idempotent approve and apply requests',async()=>{
  const pending={id:'system-review',scope_type:'system',status:'pending',proposal_hash:'a'.repeat(64),documents:[],records:[],targets:[],agents:[],total_affected_count:0,can_approve:true,can_apply:false,created_at:'2026-10-14T00:00:00Z'};
  const approved={...pending,status:'approved',can_approve:false,can_apply:true,approval_hash:'b'.repeat(64)};

@@ -1,5 +1,16 @@
 # 连接小步修复与分支核对
 
+## 第三项：连接列表产品名与运行 PID
+
+- 基线 main `0584530`，仅两个生产前端源文件变化：`AgentInstances.jsx`、`agentInstancePresentation.mjs`；两份前端测试及发布保护脚本配套更新。
+- 名称仅产品名，工作区列移除，当前 PID 需新鲜运行证据；未运行/未知/过期显示“—”。同类实例仍独立显示，登记名和详情不修改。
+- main 测试 403/403、构建通过；精确发布包原有回归 382/382、构建通过。
+- 发布基线重建得到 `main-BlhRh--D.js`，SHA-256 与 18003 完全相同。预览新包为 `main-CRIh8RoI.js`，CSS、终端及客户端资源不变，未纳入 `0d526d2`。
+- 浏览器只读验收：运行实例 PID 942863；另一个 DSH 与 Hermes 为“—”。分别点击两条 DSH 的配置，详情准确对应不同登记实例；没有配置保存、打开、启动、停止或策略请求。
+- 1280px 与 1050px 列表完整可见，1050px 表宽/滚动宽均 928px；600px 页面宽 600px、表容器宽 512px/内容宽 660px，表内滚动可达配置按钮，无页面溢出。console error/warn 为空。
+- 截图：指定文档目录 `REVIEW/evidence/connection-list-20261020/` 中 preview-desktop、preview-1050、preview-600、second-target-detail。
+- 当前：预览验收通过；用户已明确允许静态更新 18003。发布与线上复验结果另补，不以预览代替上线事实。
+
 ## 第一项：已有连接紧凑布局
 
 基线：main `0d526d2`；18003 JavaScript 仍为 `b37b4fd` 发布物。功能源文件仅 `frontend/src/agentInstances.css`，新增 9 行限定样式，编译后新增 1021 字节；移除这一段后与线上 CSS 逐字节相同。
