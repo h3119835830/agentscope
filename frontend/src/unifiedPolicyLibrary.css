@@ -105,3 +105,8 @@
 .spl-dialog input[readonly]{background:#f7f9fc;color:#647a97;cursor:default}
 
 .tpl-readonly-fields{border:0;margin:0;padding:0;min-width:0;display:flex;flex-direction:column;gap:18px}
+
+.upl-agent-dsl-shell{margin:16px 0;padding:16px;border:1px solid #dbe5f1;border-radius:12px;background:#f8fbff}
+.upl-agent-dsl-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:14px}
+.upl-agent-dsl-head strong{display:block;color:#183457}.upl-agent-dsl-head p{margin:5px 0 0;color:#657791;font-size:13px}
+.upl-agent-dsl-shell .actplane-policies{margin:0}

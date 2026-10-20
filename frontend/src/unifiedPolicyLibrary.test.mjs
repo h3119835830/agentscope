@@ -35,6 +35,15 @@ test('an Agent configuration link opens the unified System library at that exact
  let tree=render(props);assert.equal(nodes(tree).find(n=>n.props?.['aria-label']==='配置范围').props.value,'a');
  tree=templateDetails(render,props);assert.ok(nodes(tree).some(n=>n.props?.['aria-label']===child.name+'：提交审批'));assert.ok(!nodes(tree).some(n=>n.props?.['aria-label']===other.name+'：提交审批'));
 });
+test('exact Agent scope keeps legacy DSL management inside the unified System module',async()=>{
+ const writes=[],agent={id:'a',agent_type:'dsh',mode:'controlled'};
+ const render=await harness('UnifiedPolicyLibrary.jsx',[{catalog:[template],items:[child]},{catalog:[],items:[]}]);
+ const props={targetId:'a',agents:[agent],api(){},post:(...args)=>writes.push(args),onApprovals(){}};
+ let tree=render(props);assert.ok(!nodes(tree).some(n=>n.type?.name==='ActPlanePolicies'));
+ nodes(tree).find(n=>n.type==='button'&&n.props.children==='管理 Agent DSL').props.onClick();tree=render(props);
+ const manager=nodes(tree).find(n=>n.type?.name==='ActPlanePolicies');assert.equal(manager.props.scopeId,'a');assert.equal(manager.props.ownedOnly,true);assert.equal(writes.length,0);
+ nodes(tree).find(n=>n.type==='button'&&n.props.children==='收起').props.onClick();tree=render(props);assert.ok(!nodes(tree).some(n=>n.type?.name==='ActPlanePolicies'));
+});
 test('template catalogue omits parameter operation values and expands child fields only on the arrow',async()=>{
  const render=await harness('UnifiedPolicyLibrary.jsx',[{catalog:[template],items:[child]},{catalog:[],items:[]}]);
  const props={api(){},post(){},agents:[{id:'a',agent_type:'dsh',mode:'controlled'}],onApprovals(){}};

@@ -13,7 +13,7 @@ from deploy_policy_semantics import authority,service,listeners,sha,guard,files,
 ROOT=Path(__file__).resolve().parents[1]
 STATE=Path('/var/lib/agentscope-scope-demo')
 BASE='f8d20222ac8f2331638e6e26125650c2fe61c2be'
-EXPECTED_INDEX='ba622103957d707bc58f69d05c497bdb61581eff9ef4718761543ac987bcc268'
+EXPECTED_INDEX='f7a6ee7eac04898a7a753ed038595bcb46ef03a75320982140238eddf82788b5'
 API='agentscope-scope-demo-api.service'
 BROKER='agentscope-scope-demo-broker.service'
 
