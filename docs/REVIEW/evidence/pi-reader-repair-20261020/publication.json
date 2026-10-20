@@ -1,0 +1,43 @@
+{
+  "published": true,
+  "commit": "6c0246717ebd7c6e63f095158785dd12da107109",
+  "release": "/opt/agentscope-pi-reader-20261020-190657",
+  "seconds": 1.789,
+  "api": {
+    "MainPID": "1006222",
+    "WorkingDirectory": "/opt/agentscope-pi-reader-20261020-190657",
+    "argv": [
+      "/opt/agentscope/.venv/bin/python",
+      "-m",
+      "uvicorn",
+      "agentscope_app.main:app",
+      "--host",
+      "127.0.0.1",
+      "--port",
+      "18003",
+      "--timeout-graceful-shutdown",
+      "3"
+    ],
+    "start_ticks": "2198120"
+  },
+  "api_identity": {
+    "Uid": "999\t999\t999\t999",
+    "Gid": "985\t985\t985\t985",
+    "Groups": "985 986",
+    "CapEff": "0000000000000000",
+    "NoNewPrivs": "0"
+  },
+  "reader_pid": "1006224",
+  "reader_identity": {
+    "Uid": "1000\t1000\t1000\t1000",
+    "Gid": "986\t986\t986\t986",
+    "Groups": "",
+    "CapEff": "0000000000000000",
+    "NoNewPrivs": "1"
+  },
+  "broker_unchanged": true,
+  "agent_bindings_unchanged": true,
+  "authority_unchanged": true,
+  "ui_unchanged": true,
+  "other_listeners_unchanged": true
+}
