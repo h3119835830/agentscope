@@ -7,7 +7,7 @@ const when=value=>value?new Date(value).toLocaleString('zh-CN',{hour12:false}):'
 export default function AgentRuntimePolicyAssistant({target,api}){
  const [events,setEvents]=useState(null),[error,setError]=useState(''),[revision,setRevision]=useState(0);
  useEffect(()=>{let alive=true;setEvents(null);setError('');api('/api/agent-instances/'+encodeURIComponent(target.id)+'/events').then(v=>{if(alive)setEvents((v.events||[]).filter(e=>e.generation===target.generation&&hookNames[e.kind]).slice(0,20));}).catch(e=>{if(alive)setError(e.message);});return()=>{alive=false;};},[api,target.id,target.generation,revision]);
- const running=!!target.generation&&['open','paused'].includes(target.gate),hookConnected=running&&target.mode==='controlled';
+ const running=!!target.connected&&!!target.generation&&['open','paused'].includes(target.gate),hookConnected=running&&target.mode==='controlled';
  return <div className="runtime-policy-assistant">
   <div className="runtime-policy-summary"><div><span>运行时 Hook</span><RecordBadge tone={hookConnected?'good':'warn'}>{hookConnected?'已接入':'当前未运行'}</RecordBadge><small>工具结果、拒绝和内核反馈应自动触发评估</small></div><div><span>Pi 自动评估</span><RecordBadge tone="warn">尚未接通</RecordBadge><small>当前后端还没有 RQ4 自动生成作业，页面不会伪装成已启用</small></div><div><span>增量热装载</span><RecordBadge tone="warn">尚未接通</RecordBadge><small>只允许新增／收紧，内核接纳后才算生效</small></div><div><span>作用范围</span><strong>此 Agent 共享执行域</strong><small>来源会话不形成会话独立策略；子 Agent 可使用子域</small></div></div>
   <p className="inline-notice warning">当前只完成运行时 Hook 采集。符合 ActPlane RQ4 的自动 Pi 评估、单调增量校验、内核热装载和回执链尚未实现，不能把手工生成的候选显示成运行时自动策略。</p>
