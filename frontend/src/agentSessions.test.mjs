@@ -56,4 +56,8 @@ test('network errors are actionable Chinese notices while service validation rem
  assert.equal(module.exports.sessionReadError(new Error('会话不属于此连接')),'会话不属于此连接');
  assert.equal(module.exports.sessionReadNotice('记录读取失败，请刷新重试。',true),'记录读取失败，请刷新重试。 当前继续显示上次成功读取的内容。');
  assert.equal(module.exports.sessionReadNotice('记录读取失败，请刷新重试。',false),'记录读取失败，请刷新重试。');
+ assert.equal(module.exports.sessionSnapshotContext(false,{sessionAgent:'dsh',sessionQuery:'rq5'},'ignored'),module.exports.sessionSnapshotContext(false,{sessionAgent:'dsh',sessionQuery:'rq5'},'another'));
+ assert.notEqual(module.exports.sessionSnapshotContext(false,{sessionAgent:'dsh',sessionQuery:'rq5'},'ignored'),module.exports.sessionSnapshotContext(false,{sessionAgent:'hermes',sessionQuery:'rq5'},'ignored'));
+ assert.equal(module.exports.sessionSnapshotContext(true,{},'/api/session/policies'),module.exports.sessionSnapshotContext(true,{},'/api/session/policies'));
+ assert.notEqual(module.exports.sessionSnapshotContext(true,{},'/api/session/policies'),module.exports.sessionSnapshotContext(true,{},'/api/session/events'));
 });

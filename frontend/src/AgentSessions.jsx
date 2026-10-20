@@ -14,6 +14,7 @@ import './agentSessions.css';
 const tabs=[['policies','已加载策略'],['events','运行事件'],['flow','信息流']];
 export const sessionReadError=e=>/failed to fetch|networkerror|network request failed/i.test(e?.message||'')?'记录读取失败，请检查连接后刷新重试。':e?.message||'记录读取失败，请刷新重试。';
 export const sessionReadNotice=(error,hasSnapshot)=>error+(hasSnapshot?' 当前继续显示上次成功读取的内容。':'');
+export const sessionSnapshotContext=(selected,n,viewKey)=>selected?'selected:'+viewKey:'directory:'+JSON.stringify([n.sessionAgent||'',n.sessionFilterInstance||'',n.sessionQuery||'',n.sessionCursor||0,n.sessionWorkspace||'']);
 const resultLabel=r=>r.killed?'进程已终止':r.blocked?'操作已阻止':['notify','report'].includes(r.actual_action)?'匹配已上报 · 操作继续':r.actual_action==='unsupported'?'处置未获支持':'实际处置未记录';
 const when=value=>{const v=typeof value==='string'&&/^\d+$/.test(value)?Number(value):value;return typeof v==='number'?new Date(v>1e15?v/1e6:v).toLocaleString('zh-CN',{hour12:false}):v?new Date(v).toLocaleString('zh-CN',{hour12:false}):'未记录';};
 function EventDetails({event,onClose}){
@@ -41,12 +42,15 @@ export default function AgentSessions({api,post,navigation:n,navigate}){
  const [directoryCollapsed,setDirectoryCollapsed]=useState(()=>{try{return localStorage.getItem('agentscopeSessionDirectoryCollapsed')==='true';}catch{return false;}});
  useEffect(()=>{try{localStorage.setItem('agentscopeSessionDirectoryCollapsed',String(directoryCollapsed));}catch{}},[directoryCollapsed]);
  async function rename(name){if(nameBusy)return;setNameBusy(true);try{await post('/api/agent-instances/'+encodeURIComponent(renaming.instance_id)+'/sessions/'+encodeURIComponent(renaming.id)+'/name',{name,expected_name:renaming.name??null});setRenaming(null);setRevision(r=>r+1);}finally{setNameBusy(false);}}
- const seq=useRef(0),selected=!!(n.sessionInstance&&n.sessionId),tab=n.sessionTab||'policies';
+ const seq=useRef(0),snapshotContext=useRef(''),selected=!!(n.sessionInstance&&n.sessionId),tab=n.sessionTab||'policies';
  const eventTab=n.sessionEventKind==='tools'?'traces':'syscalls';
  const root='/api/agent-instances/'+encodeURIComponent(n.sessionInstance)+'/sessions/'+encodeURIComponent(n.sessionId);
  const viewKey=root+tab+eventTab,summary=rawSummary?._key===root?rawSummary:null,data=rawData?._key===viewKey?rawData:null;
  useEffect(()=>{
-  const request=++seq.current;setError('');setLoading(true);setData(null);setDirectory(null);setEvent(null);expanded.current=false;
+  const nextContext=sessionSnapshotContext(selected,n,viewKey),contextChanged=snapshotContext.current!==nextContext;
+  snapshotContext.current=nextContext;
+  const request=++seq.current;setError('');setLoading(true);setEvent(null);expanded.current=false;
+  if(contextChanged){setData(null);setDirectory(null);}
   let inflight=false;
   async function load(){if(inflight)return;inflight=true;try{
    if(!selected){const params=new URLSearchParams({agent_type:n.sessionAgent||'',instance_id:n.sessionFilterInstance||'',q:n.sessionQuery||'',workspace:n.sessionWorkspace||'',cursor:String(n.sessionCursor||0)});const value=await api('/api/sessions?'+params);if(request===seq.current)setDirectory(value);}
