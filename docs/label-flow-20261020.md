@@ -1,7 +1,8 @@
 # AgentScope label sources and native ActPlane information-flow evidence
 
 Implementation baseline: `a18229153913c38a736b167a11397a8a56e7dbec`.
-Implemented and accepted in an isolated worktree; not deployed or pushed.
+Merged into local `main` and deployed to the local 18003 service from commit
+`b37b4fd8678e56a3f7450142b6c2bcd3cb73c8b5`; no remote push was performed.
 
 ## Native boundary
 
@@ -45,15 +46,22 @@ unreported origin and shared-domain attribution are distinct states.
 ## Acceptance
 
 - `git diff --exit-code a182291 -- actplane`: passed with no differences.
-- AgentScope backend: 1507 passed; final route regression: 27 passed.
-- Frontend: 378 passed; production build passed (148 modules).
+- Merged-main AgentScope backend: 1510 passed.
+- Merged-main frontend: 382 passed; production build passed (148 modules).
 - ActPlane C/workspace suites passed; ignored privileged tests are not claimed.
 - An isolated native scenario read synthetic secret data, blocked a real loopback
   connect, produced native `taint_violation`, and showed one matching API/UI
   evidence record. The receiver did not observe the restricted connection.
 - Browser acceptance verified the shared-domain table, drawer content, monotonic
   timestamp wording and focus restoration.
+- Local 18003 deployment published
+  `/opt/agentscope-preflight-runtime-20261020-172053`; API health, UI artifact
+  hash, native ActPlane binary hash and authoritative Agent binding were checked.
+  The Broker was intentionally not restarted: its PID/start identity and the
+  active Agent PID, generation, domain and policy hash remained unchanged.
 
 The final evidence is under
-`C:\Users\happy\Desktop\归纳梳理\技术文档\REVIEW\evidence\agentscope-native-information-flow-20261020`.
-No deployed service was restarted and no remote push was performed.
+`C:\Users\happy\Desktop\归纳梳理\技术文档\REVIEW\evidence\agentscope-native-information-flow-20261020`
+and the merged-main/deployment evidence is under
+`C:\Users\happy\Desktop\归纳梳理\技术文档\REVIEW\evidence\agentscope-main-native-information-flow-20261020`.
+No remote push was performed.
