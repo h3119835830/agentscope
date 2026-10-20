@@ -2,7 +2,7 @@
 .unified-policy-library .spl-filters select{max-width:240px}
 .unified-policy-library .upl-template-library{overflow-x:auto;border-color:#dfe7f0;border-radius:10px;container-type:inline-size}
 .unified-policy-library .upl-template-library:focus-visible{outline:2px solid #8cb2fb;outline-offset:2px}
-.unified-policy-library .upl-template-library>table{min-width:0;table-layout:fixed}
+.unified-policy-library .upl-template-library>table{min-width:100%;table-layout:fixed}
 .prototype-theme .main[data-page] .unified-policy-library .upl-template-library>table>thead>tr>th{position:relative;padding-right:18px}
 .unified-policy-library .upl-column-resizer{position:absolute;top:0;right:0;bottom:0;width:9px;cursor:col-resize;touch-action:none;user-select:none;z-index:1}
 .unified-policy-library .upl-column-resizer:after{content:'';position:absolute;top:12px;bottom:12px;left:4px;width:1px;background:#ced9e7}

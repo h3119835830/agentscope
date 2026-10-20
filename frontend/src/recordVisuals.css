@@ -1,4 +1,6 @@
-/* Records share the overview palette. Scope all layout changes away from overview. */
+/* Main pages use the available workspace width; record styling stays scoped below. */
+.prototype-theme .main[data-page] .content{width:100%;max-width:none;min-width:0}
+.prototype-theme .main[data-page="workbench"] :is(.policy-assistant,.policy-reference-select){width:100%;max-width:none;min-width:0}
 .record-badge{display:inline-flex;align-items:center;gap:6px;max-width:100%;padding:4px 9px;border:1px solid transparent;border-radius:6px;font-size:12px;font-weight:500;line-height:1.5;white-space:nowrap;vertical-align:middle}
 .record-badge-dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
 .record-badge-mono{font-family:Consolas,"Cascadia Code",monospace;font-variant-numeric:tabular-nums;letter-spacing:.15px}
@@ -9,7 +11,7 @@
 .record-badge.tone-bad{color:#ac3029;background:#fff0ee;border-color:#f5d9d5}
 .record-badge.tone-purple{color:#6944a7;background:#f2efff;border-color:#e6dff7}
 .prototype-theme .main[data-page]:not([data-page="overview"]){--muted:#677b93;--ink-secondary:#344b65}
-.prototype-theme .main[data-page]:not([data-page="overview"]) .content{max-width:1440px;padding:26px 26px 40px}
+.prototype-theme .main[data-page]:not([data-page="overview"]) .content{padding:26px 26px 40px}
 .prototype-theme .main[data-page]:not([data-page="overview"]) .panel{background:#fff;border:1px solid #e1e8f0;box-shadow:0 2px 8px #1c365707;border-radius:12px}
 .prototype-theme .main[data-page]:not([data-page="overview"]) .panel-head h2,.prototype-theme .main[data-page]:not([data-page="overview"]) .task-section-heading h2{font-size:15px;font-weight:600;color:#203b59}
 .prototype-theme .main[data-page]:not([data-page="overview"]) .table-scroll,.prototype-theme .main[data-page]:not([data-page="overview"]) .security-table-scroll{max-width:100%;min-width:0;border:1px solid #e1e8f0;border-radius:10px;background:#fff;box-shadow:0 2px 7px #1c365704}
