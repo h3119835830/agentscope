@@ -24,8 +24,8 @@ function FlowDetail({detail,onClose}){
  </div></dialog>;
 }
 
-export function FlowStatus({integrity}){
- return <>{statuses[integrity.state]&&<p className="task-empty">{statuses[integrity.state]}</p>}
+export function FlowStatus({integrity,view}){
+ return <>{statuses[integrity.state]&&<p className="task-empty">{integrity.state==='empty'&&view==='shared_domain'?'此 Agent 共享执行域暂无带标签的策略命中。':statuses[integrity.state]}</p>}
  {integrity.state==='incomplete'&&<div className="inline-notice warning"><strong>链路不完整</strong><p>{integrity.reasons.map(r=>reasonNames[r]||'证据缺失').join('；')}。只展示已核验的边。</p></div>}</>;
 }
 
@@ -33,7 +33,12 @@ export function WitnessGraph({data,onDetail}){
  const byId=Object.fromEntries(data.nodes.map(n=>[n.id,n]));
  const edges=data.edges;
  if(!edges.length)return null;
- const nodes=[byId[edges[0].from],...edges.map(e=>byId[e.to])];
+ const processNames=new Map();
+ const nodes=[byId[edges[0].from],...edges.map(e=>byId[e.to])].map(node=>{
+  if(node.kind!=='process')return node;
+  if(!processNames.has(node.id))processNames.set(node.id,'进程 '+(processNames.size+1));
+  return {...node,title:processNames.get(node.id)};
+ });
  const step=180, nodeWidth=140, width=nodes.length*step;
  return <div className="flow-canvas" role="region" aria-label="真实传播来源链" tabIndex={0}>
  <svg width={width} height="190" role="img" aria-label="按回执先后排列的单条信息流链">
@@ -54,11 +59,11 @@ export default function SessionInformationFlow({api,root}){
  async function more(){const n=sequence.current;setBusy(true);try{const params=new URLSearchParams({view,anchor:data.anchor,cursor:data.next_cursor,generation:data.generation,...(label?{label}:{})});const value=await api(root+'/information-flow?'+params);if(n!==sequence.current)return;
   setData(old=>({...value,anchors:old.anchors,nodes:[...new Map([...old.nodes,...value.nodes].map(x=>[x.id,x])).values()],edges:[...value.edges,...old.edges],integrity:{state:old.integrity.state==='incomplete'||value.integrity.state==='incomplete'?'incomplete':value.integrity.state,reasons:[...new Set([...old.integrity.reasons,...value.integrity.reasons])]}}));
  }catch(e){if(n===sequence.current)setError('更早的来源暂时无法读取，请刷新重试。当前仅展示已取得的回执。');}finally{if(n===sequence.current)setBusy(false);}}
- return <section className="information-flow"><div className="flow-toolbar"><FlowScopeControl value={view} onChange={value=>{setView(value);setAnchor('');}}/><label>标签<select value={label} onChange={e=>{setLabel(e.target.value);setAnchor('');}}><option value="">全部已记录标签</option>{['SECRET','AGENT','SENSITIVE','REMOTE','CODE'].map(l=><option key={l} value={l}>{l}{['SENSITIVE','REMOTE','CODE'].includes(l)?'（历史）':''}</option>)}</select></label><button className="button ghost" disabled={busy} onClick={()=>setRevision(v=>v+1)}>刷新</button></div>
+ return <section className="information-flow"><div className="flow-toolbar"><FlowScopeControl value={view} onChange={value=>{setView(value);setAnchor('');setLabel('');}}/><label>标签<select value={label} onChange={e=>{setLabel(e.target.value);setAnchor('');}}><option value="">全部已记录标签</option>{(data?.available_labels||[label].filter(Boolean)).map(l=><option key={l} value={l}>{l}{['SENSITIVE','REMOTE','CODE'].includes(l)?'（历史）':''}</option>)}</select></label><button className="button ghost" disabled={busy} onClick={()=>setRevision(v=>v+1)}>刷新</button></div>
  {busy&&!data&&<p role="status">正在读取传播回执…</p>}{error&&<p role="alert" className="inline-notice warning">{error}</p>}
  {data&&<>{data.historical&&<p className="session-coverage">历史运行代次 · 不代表当前运行状态</p>}
- {data.anchors.length>0&&<label className="flow-anchor">策略命中<select value={data.anchor||anchor} onChange={e=>setAnchor(e.target.value)}>{data.anchors.map(a=><option key={a.event_id} value={a.event_id}>{date(a.time)} · {a.labels.join('、')||'标签映射缺失'} · {outcomes[a.outcome]} · {a.target}</option>)}</select></label>}
- <FlowStatus integrity={data.integrity}/>
+ {data.anchors.length>0&&<label className="flow-anchor">策略命中<select value={data.anchor||anchor} onChange={e=>setAnchor(e.target.value)}>{data.anchors.map(a=><option key={a.event_id} value={a.event_id}>{a.configuration_names?.join('、')||'策略名称未记录'} · {date(a.time)} · {outcomes[a.outcome]} · {a.labels.join('、')||'标签映射缺失'} · {a.target}</option>)}</select></label>}
+ <FlowStatus integrity={data.integrity} view={view}/>
  <WitnessGraph data={data} onDetail={setDetail}/>
  {data.edges.length>0&&<p className="session-coverage">每条边对应一条审计回执；记录的是引擎标签传播，不推断文件正文或未观察的操作成功。</p>}
  {data.next_cursor&&<button className="button ghost" disabled={busy} onClick={more}>展开更早来源</button>}

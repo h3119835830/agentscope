@@ -48,7 +48,7 @@ def test_history_retention_filters_before_pagination_and_keeps_original(client,s
     assert client.get('/api/history/records/'+old['id'],headers=PRODUCT).status_code==404
     archive=client.get('/api/console/task-archives?q=product-&status=all',headers=ADMIN).json()
     assert archive['total']==1 and archive['records'][0]['id']=='product-current-task'
-    monkeypatch.setattr(controller,'listing',lambda:{'instances':[{'id':'current','mode':'controlled','connected':True,'active':True}]})
+    monkeypatch.setattr(controller,'listing',lambda:{'instances':[{'id':'current','mode':'controlled','connected':True,'active':True,'product_status':{'loading':{'state':'loaded'}}}]})
     summary=client.get('/api/console/summary',headers=ADMIN).json()
     assert summary['stats']['verified_agents']==1 and 'active_tasks' not in summary['stats']
     assert 'product-old-task' not in [r['id'] for r in summary['tasks']]

@@ -33,6 +33,8 @@ def test_current_artifact_groups_named_configuration_and_actual_startup_rules(lo
     assert {r['scope'] for r in view['records']} == {'system', 'agent'}
     assert all(c['clause_hash'] for r in view['records'] for c in r['clauses'])
     assert store.get(loaded.a['id']) == before
+    advanced=dsl.detail(loaded.a['id'])['records']
+    assert all(r['configuration_status']['label']=='已应用' for r in advanced if r.get('document_id'))
 
 
 @pytest.mark.parametrize('field,value', [
@@ -142,3 +144,25 @@ def test_foreign_document_scope_cannot_reappear_as_a_startup_rule(loaded, scope)
     view = build(row, {'id': 's1'}, row['generation'], saved)
     assert not view['coverage_complete']
     assert not any(r.get('document_id') or 'protect' in r['name'] for r in view['records'])
+
+
+def test_loaded_revision_is_exact_immutable_document_not_latest_configuration(loaded):
+    from agentscope_app.instances import template_configurations as tc
+    row=controller.detail(loaded.a['id'])
+    doc=dsl.receipt(row['id'],row['generation'])['artifact']['documents'][0]
+    keys=('id','name','original_dsl','metadata','managed_identity','generation_binding','label_sources')
+    frozen={k:doc[k] for k in keys if k in doc}
+    with db.connect() as con:
+        tc.init(con)
+        con.execute('INSERT INTO template_configurations VALUES(?,?,?,?,?,?,?,?,?)',
+                    (doc['id'],'FILE-READ',row['id'],'agent',None,2,0,db.now(),db.now()))
+        con.execute('INSERT INTO template_configuration_versions VALUES(?,?,?,?)',
+                    (doc['id'],1,json.dumps({'document':frozen}),db.now()))
+        con.execute('INSERT INTO template_configuration_versions VALUES(?,?,?,?)',
+                    (doc['id'],2,json.dumps({'document':{**frozen,'name':'尚未应用的新版本'}}),db.now()))
+    assert next(r for r in projection(loaded)['records'] if r.get('document_id')==doc['id'])['configuration_revision']==1
+    # Same-document revisions cannot identify which version was approved.
+    with db.connect() as con:
+        con.execute('UPDATE template_configuration_versions SET payload_json=? WHERE id=? AND revision=2',
+                    (json.dumps({'document':frozen}),doc['id']))
+    assert next(r for r in projection(loaded)['records'] if r.get('document_id')==doc['id'])['configuration_revision'] is None

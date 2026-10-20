@@ -38,7 +38,7 @@ test('panel renders only current loaded policy names and never legacy controls o
  const source=new URL('./SessionSecurityPanel.jsx',import.meta.url).pathname;
  const built=await build({entryPoints:[source],bundle:true,platform:'node',format:'cjs',external:['react'],loader:{'.css':'empty'},write:false});
  const mod=new Module(source);mod.paths=Module._nodeModulePaths(new URL('.',import.meta.url).pathname);mod._compile(built.outputFiles[0].text,source);
- const loaded={state:'verified',coverage_complete:true,records:[{id:'doc',name:'保护配置文件',scope:'agent',status:'loaded',source_kind:'configuration',clauses:[{operation:'read',effect:'block',target:'/w/0/.env'}]}],notice:'同一 Agent 进程内的会话共享策略'};
+ const loaded={loading_status:{state:'loaded',label:'已加载',expires_at:new Date(Date.now()+8000).toISOString()},state:'verified',coverage_complete:true,records:[{id:'doc',name:'保护配置文件',scope:'agent',status:'loaded',source_kind:'configuration',clauses:[{operation:'read',effect:'block',target:'/w/0/.env'}]}],notice:'同一 Agent 进程内的会话共享策略'};
  const html=renderToStaticMarkup(React.createElement(mod.exports.default,{data:{security:view,loaded_policies:loaded}}));
  for(const text of ['保护配置文件','/w/0/.env','Agent 策略','读取','阻断','已加载','共享策略'])assert.ok(html.includes(text),text);
  for(const text of ['工具使用','执行方式','添加约束','检查当前配置','工作区继承','本会话','>停用<','>配置<'])assert.ok(!html.includes(text),text);
@@ -73,6 +73,6 @@ test('unverified loading never falls back to configured builtins or a green stat
  assert.deepEqual(visibleControls(data,{scope:'system'}),[builtin,configured]);
  assert.throws(()=>changeRequest(data,{basisHash:'hash-a',control:builtin,operation:'disable'},{ack:true},'key'),/不能停用/);
  const html=renderToStaticMarkup(React.createElement(mod.exports.default,{data:{security:data,loaded_policies:{state:'unverified',coverage_complete:false,records:[],message:'当前加载证据尚未核验'}}}));
- assert.match(html,/当前加载证据尚未核验/);assert.match(html,/暂未确认/);
+ assert.match(html,/当前加载证据未核验或已过期/);assert.match(html,/暂未确认/);
  assert.ok(!html.includes('保护控制目录')&&!html.includes('record-badge good'));
 });

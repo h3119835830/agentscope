@@ -33,6 +33,19 @@ def mappings(saved):
     return mapping
 
 
+def matched_names(saved, event):
+    """Resolve the actual rule id against this receipt, not the source label."""
+    if event.get('rule_id') is None or not saved:
+        return []
+    artifact=saved['artifact']
+    refs=[r for r in artifact.get('compile',{}).get('rules',[])
+          if r.get('rule_id') == event['rule_id']]
+    return list(dict.fromkeys(doc['name'] for doc in artifact.get('documents',[])
+        if any(rule.get('compiled_name') == ref.get('name')
+               and rule.get('source_ref') == ref.get('source_ref')
+               for rule in doc.get('rules',[]) for ref in refs)))
+
+
 def attribution(con,ident,gen,event):
     tag=str(event.get('tool_call_tag') or '')
     if tag in ('','0'):
@@ -70,8 +83,8 @@ def query(ident,sid,view='session',generation=None,label=None,anchor=None,cursor
     row,session,gen,active=sessions.session_context(ident,sid,generation)
     collection=sessions.collect_kernel(row) if gen==row.get('generation') else {'available':True,'historical':True}
     saved=dsl_policy.receipt(ident,gen)
-    base={'view':view,'generation':gen,'historical':not active,'collection':collection,'nodes':[],'edges':[],
-          'anchors':[],'next_cursor':None,'integrity':{'state':'empty','reasons':[]},
+    base={'view':view,'generation':gen,'historical':bool(session.get('historical') or gen!=row.get('generation')),'collection':collection,'nodes':[],'edges':[],
+          'anchors':[],'available_labels':[],'next_cursor':None,'integrity':{'state':'empty','reasons':[]},
           'scope_label':'当前会话 · 仅可信关联事件' if view=='session' else 'Agent 共享执行域 · 不代表当前会话独有行为'}
     if view not in ('session','shared_domain'):
         raise ValueError('信息流范围不合法')
@@ -89,12 +102,18 @@ def query(ident,sid,view='session',generation=None,label=None,anchor=None,cursor
                 continue
             seen.add(e['event_id'])
             mapped=e['source_mapping']
+            for name in [m['label'] for m in mapped]:
+                if name not in base['available_labels']:
+                    base['available_labels'].append(name)
             if label and label not in e.get('label_names',[]) and label not in {m['label'] for m in mapped}:
                 continue
             base['anchors'].append({'event_id':e['event_id'],'label_names':e.get('label_names',[]),
                                     'labels':[m['label'] for m in mapped],'time':e['time'],'outcome':e['outcome'],
+                                    'configuration_names':matched_names(saved,e),
                                     'target':e.get('target') or e['object'].get('address','')})
-            if len(base['anchors'])>=50:break
+            # Bound anchor output, but collect label choices from the complete
+            # bounded event window, independently of the selected label.
+            base['anchors']=base['anchors'][:50]
         if not anchor and base['anchors']:
             anchor=base['anchors'][0]['event_id']
         if not anchor:

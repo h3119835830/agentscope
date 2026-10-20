@@ -30,10 +30,15 @@ def completed(p):
 def hint(row):
     if row['status'] not in ('stale','invalid','failed','blocked'):return None
     target=row.get('target',{})
-    destination={'page':'strategies','systemTab':'policies','approvalId':''} if row['scope_type']=='system' else {
+    destination={'page':'strategies','systemTab':'policies','policyScope':'system','policyAgent':'','approvalId':''} if row['scope_type']=='system' else {
         'page':'workbench','policyAgent':row['scope_id'],'policyScope':row['scope_type'],
         'policyWorkspace':target.get('workspace_id') or '', 'policySession':target.get('session_id') or '',
         'agentPolicyTab':'assistant','approvalId':''}
+    if row['scope_type']=='agent':
+        docs=row.get('documents',[])
+        destination={'page':'strategies','systemTab':'policies','policyScope':'agent',
+                     'policyAgent':row['scope_id'],'configurationId':docs[0]['id'] if len(docs)==1 else '',
+                     'approvalId':''}
     if row['scope_type']=='session':
         destination={'page':'sessions','sessionInstance':row['scope_id'],'sessionId':target.get('session_id') or '',
                      'sessionTab':'policies','approvalId':''}

@@ -7,6 +7,7 @@ from . import store, discovery, system_policy as system
 from .adapters import adapter, entry_details
 from .policy import canonical, clean_resources, digest, records, restrictive
 from . import dsl_policy
+from . import product_status
 
 _locks={}; _lock=threading.Lock()
 def lock(ident):
@@ -28,7 +29,7 @@ class Observer:
         for r in values:
             age=time.monotonic()-r.pop('_observed')
             r['evidence_age_seconds']=round(age,2)
-            if age>=8: r.update(connected=False,status='stale',verified=False)
+            if age>=product_status.TTL: r.update(connected=False,status='stale',verified=False)
         return values
     def run(self):
         while not self.stop_event.is_set():
@@ -104,6 +105,11 @@ def collect_runtime_events(row):
 def listing(discover=False):
     if discover: observer.collect()
     observed={r['id']:r for r in observer.snapshot()}
+    with db.connect() as con:
+        lifecycle={r['instance_id']:dict(r) for r in con.execute("""SELECT instance_id,generation,kind
+            FROM instance_events WHERE seq IN (SELECT MAX(seq) FROM instance_events
+            WHERE kind IN ('starting','verified','verification_failed','start_failed','stopped')
+            GROUP BY instance_id)""")}
     result=[]
     for row in store.rows():
         live=observed.pop(row['id'],{})
@@ -113,7 +119,7 @@ def listing(discover=False):
         execution=live.get('execution_status',{})
         gate_verified=live.get('supervision')!='broker-admission-v1' or execution.get('gate')=='open' and execution.get('protection_fresh')
         active=bool(current and live.get('verified') and gate_verified and row['gate']=='open' and live.get('connected') and inherited and system.current()['phase']=='ready' and dsl_policy.live_matches(row,live))
-        result.append({**row, **live, 'policy':row['policy'], 'policy_hash':row['policy_hash'], 'gate':row['gate'],
+        result.append({**row, **live, 'generation':row['generation'], 'policy':row['policy'], 'policy_hash':row['policy_hash'], 'gate':row['gate'],
                        'security': '执行受控' if active else '已加载，执行暂停' if row['gate'] in ('paused','open') else '正在加载与核验' if row['gate'] in ('starting','updating') else '未运行',
                        'active':active,'connected':bool(current and live.get('connected')),'mode':row['mode']})
     for live in observed.values():
@@ -125,6 +131,19 @@ def listing(discover=False):
         if r['mode']=='observed':
             r['security']='仅观测，未接管执行' if r.get('connected') else '仅登记或发现，未接管执行'
             r['can_open']=bool(r.get('connected') and r.get('agent_type')=='dsh' or r.get('runtime',{}).get('open_url'))
+        receipt=dsl_policy.receipt(r['id'],r.get('generation')) if r['mode']=='controlled' and r.get('generation') else None
+        event=lifecycle.get(r['id'],{})
+        if event.get('generation')==r.get('generation'):
+            r['last_lifecycle_event']=event.get('kind')
+        r['product_status']={'schema':'AgentStatus/1','runtime':product_status.runtime(r),
+                             'loading':product_status.current_load(r,receipt)}
+        if r['product_status']['loading']['state']=='loaded':
+            from .session_loaded_policies import build
+            loaded=build(r,{},r.get('generation'),receipt)
+            r['product_status']['loading'].update(verified_count=len(loaded['records']),coverage_complete=loaded['coverage_complete'])
+            if not loaded['coverage_complete']:
+                r['product_status']['loading']['label']='已核验 '+str(len(loaded['records']))+' 项 · 清单不完整'
+    product_status.display_identities(result)
     return {'instances':result}
 
 def detail(ident):

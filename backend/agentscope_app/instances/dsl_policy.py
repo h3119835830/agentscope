@@ -283,5 +283,11 @@ def detail(scope):
         user_names={r['compiled_name'] for d in saved['artifact'].get('documents',[]) for r in d['rules']} if saved else set()
         records.extend({**r,'bundle_hash':saved['bundle_hash'] if saved else None} for r in legacy_records(compat,bool(target.get('active'))) if r['rule_name'] not in user_names)
         attach_hits(records,row,row['generation'])
-    for record in records:record['scope_revision']=base['revision'] if record.get('document_id') else None
+    from .product_status import configuration
+    for record in records:
+        record['scope_revision']=base['revision'] if record.get('document_id') else None
+        if record.get('document_id'):
+            state=record.get('application_state','draft')
+            record['configuration_status']=configuration({'status':{'updating':'applying','blocked':'failed'}.get(state,state),
+                                                          'revision':base['revision']})
     return {**base,'records':records,'proposals':proposals,'targets':[{'id':t['id'],'agent_type':t['agent_type'],'active':t['active'],'pid':t.get('pid')} for t in targets]}

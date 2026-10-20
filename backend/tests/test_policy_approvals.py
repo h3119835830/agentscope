@@ -67,8 +67,8 @@ def test_approval_locations_use_products_verified_pid_and_never_guess_a_session(
     p=candidate(world.a['id'])
     before=dsl.current(world.a['id'])
     row=approval_views.detail(p['id'])
-    assert row['target_name']=='DeepSeek Harness'
-    assert row['agents']==[dict(id=world.a['id'],name='DeepSeek Harness',agent_type='dsh',pid=1234,
+    assert row['target_name']=='RQ5 DSH 受控实例 · DeepSeek Harness'
+    assert row['agents']==[dict(id=world.a['id'],name='RQ5 DSH 受控实例 · DeepSeek Harness',agent_type='dsh',pid=1234,
                                process_state='running',submitted_pid=1234,active=True)]
     assert row['origin_sessions']==[] and row['origin_state']=='unrecorded'
     world.live[world.a['id']].update(connected=False,verified=False)

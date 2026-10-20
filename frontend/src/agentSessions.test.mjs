@@ -17,13 +17,14 @@ function render(navigation,states){
  const original=module.require.bind(module);module.require=id=>id==='react'?hookReact:original(id);module._compile(built.outputFiles[0].text,filename);
  return renderToStaticMarkup(React.createElement(module.exports.default,{api:()=>{},navigate:()=>{},navigation,onConfigure:()=>{}}));
 }
-test('DSH process labels use product and current PID, never a fixture alias or internal ID',()=>{
- assert.equal(agentProcessLabel({agent_type:'dsh',name:'RQ5 fixture',id:'internal',pid:42}),'DeepSeek Harness · PID 42');
- assert.equal(agentProcessLabel({agent_type:'dsh',name:'RQ5 fixture',pid:null}),'DeepSeek Harness · 未运行');
+test('Agent labels preserve connection names and stable identity rather than PID',()=>{
+ const row={agent_type:'dsh',name:'项目助手',display_name:'项目助手 · DeepSeek Harness',id:'internal',pid:42};
+ assert.equal(agentProcessLabel(row),'项目助手 · DeepSeek Harness');
+ assert.equal(agentProcessLabel({...row,pid:null}),agentProcessLabel(row));
 });
 test('session directory preserves native titles and product identity without workspace or process filters',()=>{
- const connection={id:'instance-internal',name:'RQ5 fixture',agent_type:'dsh',pid:42};
- const directory={records:[{id:'native-session',name:'RQ5 原生会话名称',resource:'/projects/one',workspace_name:'订单服务',instance_id:connection.id,instance_name:connection.name,agent_type:'dsh',agent_pid:42,process_ids:[],status:'stored'}],connections:[connection],workspace_available:true,workspaces:['/projects/one'],workspace_records:[{path:'/projects/one',name:'订单服务'}],count_complete:true,total:1};
+ const connection={id:'instance-internal',name:'项目助手',display_name:'项目助手 · DeepSeek Harness',agent_type:'dsh',pid:42};
+ const directory={records:[{id:'native-session',name:'RQ5 原生会话名称',resource:'/projects/one',workspace_name:'订单服务',instance_id:connection.id,instance_name:connection.name,instance_display_name:connection.display_name,agent_type:'dsh',agent_pid:42,process_ids:[],status:'stored'}],connections:[connection],workspace_available:true,workspaces:['/projects/one'],workspace_records:[{path:'/projects/one',name:'订单服务'}],count_complete:true,total:1};
  const html=render({},[directory,null,null,'',false]);
  assert.match(html,/DeepSeek Harness/);assert.match(html,/RQ5 原生会话名称/);assert.doesNotMatch(html,/\/projects\/one/);
  assert.doesNotMatch(html,/RQ5 fixture|instance-internal|连接实例|运行代次|Agent 产品|进程（PID）/);
@@ -34,10 +35,10 @@ test('session directory preserves native titles and product identity without wor
  assert.doesNotMatch(migrated,/\/host\/project/);
 });
 test('session details use current Agent context and do not offer internal runtime selection',()=>{
- const instance={id:'instance-internal',name:'RQ5 fixture',agent_type:'dsh'};
+ const instance={id:'instance-internal',name:'项目助手',display_name:'项目助手 · DeepSeek Harness',agent_type:'dsh'};
  const root='/api/agent-instances/'+instance.id+'/sessions/native-session';
  const summary={_key:root,session:{name:'修复登录表单',resource:'/projects/one'},instance,agent_pid:42,pid:42,active:true,domain_id:7,executor_shared:true,generations:[{generation:'generation-internal'}],records:[]};
- const html=render({sessionInstance:instance.id,sessionId:'native-session',sessionTab:'policies',sessionGeneration:'old'},[null,summary,{...summary,_key:root+'policies'},'',false]);
+ const html=render({sessionInstance:instance.id,sessionId:'native-session',sessionTab:'policies',sessionGeneration:'old'},[null,summary,{...summary,_key:root+'policiessyscalls'},'',false]);
  for(const text of ['修复登录表单','DeepSeek Harness','PID 42','已加载策略','未取得当前加载证据'])assert.ok(html.includes(text),text);
  assert.doesNotMatch(html,/查看 Agent 基线|选择生成策略|继承的 Agent 保护已核验|添加约束|执行方式/);
  assert.doesNotMatch(html,/RQ5 fixture|instance-internal|generation-internal|运行代次|当前代次/);

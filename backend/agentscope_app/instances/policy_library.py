@@ -134,7 +134,7 @@ def archive(ident,revision):
     return {'id':ident,'archived':True}
 
 def directory():
-    from .configuration_approvals import link,state
+    from .configuration_approvals import link,state,disabled
     base=dsl.detail('system');applied={d['id']:d for d in base['documents']}
     with db.connect() as con:
         # Legacy pending approvals may introduce complete DSL documents after startup.
@@ -149,8 +149,11 @@ def directory():
             active = next((json.loads(v['payload_json']) for v in versions if v['revision']==item['applied_revision']), None)
             item['applied_configuration']={k:active[k] for k in ('name','config') if k in active} if active else None
             item.update(link(con,item['id'],item['revision'],'system','legacy'))
+            item['disabled']=not item['applied'] and disabled(con,item['id'],'system','legacy')
     for item in rows:
         item['status']=state(item,'library')
+        from .product_status import configuration
+        item['configuration_status']=configuration({**item,'status': 'draft' if item['status']=='library' else item['status']})
     return {'catalog':CATALOG,'items':rows,'base_revision':base['revision'],'base_hash':base['document_hash'],'phase':base['phase'],'targets':base['targets']}
 
 def verify_proposal(proposal_id):

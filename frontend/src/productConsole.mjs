@@ -1,5 +1,6 @@
 // Only presentation reads use the product projection. Original APIs and records
 // stay intact for the separate operations client.
+import {invalidateAgent} from './productStatus.mjs';
 export function productReadUrl(url,method='GET'){
  if(method!=='GET')return url;
  if(/^\/api\/agent-instances\/[^/]+\/policy-drafts(?:\/|\?|$)/.test(url))return url;
@@ -12,4 +13,4 @@ export function productReadUrl(url,method='GET'){
 }
 export const hasValue=value=>value!==null&&value!==undefined&&value!=='';
 export const userPolicies=records=>(records||[]).filter(r=>r.source_kind!=='legacy_generated');
-export const unknownAgentSummary=summary=>summary?{...summary,stats:{...summary.stats,verified_agents:0},agents:summary.agents.map(a=>({...a,connected:false,active:false,pid:null,can_open:false,status:'unknown'}))}:null;
+export const unknownAgentSummary=summary=>summary?{...summary,stats:{...summary.stats,verified_agents:0},agents:summary.agents.map(a=>({...invalidateAgent(a),pid:null}))}:null;

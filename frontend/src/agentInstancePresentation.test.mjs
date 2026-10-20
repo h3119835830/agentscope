@@ -67,8 +67,8 @@ test('same product selects the usable Web entry while preserving the CLI entry',
  const group=groupAgentInstances([cli,web])[0];
  assert.equal(group.members.length,2);
  assert.equal(group.preferred,web);
- assert.deepEqual(entryAction(web),{label:'打开网页',action:'open'});
- assert.deepEqual(entryAction({...web,connected:false,status:'offline'}),{label:'打开网页',action:'start'});
+ assert.deepEqual(entryAction(web),{label:'打开',action:'open'});
+ assert.deepEqual(entryAction({...web,connected:false,status:'offline',product_status:{runtime:{state:'stopped'}}}),{label:'启动并打开',action:'start'});
 });
 
 test('OS process observation does not imply a Web or CLI entry and expires without historical PID',()=>{
@@ -82,7 +82,7 @@ test('OS process observation does not imply a Web or CLI entry and expires witho
 });
 
 test('a stopped configured terminal starts on open, and a running terminal reuses its identity',()=>{
- const row={id:'instance-cli',mode:'controlled',agent_type:'other',entry:{kind:'terminal'},status:'offline',connected:false};
- assert.deepEqual(entryAction(row),{label:'打开终端',action:'start'});
- assert.deepEqual(entryAction({...row,status:'running',connected:true}),{label:'打开终端',action:'open'});
+ const row={id:'instance-cli',mode:'controlled',agent_type:'other',entry:{kind:'terminal'},status:'offline',connected:false,product_status:{runtime:{state:'stopped'}}};
+ assert.deepEqual(entryAction(row),{label:'启动并打开',action:'start'});
+ assert.deepEqual(entryAction({...row,status:'running',connected:true}),{label:'打开',action:'open'});
 });

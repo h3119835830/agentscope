@@ -1,12 +1,12 @@
 import React,{useEffect,useRef,useState} from 'react';
-import {ConfigurationRow,useConfigurationControls} from './TemplateConfigurationControls.jsx';
+import {configurationRecordSummary} from './policyConfigurationPresentation.mjs';
 import {agentName} from './agentInstancePresentation.mjs';
 import PolicyContextEvidence from './PolicyContextEvidence.jsx';
 import GenerationConfigurations from './GenerationConfigurations.jsx';
 import {attachmentTypes,readAttachments,conversationFor} from './policyConversationInput.mjs';
 import './templateConfigurations.css';
 const inputCache=new Map();
-export default function TemplatePolicyAssistant({target,scope,workspaceId,referenceWorkspaceId,referenceWorkspaceName,stage='preflight',runtimeEventSeq,api,post,onApprovals}){
+export default function TemplatePolicyAssistant({target,scope,workspaceId,referenceWorkspaceId,referenceWorkspaceName,stage='preflight',runtimeEventSeq,api,post,onApprovals,onConfiguration}){
  const runtime=stage==='runtime',selectedReference=!!referenceWorkspaceId,referenceLabel=referenceWorkspaceName||'所选参考工作区',identity=target.id+':'+scope+':'+(workspaceId||'')+':'+stage+':'+(referenceWorkspaceId||''),request=useRef(null),alive=useRef(true),fileInput=useRef(null);
  const [data,setData]=useState(null),[text,setText]=useState(inputCache.get(identity)||''),[attachments,setAttachments]=useState([]),[error,setError]=useState(''),[busy,setBusy]=useState(false),[legacy,setLegacy]=useState([]),[reading,setReading]=useState(false);
  const path='/api/policy-templates?scope_id='+encodeURIComponent(target.id);
@@ -14,7 +14,6 @@ export default function TemplatePolicyAssistant({target,scope,workspaceId,refere
  useEffect(()=>{alive.current=true;load().catch(e=>{if(alive.current)setError(e.message);});if(scope!=='system')api('/api/agent-instances/'+encodeURIComponent(target.id)+'/policy-drafts?'+new URLSearchParams({scope,...(workspaceId?{workspace_id:workspaceId}:{})})).then(v=>{if(alive.current)setLegacy(v.records||[]);}).catch(()=>{});return()=>{alive.current=false;};},[api,path,scope,workspaceId]);
  useEffect(()=>{inputCache.set(identity,text);},[identity,text]);
  const catalog=(data?.catalog||[]).filter(t=>t.scopes.includes(scope)),items=(data?.items||[]).filter(i=>i.scope===scope&&(i.workspace_id||null)===(workspaceId||null));
- const controls=useConfigurationControls({catalog,agents:[target],targetId:target.id,scope,workspaceId,api,post,onChanged:load,onApprovals});
  async function attach(e){const files=[...e.target.files];e.target.value='';setReading(true);setError('');try{const value=await readAttachments(files,attachments);if(alive.current)setAttachments(value);}catch(e){if(alive.current)setError(e.message);}finally{if(alive.current)setReading(false);}}
  async function generate(e){e.preventDefault();if(busy||reading||!data||(!text.trim()&&!attachments.length))return;setBusy(true);setError('');try{
   const input={text:text.trim()||'请阅读附件，提取明确的安全约束并起草配置；缺少信息时请询问。',scope,workspace_id:workspaceId||null,
@@ -35,6 +34,6 @@ export default function TemplatePolicyAssistant({target,scope,workspaceId,refere
  {attachments.length>0&&<ul className="assistant-attachment-list" aria-label="参考文件">{attachments.map(f=><li key={f.name}><span>{f.name}</span><button type="button" aria-label={'移除 '+f.name} disabled={busy||reading} onClick={()=>setAttachments(old=>old.filter(v=>v.name!==f.name))}>×</button></li>)}</ul>}
  <p className="field-note">{runtime?'运行时来源只用于生成候选；作用范围仍是此 Agent 的共享执行域。':scope==='agent'?(selectedReference?'只会按需读取'+referenceLabel+'中的允许文件，无需填写参考文件路径。':'可按需读取此 Agent 有权限的工作区文件，无需填写参考文件路径。'):'可添加参考文件；所有 Agent 范围不会读取某个实例的工作区。'}<br/>支持 UTF-8 文本；`.env`、凭据、私钥、PDF、Word、图片不会读取。</p>
  <div className="assistant-conversation-actions"><input ref={fileInput} type="file" aria-label="添加参考文件" accept={attachmentTypes} multiple hidden disabled={busy||reading} onChange={attach}/><button type="button" className="assistant-attach-button" disabled={busy||reading} title="UTF-8 文本，每个最多 8000 字符，最多 10 个；PDF、Word 和图片暂不支持" onClick={()=>fileInput.current?.click()}>{reading?'正在读取…':'＋ 添加文件'}</button><span className="assistant-composer-note">{attachments.length?'已添加 '+attachments.length+' 个参考文件 · 可继续对话':'生成后需审批'}</span><button className="assistant-send" aria-label="发送" disabled={busy||reading||(!text.trim()&&!attachments.length)||!data||(scope==='workspace'&&!workspaceId)}>{busy?'正在处理…':'发送 ↑'}</button></div></form></section>
- {assistantItems.length>0&&<div className="policy-table-shell template-assistant-records"><div className="table-scroll"><table className="policy-structured-table template-configuration-table" aria-label={runtime?'运行时助手起草的配置':'助手起草的配置'}><thead><tr><th>配置</th><th>范围</th><th>保护对象</th><th>操作与处置</th><th>状态</th><th>操作</th></tr></thead><tbody>{assistantItems.map(row=><ConfigurationRow key={row.id} row={row} onSubmit={controls.submit} onArchive={controls.archive} onApprovals={onApprovals}/>)}</tbody></table></div></div>}
- {legacy.length>0&&<details className="template-history-drafts"><summary>此前草案 · {legacy.length} 项</summary>{legacy.map(d=><article key={d.id}><p>{d.text}</p>{d.approval_id&&<button className="assistant-text-button" onClick={()=>onApprovals(d.approval_id)}>查看原审批</button>}</article>)}</details>}{controls.dialogs}</>;
+ {assistantItems.length>0&&<div className="policy-table-shell template-assistant-records"><div className="table-scroll"><table className="policy-structured-table template-configuration-table" aria-label="助手起草的配置"><thead><tr><th>配置名称</th><th>保护对象／操作</th><th>配置进度</th><th>操作</th></tr></thead><tbody>{assistantItems.map(row=>{const summary=configurationRecordSummary(row,catalog.find(t=>t.id===row.template_id));return <tr key={row.id}><td>{row.name}</td><td>{summary.target}<small>{summary.operation}</small></td><td>{summary.status}</td><td><button className="button tiny ghost" onClick={()=>onConfiguration?.(row.scope_id,row.id)}>到系统查看配置</button></td></tr>;})}</tbody></table></div></div>}
+ {legacy.length>0&&<details className="template-history-drafts"><summary>此前草案 · {legacy.length} 项</summary>{legacy.map(d=><article key={d.id}><p>{d.text}</p>{d.approval_id&&<button className="assistant-text-button" onClick={()=>onApprovals(d.approval_id)}>查看原审批</button>}</article>)}</details>}</>;
 }

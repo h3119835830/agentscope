@@ -80,6 +80,8 @@ def project(row, saved=None):
             row['reference_materials']=inputs.get('materials',[])
             row['draft_version']=version['revision']
             row['requirement']=inputs.get('text')
+    from .product_status import configuration
+    row['configuration_status'] = configuration(row)
     return row
 
 

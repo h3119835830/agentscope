@@ -28,6 +28,18 @@ def test_scoped_preview_respects_requested_effect_without_persisting(world):
     assert template_dsl.preview('SECRET-EGRESS',request)['state']=='invalid'
 
 
+def test_parameter_only_document_does_not_crash_label_directory(world):
+    from test_template_configurations import config
+    template=next(t for t in catalog.public_catalog() if t.get('execution_support',{}).get('applicable') is False and not t.get('retired'))
+    parameters={p['key']:p.get('default','') for p in template['parameters']}
+    # Preserve the real saved schema of unsupported drafts without inventing a
+    # compiled document. This exercises the read model, not template semantics.
+    with db.connect() as con:
+        tc.insert(con,'parameter-only',world.a['id'],config(template['id']),
+                  {'name':'参数草案','document':None,'parameters':parameters,'label_sources':[]})
+    assert labels.directory()['sources']==[]
+
+
 def test_registration_is_metadata_only_and_agent_is_reserved(world):
     first=labels.save(body(world.a['id']))
     second=labels.save(body(world.a['id']))

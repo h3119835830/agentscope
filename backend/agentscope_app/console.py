@@ -90,7 +90,7 @@ def dsl_configuration(scope):
     names=scopes()
     for proposal in data.get('proposals',[]):
         approval=decision_project(project(proposal,names),saved_decisions)
-        proposal['approval']={k:approval.get(k) for k in ('id','status','can_approve','can_apply','reason','approval_status','application_status','approval_hash')}
+        proposal['approval']={k:approval.get(k) for k in ('id','status','can_approve','can_apply','reason','approval_status','application_status','approval_hash','configuration_status')}
     for r in data['records']:
         if 'bindings' not in r:continue
         r['bindings']=[b for b in r['bindings'] if b['instance_id'] not in retained]
@@ -153,7 +153,7 @@ def summary():
               AND COALESCE(json_extract(v.record_json,'$.statement.content_type'),'policy')!='description'
               AND s.id NOT IN (SELECT record_id FROM console_retained_records WHERE kind='strategy')""").fetchone()
     return {'agents':controlled,'tasks':tasks,'stats':{'agents':len(controlled),
-        'verified_agents':sum(bool(r.get('active') and r.get('connected')) for r in controlled),
+        'verified_agents':sum(r.get('product_status',{}).get('loading',{}).get('state')=='loaded' for r in controlled),
         'strategies':counts['total'],'pending_strategies':counts['pending'],'pending_approvals':pending_count(),'tasks':len(tasks)}}
 
 @router.get('/sessions')

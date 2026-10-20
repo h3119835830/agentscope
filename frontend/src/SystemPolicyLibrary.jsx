@@ -9,12 +9,7 @@ import './systemPolicyLibrary.css';
 const base='/api/security/system/policy-library';
 const blank={name:'',mode:'suffix',values:'',ops:['open'],effect:'block',reason:'',template_id:''};
 const scopeText='选择配置后先提交审批，批准后再单独应用；所有受控 Agent 继承这些约束。';
-const configuredStatus=(item,phase,targets=[])=>{
- if(!item)return '未配置';if(!item.applied)return '已保存';if(phase!=='ready')return '加载未完成';if(item.has_changes)return '有更新待应用';
- const records=item.records||[];if(records.length&&records.every(r=>r.active))return '已应用';
- const counts=records.map(r=>r.coverage?.verified_count||0),total=records[0]?.coverage?.total_count||0,verified=counts.length?Math.min(...counts):0;
- return verified?'已应用 '+verified+'/'+total:targets.some(t=>t.pid)?'待核验':'启动时加载';
-};
+const configuredStatus=item=>item?(item.configuration_status?.label||'状态待核验'):'未配置';
 function Badge({effect}){return <span className={'spl-effect '+effect}>{effect}<small>{effects[effect]?.name}</small></span>;}
 function Modal({children,onClose,label,className=''}) {
  const ref=useRef(null),origin=useRef(document.activeElement);

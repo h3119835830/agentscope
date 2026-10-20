@@ -19,7 +19,7 @@ test('history route preserves selected task but cannot mount live workbench or g
  assert.doesNotMatch(main,/page==='history'.*navigate\(\{task:''/);
  assert.doesNotMatch(main,/archiveTask:selected&&isTaskEnded/);
  assert.doesNotMatch(main,/>任务回放<\/button>|历史策略与审计/);
- assert.match(main,/label="任务历史"/);
+ assert.match(main,/label="历史档案"/);
  assert.match(main,/<TaskArchive api=\{api\}/);
 });
 

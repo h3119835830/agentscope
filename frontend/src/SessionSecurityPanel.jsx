@@ -1,5 +1,7 @@
 import React,{useEffect,useRef,useState} from 'react';
 import RecordBadge from './RecordBadge.jsx';
+import {currentLoadedView} from './productStatus.mjs';
+import {useEvidenceClock} from './ProductStatus.jsx';
 import './sessionSecurity.css';
 
 export const loadedScopeNames={system:'系统策略',agent:'Agent 策略'};
@@ -16,7 +18,7 @@ export function LoadedPolicyDetails({record,onClose}){
   <div className="record-drawer-body">
    <p className="field-note">此快照是打开详情时核验的加载版本。同一 Agent 进程内的会话共享策略，不代表本会话已触发。</p>
    {record.description&&<p>{record.description}</p>}
-   <h3>策略内容</h3>
+   <p>{record.configuration_revision?'当前加载配置 v'+record.configuration_revision:'加载快照未唯一对应配置版本，原始内容见技术证据。'}</p><h3>策略内容</h3>
    {record.clauses.map((c,i)=><section className="loaded-policy-clause" key={c.clause_hash+':'+i}><b>{operations[c.operation]||c.operation} · {effects[c.effect]||c.effect}</b><code>{[c.target,c.argument].filter(Boolean).join(' ')}</code>{c.reason&&<p>{c.reason}</p>}<details><summary>完整条件</summary><pre>{c.condition}</pre></details></section>)}
    {record.label_sources?.length>0&&<section><h3>引用的标签来源</h3>{record.label_sources.map(s=><p key={s.id+':'+s.version}><b>{s.label}</b> · 来源版本 {s.version}<code>{s.value}</code></p>)}</section>}
    <details className="session-security-evidence"><summary>DSL 与加载证据</summary>
@@ -27,8 +29,10 @@ export function LoadedPolicyDetails({record,onClose}){
  </dialog>;
 }
 
-export default function SessionSecurityPanel({data,loading,error}){
- const view=data?.loaded_policies,[scope,setScope]=useState(''),[detail,setDetail]=useState(null);
+export default function SessionSecurityPanel({data,loading,error,onConfiguration}){
+ const raw=data?.loaded_policies,now=useEvidenceClock(raw?.expires_at);
+ const view=currentLoadedView(raw,Math.max(now,Date.now()),!!error),[scope,setScope]=useState(''),[detail,setDetail]=useState(null);
+ useEffect(()=>{setDetail(null);setScope('');},[raw?.instance_id,raw?.generation,raw?.bundle_hash]);
  if(error)return null;
  if(loading&&!view)return <p role="status" className="task-empty">正在核验当前已加载策略…</p>;
  if(!view)return <p role="alert" className="inline-notice warning">未取得当前加载证据，请刷新重试；不会用已保存配置代替加载结果。</p>;
@@ -43,7 +47,7 @@ export default function SessionSecurityPanel({data,loading,error}){
    <td>{loadedScopeNames[r.scope]}{r.source_kind==='startup'&&<small>启动规则</small>}</td>
    <td>{unique(r.clauses.map(c=>(operations[c.operation]||c.operation)+' · '+(effects[c.effect]||c.effect))).map(t=><div key={t}>{t}</div>)}</td>
    <td><RecordBadge tone="good">已加载</RecordBadge></td>
-   <td><button className="button tiny ghost" onClick={()=>setDetail(r)}>详情</button></td>
+   <td><button className="button tiny ghost" onClick={()=>setDetail(r)}>详情</button>{r.document_id&&onConfiguration&&<button className="button tiny ghost" onClick={()=>onConfiguration(r.scope==='system'?'system':view.instance_id,r.document_id)}>到系统查看</button>}</td>
   </tr>)}</tbody></table></div>:<p className="task-empty">{view.coverage_complete?(scope?'此归属当前没有已加载策略。':'当前没有已加载策略。'):'仅展示能够核验的当前内核加载结果。'}</p>}
   {detail&&<LoadedPolicyDetails record={detail} onClose={()=>setDetail(null)}/>}
  </div>;

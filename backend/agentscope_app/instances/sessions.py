@@ -106,7 +106,7 @@ def directory(agent_type='',instance_id='',q='',cursor=0,limit=30,workspace='',c
         excluded=hidden('agent');products=[r for r in products if r['id'] not in excluded]
     selected=[r for r in products if not instance_id or r['id']==instance_id]
     rows=[];errors=[];workspaces=set();workspace_records={};selected_workspace=workspace
-    connections=[{'id':r['id'],'name':r['name'],'agent_type':r['agent_type'],'connected':r.get('connected',False),
+    connections=[{'id':r['id'],'name':r['name'],'display_name':r.get('display_name'),'agent_type':r['agent_type'],'connected':r.get('connected',False),
         'pid':current_agent_pid(r),'resources':r.get('resources',[])} for r in products]
     for row in selected:
         try:result=native_sessions(row)
@@ -124,6 +124,8 @@ def directory(agent_type='',instance_id='',q='',cursor=0,limit=30,workspace='',c
             if workspace and s.get('resource')!=workspace and not (console and s.get('resource') and source_resource==workspace):continue
             if q.lower() not in ((s.get('name') or '')+' '+(s.get('native_name') or '')+' '+s['id']).lower():continue
             rows.append({**s,'instance_id':row['id'],'instance_name':row['name'],'agent_type':row['agent_type'],
+                'instance_display_name':row.get('display_name'),
+                'loading_status':{'state':'unverified','label':'未核验'} if s.get('historical') else row.get('product_status',{}).get('loading'),
                 'agent_pid':current_agent_pid(row),
                 'generation':row.get('generation'),'policy_state':'active' if row.get('active') and not s.get('historical') else 'uncontrolled' if row['mode']=='observed' else 'not_verified',
                 'executor_shared':bool(result.get('executor_shared'))})
@@ -187,7 +189,7 @@ def policies(ident,sid,generation=None):
     info=native_workspace_info(row,session)
     from .session_security import build as security_view
     from .session_loaded_policies import build as loaded_view
-    return {'session':{**session,'workspace':info['path'] if info else None,'workspace_name':info['name'] if info else None},'instance':{'id':ident,'name':row['name'],'mode':row['mode'],'agent_type':row['agent_type']},
+    return {'session':{**session,'workspace':info['path'] if info else None,'workspace_name':info['name'] if info else None},'instance':{'id':ident,'name':row['name'],'display_name':row.get('display_name'),'mode':row['mode'],'agent_type':row['agent_type']},
         'generation':gen,'generations':generations,'active':active,'executor_shared':True,'pid':row.get('pid') if active else None,
         'agent_pid':current_agent_pid(row),
         'domain_id':row.get('domain_id') if active else None,'records':records,'bundle_hash':saved['bundle_hash'] if saved else None,

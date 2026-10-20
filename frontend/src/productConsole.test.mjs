@@ -23,14 +23,14 @@ test('product reads use retained projections while writes and original DSL paths
  assert.equal(productReadUrl('/api/security/system/dsl/proposals','POST'),'/api/security/system/dsl/proposals');
  assert.equal(productReadUrl('/api/agent-instances/a/dsl/proposals','POST'),'/api/agent-instances/a/dsl/proposals');
 });
-test('overview reflects current Agent PID and does not promote historical task counters or environment diagnostics',async()=>{
- const html=await render('ProductOverview.jsx',{dash:{agents:[{id:'hidden-key',name:'RQ5 alias',agent_type:'dsh',pid:42,connected:true,active:true}],stats:{agents:1,verified_agents:1,strategies:0,pending_strategies:0,active_tasks:57}},status:{broker:{available:true},bpf_lsm:true},onNav:()=>{},onSessions:()=>{}});
- assert.match(html,/DeepSeek Harness/);assert.match(html,/PID 42/);assert.match(html,/策略绑定已核验/);assert.doesNotMatch(html,/RQ5 alias|hidden-key|57|治理候选|历史策略|Linux 内核|ActPlane CLI|DSH CLI|执行后端可用/);
+test('overview uses server state without presenting PID or internal diagnostics',async()=>{
+ const html=await render('ProductOverview.jsx',{dash:{agents:[{id:'hidden-key',display_name:'项目助手 · DeepSeek Harness',agent_type:'dsh',pid:42,connected:true,active:true,product_status:{loading:{state:'loaded',label:'已加载',expires_at:new Date(Date.now()+8000).toISOString()}}}],stats:{agents:1,verified_agents:1,strategies:0,pending_strategies:0,active_tasks:57}},status:{broker:{available:true},bpf_lsm:true},onNav:()=>{},onSessions:()=>{}});
+ assert.match(html,/DeepSeek Harness/);assert.match(html,/已加载/);assert.doesNotMatch(html,/PID 42|hidden-key|57|治理候选|历史策略|Linux 内核|ActPlane CLI|DSH CLI|执行后端可用/);
 });
 test('workbench uses native Agent sessions without internal runtime identifiers or inferred empty workspace',async()=>{
- const directory={connections:[{id:'internal-key',agent_type:'hermes',name:'fixture-alias',pid:88,connected:true}],records:[{id:'s',name:'处理采购问题',instance_id:'internal-key',status:'idle'}],workspaces:[]};
+ const directory={connections:[{id:'internal-key',agent_type:'hermes',display_name:'采购助手 · Hermes',pid:88,connected:true}],records:[{id:'s',name:'处理采购问题',instance_id:'internal-key',status:'idle'}],workspaces:[]};
  const html=await render('ConsoleWorkbench.jsx',{api:()=>{},onConfigure:()=>{},onSessions:()=>{}},[directory,'internal-key','','',false,0]);
- assert.match(html,/Hermes/);assert.match(html,/PID 88/);assert.match(html,/处理采购问题/);assert.doesNotMatch(html,/fixture-alias|运行代次|连接实例|工作区<select|<th>工作区/);
+ assert.match(html,/Hermes/);assert.match(html,/采购助手/);assert.match(html,/处理采购问题/);assert.doesNotMatch(html,/PID 88|fixture-alias|运行代次|连接实例|工作区<select|<th>工作区/);
 });
 test('workbench displays the native workspace title separately from its project path',async()=>{
  const directory={connections:[{id:'agent',agent_type:'dsh',pid:42}],records:[{id:'s',name:'检查订单',instance_id:'agent',resource:'/projects/orders',workspace_name:'交易平台',status:'stored'}],workspaces:['/projects/orders'],workspace_records:[{path:'/projects/orders',name:'交易平台'}]};

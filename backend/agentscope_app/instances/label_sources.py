@@ -192,14 +192,14 @@ def directory(scope_id=None):
                 current=dsl_policy.current(row['scope_id'],con)
                 active[row['scope_id']]={d['id']:d for d in current['documents']}
                 applied_versions[row['scope_id']]=current['revision']
-            applied=active[row['scope_id']].get(row['id'])==payload.get('document')
+            applied=bool(payload.get('document')) and active[row['scope_id']].get(row['id'])==payload['document']
             for source in payload.get('label_sources',[]):
                 references.append({'source_id':source['id'],'source_version':source['version'],'configuration_id':row['id'],
                                    'configuration_version':row['configuration_version'],'name':payload['name'],
                                    'scope_id':row['scope_id'],'latest':row['revision']==row['configuration_version'],
                                    'applied_revision':applied_versions[row['scope_id']] if applied else None})
             if not payload.get('label_sources'):
-                labels=re.findall(r'^source (SENSITIVE|REMOTE|CODE) =',payload.get('document',{}).get('original_dsl',''),re.M)
+                labels=re.findall(r'^source (SENSITIVE|REMOTE|CODE) =',(payload.get('document') or {}).get('original_dsl',''),re.M)
                 if labels:
                     historical.append({'name':payload['name'],'labels':sorted(set(labels)),'configuration_id':row['id'],
                                        'configuration_version':row['configuration_version'],'historical':True})

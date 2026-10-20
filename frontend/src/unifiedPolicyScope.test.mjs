@@ -71,7 +71,7 @@ test('legacy workspace tab links return to automatic preflight context selection
 test('Agent policy tabs retain only generation runtime and verified load facts',async()=>{
  const render=await harness('AgentPolicyWorkbench.jsx',[[target],'',0,null]);
  const tree=render(props({agentPolicyTab:'assistant'})),labels=nodes(tree).filter(n=>n.props?.role==='tab').map(n=>n.props.children);
- assert.deepEqual(labels,['运行前策略助手','运行时策略','当前加载记录']);
+ assert.deepEqual(labels,['策略助手','运行事件','当前加载记录']);
  assert.ok(!nodes(tree).some(n=>['PolicyReferenceWorkspaceSelect','ActPlanePolicies','NativeAgentWorkspaces'].includes(n.type?.name)));
  assert.doesNotMatch(renderToStaticMarkup(tree),/参考工作区/);
 });
@@ -79,18 +79,18 @@ test('Agent page sends configuration management to the System module with the ex
  const render=await harness('AgentPolicyWorkbench.jsx',[[target],'',0,null]),changes=[];
  const tree=render(props({},patch=>changes.push(patch)));
  nodes(tree).find(n=>n.type==='button'&&n.props.children==='管理策略配置 ↗').props.onClick();
- assert.deepEqual(changes,[{page:'strategies',systemTab:'policies',policyAgent:target.id}]);
+ assert.deepEqual(changes,[{page:'strategies',systemTab:'policies',policyAgent:target.id,policyScope:'agent',configurationId:'',policyWorkspace:'',policySession:''}]);
 });
 test('runtime Hook list keeps source semantics without exposing raw session identities',async()=>{
  const events=[{seq:9,kind:'tool_start',generation:'generation-a',tool:'read_file',session_id:'private-session-uuid',created_at:'2026-10-20T00:00:00Z'}];
  const render=await harness('AgentRuntimePolicyAssistant.jsx',[events,'',0]);
  const html=renderToStaticMarkup(render({target:{...target,connected:true,generation:'generation-a',gate:'open'},api:async()=>({}),post:async()=>{},onApprovals(){}}));
- assert.match(html,/来自一个 Agent 会话（仅作来源）/);assert.doesNotMatch(html,/private-session-uuid/);
- assert.match(html,/等待自动评估器/);assert.match(html,/尚未接通/);
+ assert.match(html,/已关联会话/);assert.doesNotMatch(html,/private-session-uuid/);
+ assert.match(html,/准入通过/);assert.doesNotMatch(html,/等待自动评估器|尚未接通|RQ4|generation/);
  assert.doesNotMatch(html,/作为生成依据|可人工触发 Pi|运行时策略助手对话/);
 });
 test('saved generation without a current connection never claims that runtime Hook is connected',async()=>{
  const render=await harness('AgentRuntimePolicyAssistant.jsx',[[],'',0]);
  const html=renderToStaticMarkup(render({target:{...target,connected:false,generation:'generation-a',gate:'open'},api:async()=>({})}));
- assert.match(html,/当前未运行/);assert.doesNotMatch(html,/运行时 Hook<!-- -->已接入/);
+ assert.match(html,/暂无工具运行事件/);assert.doesNotMatch(html,/运行时 Hook<!-- -->已接入/);
 });

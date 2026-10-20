@@ -42,6 +42,24 @@ def test_real_edge_only_chain_and_shared_scope(evidence):
     assert data['integrity']['state']=='complete' and len(data['edges'])==4 and len(data['nodes'])==5
     assert all(e['evidence_ref'] for e in data['edges'])
     assert not flow.query(ident,'s1')['edges']
+    assert data['available_labels']==['SECRET']
+    assert data['anchors'][0]['configuration_names']==[]  # source is not the hit rule
+
+
+def test_hit_name_requires_exact_compiled_rule_evidence():
+    saved={'artifact':{'compile':{'rules':[{'rule_id':7,'name':'rule-a','source_ref':'src'}]},
+                       'documents':[{'name':'实际命中配置','rules':[{'compiled_name':'rule-a','source_ref':'src'}]}]}}
+    assert flow.matched_names(saved,{'rule_id':7})==['实际命中配置']
+    assert flow.matched_names(saved,{'rule_id':8})==[]
+    assert flow.matched_names(saved,{})==[]
+
+
+def test_desired_state_mismatch_does_not_turn_current_evidence_into_history(evidence,monkeypatch):
+    ident,_,_=evidence
+    monkeypatch.setattr(sessions,'session_context',lambda *_:({'generation':'flow-generation'},{'id':'s1'},'flow-generation',False))
+    assert flow.query(ident,'s1')['historical'] is False
+    monkeypatch.setattr(sessions,'session_context',lambda *_:({'generation':'next-run'},{'id':'s1'},'flow-generation',False))
+    assert flow.query(ident,'s1')['historical'] is True
 
 
 def test_unattributed_modern_events_are_not_misreported_as_legacy(evidence):

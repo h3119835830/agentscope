@@ -8,6 +8,7 @@ export default function TemplateDefinitionDialog({template,post,onClose,onSaved}
  const dialog=useRef(null),origin=useRef(document.activeElement),request=useRef(crypto.randomUUID());
  const [name,setName]=useState(template.name),[description,setDescription]=useState(template.description||template.summary),[effect,setEffect]=useState(template.effect);
  const [parameters,setParameters]=useState(()=>template.parameters.map(p=>({key:p.key,label:p.label,default:String(p.default??'')}))),[busy,setBusy]=useState(false),[error,setError]=useState('');
+ const [maintaining,setMaintaining]=useState(false);
  useEffect(()=>{dialog.current?.showModal();return()=>{dialog.current?.close();origin.current?.isConnected&&origin.current.focus();};},[]);
  const readOnly=!!template.retired;
  const changed=()=>{request.current=crypto.randomUUID();};
@@ -16,6 +17,7 @@ export default function TemplateDefinitionDialog({template,post,onClose,onSaved}
  async function save(e){e.preventDefault();if(busy||readOnly)return;setBusy(true);setError('');try{
   const saved=await post('/api/policy-templates/'+encodeURIComponent(template.id)+'/versions',{name,description,effect,parameters,base_version:template.version,request_key:request.current});await onSaved(saved);
  }catch(e){setError(e.message);}finally{setBusy(false);}}
+ if(!maintaining)return <dialog ref={dialog} className="spl-dialog upl-template-editor" aria-label={'模板详情：'+template.name} onCancel={e=>{e.preventDefault();onClose();}}><header className="spl-editor-head"><div><small>模板详情 · v{template.version}</small><h2>{template.name}</h2></div><button type="button" aria-label="关闭模板详情" onClick={onClose}>×</button></header><div className="spl-editor-body"><p>{template.description||template.summary}</p><dl className="security-facts"><dt>默认处置</dt><dd>{effectLabel(template.effect)}</dd><dt>适用范围</dt><dd>{template.scopes?.map(s=>({system:'全部受控 Agent',agent:'指定 Agent',workspace:'历史工作区'})[s]||s).join('、')}</dd></dl><h3>可填写的配置项</h3>{template.parameters.map(p=><p key={p.key}><strong>{p.label}</strong>{p.help&&<small> · {p.help}</small>}</p>)}<TemplateExecutionSupport template={template}/><details><summary>高级操作</summary><p>维护模板会发布新版本，不修改既有配置或运行策略。</p><button className="button ghost" disabled={readOnly} onClick={()=>setMaintaining(true)}>维护模板</button></details></div><footer className="spl-editor-footer"><button className="button ghost" onClick={onClose}>关闭</button></footer></dialog>;
  return <dialog ref={dialog} className="spl-dialog upl-template-editor" aria-label={'模板详情：'+template.name} onCancel={e=>{e.preventDefault();if(!busy)onClose();}}><form onSubmit={save}>
   <header className="spl-editor-head"><span className="spl-symbol">◇</span><div><small>模板详情 · v{template.version}</small><h2>{template.name}</h2></div><button type="button" aria-label="关闭模板详情" disabled={busy} onClick={onClose}>×</button></header>
   <div className="spl-editor-body spl-form">{error&&<p role="alert" className="spl-error">{error}</p>}

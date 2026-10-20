@@ -52,7 +52,7 @@ test('template catalogue omits parameter operation values and expands child fiel
  assert.ok(!nodes(tree).some(n=>n.props?.['aria-label']===child.name+'：提交审批'));
  assert.ok(nodes(table).some(n=>n.type==='p'&&n.props.children===template.description));
  tree=templateDetails(render,props);table=nodes(tree).find(n=>n.type==='table'&&n.props['aria-label']==='文件读取限制 的子配置');
- assert.deepEqual(nodes(table).filter(n=>n.type==='th'&&!n.props.className?.includes('spl-check')).map(n=>n.props.children),['实际策略名称','范围','保护对象 / 操作','动作','状态','操作']);
+ assert.deepEqual(nodes(table).filter(n=>n.type==='th'&&!n.props.className?.includes('spl-check')).map(n=>n.props.children),['实际策略名称','范围','保护对象 / 操作','动作','配置进度','操作']);
  nodes(table).find(n=>n.props?.['aria-label']===child.name+'的详情').props.onClick();tree=render(props);
  const editor=nodes(tree).find(n=>n.type?.name==='TemplateConfigurationDialog');assert.equal(editor.props.item.name,child.name);assert.equal(editor.props.template.id,template.id);
 });
@@ -98,9 +98,9 @@ test('unapplied unsupported and in-flight rows cannot offer misleading lifecycle
  assert.equal(configurationRecordActions({...child,applied:true,applied_revision:1}).canDisable,true);
 });
 test('legacy child action and target come from saved configuration, not parent defaults',()=>{
- const row={legacy:true,config:{values:'.ssh/id_rsa\n.ssh/id_ed25519',ops:['open'],effect:'notify'},applied:false};
+ const row={legacy:true,configuration_status:{state:'draft',label:'草案'},config:{values:'.ssh/id_rsa\n.ssh/id_ed25519',ops:['open'],effect:'notify'},applied:false};
  const summary=configurationRecordSummary(row,{...template,parameters:[{key:'values',type:'lines'}]});
- assert.deepEqual(summary.effects,['notify']);assert.equal(summary.target,'.ssh/id_rsa 等 2 项');assert.equal(summary.targetTitle,'.ssh/id_rsa\n.ssh/id_ed25519');assert.equal(summary.operation,'打开文件');assert.equal(summary.status,'未应用');
+ assert.deepEqual(summary.effects,['notify']);assert.equal(summary.target,'.ssh/id_rsa 等 2 项');assert.equal(summary.targetTitle,'.ssh/id_rsa\n.ssh/id_ed25519');assert.equal(summary.operation,'打开文件');assert.equal(summary.status,'草案');
 });
 test('actual child parameters preserve multi-condition context and effective operation coverage',()=>{
  const definition={...template,parameters:[{key:'target',label:'限制范围',type:'path'},{key:'exception',label:'允许范围',type:'path'}]};
@@ -108,12 +108,12 @@ test('actual child parameters preserve multi-condition context and effective ope
  assert.equal(summary.target,'限制范围：/w/0/a,b 等 2 项');assert.equal(summary.targetTitle,'限制范围：/w/0/a,b\n允许范围：/w/0/reports');assert.equal(summary.operation,'写入、删除');
 });
 test('approval and historical application never masquerade as current application or kernel enforcement',()=>{
- assert.equal(configurationRecordSummary({...child,status:'approved'},template).status,'已批准待应用');
- const old=configurationRecordSummary({...child,revision:2,applied_revision:1,applied:false,status:'pending'},template);
+ assert.equal(configurationRecordSummary({...child,status:'approved',configuration_status:{state:'approved',label:'待应用'}},template).status,'待应用');
+ const old=configurationRecordSummary({...child,revision:2,applied_revision:1,applied:false,status:'pending',configuration_status:{state:'pending',label:'待审批'}},template);
  assert.equal(old.status,'待审批');assert.equal(old.note,'旧版仍应用');
- assert.equal(configurationRecordSummary({...child,status:'applied',applied:false},template).status,'未应用');
- assert.equal(configurationRecordSummary({...child,status:'applied',applied:true,applied_revision:1},template).status,'已应用配置');
- assert.equal(configurationRecordSummary({legacy:true,applied:true,has_changes:true,revision:2,applied_revision:1}).status,'有未应用修改');
+ assert.equal(configurationRecordSummary({...child,status:'applied',applied:false},template).status,'状态待核验');
+ assert.equal(configurationRecordSummary({...child,status:'applied',applied:true,applied_revision:1,configuration_status:{state:'applied',label:'已应用'}},template).status,'已应用');
+ assert.equal(configurationRecordSummary({legacy:true,applied:true,has_changes:true,revision:2,applied_revision:1,configuration_status:{state:'draft',label:'草案'}}).status,'草案');
 });
 test('raw DSL without a structured projection stays unknown while mixed record effects are preserved',()=>{
  const row={legacy:true,document:{original_dsl:'unparsed DSL'},config:{}};
@@ -195,6 +195,7 @@ test('column drag changes only its column, clamps widths and stops at release wi
  test('template editor saves a template version with synchronized effect defaults, never a child or application',async()=>{
  const def={...template,parameters:[{key:'target',label:'保护对象',type:'path',default:''},{key:'effect',label:'动作',type:'effect',default:'block'}]};
  const render=await harness('TemplateDefinitionDialog.jsx'),calls=[],props={template:def,post:async(path,body)=>{calls.push({path,body});return {version:3}},onClose:()=>calls.push('close'),onSaved:value=>calls.push({saved:value})};let tree=render(props);
+ assert.ok(!nodes(tree).some(n=>n.type==='form'));nodes(tree).find(n=>n.type==='button'&&n.props.children==='维护模板').props.onClick();tree=render(props);
  nodes(tree).find(n=>n.props?.['aria-label']==='模板名称').props.onChange({target:{value:'新模板名称'}});tree=render(props);
  nodes(tree).find(n=>n.props?.['aria-label']==='target 配置项名称').props.onChange({target:{value:'资料路径'}});tree=render(props);
  nodes(tree).find(n=>n.props?.['aria-label']==='模板默认动作').props.onChange({target:{value:'notify'}});tree=render(props);

@@ -21,6 +21,9 @@ def document(text=TEXT,ident='doc',metadata=None):
 def world(client,tmp_path,monkeypatch):
     def clear():
         with db.connect() as con:
+            for table in ('template_configuration_proposals','template_configuration_requests','template_configuration_versions',
+                          'template_configurations','label_source_requests','label_source_versions','label_sources'):
+                con.execute('DELETE FROM '+table)
             for table in ('policy_application_requests','policy_approval_decisions','policy_draft_creations','policy_draft_versions','policy_drafts','system_policy_library_proposals','system_policy_library_versions','system_policy_library','instance_dsl_scopes','instance_dsl_proposals','instance_policy_receipts','instance_session_cache','instance_kernel_cursors','instance_kernel_events','instance_session_task_bindings','instance_leases','instance_events','instance_proposals','instance_proposal_locals','system_security_proposals','instance_local_policies','agent_instances'):
                 con.execute('DELETE FROM '+table)
             con.execute("UPDATE system_security_policy SET policy_json=?,policy_hash=?,revision=0,phase='ready'",(json.dumps(default_policy()),digest(default_policy())))
@@ -57,7 +60,10 @@ def world(client,tmp_path,monkeypatch):
             if fail['start']:raise RuntimeError('load failed')
             spec=dsl.launch_spec(row)
             artifact=compile_message(dict(action='agent-instance-dsl-compile',instance_id=row['id'],agent_type=row['agent_type'],resources=row['resources'],policy=row['policy'],dsl_documents=spec['dsl_documents']))
-            runtime=dict(connected=True,verified=True,generation=generation,pid=1234,domain_id=900,dsl_hash=spec['dsl_hash'],policy_artifact={**artifact,'loaded':True})
+            runtime=dict(connected=True,verified=True,generation=generation,pid=1234,domain_id=900,
+                         start_ticks='test-birth-'+generation,boot_id='test-boot',host_id='test-host',
+                         last_checked_at=db.now(),evidence_age_seconds=0,
+                         dsl_hash=spec['dsl_hash'],policy_artifact={**artifact,'loaded':True})
             live[row['id']]={**runtime,'id':row['id']};return runtime
     monkeypatch.setattr(c,'adapter',lambda row:Adapter())
     monkeypatch.setattr(c.observer,'snapshot',lambda:list(live.values()))

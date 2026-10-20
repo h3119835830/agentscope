@@ -261,11 +261,12 @@ def load(ident, revision=None, con=None):
 
 
 def view(row):
-    from .configuration_approvals import link,state
+    from .configuration_approvals import link,state,disabled
     base = dsl.current('system' if row['scope'] == 'system' else row['scope_id'])
     applied = next((d for d in base['documents'] if d['id'] == row['id']), None)
     with db.connect() as con:
         linked = link(con,row['id'],row['revision'],row['scope_id'],'template')
+        is_disabled = not applied and disabled(con,row['id'],row['scope_id'],'template')
         versions = con.execute('SELECT revision,payload_json FROM template_configuration_versions WHERE id=? ORDER BY revision DESC', (row['id'],)).fetchall()
     applied_revision = next((v['revision'] for v in versions if json.loads(v['payload_json'])['document'] == applied), None) if applied else None
     active_payload = next((json.loads(v['payload_json']) for v in versions if v['revision'] == applied_revision), None)
@@ -273,10 +274,12 @@ def view(row):
     definition = catalog.get(row['template_id'],row['template_version'])
     from .template_support import presentation
     support = presentation(definition)
-    return {**row, **({'execution_support':support} if support else {}), 'applied_revision':applied_revision, 'applied_configuration':applied_configuration,'applied':applied_revision == row['revision'],
+    result = {**row, **({'execution_support':support} if support else {}), 'applied_revision':applied_revision, 'applied_configuration':applied_configuration,'applied':applied_revision == row['revision'],
             **linked, 'status':state(linked,'draft'),
             'can_submit':row['scope'] in ('system','agent') and (support or {}).get('applicable',True), 'read_only':definition['id'] in git_templates.RETIRED,'template_definition':catalog.public_definition(definition),
             'scope_label':'全部受控 Agent' if row['scope'] == 'system' else '此 Agent 的全部工作区与会话' if row['scope'] == 'agent' else '当前工作区（独立应用暂不支持）'}
+    from .product_status import configuration
+    return {**result, 'configuration_status': configuration({**result,'disabled':is_disabled})}
 
 
 def directory(scope_id=None):

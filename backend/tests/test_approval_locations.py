@@ -26,7 +26,7 @@ def test_generated_location_survives_pid_drift_and_stays_exact(context_world):
     locations=Locations()
     row=locations.project(dict(scope_id='agent-a',documents=[doc]),[dict(id='agent-a',name='RQ5 DSH 受控实例',agent_type='dsh',pid=55,active=True)])
     assert row['agents'][0]['pid']==77 and row['agents'][0]['submitted_pid']==55
-    assert row['agents'][0]['name']=='DeepSeek Harness'
+    assert row['agents'][0]['name']=='DeepSeek Harness · agent-a'
     assert row['origin_sessions']==[dict(instance_id='agent-a',session_id='session-a',name='Native task',available=True,generation_pid=55)]
     assert row['origin_state']=='linked'
     assert locations.origin('agent-b',doc['generation_binding']) is None

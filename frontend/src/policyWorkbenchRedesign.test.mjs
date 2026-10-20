@@ -178,7 +178,7 @@ test('approval details expose change, targets and explicit decisions without wri
  const render=await harness('PolicyApprovals.jsx','ApprovalDetail');let decisions=[];
  const data={id:'proposal',scope_type:'agent',target_name:'DeepSeek Harness',status:'pending',can_approve:true,can_apply:false,created_at:'2026-10-11T01:00:00Z',documents:[{id:'d',name:'Protect secret',original_dsl:'source AGENT = exec "**/node"'}],previous_documents:[],records:[{id:'r',document_id:'d',statement:'Protect secret',clauses:[{effect:'block',operation:'open',target:'/w/0/.env'}]}],targets:[{id:'agent',name:'DeepSeek Harness',active:true}],total_affected_count:1};
  const props={data,onClose(){},onDecision:async(...args)=>decisions.push(args)};let tree=render(props);assert.equal(decisions.length,0);assert.match(renderToStaticMarkup(tree),/全部工作区与会话/);assert.match(renderToStaticMarkup(tree),/新增/);
- elements(tree).find(e=>e.type==='button'&&e.props.children==='完整 DSL').props.onClick();tree=render(props);assert.equal(decisions.length,0);assert.match(renderToStaticMarkup(tree),/node/);
+ elements(tree).find(e=>e.type==='button'&&e.props.children==='技术证据').props.onClick();tree=render(props);assert.equal(decisions.length,0);assert.match(renderToStaticMarkup(tree),/node/);
  assert.ok(elements(tree).find(e=>e.type==='button'&&e.props.children==='批准变更').props.disabled);elements(tree).find(e=>e.type==='input'&&e.props.type==='checkbox').props.onChange({target:{checked:true}});tree=render(props);await elements(tree).find(e=>e.type==='button'&&e.props.children==='批准变更').props.onClick();assert.equal(decisions[0][1],'approve');
  tree=render({...props,data:{...data,status:'stale',can_approve:false,can_apply:false}});assert.ok(!elements(tree).some(e=>e.props?.children==='批准变更'||e.props?.children==='应用策略'));
 });
@@ -243,7 +243,7 @@ test('unavailable sources never create a generic executor declaration',async()=>
 });
 test('a projected stale draft blocks approval handoff even when its raw state is pending',async()=>{
  const render=await harness('ActPlanePolicies.jsx','DslEditor');let handoffs=0;
- const proposal={id:'p',state:'pending',documents:[],result:{compilations:[]},targets:[],approval:{status:'stale',can_approve:false,can_apply:false,reason:'Agent 环境已经变化，需要重新校验。'}};
+ const proposal={id:'p',state:'pending',documents:[],result:{compilations:[]},targets:[],approval:{status:'stale',configuration_status:{state:'stale',label:'需重新校验'},can_approve:false,can_apply:false,reason:'Agent 环境已经变化，需要重新校验。'}};
  const tree=render({data:{scope_id:'agent',documents:[],records:[]},proposal,onReview:()=>handoffs++});
  assert.match(renderToStaticMarkup(tree),/需重新校验/);
  const button=elements(tree).find(e=>e.type==='button'&&e.props.children==='前往审批');assert.ok(button.props.disabled);
@@ -271,7 +271,7 @@ test('approval records show product, PID and native session with exact read navi
  elements(agentNode.type(agentNode.props)).find(e=>e.type==='button').props.onClick();
  const sessionNode=elements(tree).find(e=>e.type?.name==='SessionLocations');
  elements(sessionNode.type(sessionNode.props)).find(e=>e.type==='button').props.onClick();
- assert.deepEqual(paths,[{page:'connections',connectionInstance:'agent-a',connectionTab:'policy',approvalId:''},{page:'sessions',sessionInstance:'agent-a',sessionId:'session-one',sessionTab:'policies',approvalId:''}]);
+ assert.deepEqual(paths,[{page:'strategies',systemTab:'policies',policyAgent:'agent-a',policyScope:'agent',configurationId:'',approvalId:''},{page:'sessions',sessionInstance:'agent-a',sessionId:'session-one',sessionTab:'policies',approvalId:''}]);
 });
 test('approval search finds native session and both current and historical PID',async()=>{
  const {matchesApproval,processLabel,originLabel}=await import('./approvalPresentation.mjs');

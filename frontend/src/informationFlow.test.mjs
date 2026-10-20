@@ -37,6 +37,10 @@ test('rendered evidence statuses distinguish old, empty, failed, unsupported and
   assert.ok(html.includes(text),state);
  }
  assert.equal(renderToStaticMarkup(React.createElement(mod.exports.WitnessGraph,{data:{nodes:[],edges:[]},onDetail(){}})),'');
+ const graph=renderToStaticMarkup(React.createElement(mod.exports.WitnessGraph,{data:{
+  nodes:[{id:'p',kind:'process',title:'进程 932815',identity:{pid:932815}},{id:'f',kind:'file',title:'/derived'}],
+  edges:[{id:'witness',from:'p',to:'f',operation:'process_to_file',outcome:'propagated'}]},onDetail(){}}));
+ assert.match(graph,/进程 1/);assert.doesNotMatch(graph,/932815/);
 });
 test('scope explanation is closed inline help, not a permanent warning banner',async()=>{
  const require=createRequire(import.meta.url),Module=require('node:module');

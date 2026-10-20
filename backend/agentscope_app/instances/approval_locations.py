@@ -9,7 +9,12 @@ PRODUCTS = {'dsh': 'DeepSeek Harness', 'hermes': 'Hermes', 'codex': 'Codex',
 
 
 def product(row):
-    return PRODUCTS.get(row.get('agent_type'), row.get('name') or 'Agent')
+    from .product_status import display_identities
+    if row.get('display_name'):
+        return row['display_name']
+    value = {**row, 'id': row.get('id', 'unknown')}
+    display_identities([value])
+    return value['display_name']
 
 
 def positive_pid(value):
