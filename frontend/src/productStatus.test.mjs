@@ -11,11 +11,11 @@ test('only a current server projection is green, exactly until expiry',()=>{
  assert.equal(currentStatus({active:true,gate:'open'},'loading',before).state,'unverified');
  assert.equal(currentStatus(null).state,'unverified');
 });
-test('expired loads and failed requests cannot retain old green rows',()=>{
+test('expired loads and failed requests retain readable rows without retaining green authority',()=>{
  const view={loading_status:{state:'loaded',expires_at:expiry},records:[{name:'v2'}],state:'verified',coverage_complete:true};
  assert.equal(currentLoadedView(view,before).records.length,1);
- assert.equal(currentLoadedView(view,before+1).records.length,0);
- assert.equal(currentLoadedView(view,before,true).records.length,0);
+ assert.deepEqual({records:currentLoadedView(view,before+1).records.length,state:currentLoadedView(view,before+1).state,historical:currentLoadedView(view,before+1).historical},{records:1,state:'unverified',historical:true});
+ assert.deepEqual({records:currentLoadedView(view,before,true).records.length,state:currentLoadedView(view,before,true).state,historical:currentLoadedView(view,before,true).historical},{records:1,state:'unverified',historical:true});
  assert.equal(invalidateAgent({product_status:{loading:view.loading_status}}).product_status.loading.state,'unverified');
 });
 test('same-name inactive agents are distinct and start is explicit',()=>{

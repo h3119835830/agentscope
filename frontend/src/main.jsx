@@ -17,7 +17,7 @@ import AgentPolicyWorkbench from './AgentPolicyWorkbench.jsx';
 import PolicyApprovals from './PolicyApprovals.jsx';
 import SystemWorkbench from './SystemWorkbench.jsx';
 import './agentPolicyWorkbench.css';
-import {productReadUrl,unknownAgentSummary} from './productConsole.mjs';
+import {productReadUrl} from './productConsole.mjs';
 import {requestJSON,singleFlight,readOverview} from './readLifecycle.mjs';
 import './productConsole.css';
 import './policyExperience.css';
@@ -87,7 +87,7 @@ function App() {
     onAgents:data=>{setDash(previous=>({...data,stats:{...previous?.stats,...data.stats}}));setOverviewError('');},
     onStatus:setStatus,
     onCounts:data=>{setDash(previous=>previous?{...previous,stats:{...data.stats,agents:previous.stats.agents,verified_agents:previous.stats.verified_agents}}:previous);setTasks(data.tasks||[]);},
-    onError:(kind,error)=>{if(kind==='agents'){setDash(unknownAgentSummary);setOverviewError(error.message);}else if(kind==='status')setStatus({error:error.message});},
+    onError:(kind,error)=>{if(kind==='agents')setOverviewError(error.message);else if(kind==='status')setStatus({error:error.message});},
   })),[]);
   const refresh = useCallback(async () => {
     if(page==='history')return;

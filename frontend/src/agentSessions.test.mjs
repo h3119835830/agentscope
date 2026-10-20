@@ -54,4 +54,6 @@ test('network errors are actionable Chinese notices while service validation rem
  module._compile(built.outputFiles[0].text,filename);
  assert.equal(module.exports.sessionReadError(new TypeError('Failed to fetch')),'记录读取失败，请检查连接后刷新重试。');
  assert.equal(module.exports.sessionReadError(new Error('会话不属于此连接')),'会话不属于此连接');
+ assert.equal(module.exports.sessionReadNotice('记录读取失败，请刷新重试。',true),'记录读取失败，请刷新重试。 当前继续显示上次成功读取的内容。');
+ assert.equal(module.exports.sessionReadNotice('记录读取失败，请刷新重试。',false),'记录读取失败，请刷新重试。');
 });

@@ -5,7 +5,6 @@ import PolicyLifecycleDialog from './PolicyLifecycleDialog.jsx';
 import React,{useEffect,useRef,useState} from 'react';
 import AgentWorkspaces from './AgentWorkspaces.jsx';
 import ProductStatus,{useEvidenceClock} from './ProductStatus.jsx';
-import {invalidateAgent} from './productStatus.mjs';
 import {tabKeys} from './consoleState.mjs';
 import {timeLabel} from './taskPresentation.mjs';
 import {agentTypes as types,agentName,connectionName,connectionPid,processLabel,visibleAgentInstances,canOpen,canStart,canCheckEntry,entryLabel,entryAction,connectionStatus as status} from './agentInstancePresentation.mjs';
@@ -37,7 +36,7 @@ export function Drawer({id,api,post,onClose,onChanged,onOpen,onSessions,onConfig
    const data=await api(endpoint(id));if(n!==seq.current)return;
    setRow(data);setProposals(data.proposals||[]);setError('');
    if(!initialized.current){initialized.current=true;setName(data.name||agentName(data));setPaths((data.resources||[]).join('\n'));setLaunch(data.launch?{...data.launch}:{...launchDefaults(data.agent_type),cwd:data.resources?.[0]||''});}
-  }catch(e){if(n===seq.current){setError(e.message);setRow(old=>old?invalidateAgent(old):null);}}
+  }catch(e){if(n===seq.current)setError(e.message);}
  }
  useEffect(()=>{dialog.current?.showModal();refresh();const timer=setInterval(refresh,5000);return()=>{seq.current++;clearInterval(timer);dialog.current?.close();if(origin.current?.isConnected)origin.current.focus({preventScroll:true});};},[id]);
  useEffect(()=>{
@@ -86,7 +85,7 @@ export default function AgentInstances(props){
  const visibleRows=visibleAgentInstances(rows);
  useEffect(()=>{if(props.configurationId){setSelected(props.configurationId);setDetailTab(['resources','workspaces','events'].includes(props.configurationTab)?props.configurationTab:'connection');}},[props.configurationId,props.configurationTab,props.policyScope]);
  function configure(id,tab='connection'){setDetailTab(tab);setSelected(id);}
- function refresh(){if(inFlight.current)return inFlight.current;const n=++seq.current;inFlight.current=(async()=>{try{const r=await api('/api/agent-instances');if(n===seq.current){setRows(r.instances||[]);setLoaded(true);setError('');}}catch(e){if(n===seq.current){setLoaded(true);setError(e.message);setRows(old=>old.map(invalidateAgent));}}finally{inFlight.current=null;}})();return inFlight.current;}
+ function refresh(){if(inFlight.current)return inFlight.current;const n=++seq.current;inFlight.current=(async()=>{try{const r=await api('/api/agent-instances');if(n===seq.current){setRows(r.instances||[]);setLoaded(true);setError('');}}catch(e){if(n===seq.current){setLoaded(true);setError(e.message);}}finally{inFlight.current=null;}})();return inFlight.current;}
  useEffect(()=>{if(!active)return;refresh();const t=setInterval(refresh,5000);return()=>{seq.current++;clearInterval(t);};},[active,api]);
  async function act(id,label,fn){setBusy(id);try{await fn();await refresh();}catch(e){notify(e.message);setError(e.message);}finally{setBusy('');}}
  const [recovering,setRecovering]=useState(null);

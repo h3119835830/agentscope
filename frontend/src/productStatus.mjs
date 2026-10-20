@@ -12,10 +12,11 @@ export function currentLoadedView(view,now=Date.now(),failed=false){
  if(!view)return null;
  const status=currentStatus(view.loading_status,'loading',now,failed);
  if(status.state==='loaded')return view;
- return {...view,records:[],coverage_complete:false,
+ return {...view,records:Array.isArray(view.records)?view.records:[],coverage_complete:false,historical:true,
   state:status.state==='observed'?'observed':'unverified',
-  message:status.state==='stopped'?'Agent 未运行，历史加载记录不计入当前清单。':
-   status.state==='observed'?view.message:'当前加载证据未核验或已过期，请刷新重试。',
+  notice:'以下为上次成功核验的快照，不代表当前仍在 ActPlane 中加载。',
+  message:status.state==='stopped'?'Agent 未运行；继续保留上次核验记录供查看。':
+   status.state==='observed'?view.message:'当前加载证据未核验或已过期；继续保留上次核验记录供查看。',
   loading_status:status};
 }
 export function invalidateAgent(row){

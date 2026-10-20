@@ -6,7 +6,7 @@ import {fileURLToPath} from 'node:url';
 import {dirname,join} from 'node:path';
 import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
-import {productReadUrl,unknownAgentSummary} from './productConsole.mjs';
+import {productReadUrl} from './productConsole.mjs';
 import {readNavigation,navigationTarget} from './navigation.mjs';
 import {generationState,generationHint} from './generationHistory.mjs';
 import {noticeCases,noticeGroups} from './securityNoticeCases.mjs';
@@ -55,11 +55,12 @@ test('policy search remains editable after a query matches no records',async()=>
  const cleared=await render('ActPlanePolicies.jsx',props,[data,'',false,null,null,'']);
  assert.match(cleared,/保护项目配置/);assert.doesNotMatch(cleared,/没有匹配的策略/);
 });
-test('failed live refresh withdraws historical PID and verification without inventing a stopped process',async()=>{
- const prior={agents:[{id:'a',agent_type:'dsh',connected:true,active:true,pid:42}],stats:{agents:1,verified_agents:1}};
- const stale=unknownAgentSummary(prior);assert.equal(stale.agents[0].pid,null);assert.equal(stale.stats.verified_agents,0);assert.equal(prior.agents[0].pid,42);
- const html=await render('ProductOverview.jsx',{dash:stale,status:{error:'read failed'},onNav:()=>{},onSessions:()=>{}});
- assert.match(html,/状态未知|状态读取失败/);assert.doesNotMatch(html,/PID 42|策略绑定已核验|<td>未运行/);
+test('temporary refresh failure keeps the last successful rows until their evidence expires',async()=>{
+ const expiresAt=new Date(Date.now()+8000).toISOString();
+ const prior={agents:[{id:'a',display_name:'项目助手 · DeepSeek Harness',agent_type:'dsh',connected:true,active:true,pid:42,product_status:{runtime:{state:'running',label:'运行中',expires_at:expiresAt},loading:{state:'loaded',label:'已加载',expires_at:expiresAt}}}],stats:{agents:1,verified_agents:1}};
+ const html=await render('ProductOverview.jsx',{dash:prior,error:'读取超时，请重试。',status:{error:'read failed'},onRetry:()=>{},onNav:()=>{},onSessions:()=>{}});
+ assert.match(html,/上次成功读取/);assert.match(html,/项目助手/);assert.match(html,/运行中/);assert.match(html,/已加载/);
+ assert.doesNotMatch(html,/PID 42|策略绑定已核验|<td>未运行/);
 });
 
 test('legacy system generation links converge on one read-only history tab',()=>{

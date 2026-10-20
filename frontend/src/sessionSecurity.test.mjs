@@ -56,6 +56,16 @@ test('panel renders only current loaded policy names and never legacy controls o
  const missing=renderToStaticMarkup(React.createElement(mod.exports.default,{data:{security:view}}));
  assert.match(missing,/未取得当前加载证据/);assert.ok(!missing.includes('工具使用'));
 });
+test('expired or temporarily unreadable loading evidence keeps the last snapshot without a green claim',async()=>{
+ const require=createRequire(import.meta.url),Module=require('node:module');
+ const source=new URL('./SessionSecurityPanel.jsx',import.meta.url).pathname;
+ const built=await build({entryPoints:[source],bundle:true,platform:'node',format:'cjs',external:['react'],loader:{'.css':'empty'},write:false});
+ const mod=new Module(source);mod.paths=Module._nodeModulePaths(new URL('.',import.meta.url).pathname);mod._compile(built.outputFiles[0].text,source);
+ const loaded={loading_status:{state:'loaded',label:'已加载',expires_at:new Date(Date.now()-1000).toISOString()},state:'verified',coverage_complete:true,records:[{id:'doc',name:'上次保护配置',scope:'agent',status:'loaded',clauses:[{operation:'write',effect:'block',target:'/project/tests'}]}]};
+ const html=renderToStaticMarkup(React.createElement(mod.exports.default,{data:{loaded_policies:loaded},error:'读取超时'}));
+ for(const text of ['上次核验策略','上次保护配置','/project/tests','当前未核验','不代表当前仍在 ActPlane 中加载','上次核验'])assert.match(html,new RegExp(text));
+ assert.doesNotMatch(html,/record-badge good|当前已加载策略/);
+});
 test('domain view only displays two owners of a shared domain, including unknown counts',async()=>{
  const require=createRequire(import.meta.url),Module=require('node:module');
  const source=new URL('./SessionDomainView.jsx',import.meta.url).pathname;
@@ -83,6 +93,6 @@ test('unverified loading never falls back to configured builtins or a green stat
  assert.deepEqual(visibleControls(data,{scope:'system'}),[builtin,configured]);
  assert.throws(()=>changeRequest(data,{basisHash:'hash-a',control:builtin,operation:'disable'},{ack:true},'key'),/不能停用/);
  const html=renderToStaticMarkup(React.createElement(mod.exports.default,{data:{security:data,loaded_policies:{state:'unverified',coverage_complete:false,records:[],message:'当前加载证据尚未核验'}}}));
- assert.match(html,/当前加载证据未核验或已过期/);assert.match(html,/暂未确认/);
+ assert.match(html,/当前加载证据未核验或已过期/);assert.match(html,/暂无上次核验记录/);
  assert.ok(!html.includes('保护控制目录')&&!html.includes('record-badge good'));
 });
