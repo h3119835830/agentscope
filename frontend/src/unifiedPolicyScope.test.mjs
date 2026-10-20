@@ -77,7 +77,9 @@ test('Agent policy tabs separate preflight runtime configuration and verified lo
 });
 test('runtime Hook list keeps source semantics without exposing raw session identities',async()=>{
  const events=[{seq:9,kind:'tool_start',generation:'generation-a',tool:'read_file',session_id:'private-session-uuid',created_at:'2026-10-20T00:00:00Z'}];
- const render=await harness('AgentRuntimePolicyAssistant.jsx',[events,'',null,0]);
+ const render=await harness('AgentRuntimePolicyAssistant.jsx',[events,'',0]);
  const html=renderToStaticMarkup(render({target:{...target,generation:'generation-a',gate:'open'},api:async()=>({}),post:async()=>{},onApprovals(){}}));
  assert.match(html,/来自一个 Agent 会话（仅作来源）/);assert.doesNotMatch(html,/private-session-uuid/);
+ assert.match(html,/等待自动评估器/);assert.match(html,/尚未接通/);
+ assert.doesNotMatch(html,/作为生成依据|可人工触发 Pi|运行时策略助手对话/);
 });
