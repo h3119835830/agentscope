@@ -1,6 +1,7 @@
 import React,{useEffect,useState,useRef} from 'react';
 import PolicyLifecycleDialog from './PolicyLifecycleDialog.jsx';
 import {configurationAgentLabel} from './policyConfigurationPresentation.mjs';
+import './writePermissions.css';
 
 export default function WritePermissionDialog({agent,agents,api,post,onClose,onApprovals}){
  const [data,setData]=useState(null),[paths,setPaths]=useState(''),[reason,setReason]=useState(''),[error,setError]=useState(''),[ack,setAck]=useState(false),[busy,setBusy]=useState(false);
@@ -22,6 +23,6 @@ export default function WritePermissionDialog({agent,agents,api,post,onClose,onA
   <label>申请写入目录（每行一个，需已存在）<textarea aria-label="申请写入目录" rows={3} maxLength={16000} disabled={busy} value={paths} onChange={e=>setPaths(e.target.value)}/></label>
   <label>必要性说明<input aria-label="写权限必要性说明" maxLength={1000} disabled={busy} value={reason} onChange={e=>setReason(e.target.value)}/></label>
   <details><summary>当前权限与表达限制</summary>{data&&<><p>每个已登记资源目前支持 {data.limits.write_ranges_per_resource} 个连续写入范围，精确匹配路径最多 {data.limits.exact_path_bytes} 字节。无法精确表达时拒绝提交，不扩大到共同父目录。</p><ul>{data.effective_policy.rules.filter(r=>r.action==='write').map((r,i)=><li key={i}>{r.effect==='allow'?'允许':'禁止'}修改与删除：{r.target}</li>)}</ul><p>{data.application}</p></>}</details>
-  <label><input type="checkbox" checked={ack} disabled={busy} onChange={e=>setAck(e.target.checked)}/> 我已核对目录；本次只提交审批，批准后还须单独应用。测试保持受保护。</label>
+  <label className="write-permission-ack"><input type="checkbox" checked={ack} disabled={busy} onChange={e=>setAck(e.target.checked)}/><span>我已核对目录；本次只提交审批，批准后还须单独应用。测试保持受保护。</span></label>
  </PolicyLifecycleDialog>;
 }

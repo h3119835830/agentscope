@@ -75,6 +75,20 @@ def test_new_scene_does_not_inherit_parent_receipts_and_history_is_retained(refe
     assert len(tc.directory(reference[0].a['id'])['generations'])==2
 
 
+def test_read_only_summary_is_retained_and_unknown_authority_fields_still_fail(reference):
+    provider=Plan([{'configurations':[],'questions':[],'gaps':[],'summary':'已分析资料，尚未生成或应用。'}])
+    result,_=run(reference,provider)
+    assert result['summary']=='已分析资料，尚未生成或应用。' and not result['items']
+    followup=Plan([final()])
+    run(reference,followup,request(parent_request_id=result['request_id']))
+    assert followup.calls[0]['previous_turns'][0]['summary']==result['summary']
+    with pytest.raises(ValueError):
+        run(reference,Plan([{**final(),'approved':True}]))
+    failed=tc.directory(reference[0].a['id'])['generations'][-1]
+    assert failed['generation_state']=='failed' and not failed['items'] and 'generation_basis' not in failed
+    assert 'approved' not in json.dumps(failed) and not reference[0].calls
+
+
 def test_followup_preserves_exact_configurations_even_after_three_turn_window(reference):
     parent=first_turn(reference)
     for i in range(4):
@@ -85,3 +99,12 @@ def test_followup_preserves_exact_configurations_even_after_three_turn_window(re
     assert len(context['previous_turns'])==3
     assert context['previous_turns'][-1]['configurations'][0]['parameters']['target']=='/w/0/scene/tests/**'
     assert context['workspace_references'][0]['untrusted_project_files'][0]['relative_path']=='scene/task.md'
+
+
+def test_projection_failure_cannot_relabel_committed_candidates_as_no_changes(reference,monkeypatch):
+    def broken_view(*args):raise ValueError('synthetic projection failure')
+    monkeypatch.setattr(tc,'view',broken_view)
+    with pytest.raises(ValueError,match='projection'):run(reference,Plan([final()]))
+    with db.connect() as con:
+        saved=con.execute("SELECT state,result_json FROM template_configuration_requests WHERE request_key LIKE 'generate:%'").fetchone()
+    assert saved['state']=='completed' and len(json.loads(saved['result_json'])['items'])==1

@@ -37,6 +37,7 @@ def restore(scope_id, body, basis):
         if current.get('generation_basis') != basis:
             raise ValueError('此前场景的资源、运行代次或策略已变化，请开始新场景重新读取')
         turns.append({'request_id': current['request_id'], 'requirements': current['text'],
+                      'summary': current.get('summary',''),
                       'questions': current['questions'], 'gaps': current['gaps'],
                       'configurations': current.get('configuration_snapshots', []),
                       'sources': current.get('reference_reads', [])})

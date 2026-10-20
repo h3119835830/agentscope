@@ -111,6 +111,12 @@ def agent_policy_reference_workspaces(ident:str):
     require_visible('agent',ident)
     return invoke(directory,ident)
 
+@router.get('/agents/{ident}/write-permissions')
+def agent_write_permissions(ident:str):
+    from .instances.write_permissions import detail
+    require_visible('agent',ident)
+    return invoke(detail,ident)
+
 @router.get('/agents/{ident}/policy-reference-workspaces/{workspace_id}/files')
 def agent_policy_reference_files(ident:str,workspace_id:str,path:str=Query('',max_length=1000),cursor:int=Query(0,ge=0,le=1000)):
     from .instances.workspace_references import list_files

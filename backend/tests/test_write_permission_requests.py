@@ -56,5 +56,7 @@ def test_write_request_is_admin_only_and_no_approval_or_apply_fields_are_accepte
     assert world.client.get(path).status_code in (401,403)
     response=world.client.get(path,headers=ADMIN)
     assert response.status_code==200 and response.json()['instance_id']==world.a['id']
+    product=world.client.get('/api/console/agents/'+world.a['id']+'/write-permissions',headers=ADMIN)
+    assert product.status_code==200 and product.json()==response.json()
     body=request(world,['/w/0/src'])
     assert world.client.post(path+'/proposals',headers=ADMIN,json={**body,'approved':True}).status_code==422
