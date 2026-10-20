@@ -93,7 +93,7 @@ def apply(path):
         agents = api('/api/agent-instances')['instances']
         controlled = next((row for row in agents if row.get('mode') == 'controlled'), None)
         if controlled:
-            loaded = api('/api/agent-instances/' + controlled['id'] + '/loaded-policies')
+            loaded = api('/api/console/agents/' + controlled['id'] + '/loaded-policies')
             assert loaded.get('schema') == 'SessionLoadedPolicies/1'
         shutil.copytree(release / 'frontend/dist', STATE / 'ui', dirs_exist_ok=True)
         assert sha(STATE / 'ui/index.html') == sha(release / 'frontend/dist/index.html')
