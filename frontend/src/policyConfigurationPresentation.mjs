@@ -16,7 +16,8 @@ export function configurationRecordActions(row){
  const unsupported=row.scope==='workspace'||!row.can_submit;
  const submitReason=row.read_only?'历史模板只读，请使用新版模板新增配置':unsupported?(row.execution_support?.applicable===false?'ActPlane 暂不支持此语义，仅保存参数草案':'此配置暂不可提交'):inFlight?'已有变更正在审批或等待应用，请查看审批':row.applied&&!row.has_changes?'当前版本已应用': '';
  const disableReason=(row.scope==='workspace'||(unsupported&&!row.read_only))?'此配置暂不可停用':inFlight?'已有变更正在审批或等待应用，请查看审批':!applied?'尚未应用，无需停用':'';
- return {canSubmit:!submitReason,submitReason,canDisable:!disableReason,disableReason,canView:!!row.approval_id,
+ const deleteReason=applied?'请先审批并应用停用，再删除子配置':inFlight?'请先在审批中结束待处理变更':row.scope==='workspace'?'历史工作区配置只读':row.archived?'此配置已删除':'';
+ return {canSubmit:!submitReason,submitReason,canDisable:!disableReason,disableReason,hasApplied:applied,canDelete:!deleteReason,deleteReason,canView:!!row.approval_id,
   viewTitle:row.approval_id?(row.approval_revision&&row.approval_revision!==row.revision?'查看配置 v'+row.approval_revision+' 的审批（当前草案 v'+row.revision+'）':'查看此配置的审批与应用回执'):'尚无审批记录'};
 }
 
