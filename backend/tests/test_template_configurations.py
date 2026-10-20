@@ -207,7 +207,8 @@ def test_malformed_model_output_rolls_back_entire_batch(world):
 def test_chat_attachment_and_followup_reach_model_without_approval_authority(world,monkeypatch):
     from agentscope_app.history.llm import DeepSeekProvider
     provider=Provider({'configurations':[],'questions':['文件中没有目标路径，请补充。'],'gaps':[]})
-    monkeypatch.setattr(DeepSeekProvider,'generate',provider.generate)
+    monkeypatch.setattr(DeepSeekProvider,'generate_dialogue',
+        lambda self,system,payload,history,version:provider.generate(system,payload,version))
     body={**plan_body(),'text':'只读','materials':[{'name':'场景.md','text':'员工资料不得修改。'}],
           'conversation':[{'role':'user','content':'请保护员工资料'},{'role':'assistant','content':'需要限制哪些操作？'}]}
     response=world.client.post('/api/agent-instances/'+world.a['id']+'/template-configurations/generate',headers=ADMIN,json=body)

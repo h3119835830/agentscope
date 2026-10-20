@@ -17,11 +17,21 @@ class DeepSeekProvider:
         self.timeout = timeout
 
     def generate(self, system, payload, prompt_version):
+        return self._generate(system,[{"role":"user","content":json.dumps(payload,ensure_ascii=False)}],prompt_version)
+
+    def generate_dialogue(self, system, payload, history, prompt_version):
+        """Bounded caller-owned interface transcript, not fabricated chat turns."""
+        if len(history)>16 or any(set(m)!={'role','content'} or m['role'] not in ('assistant','user')
+                                  or not isinstance(m['content'],str) for m in history):
+            raise LLMError("读取接口上下文格式不合法")
+        return self._generate(system,[{"role":"user","content":json.dumps(payload,ensure_ascii=False)},*history],prompt_version)
+
+    def _generate(self, system, messages, prompt_version):
         if not self.api_key:
             raise LLMError("历史库 DeepSeek 服务凭据未配置")
         body = {"model": self.model, "messages": [
             {"role": "system", "content": system + "\nReturn only a JSON object."},
-            {"role": "user", "content": json.dumps(payload, ensure_ascii=False)}],
+            *messages],
             "response_format": {"type": "json_object"}, "max_tokens": 14000,
             "thinking": {"type": "disabled"}}
         encoded = json.dumps(body, ensure_ascii=False).encode()

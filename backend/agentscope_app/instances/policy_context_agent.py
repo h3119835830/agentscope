@@ -1,5 +1,6 @@
 """Bounded policy Agent: model-selected read-only interfaces, existing templates only."""
 import copy
+import json
 import time
 import uuid
 from . import workspace_references as refs
@@ -32,7 +33,7 @@ class ToolContractError(ValueError):
 def result_shape(value):
  # Only protocol field names/types; never final content, secrets or reasoning.
  known={'configurations','questions','gaps','summary','calls','tool_calls','tool','arguments',
-        'result','response','output','message','answer','analysis','action','parameters'}
+        'result','response','output','message','answer','analysis','action','parameters','tool_results'}
  return {'type':type(value).__name__,
          'fields':{k:type(v).__name__ for k,v in value.items() if k in known},
          'other_field_count':len(set(value)-known)} if isinstance(value,dict) else {'type':type(value).__name__}
@@ -122,6 +123,7 @@ class WorkspacePolicyAgent:
   if self.enabled:
    context.update(workspace_catalog=[{k:w[k] for k in ('id','name','execution_path')} for w in self.catalog],tool_schema=TOOLS,
     tool_limits={'rounds':MAX_ROUNDS,'calls':MAX_CALLS,'files':MAX_FILES,'total_bytes':MAX_BYTES},tool_results=[])
+  initial_context=copy.deepcopy(context);dialogue=[]
   for _ in range(MAX_ROUNDS if self.enabled else 1):
    self.check_basis()
    remaining=deadline-time.monotonic()
@@ -129,7 +131,10 @@ class WorkspacePolicyAgent:
    # The production JSON client has an explicit per-request timeout. Test
    # providers use the same generate contract without acquiring capabilities.
    if hasattr(self.provider,'timeout'):self.provider.timeout=min(60,remaining)
-   result,metadata=self.provider.generate(instructions+(INSTRUCTIONS if self.enabled else ''),copy.deepcopy(context),'template-context-agent-v1' if self.enabled else 'template-parameters-v1')
+   if self.enabled and hasattr(self.provider,'generate_dialogue'):
+    result,metadata=self.provider.generate_dialogue(instructions+INSTRUCTIONS,copy.deepcopy(initial_context),copy.deepcopy(dialogue),'template-context-agent-v2')
+   else:
+    result,metadata=self.provider.generate(instructions+(INSTRUCTIONS if self.enabled else ''),copy.deepcopy(context),'template-context-agent-v1' if self.enabled else 'template-parameters-v1')
    self.runs.append(metadata);self.check_basis()
    if time.monotonic()>=deadline:raise ValueError('场景分析超过读取期限，请缩小场景后重试')
    if not isinstance(result,dict):raise ValueError('策略助手返回格式不合法')
@@ -139,7 +144,10 @@ class WorkspacePolicyAgent:
    if not self.enabled or set(result)!={'calls'} or not isinstance(result['calls'],list) or not 1<=len(result['calls'])<=4:
     raise ToolContractError('本轮只能返回受限接口调用或最终模板参数')
    # Append actual results, including denials. No scenario-specific path hints.
-   for call in result['calls']:context['tool_results'].append(self.execute(call))
+   results=[self.execute(call) for call in result['calls']]
+   context['tool_results'].extend(results)
+   dialogue.extend([{'role':'assistant','content':json.dumps(result,ensure_ascii=False)},
+                    {'role':'user','content':json.dumps({'kind':'untrusted_tool_results','tool_results':results},ensure_ascii=False)}])
   raise ValueError('场景分析达到轮次上限，请明确业务目标后重试；未保存或应用策略')
 
  def source_bindings(self):
