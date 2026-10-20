@@ -9,6 +9,7 @@ import {renderToStaticMarkup} from 'react-dom/server';
 import {productReadUrl,unknownAgentSummary} from './productConsole.mjs';
 import {readNavigation,navigationTarget} from './navigation.mjs';
 import {generationState,generationHint} from './generationHistory.mjs';
+import {noticeCases,noticeGroups} from './securityNoticeCases.mjs';
 const require=createRequire(import.meta.url),Module=require('node:module'),base=dirname(fileURLToPath(import.meta.url));
 async function render(file,props,states=[]){
  const built=await build({entryPoints:[join(base,file)],bundle:true,platform:'node',format:'cjs',external:['react','react-dom'],loader:{'.css':'empty','.html':'text'},write:false});
@@ -25,7 +26,12 @@ test('product reads use retained projections while writes and original DSL paths
 });
 test('overview uses server state without presenting PID or internal diagnostics',async()=>{
  const html=await render('ProductOverview.jsx',{dash:{agents:[{id:'hidden-key',display_name:'项目助手 · DeepSeek Harness',agent_type:'dsh',pid:42,connected:true,active:true,product_status:{loading:{state:'loaded',label:'已加载',expires_at:new Date(Date.now()+8000).toISOString()}}}],stats:{agents:1,verified_agents:1,strategies:0,pending_strategies:0,active_tasks:57}},status:{broker:{available:true},bpf_lsm:true},onNav:()=>{},onSessions:()=>{}});
- assert.match(html,/DeepSeek Harness/);assert.match(html,/已加载/);assert.doesNotMatch(html,/PID 42|hidden-key|57|治理候选|历史策略|Linux 内核|ActPlane CLI|DSH CLI|执行后端可用/);
+ assert.match(html,/DeepSeek Harness/);assert.match(html,/已加载/);assert.match(html,/安全亮点/);assert.match(html,/使用说明/);assert.doesNotMatch(html,/PID 42|hidden-key|57|治理候选|历史策略|Linux 内核|ActPlane CLI|DSH CLI|执行后端可用/);
+});
+test('overview security notice keeps all twelve read-only scenario announcements reachable',()=>{
+ assert.equal(noticeCases.length,12);
+ assert.deepEqual(new Set(noticeCases.map(item=>item.id)).size,12);
+ assert.deepEqual(new Set(noticeCases.map(item=>item.group)),new Set(noticeGroups.map(item=>item.id)));
 });
 test('workbench uses native Agent sessions without internal runtime identifiers or inferred empty workspace',async()=>{
  const directory={connections:[{id:'internal-key',agent_type:'hermes',display_name:'采购助手 · Hermes',pid:88,connected:true}],records:[{id:'s',name:'处理采购问题',instance_id:'internal-key',status:'idle'}],workspaces:[]};

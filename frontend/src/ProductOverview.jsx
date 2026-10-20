@@ -11,7 +11,7 @@ export default function ProductOverview({dash,status,error,onRetry,onNav,onSessi
  const now=useEvidenceClock(expiry),verified=agents.filter(a=>currentStatus(a.product_status?.loading,'loading',Math.max(now,Date.now()),!!error).state==='loaded').length;
  const checked=value=>value?new Date(value).toLocaleString('zh-CN',{hour12:false}):'暂无核验记录';
  const formalEntry=typeof location!=='undefined'&&location.hostname==='127.0.0.1'?location.href.replace('127.0.0.1','localhost'):null;
- return <div className="content product-overview"><div className="page-head"><div><p>查看 Agent 的运行、加载核验和待处理事项。</p></div><div className="security-notice-actions"><ValueAnnouncement/></div></div>
+ return <div className="content product-overview"><div className="page-head"><div><p>查看 Agent 的运行、加载核验和待处理事项。</p></div><div className="security-notice-actions"><SecurityNotice/><ValueAnnouncement/></div></div>
  {error&&<div role="alert" className="inline-notice warning">控制台数据不可达，当前运行与保护状态未知：{error} <button className="button tiny ghost" onClick={onRetry}>重新读取</button>{formalEntry&&<a className="button tiny ghost" href={formalEntry}>打开正式入口</a>}</div>}
  {dash&&<p className="overview-control-state">{error?'等待控制台恢复；上次成功读取':'控制台可达 · 最近读取'}：{checked(dash.observedAt)}。执行保护以各实例的当前核验为准。</p>}
  {!dash?!error&&<p role="status">正在读取 Agent…</p>:<>
