@@ -1,0 +1,5 @@
+🚫 VIOLATION: process 'git' (pid 1642777, ppid 1642217) — /usr/bin/git
+   effect: notify
+   reason: 对 Git commit 参数命中事件记录或终止命中进程。适用于限制所选 Agent 的全部提交执行，不限定仓库或分支。 请在允许的范围内继续任务，必要时提交最小变更需求。
+   provenance: pid 1642217 exec gitprobe -> label AGENT
+{"command": "commit", "mode": "missing", "returncode": 0, "stdout": "[master 179e0c1] synthetic\n", "stderr": ""}

@@ -1,0 +1,1 @@
+{"command": "commit", "mode": "success", "returncode": 0, "stdout": "[master d716c0d] synthetic\n", "stderr": ""}

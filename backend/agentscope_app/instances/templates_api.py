@@ -25,6 +25,13 @@ class TemplateUpdate(Model):
     request_key: str = Field(min_length=8,max_length=100)
 
 
+class DslPreview(Model):
+    template_version: int = Field(ge=1)
+    parameters: dict = Field(default_factory=dict)
+    effect: Literal['block','notify','kill'] | None = None
+    reason: str | None = Field(default=None,max_length=600)
+
+
 class Configuration(Model):
     template_id: str = Field(min_length=1,max_length=80)
     template_version: int = Field(ge=1)
@@ -130,6 +137,12 @@ def directory(scope_id: str | None = Query(None,max_length=100)):
 @router.post('/api/policy-templates/{ident}/versions')
 def edit_template(ident: str,body: TemplateUpdate):
     return invoke(template_versions.save,ident,body.model_dump())
+
+
+@router.post('/api/policy-templates/{ident}/preview')
+def preview_template(ident: str,body: DslPreview):
+    from .template_dsl import preview
+    return invoke(preview,ident,body.model_dump())
 
 
 @router.post('/api/policy-template-configurations')

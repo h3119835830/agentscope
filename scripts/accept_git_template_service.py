@@ -43,7 +43,7 @@ def main():
     process=subprocess.Popen(['/opt/agentscope/.venv/bin/python','-m','uvicorn','agentscope_app.main:app','--host','127.0.0.1','--port',str(PORT)],
         cwd=ROOT,env=env,stdout=(state/'api.log').open('w'),stderr=subprocess.STDOUT,start_new_session=True)
     identity={'pid':process.pid,'start_ticks':Path('/proc',str(process.pid),'stat').read_text().rsplit(') ',1)[1].split()[19],'state':str(state),'port':PORT}
-    out=ROOT/'docs/REVIEW/evidence/git-templates-20261019';out.mkdir(parents=True,exist_ok=True)
+    out=ROOT/'docs/REVIEW/evidence/template-dsl-preview-20261020';out.mkdir(parents=True,exist_ok=True)
     (out/'preview-identity.json').write_text(json.dumps(identity,indent=2))
     try:
         for _ in range(80):
@@ -59,9 +59,9 @@ def main():
             'scope':'system','materials':[],'request_key':uuid.uuid4().hex,'context_mode':'none'}
         result=api('/api/policy-template-configurations/generate',{**body,'scope_id':'system'})
         assert {r['template_id'] for r in result['items']}=={'GIT-COMMIT','GIT-PUSH'} and len(result['items'])==2
-        assert all(r['parameters']=={'program':'git','effect':'notify'} and r['origin']=='assistant' and not r['applied'] for r in result['items'])
-        manual=api('/api/policy-template-configurations',{'scope_id':agent['id'],'scope':'agent','workspace_id':None,'template_id':'GIT-COMMIT-CHECK','template_version':2,
-            'name':'订单代码提交前检查事件','parameters':{'program':'git','checker':'gitcheck','target':'/w/0/src/**','exit_code':0,'effect':'kill'},'base_revision':0,'request_key':uuid.uuid4().hex})
+        assert all(r['parameters']=={'effect':'notify'} and r['origin']=='assistant' and not r['applied'] for r in result['items'])
+        manual=api('/api/policy-template-configurations',{'scope_id':agent['id'],'scope':'agent','workspace_id':None,'template_id':'GIT-COMMIT-CHECK','template_version':3,
+            'name':'订单代码提交前检查事件','parameters':{'checker':'gitcheck','target':'/w/0/src/**','exit_code':0,'effect':'kill'},'base_revision':0,'request_key':uuid.uuid4().hex})
         assert ' exits 0 since write ' in manual['document']['original_dsl']
         unsupported=api('/api/policy-template-configurations',{'scope_id':'system','scope':'system','workspace_id':None,'template_id':'GIT-PUSH-TARGET','template_version':2,
             'name':'订单仓库只允许任务分支推送','parameters':{'repository':'/synthetic/orders','remote':'https://example.invalid/orders.git','branches':'refs/heads/task/*','forbidden_updates':['force','delete']},'base_revision':0,'request_key':uuid.uuid4().hex})

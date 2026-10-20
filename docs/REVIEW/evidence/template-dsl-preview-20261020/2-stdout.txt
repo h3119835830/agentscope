@@ -1,0 +1,5 @@
+🚫 VIOLATION: process 'git' (pid 1642934, ppid 1642932) — /usr/bin/git
+   effect: notify
+   reason: 按所选 reset、clean、stash 字面参数记录或终止进程。选择 reset 会影响全部 reset，不仅是 --hard；路径和选项组合过滤暂不支持。 请在允许的范围内继续任务，必要时提交最小变更需求。
+   provenance: pid 1642932 exec gitprobe -> label AGENT
+{"command": "clean", "mode": "missing", "returncode": 0, "stdout": "", "stderr": ""}

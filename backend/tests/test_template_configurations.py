@@ -190,7 +190,7 @@ def test_chat_attachment_and_followup_reach_model_without_approval_authority(wor
 
 def test_all_published_contracts_materialize_and_real_compiler_reports_limits(world):
     from dsl_documents import prepare
-    for t in catalog.CATALOG:
+    for t in catalog.public_catalog():
         params={p['key']:p['default'] for p in t['parameters']}
         for p in t['parameters']:
             if p['type']=='path':params[p['key']]='/w/0/out/**' if p['key']=='exception' else '/w/0/input/**'
@@ -199,7 +199,7 @@ def test_all_published_contracts_materialize_and_real_compiler_reports_limits(wo
             elif p['type']=='lines' and not params[p['key']]:params[p['key']]='/actual-store'
             elif p['type']=='text' and not params[p['key']]:params[p['key']]='explicit-scenario-value'
         scope='system' if t['scopes']==['system'] else 'agent'
-        row=tc.save('system' if scope=='system' else world.a['id'],config(t['id'],scope=scope,parameters=params))
+        row=tc.save('system' if scope=='system' else world.a['id'],config(t['id'],template_version=t['version'],scope=scope,parameters=params))
         if t.get('execution_support',{}).get('applicable') is False:
             assert row['document'] is None and not row['can_submit']
             with pytest.raises(ValueError,match='暂不支持'):proposal(row)

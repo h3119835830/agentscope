@@ -1,0 +1,1 @@
+{"command": "push", "mode": "success", "returncode": 0, "stdout": "", "stderr": "To /tmp/as-git-its_hylw/work/bare-10\n * [new branch]      HEAD -> test\n"}

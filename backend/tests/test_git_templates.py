@@ -9,10 +9,10 @@ from test_template_configurations import config,proposal,Provider,plan_body,clea
 
 
 def git_config(ident,scope='agent',**parameters):
-    t=catalog.get(ident,2)
+    t=next(t for t in catalog.public_catalog() if t['id']==ident)
     defaults={p['key']:p['default'] for p in t['parameters']}
     defaults.update(parameters)
-    return config(ident,scope=scope,parameters=defaults,name='订单项目 Git 安全要求')
+    return config(ident,template_version=t['version'],scope=scope,parameters=defaults,name='订单项目 Git 安全要求')
 
 
 @pytest.mark.parametrize('command',['commit','push'])
@@ -94,11 +94,13 @@ def test_editing_defaults_does_not_change_execution_contract_or_existing_child(w
     t=next(t for t in catalog.public_catalog() if t['id']=='GIT-COMMIT-CHECK')
     body={'name':t['name'],'description':t['description'],'effect':'notify','parameters':[
         {'key':p['key'],'label':p['label'],'default':'notify' if p['type']=='effect' else '2' if p['key']=='exit_code' else p['default']} for p in t['parameters']],
-        'base_version':2,'request_key':uuid.uuid4().hex}
+        'base_version':t['version'],'request_key':uuid.uuid4().hex}
     saved=versions.save(t['id'],body)
-    assert saved['version']==3 and saved['execution_support']==t['execution_support']
-    wrong=copy.deepcopy(body);wrong.update(base_version=3,request_key=uuid.uuid4().hex,effect='block')
+    assert saved['version']==t['version']+1 and saved['execution_support']==t['execution_support']
+    wrong=copy.deepcopy(body);wrong.update(base_version=saved['version'],request_key=uuid.uuid4().hex,effect='block')
     with pytest.raises(ValueError):versions.save(t['id'],wrong)
-    row=tc.save(world.a['id'],{**git_config(t['id'],target='/w/0/src/**',checker='pytest',effect='notify',exit_code='2'),'template_version':3})
+    values={p['key']:p['default'] for p in saved['parameters']}
+    values.update(target='/w/0/src/**',checker='pytest',effect='notify',exit_code='2')
+    row=tc.save(world.a['id'],{**config(t['id'],parameters=values),'template_version':saved['version']})
     assert ' exits 2 since write ' in row['document']['original_dsl']
     with db.connect() as con:con.execute("DELETE FROM policy_template_versions WHERE template_id=?",(t['id'],))

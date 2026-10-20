@@ -16,6 +16,7 @@ def freeze(ident, revision, payload, scope_id, scope, agent=None):
         'id': ident, 'revision': revision, 'name': payload['name'],
         'configuration_hash': digest(payload),
         'template': {'id': template['id'], 'version': template['version'], 'name': template['name'],
+                     **({'fixed_fields':template['fixed_fields']} if 'fixed_fields' in template else {}),
                      'parameters': [{k: p[k] for k in ('key', 'label', 'type')} for p in template['parameters']]},
         'parameters': payload['parameters'],
         **({'execution_support': payload['execution_support']} if 'execution_support' in payload else {}),

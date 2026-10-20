@@ -1,0 +1,5 @@
+🚫 KILLED: process 'git' (pid 1643787, ppid 1643779) — /usr/bin/git
+   effect: kill
+   reason: 在 Git push 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待推送内容测试通过。 请在允许的范围内继续任务，必要时提交最小变更需求。
+   provenance: pid 1643779 exec gitprobe -> label AGENT
+{"command": "push", "mode": "changed", "returncode": -9, "stdout": "", "stderr": ""}

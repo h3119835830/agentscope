@@ -82,47 +82,34 @@ def text_parameter(value, label, limit=600):
     return value.strip()
 
 
-def materialize(ident, scope_id, body):
-    allowed = {'template_id','template_version','scope','workspace_id','name','reason','parameters','base_revision','request_key'}
-    if not isinstance(body, dict) or set(body) - allowed:
-        raise ValueError('模板配置不能包含 DSL 或未声明字段')
-    t = catalog.get(body['template_id'], body['template_version'])
-    scope = body['scope']
-    if scope not in t['scopes']:
-        raise ValueError('此模板不适用于所选层级，不能自动扩大范围')
-    row = target(scope_id, scope, body.get('workspace_id'))
-    params = body.get('parameters', {})
-    if not isinstance(params, dict) or set(params) != {p['key'] for p in t['parameters']}:
-        raise ValueError('请完整填写模板参数，不能添加模板之外的参数')
-    normalized = {}
-    for p in t['parameters']:
-        value = params[p['key']]
-        if p['type'] in ('choices', 'integer'):
-            value = git_templates.validate_parameter(p, value)
-        elif p['type'] == 'path':
-            value = path_parameter(value, row)
-        elif p['type'] == 'operations':
-            value = value.split(',') if isinstance(value, str) else value
-            if not isinstance(value, list) or not value or any(v not in t.get('allowed_operations',('write','unlink')) for v in value) or len(set(value)) != len(value):
-                raise ValueError('请选择模板支持的触发操作')
-            value = sorted(value)
-        elif p['type'] == 'effect':
-            if value not in t.get('allowed_effects', ('block','notify','kill')):
-                raise ValueError('请选择模板支持的处置动作')
-        elif p['type'] == 'program':
-            if not isinstance(value, str) or not re.fullmatch(r'[a-zA-Z0-9_./-]{1,63}', value):
-                if not (value == '*' and t['id'] == 'EXEC-AUDIT'):
-                    raise ValueError('程序参数仅支持明确程序名或路径，不接受命令行或通配解释器')
-        elif p['type'] == 'endpoint':
-            policy_library.structured('validation', {'name':'连接','mode':'endpoint','values':value,'ops':['connect'],'effect':'notify','reason':'连接参数校验'})
-        elif p['type'] == 'lines':
-            if not isinstance(value, str) or not value.strip() or len(value) > 10000:
-                raise ValueError('请填写匹配对象')
-        else:
-            value = text_parameter(value, p['label'])
-        normalized[p['key']] = value
-    name = text_parameter(body.get('name') if t['version'] >= 2 else body.get('name') or t['name'], '场景中的实际策略名称', 120)
-    reason = text_parameter(body.get('reason') or t['reason'], '反馈说明')
+def normalize_parameter(p, value, t, row=None):
+    if p['type'] in ('choices', 'integer'):
+        value = git_templates.validate_parameter(p, value)
+    elif p['type'] == 'path':
+        value = path_parameter(value, row)
+    elif p['type'] == 'operations':
+        value = value.split(',') if isinstance(value, str) else value
+        if not isinstance(value, list) or not value or any(v not in t.get('allowed_operations',('write','unlink')) for v in value) or len(set(value)) != len(value):
+            raise ValueError('请选择模板支持的触发操作')
+        value = sorted(value)
+    elif p['type'] == 'effect':
+        if value not in t.get('allowed_effects', ('block','notify','kill')):
+            raise ValueError('请选择模板支持的处置动作')
+    elif p['type'] == 'program':
+        if not isinstance(value, str) or not re.fullmatch(r'[a-zA-Z0-9_./-]{1,63}', value):
+            if not (value == '*' and t['id'] == 'EXEC-AUDIT'):
+                raise ValueError('程序参数仅支持明确程序名或路径，不接受命令行或通配解释器')
+    elif p['type'] == 'endpoint':
+        policy_library.structured('validation', {'name':'连接','mode':'endpoint','values':value,'ops':['connect'],'effect':'notify','reason':'连接参数校验'})
+    elif p['type'] == 'lines':
+        if not isinstance(value, str) or not value.strip() or len(value) > 10000:
+            raise ValueError('请填写匹配对象')
+    else:
+        value = text_parameter(value, p['label'])
+    return value
+
+
+def render_document(t, normalized, ident, name, reason):
     q = lambda value: json.dumps(value, ensure_ascii=False)
     kind = t['renderer']; effect = normalized.get('effect',t['effect']); sources = []; clauses = []
     requested = normalized.get('operations', [t['operation']])
@@ -160,7 +147,10 @@ def materialize(ident, scope_id, body):
         elif kind in ('git-command', 'git-check', 'git-tokens'):
             tokens = normalized['tokens'] if kind == 'git-tokens' else [t['command']]
             gate = (' unless after exec ' + q(normalized['checker']) + ' exits ' + str(normalized['exit_code']) + ' since write ' + obj) if kind == 'git-check' else ''
-            clauses = [effect + ' exec ' + q(normalized['program']) + ' ' + q(token) + ' if AGENT' + gate for token in tokens]
+            clauses = [effect + ' exec ' + q(t.get('fixed_fields',{}).get('program',normalized.get('program'))) + ' ' + q(token) + ' if AGENT' + gate for token in tokens]
+            if t.get('dsl_clause_template'):
+                from .template_dsl import render_clause
+                clauses = [render_clause(t['dsl_clause_template'],{**normalized,'effect':effect,'tokens':token}) for token in tokens]
         else:
             raise ValueError('模板执行类型未实现')
         rule = 'config-' + ident
@@ -175,6 +165,25 @@ def materialize(ident, scope_id, body):
         if not last.startswith('  because '):
             raise ValueError('模板反馈结构不完整')
         document['original_dsl'] = prefix + '\n  because ' + q(execution_reason)
+    return document,requested,effective,coverage,execution_reason,effect
+
+
+def materialize(ident, scope_id, body):
+    allowed = {'template_id','template_version','scope','workspace_id','name','reason','parameters','base_revision','request_key'}
+    if not isinstance(body, dict) or set(body) - allowed:
+        raise ValueError('模板配置不能包含 DSL 或未声明字段')
+    t = catalog.get(body['template_id'], body['template_version'])
+    scope = body['scope']
+    if scope not in t['scopes']:
+        raise ValueError('此模板不适用于所选层级，不能自动扩大范围')
+    row = target(scope_id, scope, body.get('workspace_id'))
+    params = body.get('parameters', {})
+    if not isinstance(params, dict) or set(params) != {p['key'] for p in t['parameters']}:
+        raise ValueError('请完整填写模板参数，不能添加模板之外的参数')
+    normalized = {p['key']:normalize_parameter(p,params[p['key']],t,row) for p in t['parameters']}
+    name = text_parameter(body.get('name') if t['version'] >= 2 else body.get('name') or t['name'], '场景中的实际策略名称', 120)
+    reason = text_parameter(body.get('reason') or t['reason'], '反馈说明')
+    document,requested,effective,coverage,execution_reason,effect = render_document(t,normalized,ident,name,reason)
     support = {'execution_support':t['execution_support']} if 'execution_support' in t else {}
     return {**support,'template_id':t['id'],'template_version':t['version'],'template_hash':digest(t),'resource_hash':digest(row['resources']) if row else None,'name':name,
             'reason':reason,'execution_reason':execution_reason,'parameters':normalized,'document':document,'requested_operations':requested,
@@ -263,6 +272,7 @@ def save(scope_id, body, ident=None):
         result = json.loads(prior['result_json'])
         return view(load(result['id'],result['revision']))
     revision = 1
+    old = None
     if ident:
         old = load(ident)
         if old['scope_id'] != scope_id or old['scope'] != body['scope'] or old['workspace_id'] != body.get('workspace_id') or old['template_id'] != body['template_id']:
@@ -273,6 +283,8 @@ def save(scope_id, body, ident=None):
     elif body.get('base_revision',0) != 0:
         raise ValueError('新子配置的基准版本应为零')
     ident = ident or 'tc_' + uuid.uuid4().hex
+    from .template_dsl import verify_git_save
+    verify_git_save(catalog.get(body['template_id'],body['template_version']),old,body.get('parameters'))
     payload = materialize(ident,scope_id,body)
     payload['origin']='manual'
     with db.connect() as con:
@@ -516,6 +528,8 @@ def generate(scope_id, body, provider=None):
                 raise ValueError('助手只能选择本次提供的模板，专用预设请使用对应基础模板')
             ident = 'tc_' + uuid.uuid4().hex
             values = {**item,'scope':body['scope'],'workspace_id':body.get('workspace_id')}
+            from .template_dsl import verify_git_save
+            verify_git_save(catalog.get(item['template_id'],item['template_version']))
             prepared.append((ident,values,materialize(ident,scope_id,values)))
         for _,_,payload in prepared:
             if not payload.get('execution_support',{}).get('applicable',True):

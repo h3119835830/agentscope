@@ -1,0 +1,5 @@
+🚫 VIOLATION: process 'git' (pid 1642834, ppid 1642831) — /usr/bin/git
+   effect: notify
+   reason: 对 Git push 参数命中事件记录或终止命中进程。适用于限制所选 Agent 的全部推送执行，不限定仓库或分支。 请在允许的范围内继续任务，必要时提交最小变更需求。
+   provenance: pid 1642831 exec gitprobe -> label AGENT
+{"command": "push", "mode": "missing", "returncode": 0, "stdout": "", "stderr": "To /tmp/as-git-its_hylw/work/bare-1\n * [new branch]      HEAD -> test\n"}

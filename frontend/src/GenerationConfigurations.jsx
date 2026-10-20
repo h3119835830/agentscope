@@ -18,7 +18,7 @@ export default function GenerationConfigurations({generation}){
  return <section className="assistant-generated-results" aria-label="本轮生成的策略配置"><p className="assistant-snapshot-note">生成时配置 · 审批状态对应此配置版本</p>
  {!snapshots?.length?<p>此轮配置快照暂不可用。</p>:snapshots.map(row=>row.unavailable?<p key={row.id}>此项配置快照暂不可用。</p>:<article className="assistant-generated-record" key={row.id}>
  <header><div><span className="assistant-snapshot-label">实际策略名称</span><strong>{row.name}</strong></div><span className="assistant-generation-status" aria-label="审批状态">{approval(row)}</span></header>
- <dl><div><dt>选用模板</dt><dd>{row.template.name}<span className="assistant-template-version">v{row.template.version}</span></dd></div>
+ <dl><div><dt>选用模板</dt><dd>{row.template.name}<span className="assistant-template-version">v{row.template.version}</span>{row.template.fixed_fields&&<small>固定命令：{Object.values(row.template.fixed_fields).join(' ')}</small>}</dd></div>
  <div><dt>填写的参数</dt><dd>{row.template.parameters.filter(p=>Object.hasOwn(row.parameters,p.key)).length?<dl className="assistant-generated-parameters">{row.template.parameters.filter(p=>Object.hasOwn(row.parameters,p.key)).map(p=><div key={p.key}><dt>{p.label}</dt><dd>{parameter(row.parameters[p.key],p.type)}</dd></div>)}</dl>:'此模板无需填写参数'}</dd></div>
  <div><dt>作用范围</dt><dd>{row.scope.label}</dd></div></dl>
  </article>)}

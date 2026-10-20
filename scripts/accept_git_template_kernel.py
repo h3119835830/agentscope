@@ -17,7 +17,11 @@ def main():
     state=Path(tempfile.mkdtemp(prefix='as-git-'));state.chmod(0o755)
     os.environ['AGENTSCOPE_STATE_DIR']=str(state/'state')
     sys.path.insert(0,str(ROOT/'backend'))
+    from agentscope_app import db
+    db.init_db()
     from agentscope_app.instances import template_configurations as tc,template_catalog as catalog
+    from agentscope_app.instances import template_versions
+    with db.connect() as con:template_versions.init(con)
     owner=pwd.getpwnam('happy')
     workspace=state/'work';workspace.mkdir();os.chown(workspace,owner.pw_uid,owner.pw_gid)
     tools=state/'bin';tools.mkdir()
@@ -35,7 +39,7 @@ def main():
     cases += [('GIT-'+command.upper()+'-CHECK',command,mode,mode!='success') for command in ('commit','push') for mode in ('missing','success','failed','changed')]
     env={'PATH':'/usr/bin:/bin','HOME':owner.pw_dir,'SUDO_UID':str(owner.pw_uid),'SUDO_GID':str(owner.pw_gid),
          'ACTPLANE_BPF_PIN_ROOT':str(pin),'ACTPLANE_RESERVE_OPEN_RULES':'1','ACTPLANE_HOOK_PROFILE':'full'}
-    out=ROOT/'docs/REVIEW/evidence/git-templates-20261019';out.mkdir(parents=True,exist_ok=True)
+    out=ROOT/'docs/REVIEW/evidence/template-dsl-preview-20261020';out.mkdir(parents=True,exist_ok=True)
     try:
         for n,(ident,command,mode,violation) in enumerate(cases):
             directory=state/('case-'+str(n));directory.mkdir()
@@ -45,11 +49,11 @@ def main():
             git('init','-q');git('config','user.name','Synthetic Test');git('config','user.email','synthetic@example.invalid')
             git('commit','--allow-empty','-qm','initial')
             bare=workspace/('bare-'+str(n));git('init','--bare','-q',str(bare));git('remote','add','origin',str(bare))
-            t=catalog.get(ident,2);params={p['key']:p['default'] for p in t['parameters']}
+            t=next(t for t in catalog.public_catalog() if t['id']==ident);params={p['key']:p['default'] for p in t['parameters']}
             params['effect']='kill' if ident.endswith('-CHECK') else 'notify'
             if ident=='GIT-LOCAL':params['tokens']=['clean']
             if ident.endswith('-CHECK'):params.update(target=str(changed),checker='gitcheck',exit_code=0)
-            body={'template_id':ident,'template_version':2,'scope':'system','name':'Synthetic '+ident,'parameters':params}
+            body={'template_id':ident,'template_version':t['version'],'scope':'system','name':'Synthetic '+ident,'parameters':params}
             payload=tc.materialize('probe'+str(n),'system',body)
             dsl='source AGENT = exec "**/gitprobe"\n'+payload['document']['original_dsl']
             policy=directory/'policy.yaml';policy.write_text('version: 1\npolicy: |\n'+''.join('  '+line+'\n' for line in dsl.splitlines()))

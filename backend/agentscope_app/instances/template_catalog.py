@@ -114,4 +114,6 @@ def public_definition(definition, description=None):
         item.update(retired=True, replacements=git_templates.RETIRED[definition['id']])
     if description is not None:
         item['description'] = description
+    from .template_dsl import preview_definition
+    item['dsl_preview'] = preview_definition(definition)
     return item

@@ -16,6 +16,26 @@ CREATE TABLE IF NOT EXISTS policy_template_versions(
 
 def init(con):
     con.executescript(SCHEMA)
+    publish_fixed_git(con)
+
+
+def publish_fixed_git(con):
+    """Append a new contract, including after custom versions; never rewrite one."""
+    from . import template_catalog as catalog
+    from .template_dsl import fixed_git_definition
+    if not con.in_transaction:con.execute('BEGIN IMMEDIATE')
+    for built_in in catalog.CATALOG:
+        row=con.execute('SELECT * FROM policy_template_versions WHERE template_id=? ORDER BY version DESC LIMIT 1',(built_in['id'],)).fetchone()
+        previous=unpack(row) if row else {'definition':built_in,'description':catalog.DESCRIPTIONS[built_in['id']]}
+        base=previous['definition']
+        if base.get('contract')=='git-fixed-command.v1':continue
+        definition=fixed_git_definition(base)
+        if definition is None:continue
+        definition['version']=base['version']+1
+        key='builtin:git-fixed-command.v1:'+built_in['id']+':'+str(base['version'])
+        con.execute('INSERT INTO policy_template_versions VALUES(?,?,?,?,?,?,?)',
+            (base['id'],definition['version'],json.dumps(definition,ensure_ascii=False),previous['description'],key,digest(definition),db.now()))
+        db.audit(con,None,'template.contract_published','system',{'template_id':base['id'],'version':definition['version'],'contract':definition['contract']})
 
 
 def unpack(row):

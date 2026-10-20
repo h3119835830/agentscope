@@ -1,0 +1,5 @@
+🚫 KILLED: process 'git' (pid 1643571, ppid 1643565) — /usr/bin/git
+   effect: kill
+   reason: 在 Git commit 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待提交内容测试通过。 请在允许的范围内继续任务，必要时提交最小变更需求。
+   provenance: pid 1643565 exec gitprobe -> label AGENT
+{"command": "commit", "mode": "changed", "returncode": -9, "stdout": "", "stderr": ""}

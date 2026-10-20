@@ -1,0 +1,29 @@
+{
+  "passed": true,
+  "fixed_command": "git commit",
+  "read_only": true,
+  "block_disabled": true,
+  "new_template_parameters": [
+    "effect"
+  ],
+  "unsaved_notify_preview": true,
+  "template_default_preview": {
+    "checker": "gitcheck",
+    "target": "/w/0/src/**",
+    "exit_code": 2,
+    "effect": "notify"
+  },
+  "saved_template_version": 4,
+  "existing_child_template_version": 3,
+  "existing_child_exit_code": 0,
+  "mobile": {
+    "inner_width": 390,
+    "document_width": 375,
+    "footer_bottom": 751,
+    "height": 760
+  },
+  "viewport_override_reset": true,
+  "production_configuration_writes": false,
+  "production_template_versions_appended": 6,
+  "preview_and_save_share_renderer": true
+}
