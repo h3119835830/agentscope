@@ -127,6 +127,46 @@ def test_two_workspaces_bind_all_source_receipts_not_only_the_first(reference):
  with pytest.raises(ValueError):tc.verify_current(child)
  assert not world.calls
 
+def test_selected_reference_workspace_limits_catalog_without_changing_agent_scope(reference):
+ world,root,_=reference;other=Path(world.b['resources'][0]);(other/'notes.md').write_text('另一个工作区')
+ store.update(world.a['id'],resources=[str(root),str(other)])
+ workspaces=refs.directory(world.a['id'])['workspaces'];selected=next(w for w in workspaces if w['name']==root.name)
+ plan=Plan([lambda payload:(
+  pytest.fail('参考工作区没有限制模型目录') if [w['id'] for w in payload['workspace_catalog']]!=[selected['id']]
+  else call('list_directory',workspace_id=selected['id'],path='',cursor=0)),
+  call('read_files',workspace_id=selected['id'],paths=['README.md']),final()])
+ result,_=run(reference,plan,request(reference_workspace_id=selected['id']))
+ assert result['scope']=='agent' and result['workspace_id'] is None
+ assert result['reference_workspace_id']==selected['id']
+ assert result['items'][0]['scope_label']=='此 Agent 的全部工作区与会话'
+
+def test_invalid_reference_workspace_is_rejected_before_model_call(reference):
+ provider=Plan([final()])
+ with pytest.raises(ValueError,match='参考工作区'):run(reference,provider,request(reference_workspace_id='not-owned'))
+ assert not provider.calls
+
+def test_product_console_can_read_the_same_reference_workspace_catalog(reference):
+ world,_,_=reference
+ direct=world.client.get('/api/agent-instances/'+world.a['id']+'/policy-reference-workspaces',headers=ADMIN).json()
+ product=world.client.get('/api/console/agents/'+world.a['id']+'/policy-reference-workspaces',headers=ADMIN).json()
+ assert product==direct and product['workspaces']
+
+def test_runtime_generation_freezes_selected_hook_and_keeps_agent_scope(reference):
+ world,_,_=reference;generation='f'*32
+ store.update(world.a['id'],generation=generation,gate='open')
+ store.event(world.a['id'],'tool_start',{'source':'test'},generation,'session-a','call-a','bash')
+ event=store.events(world.a['id'])[0]
+ result,_=run(reference,Plan([final()]),request(stage='runtime',runtime_event_seq=event['seq'],context_mode='none'))
+ assert result['stage']=='runtime' and result['runtime_trigger']['selected_event_seq']==event['seq']
+ assert result['items'][0]['origin']=='runtime_assistant'
+ assert result['items'][0]['runtime_trigger']['scope'].startswith('此 Agent 的共享执行域')
+
+def test_runtime_generation_rejects_stale_or_cross_agent_hook(reference):
+ world,_,_=reference;store.update(world.a['id'],generation='a'*32,gate='open')
+ store.event(world.a['id'],'tool_start',{},'b'*32,'session-old','old','bash')
+ with pytest.raises(ValueError,match='当前 Agent 运行代次'):
+  run(reference,Plan([final()]),request(stage='runtime',runtime_event_seq=store.events(world.a['id'])[0]['seq'],context_mode='none'))
+
 def test_cumulative_byte_budget_covers_multiple_read_calls(reference):
  world,root,body=reference;w=body['workspace_id']
  for i in range(4):(root/f'{i}.txt').write_text('x'*50000)

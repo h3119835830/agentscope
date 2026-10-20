@@ -29,9 +29,13 @@ class ToolContractError(ValueError):pass
 class DirectoryConfirmationRequired(ValueError):pass
 
 class WorkspacePolicyAgent:
- def __init__(self,ident,provider,check_basis,seed=None,enabled=True):
+ def __init__(self,ident,provider,check_basis,seed=None,enabled=True,reference_workspace_id=None):
   self.ident=ident;self.provider=provider;self.check_basis=check_basis;self.enabled=enabled
   self.catalog=refs.directory(ident)['workspaces'] if enabled else []
+  if reference_workspace_id:
+   selected=[w for w in self.catalog if w['id']==reference_workspace_id]
+   if not selected:raise ValueError('所选参考工作区不属于当前 Agent 或已失效')
+   self.catalog=selected
   self.workspaces={w['id']:w for w in self.catalog}
   self.references=[];self.selected=set();self.total_bytes=0;self.events=[];self.calls=0;self.errors=0;self.runs=[]
   self.discovered=set()

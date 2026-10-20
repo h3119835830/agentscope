@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
+import {renderToStaticMarkup} from 'react-dom/server';
 import {build} from 'esbuild';
 import {createRequire} from 'node:module';
 import {fileURLToPath} from 'node:url';
@@ -24,7 +25,7 @@ test('changing to all Agents clears workspace provenance and never posts a polic
  scope.props.onChange({target:{value:'system'}});
  assert.deepEqual(changes,[{policyScope:'system',policyWorkspace:'',policySession:'',agentPolicyTab:'assistant'}]);
  const assistant=nodes(tree).find(n=>n.type?.name==='TemplatePolicyAssistant');
- assert.equal(assistant.props.scope,'agent');assert.equal(assistant.props.workspaceId,null);
+ assert.equal(assistant.props.scope,'agent');assert.equal(assistant.props.workspaceId,null);assert.equal(assistant.props.referenceWorkspaceId,'old-workspace');
 });
 test('all-Agent scope works without a selected or connected Agent and uses the existing system contract',async()=>{
  const render=await harness('AgentPolicyWorkbench.jsx',[[],'',0,null]);
@@ -67,4 +68,16 @@ test('workspace browsing has no mutation or generation interface',async()=>{
  const browser=nodes(tree).find(n=>n.type?.name==='NativeAgentWorkspaces');
  assert.equal(browser.props.id,target.id);assert.ok(!('post' in browser.props));
  assert.ok(!nodes(tree).some(n=>n.type?.name==='TemplatePolicyAssistant'));
+});
+test('Agent policy tabs separate preflight runtime configuration and verified loads',async()=>{
+ const render=await harness('AgentPolicyWorkbench.jsx',[[target],'',0,null]);
+ const tree=render(props({agentPolicyTab:'assistant'})),labels=nodes(tree).filter(n=>n.props?.role==='tab').map(n=>n.props.children);
+ assert.deepEqual(labels,['运行前策略助手','运行时策略','策略配置','已加载策略','参考工作区']);
+ assert.ok(nodes(tree).some(n=>n.type?.name==='PolicyReferenceWorkspaceSelect'));
+});
+test('runtime Hook list keeps source semantics without exposing raw session identities',async()=>{
+ const events=[{seq:9,kind:'tool_start',generation:'generation-a',tool:'read_file',session_id:'private-session-uuid',created_at:'2026-10-20T00:00:00Z'}];
+ const render=await harness('AgentRuntimePolicyAssistant.jsx',[events,'',null,0]);
+ const html=renderToStaticMarkup(render({target:{...target,generation:'generation-a',gate:'open'},api:async()=>({}),post:async()=>{},onApprovals(){}}));
+ assert.match(html,/来自一个 Agent 会话（仅作来源）/);assert.doesNotMatch(html,/private-session-uuid/);
 });

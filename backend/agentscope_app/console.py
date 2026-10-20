@@ -105,6 +105,26 @@ def agent_events(ident:str,before:int|None=Query(None,ge=1)):
     require_visible('agent',ident)
     return {'events':events(ident,before)}
 
+@router.get('/agents/{ident}/policy-reference-workspaces')
+def agent_policy_reference_workspaces(ident:str):
+    from .instances.workspace_references import directory
+    require_visible('agent',ident)
+    return invoke(directory,ident)
+
+@router.get('/agents/{ident}/policy-reference-workspaces/{workspace_id}/files')
+def agent_policy_reference_files(ident:str,workspace_id:str,path:str=Query('',max_length=1000),cursor:int=Query(0,ge=0,le=1000)):
+    from .instances.workspace_references import list_files
+    require_visible('agent',ident)
+    return invoke(list_files,ident,workspace_id,path,cursor)
+
+@router.get('/agents/{ident}/loaded-policies')
+def agent_loaded_policies(ident:str):
+    from .instances import controller,dsl_policy
+    from .instances.session_loaded_policies import build
+    require_visible('agent',ident)
+    row=invoke(controller.detail,ident);generation=row.get('generation')
+    return build(row,{'historical':False},generation,dsl_policy.receipt(ident,generation) if generation else None)
+
 def retained_request(request):
     if request.headers.get('x-agentscope-surface')!='product':return False
     parts=request.url.path.strip('/').split('/')

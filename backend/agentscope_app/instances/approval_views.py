@@ -102,27 +102,20 @@ def typed_project(p,names,full=False,shared=False):
             try:controller.validate_proposal(agent,p)
             except (ValueError,RuntimeError,OSError):state='stale';reason='Agent 环境或策略基线已经变化，请重新提交。'
     prefix='system' if shared else 'instance'
-    row={'id':prefix+':'+p['id'],'kind':prefix+'_policy','origin':'runtime' if not shared and p['actor']=='agent' else 'manual',
+    runtime_origin=not shared and p['actor']=='agent'
+    row={'id':prefix+':'+p['id'],'kind':prefix+'_policy','origin':'runtime' if runtime_origin else 'manual',
         'scope_id':scope,'scope_type':'system' if shared else 'agent','target':{'scope':'system' if shared else 'agent','id':scope},
-        'target_name':names[scope],'name':'系统执行权限变更' if shared else 'Agent 执行权限变更',
+        'target_name':names[scope],'name':'系统执行权限变更' if shared else 'Agent 运行时执行权限变更' if runtime_origin else 'Agent 执行权限变更',
         'status':state,'reason':reason,'created_at':p['created_at'],'can_apply':state=='pending','can_reject':p['state']=='pending',
         'document_count':0,'affected_count':sum(t['id'] not in hidden('agent') for t in targets),
         'total_affected_count':len(targets),'candidate_hash':p['proposal_hash'],'proposal_hash':p['proposal_hash'],
-        'scope_label':'全部受控 Agent' if shared else '全部工作区与会话','validation_label':'目标与权限基线已校验'}
+        'scope_label':'全部受控 Agent' if shared else '此 Agent 的共享执行域 · 全部工作区与会话','validation_label':'目标与权限基线已校验'}
     if full:
         with db.connect() as con:frozen=con.execute('SELECT policy_json FROM policy_approval_baselines WHERE approval_id=?',(row['id'],)).fetchone()
         if frozen:base=json.loads(frozen[0])
         elif p['base_hash']!=controller.digest(base):base=None
         visible=[{**t,'active':t.get('active',t.get('gate') in ('open','paused'))} for t in targets if t['id'] not in hidden('agent')]
         row.update(documents=[],records=[],targets=visible,change_items=typed_changes(base,candidate) if base else [],baseline_available=base is not None)
-    if not shared and p['actor']=='agent' and p['state'] not in ('applied','rejected'):
-        # Old runtime tools had only instance identity. Preserve historical
-        # applied scope, but never approve a pending runtime rule globally.
-        row.update(scope_type='session', target={'scope':'session','instance_id':scope,'workspace_id':None,'session_id':None},
-                   scope_label='会话目标待核验',status='blocked',can_apply=False,
-                   reason='旧运行时提案缺少可信会话目标，请在当前会话重新生成；不能更新整个 Agent。')
-        if full:
-            row['targets']=[{**t,'scope_label':'会话目标待核验','application_label':'未应用，权限保持不变'} for t in row['targets']]
     return envelope(row,{'policy_hash':p['base_hash'],**({'revision':p['revision']} if shared else {'generation':p['generation']})})
 
 

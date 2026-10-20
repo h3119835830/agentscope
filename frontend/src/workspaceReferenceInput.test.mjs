@@ -69,8 +69,17 @@ test('scenario-only generation delegates bounded context selection to the exact 
  assert.equal(calls.length,1);assert.ok(calls[0].path.endsWith('/template-configurations/generate'));
  assert.equal(calls[0].path,'/api/agent-instances/agent-a/template-configurations/generate');
  assert.equal(calls[0].body.context_mode,'auto');assert.equal(calls[0].body.scope,'agent');assert.equal(calls[0].body.workspace_id,null);
+ assert.equal(calls[0].body.reference_workspace_id,null);assert.equal(calls[0].body.stage,'preflight');assert.equal(calls[0].body.runtime_event_seq,null);
  assert.equal(calls[0].body.reference_read_id,undefined);assert.equal(calls[0].body.paths,undefined);
  assert.deepEqual(calls[0].body.materials,[]);assert.equal(calls[0].body.files,undefined);assert.equal(calls[0].body.workspace_reference,undefined);
+});
+test('selected workspace is sent as a bounded reference source rather than policy scope',async()=>{
+ const catalog={catalog:[],items:[],generations:[]},calls=[];
+ const render=await harness('TemplatePolicyAssistant.jsx',[catalog,'读取相关约定生成策略',[],'',false,[],false]);
+ const props={target:{id:'agent-a'},scope:'agent',workspaceId:null,referenceWorkspaceId:'workspace-a',stage:'preflight',api:async()=>catalog,post:async(path,body)=>{calls.push(body);return {};},onApprovals(){}};
+ assert.match(renderToStaticMarkup(render(props)),/仅参考 所选参考工作区/);
+ await nodes(render(props)).find(n=>n.type==='form').props.onSubmit({preventDefault(){}});
+ assert.equal(calls[0].workspace_id,null);assert.equal(calls[0].reference_workspace_id,'workspace-a');assert.equal(calls[0].scope,'agent');
 });
 test('scenario input has no mandatory manual file or workspace selection',async()=>{
  const catalog={catalog:[],items:[],generations:[]};

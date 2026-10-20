@@ -136,6 +136,9 @@ class Generate(Model):
     conversation: list[ConversationMessage] = Field(default_factory=list,max_length=6)
     scope: Literal['agent','workspace'] = 'agent'
     workspace_id: str | None = Field(default=None,max_length=200)
+    reference_workspace_id: str | None = Field(default=None,max_length=64)
+    stage: Literal['preflight','runtime'] = 'preflight'
+    runtime_event_seq: int | None = Field(default=None,ge=1)
     materials: list[Material] = Field(default_factory=list,max_length=10)
     reference_read_id: str | None = Field(default=None,min_length=1,max_length=64)
     context_mode: Literal['auto','provided','none'] = 'auto'

@@ -123,6 +123,17 @@ def test_two_scope_counts_match_api_and_console_without_session_domains(loaded):
     assert next(r for r in raw['records'] if r['name'] == '系统保护配置')['scope'] == 'system'
 
 
+def test_agent_loaded_policy_endpoint_uses_the_same_verified_current_projection(loaded):
+    ident = loaded.a['id']
+    agent = loaded.client.get('/api/agent-instances/' + ident + '/loaded-policies', headers=ADMIN).json()
+    session = loaded.client.get('/api/agent-instances/' + ident + '/sessions/s1/policies', headers=ADMIN).json()['loaded_policies']
+    assert agent == session
+    assert agent['state'] == 'verified' and agent['coverage_complete']
+    assert {record['scope'] for record in agent['records']} == {'system', 'agent'}
+    product = loaded.client.get('/api/console/agents/' + ident + '/loaded-policies', headers=ADMIN).json()
+    assert product == agent
+
+
 @pytest.mark.parametrize('scope', ['workspace', 'session', 'foreign-agent'])
 def test_foreign_document_scope_cannot_reappear_as_a_startup_rule(loaded, scope):
     row = controller.detail(loaded.a['id'])

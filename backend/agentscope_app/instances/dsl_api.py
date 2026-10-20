@@ -63,6 +63,12 @@ def system_confirm(pid:str,body:Confirm):
     return invoke(confirm_scoped,'system',pid,body.proposal_hash)
 @router.get('/api/agent-instances/{ident}/dsl')
 def agent_read(ident:str):return invoke(dsl.detail,ident)
+@router.get('/api/agent-instances/{ident}/loaded-policies')
+def agent_loaded_policies(ident:str):
+    from . import controller
+    from .session_loaded_policies import build
+    row=invoke(controller.detail,ident);generation=row.get('generation')
+    return build(row,{'historical':False},generation,dsl.receipt(ident,generation) if generation else None)
 @router.post('/api/agent-instances/{ident}/dsl/proposals')
 def agent_propose(ident:str,body:Candidate):return invoke(dsl.propose,ident,body.model_dump())
 @router.post('/api/agent-instances/{ident}/dsl/proposals/{pid}/confirm')

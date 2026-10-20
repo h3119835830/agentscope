@@ -254,8 +254,6 @@ def proposal_context(row):
         'dsl':{scope:{k:dsl_policy.current(scope)[k] for k in ('revision','document_hash')} for scope in ('system',row['id'])}}
 
 def validate_proposal(row,p):
-    if p['actor']=='agent':
-        raise ValueError('运行时提案缺少可信会话目标，不能应用到整个 Agent；请在当前会话重新生成')
     if p['state']!='pending' or p['base_hash']!=row['policy_hash'] or p['generation']!=row['generation']:
         raise ValueError('候选已经过期')
     with db.connect() as con:
@@ -270,8 +268,6 @@ def validate_proposal(row,p):
 
 @system.lifecycle
 def proposals(ident,body,actor='user'):
-    if actor=='agent':
-        raise ValueError('运行时提案需要可信当前会话目标，请通过会话策略候选提交；不能更新整个 Agent')
     system.ensure_ready(ident)
     with lock(ident):
         row=store.get(ident)

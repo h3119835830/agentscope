@@ -107,18 +107,22 @@ def test_task_or_generator_credential_cannot_decide_an_approval(world):
     assert decide(world.client,'instance:'+p['id'],p,headers={'Authorization':'Bearer '+token}).status_code==401
     assert store.get(world.a['id'])==before and not world.calls
 
-def test_runtime_instance_tool_cannot_request_an_agent_wide_change(world):
+def test_runtime_instance_tool_creates_an_agent_shared_candidate_without_applying(world):
     before=store.get(world.a['id'])
-    with pytest.raises(ValueError,match='可信当前会话'):propose(before,'agent')
+    p=propose(before,'agent');row=approvals.detail('instance:'+p['id'])
+    assert row['scope_type']=='agent' and row['origin']=='runtime' and row['status']=='pending'
+    assert row['scope_label']=='此 Agent 的共享执行域 · 全部工作区与会话'
+    assert row['can_approve'] and not row['can_apply']
     assert store.get(world.a['id'])==before and not world.calls
 
-def test_historical_agent_runtime_proposal_cannot_apply_to_whole_agent(world):
+def test_agent_runtime_proposal_is_reviewed_for_the_frozen_shared_agent_domain(world):
     before=store.get(world.a['id']);p=propose(before)
     with db.connect() as con:con.execute('UPDATE instance_proposals SET actor=? WHERE id=?',('agent',p['id']))
     ident='instance:'+p['id'];row=approvals.detail(ident)
-    assert row['scope_type']=='session' and row['status']=='blocked' and not row['can_apply']
-    assert decide(world.client,ident,p).status_code==409
-    with pytest.raises(ValueError,match='可信会话目标'):c.apply(world.a['id'],p['id'],p['proposal_hash'])
+    assert row['scope_type']=='agent' and row['origin']=='runtime' and row['status']=='pending'
+    assert row['target']['instance_id']==world.a['id'] and row['target']['session_id'] is None
+    assert decide(world.client,ident,p).status_code==200
+    assert approvals.detail(ident)['status']=='approved'
     assert store.get(world.a['id'])==before and not world.calls
 
 @pytest.mark.parametrize('kind',['restrict','expand'])

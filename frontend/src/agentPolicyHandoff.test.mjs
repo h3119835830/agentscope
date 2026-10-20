@@ -45,6 +45,7 @@ test('new Agent/System aliases and scoped handoff routes retain browser-history 
  assert.equal(readNavigation('http://localhost/?view=agent').page,'workbench');assert.equal(readNavigation('http://localhost/?view=system').page,'strategies');
  const href='http://localhost'+navigationTarget('http://localhost/?view=system',{page:'agent',policyAgent:target.id,agentPolicyTab:'policies'});
  const n=readNavigation(href);assert.equal(n.policyAgent,target.id);assert.equal(n.agentPolicyTab,'policies');assert.equal(readNavigation('http://localhost/?view=strategies&section=audit').systemTab,'generations');
+ for(const tab of ['assistant','runtime','policies','loaded','workspaces'])assert.equal(readNavigation('http://localhost/?view=workbench&agentPolicyTab='+tab).agentPolicyTab,tab);
  assert.equal(readNavigation('http://localhost/?view=system&systemTab=unknown').systemTab,'policies');
 });
 const require=createRequire(import.meta.url),Module=require('node:module'),base=dirname(fileURLToPath(import.meta.url));
