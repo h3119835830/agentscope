@@ -125,6 +125,39 @@ def test_template_update_stales_approval(world,monkeypatch):
     assert approval_views.detail(p['id'])['status']=='stale'
 
 
+def test_delete_rejected_child_retains_immutable_history_and_exact_scope(world):
+    row=tc.save(world.a['id'],config())
+    other=tc.save(world.b['id'],config(name='另一 Agent 配置'))
+    p=proposal(row)
+    dsl.reject(world.a['id'],p['id'],p['proposal_hash'])
+    before=tc.load(row['id'])
+    url='/api/policy-template-configurations/'+row['id']+'/archive'
+    assert world.client.post(url,json={'revision':1}).status_code==401
+    assert world.client.post(url,headers=ADMIN,json={'revision':99}).status_code==409
+    response=world.client.post(url,headers=ADMIN,json={'revision':1})
+    assert response.status_code==200 and response.json()['archived']
+    assert not tc.directory(world.a['id'])['items']
+    assert any(i['id']==other['id'] for i in tc.directory(world.b['id'])['items'])
+    assert tc.load(row['id'],1)['document']==before['document']
+    assert approval_views.detail(p['id'])['status']=='rejected'
+    assert not world.calls and dsl.current(world.a['id'])['documents']==[]
+    with db.connect() as con:
+        assert con.execute('SELECT count(*) FROM template_configuration_versions WHERE id=?',(row['id'],)).fetchone()[0]==1
+        assert con.execute('SELECT count(*) FROM template_configuration_proposals WHERE proposal_id=?',(p['id'],)).fetchone()[0]==1
+
+
+def test_rejected_new_version_cannot_delete_still_applied_old_version(world):
+    row=tc.save(world.a['id'],config())
+    first=proposal(row);dsl.apply(world.a['id'],first['id'],first['proposal_hash'])
+    revised=tc.save(world.a['id'],config(base_revision=1,name='新版保护'),row['id'])
+    second=proposal(revised);dsl.reject(world.a['id'],second['id'],second['proposal_hash'])
+    before=dsl.current(world.a['id'])
+    response=world.client.post('/api/policy-template-configurations/'+row['id']+'/archive',headers=ADMIN,json={'revision':2})
+    assert response.status_code==409 and '停用' in response.json()['detail']
+    assert not tc.load(row['id'])['archived']
+    assert dsl.current(world.a['id'])==before
+
+
 def test_revalidation_uses_latest_child_and_retains_version_binding(world):
     from agentscope_app.instances import approval_recovery as recovery
     row=tc.save(world.a['id'],config());p=proposal(row)

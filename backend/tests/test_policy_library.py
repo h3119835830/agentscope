@@ -31,6 +31,21 @@ def test_save_is_persistent_unselected_and_versioned_without_runtime_changes(wor
     with pytest.raises(ValueError,match='修改'):lib.save(dict(kind='structured',config=config(),base_revision=1),item['id'])
     assert not world.calls and dsl.current('system')['revision']==0
 
+
+def test_delete_rejected_legacy_child_hides_record_and_preserves_approval(capable):
+    row=save(effect='notify')
+    p=proposal([row]);assert p['state']=='pending'
+    dsl.reject('system',p['id'],p['proposal_hash'])
+    url='/api/security/system/policy-library/'+row['id']+'/archive'
+    response=capable.client.post(url,headers=ADMIN,json={'revision':row['revision']})
+    assert response.status_code==200 and response.json()['archived']
+    assert not any(i['id']==row['id'] for i in lib.directory()['items'])
+    assert lib.get(row['id'])['document']==row['document']
+    assert approval_views.detail(p['id'])['status']=='rejected'
+    with db.connect() as con:
+        assert con.execute('SELECT count(*) FROM system_policy_library_versions WHERE id=?',(row['id'],)).fetchone()[0]==1
+    assert dsl.current('system')['documents']==[] and not capable.calls
+
 def test_default_feedback_round_trips_and_never_overwrites_custom_reason(world,monkeypatch):
     for preset in lib.CATALOG:
         params=config(preset['id'])

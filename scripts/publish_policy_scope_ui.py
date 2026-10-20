@@ -13,7 +13,8 @@ from deploy_policy_semantics import authority,service,listeners,sha,guard,files,
 ROOT=Path(__file__).resolve().parents[1]
 STATE=Path('/var/lib/agentscope-scope-demo')
 BASE='f8d20222ac8f2331638e6e26125650c2fe61c2be'
-EXPECTED_INDEX='f7a6ee7eac04898a7a753ed038595bcb46ef03a75320982140238eddf82788b5'
+EXPECTED_INDEX='d5cbc690208936dc8b1596006b122dec97598093bd94e64f3286163cce362b5d'
+UI_BASE='3e4e837f80faa6a5cba3dbcb17e789a5ba407db9'
 API='agentscope-scope-demo-api.service'
 BROKER='agentscope-scope-demo-broker.service'
 
@@ -21,6 +22,9 @@ def git(*args):return subprocess.check_output(['git','-c','safe.directory='+str(
 def publish():
  assert os.geteuid()==0,'Run explicit publication as root'
  assert not git('status','--porcelain').strip(),'Commit reviewed source first'
+ changed=set(git('diff','--name-only',UI_BASE,'HEAD','--','frontend').decode().splitlines())
+ assert changed=={'frontend/src/UnifiedPolicyLibrary.jsx','frontend/src/policyConfigurationPresentation.mjs',
+                  'frontend/src/unifiedPolicyLibrary.test.mjs'},'Child deletion publication must not include other UI changes'
  guard()
  before_api,before_broker=service(API),service(BROKER)
  before_authority,before_listeners=authority(),listeners()
@@ -34,7 +38,7 @@ def publish():
  for p in dist.iterdir():
   if p.is_file() and p.name!='index.html':
    assert (ui/p.name).is_file() and sha(ui/p.name)==sha(p),'Unexpected public-file change: '+p.name
- backup=STATE/'release-backups'/('agent-policy-navigation-'+time.strftime('%Y%m%d-%H%M%S'))
+ backup=STATE/'release-backups'/('child-configuration-delete-'+time.strftime('%Y%m%d-%H%M%S'))
  backup.mkdir(mode=0o700,parents=True)
  shutil.copy2(ui/'index.html',backup/'index.html')
  result={'published':False,'source_commit':git('rev-parse','HEAD').decode().strip(),'publication':'static-ui-only','previous_index_sha256':EXPECTED_INDEX,'agent_actions':False,'policy_application':False,'service_restart':False}

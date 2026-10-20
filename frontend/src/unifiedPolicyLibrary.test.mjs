@@ -97,6 +97,60 @@ test('unapplied unsupported and in-flight rows cannot offer misleading lifecycle
  assert.equal(configurationRecordActions({...child,applied:true,applied_revision:1}).canSubmit,false);
  assert.equal(configurationRecordActions({...child,applied:true,applied_revision:1}).canDisable,true);
 });
+test('delete is available for unused rejected drafts, never for any still-applied version',()=>{
+ for(const status of ['draft','rejected','invalid','failed','stale']){
+  assert.equal(configurationRecordActions({...child,status}).canDelete,true);
+ }
+ for(const status of ['pending','approved','applying']){
+  const controls=configurationRecordActions({...child,status,approval_current:true});
+  assert.equal(controls.canDelete,false);assert.match(controls.deleteReason,/审批/);
+ }
+ for(const applied of [{applied_revision:1},{applied:true},{has_applied_document:true}]){
+  const controls=configurationRecordActions({...child,revision:2,status:'rejected',...applied});
+  assert.equal(controls.canDelete,false);assert.equal(controls.hasApplied,true);assert.match(controls.deleteReason,/停用/);
+ }
+ assert.equal(configurationRecordActions({...child,scope:'workspace'}).canDelete,false);
+ assert.equal(configurationRecordActions({...child,archived:1}).canDelete,false);
+ assert.equal(configurationRecordActions({...child,can_submit:false,read_only:true}).canDelete,true);
+});
+test('unused child deletion requires confirmation and archives only the exact selected version',async()=>{
+ const row={...child,status:'rejected',approval_id:'old-approval'};
+ const other={...row,id:'tc_other',scope_id:'b',name:'另一目标'};
+ const render=await harness('UnifiedPolicyLibrary.jsx',[{catalog:[template],items:[row,other]},{catalog:[],items:[]}]),calls=[];
+ const props={targetId:'a',api:async()=>({catalog:[],items:[]}),post:async(path,body)=>{calls.push({path,body});return {id:row.id,archived:true};},onApprovals:()=>calls.push('approval')};
+ let tree=templateDetails(render,props);
+ assert.ok(!nodes(tree).some(n=>n.props?.['aria-label']===row.name+'：停用'));
+ assert.equal(nodes(tree).find(n=>n.props?.['aria-label']===row.name+'：删除').props.disabled,false);
+ nodes(tree).find(n=>n.props?.['aria-label']===row.name+'：删除').props.onClick();tree=render(props);
+ let dialog=nodes(tree).find(n=>n.type?.name==='PolicyLifecycleDialog');
+ assert.equal(dialog.props.title,'删除子配置');assert.equal(calls.length,0);
+ assert.match(nodes(dialog).flatMap(n=>[n.props?.children].flat(Infinity).filter(v=>typeof v==='string')).join(' '),/历史版本、审批和应用记录保留/);
+ dialog.props.onClose();tree=render(props);assert.equal(calls.length,0);
+ nodes(tree).find(n=>n.props?.['aria-label']===row.name+'：删除').props.onClick();tree=render(props);
+ await nodes(tree).find(n=>n.type?.name==='PolicyLifecycleDialog').props.onConfirm();
+ assert.deepEqual(calls,[{path:'/api/policy-template-configurations/tc_a/archive',body:{revision:1}}]);
+ assert.ok(!nodes(render(props)).some(n=>n.type?.name==='PolicyLifecycleDialog'));
+});
+test('legacy rejected child uses its existing archival endpoint and shows errors without hiding the record',async()=>{
+ const row={id:'legacy',name:'全局凭据保护',revision:2,applied:false,status:'rejected',config:{template_id:'env',values:'.env',ops:['open'],effect:'notify'}};
+ const def={...template,id:'SYS-env'};
+ const render=await harness('UnifiedPolicyLibrary.jsx',[{catalog:[def],items:[]},{catalog:[],items:[row]}]),calls=[];
+ const props={api(){},post:async(path,body)=>{calls.push({path,body});throw Error('请先停用当前已应用策略');},onApprovals(){}};
+ let tree=templateDetails(render,props);
+ nodes(tree).find(n=>n.props?.['aria-label']===row.name+'：删除').props.onClick();tree=render(props);
+ await nodes(tree).find(n=>n.type?.name==='PolicyLifecycleDialog').props.onConfirm();tree=render(props);
+ assert.deepEqual(calls,[{path:'/api/security/system/policy-library/legacy/archive',body:{revision:2}}]);
+ assert.ok(nodes(tree).some(n=>n.type?.name==='PolicyLifecycleDialog'));
+ assert.ok(nodes(tree).some(n=>n.props?.role==='alert'&&n.props.children==='请先停用当前已应用策略'));
+ assert.ok(nodes(tree).some(n=>n.props?.['aria-label']===row.name+'：删除'));
+});
+test('a rejected new version with an applied old version offers disable, not deletion',async()=>{
+ const row={...child,revision:2,status:'rejected',applied:false,applied_revision:1};
+ const render=await harness('UnifiedPolicyLibrary.jsx',[{catalog:[template],items:[row]},{catalog:[],items:[]}]);
+ const tree=templateDetails(render,{api(){},post(){},onApprovals(){}});
+ assert.ok(nodes(tree).some(n=>n.props?.['aria-label']===row.name+'：停用'));
+ assert.ok(!nodes(tree).some(n=>n.props?.['aria-label']===row.name+'：删除'));
+});
 test('legacy child action and target come from saved configuration, not parent defaults',()=>{
  const row={legacy:true,config:{values:'.ssh/id_rsa\n.ssh/id_ed25519',ops:['open'],effect:'notify'},applied:false};
  const summary=configurationRecordSummary(row,{...template,parameters:[{key:'values',type:'lines'}]});
