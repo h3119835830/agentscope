@@ -108,3 +108,11 @@ def test_projection_failure_cannot_relabel_committed_candidates_as_no_changes(re
     with db.connect() as con:
         saved=con.execute("SELECT state,result_json FROM template_configuration_requests WHERE request_key LIKE 'generate:%'").fetchone()
     assert saved['state']=='completed' and len(json.loads(saved['result_json'])['items'])==1
+
+
+def test_failed_protocol_diagnostic_contains_shape_only(reference):
+    with pytest.raises(ValueError):
+        run(reference,Plan([{'tool':'SECRET_NEVER_LOG','arguments':{'path':'PRIVATE_NEVER_LOG'},'unexpected_sensitive_key':'PRIVATE_NEVER_LOG'}]))
+    failed=tc.directory(reference[0].a['id'])['generations'][-1]
+    assert failed['contract_diagnostic']=={'type':'dict','fields':{'tool':'str','arguments':'dict'},'other_field_count':1}
+    assert 'NEVER_LOG' not in json.dumps(failed) and 'unexpected_sensitive_key' not in json.dumps(failed)

@@ -34,6 +34,8 @@ def propose(ident, body):
             raise ValueError('写入目标必须是已登记资源内已存在的目录；申请不会创建目录')
         if path.is_symlink() or path.resolve() != path:
             raise ValueError('写入目标不能经过符号链接')
+        if len((translate(value,row['resources'])+'/**').encode())>=64:
+            raise ValueError('目标路径超过当前精确匹配能力，无法提交此授权。需核验受治理的短路径资源映射，不能扩大到父目录代替。')
         if any(r['action']=='write' and r['effect']=='deny' and
                (value==r['target'] or value.startswith(r['target']+'/'))
                for r in row['policy']['rules']):

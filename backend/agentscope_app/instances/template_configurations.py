@@ -606,7 +606,7 @@ def generate(scope_id, body, provider=None):
         from .mapping import resource_records
         provider = provider or DeepSeekProvider(timeout=75)
         templates = [t for t in catalog.public_catalog() if body['scope'] in t['scopes'] and not t.get('assistant_alias') and not t.get('retired')]
-        from .policy_context_agent import WorkspacePolicyAgent
+        from .policy_context_agent import WorkspacePolicyAgent,ToolContractError,result_shape
         def check_basis():
             if basis != generation_basis(store.get(scope_id) if scope_id!='system' else None):
                 raise ValueError('生成期间资源、策略或模板发生变化，请重新分析场景')
@@ -640,7 +640,7 @@ def generate(scope_id, body, provider=None):
              'output_schema':{'configurations':[{'template_id':'已发布 ID','template_version':templates[0]['version'],'name':'中文名称','parameters':{}}],'questions':[],'gaps':[],'summary':'可选，已核验资料的分析结果；不构成授权'}},
             )
         if not isinstance(result,dict) or not {'configurations','questions','gaps'}<=set(result) or set(result)-{'configurations','questions','gaps','summary'}:
-            raise ValueError('助手返回的配置计划格式不合法')
+            raise ToolContractError('助手返回的配置计划格式不合法',result_shape(result))
         if not isinstance(result.get('summary',''),str) or len(result.get('summary',''))>3000:
             raise ValueError('助手返回的资料说明格式不合法')
         if not isinstance(result['configurations'],list) or len(result['configurations']) > 12:
@@ -699,7 +699,7 @@ def generate(scope_id, body, provider=None):
             db.audit(con,None,'template_parameters_generated','authenticated_operator',{'scope_id':scope_id,'stage':body.get('stage','preflight'),'count':len(prepared),'llm_run':metadata})
         committed=True
         return {**project(response),'items':[view(load(x['id'])) for x in references]}
-    except Exception:
+    except Exception as error:
         if committed:raise
         # Persist only public workflow facts, never model output or reasoning.
         # Failed turns have no continuation basis and cannot authorize drafts.
@@ -710,6 +710,7 @@ def generate(scope_id, body, provider=None):
                  'stage':body.get('stage','preflight'),'generation_state':'failed',
                  'request_id':uuid.uuid4().hex,'created_at':db.now()}
         if runner:failure['context_usage']=runner.usage()
+        if getattr(error,'diagnostic',None):failure['contract_diagnostic']=error.diagnostic
         with db.connect() as con:
             con.execute("UPDATE template_configuration_requests SET state='failed',result_json=? WHERE request_key=?",(json.dumps(failure,ensure_ascii=False),key))
             db.audit(con,None,'template_parameters_generation_failed','authenticated_operator',{'scope_id':scope_id,'request_id':failure['request_id']})
