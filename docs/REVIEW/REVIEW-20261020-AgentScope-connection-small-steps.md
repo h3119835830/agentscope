@@ -31,6 +31,12 @@
 - 发布不使用 main 的完整 build。每个文件核对生产基线或六文件 allowlist，保留 `0d526d2` 未发布；本地 `ProductOverview.jsx`、`productConsole.test.mjs`、设计规范的并行修改未纳入本提交/包。
 - 当前：第二项验收通过，独立发布待执行。
 
+### 并行发布保护检查
+
+打开入口提交 `a476533` 后，第一次发布被 index 哈希检查阻止，尚未写入线上资源。另一项工作已把线上 JS 改为 `main-CUSNOPOG.js`（总览恢复 SecurityNotice）。
+
+只读核对该发布源码相对 b37b4fd 仅改变 `ProductOverview.jsx`；在我方临时目录独立重建，JS SHA-256 与线上 `4c6cd0cbb36b0b378c3da3bac304bba8a731475aed1716aabceccdca4a44a7ad` 完全相同。新版发布包保留此已上线文件的固定 SHA-256，不提交它的并行源码改动，再覆盖本次连接六文件。不会将已有线上功能退回，也不复制整个 main 构建。更新后的精确包 382/382 回归再次通过。
+
 ## ActPlane 核对
 
 - `git diff a182291 main -- actplane` 为空。

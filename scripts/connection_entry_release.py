@@ -16,7 +16,11 @@ from deploy_policy_semantics import authority, service, sha, guard, api, files
 from connection_layout_release import ROOT, UI, API, BROKER, ENGINE, git
 
 LIVE_BASE = 'b37b4fd'
-EXPECTED_INDEX = '8492be382a29697404fb0c50fdaa150c1819a30756efb6017762e6d1d7e72e7f'
+EXPECTED_INDEX = 'ef1e2ef27e81980937efe0a2e9da8259c9107bf335f2c941ef2daab52bfaa79f'
+# A separate notice release landed after our CSS publication. Preserve, not merge, it.
+RETAINED = {'src/ProductOverview.jsx': '649a8f07c70444385767c4ccd6049e92e9ac5e3c94191453ff191308dc7a976a'}
+RETAINED_SOURCE = Path('/tmp/agentscope-notice-release-LemnwD/frontend')
+LIVE_JS_SHA = '4c6cd0cbb36b0b378c3da3bac304bba8a731475aed1716aabceccdca4a44a7ad'
 OVERLAYS = ('src/agentInstances.css', 'src/AgentInstances.jsx', 'src/AgentLaunchFields.jsx',
             'src/agentInstancePresentation.mjs', 'src/openAgentPage.mjs', 'src/connectionOpen.mjs')
 
@@ -26,18 +30,26 @@ def sources(path):
             if p.is_file() and 'node_modules' not in p.parts and 'dist' not in p.parts}
 
 
-def stage():
+def stage(prove_baseline=False):
     root = Path(tempfile.mkdtemp(prefix='agentscope-connection-entry-'))
     archive = subprocess.Popen(['git', '-C', str(ROOT), 'archive', LIVE_BASE, 'frontend'], stdout=subprocess.PIPE)
     subprocess.run(['tar', '-x', '-C', str(root)], stdin=archive.stdout, check=True)
     assert archive.wait() == 0
-    for rel in OVERLAYS:
+    for rel, digest in RETAINED.items():
+        assert sha(RETAINED_SOURCE/rel) == digest
+        shutil.copyfile(RETAINED_SOURCE/rel, root/'frontend'/rel)
+    for rel in (() if prove_baseline else OVERLAYS):
         shutil.copyfile(ROOT/'frontend'/rel, root/'frontend'/rel)
-    manifest = {'baseline': LIVE_BASE, 'overlays': {rel: sha(ROOT/'frontend'/rel) for rel in OVERLAYS},
+    manifest = {'baseline': LIVE_BASE, 'retained': RETAINED, 'overlays': {rel: sha(ROOT/'frontend'/rel) for rel in OVERLAYS},
                 'sources': sources(root/'frontend')}
     (root/'frontend/node_modules').symlink_to((ROOT/'frontend/node_modules').resolve())
     subprocess.run(['npm', 'run', 'build'], cwd=root/'frontend', check=True)
     manifest['dist'] = files(root/'frontend/dist')
+    if prove_baseline:
+        js = list((root/'frontend/dist/assets').glob('main-*.js'))
+        assert len(js) == 1 and sha(js[0]) == LIVE_JS_SHA, 'Concurrent live source baseline not reproduced'
+        print(json.dumps({'baseline_reproduced': True, 'live_js_sha256': LIVE_JS_SHA}))
+        return
     (root/'manifest.json').write_text(json.dumps(manifest, indent=2))
     print(json.dumps({'stage': str(root)}))
 
@@ -45,13 +57,16 @@ def stage():
 def verify(root, committed=False):
     assert root.parent == Path('/tmp') and root.name.startswith('agentscope-connection-entry-')
     manifest = json.loads((root/'manifest.json').read_text())
-    assert manifest['baseline'] == LIVE_BASE and set(manifest['overlays']) == set(OVERLAYS)
+    assert manifest['baseline'] == LIVE_BASE and set(manifest['overlays']) == set(OVERLAYS) and manifest['retained'] == RETAINED
     assert sources(root/'frontend') == manifest['sources']
     assert files(root/'frontend/dist') == manifest['dist']
     # Validate every source against the live Git baseline plus the exact allowlist.
     tracked = git('ls-tree', '-r', '--name-only', LIVE_BASE, '--', 'frontend').decode().splitlines()
     assert set(manifest['sources']) == {p.removeprefix('frontend/') for p in tracked} | set(OVERLAYS)
     for rel, digest in manifest['sources'].items():
+        if rel in RETAINED:
+            assert digest == RETAINED[rel], 'Previously published notice changed'
+            continue
         expected = (git('show', 'HEAD:frontend/'+rel) if committed else (ROOT/'frontend'/rel).read_bytes()) if rel in OVERLAYS else git('show', LIVE_BASE+':frontend/'+rel)
         assert hashlib.sha256(expected).hexdigest() == digest, 'Unreviewed source: '+rel
     return root/'frontend/dist'
@@ -101,6 +116,7 @@ def publish(root):
     dist = verify(root, committed=True)
     assert sha(UI/'index.html') == EXPECTED_INDEX
     original = (UI/'index.html').read_bytes()
+    assert sha(UI/'assets/main-CUSNOPOG.js') == LIVE_JS_SHA
     new_index = (dist/'index.html').read_bytes()
     pattern = rb'/assets/main-[a-zA-Z0-9_-]+\.js'
     old_js, new_js = re.findall(pattern, original), re.findall(pattern, new_index)
@@ -115,7 +131,7 @@ def publish(root):
     backup.mkdir(mode=0o700, parents=True)
     shutil.copy2(UI/'index.html', backup/'index.html')
     result = dict(published=False, source_commit=git('rev-parse', 'HEAD').decode().strip(),
-                  baseline=LIVE_BASE, overlays=list(OVERLAYS), service_restart=False,
+                  baseline=LIVE_BASE, retained=RETAINED, overlays=list(OVERLAYS), service_restart=False,
                   agent_actions=False, policy_application=False, withheld_commit='0d526d2')
     try:
         name = new_js[0].decode().lstrip('/')
@@ -156,10 +172,13 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('--stage', action='store_true')
+    group.add_argument('--prove-baseline', action='store_true')
     group.add_argument('--preview', type=Path)
     group.add_argument('--publish', type=Path)
     args = parser.parse_args()
-    if args.stage:
+    if args.prove_baseline:
+        stage(prove_baseline=True)
+    elif args.stage:
         stage()
     elif args.preview:
         preview(args.preview.resolve())
