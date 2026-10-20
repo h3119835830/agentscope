@@ -15,7 +15,7 @@ SOURCE = Path(__file__).resolve().parents[1]
 STATE = Path('/var/lib/agentscope-scope-demo')
 API = 'agentscope-scope-demo-api.service'
 BROKER = 'agentscope-scope-demo-broker.service'
-DROP = Path('/etc/systemd/system/' + API + '.d/99zzzzzzzzzz-preflight-runtime-20261020.conf')
+DROP = Path('/etc/systemd/system/' + API + '.d/zzzzzzzzz-preflight-runtime-20261020.conf')
 
 
 def git(*args):
@@ -25,6 +25,7 @@ def git(*args):
 def stage():
     assert os.geteuid() == 0
     assert not git('status', '--porcelain'), 'Commit the reviewed source before staging'
+    assert all(path == DROP or path.name < DROP.name for path in DROP.parent.glob('*.conf')), 'Deployment drop-in would not be authoritative'
     guard()
     before = service(API)
     broker = service(BROKER)
