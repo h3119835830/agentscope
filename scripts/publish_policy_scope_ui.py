@@ -12,8 +12,8 @@ from deploy_policy_semantics import authority,service,listeners,sha,guard,files,
 
 ROOT=Path(__file__).resolve().parents[1]
 STATE=Path('/var/lib/agentscope-scope-demo')
-BASE='fddc532aa8cabfeb41b8d6a09793a74529c51836'
-EXPECTED_INDEX='c0401cf7dbd1eccde602fea924ccc1bec95e1c1b9857190fb5003ec082b8066f'
+BASE='f8d20222ac8f2331638e6e26125650c2fe61c2be'
+EXPECTED_INDEX='01d82b51967ef70cd514bdf15a496ec4c5e829f721ceca8a90452955fb646415'
 API='agentscope-scope-demo-api.service'
 BROKER='agentscope-scope-demo-broker.service'
 
@@ -34,7 +34,7 @@ def publish():
  for p in dist.iterdir():
   if p.is_file() and p.name!='index.html':
    assert (ui/p.name).is_file() and sha(ui/p.name)==sha(p),'Unexpected public-file change: '+p.name
- backup=STATE/'release-backups'/('unified-policy-scope-'+time.strftime('%Y%m%d-%H%M%S'))
+ backup=STATE/'release-backups'/('agent-policy-navigation-'+time.strftime('%Y%m%d-%H%M%S'))
  backup.mkdir(mode=0o700,parents=True)
  shutil.copy2(ui/'index.html',backup/'index.html')
  result={'published':False,'source_commit':git('rev-parse','HEAD').decode().strip(),'publication':'static-ui-only','previous_index_sha256':EXPECTED_INDEX,'agent_actions':False,'policy_application':False,'service_restart':False}
