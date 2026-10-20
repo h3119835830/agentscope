@@ -83,7 +83,7 @@ def test_read_only_summary_is_retained_and_unknown_authority_fields_still_fail(r
     run(reference,followup,request(parent_request_id=result['request_id']))
     assert followup.calls[0]['previous_turns'][0]['summary']==result['summary']
     with pytest.raises(ValueError):
-        run(reference,Plan([{**final(),'approved':True}]))
+        run(reference,Plan([{**final(),'approved':True}]*3))
     failed=tc.directory(reference[0].a['id'])['generations'][-1]
     assert failed['generation_state']=='failed' and not failed['items'] and 'generation_basis' not in failed
     assert 'approved' not in json.dumps(failed) and not reference[0].calls
@@ -112,7 +112,7 @@ def test_projection_failure_cannot_relabel_committed_candidates_as_no_changes(re
 
 def test_failed_protocol_diagnostic_contains_shape_only(reference):
     with pytest.raises(ValueError):
-        run(reference,Plan([{'tool':'SECRET_NEVER_LOG','arguments':{'path':'PRIVATE_NEVER_LOG'},'unexpected_sensitive_key':'PRIVATE_NEVER_LOG'}]))
+        run(reference,Plan([{'tool':'SECRET_NEVER_LOG','arguments':{'path':'PRIVATE_NEVER_LOG'},'unexpected_sensitive_key':'PRIVATE_NEVER_LOG'}]*3))
     failed=tc.directory(reference[0].a['id'])['generations'][-1]
     assert failed['contract_diagnostic']=={'type':'dict','fields':{'tool':'str','arguments':'dict'},'other_field_count':1}
     assert 'NEVER_LOG' not in json.dumps(failed) and 'unexpected_sensitive_key' not in json.dumps(failed)

@@ -10,6 +10,7 @@ MAX_CALLS=12
 MAX_FILES=10
 MAX_BYTES=192*1024
 MAX_ERRORS=2
+MAX_FORMAT_REPAIRS=2
 TOOLS=[
  {'name':'list_directory','description':'查看当前 Agent 已登记工作区中的一个目录，不读取正文。按 next_cursor 分页。',
   'parameters':{'workspace_id':'workspace_catalog 中的 ID','path':'工作区内相对目录；根目录用空字符串','cursor':'整数；第一页为 0'}},
@@ -39,6 +40,10 @@ def result_shape(value):
          'other_field_count':len(set(value)-known)} if isinstance(value,dict) else {'type':type(value).__name__}
 class DirectoryConfirmationRequired(ValueError):pass
 
+def final_shape_valid(value):
+ return (isinstance(value,dict) and {'configurations','questions','gaps'}<=set(value)
+         and not set(value)-{'configurations','questions','gaps','summary'})
+
 class WorkspacePolicyAgent:
  def __init__(self,ident,provider,check_basis,seed=None,enabled=True,reference_workspace_id=None):
   self.ident=ident;self.provider=provider;self.check_basis=check_basis;self.enabled=enabled
@@ -48,7 +53,7 @@ class WorkspacePolicyAgent:
    if not selected:raise ValueError('所选参考工作区不属于当前 Agent 或已失效')
    self.catalog=selected
   self.workspaces={w['id']:w for w in self.catalog}
-  self.references=[];self.selected=set();self.total_bytes=0;self.events=[];self.calls=0;self.errors=0;self.runs=[]
+  self.references=[];self.selected=set();self.total_bytes=0;self.events=[];self.calls=0;self.errors=0;self.runs=[];self.format_repairs=0
   self.discovered=set()
   self.discovered_sizes={}
   if seed:self.remember(seed)
@@ -138,6 +143,18 @@ class WorkspacePolicyAgent:
    self.runs.append(metadata);self.check_basis()
    if time.monotonic()>=deadline:raise ValueError('场景分析超过读取期限，请缩小场景后重试')
    if not isinstance(result,dict):raise ValueError('策略助手返回格式不合法')
+   if 'calls' not in result and not final_shape_valid(result):
+    # Reject the whole invalid response before any materialization. Feed back
+    # only the existing protocol, never unknown values/keys or private reasoning.
+    if not self.enabled or self.format_repairs>=MAX_FORMAT_REPAIRS:
+     raise ToolContractError('助手返回的配置计划格式不合法',result_shape(result))
+    self.format_repairs+=1
+    feedback={'kind':'protocol_validation','code':'invalid_final_fields','accepted':False,
+              'required_fields':['configurations','questions','gaps'],'optional_fields':['summary'],
+              'other_fields_allowed':False,'saved_or_applied':False}
+    context['protocol_feedback']=feedback
+    dialogue.append({'role':'user','content':json.dumps(feedback,ensure_ascii=False)})
+    continue
    if 'calls' not in result:
     for reference in self.references:refs.verify(self.ident,reference['read_id'])
     return result,{'provider':metadata.get('provider'),'round_count':len(self.runs),'runs':self.runs}
@@ -155,6 +172,6 @@ class WorkspacePolicyAgent:
    'execution_paths':[f['execution_path'] for f in r['untrusted_project_files']]} for r in self.references]
 
  def usage(self):
-  return {'mode':'auto' if self.enabled else 'provided' if self.references else 'none','round_count':len(self.runs),'call_count':self.calls,
+  return {'mode':'auto' if self.enabled else 'provided' if self.references else 'none','round_count':len(self.runs),'call_count':self.calls,'format_repair_count':self.format_repairs,
    'file_count':len(self.selected),'total_bytes':self.total_bytes,'activity':self.events,
    'sources':[{'workspace':r['workspace'],'paths':[f['execution_path'] for f in r['untrusted_project_files']]} for r in self.references]}

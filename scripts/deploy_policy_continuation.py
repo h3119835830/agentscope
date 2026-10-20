@@ -12,9 +12,9 @@ from deploy_reference_reader import ROOT, STATE, API, BROKER, PYTHON, git, ident
 from deploy_policy_semantics import api, authority, files, listeners, service, sha
 from deploy_policy_context_agent import idle, protected
 
-BASE='44bfee3'
+BASE='a04fdd3'
 PREFIX='agentscope-pi-continuation-'
-DROP=Path('/etc/systemd/system/'+API+'.d/zzzzzzzzzzzzzz-pi-dialogue-20261020.conf')
+DROP=Path('/etc/systemd/system/'+API+'.d/zzzzzzzzzzzzzzz-pi-contract-feedback-20261020.conf')
 MANIFEST='continuation-deployment.json'
 EXISTING=('backend/agentscope_app/console.py','backend/agentscope_app/history/llm.py')+tuple('backend/agentscope_app/instances/'+name+'.py' for name in
                ('api','templates_api','template_configurations','policy_context_agent','workspace_references','policy_continuation','write_permissions'))
