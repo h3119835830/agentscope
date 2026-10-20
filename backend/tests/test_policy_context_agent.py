@@ -41,6 +41,13 @@ def test_saved_history_contains_source_paths_not_duplicate_project_body(referenc
   value=con.execute("SELECT result_json FROM template_configuration_requests WHERE request_key LIKE 'generate:%'").fetchone()[0]
   assert 'source-only-fixture-UNIQUE' not in value
 
+def test_reader_infrastructure_failure_aborts_without_fallback_candidates(reference,monkeypatch):
+ world,_,body=reference;provider=Plan(steps(body['workspace_id']))
+ def unavailable(*args,**kwargs):raise refs.ReaderUnavailable()
+ monkeypatch.setattr(refs,'list_files',unavailable)
+ with pytest.raises(refs.ReaderUnavailable,match='读取服务不可用'):run(reference,provider)
+ assert len(provider.calls)==1 and not tc.directory(world.a['id'])['items'] and not world.calls
+
 def test_read_requires_directory_discovery_and_feedback_is_added_to_context(reference):
  _,_,body=reference;w=body['workspace_id']
  plan=Plan([call('read_files',workspace_id=w,paths=['README.md']),*steps(w)])

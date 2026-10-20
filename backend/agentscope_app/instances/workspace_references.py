@@ -17,6 +17,7 @@ from ..workspaces.scene_read import public_text
 from . import store,dsl_policy as dsl,system_policy as system
 from .mapping import resource_records,translate
 from .policy import digest
+from reference_reader_channel import ReaderUnavailable,inherited_client
 
 SCHEMA='''CREATE TABLE IF NOT EXISTS template_workspace_reads(
  id TEXT PRIMARY KEY,instance_id TEXT NOT NULL,request_key TEXT NOT NULL,request_hash TEXT NOT NULL,
@@ -25,6 +26,7 @@ SCHEMA='''CREATE TABLE IF NOT EXISTS template_workspace_reads(
 SLOTS=threading.BoundedSemaphore(2)
 READ_DEADLINE=ContextVar('policy_reference_deadline',default=None)
 WORKER=Path(__file__).resolve().parents[2]/'reference_file_reader.py'
+READER_CHANNEL=inherited_client()
 TEXT_EXTENSIONS={'.md','.txt','.rst','.json','.yaml','.yml','.toml','.ini','.cfg','.py','.js','.jsx','.ts','.tsx','.sh','.sql','.xml','.csv','.dsl'}
 SENSITIVE=re.compile(r'(?i)(?:^|[._-])(?:credentials?|secrets?|tokens?|private|id_rsa|id_ed25519)(?:$|[._-])')
 EXCLUDED={'.git','.dsh','.actplane','.ssh','.aws','.azure','.gnupg','.venv','node_modules','__pycache__'}
@@ -120,9 +122,11 @@ def run_reader(payload,uid,gid):
   # subprocess's built-in identity drop is safe from this threaded API. No
   # preexec_fn, user commands, shell, tools, runtime cgroup or native Agent call.
   identity={'user':uid,'group':gid,'extra_groups':[]} if os.geteuid()==0 else {}
-  if os.geteuid()!=0 and (os.geteuid()!=uid or os.getegid()!=gid or os.getgroups()):raise ValueError('当前服务不能核验 Agent 的文件读取身份')
   remaining=READ_DEADLINE.get()-time.monotonic() if READ_DEADLINE.get() is not None else 5
   if remaining<=0:raise ValueError('场景分析读取期限已到，请重新分析或缩小场景')
+  if os.geteuid()!=0 and (os.geteuid()!=uid or os.getegid()!=gid or os.getgroups()):
+   if READER_CHANNEL is None:raise ReaderUnavailable()
+   return READER_CHANNEL.read(payload,uid,gid,min(5,remaining))
   result=subprocess.run([sys.executable,'-I',str(WORKER)],input=json.dumps(payload),capture_output=True,text=True,
    timeout=min(5,remaining),env={'LANG':'C.UTF-8'},cwd='/',**identity)
   if result.returncode or len(result.stdout.encode())>1600000:raise ValueError('所选文件无读取权限、格式不支持、超过限额或读取期间发生变化')

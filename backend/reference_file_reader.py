@@ -93,6 +93,11 @@ def read_selection(root,paths,max_total_bytes=MAX_TOTAL):
 
 if __name__=='__main__':
  try:
+  # Exec resets dumpability; protect read buffers in this process as well.
+  import ctypes,resource
+  resource.setrlimit(resource.RLIMIT_CORE,(0,0))
+  libc=ctypes.CDLL(None,use_errno=True)
+  if libc.prctl(38,1,0,0,0) or libc.prctl(4,0,0,0,0):raise ValueError('reader isolation unavailable')
   raw=sys.stdin.buffer.read(30001)
   if len(raw)>30000:raise ValueError('request too large')
   body=json.loads(raw)

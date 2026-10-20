@@ -4,6 +4,7 @@ import tempfile
 from pathlib import Path
 
 os.environ["AGENTSCOPE_STATE_DIR"] = tempfile.mkdtemp(prefix="agentscope-test-")
+os.environ.pop("AGENTSCOPE_REFERENCE_READER_FD", None)
 # Never inherit a service database, broker socket, task tree, or worker setting.
 for setting in ('AGENTSCOPE_DB','AGENTSCOPE_TASK_ROOT','AGENTSCOPE_POLICY_DIR','AGENTSCOPE_LOG_DIR','AGENTSCOPE_CORPUS_ROOT','AGENTSCOPE_SERVICE_HOME','AGENTSCOPE_RUNTIME_DIR','AGENTSCOPE_DSH_HOME','DSH_HOME','AGENTSCOPE_PUBLIC_URL'):
     os.environ.pop(setting,None)

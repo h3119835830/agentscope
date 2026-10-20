@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Run only the prepared 18003 Scope Demo under separate systemd units."""
 import fcntl
+import grp
 import json
 import os
 import pwd
@@ -77,6 +78,14 @@ def main():
     if role == "broker":
         command = [python, str(ROOT / "backend/broker/main.py")]
     else:
+        # Keep API identity unchanged. Only a private inherited FD reaches this
+        # fixed read-only worker; it has no listener or privileged operations.
+        sys.path.insert(0, str(ROOT / "backend"))
+        from reference_reader_channel import launch, FD_ENV
+        reader_user = pwd.getpwnam("happy")
+        reader_group = grp.getgrnam(env.get("AGENTSCOPE_TASK_GROUP", "agentscope-task"))
+        reader_channel, reader_process = launch(python, reader_user.pw_uid, reader_group.gr_gid)
+        env[FD_ENV] = str(reader_channel.fileno())
         user = pwd.getpwnam("agentscope-api")
         os.initgroups(user.pw_name, user.pw_gid)
         os.setgid(user.pw_gid)

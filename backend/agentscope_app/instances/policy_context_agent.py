@@ -83,6 +83,11 @@ class WorkspacePolicyAgent:
    self.check_basis();self.events.append(event)
    return {'tool':tool,'arguments':args,'result':value}
   except ToolContractError:raise
+  except refs.ReaderUnavailable:
+   # Infrastructure failure is not a model judgment or a file-policy denial.
+   # Abort the generation; never fall back to fabricated/no-source candidates.
+   event['status']='unavailable';self.events.append(event)
+   raise
   except (ValueError,OSError) as error:
    self.errors+=1
    if self.errors>MAX_ERRORS:raise ValueError('部分资料持续不可读取，请缩小场景或补充业务要求；不会放宽读取权限') from None

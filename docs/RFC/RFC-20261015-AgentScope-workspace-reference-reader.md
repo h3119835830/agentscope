@@ -23,9 +23,11 @@
 
 先校验受控实例、登记资源、当前策略阶段及选定工作区。只接受规范相对路径；一次 1–10 个 UTF-8 文本，每个最多 64 KiB，总计最多 192 KiB。拒绝环境凭据、私钥、运行私有目录、不支持的文件类型、路径越界、重复选择。
 
-独立固定 Python 读取程序通过 stdin 接收服务端生成的目录与文件列表。无 shell，无模型工具，无调用者指定程序。subprocess 内置身份切换沿用当前固定受控运行合同：happy UID、agentscope-task 主 GID、无补充组。API 虽以 root 运行，读取工作进程不能利用 root 的 DAC 权限。进程没有加入既有 Agent 的 cgroup，也不改变其 lease、门禁或内核域。
+独立固定 Python 读取程序通过 stdin 接收服务端生成的目录与文件列表。无 shell，无模型工具，无调用者指定程序。固定受控运行合同：happy UID、agentscope-task 主 GID、无补充组。**2026-10-20 纠正部署假设：正式 API 实际以 agentscope-api 非 root 身份运行，不能自行切换为读取身份。** 受信启动器在降低 API 身份前预建匿名 socketpair 和固定低权限读取进程，API 只继承私有通道；不提升 API 权限、不开放监听接口。实际读取 UID/GID/组必须匹配原绑定。直接启动 helper 仅适用于 root 能正确降权、或调用者已经严格处于目标身份的环境，不能在不匹配时回退到 API 身份。详见 ADR-20261020-Pi-reader-inherited-channel.md。
 
-读取从 / 开始逐段 O_NOFOLLOW 打开目录；文件使用 O_NOFOLLOW / O_NONBLOCK，要求普通文件及单一硬链接。读取前后核对设备、inode、大小、mtime、ctime、mode、link count；重开路径核对根和最终对象，拒绝读取期间的替换。单进程 5 秒期限，最多 2 个并发读取。部分失败不保存部分正文。
+读取进程没有加入既有 Agent 的 cgroup，也不改变其 lease、门禁或内核域。读取守护和实际 worker 均设置 no_new_privs、禁止 dump/core dump；传输仅支持 list/read，协议和响应有长度上限。API 接收后通道不可继承给 exec 子进程，通道损坏/身份不匹配时拒绝。基础设施故障终止本次生成，不作为文件策略拒绝反馈模型反复重试。
+
+读取从 / 开始逐段 O_NOFOLLOW 打开目录；文件使用 O_NOFOLLOW / O_NONBLOCK，要求普通文件及单一硬链接。读取前后核对设备、inode、大小、mtime、ctime、mode、link count；重开路径核对根和最终对象，拒绝读取期间的替换。单请求 5 秒期限，最多接纳 2 个请求；私有通道串行，锁等待计入期限。部分失败不保存部分正文。
 
 权限守门同时检查实例和系统 typed read deny，以及现有系统/实例 DSL。DSL 通过真实 ActPlane AST 适配器解析，参考读取对可能匹配的 block/kill read/open 规则保守拒绝；条件、标签和例外不用于放松读取。这是额外的资料访问限制，不模拟全部实时标签状态；可能比实时执行更严格。无法解析或阶段未恢复时不读取。AST 中 managed source 的占位只用于提取所有潜在拒绝子句，既不安装也不声明已核验执行身份。
 
