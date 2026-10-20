@@ -140,3 +140,12 @@ body:has(.instance-drawer[open]),body:has(.instance-add[open]){overflow:hidden}
 .instance-add .instance-form>.field-note,.instance-add .agent-launch-fields>.field-note{margin:0;line-height:1.6}
 .instance-add .instance-form>button{justify-self:end}
 @media(max-width:650px){.instance-add .instance-form,.instance-add .agent-launch-fields{grid-template-columns:minmax(0,1fr)}}
+
+/* Existing connection settings use the same compact launch layout as Add. */
+.instance-drawer #instance-pane-connection .instance-form{gap:14px 16px;align-content:start;margin-top:16px}
+.instance-drawer #instance-pane-connection .instance-form label{margin:0;padding:0;gap:6px;align-content:start;line-height:1.45}
+.instance-drawer #instance-pane-connection .agent-launch-fields{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 16px;align-content:start}
+.instance-drawer #instance-pane-connection .agent-launch-fields>label:nth-of-type(1),.instance-drawer #instance-pane-connection .agent-launch-fields>label:nth-of-type(2),.instance-drawer #instance-pane-connection .agent-launch-fields>p{grid-column:1/-1}
+.instance-drawer #instance-pane-connection .instance-form>.field-note,.instance-drawer #instance-pane-connection .agent-launch-fields>.field-note{margin:0;line-height:1.6}
+.instance-drawer #instance-pane-connection .instance-form>.actions{justify-content:flex-end}
+@media(max-width:650px){.instance-drawer #instance-pane-connection .agent-launch-fields{grid-template-columns:minmax(0,1fr)}}
