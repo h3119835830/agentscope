@@ -40,7 +40,7 @@ def native_cwd(row,session):
     cwd=session.get('execution_resource')
     if not isinstance(cwd,str) or not any(resource==p or resource.startswith(p+'/') for p in row.get('resources',[])):return None
     from .mapping import translate
-    try:return cwd if translate(cwd,row['resources'],reverse=True)==resource else None
+    try:return cwd if translate(cwd,row['resources'],reverse=True,views=row.get('policy',{}).get('resource_views'))==resource else None
     except ValueError:return None
 
 def native_workspace_info(row,session):
@@ -53,7 +53,7 @@ def native_workspace_info(row,session):
     # native workspace registration happens to point at one of them.
     if row.get('launch',{} ) and row['launch'].get('native_paths'):
         from .mapping import translate
-        path=translate(path,row.get('resources',[]),reverse=True)
+        path=translate(path,row.get('resources',[]),reverse=True,views=row.get('policy',{}).get('resource_views'))
     if internal_workspace_path(path):return None
     import ntpath
     from pathlib import PurePosixPath

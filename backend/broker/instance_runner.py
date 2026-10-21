@@ -3,9 +3,9 @@
 import json, os, stat, subprocess, sys, threading, time
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from agentscope_app.instances.mapping import translate
+from agentscope_app.instances.mapping import translate,resource_records
 
-def sandbox(config,probe=False):
+def sandbox(config,probe=False,source_fds=None):
     state=config['state']
     args=['/usr/bin/bwrap','--die-with-parent','--unshare-user','--unshare-pid','--unshare-ipc','--unshare-uts','--cap-drop','ALL',
           '--ro-bind','/usr','/usr','--symlink','usr/bin','/bin','--symlink','usr/lib','/lib','--symlink','usr/lib64','/lib64',
@@ -15,18 +15,27 @@ def sandbox(config,probe=False):
           '--ro-bind','/opt/agentscope/bin','/opt/agentscope/bin',
           '--ro-bind','/var/lib/agentscope-rq5-v1/task-python','/opt/task-python',
           '--bind',state,state,'--bind',config['home'],config['home'],'--symlink',state+'/tmp','/tmp']
-    for target in config['resources']:
-        alias=translate(target,config['resources'])
+    views=config['policy'].get('resource_views')
+    if views:
+        if source_fds is None:raise ValueError('映射沙箱必须管理来源描述符生命周期')
+        if config.get('launch',{}).get('native_paths') or config.get('launch',{}).get('kind')=='terminal':
+            raise ValueError('当前短路径映射仅支持原生 Web Agent，不支持主机路径或终端启动配置')
+        from broker.resource_view_mounts import mount_arguments,grant_arguments
+        mapped,fds=mount_arguments(config['resources'],views,probe=probe)
+        source_fds.extend(fds);args+=mapped
+        if not probe:args+=grant_arguments(config['resources'],config['policy'],source_fds)
+    for target in ([] if views else config['resources']):
+        alias=translate(target,config['resources'],views=config['policy'].get('resource_views'))
         args += ['--bind' if probe else '--ro-bind',target,alias]
         if config.get('launch',{}).get('native_paths'):
             for parent in reversed(Path(target).parents):
                 if str(parent)!='/':args += ['--dir',str(parent)]
             args += ['--symlink',alias,target]
-    for rule in ([] if probe else config['policy']['rules']):
-        if rule['action']=='write' and rule['effect']=='allow': args += ['--bind',rule['target'],translate(rule['target'],config['resources'])]
+    for rule in ([] if probe or views else config['policy']['rules']):
+        if rule['action']=='write' and rule['effect']=='allow': args += ['--bind',rule['target'],translate(rule['target'],config['resources'],views=config['policy'].get('resource_views'))]
     # Denies override grants. Separate mount points also prevent hardlink aliases.
-    for rule in ([] if probe else config['policy']['rules']):
-        target=translate(rule['target'],config['resources']) if rule['action'] in ('read','write') else rule['target']
+    for rule in ([] if probe or views else config['policy']['rules']):
+        target=translate(rule['target'],config['resources'],views=config['policy'].get('resource_views')) if rule['action'] in ('read','write') else rule['target']
         if rule['action']=='write' and rule['effect']=='deny': args += ['--ro-bind',rule['target'],target]
         if rule['action']=='read' and rule['effect']=='deny' and Path(rule['target']).is_dir():
             args += ['--tmpfs',target,'--chmod','000',target]
@@ -37,8 +46,17 @@ def sandbox(config,probe=False):
         for name in ('config.yaml','.env','auth.json'):
             p=Path(config['home'])/name
             if p.is_file(): args += ['--ro-bind',str(p),str(p)]
-    args += ['--uid',str(config['uid']),'--gid',str(config['gid']),'--chdir',config.get('launch',{}).get('cwd') or translate(config['resources'][0],config['resources']),'--']
+    args += ['--uid',str(config['uid']),'--gid',str(config['gid']),'--chdir',config.get('launch',{}).get('cwd') or translate(config['resources'][0],config['resources'],views=config['policy'].get('resource_views')),'--']
     return args
+
+
+def sandbox_popen(config,command,probe=False,**kwargs):
+    fds=[]
+    try:
+        args=sandbox(config,probe=probe,source_fds=fds)
+        return subprocess.Popen([*args,*command],pass_fds=tuple(fds),**kwargs)
+    finally:
+        for fd in fds:os.close(fd)
 
 PROBE = """
 import json,os,socket,sys
@@ -115,8 +133,8 @@ def main():
          'TMPDIR':config['state']+'/tmp','PYTHONDONTWRITEBYTECODE':'1','NO_PROXY':'*','no_proxy':'*',
          'AGENTSCOPE_INSTANCE_ID':config['instance_id'],'AGENTSCOPE_INSTANCE_TOKEN':config['token'],'AGENTSCOPE_GENERATION':config['generation'],
          'AGENTSCOPE_INSTANCE_URL':config['api_url'],'AGENTSCOPE_NATIVE_TOKEN':config['native_token'],'AGENTSCOPE_NATIVE_PORT':str(config['web_port']+100),
-         'AGENTSCOPE_FILE_DENIES':json.dumps([translate(r['target'],config['resources']) for r in config['policy']['rules'] if r['action']=='read' and r['effect']=='deny']),
-          'AGENTSCOPE_RESOURCES':json.dumps([translate(p,config['resources']) for p in config['resources']]),'AGENTSCOPE_WEB_PORT':str(config['web_port'])}
+         'AGENTSCOPE_FILE_DENIES':json.dumps([translate(r['target'],config['resources'],views=config['policy'].get('resource_views')) for r in config['policy']['rules'] if r['action']=='read' and r['effect']=='deny']),
+          'AGENTSCOPE_RESOURCES':json.dumps([m['execution'] for m in resource_records(config['resources'],views=config['policy'].get('resource_views'))]),'AGENTSCOPE_WEB_PORT':str(config['web_port'])}
     if config['agent_type']=='dsh':
         env['DSH_HOME']=config['home']
         argv=[config['dsh'],'web','--host','127.0.0.1','--port',str(config['web_port']),'--no-open']
@@ -137,7 +155,7 @@ def main():
             # Exercise the same executable identity as the trusted launch profile.
             # The command and target stay fixed; native credentials cannot choose code.
             command=['/opt/agentscope/bin/node','-e',program] if config['agent_type']=='dsh' or config.get('launch',{}).get('source')=='**/node' else [config['hermes_root']+'/venv/bin/python' if config['agent_type']=='hermes' else config.get('launch',{}).get('argv',['/usr/bin/python3'])[0],'-c',program]
-        child=subprocess.Popen([*sandbox(config,probe=True),*command],env=values,preexec_fn=demote,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+        child=sandbox_popen(config,command,probe=True,env=values,preexec_fn=demote,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
         line=child.stdout.readline()
         if not line: raise RuntimeError(child.stderr.read()[-1000:])
         result=json.loads(line)
@@ -163,7 +181,7 @@ def main():
             if child.returncode: raise RuntimeError('Fixed probe process failed')
             for key in ('writes','reads'):
                 for item in result[key]:
-                    item['execution_path']=item['path'];item['path']=translate(item['path'],config['resources'],reverse=True)
+                    item['execution_path']=item['path'];item['path']=translate(item['path'],config['resources'],reverse=True,views=config['policy'].get('resource_views'))
         return result
     # Do not carry a host-file descriptor through the mount namespace: its
     # path cannot be resolved by LSM there. The trusted relay drains a pipe.
@@ -173,7 +191,7 @@ def main():
         from broker.terminal_relay import TerminalRelay
         terminal=TerminalRelay([*sandbox(config),*argv],env,demote);process=terminal.process
     else:
-        process=subprocess.Popen([*sandbox(config),*argv],env=env,preexec_fn=demote,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+        process=sandbox_popen(config,argv,env=env,preexec_fn=demote,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
         def drain():
             for chunk in iter(lambda:process.stdout.read1(8192),b''):os.write(1,chunk)
         threading.Thread(target=drain,daemon=True).start()
@@ -215,7 +233,7 @@ def main():
                         target=Path(config['resources'][0])/('.agentscope-dsl-'+effect+'.txt')
                         if target.is_symlink() or not target.is_file() or target.stat().st_nlink!=1:raise ValueError('Missing fixed DSL probe fixture')
                         program=DSL_NODE_PROBE if config['agent_type']=='dsh' or config.get('launch',{}).get('source')=='**/node' else DSL_PROBE
-                        result=fixed_program(program,{'DSL_TARGET':translate(str(target),config['resources'])},dsl_effect=True)
+                        result=fixed_program(program,{'DSL_TARGET':translate(str(target),config['resources'],views=config['policy'].get('resource_views'))},dsl_effect=True)
                         output={'request_id':last,'ok':True,'probe':result}
                         p=Path(config['result_path']);tmp=p.with_suffix('.tmp')
                         tmp.write_text(json.dumps(output));tmp.chmod(0o600);os.replace(tmp,p)
@@ -224,7 +242,7 @@ def main():
                         target=Path(value['path'])
                         grants=[Path(r['target']) for r in config['policy']['rules'] if r['action']=='write' and r['effect']=='allow']
                         if target.name!='.agentscope-held-handle-probe' or not any(p==target.parent or p in target.parents for p in grants): raise ValueError('Unregistered held-handle probe')
-                        held=fixed_program(HOLD,{'HOLD_FILE':translate(str(target),config['resources'])},hold=True)
+                        held=fixed_program(HOLD,{'HOLD_FILE':translate(str(target),config['resources'],views=config['policy'].get('resource_views'))},hold=True)
                         output={'request_id':last,'ok':True,'hold':held}
                         p=Path(config['result_path']);tmp=p.with_suffix('.tmp')
                         tmp.write_text(json.dumps(output));tmp.chmod(0o600);os.replace(tmp,p)
@@ -239,7 +257,7 @@ def main():
                     read_paths=value.get('reads',[])
                     read_denies=[Path(r['target']) for r in config['policy']['rules'] if r['action']=='read' and r['effect']=='deny']
                     if any(not any(Path(p)==base or base in Path(p).parents for base in read_denies) for p in read_paths): raise ValueError('Unregistered read probe')
-                    probe=fixed_program(PROBE,{'PROBE_PATHS':json.dumps([translate(p,config['resources']) for p in targets]),'PROBE_READS':json.dumps([translate(p,config['resources']) for p in read_paths]),'PROBE_NETWORK':json.dumps(connections)})
+                    probe=fixed_program(PROBE,{'PROBE_PATHS':json.dumps([translate(p,config['resources'],views=config['policy'].get('resource_views')) for p in targets]),'PROBE_READS':json.dumps([translate(p,config['resources'],views=config['policy'].get('resource_views')) for p in read_paths]),'PROBE_NETWORK':json.dumps(connections)})
                     output={'request_id':last,'ok':True,'probe':probe}
                     p=Path(config['result_path']);tmp=p.with_suffix('.tmp')
                     tmp.write_text(json.dumps(output));tmp.chmod(0o600);os.replace(tmp,p)

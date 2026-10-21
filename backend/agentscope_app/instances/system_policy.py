@@ -58,16 +58,21 @@ def compose(local, resources, shared=None):
     shared = current()['policy'] if shared is None else shared
     rules = local['rules'] + applicable(shared['rules'], resources)
     network = 'disabled' if 'disabled' in (local['network'], shared['network']) else 'model_only'
-    return canonical({'rules':rules,'network':network}, resources)
+    return canonical({'rules':rules,'network':network,
+                      **({'resource_views':local['resource_views']} if 'resource_views' in local else {})}, resources)
 
 def local_candidate(row, value, actor):
     candidate = canonical(value, row['resources'])
     if actor == 'agent':
+        if candidate.get('resource_views') != row['local_policy'].get('resource_views'):
+            raise ValueError('运行时 Agent 不能添加、修改或删除资源映射，须由操作者提交人工审批')
         inherited = applicable(current()['policy']['rules'],row['resources'])
         candidate['rules'] = [r for r in candidate['rules'] if r not in inherited or r in row['local_policy']['rules']]
     return candidate
 
 def canonical_system(value):
+    if 'resource_views' in value:
+        raise ValueError('短路径映射只能按指定 Agent 单独审批，不能修改系统资源映射')
     from . import store
     resources = sorted({p for row in store.rows() if row['mode']=='controlled' for p in row['resources']})
     if not isinstance(value,dict) or not isinstance(value.get('rules',[]),list) or any(not isinstance(r,dict) for r in value.get('rules',[])):

@@ -1,0 +1,51 @@
+make: Entering directory '/home/happy/projects/agentscope-main-integration-20261020/actplane/bpf'
+  MKDIR    .output
+  CC       .output/test_taint.o
+  BINARY   test_taint
+Running ActPlane taint tests...
+=== ActPlane taint predicate tests ===
+[[32mPASS[0m] streq: equal
+[[32mPASS[0m] streq: different
+[[32mPASS[0m] streq: prefix is not equal
+[[32mPASS[0m] streq: both empty
+[[32mPASS[0m] prefix: under
+[[32mPASS[0m] prefix: sibling
+[[32mPASS[0m] prefix: shorter
+[[32mPASS[0m] prefix: ip
+[[32mPASS[0m] prefix: ip miss
+[[32mPASS[0m] prefix: empty never matches
+[[32mPASS[0m] match: exact hit
+[[32mPASS[0m] match: exact miss
+[[32mPASS[0m] match: prefix hit
+[[32mPASS[0m] match: suffix hit
+[[32mPASS[0m] match: suffix miss
+[[32mPASS[0m] match: host suffix
+[[32mPASS[0m] match: 63-byte suffix
+[[32mPASS[0m] match: extension suffix
+[[32mPASS[0m] match: trailing extension excluded
+[[32mPASS[0m] match: case-sensitive suffix
+[[32mPASS[0m] match: any
+[[32mPASS[0m] match: contains hit
+[[32mPASS[0m] match: contains miss
+[[32mPASS[0m] match: contains at start
+[[32mPASS[0m] match: contains at end
+[[32mPASS[0m] match: contains no slashes
+[[32mPASS[0m] exec match: comm exact hit
+[[32mPASS[0m] exec match: argv0 exact hit
+[[32mPASS[0m] exec match: full path is not exact
+[[32mPASS[0m] mask: A&B, no C -> ok (violation fires)
+[[32mPASS[0m] mask: only A -> req unmet
+[[32mPASS[0m] mask: A&B but C set -> forbidden
+[[32mPASS[0m] mask: empty req/forbid always ok
+[[32mPASS[0m] mask: UNTRUST & not REVIEWED -> fire
+[[32mPASS[0m] mask: endorsed REVIEWED -> suppressed
+[[32mPASS[0m] arg: push present
+[[32mPASS[0m] arg: --force present
+[[32mPASS[0m] arg: commit absent
+[[32mPASS[0m] arg: partial token not matched
+[[32mPASS[0m] arg: empty token matches anything
+[[32mPASS[0m] arg: commit present
+[[32mPASS[0m] arg: push absent
+
+42 passed, 0 failed
+make: Leaving directory '/home/happy/projects/agentscope-main-integration-20261020/actplane/bpf'

@@ -1,0 +1,23 @@
+version: 1
+policy: |
+  source AGENT = exec "**"
+
+  rule instance-readonly-1:
+    block write file "/w/0/**" if AGENT
+    block unlink file "/w/0/**" if AGENT
+    because "Instance resource is read-only or explicitly protected."
+
+  rule instance-readonly-2:
+    block write file "/v/efe537928ee4/**" if AGENT
+    block unlink file "/v/efe537928ee4/**" if AGENT
+    because "Instance resource is read-only or explicitly protected."
+
+  rule instance-readonly-3:
+    block write file "/v/efe537928ee4/tests/**" if AGENT
+    block unlink file "/v/efe537928ee4/tests/**" if AGENT
+    because "Instance resource is read-only or explicitly protected."
+
+  # actplane-rule-source ref=platform.no-publish mode=locked
+  rule immutable-no-publish:
+    kill exec "git" "push" if AGENT
+    because "Publishing is outside the instance execution boundary."

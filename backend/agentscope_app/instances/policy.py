@@ -27,8 +27,10 @@ def default_policy():
     return {'rules': [], 'network': 'model_only'}
 
 def canonical(value, resources):
-    if set(value) - {'rules', 'network'} or value.get('network', 'model_only') not in ('model_only', 'disabled'):
+    if set(value) - {'rules', 'network', 'resource_views'} or value.get('network', 'model_only') not in ('model_only', 'disabled'):
         raise ValueError('不支持的实例策略字段')
+    from . import resource_views
+    views = resource_views.validate(value['resource_views'], resources) if 'resource_views' in value else None
     if not isinstance(value.get('rules',[]),list): raise ValueError('策略规则必须是记录数组')
     rules = []
     for raw in value.get('rules', []):
@@ -39,7 +41,7 @@ def canonical(value, resources):
         if action not in ACTIONS or effect not in EFFECTS or len(text) > 2000 or len(target) > 1000:
             raise ValueError('策略字段不合法')
         if action in ('read', 'write'):
-            target=translate(target,resources,reverse=True)
+            target=translate(target,resources,reverse=True,views=views)
             p = Path(target)
             if not p.is_absolute() or str(p.resolve(strict=True)) != target or p.is_symlink():
                 raise ValueError('文件目标必须存在且不能使用符号链接')
@@ -51,8 +53,12 @@ def canonical(value, resources):
                     raise ValueError('保护目标不能包含符号链接或已有硬链接别名')
             if effect == 'confirm':
                 raise ValueError('文件权限通过扩权候选统一确认，请选择允许或禁止')
-            if len((translate(target,resources)+('/**' if p.is_dir() else '')).encode())>=64:
-                raise ValueError('目标路径超过当前 ActPlane 的精确规则长度；请选择较短的共同保护目录')
+            if len((translate(target,resources,views=views)+('/**' if p.is_dir() else '')).encode())>=64:
+                raise ValueError('目标路径超过当前 ActPlane 的精确规则长度；需审批短路径映射，不能扩大父目录')
+            if views and effect == 'allow' and action == 'write':
+                if any(p in Path(v['source']).parents for v in views['views']):
+                    raise ValueError('不能开放包含短路径映射的父目录；请仅申请最小叶目录写权限')
+                resource_views.check_no_hardlinks(p)
         elif action == 'network':
             address=ipaddress.IPv4Address(target)
             if address.is_loopback: raise ValueError('不能修改实例控制连接')
@@ -67,12 +73,15 @@ def canonical(value, resources):
     if len(rules) > 100:
         raise ValueError('策略最多 100 条')
     rules = sorted({json.dumps(r, sort_keys=True, ensure_ascii=False): r for r in rules}.values(), key=lambda r: (r['action'],r['target'],r['effect'],r['text']))
-    for base in resources:
-        grants=[r for r in rules if r['action']=='write' and r['effect']=='allow' and (Path(r['target'])==Path(base) or Path(base) in Path(r['target']).parents)]
-        if len(grants)>1: raise ValueError('每个资源目录支持一个连续写入范围，请使用一个共同目录并单独禁止保护文件')
-    return {'rules': rules, 'network': value.get('network', 'model_only')}
+    for mount in resource_views.records(resources, views):
+        grants=[r for r in rules if r['action']=='write' and r['effect']=='allow' and
+                resource_views.owner(r['target'], resources, views) == mount]
+        if len(grants)>1: raise ValueError('每个执行映射仅支持一个连续写入范围，请分别审批精确的子目录映射')
+    return {'rules': rules, 'network': value.get('network', 'model_only'), **({'resource_views': views} if views else {})}
 
 def restrictive(old, new):
+    if old.get('resource_views') != new.get('resource_views'):
+        return False
     if old['network'] == 'disabled' and new['network'] != 'disabled':
         return False
     for rule in old['rules']:

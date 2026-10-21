@@ -51,7 +51,7 @@ def workspace_fact(row, session):
     from ..instances.mapping import translate
     from ..instances.sessions import native_workspace_info
     cwd = session['cwd']
-    source = translate(cwd, row['resources'], reverse=True)
+    source = translate(cwd, row['resources'], reverse=True, views=row.get('policy',{}).get('resource_views'))
     if source != session.get('resource'):
         raise ValueError('会话工作目录与登记资源不一致')
     root = next((r for r in sorted(row['resources'], key=len, reverse=True)
@@ -93,7 +93,7 @@ def snapshot(ident, session_id=None):
         raise ValueError('当前策略配置尚未就绪，请先恢复配置')
     values = {'schema': 'agentscope.agent-environment/v1', 'instance_id': ident,
               'agent_type': row['agent_type'], 'session_id': selected['id'],
-              'workspace': work, 'resources': sorted(row['resources']),
+              'workspace': work, 'resources': sorted(row['resources']), 'resource_views': row.get('policy',{}).get('resource_views'),
               'runtime': {k: runtime[k] for k in ('generation', 'pid', 'start_ticks', 'domain_id', 'host_id', 'boot_id')},
               'source': source_for(row), 'policy_scopes': scopes,
               'permission_hash': row.get('policy_hash'), 'system_permission_revision': system_policy.current()['revision'],
@@ -170,6 +170,19 @@ def check_pattern(pattern, ctx):
     path = PurePosixPath(pattern)
     if not path.is_absolute() or '..' in path.parts or str(path) != pattern:
         raise ValueError('策略文件路径必须是规范的工作区绝对路径')
+    values = ctx['environment_binding']['values']
+    if values.get('resource_views'):
+        from ..instances.mapping import translate
+        # Canonical /v leaf mounts need not share the session's /w prefix.
+        # Compare their verified host identity, never widen to all Agent roots.
+        host = translate(pattern, values['resources'], reverse=True, views=values['resource_views'])
+        root = values['workspace']['host']
+        if host != root and not host.startswith(root + '/'):
+            raise ValueError('策略文件对象超出当前会话的工作区')
+        target = Path(re.split(r'[*?\[]', host, maxsplit=1)[0].rstrip('/'))
+        if target.resolve() != target:
+            raise ValueError('策略文件路径经过符号链接，请使用核验后的实际路径')
+        return
     if pattern != base and not pattern.startswith(base + '/'):
         raise ValueError('策略文件对象超出当前会话的工作区')
     values = ctx['environment_binding']['values']
@@ -194,10 +207,10 @@ def bind_targets(context, requests):
         raw=request['path']
         if not isinstance(raw,str) or not raw or len(raw)>1000 or any(c in raw for c in '\r\n\x00'):
             raise ValueError('策略操作对象无效')
-        path=translate(raw,values['resources']) if raw.startswith('/') else base+'/'+raw
+        path=translate(raw if raw.startswith('/') else base+'/'+raw,values['resources'],views=values.get('resource_views'))
         check_pattern(path,ctx)
         literal=re.split(r'[*?\[]',path,maxsplit=1)[0].rstrip('/')
-        disk=Path(host)/(literal[len(base):].lstrip('/'))
+        disk=Path(translate(literal,values['resources'],reverse=True,views=values.get('resource_views')))
         if disk.is_symlink():raise ValueError('策略操作对象不能经过符号链接')
         exists=disk.exists()
         stat=disk.stat() if exists else None

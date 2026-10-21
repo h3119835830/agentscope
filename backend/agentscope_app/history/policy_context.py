@@ -53,7 +53,7 @@ def snapshot(ident, scope, workspace_id=None):
         result.update(target=ctx['policy_target'],scope=scope,workspaces=list(choices.values()),
                       application_capability=policy_targets.capability(ctx['policy_target']))
         return result
-    mounts=resource_records(row['resources'])
+    mounts=resource_records(row['resources'],views=row.get('policy',{}).get('resource_views'))
     if not mounts:
         raise ValueError('请先登记 Agent 可访问的资源范围')
     for mount in mounts:
@@ -66,7 +66,7 @@ def snapshot(ident, scope, workspace_id=None):
     source=legacy.source_for(row)
     runtime=row['runtime']
     values={'schema':'agentscope.agent-baseline/v1','instance_id':ident,'agent_type':row['agent_type'],
-            'resources':sorted(row['resources']),'mounts':mounts,'source':source,'policy_scopes':scopes,
+            'resources':sorted(row['resources']),'resource_views':row.get('policy',{}).get('resource_views'),'mounts':mounts,'source':source,'policy_scopes':scopes,
             'workspace':{'execution':'/w','host':None,'native_workspace_id':None},
             'runtime':{k:runtime[k] for k in ('generation','pid','start_ticks','domain_id','host_id','boot_id')},
             'permission_hash':row.get('policy_hash'),'system_permission_revision':system_policy.current()['revision'],
@@ -111,9 +111,9 @@ def bind_targets(context,requests):
                 raise AmbiguousObject('存在多个登记资源，请补充操作对象的完整路径；不能借用某个会话的工作目录。')
             path=mounts[0]['execution']+'/'+raw
         else:
-            path=translate(raw,values['resources'])
+            path=translate(raw,values['resources'],views=values.get('resource_views'))
         check_pattern(path,ctx)
-        host=translate(re.split(r'[*?\[]',path,maxsplit=1)[0].rstrip('/'),values['resources'],reverse=True)
+        host=translate(re.split(r'[*?\[]',path,maxsplit=1)[0].rstrip('/'),values['resources'],reverse=True,views=values.get('resource_views'))
         disk=Path(host)
         stat=disk.stat() if disk.exists() else None
         fact={'path':path,'exists':stat is not None,'device':stat.st_dev if stat else None,

@@ -57,7 +57,7 @@ def fingerprint(documents,resources): return digest({'documents':documents,'reso
 def adapter_binary():
     return os.getenv('AGENTSCOPE_DSL_ADAPTER',str(Path(__file__).parent/'dsl-adapter/target/release/agentscope-dsl-adapter'))
 
-def prepare(documents,resources,agent_source=None):
+def prepare(documents,resources,agent_source=None,resource_views=None):
     results=[]
     for doc in documents:
         ns='d'+digest([doc['scope_id'],doc['id']])[:12]
@@ -69,7 +69,7 @@ def prepare(documents,resources,agent_source=None):
             binding={'label':'AGENT','pattern':agent_source,'basis':'broker-controlled-launch-profile'}
             text='source AGENT = exec '+json.dumps(agent_source)+'\n\n'+text
         try:
-            result=subprocess.run([adapter_binary()],input=json.dumps({'dsl':text,'namespace':ns,'resources':resources,'locked':doc['scope_id']=='system'}),capture_output=True,text=True,timeout=8)
+            result=subprocess.run([adapter_binary()],input=json.dumps({'dsl':text,'namespace':ns,'resources':resources,'resource_views':resource_views,'locked':doc['scope_id']=='system'}),capture_output=True,text=True,timeout=8)
             value=json.loads(result.stdout)
         except (OSError,subprocess.TimeoutExpired,json.JSONDecodeError) as e: raise ValueError('ActPlane DSL 解析适配器不可用') from e
         if result.returncode or not value.get('ok'): raise ValueError(value.get('error','DSL 解析失败'))

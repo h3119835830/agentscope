@@ -1,2 +1,8 @@
 .policy-lifecycle-dialog .write-permission-ack{display:flex;align-items:flex-start;gap:8px;margin-top:16px;line-height:1.7}
 .policy-lifecycle-dialog .write-permission-ack input[type=checkbox]{width:16px;height:16px;margin:3px 0 0;flex:0 0 16px}
+.write-permission-form{max-height:calc(100dvh - 190px);overflow-y:auto;overflow-x:hidden;padding-right:5px;font-size:12px;line-height:1.7;overflow-wrap:anywhere}
+.write-permission-form label:not(.write-permission-ack){display:grid;gap:6px;margin:12px 0}
+.write-permission-form textarea,.write-permission-form input:not([type=checkbox]){box-sizing:border-box;max-width:100%;width:100%;min-width:0;padding:9px 10px;border:1px solid #dce5f1;border-radius:7px;font:inherit;color:#314c6f;background:#fff}
+.write-permission-form textarea{resize:vertical}
+.write-permission-form details{margin-top:14px;border-top:1px solid #e5ebf4;padding-top:10px}
+.write-permission-form summary{cursor:pointer;color:#48678d}

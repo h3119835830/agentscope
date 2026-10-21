@@ -56,14 +56,14 @@ def path_parameter(value, row):
     from .mapping import resource_records, translate
     if not isinstance(value, str) or not value or len(value) > 1000 or re.search(r'[\x00-\x1f"\\]', value):
         raise ValueError('请填写规范的保护对象路径')
-    mounts = resource_records(row['resources']) if row else []
+    mounts = resource_records(row['resources'],views=row['policy'].get('resource_views')) if row else []
     if row:
         if not value.startswith('/'):
             if len(mounts) != 1:
                 raise ValueError('有多个资源目录，请填写完整路径')
             value = mounts[0]['execution'] + '/' + value
         else:
-            value = translate(value, row['resources'])
+            value = translate(value, row['resources'],views=row['policy'].get('resource_views'))
     pure = PurePosixPath(value)
     if not pure.is_absolute() or '..' in pure.parts or str(pure) != value or len(value.encode()) > 63:
         raise ValueError('路径须为规范绝对路径，执行模式最多 63 字节')
@@ -212,7 +212,7 @@ def materialize(ident, scope_id, body, *, preview_effect=None):
                     from .mapping import resource_records
                     if not re.fullmatch(r'\.[^/\\*?\[\]\x00-\x20"]{1,60}',suffix):
                         raise ValueError('后缀填写 .env 这样的字面值')
-                    for mount in resource_records(row['resources']):
+                    for mount in resource_records(row['resources'],views=row['policy'].get('resource_views')):
                         specs.append(label_sources.specification(scope_id,'pattern',mount['execution']+'/**/*'+suffix))
         sources = label_sources.resolve(scope_id,refs,specs)
         if not sources:
@@ -633,7 +633,7 @@ def generate(scope_id, body, provider=None):
              'previous_turns':previous_turns,'workspace_references':runner.references,
              'materials':body.get('materials',[]),'templates':templates,'workspace_reference':reference,
              'generation_stage':body.get('stage','preflight'),'runtime_hook_context':runtime_context,
-             'resources':resource_records(row['resources']) if row else [],
+             'resources':resource_records(row['resources'],views=row['policy'].get('resource_views')) if row else [],
              'parameter_capabilities':{'path':{'max_utf8_bytes':63,'must_use_registered_execution_mapping':True}},
              'system_permissions':system_policy.current()['policy'],'agent_permissions':row['policy'] if row else None,
              'system_constraints':[{'name':d['name'],'dsl':d['original_dsl']} for d in dsl.current('system')['documents']],

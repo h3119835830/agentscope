@@ -57,6 +57,8 @@ class WritePermissionRequest(Model):
     request_key:str=Field(min_length=8,max_length=100)
     paths:list[str]=Field(min_length=1,max_length=16)
     reason:str=Field(min_length=1,max_length=1000)
+    short_paths:list[str]=Field(default_factory=list,max_length=8)
+    protected_paths:list[str]=Field(default_factory=list,max_length=16)
 class Confirm(Model):
     proposal_hash:str=Field(pattern=r'^[a-f0-9]{64}$')
 class Lease(Model):
@@ -181,7 +183,7 @@ def auth(ident,request,generation):
 @router.post('/api/agent/instances/{ident}/scope')
 def agent_scope(ident:str,body:Generation,request:Request):
     row=auth(ident,request,body.generation)
-    return {**{k:row[k] for k in ('id','policy_hash','generation','gate')},'policy':agent_policy(row['policy'],row['resources']),'resources':[r['execution'] for r in resource_records(row['resources'])],'resource_records':resource_records(row['resources'])}
+    return {**{k:row[k] for k in ('id','policy_hash','generation','gate')},'policy':agent_policy(row['policy'],row['resources']),'resources':[r['execution'] for r in resource_records(row['resources'],views=row['policy'].get('resource_views'))],'resource_records':resource_records(row['resources'],views=row['policy'].get('resource_views'))}
 @router.post('/api/agent/instances/{ident}/lease')
 def acquire(ident:str,body:Lease,request:Request):
     auth(ident,request,body.generation)

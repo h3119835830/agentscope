@@ -50,6 +50,9 @@ def context(ident):
  system.ensure_ready(ident)
  if row['gate'] not in ('closed','open'):raise ValueError('Agent 配置或运行身份待核验，请恢复后重新读取')
  shared=system.current()
+ if row['policy'].get('resource_views'):
+  from .resource_views import validate
+  validate(row['policy']['resource_views'],row['resources'])
  uid,gid=reader_identity()
  binding={'instance_id':ident,'generation':row['generation'],'resources':row['resources'],'policy_hash':row['policy_hash'],
   'local_policy_hash':digest(row['local_policy']),'system_policy_hash':shared['policy_hash'],
@@ -59,12 +62,12 @@ def context(ident):
 def directory(ident):
  row,_=context(ident)
  return {'instance_id':ident,'workspaces':[{'id':digest([ident,m['source']])[:32],'name':Path(m['source']).name,
-  'path':m['source'],'execution_path':m['execution'],'source':'registered_resource','readable':True} for m in resource_records(row['resources'])],
+  'path':m['source'],'execution_path':m['execution'],'source':'registered_resource','readable':True} for m in resource_records(row['resources'],views=row['policy'].get('resource_views'))],
   'limits':{'files':10,'file_bytes':65536,'total_bytes':196608},
   'message':'仅从此 Agent 已登记资源目录选择参考文本；每个文件仍须通过当前读取权限校验。'}
 
 def selected_workspace(row,workspace_id):
- for mount in resource_records(row['resources']):
+ for mount in resource_records(row['resources'],views=row['policy'].get('resource_views')):
   if digest([row['id'],mount['source']])[:32]==workspace_id:return mount
  raise ValueError('工作区不属于此 Agent 当前登记的资源范围')
 
@@ -100,15 +103,16 @@ def permission_guard(row,mount):
  from dsl_documents import prepare
  # Parsing only: every potentially matching deny applies regardless of labels.
  # No synthetic source is installed or claimed as a verified runtime source.
- parsed=prepare(dsl.documents_for(row['id']),row['resources'],'**/reference-read')
+ parsed=prepare(dsl.documents_for(row['id']),row['resources'],'**/reference-read',resource_views=row['policy'].get('resource_views'))
  def allowed(relative):
-  host=str(Path(mount['source'])/relative);execution=translate(host,row['resources'])
+  host=str(Path(mount['source'])/relative);execution=translate(host,row['resources'],views=row['policy'].get('resource_views'))
   for rule in rules:
    if rule['action']=='read' and rule['effect']=='deny' and (host==rule['target'] or host.startswith(rule['target']+'/')):raise ValueError('系统或 Agent 策略禁止读取所选文件')
   for document in parsed:
    for rule in document['rules']:
     for clause in rule['clauses']:
-     if clause['effect'] in ('block','kill') and clause['operation'] in ('read','open') and any(could_match(clause['target'],v) for v in (host,execution)):
+     pattern=translate(clause['target'],row['resources'],views=row['policy'].get('resource_views')) if clause['target'].startswith('/') else clause['target']
+     if clause['effect'] in ('block','kill') and clause['operation'] in ('read','open') and any(could_match(pattern,v) for v in (host,execution)):
       raise ValueError('已有 ActPlane 读取约束可能匹配所选文件，请选择其他参考资料')
  return allowed
 
@@ -163,8 +167,8 @@ def list_files(ident,workspace_id,path='',cursor=0):
   entries.append({k:entry[k] for k in ('name','relative_path','kind','byte_size')})
  if context(ident)[1]!=binding:raise ValueError('浏览期间 Agent、资源或策略发生变化，请重新分析场景')
  return {'instance_id':ident,'workspace_id':workspace_id,'path':path,
-  'execution_path':mount['execution']+('/'+path if path else ''),
-  'entries':[{**entry,'execution_path':mount['execution']+'/'+entry['relative_path']} for entry in entries],'omitted_count':omitted,
+  'execution_path':translate(str(Path(mount['source'])/path),row['resources'],views=row['policy'].get('resource_views')),
+  'entries':[{**entry,'execution_path':translate(str(Path(mount['source'])/entry['relative_path']),row['resources'],views=row['policy'].get('resource_views'))} for entry in entries],'omitted_count':omitted,
   'next_cursor':result['next_cursor'],'truncated':result['truncated'],'read_only':True}
 
 def snapshot(ident,workspace_id,paths,max_total_bytes=None):
@@ -172,7 +176,7 @@ def snapshot(ident,workspace_id,paths,max_total_bytes=None):
  check_permissions(row,mount,paths)
  value=read_files(mount['source'],paths,binding['uid'],binding['gid'],**({'max_total_bytes':max_total_bytes} if max_total_bytes is not None else {}))
  for source in value['files']:
-  source['text']=sanitized_text(source['text']);source['execution_path']=mount['execution']+'/'+source['relative_path']
+  source['text']=sanitized_text(source['text']);source['execution_path']=translate(str(Path(mount['source'])/source['relative_path']),row['resources'],views=row['policy'].get('resource_views'))
   source['text_hash']=digest(source['text'])
  if context(ident)[1]!=binding:raise ValueError('读取期间 Agent、资源或策略发生变化，请重新读取')
  return {'binding':binding,'workspace_id':workspace_id,'workspace_name':Path(mount['source']).name,'root_identity':value['root_identity'],'files':value['files']}

@@ -1,6 +1,6 @@
 """Narrow operator requests over the existing approval/application lifecycle."""
 from pathlib import Path
-from . import store, system_policy
+from . import store, system_policy, resource_views
 from .mapping import translate, agent_policy
 
 
@@ -12,6 +12,7 @@ def detail(ident):
             'local_policy':agent_policy(row['local_policy'],row['resources']),
             'effective_policy':agent_policy(row['policy'],row['resources']),
             'limits':{'write_ranges_per_resource':1, 'exact_path_bytes':63},
+            'resource_views':row['local_policy'].get('resource_views'),
             'scope':'此 Agent 的共享执行域 · 全部会话',
             'application':'批准不会立即生效；显式应用将暂停并重新建立此 Agent 的执行进程'}
 
@@ -22,7 +23,24 @@ def propose(ident, body):
     row = store.get(ident)
     if body['generation'] != row['generation'] or body['base_hash'] != row['policy_hash']:
         raise ValueError('运行代次或策略已变化，请刷新后重新申请')
-    paths = [translate(p,row['resources'],reverse=True) for p in body['paths']]
+    current_views=row['local_policy'].get('resource_views')
+    paths = [translate(p,row['resources'],reverse=True,views=current_views) for p in body['paths']]
+    views=current_views
+    protected=[]
+    if body.get('short_paths'):
+        if not body.get('protected_paths'):
+            raise ValueError('短路径写权限申请必须列出仍受保护的测试目录')
+        mapped=[translate(p,row['resources'],reverse=True,views=current_views) for p in body['short_paths']]
+        mapped+=paths+[v['source'] for v in (current_views or {}).get('views',[])]
+        views=resource_views.freeze(row['resources'],sorted(set(mapped)))
+        protected=[translate(p,row['resources'],reverse=True,views=current_views) for p in body['protected_paths']]
+        for p in protected:
+            resource_views.identity(p)
+            if not any(Path(r) in Path(p).parents for r in row['resources']):
+                raise ValueError('保护目录必须属于此 Agent 的资源子目录')
+            if any(resource_views.within(Path(p),Path(w)) or resource_views.within(Path(w),Path(p)) for w in paths):
+                raise ValueError('写入范围与受保护测试不能相互包含')
+        resource_views.projection(row['resources'],views)
     if len(set(paths)) != len(paths):
         raise ValueError('写入目录不能重复')
     rules = list(row['local_policy']['rules'])
@@ -34,7 +52,7 @@ def propose(ident, body):
             raise ValueError('写入目标必须是已登记资源内已存在的目录；申请不会创建目录')
         if path.is_symlink() or path.resolve() != path:
             raise ValueError('写入目标不能经过符号链接')
-        if len((translate(value,row['resources'])+'/**').encode())>=64:
+        if len((translate(value,row['resources'],views=views)+'/**').encode())>=64:
             raise ValueError('目标路径超过当前精确匹配能力，无法提交此授权。需核验受治理的短路径资源映射，不能扩大到父目录代替。')
         if any(r['action']=='write' and r['effect']=='deny' and
                (value==r['target'] or value.startswith(r['target']+'/'))
@@ -44,7 +62,10 @@ def propose(ident, body):
                (value==r['target'] or value.startswith(r['target']+'/')) for r in rules):
             raise ValueError('目标已有写权限；请检查其他禁止规则，不会重复扩权')
         rules.append({'action':'write','effect':'allow','target':value,'text':body['reason']})
-    result = controller.proposals(ident, {'policy':{**row['local_policy'],'rules':rules},
+    for value in protected:
+        if not any(r['action']=='write' and r['effect']=='deny' and r['target']==value for r in rules):
+            rules.append({'action':'write','effect':'deny','target':value,'text':'映射审批保留的测试保护'})
+    result = controller.proposals(ident, {'policy':{**row['local_policy'],'rules':rules,**({'resource_views':views} if views else {})},
         'generation':body['generation'],'base_hash':body['base_hash'],'request_key':body['request_key']},
         actor='user')
     return {**result,'approval_id':'instance:'+result['id']}

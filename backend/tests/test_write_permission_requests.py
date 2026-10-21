@@ -60,3 +60,54 @@ def test_write_request_is_admin_only_and_no_approval_or_apply_fields_are_accepte
     assert product.status_code==200 and product.json()==response.json()
     body=request(world,['/w/0/src'])
     assert world.client.post(path+'/proposals',headers=ADMIN,json={**body,'approved':True}).status_code==422
+
+
+def mapped_request(world):
+    root=Path(world.a['resources'][0]);project=root/('scene-'+'q'*65)/'project'
+    for name in ('src','acceptance-artifacts','tests'):(project/name).mkdir(parents=True)
+    (project/'tests/test.py').write_text('immutable\n')
+    body=request(world,[str(project/'src'),str(project/'acceptance-artifacts')])
+    return project,{**body,'short_paths':[str(project)],'protected_paths':[str(project/'tests')]}
+
+
+def test_mapping_approval_is_separate_from_apply_and_does_not_open_parent(world):
+    from agentscope_app.instances import approval_views,approval_decisions,resource_views
+    project,body=mapped_request(world)
+    before=store.get(world.a['id']);result=writes.propose(world.a['id'],body)
+    assert result['classification']=='expand' and result['state']=='pending'
+    assert writes.propose(world.a['id'],body)['id']==result['id']
+    approval=approval_views.detail(result['approval_id'])
+    assert not approval['can_apply'] and approval['can_approve']
+    assert sum(c['label'].startswith('新增精确资源映射') for c in approval['change_items'])==3
+    receipt=approval_decisions.approve(result['approval_id'],approval['candidate_hash'],uuid.uuid4().hex)
+    assert store.get(world.a['id'])['policy']==before['policy'] and not world.calls
+    applied=approval_decisions.apply(result['approval_id'],approval['candidate_hash'],receipt['approval_hash'],uuid.uuid4().hex)
+    assert applied['state']=='applied'
+    row=store.get(world.a['id'])
+    allows=[r['target'] for r in row['policy']['rules'] if r['effect']=='allow']
+    assert sorted(allows)==sorted([str(project/'src'),str(project/'acceptance-artifacts')])
+    assert any(r['target']==str(project/'tests') and r['effect']=='deny' for r in row['policy']['rules'])
+    assert resource_views.validate(row['policy']['resource_views'],row['resources'])
+    assert (project/'tests/test.py').read_text()=='immutable\n'
+
+
+def test_mapping_directory_replacement_invalidates_approval_without_loading(world):
+    from agentscope_app.instances import approval_views,approval_decisions
+    project,body=mapped_request(world);result=writes.propose(world.a['id'],body)
+    approval=approval_views.detail(result['approval_id'])
+    receipt=approval_decisions.approve(result['approval_id'],approval['candidate_hash'],uuid.uuid4().hex)
+    (project/'src').rename(project/'retained-src');(project/'src').mkdir()
+    with pytest.raises(ValueError):
+        approval_decisions.apply(result['approval_id'],approval['candidate_hash'],receipt['approval_hash'],uuid.uuid4().hex)
+    assert not store.get(world.a['id'])['policy'].get('resource_views') and not world.calls
+
+
+def test_agent_cannot_propose_mapping_or_include_tests_in_write_scope(world):
+    from agentscope_app.instances import controller,resource_views
+    project,body=mapped_request(world)
+    with pytest.raises(ValueError,match='相互包含'):
+        writes.propose(world.a['id'],{**body,'paths':[str(project)]})
+    p={'rules':[],'network':'model_only','resource_views':resource_views.freeze(world.a['resources'],[str(project)])}
+    with pytest.raises(ValueError,match='运行时 Agent'):
+        controller.proposals(world.a['id'],{k:v for k,v in body.items() if k in ('generation','base_hash','request_key')}|{'policy':p},actor='agent')
+    assert not world.calls

@@ -1,0 +1,14 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.17s
+     Running unittests src/main.rs (target/debug/deps/agentscope_dsl_adapter-fec0a12eeb333993)
+
+running 6 tests
+test tests::duplicate_and_foreign_labels_are_rejected ... ok
+test tests::governed_views_translate_old_paths_and_reject_ambiguous_parent_globs ... ok
+test tests::complete_boolean_transform_and_exception_round_trip ... ok
+test tests::isolates_labels_and_maps_paths ... ok
+test tests::pinned_capabilities_come_from_real_lowering ... ok
+test tests::gate_and_taint_are_cross_event ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+    Finished `release` profile [optimized] target(s) in 0.05s

@@ -26,12 +26,54 @@ fn uses_history(e: &Expr, p: &Policy) -> bool {
 fn labels_declared(e: &Expr, declared: &std::collections::HashSet<&str>) -> bool {
     match e {Expr::True=>true,Expr::Label(v)|Expr::Not(v)=>declared.contains(v.as_str()),Expr::And(a,b)|Expr::Or(a,b)=>labels_declared(a,declared)&&labels_declared(b,declared)}
 }
-fn path(value: &str, resources: &[String]) -> String {
-    for (i,root) in resources.iter().enumerate() {
-        if value==root { return format!("/w/{i}"); }
-        if let Some(rest)=value.strip_prefix(&(root.clone()+"/")) { return format!("/w/{i}/{rest}"); }
+struct Paths { mounts: Vec<(String,String)> }
+impl Paths {
+    fn new(v: &Value) -> Result<Self,String> {
+        let roots:Vec<String>=v["resources"].as_array().map(|a|a.iter().filter_map(|v|v.as_str().map(String::from)).collect()).unwrap_or_default();
+        let mut mounts:Vec<(String,String)>=roots.iter().enumerate().map(|(i,r)|(r.clone(),format!("/w/{i}"))).collect();
+        if let Some(views)=v["resource_views"]["views"].as_array() {
+            if views.len()>8 {return Err("Too many resource views".into());}
+            for view in views {
+                let source=view["source"].as_str().ok_or("Missing view source")?;
+                let execution=view["execution"].as_str().ok_or("Missing view execution")?;
+                if !roots.iter().any(|r|source.starts_with(&(r.clone()+"/"))) ||
+                   !execution.starts_with("/v/") || execution.len()!=15 ||
+                   !execution[3..].bytes().all(|b|b.is_ascii_hexdigit()) {
+                    return Err("Invalid resource view mapping".into());
+                }
+                mounts.push((source.into(),execution.into()));
+            }
+        }
+        mounts.sort_by_key(|(source,_)|std::cmp::Reverse(source.len()));
+        Ok(Self{mounts})
     }
-    value.into()
+}
+fn host_path(value: &str, resources: &Paths) -> String {
+    let mut host=value.to_owned();
+    for (source,execution) in &resources.mounts {
+        if value==execution {host=source.clone();break;}
+        if let Some(rest)=value.strip_prefix(&(execution.clone()+"/")) {host=format!("{source}/{rest}");break;}
+    }
+    host
+}
+fn path(value: &str, resources: &Paths) -> String {
+    let host=host_path(value,resources);
+    for (source,execution) in &resources.mounts {
+        if host==*source {return execution.clone();}
+        if let Some(rest)=host.strip_prefix(&(source.clone()+"/")) {return format!("{execution}/{rest}");}
+    }
+    host
+}
+fn validate_view_pattern(value: &str, resources: &Paths) -> Result<(),String> {
+    if !value.starts_with('/') {return Ok(());}
+    let host=host_path(value,resources);
+    if let Some(index)=host.find('*') {
+        let prefix=&host[..index];
+        if resources.mounts.iter().any(|(source,execution)|execution.starts_with("/v/") && source.starts_with(prefix)) {
+            return Err("路径模式跨越独立短路径映射；请分别选择准确的执行对象，不能沿用父目录通配符".into());
+        }
+    }
+    Ok(())
 }
 fn pinned_runtime_unsupported(bytes: &[u8]) -> Result<Vec<&'static str>,String> {
     // PinnedEngine::full_profile reserves all hooks and write/open sinks but
@@ -50,11 +92,11 @@ fn pinned_runtime_unsupported(bytes: &[u8]) -> Result<Vec<&'static str>,String> 
     for i in 0..nr {let offset=8+UPDATES*UPDATE_SIZE+i*RULE_SIZE;if matches!(bytes[offset],1|2) {inspect(bytes[offset+1]);if bytes[offset+2]==3 {inspect(bytes[offset+4]);}}}
     let mut out=Vec::new();if contains {out.push("文件路径包含匹配");}if suffix {out.push("文件路径后缀匹配");}Ok(out)
 }
-fn event(o: Op, pattern: &str, arg: Option<&String>, resources: &[String]) -> String {
+fn event(o: Op, pattern: &str, arg: Option<&String>, resources: &Paths) -> String {
     let pattern=if matches!(o,Op::Read|Op::Write|Op::Unlink|Op::Open) {path(pattern,resources)} else {pattern.into()};
     format!("{} {}{}",op(o),quoted(&pattern),arg.map(|s|format!(" {}",quoted(s))).unwrap_or_default())
 }
-fn clause(c: &Clause, ns: &str, resources: &[String]) -> String {
+fn clause(c: &Clause, ns: &str, resources: &Paths) -> String {
     let target=if c.target.kind==Kind::File {path(&c.target.pattern,resources)} else {c.target.pattern.clone()};
     let mut s=format!("  {} {} {}{}{} if {}",effect(c.effect),op(c.op),if c.target.kind==Kind::Exec {""} else {kind(c.target.kind)},if c.target.kind==Kind::Exec {""} else {" "},quoted(&target),expr(&c.when,ns));
     if let Some(arg)=&c.target.arg {
@@ -82,7 +124,7 @@ fn adapt(v: &Value) -> Result<Value,String> {
     if src.len()>60000 {return Err("DSL exceeds 60000 bytes".into());}
     let ns=v["namespace"].as_str().ok_or("Missing namespace")?;
     if ns.is_empty() || ns.len()>48 || !ns.bytes().all(|c|c.is_ascii_alphanumeric()||c==b'_') {return Err("Invalid namespace".into());}
-    let resources:Vec<String>=v["resources"].as_array().map(|a|a.iter().filter_map(|v|v.as_str().map(String::from)).collect()).unwrap_or_default();
+    let resources=Paths::new(v)?;
     if src.contains("${") || src.contains("{{") {return Err("DSL 包含未解决的上下文占位符；请先填写具体目标再校验".into());}
     let p=parse::parse(src).map_err(|error| {
         // Upstream reports token errors without offsets. Locate the last
@@ -98,6 +140,7 @@ fn adapt(v: &Value) -> Result<Value,String> {
     if p.labels.iter().any(|s|!declared.contains(s.as_str())) || p.xforms.iter().any(|x|!declared.contains(x.label.as_str())) || p.rules.iter().flat_map(|r|&r.clauses).any(|c|!labels_declared(&c.when,&declared)) {return Err("Every label must be declared by this document's sources".into());}
     let mut dsl=String::new();
     for s in &p.sources {
+        if s.kind==Kind::File {validate_view_pattern(&s.pattern,&resources)?;}
         let pattern=if s.kind==Kind::File {path(&s.pattern,&resources)} else {s.pattern.clone()};
         dsl+=&format!("source {} = {} {}\n",label(ns,&s.label),kind(s.kind),quoted(&pattern));
     }
@@ -112,6 +155,17 @@ fn adapt(v: &Value) -> Result<Value,String> {
         dsl+=&format!("\n# actplane-rule-source ref={ns}:{index}{}\nrule {compiled_name}:\n",if v["locked"].as_bool().unwrap_or(false) {" mode=locked"} else {""});
         let mut effects=Vec::new();let mut types=Vec::new();let mut clauses=Vec::new();
         for c in &r.clauses {
+            if c.target.kind==Kind::File {validate_view_pattern(&c.target.pattern,&resources)?;}
+            match &c.unless {
+                Some(Cond::Target{pattern,..})=>validate_view_pattern(pattern,&resources)?,
+                Some(Cond::After{gate_op,gate_pattern,since,..})=>{
+                    if matches!(gate_op,Op::Read|Op::Write|Op::Unlink|Op::Open) {validate_view_pattern(gate_pattern,&resources)?;}
+                    for (operation,pattern,_) in since {
+                        if matches!(operation,Op::Read|Op::Write|Op::Unlink|Op::Open) {validate_view_pattern(pattern,&resources)?;}
+                    }
+                },
+                _=>{}
+            }
             let rendered=clause(c,ns,&resources);dsl+=&(rendered.clone()+"\n");
             let ty=if matches!(c.unless,Some(Cond::After{..}|Cond::LineageIncludes{..})) || uses_history(&c.when,&p) {"cross_event"} else {"per_event"};
             if !effects.contains(&effect(c.effect)) {effects.push(effect(c.effect));}
@@ -138,6 +192,15 @@ fn main() {
 mod tests {
     use super::*;
     fn prepare(s:&str)->Value {adapt(&json!({"dsl":s,"namespace":"doc1","resources":["/home/happy/projects/example"]})).unwrap()}
+    #[test] fn governed_views_translate_old_paths_and_reject_ambiguous_parent_globs() {
+        let mut input=json!({"namespace":"d","resources":["/home/happy/projects/example"],
+            "resource_views":{"views":[{"source":"/home/happy/projects/example/scene/project","execution":"/v/123456abcdef"}]}});
+        input["dsl"]=json!("source A = exec \"**\"\nrule r:\n block write file \"/w/0/scene/project/tests/**\" if A\n because \"test protection\"");
+        let result=adapt(&input).unwrap();
+        assert!(result["effective_dsl"].as_str().unwrap().contains("/v/123456abcdef/tests/**"));
+        input["dsl"]=json!("source A = exec \"**\"\nrule r:\n block write file \"/w/0/**\" if A\n because \"ambiguous logical parent\"");
+        assert!(adapt(&input).unwrap_err().contains("独立短路径"));
+    }
     #[test] fn isolates_labels_and_maps_paths() {
         let v=prepare("source AGENT = exec \"**\"\nrule protect:\n block write file \"/home/happy/projects/example/a\" if AGENT\n notify read file \"/home/happy/projects/example/b\" if AGENT\n because \"保护\"\n");
         assert!(v["effective_dsl"].as_str().unwrap().contains("/w/0/a"));

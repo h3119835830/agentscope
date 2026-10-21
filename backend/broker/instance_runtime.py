@@ -216,18 +216,25 @@ def model_hosts(agent_type):
     return sorted(set(values))
 
 def protected_targets(resources,policy):
+    from agentscope_app.instances import resource_views as views
     targets=[]
     allows=[Path(r['target']) for r in policy['rules'] if r['action']=='write' and r['effect']=='allow']
     denies=[Path(r['target']) for r in policy['rules'] if r['action']=='write' and r['effect']=='deny']
-    for resource in resources:
-        base=Path(resource); grants=[p for p in allows if p==base or base in p.parents]
+    plan=policy.get('resource_views')
+    for mount in views.records(resources,plan):
+        base=Path(mount['source']); grants=[p for p in allows if views.owner(str(p),resources,plan)==mount]
         if not grants: targets.append(base)
         elif len(grants)==1: targets.append((base,grants[0]))
         else: raise ValueError('每个资源目录暂支持一个连续写入范围；请拆分为独立资源')
+    # An inherited deny on a host ancestor must cover every diverted subtree.
+    for view in (plan or {}).get('views',[]):
+        p=Path(view['source'])
+        if any(d in p.parents for d in denies) and p not in denies:denies.append(p)
     return targets,denies
 
 def policy_dsl(resources,policy):
     targets,denies=protected_targets(resources,policy)
+    mapped=lambda p:translate(str(p),resources,views=policy.get('resource_views'))
     lines=['source AGENT = exec "**"','']
     i=0
     for target in [*targets,*denies]:
@@ -235,22 +242,24 @@ def policy_dsl(resources,policy):
             p,allowed=target
             if p==allowed: continue
         else: p=target; allowed=None
-        i+=1; pattern=translate(str(p),resources)+('/**' if p.is_dir() else '')
-        exception=translate(str(allowed),resources)+('/**' if allowed.is_dir() else '') if allowed else None
+        i+=1; pattern=mapped(p)+('/**' if p.is_dir() else '')
+        exception=mapped(allowed)+('/**' if allowed.is_dir() else '') if allowed else None
         if any(len(value.encode())>=64 for value in (pattern,exception) if value): raise ValueError('ActPlane rule exceeds exact path ABI')
         suffix=' unless target '+json.dumps(exception) if allowed else ''
         lines += [f'rule instance-readonly-{i}:',f'  block write file {json.dumps(pattern)} if AGENT'+suffix,f'  block unlink file {json.dumps(pattern)} if AGENT'+suffix,'  because "Instance resource is read-only or explicitly protected."','']
     for r in policy['rules']:
         if r['action']=='read' and r['effect']=='deny':
-            p=Path(r['target']); i+=1
-            lines += [f'rule instance-read-deny-{i}:',f'  block read file {json.dumps(translate(str(p),resources)+("/**" if p.is_dir() else ""))} if AGENT','  because "Reading this registered resource was denied."','']
+            paths=[Path(r['target'])]+[Path(v['source']) for v in policy.get('resource_views',{}).get('views',[]) if Path(r['target']) in Path(v['source']).parents]
+            for p in paths:
+                i+=1
+                lines += [f'rule instance-read-deny-{i}:',f'  block read file {json.dumps(mapped(p)+("/**" if p.is_dir() else ""))} if AGENT','  because "Reading this registered resource was denied."','']
     lines += ['# actplane-rule-source ref=platform.no-publish mode=locked','rule immutable-no-publish:', '  kill exec "git" "push" if AGENT','  because "Publishing is outside the instance execution boundary."']
     return '\n'.join(lines)+'\n'
 
 def compile_documents(value,resources,policy,documents,agent_type=None,launch=None):
     """Compile before loading. User labels never address platform/other documents."""
     source=launch['source'] if launch else {'dsh':'**/node','hermes':'**/python'}.get(agent_type)
-    parsed=prepare_documents(documents,resources,agent_source=source)
+    parsed=prepare_documents(documents,resources,agent_source=source,resource_views=policy.get('resource_views'))
     validate_runtime_capabilities(parsed)
     dsl=policy_dsl(resources,policy)+'\n'+'\n'.join(d['effective_dsl'] for d in parsed)
     yaml='version: 1\npolicy: |\n'+'\n'.join('  '+l for l in dsl.splitlines())+'\n'
@@ -472,7 +481,7 @@ def processes(record):
 def session_records(record):
     result=native(record,'observe')
     pid=native_pid(record,int(result['pid']))
-    return [{**r,'execution_resource':r.get('resource'),'resource':translate(r['resource'],record['resources'],reverse=True) if r.get('resource') else None,'process_ids':[pid] if r.get('process_ids') else []} for r in result.get('sessions',[])]
+    return [{**r,'execution_resource':r.get('resource'),'resource':translate(r['resource'],record['resources'],reverse=True,views=record.get('resource_views')) if r.get('resource') else None,'process_ids':[pid] if r.get('process_ids') else []} for r in result.get('sessions',[])]
 
 def observe(value):
     with inst_lock(value): return _observe(value)
@@ -494,7 +503,7 @@ def _observe(value):
         cgpids={int(p) for p in (group/'cgroup.procs').read_text().split()}
         if pid not in members or pid not in cgpids or identity(pid)!=before: raise ValueError('agent binding changed')
         protection_check(record)
-        observation={'id':value,'status':'running','connected':True,'verified':bool(record.get('verification',{}).get('passed')),'pid':pid,'dsl_hash':record.get('dsl_hash'),'start_ticks':before['start_ticks'],'generation':record['generation'],'domain_id':record['domain_id'],'process_cgroup':record['process_cgroup'],'resources':record['resources'],'resource_records':resource_records(record['resources']),'agent_type':record['agent_type'],'environment':'wsl','sessions':result.get('sessions',[]),'session_count':len(result.get('sessions',[])),'executor_shared':True,'native_workspaces':result.get('workspaces',[]),'native_adapter':record.get('launch',{}).get('adapter','native'),'entry_kind':record.get('launch',{}).get('kind','web'),'launch_hash':record.get('launch',{}).get('hash'),'supervision':SUPERVISION_SCHEMA,'execution_status':record['admission'].status(),**host_identity()}
+        observation={'id':value,'status':'running','connected':True,'verified':bool(record.get('verification',{}).get('passed')),'pid':pid,'dsl_hash':record.get('dsl_hash'),'start_ticks':before['start_ticks'],'generation':record['generation'],'domain_id':record['domain_id'],'process_cgroup':record['process_cgroup'],'resources':record['resources'],'resource_records':resource_records(record['resources'],views=record.get('resource_views')),'agent_type':record['agent_type'],'environment':'wsl','sessions':result.get('sessions',[]),'session_count':len(result.get('sessions',[])),'executor_shared':True,'native_workspaces':result.get('workspaces',[]),'native_adapter':record.get('launch',{}).get('adapter','native'),'entry_kind':record.get('launch',{}).get('kind','web'),'launch_hash':record.get('launch',{}).get('hash'),'supervision':SUPERVISION_SCHEMA,'execution_status':record['admission'].status(),**host_identity()}
         record['last_observation']=observation
         return observation
     except Exception as error:
@@ -529,7 +538,9 @@ def verify(record,policy):
         p.write_text('AgentScope permission canary\n');p.chmod(0o666)
         canaries.append(p);paths.append(p);expected.append(denied)
     try:
-        for base in record['resources']:
+        # Verify every canonical mount, including readonly mapped parents.
+        # Checking only /w roots could miss an unprotected /v project root.
+        for base in [row['source'] for row in resource_records(record['resources'],views=policy.get('resource_views'))]:
             p=Path(base)
             writable=any(r['action']=='write' and r['effect']=='allow' and (p==Path(r['target']) or Path(r['target']) in p.parents) for r in policy['rules'])
             denied=any(r['action']=='write' and r['effect']=='deny' and (p==Path(r['target']) or Path(r['target']) in p.parents) for r in policy['rules'])
@@ -577,7 +588,7 @@ def verify(record,policy):
             rows=iptables(['-L',record['network_chain'],'-n','-v','-x'],v6)
             counters['ipv6' if v6 else 'ipv4']=sum(int(line.split()[0]) for line in rows.splitlines() if 'REJECT' in line)
         network_ok=network_ok and all(n>0 for n in counters.values())
-        required=[(translate(str(p),record['resources']),'write') for p,deny in zip(paths,expected) if deny]+[(translate(str(p),record['resources']),'read') for p in read_paths]
+        required=[(translate(str(p),record['resources'],views=record.get('resource_views')),'write') for p,deny in zip(paths,expected) if deny]+[(translate(str(p),record['resources'],views=record.get('resource_views')),'read') for p in read_paths]
         deadline=time.monotonic()+3;events=[]
         while time.monotonic()<deadline:
             events=[]
@@ -609,6 +620,10 @@ def start(message):
         if agent_type not in ('dsh','hermes','other'): raise ValueError('Unsupported agent adapter')
         resources=clean_resources(message['resources']);policy=canonical(message['policy'],resources)
         launch=validate_saved(message.get('launch'),agent_type,resources)
+        if policy.get('resource_views') and (launch or {}).get('native_paths'):
+            raise ValueError('短路径映射不能与主机原路径启动方式混用')
+        if policy.get('resource_views') and (launch or {}).get('kind')=='terminal':
+            raise ValueError('短路径映射尚不支持终端启动')
         if agent_type=='other' and not launch:raise ValueError('Missing launch command')
         if agent_type=='other' and any(r['action']=='tool' for r in policy['rules']):raise ValueError('此命令尚无原生工具适配器，不能宣称工具规则已执行')
         if digest(policy)!=message['policy_hash'] or not re.fullmatch('[a-f0-9]{32}',message['generation']) or len(message['token'])<32: raise ValueError('Instance launch identity mismatch')
@@ -645,6 +660,7 @@ def start(message):
         log=open(logfile,'a')
         watch=subprocess.Popen([str(B.ACTPLANE),'--policy',compiled['watch_path'],'watch'],cwd=control,env=env,stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
         record={'instance_id':value,'task_id':key,'workspace':str(control),'agent_type':agent_type,'resources':resources,'generation':message['generation'],'policy_hash':message['policy_hash'],'watch':watch,'watch_pid':watch.pid,'anchor':anchor,'watch_policy':compiled['watch_path'],'watch_log':str(logfile),'pin_root':env.get('ACTPLANE_BPF_PIN_ROOT'),'web_port':port,'native_token':secrets.token_urlsafe(36),'domain_id':secrets.randbelow(1800000000)+100000000}
+        record['resource_views']=policy.get('resource_views')
         if launch:record['launch']=launch
         record.update(policy_artifact={**artifact,'loaded':True},dsl_hash=artifact['dsl_hash'])
         record['startup_deadline']=time.monotonic()+90
@@ -878,7 +894,7 @@ def dispatch(message):
                 if op not in ('create','prompt','inspect','cancel','flush'): raise ValueError('Native operation unavailable')
                 if op=='create' and message.get('resource') not in record['resources']: raise ValueError('Resource not registered')
                 fields={k:message[k] for k in ('resource','session_id','text') if k in message}
-                if op=='create': fields['resource']=translate(fields['resource'],record['resources'])
+                if op=='create': fields['resource']=translate(fields['resource'],record['resources'],views=record.get('resource_views'))
                 return native(record,op,**fields)
     if action=='stop' and REGEX.fullmatch(value): return {'status':'stopped'}
     if action=='observe' and REGEX.fullmatch(value): return {'id':value,'status':'offline','connected':False,'verified':False}

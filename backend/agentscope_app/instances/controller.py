@@ -299,6 +299,18 @@ def proposals(ident,body,actor='user'):
             if frozen[0]!=request_hash:raise ValueError('幂等键已用于其他候选')
             return dict(old)
         local=system.local_candidate(row,body['policy'],actor)
+        if local.get('resource_views') != row['local_policy'].get('resource_views'):
+            if actor!='user':raise ValueError('资源映射必须由操作者提交人工审批')
+            if any(dsl_policy.current(scope)['documents'] for scope in ('system',ident)):
+                raise ValueError('已有加载 DSL 引用当前执行路径；请先经审批停用并应用，再申请映射')
+            if row.get('launch') and (row['launch'].get('native_paths') or row['launch'].get('kind')=='terminal'):
+                raise ValueError('此启动方式尚不支持短路径映射')
+            if row['local_policy'].get('resource_views'):
+                old=row['local_policy']['resource_views']['views']
+                if any(v not in local.get('resource_views',{}).get('views',[]) for v in old):
+                    raise ValueError('已有短路径映射不能改名、移除或更换目录身份')
+            from .resource_views import projection
+            projection(row['resources'],local['resource_views'])
         candidate=system.compose(local,row['resources'])
         from .launch import validate_policy
         validate_policy(row.get('launch'),candidate)

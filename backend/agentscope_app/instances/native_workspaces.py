@@ -11,10 +11,10 @@ def current(ident):
 
 def project(row,workspace):
     path=workspace.get('path','')
-    host=translate(path,row['resources'],reverse=True) if path.startswith('/') else path
+    host=translate(path,row['resources'],reverse=True,views=row.get('policy',{}).get('resource_views')) if path.startswith('/') else path
     allowed=any(host==base or host.startswith(base+'/') for base in row['resources'])
     display=PurePosixPath(host).name if workspace.get('name')==PurePosixPath(path).name and path!=host else workspace.get('name')
-    return {**workspace,'display_name':display,'path':host,'execution_path':translate(host,row['resources']) if host.startswith('/') else host,
+    return {**workspace,'display_name':display,'path':host,'execution_path':translate(host,row['resources'],views=row.get('policy',{}).get('resource_views')) if host.startswith('/') else host,
             'instance_id':row['id'],'readable':allowed,'reason':'' if allowed else '超出安全配置的文件访问范围'}
 
 def directory(ident):

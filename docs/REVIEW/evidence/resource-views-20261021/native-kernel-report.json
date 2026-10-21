@@ -1,0 +1,565 @@
+{
+  "scope": "isolated native kernel; not product RQ5 acceptance",
+  "root": "/var/tmp/as-resource-views-8n_z_nib",
+  "binary_sha256": "5e8d43c279d88bd4215f654746675debfd976e28426c9fabdabeca408865d6da",
+  "baseline": {
+    "pid": 2,
+    "uid": 1000,
+    "results": [
+      {
+        "name": "root",
+        "path": "/w/0/probe.txt",
+        "expected": false,
+        "allowed": true,
+        "errno": null
+      },
+      {
+        "name": "parent",
+        "path": "/v/efe537928ee4/probe.txt",
+        "expected": false,
+        "allowed": true,
+        "errno": null
+      },
+      {
+        "name": "source",
+        "path": "/v/40dc3e15217a/probe.txt",
+        "expected": true,
+        "allowed": true,
+        "errno": null
+      },
+      {
+        "name": "output",
+        "path": "/v/1645850bea9d/probe.txt",
+        "expected": true,
+        "allowed": true,
+        "errno": null
+      },
+      {
+        "name": "test",
+        "path": "/v/efe537928ee4/tests/probe.txt",
+        "expected": false,
+        "allowed": true,
+        "errno": null
+      },
+      {
+        "name": "original-source",
+        "path": "/w/0/scene-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/workspace/project/src/probe.txt",
+        "expected": true,
+        "allowed": true,
+        "errno": null
+      },
+      {
+        "name": "original-output",
+        "path": "/w/0/scene-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/workspace/project/acceptance-artifacts/probe.txt",
+        "expected": true,
+        "allowed": true,
+        "errno": null
+      },
+      {
+        "name": "original-test",
+        "path": "/w/0/scene-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/workspace/project/tests/probe.txt",
+        "expected": false,
+        "allowed": true,
+        "errno": null
+      }
+    ]
+  },
+  "policy": {
+    "rules": [
+      {
+        "action": "write",
+        "target": "/var/tmp/as-resource-views-8n_z_nib/resource/scene-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/workspace/project/acceptance-artifacts",
+        "effect": "allow",
+        "text": ""
+      },
+      {
+        "action": "write",
+        "target": "/var/tmp/as-resource-views-8n_z_nib/resource/scene-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/workspace/project/src",
+        "effect": "allow",
+        "text": ""
+      },
+      {
+        "action": "write",
+        "target": "/var/tmp/as-resource-views-8n_z_nib/resource/scene-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/workspace/project/tests",
+        "effect": "deny",
+        "text": ""
+      }
+    ],
+    "network": "disabled",
+    "resource_views": {
+      "schema": "agentscope.resource-views.v1",
+      "views": [
+        {
+          "source": "/var/tmp/as-resource-views-8n_z_nib/resource/scene-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/workspace/project",
+          "execution": "/v/efe537928ee4",
+          "identity": {
+            "device": 2112,
+            "inode": 7985783
+          }
+        },
+        {
+          "source": "/var/tmp/as-resource-views-8n_z_nib/resource/scene-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/workspace/project/acceptance-artifacts",
+          "execution": "/v/1645850bea9d",
+          "identity": {
+            "device": 2112,
+            "inode": 7985785
+          }
+        },
+        {
+          "source": "/var/tmp/as-resource-views-8n_z_nib/resource/scene-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/workspace/project/src",
+          "execution": "/v/40dc3e15217a",
+          "identity": {
+            "device": 2112,
+            "inode": 7985784
+          }
+        }
+      ]
+    }
+  },
+  "passed": true,
+  "returncode": 0,
+  "stdout": "🚫 BLOCKED: process 'python3' (pid 69407, ppid 69406) — /w/0/probe.txt\n   effect: block\n   reason: Instance resource is read-only or explicitly protected.\n   provenance: pid 69407 exec python3 -> label AGENT\n🚫 BLOCKED: process 'python3' (pid 69407, ppid 69406) — /v/efe537928ee4/probe.txt\n   effect: block\n   reason: Instance resource is read-only or explicitly protected.\n   provenance: pid 69407 exec python3 -> label AGENT\n🚫 BLOCKED: process 'python3' (pid 69407, ppid 69406) — /v/efe537928ee4/tests/probe.txt\n   effect: block\n   reason: Instance resource is read-only or explicitly protected.\n   provenance: pid 69407 exec python3 -> label AGENT\n🚫 BLOCKED: process 'python3' (pid 69407, ppid 69406) — /v/efe537928ee4/tests/probe.txt\n   effect: block\n   reason: Instance resource is read-only or explicitly protected.\n   provenance: pid 69407 exec python3 -> label AGENT\nRESULT={\"pid\": 2, \"uid\": 1000, \"results\": [{\"name\": \"root\", \"path\": \"/w/0/probe.txt\", \"expected\": false, \"allowed\": false, \"errno\": 1}, {\"name\": \"parent\", \"path\": \"/v/efe537928ee4/probe.txt\", \"expected\": false, \"allowed\": false, \"errno\": 1}, {\"name\": \"source\", \"path\": \"/v/40dc3e15217a/probe.txt\", \"expected\": true, \"allowed\": true, \"errno\": null}, {\"name\": \"output\", \"path\": \"/v/1645850bea9d/probe.txt\", \"expected\": true, \"allowed\": true, \"errno\": null}, {\"name\": \"test\", \"path\": \"/v/efe537928ee4/tests/probe.txt\", \"expected\": false, \"allowed\": false, \"errno\": 1}, {\"name\": \"original-source\", \"path\": \"/w/0/scene-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/workspace/project/src/probe.txt\", \"expected\": true, \"allowed\": true, \"errno\": null}, {\"name\": \"original-output\", \"path\": \"/w/0/scene-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/workspace/project/acceptance-artifacts/probe.txt\", \"expected\": true, \"allowed\": true, \"errno\": null}, {\"name\": \"original-test\", \"path\": \"/w/0/scene-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/workspace/project/tests/probe.txt\", \"expected\": false, \"allowed\": false, \"errno\": 1}]}\n",
+  "stderr": "ActPlane: running pid 69287 under COMMAND label 0x1; feedback /var/tmp/as-resource-views-8n_z_nib/.actplane/runs/run-69270-1792563249118664045/feedback.txt\n\n",
+  "outcome": {
+    "pid": 2,
+    "uid": 1000,
+    "results": [
+      {
+        "name": "root",
+        "path": "/w/0/probe.txt",
+        "expected": false,
+        "allowed": false,
+        "errno": 1
+      },
+      {
+        "name": "parent",
+        "path": "/v/efe537928ee4/probe.txt",
+        "expected": false,
+        "allowed": false,
+        "errno": 1
+      },
+      {
+        "name": "source",
+        "path": "/v/40dc3e15217a/probe.txt",
+        "expected": true,
+        "allowed": true,
+        "errno": null
+      },
+      {
+        "name": "output",
+        "path": "/v/1645850bea9d/probe.txt",
+        "expected": true,
+        "allowed": true,
+        "errno": null
+      },
+      {
+        "name": "test",
+        "path": "/v/efe537928ee4/tests/probe.txt",
+        "expected": false,
+        "allowed": false,
+        "errno": 1
+      },
+      {
+        "name": "original-source",
+        "path": "/w/0/scene-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/workspace/project/src/probe.txt",
+        "expected": true,
+        "allowed": true,
+        "errno": null
+      },
+      {
+        "name": "original-output",
+        "path": "/w/0/scene-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/workspace/project/acceptance-artifacts/probe.txt",
+        "expected": true,
+        "allowed": true,
+        "errno": null
+      },
+      {
+        "name": "original-test",
+        "path": "/w/0/scene-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/workspace/project/tests/probe.txt",
+        "expected": false,
+        "allowed": false,
+        "errno": 1
+      }
+    ]
+  },
+  "blocked_events": [
+    {
+      "action": "block",
+      "blocked": true,
+      "comm": "python3",
+      "domain_id": 1558297776,
+      "effect": "block",
+      "event": "taint_violation",
+      "killed": false,
+      "matched_label": "0x1",
+      "matched_label_details": [
+        {
+          "causal_chain": [
+            {
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "origin_op": "exec",
+              "origin_pid": 69407,
+              "origin_target": "python3",
+              "origin_timestamp_ns": 1528281040857
+            }
+          ],
+          "causal_chain_complete": false,
+          "label": "AGENT",
+          "label_mask": "0x1",
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 69407,
+            "origin_target": "python3",
+            "origin_timestamp_ns": 1528281040857
+          },
+          "provenance_status": "reported_first_origin"
+        }
+      ],
+      "matched_label_name": "AGENT",
+      "matched_label_names": [
+        "AGENT"
+      ],
+      "matched_labels": "0x1",
+      "op": "write",
+      "op_code": 2,
+      "pid": 69407,
+      "ppid": 69406,
+      "process_domain_id": 1558297776,
+      "provenance": {
+        "label": "AGENT",
+        "label_mask": "0x1",
+        "origin_op": "exec",
+        "origin_pid": 69407,
+        "origin_target": "python3",
+        "origin_timestamp_ns": 1528281040857
+      },
+      "provenance_model": {
+        "causal_chain_scope": "single_hop_origin",
+        "full_causal_chain": false,
+        "matched_labels_enumerated": true,
+        "reported_origin_available": true,
+        "reported_origin_scope": "first_available_matched_label"
+      },
+      "rule": {
+        "clause_end_line": 4,
+        "clause_hash": "fnv1a64:329b0066f31642ff",
+        "clause_op": "write",
+        "clause_source_index": 0,
+        "clause_start_line": 4,
+        "clause_text": "  block write file \"/w/0/**\" if AGENT",
+        "effect": "block",
+        "immutable": false,
+        "kernel_op": "write",
+        "name": "instance-readonly-1",
+        "ops": [
+          "write"
+        ],
+        "reason": "Instance resource is read-only or explicitly protected.",
+        "source_end_line": 7,
+        "source_hash": "fnv1a64:6768d64cd7099af1",
+        "source_ref": "rule:instance-readonly-1",
+        "source_start_line": 3,
+        "target_arg": null,
+        "target_kind": "file",
+        "target_pattern": "/w/0/**"
+      },
+      "rule_id": 0,
+      "schema": "actplane.violation.v1",
+      "session_root": 69287,
+      "taint_label": "0x1",
+      "target": "/w/0/probe.txt",
+      "timestamp_unix_ns": "1792563255107045162",
+      "tool_call_tag": "0"
+    },
+    {
+      "action": "block",
+      "blocked": true,
+      "comm": "python3",
+      "domain_id": 1558297776,
+      "effect": "block",
+      "event": "taint_violation",
+      "killed": false,
+      "matched_label": "0x1",
+      "matched_label_details": [
+        {
+          "causal_chain": [
+            {
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "origin_op": "exec",
+              "origin_pid": 69407,
+              "origin_target": "python3",
+              "origin_timestamp_ns": 1528281040857
+            }
+          ],
+          "causal_chain_complete": false,
+          "label": "AGENT",
+          "label_mask": "0x1",
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 69407,
+            "origin_target": "python3",
+            "origin_timestamp_ns": 1528281040857
+          },
+          "provenance_status": "reported_first_origin"
+        }
+      ],
+      "matched_label_name": "AGENT",
+      "matched_label_names": [
+        "AGENT"
+      ],
+      "matched_labels": "0x1",
+      "op": "write",
+      "op_code": 2,
+      "pid": 69407,
+      "ppid": 69406,
+      "process_domain_id": 1558297776,
+      "provenance": {
+        "label": "AGENT",
+        "label_mask": "0x1",
+        "origin_op": "exec",
+        "origin_pid": 69407,
+        "origin_target": "python3",
+        "origin_timestamp_ns": 1528281040857
+      },
+      "provenance_model": {
+        "causal_chain_scope": "single_hop_origin",
+        "full_causal_chain": false,
+        "matched_labels_enumerated": true,
+        "reported_origin_available": true,
+        "reported_origin_scope": "first_available_matched_label"
+      },
+      "rule": {
+        "clause_end_line": 9,
+        "clause_hash": "fnv1a64:f6aa2ee02888b23e",
+        "clause_op": "write",
+        "clause_source_index": 0,
+        "clause_start_line": 9,
+        "clause_text": "  block write file \"/v/efe537928ee4/**\" if AGENT",
+        "effect": "block",
+        "immutable": false,
+        "kernel_op": "write",
+        "name": "instance-readonly-2",
+        "ops": [
+          "write"
+        ],
+        "reason": "Instance resource is read-only or explicitly protected.",
+        "source_end_line": 12,
+        "source_hash": "fnv1a64:c2fdebe33787a6e6",
+        "source_ref": "rule:instance-readonly-2",
+        "source_start_line": 8,
+        "target_arg": null,
+        "target_kind": "file",
+        "target_pattern": "/v/efe537928ee4/**"
+      },
+      "rule_id": 2,
+      "schema": "actplane.violation.v1",
+      "session_root": 69287,
+      "taint_label": "0x1",
+      "target": "/v/efe537928ee4/probe.txt",
+      "timestamp_unix_ns": "1792563255107315316",
+      "tool_call_tag": "0"
+    },
+    {
+      "action": "block",
+      "blocked": true,
+      "comm": "python3",
+      "domain_id": 1558297776,
+      "effect": "block",
+      "event": "taint_violation",
+      "killed": false,
+      "matched_label": "0x1",
+      "matched_label_details": [
+        {
+          "causal_chain": [
+            {
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "origin_op": "exec",
+              "origin_pid": 69407,
+              "origin_target": "python3",
+              "origin_timestamp_ns": 1528281040857
+            }
+          ],
+          "causal_chain_complete": false,
+          "label": "AGENT",
+          "label_mask": "0x1",
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 69407,
+            "origin_target": "python3",
+            "origin_timestamp_ns": 1528281040857
+          },
+          "provenance_status": "reported_first_origin"
+        }
+      ],
+      "matched_label_name": "AGENT",
+      "matched_label_names": [
+        "AGENT"
+      ],
+      "matched_labels": "0x1",
+      "op": "write",
+      "op_code": 2,
+      "pid": 69407,
+      "ppid": 69406,
+      "process_domain_id": 1558297776,
+      "provenance": {
+        "label": "AGENT",
+        "label_mask": "0x1",
+        "origin_op": "exec",
+        "origin_pid": 69407,
+        "origin_target": "python3",
+        "origin_timestamp_ns": 1528281040857
+      },
+      "provenance_model": {
+        "causal_chain_scope": "single_hop_origin",
+        "full_causal_chain": false,
+        "matched_labels_enumerated": true,
+        "reported_origin_available": true,
+        "reported_origin_scope": "first_available_matched_label"
+      },
+      "rule": {
+        "clause_end_line": 9,
+        "clause_hash": "fnv1a64:f6aa2ee02888b23e",
+        "clause_op": "write",
+        "clause_source_index": 0,
+        "clause_start_line": 9,
+        "clause_text": "  block write file \"/v/efe537928ee4/**\" if AGENT",
+        "effect": "block",
+        "immutable": false,
+        "kernel_op": "write",
+        "name": "instance-readonly-2",
+        "ops": [
+          "write"
+        ],
+        "reason": "Instance resource is read-only or explicitly protected.",
+        "source_end_line": 12,
+        "source_hash": "fnv1a64:c2fdebe33787a6e6",
+        "source_ref": "rule:instance-readonly-2",
+        "source_start_line": 8,
+        "target_arg": null,
+        "target_kind": "file",
+        "target_pattern": "/v/efe537928ee4/**"
+      },
+      "rule_id": 2,
+      "schema": "actplane.violation.v1",
+      "session_root": 69287,
+      "taint_label": "0x1",
+      "target": "/v/efe537928ee4/tests/probe.txt",
+      "timestamp_unix_ns": "1792563255107612336",
+      "tool_call_tag": "0"
+    },
+    {
+      "action": "block",
+      "blocked": true,
+      "comm": "python3",
+      "domain_id": 1558297776,
+      "effect": "block",
+      "event": "taint_violation",
+      "killed": false,
+      "matched_label": "0x1",
+      "matched_label_details": [
+        {
+          "causal_chain": [
+            {
+              "label": "AGENT",
+              "label_mask": "0x1",
+              "origin_op": "exec",
+              "origin_pid": 69407,
+              "origin_target": "python3",
+              "origin_timestamp_ns": 1528281040857
+            }
+          ],
+          "causal_chain_complete": false,
+          "label": "AGENT",
+          "label_mask": "0x1",
+          "provenance": {
+            "label": "AGENT",
+            "label_mask": "0x1",
+            "origin_op": "exec",
+            "origin_pid": 69407,
+            "origin_target": "python3",
+            "origin_timestamp_ns": 1528281040857
+          },
+          "provenance_status": "reported_first_origin"
+        }
+      ],
+      "matched_label_name": "AGENT",
+      "matched_label_names": [
+        "AGENT"
+      ],
+      "matched_labels": "0x1",
+      "op": "write",
+      "op_code": 2,
+      "pid": 69407,
+      "ppid": 69406,
+      "process_domain_id": 1558297776,
+      "provenance": {
+        "label": "AGENT",
+        "label_mask": "0x1",
+        "origin_op": "exec",
+        "origin_pid": 69407,
+        "origin_target": "python3",
+        "origin_timestamp_ns": 1528281040857
+      },
+      "provenance_model": {
+        "causal_chain_scope": "single_hop_origin",
+        "full_causal_chain": false,
+        "matched_labels_enumerated": true,
+        "reported_origin_available": true,
+        "reported_origin_scope": "first_available_matched_label"
+      },
+      "rule": {
+        "clause_end_line": 9,
+        "clause_hash": "fnv1a64:f6aa2ee02888b23e",
+        "clause_op": "write",
+        "clause_source_index": 0,
+        "clause_start_line": 9,
+        "clause_text": "  block write file \"/v/efe537928ee4/**\" if AGENT",
+        "effect": "block",
+        "immutable": false,
+        "kernel_op": "write",
+        "name": "instance-readonly-2",
+        "ops": [
+          "write"
+        ],
+        "reason": "Instance resource is read-only or explicitly protected.",
+        "source_end_line": 12,
+        "source_hash": "fnv1a64:c2fdebe33787a6e6",
+        "source_ref": "rule:instance-readonly-2",
+        "source_start_line": 8,
+        "target_arg": null,
+        "target_kind": "file",
+        "target_pattern": "/v/efe537928ee4/**"
+      },
+      "rule_id": 2,
+      "schema": "actplane.violation.v1",
+      "session_root": 69287,
+      "taint_label": "0x1",
+      "target": "/v/efe537928ee4/tests/probe.txt",
+      "timestamp_unix_ns": "1792563255107865632",
+      "tool_call_tag": "0"
+    }
+  ],
+  "protected_integrity": {
+    "root": {
+      "before": "18c4f85a180cf29ddc1f8e3a3143ff54d643d1c306dbe610f4f70482632071d4",
+      "after": "18c4f85a180cf29ddc1f8e3a3143ff54d643d1c306dbe610f4f70482632071d4"
+    },
+    "parent": {
+      "before": "18c4f85a180cf29ddc1f8e3a3143ff54d643d1c306dbe610f4f70482632071d4",
+      "after": "18c4f85a180cf29ddc1f8e3a3143ff54d643d1c306dbe610f4f70482632071d4"
+    },
+    "test": {
+      "before": "18c4f85a180cf29ddc1f8e3a3143ff54d643d1c306dbe610f4f70482632071d4",
+      "after": "18c4f85a180cf29ddc1f8e3a3143ff54d643d1c306dbe610f4f70482632071d4"
+    }
+  }
+}

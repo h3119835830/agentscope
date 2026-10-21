@@ -75,6 +75,10 @@ def typed_changes(old,new):
     from .policy import records
     labels={'model_only':'仅模型与控制连接','disabled':'禁止模型和外部网络，保留控制连接'}
     changes=[]
+    previous={v['source']:v for v in old.get('resource_views',{}).get('views',[])}
+    for view in new.get('resource_views',{}).get('views',[]):
+        if view != previous.get(view['source']):
+            changes.append({'label':'新增精确资源映射（不自动授予写权限）','before':view['source'],'after':view['execution']})
     if old['network']!=new['network']:
         changes.append({'label':'网络访问','before':labels[old['network']],'after':labels[new['network']]})
     for verb,first,second in (('新增',new,old),('移除',old,new)):
