@@ -140,9 +140,10 @@ def source_gate(live):
             baseline = LIVE_BASES.get(name, FEATURE + '^')
             require(sha(live / name) == hashlib.sha256(git('show', baseline + ':' + name)).hexdigest(),
                     'Live baseline drift: ' + name)
-    # No unrelated Python, launcher or integration changes are shipped.
+    # No unrelated Python/launcher changes are shipped. Integrations are copied
+    # unchanged from the installed tree and separately byte-checked in stage().
     for name in git('ls-files', 'backend', 'scripts/scope_service.py', 'scripts/scope_systemd_exec.py',
-                    'scripts/rq5_service.py', 'integrations').decode().splitlines():
+                    'scripts/rq5_service.py').decode().splitlines():
         if name in names or name.startswith(('backend/tests/', 'backend/dsl-adapter/')):
             continue
         require((live / name).is_file() and sha(ROOT / name) == sha(live / name), 'Unrelated source drift: ' + name)
