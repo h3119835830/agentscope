@@ -14,6 +14,9 @@ from deploy_reference_reader import ROOT, STATE, API, BROKER, PYTHON, git, ident
 from deploy_policy_semantics import files, listeners, service, sha
 
 FEATURE = '2d82216412c85d9e6e14dfd38898c1ba0939b524'
+# The live Broker predates the already reviewed root-owned short monitor socket.
+# Exact bytes were checked in both deployed trees; never accept arbitrary drift.
+LIVE_BASES = {'backend/broker/instance_runtime.py': '3c3d36837f52f22135524ebbb0a2f338f809fc3c'}
 NATIVE = '5e8d43c279d88bd4215f654746675debfd976e28426c9fabdabeca408865d6da'
 PREFIX = 'agentscope-resource-views-'
 MANIFEST = 'resource-views-deployment.json'
@@ -133,7 +136,8 @@ def source_gate(live):
         if name in added:
             require(not (live / name).exists(), 'New file already exists in live release: ' + name)
         else:
-            require(sha(live / name) == hashlib.sha256(git('show', FEATURE + '^:' + name)).hexdigest(),
+            baseline = LIVE_BASES.get(name, FEATURE + '^')
+            require(sha(live / name) == hashlib.sha256(git('show', baseline + ':' + name)).hexdigest(),
                     'Live baseline drift: ' + name)
     # No unrelated Python, launcher or integration changes are shipped.
     for name in git('ls-files', 'backend', 'scripts/scope_service.py', 'scripts/scope_systemd_exec.py',
