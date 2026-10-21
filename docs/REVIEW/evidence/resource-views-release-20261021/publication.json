@@ -1,0 +1,71 @@
+{
+  "published": true,
+  "feature_commit": "2d82216412c85d9e6e14dfd38898c1ba0939b524",
+  "source_commit": "e175c5f9273e9427214129c830a91ce3dcad9bd9",
+  "release": "/opt/agentscope-resource-views-20261021-144448",
+  "restored_agents": [],
+  "browser_acceptance": "blocked_by_tool_access_policy",
+  "services": {
+    "agentscope-scope-demo-api.service": {
+      "MainPID": "39126",
+      "WorkingDirectory": "/opt/agentscope-resource-views-20261021-144448",
+      "argv": [
+        "/opt/agentscope/.venv/bin/python",
+        "-m",
+        "uvicorn",
+        "agentscope_app.main:app",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "18003",
+        "--timeout-graceful-shutdown",
+        "3"
+      ],
+      "start_ticks": "68215"
+    },
+    "agentscope-scope-demo-broker.service": {
+      "MainPID": "39120",
+      "WorkingDirectory": "/opt/agentscope-resource-views-20261021-144448",
+      "argv": [
+        "/opt/agentscope/.venv/bin/python",
+        "/opt/agentscope-resource-views-20261021-144448/backend/broker/main.py"
+      ],
+      "start_ticks": "68183"
+    }
+  },
+  "api_identity": {
+    "Uid": "999\t999\t999\t999",
+    "Gid": "985\t985\t985\t985",
+    "Groups": "985 986",
+    "CapEff": "0000000000000000",
+    "NoNewPrivs": "0"
+  },
+  "reader_identity": {
+    "Uid": "1000\t1000\t1000\t1000",
+    "Gid": "986\t986\t986\t986",
+    "Groups": "",
+    "CapEff": "0000000000000000",
+    "NoNewPrivs": "1"
+  },
+  "reader_smoke": {
+    "api_uid": 999,
+    "api_gid": 985,
+    "groups": [
+      985,
+      986
+    ],
+    "reader": {
+      "uid": 1000,
+      "gid": 986,
+      "groups": []
+    },
+    "allowed": true,
+    "denied": true
+  },
+  "authority_preserved": true,
+  "historical_rows_preserved": true,
+  "other_listeners_unchanged": true,
+  "native_sha256": "5e8d43c279d88bd4215f654746675debfd976e28426c9fabdabeca408865d6da",
+  "seconds": 1.988,
+  "static_verified": true
+}

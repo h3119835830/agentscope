@@ -1,0 +1,18 @@
+test_asset_collision_fails_before_index_switch (test_resource_views_release.ReleaseTests.test_asset_collision_fails_before_index_switch) ... ok
+test_busy_jobs_block_before_service_mutation (test_resource_views_release.ReleaseTests.test_busy_jobs_block_before_service_mutation) ... ok
+test_drops_keep_reduced_api_launcher_and_readiness (test_resource_views_release.ReleaseTests.test_drops_keep_reduced_api_launcher_and_readiness) ... ok
+test_historical_rows_may_only_be_appended (test_resource_views_release.ReleaseTests.test_historical_rows_may_only_be_appended) ... ok
+test_invalid_manifest_has_no_service_side_effect (test_resource_views_release.ReleaseTests.test_invalid_manifest_has_no_service_side_effect) ... ok
+test_live_execution_blocks_release (test_resource_views_release.ReleaseTests.test_live_execution_blocks_release) ... ok
+test_native_mismatch_fails_closed (test_resource_views_release.ReleaseTests.test_native_mismatch_fails_closed) ... ok
+test_only_scope_demo_units (test_resource_views_release.ReleaseTests.test_only_scope_demo_units) ... ok
+test_private_exclusive_manifest (test_resource_views_release.ReleaseTests.test_private_exclusive_manifest) ... ok
+test_publish_retains_old_assets (test_resource_views_release.ReleaseTests.test_publish_retains_old_assets) ... ok
+test_runtime_contract_has_no_agent_start_or_approval_mutations (test_resource_views_release.ReleaseTests.test_runtime_contract_has_no_agent_start_or_approval_mutations) ... ok
+test_verification_failure_restores_only_code_and_ui_pointers (test_resource_views_release.ReleaseTests.test_verification_failure_restores_only_code_and_ui_pointers) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.004s
+
+OK
+{"published": false, "report": "/tmp/tmp7i8q07cq/backup/result.json"}
