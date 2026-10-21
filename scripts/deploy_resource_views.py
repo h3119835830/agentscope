@@ -16,7 +16,8 @@ from deploy_policy_semantics import files, listeners, service, sha
 FEATURE = '2d82216412c85d9e6e14dfd38898c1ba0939b524'
 # The live Broker predates the already reviewed root-owned short monitor socket.
 # Exact bytes were checked in both deployed trees; never accept arbitrary drift.
-LIVE_BASES = {'backend/broker/instance_runtime.py': '3c3d36837f52f22135524ebbb0a2f338f809fc3c'}
+LIVE_BASES = {'backend/broker/instance_runtime.py': '3c3d36837f52f22135524ebbb0a2f338f809fc3c',
+              'backend/dsl_documents.py': '12c76464ee000bbae32346d8f3d74caca180e5ea'}
 NATIVE = '5e8d43c279d88bd4215f654746675debfd976e28426c9fabdabeca408865d6da'
 PREFIX = 'agentscope-resource-views-'
 MANIFEST = 'resource-views-deployment.json'
