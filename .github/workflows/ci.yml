@@ -38,7 +38,10 @@ jobs:
           test "$(readlink -f /opt/agentscope/bin/node)" = "$(readlink -f "$(command -v node)")"
       # Reference-reader tests exercise UID/GID and supplementary-group dropping.
       # conftest isolates the database, broker socket and worker settings.
-      - run: sudo env "PATH=$PATH" PYTHONPATH=backend python -m pytest -q backend/tests
+      # The identity tests need root, but the following compileall step runs as
+      # the runner user. Do not leave root-owned Python or pytest caches in the
+      # checkout or the independent syntax check cannot write its bytecode.
+      - run: sudo env "PATH=$PATH" PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=backend python -m pytest -q -p no:cacheprovider backend/tests
       - run: python -m compileall -q backend/agentscope_app backend/broker
 
   frontend-and-plugin:
