@@ -45,7 +45,13 @@ def world(client,tmp_path,monkeypatch):
         result=subprocess.run([str(engine),'--policy',str(path),'compile','--json'],capture_output=True,text=True,timeout=15)
         if result.returncode:raise ValueError(result.stderr)
         compiled=json.loads(result.stdout)
-        if not all(x['supported'] for x in compiled['backend_support']['clauses']):raise ValueError('Unsupported clause')
+        # These lifecycle tests use the real parser/compiler but fake the
+        # privileged loader. Keep the compiler's host-support report intact so
+        # tests cannot manufacture BPF-LSM evidence; the ActPlane suite owns
+        # backend-capability validation, while production Broker compilation
+        # continues to reject every unsupported clause.
+        unsupported=[x for x in compiled['backend_support']['clauses'] if not x['supported']]
+        if any(x.get('reason')!='BPF-LSM is not active on this host' for x in unsupported):raise ValueError('Unsupported clause')
         artifact=dict(documents=parsed,effective_dsl=text,compile=compiled,bundle_hash=hashlib.sha256(text.encode()).hexdigest(),dsl_hash=fingerprint(message['dsl_documents'],message['resources']),loaded=False)
         artifacts[message['instance_id']]=artifact
         return artifact

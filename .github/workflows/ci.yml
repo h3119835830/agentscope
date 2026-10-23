@@ -15,6 +15,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
       - run: pip install -r backend/requirements-dev.txt
       - run: sudo apt-get update && sudo apt-get install -y build-essential libelf-dev zlib1g-dev pkg-config
       - uses: dtolnay/rust-toolchain@stable
@@ -25,7 +28,14 @@ jobs:
         run: |
           getent group agentscope-task >/dev/null || sudo groupadd --system agentscope-task
           id -u agentscope-api >/dev/null 2>&1 || sudo useradd --system --no-create-home --shell /usr/sbin/nologin agentscope-api
+          id -u agentscope-agent >/dev/null 2>&1 || sudo useradd --system --gid agentscope-task --home-dir /var/lib/agentscope-agent --no-create-home --shell /usr/sbin/nologin agentscope-agent
           id -u happy >/dev/null 2>&1 || sudo useradd --system --no-create-home --shell /usr/sbin/nologin happy
+          sudo usermod -aG agentscope-task agentscope-api
+          sudo install -d -m 0755 /opt/agentscope/bin
+          sudo ln -sfn "$(command -v node)" /opt/agentscope/bin/node
+          id agentscope-api
+          test "$(id -gn agentscope-agent)" = agentscope-task
+          test "$(readlink -f /opt/agentscope/bin/node)" = "$(readlink -f "$(command -v node)")"
       # Reference-reader tests exercise UID/GID and supplementary-group dropping.
       # conftest isolates the database, broker socket and worker settings.
       - run: sudo env "PATH=$PATH" PYTHONPATH=backend python -m pytest -q backend/tests
