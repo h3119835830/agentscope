@@ -6,6 +6,7 @@ import {createRequire} from 'node:module';
 import {dirname,join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {configurationRecordSummary,configurationRecordActions} from './policyConfigurationPresentation.mjs';
+import {PRIMARY_TYPES,primaryType,primaryTypeLabel,templateFacets} from './policyTemplatePrimaryType.mjs';
 const require=createRequire(import.meta.url),Module=require('node:module'),base=dirname(fileURLToPath(import.meta.url));
 const nodes=t=>t&&typeof t==='object'?[t,...[t.props?.children].flat(Infinity).flatMap(nodes)]:[];
 async function harness(entry,initial=[],exportName='default'){
@@ -17,6 +18,37 @@ async function harness(entry,initial=[],exportName='default'){
 }
 const template={description:'场景明确要求隔离无关资料时使用，填写目标路径，不额外禁止修改或删除。',id:'FILE-READ',version:2,name:'文件读取限制',category:'文件保护',scopes:['system','agent'],parameters:[],operation:'open',effect:'block'};
 const child={id:'tc_a',template_id:'FILE-READ',template_version:2,name:'禁止日报读取员工资料',scope_id:'a',scope:'agent',revision:1,parameters:{},status:'draft',can_submit:true};
+test('three main groups follow the affected OS operation, not legacy category or scope',()=>{
+ assert.deepEqual(PRIMARY_TYPES.map(type=>type.label),['文件与目录操作','程序与命令执行','网络连接']);
+ for(const operation of ['open','read','write','unlink'])assert.equal(primaryType({operation,category:'跨事件保护'}),'file');
+ assert.equal(primaryType({id:'GIT-COMMIT-CHECK',operation:'exec',category:'Git 操作'}),'exec');
+ assert.equal(primaryType({id:'SYS-secret-egress',operation:'connect',category:'系统 · 跨事件保护'}),'network');
+ assert.equal(primaryTypeLabel({operation:'exec'}),'程序与命令执行');
+ assert.equal(primaryType({custom:true,operation:'exec'}),'');
+ assert.equal(primaryTypeLabel({custom:true}),'自定义策略 · 操作见详情');
+ assert.deepEqual(templateFacets({id:'SYS-secret-egress',operation:'connect',category:'系统 · 跨事件保护',execution_support:{event_type:'跨事件'}}),['系统预设','跨事件']);
+});
+test('system template selector offers only three main groups and preserves exact child scope',async()=>{
+ const definitions=[
+  template,
+  {...template,id:'SYS-env',name:'环境凭据文件',category:'系统 · 凭据保护'},
+  {...template,id:'GIT-COMMIT',name:'Git 提交执行约束',category:'Git 操作',operation:'exec'},
+  {...template,id:'SECRET-EGRESS',name:'敏感资料外发限制',category:'跨事件保护',operation:'connect'},
+ ];
+ const render=await harness('UnifiedPolicyLibrary.jsx',[{catalog:definitions,items:[child]},{catalog:[],items:[]}]),writes=[];
+ const props={api(){},post:()=>writes.push('write'),onApprovals(){}};
+ let tree=render(props),selector=nodes(tree).find(n=>n.props?.['aria-label']==='策略主分类');
+ assert.deepEqual(nodes(selector).filter(n=>n.type==='option').map(n=>n.props.children),['全部主分类',...PRIMARY_TYPES.map(type=>type.label)]);
+ tree=templateDetails(render,props);
+ assert.ok(nodes(tree).some(n=>n.props?.['aria-label']===child.name+'：提交审批'));
+ selector.props.onChange({target:{value:'exec'}});tree=render(props);
+ assert.ok(nodes(tree).some(n=>n.props?.['aria-label']==='Git 提交执行约束：详情'));
+ assert.ok(!nodes(tree).some(n=>n.props?.['aria-label']==='环境凭据文件：详情'));
+ selector=nodes(tree).find(n=>n.props?.['aria-label']==='策略主分类');selector.props.onChange({target:{value:'file'}});tree=render(props);
+ assert.ok(nodes(tree).some(n=>n.props?.['aria-label']==='环境凭据文件：详情'));
+ assert.ok(nodes(tree).some(n=>n.props?.['aria-label']===child.name+'：提交审批'));
+ assert.deepEqual(writes,[]);
+});
 test('expanded catalogue has one add action and keeps target parameters only in details',async()=>{
  const def={...template,parameters:[{key:'target',label:'保护对象路径',type:'path'}]},item={...child,parameters:{target:'/w/0/only-in-details.txt'}};
  const render=await harness('UnifiedPolicyLibrary.jsx',[{catalog:[def],items:[item]},{catalog:[],items:[]}]),props={api(){},post(){},onApprovals(){}};
