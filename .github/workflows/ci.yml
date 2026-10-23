@@ -21,6 +21,11 @@ jobs:
       - run: cargo build --release --manifest-path actplane/Cargo.toml --bin actplane
       - run: cargo build --release --manifest-path backend/dsl-adapter/Cargo.toml
       - run: mkdir -p /tmp/a
+      - name: Prepare identity-sensitive reader accounts
+        run: |
+          getent group agentscope-task >/dev/null || sudo groupadd --system agentscope-task
+          id -u agentscope-api >/dev/null 2>&1 || sudo useradd --system --no-create-home --shell /usr/sbin/nologin agentscope-api
+          id -u happy >/dev/null 2>&1 || sudo useradd --system --no-create-home --shell /usr/sbin/nologin happy
       # Reference-reader tests exercise UID/GID and supplementary-group dropping.
       # conftest isolates the database, broker socket and worker settings.
       - run: sudo env "PATH=$PATH" PYTHONPATH=backend python -m pytest -q backend/tests
