@@ -26,7 +26,21 @@ test('product reads use retained projections while writes and original DSL paths
 });
 test('overview uses server state without presenting PID or internal diagnostics',async()=>{
  const html=await render('ProductOverview.jsx',{dash:{agents:[{id:'hidden-key',display_name:'项目助手 · DeepSeek Harness',agent_type:'dsh',pid:42,connected:true,active:true,product_status:{loading:{state:'loaded',label:'已加载',expires_at:new Date(Date.now()+8000).toISOString()}}}],stats:{agents:1,verified_agents:1,strategies:0,pending_strategies:0,active_tasks:57}},status:{broker:{available:true},bpf_lsm:true},onNav:()=>{},onSessions:()=>{}});
- assert.match(html,/DeepSeek Harness/);assert.match(html,/已加载/);assert.match(html,/安全亮点/);assert.match(html,/使用说明/);assert.doesNotMatch(html,/PID 42|hidden-key|57|治理候选|历史策略|Linux 内核|ActPlane CLI|DSH CLI|执行后端可用/);
+ assert.match(html,/<b>DeepSeek Harness<\/b>/);assert.doesNotMatch(html,/<b>项目助手/);assert.match(html,/已加载/);assert.match(html,/安全亮点/);assert.match(html,/使用说明/);assert.doesNotMatch(html,/PID 42|hidden-key|57|治理候选|历史策略|Linux 内核|ActPlane CLI|DSH CLI|执行后端可用/);
+});
+test('overview follows connection product names without merging same-product instances',async()=>{
+ const agents=[
+  {id:'instance-rq5',name:'RQ5 DSH 受控实例',agent_type:'dsh',product_status:{runtime:{state:'stopped',label:'未运行'},loading:{state:'not_loaded',label:'未运行'}}},
+  {id:'instance-hermes',name:'RQ5 HERMES 受控实例',agent_type:'hermes',product_status:{runtime:{state:'stopped',label:'未运行'},loading:{state:'not_loaded',label:'未运行'}}},
+  {id:'instance-readonly',name:'只读语义验收 DSH',agent_type:'dsh',product_status:{runtime:{state:'unknown',label:'状态未知'},loading:{state:'unknown',label:'未核验'}}},
+ ];
+ const html=await render('ProductOverview.jsx',{dash:{agents,stats:{agents:3}},onNav:()=>{},onSessions:()=>{}});
+ assert.equal((html.match(/<b>DeepSeek Harness<\/b>/g)||[]).length,2);
+ assert.equal((html.match(/<b>Hermes<\/b>/g)||[]).length,1);
+ assert.equal((html.match(/<tr>/g)||[]).length,4);
+ assert.match(html,/aria-label="查看 RQ5 DSH 受控实例 · DeepSeek Harness · rq5 的会话"/);
+ assert.match(html,/aria-label="查看 只读语义验收 DSH · DeepSeek Harness · readonly 的会话"/);
+ assert.doesNotMatch(html,/<b>RQ5|<b>只读语义验收/);
 });
 test('overview security notice keeps all twelve read-only scenario announcements reachable',()=>{
  assert.equal(noticeCases.length,12);
@@ -59,7 +73,7 @@ test('temporary refresh failure keeps the last successful rows until their evide
  const expiresAt=new Date(Date.now()+8000).toISOString();
  const prior={agents:[{id:'a',display_name:'项目助手 · DeepSeek Harness',agent_type:'dsh',connected:true,active:true,pid:42,product_status:{runtime:{state:'running',label:'运行中',expires_at:expiresAt},loading:{state:'loaded',label:'已加载',expires_at:expiresAt}}}],stats:{agents:1,verified_agents:1}};
  const html=await render('ProductOverview.jsx',{dash:prior,error:'读取超时，请重试。',status:{error:'read failed'},onRetry:()=>{},onNav:()=>{},onSessions:()=>{}});
- assert.match(html,/上次成功读取/);assert.match(html,/项目助手/);assert.match(html,/运行中/);assert.match(html,/已加载/);
+ assert.match(html,/上次成功读取/);assert.match(html,/<b>DeepSeek Harness<\/b>/);assert.match(html,/运行中/);assert.match(html,/已加载/);
  assert.doesNotMatch(html,/PID 42|策略绑定已核验|<td>未运行/);
 });
 
