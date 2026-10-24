@@ -1,0 +1,12 @@
+# Ubuntu 24.04 restricts unprivileged user namespaces unless the executable
+# has an AppArmor profile that explicitly grants userns.  Bubblewrap remains
+# responsible for the mount/PID/IPC/UTS namespace and capability restrictions.
+
+abi <abi/4.0>,
+include <tunables/global>
+
+profile agentscope-bwrap /usr/bin/bwrap flags=(unconfined) {
+  userns,
+
+  include if exists <local/agentscope-bwrap>
+}

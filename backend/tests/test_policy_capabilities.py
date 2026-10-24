@@ -1,7 +1,7 @@
 import hashlib,json,platform
 from pathlib import Path
 from types import SimpleNamespace
-from broker.policy_capabilities import installed,loaded_features
+from broker.policy_capabilities import feature_map_path,installed,loaded_features
 
 def test_attestation_requires_matching_binary_kernel_and_root_ownership(tmp_path,monkeypatch):
     binary=tmp_path/'actplane';binary.write_bytes(b'acceptance-binary')
@@ -29,3 +29,18 @@ def test_loaded_features_are_read_from_kernel_map(monkeypatch):
         assert loaded_features({'pin_root':'/isolated/pin'})==2
     monkeypatch.setattr(subprocess,'run',lambda *a,**k:SimpleNamespace(returncode=1,stdout=''))
     assert loaded_features({'pin_root':'/isolated/pin'}) is None
+
+def test_current_and_legacy_feature_map_names_are_supported(tmp_path,monkeypatch):
+    maps=tmp_path/'maps';maps.mkdir()
+    current=maps/'te_engine_meta';current.write_text('')
+    assert feature_map_path(tmp_path)==current
+    current.unlink();legacy=maps/'engine_features';legacy.write_text('')
+    assert feature_map_path(tmp_path)==legacy
+    calls=[]
+    import subprocess
+    def run(args,**kwargs):
+        calls.append(args)
+        return SimpleNamespace(returncode=0 if str(args[5]).endswith('te_engine_meta') else 1,stdout=json.dumps({'value':['0x08','0x00','0x00','0x00']}))
+    legacy.unlink();monkeypatch.setattr(subprocess,'run',run)
+    assert loaded_features({'pin_root':str(tmp_path)})==8
+    assert any(str(call[5]).endswith('te_engine_meta') for call in calls)

@@ -17,6 +17,26 @@ REGEX=re.compile(r'^instance-[a-f0-9]{16}$')
 RUNS={}; LOCKS={}; LOCK=threading.RLock()
 B=None
 HEARTBEAT_STOP=threading.Event()
+CONTROLLED_INSTANCE_PROFILES=frozenset({'isolated-acceptance','production'})
+
+def controlled_instance_execution_enabled(runtime_name=None,profile=None):
+    """Require an explicit deployment profile outside the dedicated demo runtime."""
+    runtime_name=runtime_name or (B.RUNTIME.name if B is not None else '')
+    profile=(profile if profile is not None else os.getenv('AGENTSCOPE_CONTROLLED_INSTANCE_PROFILE','')).strip()
+    return runtime_name=='agentscope-scope-demo' or profile in CONTROLLED_INSTANCE_PROFILES
+
+def execution_user(agent_type):
+    """Use the configured Agent identity; only the legacy Hermes install keeps its owner."""
+    if agent_type=='hermes':
+        return pwd.getpwnam(os.getenv('AGENTSCOPE_HERMES_USER','happy'))
+    if B is None:raise RuntimeError('Broker runtime is not initialized')
+    return B.AGENT
+
+def execution_gid():
+    """Match the filesystem group to the GID used by the sandbox child."""
+    if B is None:raise RuntimeError('Broker runtime is not initialized')
+    return B.TASK_GID
+
 def monitor_socket_directory(runtime):
     """Root-owned short AF_UNIX parent, separate from Agent scratch files."""
     directory=Path(runtime)/'sockets'
@@ -57,6 +77,7 @@ def heartbeat():
                 except (OSError,RuntimeError,ValueError): pass
 
 def protection_fingerprint(record):
+    from broker.policy_capabilities import feature_map_path
     group=B.task_cgroup(record)
     pin=Path(record['pin_root'])
     entries=[]
@@ -65,7 +86,7 @@ def protection_fingerprint(record):
         if path.is_symlink() or info.st_uid!=0 or info.st_mode&0o022:
             raise ValueError('Untrusted enforcement object')
         entries.append((str(path.relative_to(pin)),info.st_dev,info.st_ino,info.st_mode))
-    if not entries or not (pin/'maps/engine_features').exists():raise ValueError('Enforcement pins missing')
+    if not entries or feature_map_path(pin) is None:raise ValueError('Enforcement pins missing')
     return {'generation':record['generation'],'domain_id':record['domain_id'],
         'policy_hash':record['policy_hash'],'dsl_hash':record['dsl_hash'],
         'watch':identity(record['watch'].pid),'anchor':identity(record['anchor'].pid),
@@ -134,7 +155,9 @@ def ident(value):
 def run_id(value): return hashlib.sha256(('agent-instance:'+ident(value)).encode()).hexdigest()[:16]
 def inst_lock(value):
     with LOCK: return LOCKS.setdefault(value,threading.RLock())
-def root(value): return B.TASK_ROOT/'instances'/ident(value)
+def root(value):
+    base=getattr(B,'INSTANCE_ROOT',B.TASK_ROOT/'instances')
+    return base/ident(value)
 def identity(pid): return legacy.process_identity(pid)
 def command(args):
     return subprocess.run(args,capture_output=True,text=True,timeout=10,check=True).stdout
@@ -357,7 +380,7 @@ def prepare_home(value,agent_type):
     import yaml
     directory=root(value)/'state'; directory.mkdir(parents=True,exist_ok=True)
     home=directory/('hermes' if agent_type=='hermes' else '.dsh')
-    user=pwd.getpwnam('happy')
+    user=execution_user(agent_type)
     if not home.exists():
         if agent_type=='dsh':
             home=B.prepare_task_dsh_home(directory)
@@ -400,7 +423,7 @@ def prepare_home(value,agent_type):
                     B.WEB_PORTS.add(n);port=n;break
                 except OSError: pass
         if port is None: raise ValueError('No free Hermes demo port')
-    own_tree(directory,user.pw_uid,user.pw_gid)
+    own_tree(directory,user.pw_uid,execution_gid())
     return home,port,user
 
 def native(record,operation,**fields):
@@ -612,7 +635,7 @@ def verify(record,policy):
         for s in listeners: s.close()
 
 def start(message):
-    if B.RUNTIME.name!='agentscope-scope-demo' and os.getenv('AGENTSCOPE_CONTROLLED_INSTANCE_PROFILE')!='isolated-acceptance': raise ValueError('当前服务尚未启用受控 Agent 执行')
+    if not controlled_instance_execution_enabled(): raise ValueError('当前服务尚未启用受控 Agent 执行')
     value=ident(message['instance_id'])
     with inst_lock(value):
         if value in RUNS: raise ValueError('Instance already started')
@@ -635,7 +658,7 @@ def start(message):
         temp=directory/'state/tmp';temp.mkdir(parents=True,exist_ok=True)
         if agent_type=='other':
             home=directory/'state/home';home.mkdir(parents=True,exist_ok=True)
-            user=pwd.getpwnam('happy');own_tree(directory/'state',user.pw_uid,user.pw_gid)
+            user=execution_user(agent_type);own_tree(directory/'state',user.pw_uid,execution_gid())
             port=reserve_launch_port()
         else:home,port,user=prepare_home(value,agent_type)
         if launch and launch['kind']=='web' and '{port}' not in launch['web_url']:
@@ -687,7 +710,7 @@ def start(message):
             record['heartbeat_path']=str(commanddir/'heartbeat.json')
             B.write_file(record['heartbeat_path'],json.dumps({'generation':record['generation'],'at':time.monotonic()}),0o600)
             for p in ('request_path','result_path'): Path(record[p]).unlink(missing_ok=True)
-            config={'instance_id':value,'agent_type':agent_type,'resources':resources,'policy':policy,'home':str(home),'state':str(directory/'state'),'web_port':port,'native_token':record['native_token'],'token':message['token'],'generation':record['generation'],'api_url':'http://127.0.0.1:'+str(port+200),'uid':user.pw_uid,'gid':B.TASK_GID,'dsh':str(B.DSH_WEB),'hermes_root':str(HERMES_ROOT),'hermes_dist':str(HERMES_DIST),'request_path':record['request_path'],'result_path':record['result_path'],'heartbeat_path':record['heartbeat_path'],'process_cgroup':record['process_cgroup']}
+            config={'instance_id':value,'agent_type':agent_type,'resources':resources,'policy':policy,'home':str(home),'state':str(directory/'state'),'web_port':port,'native_token':record['native_token'],'token':message['token'],'generation':record['generation'],'api_url':'http://127.0.0.1:'+str(port+200),'uid':user.pw_uid,'gid':B.TASK_GID,'user_name':user.pw_name,'task_python':str(B.TASK_PYTHON) if B.TASK_PYTHON.is_dir() else None,'dsh':str(B.DSH_WEB),'hermes_root':str(HERMES_ROOT),'hermes_dist':str(HERMES_DIST),'request_path':record['request_path'],'result_path':record['result_path'],'heartbeat_path':record['heartbeat_path'],'process_cgroup':record['process_cgroup']}
             if launch:config['launch']=launch
             handoff=commanddir/'launch.json';B.write_file(handoff,json.dumps(config),0o600)
             ready=commanddir/'ready';ready.unlink(missing_ok=True);nonce=secrets.token_hex(24)

@@ -5,6 +5,17 @@ from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from agentscope_app.instances.mapping import translate,resource_records
 
+def runtime_env(config):
+    user_name=config['user_name']
+    if not isinstance(user_name,str) or not user_name or len(user_name)>64:
+        raise ValueError('Invalid runtime user identity')
+    return {'PATH':'/opt/task-python/bin:/opt/agentscope/bin:/usr/local/bin:/usr/bin:/bin','HOME':config['state'],'USER':user_name,'LOGNAME':user_name,'LANG':'C.UTF-8',
+            'TMPDIR':config['state']+'/tmp','PYTHONDONTWRITEBYTECODE':'1','NO_PROXY':'*','no_proxy':'*',
+            'AGENTSCOPE_INSTANCE_ID':config['instance_id'],'AGENTSCOPE_INSTANCE_TOKEN':config['token'],'AGENTSCOPE_GENERATION':config['generation'],
+            'AGENTSCOPE_INSTANCE_URL':config['api_url'],'AGENTSCOPE_NATIVE_TOKEN':config['native_token'],'AGENTSCOPE_NATIVE_PORT':str(config['web_port']+100),
+            'AGENTSCOPE_FILE_DENIES':json.dumps([translate(r['target'],config['resources'],views=config['policy'].get('resource_views')) for r in config['policy']['rules'] if r['action']=='read' and r['effect']=='deny']),
+            'AGENTSCOPE_RESOURCES':json.dumps([m['execution'] for m in resource_records(config['resources'],views=config['policy'].get('resource_views'))]),'AGENTSCOPE_WEB_PORT':str(config['web_port'])}
+
 def sandbox(config,probe=False,source_fds=None):
     state=config['state']
     args=['/usr/bin/bwrap','--die-with-parent','--unshare-user','--unshare-pid','--unshare-ipc','--unshare-uts','--cap-drop','ALL',
@@ -13,8 +24,13 @@ def sandbox(config,probe=False,source_fds=None):
           '--ro-bind','/etc/hosts','/etc/hosts','--ro-bind','/etc/nsswitch.conf','/etc/nsswitch.conf',
           '--ro-bind','/etc/passwd','/etc/passwd','--ro-bind','/etc/group','/etc/group',
           '--ro-bind','/opt/agentscope/bin','/opt/agentscope/bin',
-          '--ro-bind','/var/lib/agentscope-rq5-v1/task-python','/opt/task-python',
           '--bind',state,state,'--bind',config['home'],config['home'],'--symlink',state+'/tmp','/tmp']
+    task_python=config.get('task_python')
+    if task_python:
+        path=Path(task_python)
+        if not path.is_absolute() or '..' in path.parts:
+            raise ValueError('Invalid task Python runtime path')
+        args += ['--ro-bind',str(path),'/opt/task-python']
     views=config['policy'].get('resource_views')
     if views:
         if source_fds is None:raise ValueError('映射沙箱必须管理来源描述符生命周期')
@@ -129,12 +145,7 @@ def main():
     if info.st_uid!=0 or stat.S_IMODE(info.st_mode)!=0o600: return 78
     with os.fdopen(fd) as stream: config=json.load(stream)
     handoff.unlink()
-    env={'PATH':'/opt/task-python/bin:/opt/agentscope/bin:/usr/local/bin:/usr/bin:/bin','HOME':config['state'],'USER':'happy','LOGNAME':'happy','LANG':'C.UTF-8',
-         'TMPDIR':config['state']+'/tmp','PYTHONDONTWRITEBYTECODE':'1','NO_PROXY':'*','no_proxy':'*',
-         'AGENTSCOPE_INSTANCE_ID':config['instance_id'],'AGENTSCOPE_INSTANCE_TOKEN':config['token'],'AGENTSCOPE_GENERATION':config['generation'],
-         'AGENTSCOPE_INSTANCE_URL':config['api_url'],'AGENTSCOPE_NATIVE_TOKEN':config['native_token'],'AGENTSCOPE_NATIVE_PORT':str(config['web_port']+100),
-         'AGENTSCOPE_FILE_DENIES':json.dumps([translate(r['target'],config['resources'],views=config['policy'].get('resource_views')) for r in config['policy']['rules'] if r['action']=='read' and r['effect']=='deny']),
-          'AGENTSCOPE_RESOURCES':json.dumps([m['execution'] for m in resource_records(config['resources'],views=config['policy'].get('resource_views'))]),'AGENTSCOPE_WEB_PORT':str(config['web_port'])}
+    env=runtime_env(config)
     if config['agent_type']=='dsh':
         env['DSH_HOME']=config['home']
         argv=[config['dsh'],'web','--host','127.0.0.1','--port',str(config['web_port']),'--no-open']

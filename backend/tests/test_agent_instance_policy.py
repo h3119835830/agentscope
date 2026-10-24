@@ -2,9 +2,24 @@ import hashlib, json, time, uuid
 import pytest
 from agentscope_app import db
 from agentscope_app.instances import controller as c, store
-from agentscope_app.instances.policy import canonical, default_policy, digest, restrictive, records
+from agentscope_app.instances.policy import canonical, clean_resources, default_policy, digest, restrictive, records
 
 ADMIN={'Authorization':'Bearer test-admin-token-not-for-production'}
+
+def test_configured_resource_roots_allow_only_canonical_children(tmp_path,monkeypatch):
+    root=tmp_path/'managed';root.mkdir()
+    project=root/'project';project.mkdir()
+    outside=tmp_path/'outside';outside.mkdir()
+    monkeypatch.setenv('AGENTSCOPE_RESOURCE_ROOTS',json.dumps([str(root)]))
+    assert clean_resources([str(project)])==[str(project)]
+    with pytest.raises(ValueError,match='文件访问范围'):
+        clean_resources([str(root)])
+    with pytest.raises(ValueError,match='文件访问范围'):
+        clean_resources([str(outside)])
+    linked=tmp_path/'linked-root';linked.symlink_to(root,target_is_directory=True)
+    monkeypatch.setenv('AGENTSCOPE_RESOURCE_ROOTS',json.dumps([str(linked)]))
+    with pytest.raises(RuntimeError,match='规范绝对目录'):
+        clean_resources([str(project)])
 
 @pytest.fixture
 def instance(client,tmp_path,monkeypatch):

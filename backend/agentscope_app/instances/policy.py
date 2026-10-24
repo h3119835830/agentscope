@@ -1,9 +1,29 @@
 """Typed instance policy. Natural language is never executable policy."""
-import hashlib, ipaddress, json
+import hashlib, ipaddress, json, os
 from pathlib import Path
 from .mapping import translate
 ACTIONS = {'read', 'write', 'tool', 'network', 'behavior'}
 EFFECTS = {'allow', 'deny', 'confirm'}
+
+def configured_resource_roots():
+    raw = os.getenv('AGENTSCOPE_RESOURCE_ROOTS', '').strip()
+    if not raw:
+        return None
+    try:
+        values = json.loads(raw)
+    except json.JSONDecodeError as error:
+        raise RuntimeError('服务器文件访问根目录配置不是有效 JSON') from error
+    if not isinstance(values, list) or not 1 <= len(values) <= 16 or any(not isinstance(v, str) for v in values):
+        raise RuntimeError('服务器文件访问根目录配置必须是 1 至 16 个路径')
+    roots = []
+    for value in values:
+        root = Path(value)
+        if not root.is_absolute() or root.is_symlink() or not root.is_dir() or str(root.resolve(strict=True)) != str(root):
+            raise RuntimeError('服务器文件访问根目录必须是已存在的规范绝对目录')
+        if any(root == old or root in old.parents or old in root.parents for old in roots):
+            raise RuntimeError('服务器文件访问根目录不能重复或相互包含')
+        roots.append(root)
+    return tuple(roots)
 
 def digest(value):
     return hashlib.sha256(json.dumps(value, sort_keys=True, ensure_ascii=False, separators=(',', ':')).encode()).hexdigest()
@@ -12,11 +32,14 @@ def clean_resources(paths):
     if not isinstance(paths, list) or not 1 <= len(paths) <= 16:
         raise ValueError('请登记 1 至 16 个资源目录')
     result = []
+    configured_roots = configured_resource_roots()
     for value in paths:
         p = Path(value)
         if not p.is_absolute() or p.is_symlink() or str(p.resolve(strict=True)) != str(p) or not p.is_dir():
             raise ValueError('资源必须是已存在的规范绝对目录')
-        if str(p)!='/home/happy/projects' and not any(str(p).startswith(root) for root in ('/home/happy/projects/', '/mnt/c/Users/happy/Desktop/', '/s/instance-resources/')):
+        allowed = (any(root in p.parents for root in configured_roots) if configured_roots is not None else
+                   str(p)=='/home/happy/projects' or any(str(p).startswith(root) for root in ('/home/happy/projects/', '/mnt/c/Users/happy/Desktop/', '/s/instance-resources/')))
+        if not allowed:
             raise ValueError('文件访问范围须位于本机项目目录、桌面项目目录或 Demo 资源目录')
         if any(p == Path(old) or p in Path(old).parents or Path(old) in p.parents for old in result):
             raise ValueError('资源目录不能重复或相互包含')

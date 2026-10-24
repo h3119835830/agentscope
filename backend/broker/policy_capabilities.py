@@ -4,6 +4,12 @@ import json
 import platform
 from pathlib import Path
 
+ENGINE_FEATURE_MAPS=('te_engine_meta','engine_features')
+
+def feature_map_path(pin):
+    maps=Path(pin)/'maps'
+    return next((maps/name for name in ENGINE_FEATURE_MAPS if (maps/name).exists()),None)
+
 def installed(binary):
     binary=Path(binary);manifest=binary.with_name(binary.name+'.capabilities.json')
     result={'verified':False,'file_suffix':False,'max_suffix_bytes':0,'reason':'当前执行环境尚未核验文件后缀能力'}
@@ -23,11 +29,15 @@ def loaded_features(record):
     import subprocess
     pin=record.get('pin_root')
     if not pin:return None
-    result=subprocess.run(['/usr/sbin/bpftool','-j','map','lookup','pinned',str(Path(pin)/'maps/engine_features'),'key','hex','00','00','00','00'],capture_output=True,text=True,timeout=3)
-    if result.returncode:return None
-    try:
-        value=json.loads(result.stdout)['value']
-        if isinstance(value,int):return value
-        if isinstance(value,dict):return value.get('value')
-        return int.from_bytes(bytes(int(x,16) if isinstance(x,str) else x for x in value),'little')
-    except (ValueError,KeyError,TypeError):return None
+    existing=feature_map_path(pin)
+    candidates=[existing] if existing else [Path(pin)/'maps'/name for name in ENGINE_FEATURE_MAPS]
+    for path in candidates:
+        result=subprocess.run(['/usr/sbin/bpftool','-j','map','lookup','pinned',str(path),'key','hex','00','00','00','00'],capture_output=True,text=True,timeout=3)
+        if result.returncode:continue
+        try:
+            value=json.loads(result.stdout)['value']
+            if isinstance(value,int):return value
+            if isinstance(value,dict):return value.get('value')
+            return int.from_bytes(bytes(int(x,16) if isinstance(x,str) else x for x in value),'little')
+        except (ValueError,KeyError,TypeError):continue
+    return None
