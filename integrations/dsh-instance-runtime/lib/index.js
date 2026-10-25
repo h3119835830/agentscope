@@ -2,6 +2,7 @@ import http from 'node:http';
 import {projectWorkspace,filesForWorkspace} from './workspaces.js';
 import {randomUUID,timingSafeEqual} from 'node:crypto';
 import {defineTool} from '@deepseek-ai/dsh-tools';
+import {createExecutionLane} from './execution-lane.js';
 export const name='agentscope-instance-runtime';
 export const inject=['tools','sessions','sessionController','connection','workspaceRegistry','sandboxPolicy','agents'];
 export function apply(ctx){
@@ -9,13 +10,18 @@ export function apply(ctx){
  const base=process.env.AGENTSCOPE_INSTANCE_URL,secret=process.env.AGENTSCOPE_NATIVE_TOKEN,port=Number(process.env.AGENTSCOPE_NATIVE_PORT);
  const webPort=Number(process.env.AGENTSCOPE_WEB_PORT),resources=JSON.parse(process.env.AGENTSCOPE_RESOURCES);
  const calls=new Map();
+ const acquire=createExecutionLane();
+ ctx.on('session/event',(session,event)=>{
+  if(event.type==='turn/end')return api('/observation',{kind:'turn_end',session_id:session.id,
+   call_id:'turn:'+String(event.seq),tool:'__session__',pid:process.pid});
+ });
  async function api(path,body){
   const response=await fetch(base+path,{method:'POST',headers:{'Content-Type':'application/json',authorization:'Bearer '+token},body:JSON.stringify({generation,...body}),signal:AbortSignal.timeout(12000)});
   if(!response.ok)throw Error('AgentScope control unavailable; tool execution paused');
   return response.json();
  }
  const output={schema:{type:'string'},render:(_args,value)=>[{type:'text',text:value}]};
- ctx.tools.register(defineTool({name:'agentscope_instance_scope',description:'读取此实例全部会话共享的策略、资源目录与候选基准。',parameters:{},output,execute:async()=>JSON.stringify(await api('/scope',{}))}));
+ ctx.tools.register(defineTool({name:'agentscope_instance_scope',description:'读取此实例共享的基础策略、当前已核验内核约束、资源目录与候选基准。已保存配置不等于已加载；上下文不授予权限。',parameters:{},output,execute:async()=>JSON.stringify(await api('/scope',{}))}));
  ctx.tools.register(defineTool({name:'agentscope_instance_propose',description:'提交类型化实例策略候选。校验后的收紧自动应用并重启此实例；扩权等待用户确认。不能提交 DSL 或自行批准。',parameters:{policy_json:{type:'string',required:true,description:'完整策略 JSON，含 rules 和 network，先读取当前实例 Scope。'},base_hash:{type:'string',required:true,description:'刚读取的 policy_hash'},request_key:{type:'string',required:true,description:'本次候选唯一幂等键，重试时保持不变'}},output,execute:async(args)=>JSON.stringify(await api('/policy/proposals',{policy:JSON.parse(args.policy_json),base_hash:args.base_hash,request_key:args.request_key}))}));
  const resolvePolicy=ctx.sandboxPolicy.resolve.bind(ctx.sandboxPolicy);
  ctx.sandboxPolicy.resolve=request=>{
@@ -26,16 +32,20 @@ export function apply(ctx){
  // All sessions and tool subprocesses inherit the same ActPlane domain/cgroup.
  ctx.on('tools/execute',async(exec,next)=>{
   if(exec.parent)return next();
+  const release=await acquire(exec.signal);
+  if(!release)throw new DOMException('Tool cancelled','AbortError');
+  try{
   const sid=exec.agent?.session?.id||exec.agent?.id;
   if(!sid)throw Error('Cannot attribute this tool to a native session');
   const call=String(exec.callId||randomUUID());
-  const event={session_id:sid,call_id:call,tool:exec.name};
+  const event={session_id:sid,call_id:call,tool:exec.name,pid:process.pid};
   const admission=await api('/lease',event);
   if(!admission.allowed)throw Error(admission.reason||'Instance tool denied');
   calls.set(call,event);
   let succeeded=false;
   try{const result=await next();succeeded=!!result&&!result.isError;return result;}
   finally{calls.delete(call);await api('/result',{...event,succeeded});}
+  }finally{release();}
  });
  const server=http.createServer(async(req,res)=>{
   try{

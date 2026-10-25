@@ -46,6 +46,18 @@ def test_native_namespace_pid_is_resolved_only_inside_registered_cgroup(tmp_path
     (proc/'102/status').write_text('NSpid:\t102\t2\n')
     with pytest.raises(ValueError,match='ambiguous'):r.native_pid({'agent_type':'dsh'},2)
 
+def test_configured_native_entry_matches_frozen_argv_not_symlink_spelling(tmp_path,monkeypatch):
+    proc=tmp_path/'proc';group=tmp_path/'group';group.mkdir();(group/'cgroup.procs').write_text('101\n')
+    p=proc/'101';p.mkdir(parents=True);(p/'status').write_text('NSpid:\t101\t2\n')
+    argv=['/trusted/node','/trusted/lib/bin.js','web','--port','{port}']
+    (p/'cmdline').write_bytes(b'\0'.join(v.encode() for v in ['/trusted/node','/trusted/lib/bin.js','web','--port','18020'])+b'\0')
+    real=Path;monkeypatch.setattr(r,'Path',lambda value:proc if value=='/proc' else real(value))
+    monkeypatch.setattr(r,'B',SimpleNamespace(task_cgroup=lambda _:group,DSH_WEB=real('/trusted/.bin/dsh')))
+    row={'agent_type':'dsh','launch':{'argv':argv},'web_port':18020}
+    assert r.native_pid(row,2)==101
+    (p/'cmdline').write_bytes(b'node\0evil.js\0--memo=/trusted/lib/bin.js\0')
+    with pytest.raises(ValueError):r.native_pid(row,2)
+
 @pytest.mark.parametrize('failure',['wrong_domain','pid_reuse'])
 def test_lost_binding_freezes_scope_and_cannot_claim_active(tmp_path,monkeypatch,failure):
     group=tmp_path/'group';group.mkdir();(group/'cgroup.procs').write_text('101\n');(group/'cgroup.freeze').write_text('0')

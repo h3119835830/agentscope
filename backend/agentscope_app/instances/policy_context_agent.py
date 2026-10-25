@@ -56,6 +56,8 @@ class WorkspacePolicyAgent:
   self.references=[];self.selected=set();self.total_bytes=0;self.events=[];self.calls=0;self.errors=0;self.runs=[];self.format_repairs=0
   self.discovered=set()
   self.discovered_sizes={}
+  self.drafts=[]
+  self.scope='agent'
   if seed:self.remember(seed)
 
  def remember(self,reference):
@@ -71,6 +73,18 @@ class WorkspacePolicyAgent:
   self.references.append(reference)
 
  def execute(self,call):
+  if isinstance(call,dict) and set(call)=={'tool','arguments'} and isinstance(call['tool'],str) and (call['tool']=='search_policy_templates' or call['tool'].startswith('draft_')):
+   from . import template_tools
+   self.check_basis();self.calls+=1
+   if self.calls>MAX_CALLS:raise ToolContractError('本次场景分析已达到接口调用上限')
+   if call['tool']=='search_policy_templates':
+    if set(call['arguments'])!={'query'}:raise ToolContractError('模板查询只接受 query')
+    value={'tools':template_tools.search(call['arguments']['query'],self.scope)}
+   else:
+    value=template_tools.instantiate(self.ident,call['tool'],call['arguments'],self.scope)
+    self.drafts.append(value['configuration'])
+   self.events.append({'tool':call['tool'],'status':'completed','applied':False})
+   return {'tool':call['tool'],'arguments':call['arguments'],'result':value}
   if not isinstance(call,dict) or set(call)!={'tool','arguments'} or call['tool'] not in ('list_directory','read_files'):
    raise ToolContractError('策略助手只能调用已声明的目录和正文读取接口')
   args=call['arguments'];tool=call['tool']
@@ -79,6 +93,9 @@ class WorkspacePolicyAgent:
   if not isinstance(args,dict) or set(args)-fields or not required<=set(args):raise ToolContractError('读取接口参数不符合已声明合同')
   workspace=args['workspace_id']
   if not isinstance(workspace,str) or workspace not in self.workspaces:raise ToolContractError('工作区不属于当前 Agent；不能更换或扩大读取目标')
+  if tool=='list_directory':
+   try:refs.directory_path(args.get('path',''))
+   except ValueError:raise ToolContractError('list_directory 的 path 必须是工作区内相对目录；根目录用空字符串，不是 . 或执行映射路径。') from None
   self.calls+=1
   if self.calls>MAX_CALLS:raise ToolContractError('本次场景分析已达到接口调用上限，请缩小场景范围')
   self.check_basis()
@@ -118,11 +135,14 @@ class WorkspacePolicyAgent:
   except (ValueError,OSError) as error:
    self.errors+=1
    if self.errors>MAX_ERRORS:raise ValueError('部分资料持续不可读取，请缩小场景或补充业务要求；不会放宽读取权限') from None
-   event['status']='denied';self.events.append(event)
+   event['status']='denied';event['diagnostic']=str(error)[:400];self.events.append(event)
    message='需要先调用 list_directory 查看对应父目录，再读取已列出的文件。' if isinstance(error,DirectoryConfirmationRequired) else '当前权限、文件类型或读取限额下不可读取。请选择其他允许资料，不能绕过。'
    return {'tool':tool,'arguments':args,'error':message}
 
  def run(self,instructions,payload):
+  self.scope='system' if self.ident=='system' else 'agent'
+  if hasattr(self.provider,'run_agent'):
+   return self.provider.run_agent(self,instructions,payload)
   deadline=refs.READ_DEADLINE.get() or time.monotonic()+80
   context=copy.deepcopy(payload)
   if self.enabled:

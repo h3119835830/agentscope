@@ -61,7 +61,7 @@ def validate(payload):
         raise ValueError('invalid request')
     operation = payload.get('operation', 'read')
     fields = {'operation', 'root', 'path', 'cursor'} if operation == 'list' else {'operation', 'root', 'paths', 'max_total_bytes'}
-    if operation not in ('list', 'read') or set(payload) - fields:
+    if operation not in ('list', 'read','metadata') or set(payload) - fields:
         raise ValueError('invalid operation')
     root = payload.get('root')
     if not isinstance(root, str) or not root.startswith('/') or root == '/' or any(p in ('', '.', '..') for p in root.split('/')[1:]):
@@ -157,7 +157,8 @@ def launch(python, uid, gid):
     parent, child = socket.socketpair()
     try:
         process = subprocess.Popen(
-            [python, '-I', str(Path(__file__).resolve()), str(child.fileno())],
+            [python, '-I', str(Path(os.environ['AGENTSCOPE_REFERENCE_READER_RUNTIME'])/'reference_reader_channel.py'
+                 if os.getenv('AGENTSCOPE_REFERENCE_READER_RUNTIME') else Path(__file__).resolve()), str(child.fileno())],
             user=uid, group=gid, extra_groups=[], pass_fds=(child.fileno(),),
             cwd='/', env={'LANG': 'C.UTF-8'}, stdin=subprocess.DEVNULL,
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,

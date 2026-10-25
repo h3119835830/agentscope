@@ -3,6 +3,7 @@ import json
 import re
 import uuid
 import time
+import os
 from pathlib import Path, PurePosixPath
 from fastapi import HTTPException
 from .. import db
@@ -604,6 +605,9 @@ def generate(scope_id, body, provider=None):
         previous_turns, previous_references, parent_id = restore(scope_id,body,basis)
         from ..history.llm import DeepSeekProvider
         from .mapping import resource_records
+        if provider is None and os.getenv('AGENTSCOPE_POLICY_AGENT_PROVIDER')=='native-pi':
+            from .pi_provider import NativePiProvider
+            provider=NativePiProvider()
         provider = provider or DeepSeekProvider(timeout=75)
         templates = [t for t in catalog.public_catalog() if body['scope'] in t['scopes'] and not t.get('assistant_alias') and not t.get('retired')]
         from .policy_context_agent import WorkspacePolicyAgent,ToolContractError,result_shape
@@ -637,6 +641,7 @@ def generate(scope_id, body, provider=None):
              'parameter_capabilities':{'path':{'max_utf8_bytes':63,'must_use_registered_execution_mapping':True}},
              'system_permissions':system_policy.current()['policy'],'agent_permissions':row['policy'] if row else None,
              'system_constraints':[{'name':d['name'],'dsl':d['original_dsl']} for d in dsl.current('system')['documents']],
+             'agent_constraints':[{'name':d['name'],'dsl':d['original_dsl']} for d in dsl.current(row['id'])['documents']] if row else [],
              'output_schema':{'configurations':[{'template_id':'已发布 ID','template_version':templates[0]['version'],'name':'中文名称','parameters':{}}],'questions':[],'gaps':[],'summary':'可选，已核验资料的分析结果；不构成授权'}},
             )
         if not isinstance(result,dict) or not {'configurations','questions','gaps'}<=set(result) or set(result)-{'configurations','questions','gaps','summary'}:

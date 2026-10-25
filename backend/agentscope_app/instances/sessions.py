@@ -289,7 +289,7 @@ def kernel_page(ident,sid,generation=None,before=None,limit=30,session_only=Fals
 def traces(ident,sid,generation=None,before=None,limit=30):
     row,session,gen,active=session_context(ident,sid,generation);collect_kernel(row)
     with db.connect() as con:
-        groups=con.execute("SELECT call_id,MAX(seq) AS last_seq FROM instance_events WHERE instance_id=? AND generation=? AND session_id=? AND call_id IS NOT NULL GROUP BY call_id HAVING (? IS NULL OR MAX(seq)<?) ORDER BY last_seq DESC LIMIT ?",(ident,gen,sid,before,before,limit+1)).fetchall()
+        groups=con.execute("SELECT call_id,MAX(seq) AS last_seq FROM instance_events WHERE instance_id=? AND generation=? AND session_id=? AND call_id IS NOT NULL AND kind IN ('tool_start','tool_result','tool_denied') GROUP BY call_id HAVING (? IS NULL OR MAX(seq)<?) ORDER BY last_seq DESC LIMIT ?",(ident,gen,sid,before,before,limit+1)).fetchall()
         saved=dsl_policy.receipt(ident,gen)
         kernels=[project_kernel(row,saved,r) for r in con.execute("SELECT * FROM instance_kernel_events WHERE instance_id=? AND generation=? AND json_extract(event_json,'$.event')='taint_violation' ORDER BY id DESC LIMIT 1000",(ident,gen))]
         records=[]

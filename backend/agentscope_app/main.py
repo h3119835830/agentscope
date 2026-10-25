@@ -47,6 +47,8 @@ from .instances.drafts_api import router as policy_drafts_router
 app.include_router(policy_drafts_router)
 from .instances.templates_api import router as policy_templates_router
 app.include_router(policy_templates_router)
+from .instances.lifecycle_api import router as lifecycle_router
+app.include_router(lifecycle_router)
 from .console import router as console_router
 from .audit_identity import principal, AuditModel
 app.include_router(console_router)

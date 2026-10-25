@@ -107,6 +107,12 @@ for name in ('denied.md','alias.md','../outside.md'):
  except ValueError:pass
  else:raise AssertionError('unsafe read accepted')
 assert client.read({'operation':'list','root':root},uid,gid,5)['entries']
+metadata=client.read({'operation':'metadata','root':root,'paths':['allowed.md']},uid,gid,5)
+assert metadata['files'][0]['relative_path']=='allowed.md' and 'text' not in metadata['files'][0]
+for name in ('denied.md','alias.md','../outside.md'):
+ try:client.read({'operation':'metadata','root':root,'paths':[name]},uid,gid,5)
+ except ValueError:pass
+ else:raise AssertionError('unsafe metadata accepted')
 print(json.dumps({'api_uid':os.geteuid(),'api_gid':os.getegid(),'api_groups':os.getgroups(),'reader':client.identity,'read':True,'denied':True}))
 '''
         # Launch the same installed module shape, not an emulated subprocess.

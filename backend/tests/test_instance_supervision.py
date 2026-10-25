@@ -17,6 +17,31 @@ def admission(tmp_path):
 def body(call='call-1',**values):
     return {'generation':'a'*32,'session_id':'s-1','call_id':call,'tool':'read',**values}
 
+def test_native_binding_is_broker_owned_serial_and_cleared_before_completion(tmp_path):
+    calls=[]
+    def tag(operation,event):
+        calls.append((operation,event['call_id']))
+        return {'kernel_call_tag':'123','pid':777,'domain_id':42}
+    value=module.Admission(tmp_path/'tagged','a'*32,{'rules':[]},'b'*64,owner=os.getuid(),tagger=tag)
+    value.verified();value.set_gate(True,'test')
+    with pytest.raises(ValueError):value.lease(body())
+    with pytest.raises(ValueError):value.lease(body(pid=1,kernel_call_tag='forged'))
+    assert value.lease(body(pid=1))['kernel_call_tag']=='123'
+    assert value.lease(body(pid=1))['idempotent']
+    assert not value.lease(body('other',pid=1))['allowed']
+    with pytest.raises(ValueError):value.result(body(pid=2,succeeded=True))
+    value.result(body(pid=1,succeeded=True));value.result(body(pid=1,succeeded=True))
+    assert calls==[('start','call-1'),('end','call-1')]
+    assert all(e['payload']['domain_id']==42 for e in value.events())
+    assert value.lease(body('other',pid=1))['allowed']
+
+def test_tagging_failure_never_admits_execution(tmp_path):
+    def tag(*args):raise ValueError('unverified PID')
+    value=module.Admission(tmp_path/'failed','a'*32,{'rules':[]},'b'*64,owner=os.getuid(),tagger=tag)
+    value.verified();value.set_gate(True,'test')
+    assert not value.lease(body(pid=1))['allowed']
+    assert [e['kind'] for e in value.events()]==['tool_denied'] and value.status()['outstanding_calls']==0
+
 
 def test_offline_admission_persists_before_response_and_replays_cannot_execute(admission):
     assert admission.lease(body())['allowed']

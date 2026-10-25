@@ -1,0 +1,47 @@
+{
+  "main_restored": true,
+  "main_policy_unchanged": true,
+  "main_generation": "ab085d19a5e44e56a02959e5f109ed99",
+  "main_pid": 663069,
+  "api_restart_preserved_agent": true,
+  "test_instance_stopped": true,
+  "loading": {
+    "observed_at": "2026-10-25T10:10:29.773002+00:00",
+    "expires_at": "2026-10-25T10:10:37.773002+00:00",
+    "ttl_seconds": 8,
+    "fresh": true,
+    "state": "loaded",
+    "label": "已加载",
+    "instance_id": "instance-e86886cee6e04d9e",
+    "generation": "ab085d19a5e44e56a02959e5f109ed99",
+    "bundle_hash": "7ae2769dd59c4d2c1527cfb6be4a46522b6846d9610968929d03f0743bdaf837",
+    "loaded_at": "2026-10-25T10:09:44.108288+00:00",
+    "verified_count": 2,
+    "coverage_complete": true
+  },
+  "verification": {
+    "passed": true,
+    "protected_integrity": true,
+    "grants_verified": true,
+    "network_verified": true
+  },
+  "services": {
+    "agentscope-preview.service": "active",
+    "agentscope-preview-broker.service": "active"
+  },
+  "api_identity": {
+    "Uid": "996\t996\t996\t996",
+    "Gid": "987\t987\t987\t987",
+    "CapEff": "0000000000000000",
+    "CapAmb": "0000000000000000",
+    "NoNewPrivs": "1"
+  },
+  "reader_identity": {
+    "Uid": "994\t994\t994\t994",
+    "Gid": "985\t985\t985\t985",
+    "CapEff": "0000000000000000",
+    "CapAmb": "0000000000000000",
+    "NoNewPrivs": "1"
+  },
+  "engine_sha256": "87ffa35e50960acc9decba6b4163a71d809c8a7c8400a47d7698385acf6fbcf2"
+}

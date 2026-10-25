@@ -1,4 +1,5 @@
 from typing import Literal
+import logging
 from fastapi import APIRouter, HTTPException, Request, Query
 from pydantic import BaseModel, ConfigDict, Field
 from . import controller as c, store, discovery, system_policy
@@ -12,7 +13,9 @@ def invoke(fn,*args):
     try: return fn(*args)
     except PermissionError as e: raise HTTPException(401,str(e))
     except (ValueError,RuntimeError) as e: raise HTTPException(409,str(e))
-    except (OSError,TimeoutError): raise HTTPException(503,'Agent 控制连接不可达，执行保持暂停')
+    except (OSError,TimeoutError) as e:
+        logging.getLogger(__name__).warning('Control interface I/O failure: %s errno=%s file=%s',type(e).__name__,getattr(e,'errno',None),getattr(e,'filename',None))
+        raise HTTPException(503,'Agent 控制连接不可达，执行保持暂停')
 
 class Model(BaseModel): model_config=ConfigDict(extra='forbid')
 class Register(Model):
@@ -183,7 +186,8 @@ def auth(ident,request,generation):
 @router.post('/api/agent/instances/{ident}/scope')
 def agent_scope(ident:str,body:Generation,request:Request):
     row=auth(ident,request,body.generation)
-    return {**{k:row[k] for k in ('id','policy_hash','generation','gate')},'policy':agent_policy(row['policy'],row['resources']),'resources':[r['execution'] for r in resource_records(row['resources'],views=row['policy'].get('resource_views'))],'resource_records':resource_records(row['resources'],views=row['policy'].get('resource_views'))}
+    return {**{k:row[k] for k in ('id','policy_hash','generation','gate')},'policy':agent_policy(row['policy'],row['resources']),'resources':[r['execution'] for r in resource_records(row['resources'],views=row['policy'].get('resource_views'))],'resource_records':resource_records(row['resources'],views=row['policy'].get('resource_views')),
+            'current_kernel_load':invoke(c.native_loaded_context,row),'context_is_authorization':False}
 @router.post('/api/agent/instances/{ident}/lease')
 def acquire(ident:str,body:Lease,request:Request):
     auth(ident,request,body.generation)

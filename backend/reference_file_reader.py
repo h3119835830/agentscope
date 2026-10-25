@@ -51,6 +51,28 @@ def list_directory(root,relative='',cursor=0):
  finally:
   for handle in reversed(handles):os.close(handle)
 
+def metadata_selection(root,paths):
+ if not isinstance(paths,list) or not 1<=len(paths)<=10:raise ValueError('invalid selection')
+ files=[];handles=[]
+ try:
+  fd=directory(root,handles);root_identity=identity(os.fstat(fd))[:2]
+  for relative in paths:
+   if not isinstance(relative,str) or relative.startswith('/') or any(p in ('','.','..') for p in relative.split('/')):raise ValueError('invalid path')
+   current=[]
+   try:
+    parent=directory(root,current)
+    if identity(os.fstat(parent))[:2]!=root_identity:raise ValueError('root changed')
+    for part in relative.split('/')[:-1]:
+     parent=os.open(part,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW,dir_fd=parent);current.append(parent)
+    name=relative.split('/')[-1];info=os.stat(name,dir_fd=parent,follow_symlinks=False)
+    if not stat.S_ISREG(info.st_mode) or info.st_nlink!=1 or not os.access(name,os.R_OK,dir_fd=parent,effective_ids=True,follow_symlinks=False):raise ValueError('unreadable file')
+    files.append({'relative_path':relative,'identity':identity(info)})
+   finally:
+    for handle in reversed(current):os.close(handle)
+  return {'root_identity':root_identity,'files':files}
+ finally:
+  for handle in reversed(handles):os.close(handle)
+
 def read_selection(root,paths,max_total_bytes=MAX_TOTAL):
  if not isinstance(root,str) or not root.startswith('/') or not isinstance(paths,list) or not 1<=len(paths)<=10:raise ValueError('invalid selection')
  if type(max_total_bytes) is not int or not 0<=max_total_bytes<=MAX_TOTAL:raise ValueError('invalid budget')
@@ -103,6 +125,7 @@ if __name__=='__main__':
   body=json.loads(raw)
   operation=body.get('operation','read')
   if operation=='list':result=list_directory(body['root'],body.get('path',''),body.get('cursor',0))
+  elif operation=='metadata':result=metadata_selection(body['root'],body['paths'])
   elif operation=='read':result=read_selection(body['root'],body['paths'],body.get('max_total_bytes',MAX_TOTAL))
   else:raise ValueError('unsupported operation')
   print(json.dumps(result,ensure_ascii=False))

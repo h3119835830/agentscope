@@ -449,12 +449,36 @@ def native_pid(record,namespace_pid):
             line=next(l for l in (proc/'status').read_text().splitlines() if l.startswith('NSpid:'))
             nsids=line.split()[1:]
             if len(nsids)<2 or int(nsids[-1])!=namespace_pid: continue
-            args=(proc/'cmdline').read_bytes()
-            expected=str(B.DSH_WEB).encode() if record['agent_type']=='dsh' else str(HERMES_ROOT).encode()
-            if expected in args: candidates.append(int(value))
+            args=(proc/'cmdline').read_bytes().rstrip(b'\0').split(b'\0')
+            launch=record.get('launch') or {}
+            if record['agent_type']=='dsh' and launch.get('argv'):
+                # The registered canonical entry may use bin.js instead of the
+                # .bin/dsh symlink. Match the frozen argv, never an arbitrary PID
+                # or a path merely mentioned inside another command's argument.
+                expected=[v.replace('{port}',str(record['web_port'])).encode() for v in launch['argv']]
+                matched=args[:len(expected)]==expected
+            else:
+                expected=str(B.DSH_WEB).encode() if record['agent_type']=='dsh' else str(HERMES_ROOT).encode()
+                matched=expected in args if record['agent_type']=='dsh' else any(v.startswith(expected+b'/') for v in args)
+            if matched:candidates.append(int(value))
         except (OSError,StopIteration,ValueError): pass
     if len(candidates)!=1: raise ValueError('Native process namespace mapping is ambiguous')
     return candidates[0]
+
+def tag_native_call(record,operation,body):
+    """Use ActPlane's native inherited call identity, never time-based matching."""
+    protection_check(record)
+    pid=native_pid(record,body['pid'])
+    if pid!=record['agent_pid'] or pid not in B.domain_members(record):
+        raise ValueError('Tool issuer is not the verified native process')
+    tag=int.from_bytes(hashlib.sha256((record['instance_id']+':'+record['generation']+':'+body['session_id']+':'+body['call_id']).encode()).digest()[:8],'little') or 1
+    value=tag if operation=='start' else 0
+    key=[f'{v:02x}' for v in pid.to_bytes(4,'little')]
+    encoded=[f'{v:02x}' for v in value.to_bytes(8,'little')]
+    command(['/usr/sbin/bpftool','map','update','pinned',str(Path(record['pin_root'])/'maps/audit_call'),
+             'key','hex',*key,'value','hex',*encoded])
+    return {'kernel_call_tag':str(tag),'pid':pid,'domain_id':record['domain_id']}
+
 
 def gateway(record,token):
     """Agent network reaches only this typed proxy, never passwordless control API."""
@@ -462,17 +486,21 @@ def gateway(record,token):
         def log_message(self,*args): pass
         def do_POST(self):
             try:
-                if self.path not in ('/lease','/result','/scope','/policy/proposals'): raise ValueError('Unavailable operation')
+                if self.path not in ('/lease','/result','/observation','/scope','/policy/proposals'): raise ValueError('Unavailable operation')
                 if not hmac.compare_digest(self.headers.get('authorization',''),'Bearer '+token): raise ValueError('Invalid credential')
                 size=int(self.headers.get('content-length','0'))
                 if not 0<size<32000: raise ValueError('Invalid payload size')
                 raw=self.rfile.read(size)
                 body=json.loads(raw)
                 if body.get('generation')!=record['generation']:raise ValueError('Stale native generation')
-                if self.path in ('/lease','/result'):
+                if self.path in ('/lease','/result','/observation'):
                     admission=record.get('admission')
                     if not admission:raise ValueError('Execution admission not initialized')
-                    data=json.dumps(admission.lease(body) if self.path=='/lease' else admission.result(body)).encode()
+                    if self.path=='/observation':
+                        if native_pid(record,body['pid'])!=record['agent_pid']:raise ValueError('Lifecycle issuer changed')
+                        result=admission.observation(body)
+                    else:result=admission.lease(body) if self.path=='/lease' else admission.result(body)
+                    data=json.dumps(result).encode()
                     self.send_response(200);self.send_header('Content-Type','application/json');self.end_headers();self.wfile.write(data)
                     return
                 url=os.getenv('AGENTSCOPE_PUBLIC_URL','http://127.0.0.1:18003')+'/api/agent/instances/'+record['instance_id']+self.path
@@ -697,6 +725,8 @@ def start(message):
                     raise RuntimeError('ActPlane instance watch failed: '+logfile.read_text(errors='replace')[-1500:])
                 time.sleep(.1)
             B.grant_agent_control_access(record['watch_policy'],True); B.grant_api_event_access(control,True)
+            if agent_type=='dsh' and not (Path(record['pin_root'])/'maps/audit_call').exists():
+                raise RuntimeError('ActPlane 缺少原生工具调用标记映射，不能启动可关联审计的受控 DSH')
             record.update(B.create_task_cgroup(key,record['domain_id']))
             network(record,policy,model_hosts(agent_type))
             record['protection_fingerprint']=protection_fingerprint(record)
@@ -705,7 +735,8 @@ def start(message):
             commanddir=B.RUNTIME/'instances'/value;commanddir.mkdir(parents=True,exist_ok=True);commanddir.chmod(0o700)
             # The heartbeat is ephemeral, but results must survive a host restart.
             # Stored records are audit facts only and never resurrect authority.
-            record['admission']=Admission(B.LOG_DIR.parent/'execution-queues'/value,message['generation'],policy,message['policy_hash'])
+            record['admission']=Admission(B.LOG_DIR.parent/'execution-queues'/value,message['generation'],policy,message['policy_hash'],
+                tagger=(lambda operation,body:tag_native_call(record,operation,body)) if agent_type=='dsh' else None)
             record.update(request_path=str(commanddir/'request.json'),result_path=str(commanddir/'result.json'))
             record['heartbeat_path']=str(commanddir/'heartbeat.json')
             B.write_file(record['heartbeat_path'],json.dumps({'generation':record['generation'],'at':time.monotonic()}),0o600)

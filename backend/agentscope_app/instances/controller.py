@@ -41,6 +41,10 @@ class Observer:
                     except Exception: pass # Failure preserves the root-owned queue for retry.
                     try:collect_kernel(row)
                     except Exception:pass # read APIs expose the collection failure separately
+                    try:
+                        from .policy_lifecycle import discover
+                        discover(row)
+                    except Exception:pass # Jobs carry their own durable retry/error state.
             self.stop_event.wait(3)
     def start(self):
         if os.getenv('AGENTSCOPE_INSTANCE_WORKER','1')=='0': return
@@ -80,7 +84,7 @@ def collect_runtime_events(row):
             raise ValueError('运行代次已变化，不能合并旧执行记录')
         for event in events:
             payload=event['payload']; sequence=event['sequence']
-            if payload['generation']!=row['generation'] or event['kind'] not in ('tool_start','tool_result'):
+            if payload['generation']!=row['generation'] or event['kind'] not in ('tool_start','tool_result','tool_denied','turn_end'):
                 raise ValueError('执行记录身份不一致')
             fingerprint=hashlib.sha256(json.dumps(event,sort_keys=True).encode()).hexdigest()
             old=con.execute('SELECT payload_hash FROM instance_runtime_receipts WHERE instance_id=? AND generation=? AND sequence=?',
@@ -92,12 +96,14 @@ def collect_runtime_events(row):
             if event['kind']=='tool_start':
                 con.execute('INSERT OR IGNORE INTO instance_leases VALUES(?,?,?,?,?,?)',
                     (row['id'],row['generation'],payload['call_id'],payload['session_id'],payload['tool'],db.now()))
-            else:
+            elif event['kind']=='tool_result':
                 con.execute('DELETE FROM instance_leases WHERE instance_id=? AND generation=? AND call_id=?',
                     (row['id'],row['generation'],payload['call_id']))
             con.execute('INSERT INTO instance_events(instance_id,generation,kind,session_id,call_id,tool,detail_json,created_at) VALUES(?,?,?,?,?,?,?,?)',
                 (row['id'],row['generation'],event['kind'],payload['session_id'],payload['call_id'],payload['tool'],
-                 json.dumps({'source':'broker_execution_queue','sequence':sequence,**({'succeeded':payload['succeeded']} if event['kind']=='tool_result' else {})}),
+                 json.dumps({'source':'broker_execution_queue','sequence':sequence,
+                     **{k:payload[k] for k in ('kernel_call_tag','pid','domain_id','reason') if k in payload},
+                     **({'succeeded':payload['succeeded']} if event['kind']=='tool_result' else {})}),
                  datetime.fromtimestamp(event['created_at'],timezone.utc).isoformat()))
     # Acknowledgement follows the durable transaction, never precedes it.
     runtime_call(row,'ack',sequence=events[-1]['sequence'])
@@ -388,6 +394,17 @@ def agent_auth(ident,token,generation):
     if not r or not token or not r['token_hash'] or not hmac.compare_digest(hashlib.sha256(token.encode()).hexdigest(),r['token_hash']) or generation!=r['generation']:
         raise PermissionError('实例凭据或运行代次无效')
     return store.get(ident)
+
+def native_loaded_context(row):
+    """Expose the same fresh, compiled load facts as the session UI.
+
+    Desired configuration alone is never represented as current enforcement.
+    This is context, not a grant or a policy-application interface.
+    """
+    from .session_loaded_policies import build
+    current=detail(row['id'])
+    if current['generation']!=row['generation']:raise ValueError('原生上下文运行代次已变化')
+    return build(current,{},row['generation'],dsl_policy.receipt(row['id'],row['generation']))
 
 def lease(ident,body):
     current=store.get(ident)

@@ -2442,6 +2442,15 @@ static __noinline int te_handle_rename_flow_exit(long ret)
 }
 #endif
 
+/* Keep a constant negative LSM return on kernels whose verifier loses the
+ * range of a negated boolean. The compiler barrier keeps the deny branch from
+ * folding back into -predicate. No hook, predicate or policy action changes. */
+static __noinline int te_lsm_deny(void)
+{
+	asm volatile("" ::: "memory");
+	return -EPERM;
+}
+
 static __always_inline int te_handle_file_permission(struct file *file,
 						     __u32 access, __u32 mode)
 {
@@ -2472,7 +2481,7 @@ static __always_inline int te_handle_file_permission(struct file *file,
 		       (policy_features & TE_POLICY_PATH_SUFFIX)) &&
 		       !te_detached_mountinfo(file, access) &&
 		       !te_pid_protected(pid) &&
-		       te_is_regular_or_dir(file, 0, TE_REF_FILE) ? -EPERM : 0;
+		       te_is_regular_or_dir(file, 0, TE_REF_FILE) ? te_lsm_deny() : 0;
 #endif
 	if (te_sandbox_scaffold(TE_REF_FILE, file, 0, scratch->path))
 		return 0;
