@@ -3,3 +3,7 @@
 backend/agentscope_app/data/RQ1/corpus/manifest.jsonl -text
 # Upstream TSV contains intentional trailing spaces; do not rewrite the snapshot.
 backend/agentscope_app/data/RQ1/corpus/candidate_rules.tsv -text -whitespace
+
+# SSH deployment files are copied from Windows to Linux unchanged.
+deploy/ssh/*.sh text eol=lf
+deploy/ssh/*.conf text eol=lf
