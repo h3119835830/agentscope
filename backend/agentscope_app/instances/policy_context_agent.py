@@ -31,6 +31,7 @@ INSTRUCTIONS=(
 class ToolContractError(ValueError):
  def __init__(self,message,diagnostic=None):
   super().__init__(message);self.diagnostic=diagnostic
+class ToolBudgetExhausted(ToolContractError):pass
 
 def result_shape(value):
  # Only protocol field names/types; never final content, secrets or reasoning.
@@ -83,13 +84,20 @@ class WorkspacePolicyAgent:
  def execute(self,call):
   with self.lock:return self._execute(call)
 
+ def reserve_call(self):
+  remaining=max(0,self.limits['calls']-self.calls)
+  if not remaining:
+   raise ToolBudgetExhausted('本次场景调查额度已用完，请直接提交当前已验证候选与缺口，不要继续调用其他工具',
+    {'code':'tool_budget_exhausted','remaining_tool_calls':0,'allowed_next_tools':['submit_analysis']})
+  self.calls+=1
+  return self.limits['calls']-self.calls
+
  def _execute(self,call):
   if isinstance(call,dict) and set(call)=={'tool','arguments'} and call.get('tool') in ('search_project','inspect_resource','preview_policy_matches'):
    from . import policy_investigation as investigation
    from .policy import digest
    if not self.enabled:raise ToolContractError('当前模式未开放项目调查工具')
-   self.check_basis();self.calls+=1
-   if self.calls>self.limits['calls']:raise ToolContractError('本次场景分析已达到接口调用上限')
+   self.check_basis();self.reserve_call()
    args=call['arguments'];tool=call['tool']
    fields={'search_project':({'workspace_id','query','mode','path','cursor'},{'workspace_id','query','mode'}),
            'inspect_resource':({'workspace_id','paths'},{'workspace_id','paths'}),
@@ -113,8 +121,7 @@ class WorkspacePolicyAgent:
     raise ToolContractError(str(error)) from None
   if isinstance(call,dict) and set(call)=={'tool','arguments'} and isinstance(call['tool'],str) and (call['tool']=='search_policy_templates' or call['tool'].startswith('draft_')):
    from . import template_tools
-   self.check_basis();self.calls+=1
-   if self.calls>self.limits['calls']:raise ToolContractError('本次场景分析已达到接口调用上限')
+   self.check_basis();self.reserve_call()
    if call['tool']=='search_policy_templates':
     if set(call['arguments'])!={'query'}:raise ToolContractError('模板查询只接受 query')
     value={'tools':template_tools.search(call['arguments']['query'],self.scope)}
@@ -134,8 +141,7 @@ class WorkspacePolicyAgent:
   if tool=='list_directory':
    try:refs.directory_path(args.get('path',''))
    except ValueError:raise ToolContractError('list_directory 的 path 必须是工作区内相对目录；根目录用空字符串，不是 . 或执行映射路径。') from None
-  self.calls+=1
-  if self.calls>self.limits['calls']:raise ToolContractError('本次场景分析已达到接口调用上限，请缩小场景范围')
+  self.reserve_call()
   self.check_basis()
   event={'tool':tool,'workspace':self.workspaces[workspace]['name'],'status':'completed'}
   try:
@@ -256,6 +262,7 @@ class WorkspacePolicyAgent:
 
  def usage(self):
   return {'mode':'auto' if self.enabled else 'provided' if self.references else 'none','round_count':len(self.runs),'call_count':self.calls,'format_repair_count':self.format_repairs,
+   'call_limit':self.limits['calls'],'remaining_tool_calls':max(0,self.limits['calls']-self.calls),
    'file_count':len(self.selected),'total_bytes':self.total_bytes,'activity':self.events,
    'sources':[{'workspace':r['workspace'],'paths':[f['execution_path'] for f in r['untrusted_project_files']]} for r in self.references],
    'pattern_previews':list(self.previews.values())}

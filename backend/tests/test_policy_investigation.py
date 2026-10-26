@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 import pytest
 from agentscope_app.instances import policy_investigation as tools,template_tools,store
-from agentscope_app.instances.policy_context_agent import WorkspacePolicyAgent,ToolContractError
+from agentscope_app.instances.policy_context_agent import WorkspacePolicyAgent,ToolContractError,ToolBudgetExhausted
 from agentscope_app.instances.policy import digest,default_policy
 from test_policy_workspace_references import reference
 from test_dsl_configuration import world
@@ -215,6 +215,16 @@ def test_source_logical_id_does_not_establish_a_local_resource(reference):
     candidate=draft(r,'FILE-CHANGE',{'target':'/w/0/fixture-object-id','operations':['unlink']})
     with pytest.raises(ToolContractError,match='逻辑对象标识'):
         invoke(r,'preview_policy_matches',w,configuration=candidate,checks=[check('fixture-object-id','unlink','object','target')])
+
+
+def test_native_tool_budget_is_a_hard_cap_and_reserves_final_submission(reference):
+    r,w,_=runner(reference);r.limits['calls']=1
+    invoke(r,'list_directory',w)
+    assert r.calls==1 and r.usage()['remaining_tool_calls']==0
+    with pytest.raises(ToolBudgetExhausted) as raised:
+        invoke(r,'search_project',w,query='src',mode='path')
+    assert r.calls==1 and raised.value.diagnostic=={
+        'code':'tool_budget_exhausted','remaining_tool_calls':0,'allowed_next_tools':['submit_analysis']}
 
 
 def test_final_set_cannot_drop_independently_verified_positive_coverage(reference):

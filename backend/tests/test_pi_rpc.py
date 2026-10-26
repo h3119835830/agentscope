@@ -60,6 +60,37 @@ def test_settled_failure_retains_last_server_business_diagnostic(tmp_path):
               lambda:{'submitted':False,'last_diagnostic':'exact source was unread'},lambda _:None,seconds=3,repairs=0)
 
 
+def test_tool_budget_exhaustion_has_one_finalize_only_continuation(tmp_path):
+    script=tmp_path/'settled.py';marker=tmp_path/'submitted';prompts=tmp_path/'prompts'
+    script.write_text("""import sys,json
+from pathlib import Path
+for line in sys.stdin:
+ with Path(sys.argv[2]).open('a') as f:f.write(json.loads(line).get('message','')+'\\n')
+ if Path(sys.argv[2]).read_text().count('\\n')==2:Path(sys.argv[1]).write_text('done')
+ print(json.dumps({'type':'agent_settled'}),flush=True)
+""")
+    traces=[]
+    result=drive([sys.executable,str(script),str(marker),str(prompts)],os.environ.copy(),'investigate and submit',
+                 lambda:{'submitted':marker.exists(),'force_finalize':True},traces.append,seconds=3)
+    assert result['continuations']==1 and prompts.read_text().count('\n')==2
+    assert any(t['kind']=='workflow_finalization' for t in traces)
+
+
+def test_tool_budget_exhaustion_does_not_loop_after_finalize_continuation(tmp_path):
+    import pytest
+    script=tmp_path/'settled.py';prompts=tmp_path/'prompts'
+    script.write_text("""import sys,json
+from pathlib import Path
+for line in sys.stdin:
+ with Path(sys.argv[1]).open('a') as f:f.write('prompt\\n')
+ print(json.dumps({'type':'agent_settled'}),flush=True)
+""")
+    with pytest.raises(ValueError,match='after tool budget exhaustion'):
+        drive([sys.executable,str(script),str(prompts)],os.environ.copy(),'investigate and submit',
+              lambda:{'submitted':False,'force_finalize':True},lambda _:None,seconds=3)
+    assert prompts.read_text().splitlines()==['prompt','prompt']
+
+
 def skill_process(tmp_path,mode):
     script=tmp_path/'skill-rpc.py'
     script.write_text("""import sys,json

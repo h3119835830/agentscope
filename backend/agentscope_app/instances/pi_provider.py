@@ -68,13 +68,23 @@ class NativePiProvider:
                             from . import workspace_references as refs
                             refs.verify(runner.ident,reference['read_id'])
                         result.update(value);answer={'submitted':True,'applied':False}
-                    else:answer=runner.execute(call)
+                    else:
+                        answer=runner.execute(call)
+                        remaining=max(0,runner.limits['calls']-runner.calls)
+                        answer['control']={'remaining_tool_calls':remaining,'finalize_with':'submit_analysis',
+                                           'finalization_required':remaining==0}
                     raw=json.dumps(answer,ensure_ascii=False).encode();self.send_response(200)
                 except Exception as error:
                     from .workspace_references import ReaderUnavailable
+                    from .policy_context_agent import ToolBudgetExhausted
                     if isinstance(error,ReaderUnavailable):diagnostic['workflow_error']='工作区资料读取服务不可用；本轮分析已终止，未保存候选'
                     diagnostic['last_diagnostic']=str(error)[:1000]
-                    raw=json.dumps({'error':str(error)[:1000]}).encode();self.send_response(409)
+                    payload={'error':str(error)[:1000]}
+                    if isinstance(error,ToolBudgetExhausted):
+                        diagnostic['force_finalize']=True
+                        payload.update(code='tool_budget_exhausted',remaining_tool_calls=0,
+                                       allowed_next_tools=['submit_analysis'])
+                    raw=json.dumps(payload,ensure_ascii=False).encode();self.send_response(409)
                 self.send_header('Content-Type','application/json');self.end_headers();self.wfile.write(raw)
         server=http.server.ThreadingHTTPServer(('127.0.0.1',0),Handler)
         threading.Thread(target=server.serve_forever,daemon=True).start()

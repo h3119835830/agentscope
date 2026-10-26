@@ -16,7 +16,7 @@ def drive(command,environment,prompt,status,trace,seconds=180,repairs=2,required
     def rpc(value):
         process.stdin.write((json.dumps(value)+'\n').encode());process.stdin.flush()
     def send(message):rpc({'type':'prompt','message':message})
-    deadline=time.monotonic()+seconds;used=0
+    deadline=time.monotonic()+seconds;used=0;finalize_used=False
     discovered=False;verifying=False
     try:
         if required_skill:rpc({'type':'get_commands','id':'feedback-skill-discovery'})
@@ -60,6 +60,16 @@ def drive(command,environment,prompt,status,trace,seconds=180,repairs=2,required
                         verifying=True;rpc({'type':'get_messages','id':'feedback-skill-context'})
                     continue
                 if current.get('workflow_error'):raise ValueError(current['workflow_error'])
+                if current.get('force_finalize'):
+                    if finalize_used:
+                        raise ValueError('Pi settled without a server-validated submission after tool budget exhaustion')
+                    finalize_used=True;used+=1
+                    trace({'kind':'workflow_finalization','number':used,'diagnostic':{
+                        'force_finalize':True,'remaining_tool_calls':0,'allowed_next_tools':['submit_analysis']}})
+                    send('Control-plane workflow state: the tool budget is exhausted. Do not call any tool except submit_analysis. '
+                         'Submit the existing server-verified candidates now; if none can be submitted, use an empty configurations array and report exact questions and gaps. '
+                         'No task execution, approval, loading, or new investigation is authorized.')
+                    continue
                 if used>=repairs:
                     diagnostic=current.get('last_diagnostic')
                     raise ValueError('Pi settled without a server-validated submission'+(': '+str(diagnostic)[:2000] if diagnostic else ''))
