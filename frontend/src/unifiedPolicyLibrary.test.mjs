@@ -325,3 +325,18 @@ test('column drag changes only its column, clamps widths and stops at release wi
  assert.equal(calls[0].path,'/api/policy-templates/FILE-READ/versions');assert.equal(calls[0].body.base_version,2);assert.equal(calls[0].body.effect,'notify');assert.equal(calls[0].body.parameters[1].default,'notify');assert.equal(calls[0].body.parameters[0].label,'资料路径');assert.equal(calls[0].body.name,'新模板名称');assert.deepEqual(calls[1],{saved:{version:3}});
  assert.ok(!('scope_id' in calls[0].body));
  });
+
+test('a saved policy approval link retains its configuration identity within the shared batch',async()=>{
+ const row={...child,status:'pending',approval_current:true,approval_id:'approval-batch',approval_revision:1,revision:2};
+ const render=await harness('UnifiedPolicyLibrary.jsx',[{catalog:[template],items:[row]},{catalog:[],items:[]}]),opened=[];
+ const tree=templateDetails(render,{api(){},post(){assert.fail('viewing must not write')},onApprovals:(...args)=>opened.push(args)});
+ nodes(tree).find(n=>n.props?.['aria-label']===row.name+'：查看审批').props.onClick();
+ assert.deepEqual(opened,[['approval-batch',row.id]]);
+});
+
+test('the system shell preserves record focus and clears it for non-record approval links',async()=>{
+ const render=await harness('SystemWorkbench.jsx'),opened=[],tree=render({api(){},post(){},navigation:{systemTab:'policies',policyAgent:'a'},navigate:value=>opened.push(value)});
+ const library=nodes(tree).find(n=>n.type?.name==='UnifiedPolicyLibrary');
+ library.props.onApprovals('approval-batch','tc-a');library.props.onApprovals('manual-batch');
+ assert.deepEqual(opened,[{page:'approvals',approvalId:'approval-batch',approvalRecordId:'tc-a'},{page:'approvals',approvalId:'manual-batch',approvalRecordId:''}]);
+});

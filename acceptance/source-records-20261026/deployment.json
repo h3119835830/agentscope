@@ -1,6 +1,6 @@
 {
-  "previous": "/opt/agentscope/releases/source-records-final-20261026.WKSHD6",
-  "release": "/opt/agentscope/releases/source-records-compact-20261026.7omOvi",
+  "previous": "/opt/agentscope/releases/source-records-compact-20261026.7omOvi",
+  "release": "/opt/agentscope/releases/source-records-links-20261026.gq5YmV",
   "broker_pid": "662967",
   "files": {
     "backend/agentscope_app/instances/policy_file_scope.py": "4033921221facc983a5b82e2a2fe2860c31eb8924a45aa6d5258ef8476586f99",
@@ -12,7 +12,7 @@
     "backend/agentscope_app/instances/approval_configuration_records.py": "e8d33d5f2c54ff03cc4c49267c3e6bf70019549e5be69031e9dfb9d95638de4f",
     "frontend/dist/terminal.html": "f3253f7b7c5f234f9c6153ae421424e602d63fe97cd0118427e683685d201337",
     "frontend/dist/value-announcement.html": "0671687b1b8f179b2a8441beb0713634184923e6785f7d84513e704594707e23",
-    "frontend/dist/index.html": "e280ee9a7979f2a2c4064315a0ce2e5af2cc83f6f3cb7378352807f0d18871ca",
+    "frontend/dist/index.html": "2e7fa380eec9081a0a8fde163344b7af790ca33e8902640bf34cd57ae70630f9",
     "frontend/dist/value-evidence.html": "0671687b1b8f179b2a8441beb0713634184923e6785f7d84513e704594707e23",
     "frontend/dist/assets/main-BpWZ1S1V.js": "f7a054cc5077d99886231e8f56c4023cacf140da4a8aea74327d2ca463d3be40",
     "frontend/dist/assets/main-DWcOJPa2.css": "02cc3529618ce860bbbb72cbbb63e0f18058b33d4b992b738abfa5029ba12f76",
@@ -22,6 +22,7 @@
     "frontend/dist/assets/main-CZu-oFmK.js": "1ad8109c54426a71d03a222f65853abd14d312e1d27b9a802ae36780b19e3505",
     "frontend/dist/assets/main-CRB9CREI.js": "9b4059f9d63010a699b4a7d8b58963b2c6575efa9361abe639f47b3ec31d7408",
     "frontend/dist/assets/terminal-BlLcbnBV.css": "ff476ad53662352179e854edbe7cb4bc56370617a8be4e8dc0151a1f50a20d40",
+    "frontend/dist/assets/main-CmgfqJKb.js": "da46d76f092d9ae2473d785eea27995de7feb5586daf98f6042e7338af1aba2a",
     "frontend/dist/assets/main-BhKX29vy.css": "6572278eefe8ce66844f7b1000b92eec3029b7277941fcbc5b70088fed7b6d34",
     "frontend/dist/assets/terminal-DrmujJtr.js": "8c165a9f5594936bc55a0fd99abce7e375107c96b21cb0194cc61589b74534f7",
     "frontend/dist/assets/main-BucSuyoO.css": "72cabac79df061051e8659528c7d64cdd230d01944935c369fa1cd0e279cddf0",
@@ -29,5 +30,5 @@
     "frontend/dist/reference/command-connections-manual.html": "0d1ffec6ded5bbe02c35e48a545b74d85a2a44a903ada1cbcbe88aa02e8e8cfa"
   },
   "published": true,
-  "api_pid": "1503034"
+  "api_pid": "1507059"
 }

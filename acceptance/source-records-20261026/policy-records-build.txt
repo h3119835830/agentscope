@@ -13,5 +13,5 @@ dist/assets/terminal-BlLcbnBV.css    4.82 kB │ gzip:   2.00 kB
 dist/assets/main-CQmQadyJ.css      277.01 kB │ gzip:  49.94 kB
 dist/assets/client-2tdd2SJ7.js     223.20 kB │ gzip:  69.33 kB
 dist/assets/terminal-DrmujJtr.js   295.23 kB │ gzip:  74.37 kB
-dist/assets/main-DZC3xKPd.js       416.92 kB │ gzip: 124.29 kB
-✓ built in 2.28s
+dist/assets/main-CmgfqJKb.js       416.96 kB │ gzip: 124.31 kB
+✓ built in 2.76s

@@ -1,6 +1,6 @@
 # Source scope and policy records acceptance
 
-Backend: 112 tests plus 48 investigation/Pi RPC tests passed. Frontend: all 436 tests passed; production build succeeded. Logs and the final deployment manifest are adjacent.
+Backend: 112 tests plus 48 investigation/Pi RPC tests passed. Frontend: all 438 tests passed; production build succeeded. Logs and the final deployment manifest are adjacent.
 
 The live request `677634bd2b4243598ee8c7c3b3d44654` reused the original one-sentence request. Exactly one body was read: `/w/0/AGENTS.md`, with 39 of 48 tool calls. The 12 resulting drafts were not submitted or applied. The prior 11-policy approval remains pending, projected as one immutable configuration revision per display row, with shared batch authority explicit.
 

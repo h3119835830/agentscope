@@ -107,7 +107,7 @@ export default function UnifiedPolicyLibrary({api,post,agents=[],targetId='',con
      <td><div className="upl-child-actions" role="group" aria-label={i.name+'的操作'}>
       <button className="upl-row-action" aria-label={i.name+'的详情'} disabled={busy} onClick={()=>edit(i)}>详情</button>
       <button className="upl-row-action upl-submit" aria-label={i.name+'：提交审批'} disabled={busy||!controls.canSubmit} title={controls.submitReason||'核对此配置后提交审批'} onClick={()=>request([i])}>提交审批</button>
-      <button className="upl-row-action" aria-label={i.name+'：查看审批'} disabled={busy||!controls.canView} title={controls.viewTitle} onClick={()=>onApprovals(i.approval_id)}>查看审批</button>
+      <button className="upl-row-action" aria-label={i.name+'：查看审批'} disabled={busy||!controls.canView} title={controls.viewTitle} onClick={()=>onApprovals(i.approval_id,i.id)}>查看审批</button>
       {controls.hasApplied?<button className="upl-row-action upl-disable" aria-label={i.name+'：停用'} disabled={busy||!controls.canDisable} title={controls.disableReason||'提交停用审批，批准后再单独应用'} onClick={()=>request([i],'disable')}>停用</button>:<button className="upl-row-action upl-disable" aria-label={i.name+'：删除'} disabled={busy||!controls.canDelete} title={controls.deleteReason||'从配置列表删除，保留历史记录'} onClick={()=>request([i],'archive')}>删除</button>}
      </div></td>
     </tr>;})}
