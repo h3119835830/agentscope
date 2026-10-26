@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Runs DSH inside one ActPlane child domain and relays approved restrictive deltas."""
+"""Runs DSH inside one ActPlane child domain and relays validated restrictive deltas."""
 import argparse, grp, hashlib, json, os, pwd, stat, subprocess, sys, time
 from pathlib import Path
 
@@ -150,13 +150,13 @@ def handle_request(req, args):
         except ValueError: return {"request_id": req["request_id"], "ok": False, "error": result.stderr[-1200:]}
         return {"request_id": req["request_id"], "ok": result.returncode == 0, "probe": probe}
     if req.get("kind")!="restrict" or not req.get("delta_text"):
-        return {"request_id":req.get("request_id"),"ok":False,"error":"只接受已经审核的限制型 Delta"}
+        return {"request_id":req.get("request_id"),"ok":False,"error":"只接受控制面校验通过的限制型 Delta"}
     dsl=req["delta_text"]
     if len(dsl)>12000 or "source " in dsl or any(word in dsl for word in (" allow ","widen","permit")):
         return {"request_id":req.get("request_id"),"ok":False,"error":"Delta 不符合限制型规则格式"}
     cmd=[args.actplane,"--policy",args.watch_policy,"control","delta","add",
          "--target-id",str(args.domain_id),"--delta-text",dsl,
-         "--approved-by",str(req.get("approved_by","用户")),
+         "--approved-by",str(req.get("approved_by","AgentScope control plane")),
          "--approval-ref",str(req.get("approval_ref",req.get("request_id",""))),
          "--generated-by","AgentScope"]
     env={"PATH":os.environ.get("AGENTSCOPE_EXEC_PATH",os.environ.get("PATH","/usr/local/bin:/usr/bin:/bin")),
@@ -228,7 +228,7 @@ def main():
                     result=handle_request(req,args)
                     last_request=rid
                     write_result(args.result_file,result)
-                    print("AgentScope: approved runtime restriction "+("applied" if result["ok"] else "failed")+f" request={rid}",flush=True)
+                    print("AgentScope: validated runtime restriction "+("applied" if result["ok"] else "failed")+f" request={rid}",flush=True)
         except subprocess.TimeoutExpired as e:
             write_result(args.result_file,{"request_id":req.get("request_id"),"ok":False,"error":"ActPlane Delta timed out"})
         except Exception as e:

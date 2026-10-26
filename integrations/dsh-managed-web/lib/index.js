@@ -6,7 +6,6 @@ import {createFeedbackGuard} from './feedback-guard.js';
 import {randomUUID, timingSafeEqual} from 'node:crypto';
 import {createUserMessage} from '@deepseek-ai/dsh-llm';
 import {installTaskSandbox,TASK_TOOLS} from './task-sandbox.js';
-import {runtimeObservation} from './runtime-observation.js';
 import {verifyTaskSandbox} from './verify-task-sandbox.js';
 export const name='agentscope-managed-native-web';
 export const inject=['tools','sessions','sessionController','connection','workspaceRegistry','sandboxPolicy','sandbox','subprocess','fs','systemPrompt'];
@@ -37,14 +36,11 @@ export function apply(ctx) {
  };
  ctx.on('approval/request',async(req,next)=>{
   if(req.agent?.id!==sid)return next();
-  await api('change',{kind:'guidance',text:'Native DSH requested '+req.toolName+': '+(req.reason||'permission review')+'. Evaluate supported OS targets; no unconfined retry is authorized by this request.',request_key:'approval:'+String(req.callId||randomUUID())});
   return 'rejected';
  });
  ctx.on('session/event',(session,event)=>{
   if(!sid || sid!==session.id)return;
   const type=event.type, data=event.data||event;
-  try {const observation=runtimeObservation(session,event);if(observation)pending=pending.then(()=>api('events',observation)).catch(e=>{transportError=e;console.error('Runtime observation transport:',e.message);});}
-  catch(e){transportError=e;}
    for(const received of receivedOperationFeedback(session,event))pending=pending.then(async()=>{await api('events',received);feedbackGuard.admit(received.feedback);}).catch(e=>{transportError=e;});
   for(const accepted of acceptedUserMessages(session,event))pending=pending.then(()=>api('events',accepted)).catch(e=>{transportError=e;console.error('AgentScope accepted-message transport:',e.message);});
   const answered=publicQuestionAnswer(session,event);

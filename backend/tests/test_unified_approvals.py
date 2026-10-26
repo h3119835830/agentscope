@@ -4,7 +4,7 @@ import pytest
 from agentscope_app import db,console
 from agentscope_app.instances import approval_views as approvals,controller as c,store,system_policy as system,dsl_policy as dsl
 from test_dsl_configuration import world,candidate,ADMIN
-from test_managed_review import pending,install_mock
+from test_managed_review import runtime_job,healthy_broker
 
 def propose(row,actor='user'):
     return c.proposals(row['id'],{'generation':row['generation'],'base_hash':row['policy_hash'],'request_key':uuid.uuid4().hex,'policy':{'network':'disabled','rules':[]}},actor)
@@ -125,89 +125,14 @@ def test_agent_runtime_proposal_is_reviewed_for_the_frozen_shared_agent_domain(w
     assert approvals.detail(ident)['status']=='approved'
     assert store.get(world.a['id'])==before and not world.calls
 
-@pytest.mark.parametrize('kind',['restrict','expand'])
-def test_runtime_candidate_is_visible_read_only_then_human_confirmed_once(pending,client,monkeypatch,kind):
+
+def test_automatic_runtime_delta_is_read_only_in_unified_approval_history(runtime_job,client,monkeypatch):
     from agentscope_app.managed import controller as managed
-    task,state,job,put=pending;p=put(kind);calls=[];install_mock(monkeypatch,calls)
-    ident='runtime:'+job['id'];body={'proposal_hash':p['hash']}
-    with db.connect() as con:before=managed.load(con,task)
-    row=next(r for r in approvals.directory()['records'] if r['id']==ident)
-    assert row['scope_type']=='session' and row['origin']=='runtime' and row['can_approve'] and not row['can_apply']
-    detail=client.get('/api/console/approvals/'+ident,headers=ADMIN).json()
-    assert detail['change_items'] and detail['targets'][0]['scope_label']=='当前任务会话'
-    assert 'context_json' not in detail and 'proposal_json' not in detail
-    assert client.post('/api/console/approvals/'+ident+'/confirm',json=body).status_code==401
-    assert not calls
-    with db.connect() as con:assert managed.load(con,task)==before
-    assert client.post('/api/console/approvals/'+ident+'/confirm',headers=ADMIN,json=body).status_code==200
-    assert approvals.detail(ident)['status']=='approved' and not calls
-    assert apply_approved(client,ident,{'proposal_hash':p['hash']}).status_code==200
-    assert approvals.detail(ident)['status']=='applied' and calls==[task]
-    assert client.post('/api/console/approvals/'+ident+'/confirm',headers=ADMIN,json=body).status_code==200 and calls==[task]
-
-def test_runtime_reject_preserves_loaded_scope_and_baseline(pending,client,monkeypatch):
-    from agentscope_app.managed import controller as managed
-    task,state,job,put=pending;p=put();calls=[];install_mock(monkeypatch,calls)
-    ident='runtime:'+job['id']
-    assert client.post('/api/console/approvals/'+ident+'/reject',headers=ADMIN,json={'proposal_hash':p['hash']}).status_code==200
-    with db.connect() as con:after=managed.load(con,task)
-    assert not calls and after['baseline_hash']==state['baseline_hash'] and after['version']==state['version']
-    assert after['allowed_write_dirs']==state['allowed_write_dirs'] and after['gate']=='waiting_clarification'
-    assert approvals.detail(ident)['status']=='rejected'
-
-@pytest.mark.parametrize('drift',['revision','session_id','domain_id'])
-def test_runtime_stale_candidate_cannot_install(pending,client,monkeypatch,drift):
-    from agentscope_app.managed import controller as managed
-    task,_,job,put=pending;p=put();calls=[];install_mock(monkeypatch,calls)
-    with db.connect() as con:
-        s=managed.load(con,task)
-        if drift=='revision':s['revision']+=1
-        elif drift=='session_id':s['session_id']='different-session'
-        else:s['binding']['domain_id']=1000
-        managed.save(con,task,s)
-    # Bind the session in this fixture as production enqueue does.
-    with db.connect() as con:
-        ctx=json.loads(job['context_json']);ctx['session_id']='native-a'
-        con.execute('UPDATE managed_jobs SET context_json=? WHERE id=?',(json.dumps(ctx),job['id']))
-    ident='runtime:'+job['id']
-    assert approvals.detail(ident)['status']=='stale'
-    assert client.post('/api/console/approvals/'+ident+'/confirm',headers=ADMIN,json={'proposal_hash':p['hash']}).status_code==409
-    assert not calls
-
-def test_hidden_runtime_task_absent_from_directory_detail_and_decision(pending,client):
-    task,_,job,put=pending;p=put();console.retain([('task',task)],'isolated approval visibility test')
-    ident='runtime:'+job['id']
-    assert ident not in {r['id'] for r in approvals.directory()['records']}
-    assert client.get('/api/console/approvals/'+ident,headers=ADMIN).status_code==404
-    assert client.post('/api/console/approvals/'+ident+'/confirm',headers=ADMIN,json={'proposal_hash':p['hash']}).status_code==404
-
-def test_legacy_runtime_record_without_fingerprint_does_not_break_approval_center(pending,client,monkeypatch):
-    task,_,job,put=pending;p=put();del p['hash']
-    with db.connect() as con:con.execute('UPDATE managed_jobs SET proposal_json=? WHERE id=?',(json.dumps(p),job['id']))
-    ident='runtime:'+job['id']
-    monkeypatch.setattr(__import__('agentscope_app.managed.controller',fromlist=['install']),'install',lambda *a,**k:pytest.fail('legacy record cannot install'))
-    page=client.get('/api/console/approvals',headers=ADMIN)
-    assert page.status_code==200
-    row=next(r for r in page.json()['records'] if r['id']==ident)
-    assert row['status']=='invalid' and not row['can_apply'] and not row['can_reject']
-    assert client.get('/api/console/approvals/'+ident,headers=ADMIN).status_code==200
-    assert client.post('/api/console/approvals/'+ident+'/confirm',headers=ADMIN,json={'proposal_hash':'invented'}).status_code==409
-
-def test_runtime_without_frozen_session_cannot_use_current_session_as_authority(pending,client,monkeypatch):
-    from agentscope_app.managed import controller as managed
-    task,_,job,put=pending;p=put();calls=[];install_mock(monkeypatch,calls)
-    ctx=json.loads(job['context_json']);ctx.pop('session_id');ctx['current_binding'].pop('session_id')
-    with db.connect() as con:con.execute('UPDATE managed_jobs SET context_json=? WHERE id=?',(json.dumps(ctx),job['id']))
-    assert approvals.detail('runtime:'+job['id'])['status']=='stale'
-    with pytest.raises(ValueError,match='会话快照'):managed.review_change(task,job['id'],'approve',p['hash'])
-    assert not calls
-
-
-def test_legacy_expansion_confirmation_records_the_same_approval_receipt(pending,client,monkeypatch):
-    from agentscope_app.instances.approval_decisions import receipts
-    task,_,job,put=pending;p=put('expand');calls=[];install_mock(monkeypatch,calls)
-    response=client.post('/api/managed/tasks/'+task+'/expansion/confirm',headers=ADMIN,json={'expected_hash':p['hash']})
-    assert response.status_code==200,response.text
-    assert not calls and receipts()['runtime:'+job['id']]['state']=='approved'
-    assert apply_approved(client,'runtime:'+job['id'],{'proposal_hash':p['hash']}).status_code==200
-    assert calls==[task]
+    task,_,job,proposal=runtime_job;calls=[]
+    monkeypatch.setattr(managed,'broker',healthy_broker(calls))
+    managed.finish_job(job)
+    row=approvals.detail('runtime:'+job['id'])
+    assert row['status']=='applied' and not row['can_apply'] and not row['can_reject']
+    before=len(calls)
+    response=client.post('/api/console/approvals/runtime:'+job['id']+'/confirm',headers=ADMIN,json={'proposal_hash':proposal['hash']})
+    assert response.status_code==200 and len(calls)==before

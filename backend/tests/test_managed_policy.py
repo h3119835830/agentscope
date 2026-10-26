@@ -11,33 +11,24 @@ from agentscope_app.main import app
 def bound(seed_task,monkeypatch):
     db.init_db();task=uuid.uuid4().hex[:16];seed_task(task)
     state={'phase':'running','gate':'open','revision':1,'version':1,'policy_hash':'fixed','baseline_hash':'safety','baseline_extra':'rule baseline:\n  block write file "/tmp/work/tests/**" if AGENT\n  because "tests immutable"','protected':['/tmp/work/tests/test.py'],'allowed_write_dirs':['.'],'allow_output':False,'binding':{'domain_id':7},'session_id':'session-native','turn':2}
-    with db.connect() as con:c.save(con,task,state)
-    context={'request_evidence_id':'5','sources':[{'evidence_id':'5'}],'base_snapshot':{'payload':{'allowed_write_dirs':['.'],'allow_output':False}},'capabilities':{'registered_directories':['.','src','tests']},'revision':1,'policy_hash':'fixed'}
+    with db.connect() as con:
+        c.save(con,task,state);workspace=c.task_row(con,task)['workspace']
+    context={'request_evidence_id':'5','sources':[{'evidence_id':'5','content':{'actor':'native_user','text':'Keep the current runtime policy','revision':1}}],'base_snapshot':{'payload':{'allowed_write_dirs':['.'],'allow_output':False,'protected_paths':[]}},'baseline':{'protected_files':state['protected'],'immutable':True},'path_mapping':{'workspace':workspace},'capabilities':{'registered_files':[],'registered_directories':['.','src','tests'],'authorized_protection_targets':{}},'project_sources':[],'revision':1,'policy_hash':'fixed'}
     import agentscope_app.main as main
     monkeypatch.setattr(main,'compile_policy',lambda *args:('compiled',{},None))
     return task,state,{'id':uuid.uuid4().hex,'task_id':task,'revision':1,'policy_hash':'fixed','context_json':json.dumps(context)}
 
-def proposal(**changes):return {'decision':'no_change','allowed_write_dirs':['.'],'allow_output':False,'evidence_ids':['5'],'explanation':'ordinary message needs no permission change',**changes}
+def proposal(**changes):return {'decision':'no_change','add_protected_paths':[],'evidence_ids':['5'],'explanation':'ordinary message needs no permission change',**changes}
 
 def test_no_change_cannot_expand(bound):
-    with pytest.raises(ValueError,match='不能修改权限'):c.validate_candidate(bound[2],proposal(allow_output=True))
+    with pytest.raises(ValueError,match='Extra inputs are not permitted'):c.validate_candidate(bound[2],proposal(allow_output=True))
 def test_unknown_target_rejected(bound):
-    with pytest.raises(ValueError,match='未登记'):c.validate_candidate(bound[2],proposal(decision='restrict',allowed_write_dirs=['../../etc']))
+    with pytest.raises(ValueError,match='未登记'):c.validate_candidate(bound[2],proposal(decision='restrict',add_protected_paths=['../../etc']))
 def test_request_evidence_required(bound):
     with pytest.raises(ValueError,match='本轮证据'):c.validate_candidate(bound[2],proposal(evidence_ids=['6']))
 def test_stale_context_cannot_apply(bound):
     job={**bound[2],'revision':0}
     with pytest.raises(ValueError,match='stale'):c.validate_candidate(job,proposal())
-def test_restriction_keeps_baseline(bound):
-    task,state,job=bound
-    c.validate_candidate(job,proposal(decision='restrict',allowed_write_dirs=['src']))
-    with db.connect() as con:t=c.task_row(con,task)
-    dsl,_=c.render(t,state,['src'],False)
-    assert 'tests immutable' in dsl and '/tmp/work/tests/**' in dsl
-    assert '/tmp/work/src/**' in dsl
-
-def test_expand_requires_matching_human_confirmation(bound):
-    with pytest.raises(ValueError,match='候选已变化'):c.confirm_expansion(bound[0],'invented')
 def test_foreign_session_cannot_append(bound):
     with pytest.raises(ValueError,match='其他会话'):c.ingest(bound[0],{'kind':'native_event','session_id':'foreign','event_key':'f','type':'turn/start','data':{'turn':1}})
 def test_generator_requires_short_lived_credential(bound):
@@ -82,24 +73,28 @@ def test_unverified_install_stops_before_admission(bound,monkeypatch):
 
 def test_runtime_object_protection_keeps_adjacent_file_available(bound):
     task,state,job=bound
-    ctx=json.loads(job['context_json']);ctx['capabilities']['registered_files']=['src/locked.py','src/other.py'];ctx['project_sources']=[{'id':'src/locked.py'}];job={**job,'context_json':json.dumps(ctx)}
+    ctx=json.loads(job['context_json']);ctx['capabilities']['registered_files']=['src/locked.py','src/other.py'];ctx['capabilities']['authorized_protection_targets']={'src/locked.py':[{'request_id':'5'}]};ctx['project_sources']=[{'id':'src/locked.py'}];job={**job,'context_json':json.dumps(ctx)}
     with db.connect() as con:c.event(con,task,'pi_source',job['id']+':src/locked.py',{'hash':'read'})
-    result=c.validate_candidate(job,proposal(decision='restrict',protected_paths=['src/locked.py'],evidence_ids=['5','project:src/locked.py']))
+    result=c.validate_candidate(job,proposal(decision='restrict',add_protected_paths=['src/locked.py'],evidence_ids=['5','project:src/locked.py']))
     with db.connect() as con:row=c.task_row(con,task)
     dsl,_=c.render(row,state,['.'],False,result['protected_paths'])
     assert '/tmp/work/src/locked.py' in dsl and '/tmp/work/src/other.py' not in dsl
 
 def test_no_change_cannot_drop_confirmed_objects(bound):
     ctx=json.loads(bound[2]['context_json']);ctx['base_snapshot']['payload']['protected_paths']=['src/locked.py']
-    with pytest.raises(ValueError,match='移除'):c.validate_candidate({**bound[2],'context_json':json.dumps(ctx)},proposal(protected_paths=[]))
+    with pytest.raises(ValueError,match='Extra inputs are not permitted'):c.validate_candidate({**bound[2],'context_json':json.dumps(ctx)},proposal(protected_paths=[]))
 
 def test_confirmation_rechecks_project_hash(bound,tmp_path):
-    task,state,_=bound;source=tmp_path/'source';source.write_text('changed')
+    task,state,job=bound;source=tmp_path/'source';source.write_text('original')
+    ctx=json.loads(job['context_json']);ctx['path_mapping']['workspace']=str(tmp_path);ctx['capabilities']['registered_files']=['source'];ctx['capabilities']['authorized_protection_targets']={'source':[{'request_id':'5'}]};ctx['project_sources']=[{'id':'source','path':str(source),'hash':__import__('hashlib').sha256(b'original').hexdigest()}];job={**job,'context_json':json.dumps(ctx)}
     with db.connect() as con:
         con.execute('UPDATE tasks SET workspace=? WHERE id=?',(str(tmp_path),task))
-        c.save(con,task,{**state,'pending_expansion':{'job_id':'confirm-job','hash':'proposal','proposal':proposal(decision='expand',allow_output=True)}})
-        con.execute("INSERT INTO managed_jobs(id,task_id,request_key,revision,policy_hash,context_json,proposal_json,status,created_at) VALUES(?,?,?,?,?,?,?,?,?)",('confirm-job',task,'k',1,'fixed',json.dumps({'project_sources':[{'path':str(source),'hash':'old'}]}),json.dumps({**proposal(decision='expand',allow_output=True),'hash':'proposal'}),'completed',db.now()))
-    with pytest.raises(ValueError,match='项目证据改变'):c.confirm_expansion(task,'proposal')
+        c.event(con,task,'pi_source',job['id']+':source',{'hash':'read'})
+    candidate=c.validate_candidate(job,proposal(decision='restrict',add_protected_paths=['source'],evidence_ids=['5','project:source']))
+    source.write_text('changed')
+    with db.connect() as con:
+        con.execute("INSERT INTO managed_jobs(id,task_id,request_key,revision,policy_hash,context_json,proposal_json,status,created_at) VALUES(?,?,?,?,?,?,?,?,?)",(job['id'],task,'k',1,'fixed',job['context_json'],json.dumps(candidate),'completed',db.now()))
+    with pytest.raises(ValueError,match='项目证据在应用前变化'):c.finish_job(job)
 
 def test_probe_denials_never_become_native_tool_feedback(bound):
     task,state,_=bound
@@ -173,25 +168,6 @@ def test_worker_failure_cannot_resurrect_ended_task(bound,monkeypatch):
     Worker().fail(task,'late failure')
     with db.connect() as con:assert c.load(con,task)['phase']=='ended'
 
-def test_recovery_reassesses_latest_public_input_before_resume(bound,monkeypatch):
-    task,state,_=bound;calls=[]
-    with db.connect() as con:
-        c.save(con,task,{**state,'phase':'recovering'})
-        c.event(con,task,'request','real-user',{'actor':'native_user','text':'Preserve src/locked.py','revision':1})
-    def install(*args,**kwargs):
-        recovered={**state,'phase':'running','gate':'waiting_policy'}
-        with db.connect() as con:c.save(con,task,recovered)
-        return recovered
-    monkeypatch.setattr(c,'install',install)
-    monkeypatch.setattr(c,'broker',lambda request,**kwargs:calls.append(request))
-    monkeypatch.setattr(c,'context',lambda *args:{})
-    c.recover(task)
-    with db.connect() as con:
-        stored=c.load(con,task);job=json.loads(con.execute('SELECT context_json FROM managed_jobs WHERE task_id=?',(task,)).fetchone()[0])
-    assert stored['gate']=='waiting_policy' and job['change']['text']=='Preserve src/locked.py'
-    assert calls[-1]['operation']=='resume' and 'Preserve src/locked.py' in calls[-1]['text']
-
-
 def test_reviewed_template_is_read_hash_bound_and_never_replaces_request(bound):
     task,state,job=bound;record={'id':'template-x','statement':'keep existing config'};h=c.digest(record)
     with db.connect() as con:
@@ -227,22 +203,6 @@ def test_pending_public_constraint_survives_new_ordinary_message(bound):
     task,state,job=bound;ctx=json.loads(job['context_json']);ctx['sources']=[{'evidence_id':'4'},{'evidence_id':'5'}];ctx['unassessed_request_ids']=['4','5'];job={**job,'context_json':json.dumps(ctx)}
     with pytest.raises(ValueError,match='公开请求'):c.validate_candidate(job,proposal())
     assert c.validate_candidate(job,proposal(evidence_ids=['4','5']))['decision']=='no_change'
-
-
-def test_verified_false_block_queues_evidence_bound_review(bound,monkeypatch):
-    task,state,_=bound
-    monkeypatch.setattr(c,'context',lambda *args:{})
-    def broker(request,**kwargs):
-        if request['action']=='native-session':return {'status':'idle'}
-        return {'probe':{'pid':100,'blocked':True,'success':False,'operation':'write'},'kernel_events':[{'pid':100,'process_domain_id':7,'blocked':True,'target':'/tmp/work/adjacent.py'}],'effect_verified':False,'domain_id':7}
-    monkeypatch.setattr(c,'broker',broker)
-    with TestClient(app) as client:
-        result=client.post('/api/managed/tasks/'+task+'/verify-operation',headers={'Authorization':'Bearer test-admin-token-not-for-production'},json={'target':'/tmp/work/adjacent.py','operation':'write','expected':'allow'})
-    assert result.status_code==200 and result.json()['classification']=='false_block'
-    with db.connect() as con:
-        stored=c.load(con,task);frozen=json.loads(con.execute('SELECT context_json FROM managed_jobs WHERE task_id=?',(task,)).fetchone()[0])
-    assert stored['gate']=='waiting_policy' and stored['baseline_hash']==state['baseline_hash']
-    assert 'expected-allowed' in frozen['change']['text']
 
 
 def test_private_native_file_uses_narrow_broker_read(bound,tmp_path,monkeypatch):
@@ -287,37 +247,6 @@ def test_agent_refusal_is_self_report_not_kernel_success(bound):
         events=con.execute('select kind,payload_json from managed_events where task_id=?',(task,)).fetchall()
     assert len(events)==1 and events[0]['kind']=='agent_refusal'
     assert json.loads(events[0]['payload_json'])['authority']=='agent_report; not_kernel_enforcement'
-
-
-def test_runtime_context_publishes_concrete_candidate_only_expansion(bound,monkeypatch):
-    task,state,_=bound;monkeypatch.setattr(c,'context',lambda *a:{})
-    with db.connect() as con:
-        c.enqueue(con,task,state,'Request output access pending confirmation','output-contract')
-        frozen=json.loads(con.execute('select context_json from managed_jobs where task_id=?',(task,)).fetchone()[0])
-        output=c.task_row(con,task)['output_dir']
-    assert frozen['path_mapping']['output']==output
-    target=frozen['capabilities']['expansion_targets'][0]
-    assert target['path']==output and target['proposal_fields']=={'allow_output':True} and target['confirmation_required']
-    assert frozen['capabilities']['candidate_contract']['submission']=='proposed_snapshot_only'
-
-def test_expansion_is_candidate_only_and_target_must_be_advertised(bound):
-    task,state,job=bound;ctx=json.loads(job['context_json'])
-    with pytest.raises(ValueError,match='Unadvertised'):c.validate_candidate(job,proposal(decision='expand',allow_output=True))
-    ctx['capabilities']['expansion_targets']=[{'kind':'task_output','path':'/tmp/output'}]
-    job={**job,'context_json':json.dumps(ctx)}
-    p=c.validate_candidate(job,proposal(decision='expand',allow_output=True))
-    assert p['decision']=='expand'
-    with db.connect() as con:assert c.load(con,task)['allow_output'] is False
-
-
-def test_equivalent_restriction_does_not_restart_domain(bound):
-    with pytest.raises(ValueError,match='No OS restriction changed'):c.validate_candidate(bound[2],proposal(decision='restrict'))
-
-
-def test_double_confirmation_is_rejected_during_transition(bound):
-    task,state,_=bound
-    with db.connect() as con:c.save(con,task,{**state,'gate':'applying','pending_expansion':{'hash':'same'}})
-    with pytest.raises(ValueError,match='不能重复确认'):c.confirm_expansion(task,'same')
 
 
 def test_legacy_scope_manager_cannot_change_native_managed_domain(bound):
@@ -400,14 +329,6 @@ def test_kernel_arriving_during_analysis_requeues_and_retains_pending_constraint
         assert con.execute("SELECT count(*) FROM managed_events WHERE task_id=? AND kind='kernel'",(task,)).fetchone()[0]==1
 
 
-def test_baseline_object_is_not_a_new_runtime_restriction(bound):
-    _,_,job=bound;ctx=json.loads(job['context_json'])
-    ctx.update(baseline={'protected_files':['/tmp/work/tests/test.py']},path_mapping={'workspace':'/tmp/work'})
-    ctx['capabilities']['registered_files']=['tests/test.py'];job={**job,'context_json':json.dumps(ctx)}
-    with pytest.raises(ValueError,match='already protected by the immutable startup baseline'):
-        c.validate_candidate(job,proposal(decision='restrict',protected_paths=['tests/test.py']))
-
-
 def test_outbox_retries_until_native_session_persists_feedback(bound,monkeypatch):
     from agentscope_app.managed.worker import Worker
     from test_managed_feedback import seed_feedback
@@ -433,33 +354,11 @@ def test_outbox_retries_until_native_session_persists_feedback(bound,monkeypatch
     assert calls[0]['session_id']==calls[1]['session_id']==state['session_id']
 
 
-def test_operational_followup_keeps_pending_review_intent_and_requires_fresh_candidate(bound,monkeypatch):
-    task,state,job=bound;state['pending_expansion']={'hash':'old-review','proposal':proposal(decision='expand',allow_output=True)}
-    monkeypatch.setattr(c,'context',lambda *args:{})
-    with db.connect() as con:
-        c.save(con,task,state);review=c.enqueue(con,task,state,'Repeat native permission request','dsh-repeat',actor='DSH')
-        stored=con.execute('SELECT * FROM managed_jobs WHERE id=?',(review['id'],)).fetchone();current=c.load(con,task)
-    ctx=json.loads(stored['context_json']);assert current['pending_expansion'] is None and ctx['pending_expansion_review']['prior_hash']=='old-review'
-    fresh=proposal(evidence_ids=[ctx['request_evidence_id']])
-    with pytest.raises(ValueError,match='does not withdraw a pending review-only'):c.validate_candidate(dict(stored),fresh)
-    with db.connect() as con:
-        current=c.load(con,task);c.enqueue(con,task,current,'Withdraw the output request','actual-user-withdrawal',actor='native_user')
-        assert not c.load(con,task).get('pending_expansion_intent')
-
-
-def test_runtime_cannot_broaden_existing_test_collection_to_future_artifacts(bound):
-    _,_,job=bound;ctx=json.loads(job['context_json'])
-    ctx.update(baseline={'protected_files':['/tmp/work/tests/test.py'],'declared_constraints':[{'id':'retain-existing-tests','object_scope':'registered_existing_files','targets':['/tmp/work/tests/test.py']}]},path_mapping={'workspace':'/tmp/work'})
-    job={**job,'context_json':json.dumps(ctx)}
-    with pytest.raises(ValueError,match='overbroad registered object collection'):
-        c.validate_candidate(job,proposal(decision='restrict',protected_paths=['tests/**']))
-
-
-def test_loaded_permissions_and_historical_reports_have_distinct_authority(bound,monkeypatch):
+def test_loaded_permissions_are_authoritative_and_resolved_prompts_are_excluded(bound,monkeypatch):
     task,state,_=bound;state['allow_output']=True;monkeypatch.setattr(c,'context',lambda *args:{})
     with db.connect() as con:
         c.save(con,task,state)
-        prior=c.event(con,task,'request','old-output',{'text':'output is denied; request access','actor':'DSH','revision':0})
+        c.event(con,task,'request','old-output',{'text':'output is denied; request access','actor':'native_user','revision':0})
         prior_id=str(con.execute("SELECT id FROM managed_events WHERE task_id=? AND event_key='old-output'",(task,)).fetchone()[0])
         c.event(con,task,'request_resolved','confirmed',{'evidence_ids':[prior_id],'decision':'expand','version':1})
         job=c.enqueue(con,task,state,'Write to the already confirmed output','real-next')
@@ -467,9 +366,8 @@ def test_loaded_permissions_and_historical_reports_have_distinct_authority(bound
     public=c.runtime_projection(frozen)
     assert public['effective_policy']['snapshot']['allow_output'] is True
     assert public['effective_policy']['authority']=='controller_verified_loaded_snapshot'
-    assert public['capabilities']['expansion_targets']==[]
-    historical=next(x for x in public['public_task_context'] if x['evidence_id']==prior_id)
-    assert historical['assessment_status']=='resolved' and 'not_current_state' in historical['authority']
+    assert 'expansion_targets' not in public['capabilities']
+    assert all(x['evidence_id']!=prior_id for x in public['public_task_context'])
     assert all('content' not in source for source in public['project_sources'])
 
 
@@ -503,9 +401,11 @@ def test_policy_detail_requires_exact_loaded_hash(bound):
 
 def test_project_facts_and_operational_test_request_do_not_authorize_source_protection(bound):
     _,_,job=bound;ctx=json.loads(job['context_json'])
-    ctx['capabilities'].update(registered_files=['src/code.py'],authorized_protection_targets={})
+    ctx['capabilities'].update(registered_files=['src/code.py'],registered_directories=['.','src'],authorized_protection_targets={})
+    ctx['project_sources']=[{'id':'src/code.py'}]
+    with db.connect() as con:c.event(con,job['task_id'],'pi_source',job['id']+':src/code.py',{'hash':'read'})
     with pytest.raises(ValueError,match='no explicit authenticated OS-target authorization'):
-        c.validate_candidate({**job,'context_json':json.dumps(ctx)},proposal(decision='restrict',protected_paths=['src/**']))
+        c.validate_candidate({**job,'context_json':json.dumps(ctx)},proposal(decision='restrict',add_protected_paths=['src/**'],evidence_ids=['5','project:src/code.py']))
 
 
 def test_explicit_user_target_binding_is_separate_from_agent_reports_and_ambiguous_names():
@@ -521,12 +421,6 @@ def test_explicit_user_target_binding_is_separate_from_agent_reports_and_ambiguo
     requests.append({'evidence_id':'5','actor':'native_user','text':'保护 src 目录，从现在起不得修改整个目录树。'})
     authorized,_=c.restriction_authorizations(requests,['5'],files,dirs,'/tmp/work')
     assert set(authorized)=={'src/**'}
-
-
-def test_procedural_request_cannot_narrow_persistent_write_scope(bound):
-    _,_,job=bound;ctx=json.loads(job['context_json']);ctx['capabilities']['authorized_write_scopes']=[]
-    with pytest.raises(ValueError,match='procedural read/test instruction'):
-        c.validate_candidate({**job,'context_json':json.dumps(ctx)},proposal(decision='restrict',allowed_write_dirs=['src']))
 
 
 def test_unresolved_necessary_constraint_stays_paused_and_unassessed(bound):
@@ -552,7 +446,7 @@ def test_accepted_native_message_resolves_wait_without_duplicate_dispatch(bound,
     dispatched=c.ingest(task,{'kind':'native_event','session_id':'session-native','event_key':'later-seq','type':'user/message','data':{'request_id':'clarify'},'text':accepted['text']})
     assert dispatched['id']==job['id']
     with db.connect() as con:
-        assert c.load(con,task)['revision']==2
+        assert c.load(con,task)['revision']==2 and c.load(con,task)['turn']==3
         assert con.execute('SELECT count(*) FROM managed_jobs WHERE task_id=?',(task,)).fetchone()[0]==1
         payload=json.loads(con.execute("SELECT payload_json FROM managed_events WHERE task_id=? AND kind='request'",(task,)).fetchone()[0]);assert payload['accepted_turn']==2 and payload['dispatched_turn']==3 and payload['turn']==3
 
@@ -563,27 +457,6 @@ def test_executor_gate_hides_policy_and_assessment_records(bound):
         c.event(con,task,'request_resolved','clarified',{'evidence_ids':['7','8'],'decision':'no_change'})
     assert c.gate(task)=={'gate':'open','phase':'running'}
     with db.connect() as con:assert c.load(con,task)['baseline_hash']=='safety'
-
-
-def test_loaded_output_execution_target_survives_pending_target_removal(bound,monkeypatch):
-    task,state,_=bound;monkeypatch.setattr(c,'context',lambda *a:{})
-    with db.connect() as con:
-        first=c.enqueue(con,task,state,'Request output pending confirmation','output-before')
-        before=json.loads(con.execute('SELECT context_json FROM managed_jobs WHERE id=?',(first['id'],)).fetchone()[0])
-        state.update(allow_output=True,version=2,policy_hash='confirmed-output-hash')
-        c.save(con,task,state)
-        second=c.enqueue(con,task,state,'Write result within the confirmed output','output-after')
-        after=json.loads(con.execute('SELECT context_json FROM managed_jobs WHERE id=?',(second['id'],)).fetchone()[0])
-        output=c.task_row(con,task)['output_dir']
-    before_target=next(t for t in before['capabilities']['execution_targets'] if t['kind']=='task_output')
-    assert before_target['granted'] is False and before['capabilities']['expansion_targets']
-    public=c.runtime_projection(after)
-    target=next(t for t in public['effective_policy']['execution_targets'] if t['kind']=='task_output')
-    assert target['path']==output and target['granted'] is True
-    assert target['policy_version']==2 and target['policy_hash']=='confirmed-output-hash'
-    assert target['authority']=='controller_verified_loaded_snapshot'
-    assert public['capabilities']['expansion_targets']==[]
-    assert 'already_granted' in public['capabilities']['output_expansion']
 
 
 def test_control_source_oracles_and_service_evidence_are_not_agent_material(bound):
@@ -650,23 +523,6 @@ def test_startup_clarification_requires_authenticated_control_plane(bound):
     assert response.status_code==401
 
 
-def test_runtime_observation_is_hashed_deduplicated_and_not_user_authority(bound,monkeypatch):
-    task,state,_=bound;calls=[]
-    def enqueue(con,task_id,s,text,key,**kw):
-        calls.append((s.copy(),kw));return {'id':'observed'}
-    monkeypatch.setattr(c,'enqueue',enqueue)
-    content='Task memory: preserve src/locked.py.'
-    payload={'kind':'runtime_observation','session_id':state['session_id'],'event_key':'context1','category':'memory','type':'compaction/summary','seq':42,'content':content,'content_hash':__import__('hashlib').sha256(content.encode()).hexdigest()}
-    assert c.ingest(task,payload)=={'id':'observed'}
-    assert calls[0][1]['actor']=='native_context'
-    assert c.ingest(task,{**payload,'event_key':'context2'})['deduplicated']
-    assert len(calls)==1
-    with db.connect() as con:
-        observation=c.load(con,task)['runtime_observations']['memory']
-        assert observation['content']==content and 'not_authorization' in observation['authority']
-    with pytest.raises(ValueError,match='hash mismatch'):c.ingest(task,{**payload,'content_hash':'forged'})
-
-
 def test_operation_feedback_contains_no_control_policy(bound):
     from agentscope_app.managed.feedback import operation_feedback
     raw={'pid':99,'process_domain_id':7,'op':'write','target':'/tmp/work/tests/test.py','rule':{'id':'private-rule','reason':'private DSL and full policy'}}
@@ -700,7 +556,7 @@ def test_pi_context_publishes_fixed_temporary_area_as_already_granted(bound,monk
     assert temporary['path']==str(Path(task_row['workspace']).parent/'tmp')
     assert temporary['granted'] and temporary['operations']==['read','write','unlink']
     assert frozen['base_snapshot']['payload']['allowed_write_dirs']==['.']
-    assert all(x['kind']!='task_temporary' for x in frozen['capabilities']['expansion_targets'])
+    assert 'expansion_targets' not in frozen['capabilities']
 
 
 def test_compaction_is_authenticated_control_plane_maintenance(bound):
@@ -726,26 +582,13 @@ def test_failed_native_admission_marks_replacement_failed_and_stops_domain(bound
     assert calls[-1]=='stop'
 
 
-def test_recovery_retains_unapproved_expansion_intent_without_grant(bound,monkeypatch):
-    task,state,_=bound
-    state={**state,'phase':'recovering','pending_expansion':{'job_id':bound[2]['id'],'hash':'old-candidate','proposal':proposal(decision='expand',allow_output=True,protected_paths=[])}}
-    with db.connect() as con:c.save(con,task,state)
-    replies={'launch':{'domain_id':51,'runner_pid':99,'watch_pid':98,'web_url':'http://127.0.0.1:18020/'},'native-session':{'sessionId':state['session_id']},'managed-verify':{'passed':True,'probe':{'pid':100}},'status':{'status':'running','domain_id':51}}
-    monkeypatch.setattr(c,'broker',lambda request,**kw:replies[request['action']])
-    installed=c.install(task,state,['.'],False,initial=True)
-    assert installed['pending_expansion'] is None and not installed['allow_output']
-    assert installed['pending_expansion_intent']['proposed_snapshot']['allow_output']
-    assert installed['pending_expansion_intent']['prior_hash']=='old-candidate'
-
-
-
 def test_compiled_record_preserves_exact_dsl_and_annotation_has_no_authority(bound):
     statement={'statement':'Task needs an output file','context_required':True,'context_reason':'Resolve the output path from task context','policy_type':'per_event','evidence_ids':['5']}
     result=c.validate_candidate(bound[2],proposal(identified_statements=[statement]))
     assert result['compiled_dsl_hash']==__import__('hashlib').sha256(result['compiled_dsl'].encode()).hexdigest()
     assert result['identified_statements'][0]['statement']==statement['statement']
     assert not result['allow_output']
-    with pytest.raises(ValueError,match='不能修改权限'):c.validate_candidate(bound[2],proposal(allow_output=True,identified_statements=[statement]))
+    with pytest.raises(ValueError,match='Extra inputs are not permitted'):c.validate_candidate(bound[2],proposal(allow_output=True,identified_statements=[statement]))
     with pytest.raises(ValueError,match='cite candidate evidence'):c.validate_candidate(bound[2],proposal(identified_statements=[{**statement,'evidence_ids':['invented']}]))
 
 
@@ -879,17 +722,18 @@ def test_unidentified_assessment_is_not_a_policy_sentence(bound):
         assert assessment['compilation']['dsl']==''
 
 
-def test_pending_parent_detail_preserves_full_delta_with_one_statement(bound):
+def test_parent_detail_preserves_full_additive_delta_with_one_statement(bound):
     from agentscope_app.managed.records import detail
     task,state,job=bound
     ctx=json.loads(job['context_json'])
     ctx['current_binding']={'version':3,'domain_id':41,'runner_pid':95,'session_id':'original-session'}
-    candidate=proposal(decision='expand',allow_output=True,identified_statements=[{'statement':'Write output report','policy_type':'per_event','context_required':False,'context_reason':'Supported task output target','evidence_ids':['5']}])
+    candidate={**proposal(decision='restrict',add_protected_paths=['locked.txt'],identified_statements=[{'statement':'Preserve locked.txt','policy_type':'per_event','context_required':False,'context_reason':'Authenticated exact target','evidence_ids':['5']}]),'allowed_write_dirs':['.'],'allow_output':False,'protected_paths':['locked.txt']}
     with db.connect() as con:
         con.execute('INSERT INTO managed_jobs(id,task_id,request_key,revision,policy_hash,status,context_json,proposal_json,created_at) VALUES(?,?,?,?,?,?,?,?,?)',(job['id'],task,'parent-detail',job['revision'],job['policy_hash'],'completed',json.dumps(ctx),json.dumps(candidate),db.now()))
     parent=detail(task,'runtime:'+job['id'])
     assert parent['id']=='runtime:'+job['id']
-    assert parent['delta']['output_before'] is False and parent['delta']['output_after'] is True
+    assert parent['delta']['added_protection']==['locked.txt'] and parent['delta']['removed_protection']==[]
+    assert parent['delta']['output_before'] is False and parent['delta']['output_after'] is False
     assert parent['delta']['write_scope_before']==['.']==parent['delta']['write_scope_after']
     assert parent['base_version']==3
     assert parent['process_generation']=={'domain_id':41,'runner_pid':95,'session_id':'original-session'}

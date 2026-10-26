@@ -10,15 +10,6 @@ class Message(BaseModel):
     text:str=Field(min_length=1,max_length=8000)
     request_key:str=Field(default_factory=lambda:uuid.uuid4().hex)
     kind:str='message'
-class ChangeReview(BaseModel):
-    decision:Literal["approve","reject","clarify"]
-    expected_hash:str=Field(min_length=1,max_length=128)
-    text:str=Field(default="",max_length=8000)
-
-class Confirmation(BaseModel):
-    expected_hash:str
-
-
 class StartupRegenerate(BaseModel):
     model_config=ConfigDict(extra="forbid")
     expected_context_hash:str=Field(min_length=64,max_length=64,pattern=r"^[a-f0-9]{64}$")
@@ -48,21 +39,6 @@ def policy(task_id:str):return run(c.policy_details,task_id)
 def audit(task_id:str,category:Literal['all','kernel','agent_refusal','control_pause','allowed']='all',before:int|None=None):return run(c.audit_history,task_id,category,before)
 @router.post('/api/managed/tasks/{task_id}/changes')
 def changes(task_id:str,body:Message):return run(c.change,task_id,body.text,body.request_key,body.kind)
-@router.post('/api/managed/tasks/{task_id}/changes/{job_id}/review')
-def review_change(task_id:str,job_id:str,body:ChangeReview):
-    if body.decision in ('approve','reject'):
-        from ..instances.approval_decisions import confirm_scoped,reject_scoped
-        return run(confirm_scoped if body.decision=='approve' else reject_scoped,task_id,'runtime:'+job_id,body.expected_hash)
-    return run(c.review_change,task_id,job_id,body.decision,body.expected_hash,body.text)
-@router.post('/api/managed/tasks/{task_id}/expansion/confirm')
-def confirm(task_id:str,body:Confirmation):return run(confirm_expansion_compat,task_id,body.expected_hash)
-
-def confirm_expansion_compat(task_id,expected_hash):
-    from ..instances.approval_decisions import confirm_scoped
-    with db.connect() as con:state=c.load(con,task_id)
-    pending=state.get('pending_expansion')
-    if not pending or pending['hash']!=expected_hash:raise ValueError('扩权候选已变化')
-    return confirm_scoped(task_id,'runtime:'+pending['job_id'],expected_hash)
 @router.post('/api/managed/tasks/{task_id}/close')
 def close(task_id:str):return run(c.close,task_id)
 @router.post('/api/managed/tasks/{task_id}/prompt')
@@ -93,11 +69,6 @@ def events(task_id:str,request:Request,body:ToolCall):
         worker.fail(task_id,'Project context or native audit unavailable: '+str(error))
         raise HTTPException(409,'任务已暂停：上下文或审计无法读取')
     except (ValueError,RuntimeError) as error:raise HTTPException(409,str(error))
-@router.post('/api/plugin/tasks/{task_id}/managed/change')
-def change(task_id:str,request:Request,body:ToolCall):
-    authenticate(task_id,request)
-    return run(c.change,task_id,str(body.args.get('text','')),str(body.args.get('request_key',uuid.uuid4().hex)),str(body.args.get('kind','guidance')),'DSH')
-
 @router.post('/api/generator/tasks/{task_id}/managed-jobs/{job_id}/tools/{tool}')
 def generator(task_id:str,job_id:str,tool:str,request:Request,body:ToolCall):
     token=request.headers.get('authorization','').removeprefix('Bearer ')
@@ -131,7 +102,7 @@ def generator(task_id:str,job_id:str,tool:str,request:Request,body:ToolCall):
     try:result=c.validate_candidate(job,body.args)
     except ValueError as error:
         frozen=json.loads(job['context_json'])
-        raise HTTPException(409,{'diagnostic':str(error),'current_snapshot':frozen['base_snapshot']['payload'],'revision':frozen['revision'],'policy_hash':frozen['policy_hash'],'pending_review':bool(frozen.get('pending_expansion_review'))})
+        raise HTTPException(409,{'diagnostic':str(error),'current_snapshot':frozen['base_snapshot']['payload'],'revision':frozen['revision'],'policy_hash':frozen['policy_hash']})
     with db.connect() as con:
         changed=con.execute("UPDATE managed_jobs SET proposal_json=? WHERE id=? AND status='running' AND proposal_json IS NULL",(json.dumps(result),job_id)).rowcount
         if not changed:raise HTTPException(409,'候选不可覆盖或作业已经停止')
@@ -169,7 +140,6 @@ def verify_operation(task_id:str,body:OperationProbe):
         state=c.load(con,task_id);state.setdefault('probe_pids',[]).append(row['pid']);c.save(con,task_id,state)
         ident=uuid.uuid4().hex
         c.event(con,task_id,'operation_verified',ident,result)
-        if classification=='false_block':c.enqueue(con,task_id,state,'An authenticated independent operation probe found an expected-allowed operation blocked by the kernel. Assess task and policy evidence; preserve the immutable baseline and require confirmation for any runtime-only expansion. '+json.dumps({'operation':body.operation,'target':body.target,'kernel_events':result['kernel_events'],'operation_evidence':ident}),'verified-false-block:'+ident,kind='guidance',actor='verified_feedback')
     return result
 
 

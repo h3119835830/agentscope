@@ -141,54 +141,6 @@ def test_validation_hash_ignores_compiler_temporary_filename(real_compiler,seed_
     second=n.build(raw,bundle(raw),task,0,'deduplicate',transient)[3]
     assert first==second
 
-@pytest.fixture
-def normalized_job(seed_task,real_compiler,monkeypatch):
-    db.init_db();task=uuid.uuid4().hex[:16];seed_task(task)
-    state={'phase':'running','gate':'waiting_policy','revision':1,'version':7,'policy_hash':'fixed','baseline_hash':'sealed','baseline_extra':rule(path='/tmp/work/tests/test.py'),'protected':['/tmp/work/tests/test.py'],'runtime_protected':['b.txt','a.txt'],'allowed_write_dirs':['.'],'allow_output':False,'binding':{'domain_id':13,'runner_pid':99},'session_id':'session','turn':1,'normalization_mode':'deduplicate'}
-    context={'request_evidence_id':'5','sources':[{'evidence_id':'5','content':{'actor':'native_user','text':'保留 a.txt'}}],'unassessed_request_ids':['5'],'base_snapshot':{'payload':{'allowed_write_dirs':['.'],'allow_output':False,'protected_paths':['b.txt','a.txt']}},'baseline':{'protected_files':state['protected']},'capabilities':{'registered_files':['a.txt','b.txt','tests/test.py'],'registered_directories':['.','tests']},'path_mapping':{'workspace':'/tmp/work'},'revision':1,'policy_hash':'fixed','project_sources':[]}
-    job={'id':uuid.uuid4().hex,'task_id':task,'revision':1,'policy_hash':'fixed','context_json':json.dumps(context)}
-    with db.connect() as con:c.save(con,task,state)
-    import agentscope_app.main as main
-    monkeypatch.setattr(main,'compile_policy',real_compiler)
-    args={'decision':'restrict','allowed_write_dirs':['.'],'allow_output':False,'protected_paths':['a.txt','b.txt','a.txt'],'evidence_ids':['5'],'explanation':'Equivalent repeated restriction'}
-    return task,state,job,args
-
-def test_runtime_set_reordering_does_not_reload(normalized_job,monkeypatch):
-    task,state,job,args=normalized_job
-    value=c.validate_candidate(job,args)
-    assert value['decision']=='no_change' and value['protected_paths']==['a.txt','b.txt']
-    assert value['original_candidate']['protected_paths']==['a.txt','b.txt','a.txt']
-    with db.connect() as con:
-        con.execute("INSERT INTO managed_jobs(id,task_id,request_key,revision,policy_hash,context_json,proposal_json,created_at) VALUES(?,?,?,?,?,?,?,?)",(job['id'],task,'repeat',1,'fixed',job['context_json'],json.dumps(value),db.now()))
-    calls=[]
-    def broker(request,**kwargs):
-        calls.append(request['action']);return {'status':'running','domain_verified':True,'domain_id':13,'runner_pid':99}
-    monkeypatch.setattr(c,'broker',broker)
-    c.finish_job(job)
-    with db.connect() as con:
-        after=c.load(con,task)
-        assert after['version']==7 and after['binding']==state['binding'] and after['gate']=='open'
-        assert not con.execute("SELECT 1 FROM managed_events WHERE task_id=? AND kind='policy_active'",(task,)).fetchone()
-    assert calls==['status']
-
-def test_baseline_restatement_references_floor(normalized_job):
-    _,_,job,args=normalized_job
-    value=c.validate_candidate(job,{**args,'protected_paths':['tests/test.py','a.txt','b.txt']})
-    assert value['decision']=='no_change' and value['baseline_references']==['tests/test.py']
-    assert 'tests/test.py' not in value['protected_paths']
-
-def test_duplicate_evaluation_pauses_if_binding_is_stale(normalized_job,monkeypatch):
-    task,_,job,args=normalized_job;value=c.validate_candidate(job,args)
-    with db.connect() as con:
-        con.execute("INSERT INTO managed_jobs(id,task_id,request_key,revision,policy_hash,context_json,proposal_json,created_at) VALUES(?,?,?,?,?,?,?,?)",(job['id'],task,'stale-bind',1,'fixed',job['context_json'],json.dumps(value),db.now()))
-    monkeypatch.setattr(c,'broker',lambda *_a,**_k:{'status':'running','domain_verified':True,'domain_id':14,'runner_pid':99})
-    with pytest.raises(ValueError,match='binding'):c.finish_job(job)
-    with db.connect() as con:assert c.load(con,task)['gate']=='waiting_policy'
-
-def test_new_normalized_candidate_stale_revision_rejected(normalized_job):
-    _,_,job,args=normalized_job
-    with pytest.raises(ValueError,match='stale'):c.validate_candidate({**job,'revision':0},args)
-
 def test_normalization_cannot_hide_engine_limit(real_compiler,seed_task):
     db.init_db();task=uuid.uuid4().hex[:16];seed_task(task)
     raw=SOURCE+''.join(rule('bootstrap-'+str(i)) for i in range(130))
@@ -275,39 +227,6 @@ def test_parent_domain_event_does_not_resolve_child_clause_id(real_compiler,seed
 
 
 
-def test_normalized_candidate_rejects_changed_project_evidence(normalized_job,tmp_path,monkeypatch):
-    task,_,job,args=normalized_job
-    source=tmp_path/'a.txt';source.write_text('changed')
-    context=json.loads(job['context_json']);context['project_sources']=[{'id':'a.txt','path':str(source),'hash':'frozen-hash'}]
-    monkeypatch.setattr(c,'read_project_content',lambda *_:{'hash':'actual-changed-hash'})
-    with pytest.raises(ValueError,match='stale.*证据'):
-        c.validate_candidate({**job,'context_json':json.dumps(context)},args)
-
-
-def test_superseded_normalized_candidate_cannot_persist_or_load(normalized_job,monkeypatch):
-    task,state,job,args=normalized_job;value=c.validate_candidate(job,args)
-    with db.connect() as con:
-        con.execute("INSERT INTO managed_jobs(id,task_id,request_key,revision,policy_hash,context_json,proposal_json,created_at) VALUES(?,?,?,?,?,?,?,?)",(job['id'],task,'concurrent',1,'fixed',job['context_json'],json.dumps(value),db.now()))
-        c.save(con,task,{**state,'revision':2})
-    def forbidden(*_a,**_k):raise AssertionError('Stale candidate reached broker')
-    monkeypatch.setattr(c,'broker',forbidden)
-    with pytest.raises(ValueError,match='stale'):c.finish_job(job)
-    with db.connect() as con:
-        assert not con.execute('SELECT 1 FROM policy_normalization_runs WHERE task_id=?',(task,)).fetchone()
-        assert c.load(con,task)['version']==7
-
-
-def test_compile_failure_never_quiesces_existing_normalized_process(normalized_job,monkeypatch):
-    task,state,_,_=normalized_job
-    import agentscope_app.main as main
-    monkeypatch.setattr(main,'compile_policy',lambda *_:('compile_failed',{'ok':False},'raw invalid'))
-    def forbidden(*_a,**_k):raise AssertionError('Invalid policy reached broker')
-    monkeypatch.setattr(c,'broker',forbidden)
-    with pytest.raises(ValueError,match='Original policy compile failed'):
-        c.install(task,state,['.'],False,protected_paths=['a.txt','b.txt'])
-    with db.connect() as con:
-        current=c.load(con,task)
-        assert current['binding']==state['binding'] and current['version']==7
 
 
 

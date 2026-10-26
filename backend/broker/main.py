@@ -99,7 +99,7 @@ def compile_policy(task_id,version,yaml_text,dsl_text,workspace,normalization=No
       '\n'
       '  rule agentscope-reserve-runtime-write:\n'
       '    block write file "/__agentscope_reserved_write__/**" if AGENTSCOPE_NEVER_MATCH\n'
-      '    because "Reserve ActPlane write hooks for reviewed runtime Scope restrictions."\n'
+      '    because "Reserve ActPlane write hooks for validated runtime Scope restrictions."\n'
     )
     write_file(watch_path,watch_yaml,0o440)
     out=run_actplane(["--policy",policy_path,"compile","--json"],workspace,child_env(),45)
@@ -522,7 +522,7 @@ def launch(task_id,version,workspace,output_dir,prompt,dsl_text,policy_yaml,dsh_
             else:write_file(manifest_path,json.dumps(hashes),0o440)
         log_dir=LOG_DIR; log_dir.mkdir(parents=True,exist_ok=True)
         watch_log=open(log_dir/f"{task_id}-v{version}-watch.log","a",buffering=1)
-        # Scope restrictions can be approved during a task, so the ActPlane
+        # Scope restrictions can be validated during a task, so the ActPlane
         # watch engine must reserve file-flow hooks before its child domain is
         # created. The engine cannot enable write-rule classes retroactively.
         env=child_env(task_id=task_id); env.update({"TMPDIR":str(workspace.parent/"tmp"),"ACTPLANE_ATTACH_PID":"0","ACTPLANE_RESERVE_FILE_FLOW":"1","ACTPLANE_ENABLE_ADVANCED_HOOKS":"1",
@@ -806,7 +806,7 @@ def restrict(message):
     if int(message.get("domain_id") or -1)!=int(record["domain_id"]): raise RuntimeError("Scope 申请目标与当前进程域不一致")
     request_id=str(message.get("request_id",""))
     if not re.fullmatch(r"[a-f0-9]{32}",request_id): raise ValueError("Scope request id invalid")
-    req={"request_id":request_id,"kind":"restrict","delta_text":dsl,"approved_by":message.get("approved_by","用户"),"approval_ref":message.get("approval_ref",request_id)}
+    req={"request_id":request_id,"kind":"restrict","delta_text":dsl,"approved_by":message.get("approved_by","AgentScope control plane"),"approval_ref":message.get("approval_ref",request_id)}
     cmd_dir=RUNTIME/"commands"/task_id; req_path=cmd_dir/"request.json"
     tmp=req_path.with_name("request.json.tmp")
     with open(tmp,"w") as f: json.dump(req,f,ensure_ascii=False); f.flush(); os.fsync(f.fileno())
@@ -820,7 +820,7 @@ def restrict(message):
                 return {"task_id":task_id,"status":"delta_applied","domain_id":record["domain_id"],"details":result}
         except FileNotFoundError: pass
         time.sleep(.25)
-    raise RuntimeError("Scope relay did not acknowledge the approved Delta within 22 seconds")
+    raise RuntimeError("Scope relay did not acknowledge the validated Delta within 22 seconds")
 
 _task_relay_locks={}
 def dispatch(m):

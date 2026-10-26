@@ -9,7 +9,7 @@ from ..services import policy_normalization as normalization
 
 HOOKS={
  'startup':{'name':'DSH 启动前','events':['任务描述与已登记项目材料'],'sequence':['读取必读来源','Pi 识别策略','校验与编译','Broker 加载并核验','放行 DSH']},
- 'runtime':{'name':'DSH 运行时','events':['真实用户消息','system/developer 提示词','工具 schema 与有效上下文','compaction 记忆','ActPlane 内核拒绝','已验证的误拦截'],'sequence':['Native hook 接收变化','冻结上下文并暂停新工具','Pi 评估增量','收紧与扩权均人工审核','核验后继续执行']}}
+ 'runtime':{'name':'DSH 运行时','events':['已认证真实用户消息'],'sequence':['Native hook 接收用户消息','冻结当前策略与登记对象','Pi 生成新增限制对象','控制面校验并自动追加 Delta','核验后继续执行']}}
 
 def digest(text):return hashlib.sha256(text.encode()).hexdigest()
 def decode(row,key):return json.loads(row[key]) if row and row[key] else {}
@@ -59,7 +59,7 @@ def workbench(task_id):
         and executor.get('state')=='running' and isinstance(executor.get('pid'),int) and executor['pid']>0)
     policy_verified=bool(verified and state.get('version',0)>0 and state.get('policy_hash') and state.get('verification',{}).get('passed') is True)
     effective=policy_verified and state['gate']=='open'
-    keys=('phase','gate','version','session_id','web_url','error','startup_proposal','pending_expansion','pending_change','pending_restriction_intent','last_apply_error','execution_role_version')
+    keys=('phase','gate','version','session_id','web_url','error','startup_proposal','execution_role_version')
     live={k:execution[k] for k in ('status','domain_id','domain_verified','cgroup_verified','runner_pid','watch_pid','agent_status') if k in execution}
     live['executor']={k:executor[k] for k in ('mode','pid','state') if k in executor}
     live.update(verified=verified,observation_stable=stable,checked_at=db.now())
@@ -115,10 +115,9 @@ def runtime_record(con,task,s,row):
     same=bool(retained) and all(retained)
     status='revoked' if applied and s['phase']=='ended' else 'loaded' if applied and same and s['phase']=='running' else 'paused' if applied and same else 'partially_loaded' if applied and any(retained) and s['phase']=='running' else 'superseded' if applied else 'pending_confirmation' if (s.get('pending_change') or s.get('pending_expansion') or {}).get('job_id')==row['id'] else 'needs_clarification' if p.get('unresolved_requests') else 'assessed' if decision in ('no_change','guidance_only') else 'expired'
     source=next((x.get('content',{}) for x in ctx.get('sources',[]) if x['evidence_id']==ctx.get('request_evidence_id')),{});actor=source.get('actor','native_user')
-    native=ctx.get('native_execution_context',{})
     dispatched=con.execute("SELECT payload_json FROM managed_events WHERE task_id=? AND kind='request' AND id=?",(task['id'],ctx.get('request_evidence_id'))).fetchone()
     dispatch=decode(dispatched,'payload_json')
-    trigger={'name':{'native_context':'原生上下文变化','kernel':'ActPlane 拒绝反馈','verified_feedback':'误拦截复核','recovery':'原生会话恢复','control_review':'控制面复核','native_user':'真实用户消息','user':'管理员约束','DSH':'执行能力申请'}.get(actor,actor),'actor':actor,'request_id':ctx.get('request_evidence_id'),'job_id':row['id'],'revision':row['revision'],'turn':dispatch.get('dispatched_turn',source.get('turn')),'accepted_turn':source.get('turn'),'observations':[{'category':v['category'],'type':v['type'],'seq':v['seq'],'content_hash':v['content_hash']} for v in native.values()]}
+    trigger={'name':{'native_user':'真实用户消息','administrator':'管理员约束'}.get(actor,actor),'actor':actor,'request_id':ctx.get('request_evidence_id'),'job_id':row['id'],'revision':row['revision'],'turn':dispatch.get('dispatched_turn',source.get('turn')),'accepted_turn':source.get('turn'),'observations':[]}
     base_binding=ctx.get('current_binding') or {}
     before=ctx.get('base_snapshot',{}).get('payload',{});delta={'added_protection':sorted(set(p.get('protected_paths',[]))-set(before.get('protected_paths',[]))),'removed_protection':sorted(set(before.get('protected_paths',[]))-set(p.get('protected_paths',[]))),'write_scope_before':before.get('allowed_write_dirs'),'write_scope_after':p.get('allowed_write_dirs'),'output_before':before.get('allow_output'),'output_after':p.get('allow_output')}
     ev=[]
@@ -141,7 +140,7 @@ def runtime_record(con,task,s,row):
     # Keep full-bundle integrity verification internal. A record never exports it.
     scoped=compilation({},'', 'assessment_no_rule')
     scoped.update(status='not_applicable',message='这是评估记录，没有逐句登记的 OS 规则。',has_new_os_rule=False)
-    return {'id':'runtime:'+row['id'],'stage':'runtime','base_version':base_binding.get('version'),'base_policy_hash':ctx.get('policy_hash'),'process_generation':{k:base_binding.get(k) for k in ('domain_id','runner_pid','session_id')},'statement':text,'identified_statements':statements,'policy_type':'per_event' if decision in ('restrict','expand') else 'semantic_only' if decision=='guidance_only' else 'assessment','effect':decision,'context_required':True,'context_scope':'task','context_reason':'评估冻结任务、现行策略、运行上下文与已读取项目证据','classification_origin':'validated_snapshot_delta; historical_source_clause_when_available','status':status,'created_at':row['created_at'],'trigger':trigger,'evidence':ev,'explanation':p.get('explanation'),'delta':delta,'targets':delta['added_protection']+delta['removed_protection'],'operations':['write','unlink'] if decision in ('restrict','expand') else [],'compilation':scoped,'loading':{'loaded':applied,'version':receipt.get('version'),'confirmation':receipt.get('confirmation'),'session_id':ctx.get('session_id'),'candidate_hash':p.get('hash'),'baseline_hash':ctx.get('baseline',{}).get('hash')}}
+    return {'id':'runtime:'+row['id'],'stage':'runtime','base_version':base_binding.get('version'),'base_policy_hash':ctx.get('policy_hash'),'process_generation':{k:base_binding.get(k) for k in ('domain_id','runner_pid','session_id')},'statement':text,'identified_statements':statements,'policy_type':'per_event' if decision in ('restrict','expand') else 'semantic_only' if decision=='guidance_only' else 'assessment','effect':decision,'context_required':True,'context_scope':'task','context_reason':'评估已认证用户请求、现行策略与已读取项目对象','classification_origin':'validated_additive_delta; historical_source_clause_when_available','status':status,'created_at':row['created_at'],'trigger':trigger,'evidence':ev,'explanation':p.get('explanation'),'delta':delta,'targets':delta['added_protection']+delta['removed_protection'],'operations':['write','unlink'] if decision in ('restrict','expand') else [],'compilation':scoped,'loading':{'loaded':applied,'version':receipt.get('version'),'confirmation':receipt.get('confirmation'),'session_id':ctx.get('session_id'),'candidate_hash':p.get('hash'),'baseline_hash':ctx.get('baseline',{}).get('hash')}}
 
 def mentions(text,path):
     # Match an actual registered path token, not a filename suffix or another file.

@@ -263,7 +263,6 @@ def runtime_detail(key,full=False):
 def execute_decision(ident,decision,expected_hash):
     """Administrator router only. Reuse authoritative loaders and their locks."""
     from . import controller,system_policy
-    from ..managed import controller as managed
     row=raw_detail(ident)
     if row['candidate_hash']!=expected_hash:raise ValueError('候选确认内容不一致')
     if decision=='confirm' and not row['can_apply'] and row['status']!='applied':raise ValueError('候选需要重新校验或已处理')
@@ -275,7 +274,7 @@ def execute_decision(ident,decision,expected_hash):
     elif row['kind']=='instance_policy':result=(controller.apply if decision=='confirm' else controller.reject)(row['scope_id'],ident.split(':',1)[1],expected_hash)
     elif row['kind']=='system_policy':result=(system_policy.apply if decision=='confirm' else system_policy.reject)(ident.split(':',1)[1],expected_hash)
     elif row['status'] in ('applied','rejected'):result={'id':ident,'state':row['status'],'idempotent':True}
-    else:result=managed.review_change(row['scope_id'],ident.split(':',1)[1],'approve' if decision=='confirm' else 'reject',expected_hash)
+    else:raise ValueError('运行时限制由控制面校验后自动追加，不存在人工审批动作')
     with db.connect() as con:
         db.audit(con,None,'policy_approval_decision','authenticated_operator',{'approval_id':ident,'candidate_hash':expected_hash,'scope_id':row['scope_id'],'kind':row['kind'],'decision':decision})
     return result
