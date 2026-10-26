@@ -13,6 +13,8 @@ ExecStart=/usr/bin/python3 /opt/agentscope/backend/broker/main.py
 Restart=on-failure
 RestartSec=3
 UMask=0077
+RuntimeDirectory=agentscope
+RuntimeDirectoryMode=0750
 
 [Install]
 WantedBy=multi-user.target

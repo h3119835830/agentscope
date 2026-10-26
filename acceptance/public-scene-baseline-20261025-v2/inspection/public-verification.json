@@ -1,0 +1,977 @@
+{
+  "policy_loaded": false,
+  "agent_started": false,
+  "compiler_sha256": "87ffa35e50960acc9decba6b4163a71d809c8a7c8400a47d7698385acf6fbcf2",
+  "matcher_header_sha256": "42760840097dc1b7cb2c6a83e0d724f934d835d364d7163335f42faecb09b2e0",
+  "checks": {
+    "src-agent-original": {
+      "input_dsl": "source A = exec \"git\"\nrule config-tc_b23595a49b1b4d5e976307620527910e:\n  kill exec \"git\" \"commit\" if A unless after exec \"pytest\" exits 0 since write \"/w/0/src\"\n  because \"用户要求：pytest 须正常退出且退出码为 0；src 再次变化使旧检查失效；缺少有效检查时终止提交进程（不降级为仅提醒）。按场景仓库 src 目录作为失效路径，模板每条只接受一个路径，故与 tests 分别成条。\"",
+      "compile": {
+        "backend_support": {
+          "clauses": [
+            {
+              "clause_index": 0,
+              "condition_warnings": [],
+              "effect": "kill",
+              "limitations": [],
+              "mode": "tracepoint",
+              "op": "exec",
+              "pre_op": false,
+              "reason": "post-exec tracepoint kill",
+              "rule": "config-tc_b23595a49b1b4d5e976307620527910e",
+              "status": "supported",
+              "supported": true,
+              "target_arg": "commit",
+              "target_kind": "exec",
+              "target_pattern": "**/git"
+            }
+          ],
+          "sources": [
+            {
+              "kind": "exec",
+              "label": "A",
+              "limitations": [],
+              "pattern": "git",
+              "reason": "exec source labels are applied on process exec",
+              "supported": true
+            }
+          ]
+        },
+        "domain": null,
+        "environment": {
+          "ACTPLANE_ENABLE_ADVANCED_HOOKS": null,
+          "ACTPLANE_FORCE_TRACEPOINT": null,
+          "ACTPLANE_HOOK_PROFILE": null,
+          "ACTPLANE_RESERVE_FILE_FLOW": null
+        },
+        "host": {
+          "active_lsms": "lockdown,capability,landlock,yama,apparmor,bpf",
+          "bpf_lsm_active": true,
+          "force_tracepoint": false
+        },
+        "matrix_note": "This reports static host/backend support for the selected policy. Runtime delta admission can reject later deltas that require hook classes or path matcher classes not enabled when the engine was loaded.",
+        "matrix_scope": "static_policy_host_support",
+        "ok": true,
+        "policy_ref": "--rule",
+        "rule_count": 1,
+        "rules": [
+          {
+            "clause_end_line": 3,
+            "clause_hash": "fnv1a64:5af6bd065ec253e9",
+            "clause_op": "exec",
+            "clause_source_index": 0,
+            "clause_start_line": 3,
+            "clause_text": "  kill exec \"git\" \"commit\" if A unless after exec \"pytest\" exits 0 since write \"/w/0/src\"",
+            "effect": "kill",
+            "immutable": false,
+            "kernel_op": "exec",
+            "name": "config-tc_b23595a49b1b4d5e976307620527910e",
+            "ops": [
+              "exec"
+            ],
+            "reason": "用户要求：pytest 须正常退出且退出码为 0；src 再次变化使旧检查失效；缺少有效检查时终止提交进程（不降级为仅提醒）。按场景仓库 src 目录作为失效路径，模板每条只接受一个路径，故与 tests 分别成条。",
+            "rule_id": 0,
+            "semantics": {
+              "condition_kind": 2,
+              "condition_literal": "",
+              "condition_match": 0,
+              "condition_negated": false,
+              "condition_source": "Some(After { gate_op: Exec, gate_pattern: \"pytest\", gate_exit: Some(0), since: [(Write, \"/w/0/src\", None)] })",
+              "forbidden_labels": [],
+              "gate_index": 0,
+              "gate_mask": "1",
+              "has_transforms": false,
+              "required_labels": [
+                "A"
+              ],
+              "schema": "actplane.rule-semantics.v1",
+              "since_mask": "1",
+              "source_bindings": [
+                [
+                  "A",
+                  "Exec",
+                  "git"
+                ]
+              ],
+              "target_literal": "git",
+              "target_match": 0
+            },
+            "source_end_line": 4,
+            "source_hash": "fnv1a64:46f0b9c43ab57b20",
+            "source_ref": "rule:config-tc_b23595a49b1b4d5e976307620527910e",
+            "source_start_line": 2,
+            "source_text": "rule config-tc_b23595a49b1b4d5e976307620527910e:\n  kill exec \"git\" \"commit\" if A unless after exec \"pytest\" exits 0 since write \"/w/0/src\"\n  because \"用户要求：pytest 须正常退出且退出码为 0；src 再次变化使旧检查失效；缺少有效检查时终止提交进程（不降级为仅提醒）。按场景仓库 src 目录作为失效路径，模板每条只接受一个路径，故与 tests 分别成条。\"",
+            "target_arg": "commit",
+            "target_kind": "exec",
+            "target_pattern": "**/git"
+          }
+        ],
+        "schema": "actplane.compile.v1",
+        "warnings": []
+      },
+      "samples": {
+        "/w/0/src/example.py": {
+          "invalidators": 1,
+          "matched": 0
+        },
+        "/w/0/src/nested/example.py": {
+          "invalidators": 1,
+          "matched": 0
+        }
+      },
+      "blob_sha256": "0f7b4eeaa51e6408544ddef49ddd715d066ee2ea7d46efdfce932df3d86cad1e",
+      "control_is_not_an_agent_result": false
+    },
+    "src-independent-recursive-control": {
+      "input_dsl": "source A = exec \"git\"\nrule config-tc_b23595a49b1b4d5e976307620527910e:\n  kill exec \"git\" \"commit\" if A unless after exec \"pytest\" exits 0 since write \"/w/0/src/**\"\n  because \"用户要求：pytest 须正常退出且退出码为 0；src 再次变化使旧检查失效；缺少有效检查时终止提交进程（不降级为仅提醒）。按场景仓库 src 目录作为失效路径，模板每条只接受一个路径，故与 tests 分别成条。\"",
+      "compile": {
+        "backend_support": {
+          "clauses": [
+            {
+              "clause_index": 0,
+              "condition_warnings": [],
+              "effect": "kill",
+              "limitations": [],
+              "mode": "tracepoint",
+              "op": "exec",
+              "pre_op": false,
+              "reason": "post-exec tracepoint kill",
+              "rule": "config-tc_b23595a49b1b4d5e976307620527910e",
+              "status": "supported",
+              "supported": true,
+              "target_arg": "commit",
+              "target_kind": "exec",
+              "target_pattern": "**/git"
+            }
+          ],
+          "sources": [
+            {
+              "kind": "exec",
+              "label": "A",
+              "limitations": [],
+              "pattern": "git",
+              "reason": "exec source labels are applied on process exec",
+              "supported": true
+            }
+          ]
+        },
+        "domain": null,
+        "environment": {
+          "ACTPLANE_ENABLE_ADVANCED_HOOKS": null,
+          "ACTPLANE_FORCE_TRACEPOINT": null,
+          "ACTPLANE_HOOK_PROFILE": null,
+          "ACTPLANE_RESERVE_FILE_FLOW": null
+        },
+        "host": {
+          "active_lsms": "lockdown,capability,landlock,yama,apparmor,bpf",
+          "bpf_lsm_active": true,
+          "force_tracepoint": false
+        },
+        "matrix_note": "This reports static host/backend support for the selected policy. Runtime delta admission can reject later deltas that require hook classes or path matcher classes not enabled when the engine was loaded.",
+        "matrix_scope": "static_policy_host_support",
+        "ok": true,
+        "policy_ref": "--rule",
+        "rule_count": 1,
+        "rules": [
+          {
+            "clause_end_line": 3,
+            "clause_hash": "fnv1a64:e69de34b9706af44",
+            "clause_op": "exec",
+            "clause_source_index": 0,
+            "clause_start_line": 3,
+            "clause_text": "  kill exec \"git\" \"commit\" if A unless after exec \"pytest\" exits 0 since write \"/w/0/src/**\"",
+            "effect": "kill",
+            "immutable": false,
+            "kernel_op": "exec",
+            "name": "config-tc_b23595a49b1b4d5e976307620527910e",
+            "ops": [
+              "exec"
+            ],
+            "reason": "用户要求：pytest 须正常退出且退出码为 0；src 再次变化使旧检查失效；缺少有效检查时终止提交进程（不降级为仅提醒）。按场景仓库 src 目录作为失效路径，模板每条只接受一个路径，故与 tests 分别成条。",
+            "rule_id": 0,
+            "semantics": {
+              "condition_kind": 2,
+              "condition_literal": "",
+              "condition_match": 0,
+              "condition_negated": false,
+              "condition_source": "Some(After { gate_op: Exec, gate_pattern: \"pytest\", gate_exit: Some(0), since: [(Write, \"/w/0/src/**\", None)] })",
+              "forbidden_labels": [],
+              "gate_index": 0,
+              "gate_mask": "1",
+              "has_transforms": false,
+              "required_labels": [
+                "A"
+              ],
+              "schema": "actplane.rule-semantics.v1",
+              "since_mask": "1",
+              "source_bindings": [
+                [
+                  "A",
+                  "Exec",
+                  "git"
+                ]
+              ],
+              "target_literal": "git",
+              "target_match": 0
+            },
+            "source_end_line": 4,
+            "source_hash": "fnv1a64:4f49483b2ec03a85",
+            "source_ref": "rule:config-tc_b23595a49b1b4d5e976307620527910e",
+            "source_start_line": 2,
+            "source_text": "rule config-tc_b23595a49b1b4d5e976307620527910e:\n  kill exec \"git\" \"commit\" if A unless after exec \"pytest\" exits 0 since write \"/w/0/src/**\"\n  because \"用户要求：pytest 须正常退出且退出码为 0；src 再次变化使旧检查失效；缺少有效检查时终止提交进程（不降级为仅提醒）。按场景仓库 src 目录作为失效路径，模板每条只接受一个路径，故与 tests 分别成条。\"",
+            "target_arg": "commit",
+            "target_kind": "exec",
+            "target_pattern": "**/git"
+          }
+        ],
+        "schema": "actplane.compile.v1",
+        "warnings": []
+      },
+      "samples": {
+        "/w/0/src/example.py": {
+          "invalidators": 1,
+          "matched": 1
+        },
+        "/w/0/src/nested/example.py": {
+          "invalidators": 1,
+          "matched": 1
+        }
+      },
+      "blob_sha256": "91fa7f0d77459576a61c1ae857fb25da45600e5570455c9f212629f9b184ee89",
+      "control_is_not_an_agent_result": true
+    },
+    "tests-agent-original": {
+      "input_dsl": "source A = exec \"git\"\nrule config-tc_2c5709a0db4b4e58a64b80d887f9be3b:\n  kill exec \"git\" \"commit\" if A unless after exec \"pytest\" exits 0 since write \"/w/0/tests\"\n  because \"用户要求 tests 再次变化同样使旧检查失效后仍须终止提交；与 src 条件分开配置，避免擅自扩大或遗漏范围。\"",
+      "compile": {
+        "backend_support": {
+          "clauses": [
+            {
+              "clause_index": 0,
+              "condition_warnings": [],
+              "effect": "kill",
+              "limitations": [],
+              "mode": "tracepoint",
+              "op": "exec",
+              "pre_op": false,
+              "reason": "post-exec tracepoint kill",
+              "rule": "config-tc_2c5709a0db4b4e58a64b80d887f9be3b",
+              "status": "supported",
+              "supported": true,
+              "target_arg": "commit",
+              "target_kind": "exec",
+              "target_pattern": "**/git"
+            }
+          ],
+          "sources": [
+            {
+              "kind": "exec",
+              "label": "A",
+              "limitations": [],
+              "pattern": "git",
+              "reason": "exec source labels are applied on process exec",
+              "supported": true
+            }
+          ]
+        },
+        "domain": null,
+        "environment": {
+          "ACTPLANE_ENABLE_ADVANCED_HOOKS": null,
+          "ACTPLANE_FORCE_TRACEPOINT": null,
+          "ACTPLANE_HOOK_PROFILE": null,
+          "ACTPLANE_RESERVE_FILE_FLOW": null
+        },
+        "host": {
+          "active_lsms": "lockdown,capability,landlock,yama,apparmor,bpf",
+          "bpf_lsm_active": true,
+          "force_tracepoint": false
+        },
+        "matrix_note": "This reports static host/backend support for the selected policy. Runtime delta admission can reject later deltas that require hook classes or path matcher classes not enabled when the engine was loaded.",
+        "matrix_scope": "static_policy_host_support",
+        "ok": true,
+        "policy_ref": "--rule",
+        "rule_count": 1,
+        "rules": [
+          {
+            "clause_end_line": 3,
+            "clause_hash": "fnv1a64:95d102231df4d458",
+            "clause_op": "exec",
+            "clause_source_index": 0,
+            "clause_start_line": 3,
+            "clause_text": "  kill exec \"git\" \"commit\" if A unless after exec \"pytest\" exits 0 since write \"/w/0/tests\"",
+            "effect": "kill",
+            "immutable": false,
+            "kernel_op": "exec",
+            "name": "config-tc_2c5709a0db4b4e58a64b80d887f9be3b",
+            "ops": [
+              "exec"
+            ],
+            "reason": "用户要求 tests 再次变化同样使旧检查失效后仍须终止提交；与 src 条件分开配置，避免擅自扩大或遗漏范围。",
+            "rule_id": 0,
+            "semantics": {
+              "condition_kind": 2,
+              "condition_literal": "",
+              "condition_match": 0,
+              "condition_negated": false,
+              "condition_source": "Some(After { gate_op: Exec, gate_pattern: \"pytest\", gate_exit: Some(0), since: [(Write, \"/w/0/tests\", None)] })",
+              "forbidden_labels": [],
+              "gate_index": 0,
+              "gate_mask": "1",
+              "has_transforms": false,
+              "required_labels": [
+                "A"
+              ],
+              "schema": "actplane.rule-semantics.v1",
+              "since_mask": "1",
+              "source_bindings": [
+                [
+                  "A",
+                  "Exec",
+                  "git"
+                ]
+              ],
+              "target_literal": "git",
+              "target_match": 0
+            },
+            "source_end_line": 4,
+            "source_hash": "fnv1a64:d5b8e7ed089b9d72",
+            "source_ref": "rule:config-tc_2c5709a0db4b4e58a64b80d887f9be3b",
+            "source_start_line": 2,
+            "source_text": "rule config-tc_2c5709a0db4b4e58a64b80d887f9be3b:\n  kill exec \"git\" \"commit\" if A unless after exec \"pytest\" exits 0 since write \"/w/0/tests\"\n  because \"用户要求 tests 再次变化同样使旧检查失效后仍须终止提交；与 src 条件分开配置，避免擅自扩大或遗漏范围。\"",
+            "target_arg": "commit",
+            "target_kind": "exec",
+            "target_pattern": "**/git"
+          }
+        ],
+        "schema": "actplane.compile.v1",
+        "warnings": []
+      },
+      "samples": {
+        "/w/0/tests/example.py": {
+          "invalidators": 1,
+          "matched": 0
+        },
+        "/w/0/tests/nested/example.py": {
+          "invalidators": 1,
+          "matched": 0
+        }
+      },
+      "blob_sha256": "095e10c2ed21e50a86cca95cb5ec8a1de8902b9b4960b78a556d655b8e4e853d",
+      "control_is_not_an_agent_result": false
+    },
+    "tests-independent-recursive-control": {
+      "input_dsl": "source A = exec \"git\"\nrule config-tc_2c5709a0db4b4e58a64b80d887f9be3b:\n  kill exec \"git\" \"commit\" if A unless after exec \"pytest\" exits 0 since write \"/w/0/tests/**\"\n  because \"用户要求 tests 再次变化同样使旧检查失效后仍须终止提交；与 src 条件分开配置，避免擅自扩大或遗漏范围。\"",
+      "compile": {
+        "backend_support": {
+          "clauses": [
+            {
+              "clause_index": 0,
+              "condition_warnings": [],
+              "effect": "kill",
+              "limitations": [],
+              "mode": "tracepoint",
+              "op": "exec",
+              "pre_op": false,
+              "reason": "post-exec tracepoint kill",
+              "rule": "config-tc_2c5709a0db4b4e58a64b80d887f9be3b",
+              "status": "supported",
+              "supported": true,
+              "target_arg": "commit",
+              "target_kind": "exec",
+              "target_pattern": "**/git"
+            }
+          ],
+          "sources": [
+            {
+              "kind": "exec",
+              "label": "A",
+              "limitations": [],
+              "pattern": "git",
+              "reason": "exec source labels are applied on process exec",
+              "supported": true
+            }
+          ]
+        },
+        "domain": null,
+        "environment": {
+          "ACTPLANE_ENABLE_ADVANCED_HOOKS": null,
+          "ACTPLANE_FORCE_TRACEPOINT": null,
+          "ACTPLANE_HOOK_PROFILE": null,
+          "ACTPLANE_RESERVE_FILE_FLOW": null
+        },
+        "host": {
+          "active_lsms": "lockdown,capability,landlock,yama,apparmor,bpf",
+          "bpf_lsm_active": true,
+          "force_tracepoint": false
+        },
+        "matrix_note": "This reports static host/backend support for the selected policy. Runtime delta admission can reject later deltas that require hook classes or path matcher classes not enabled when the engine was loaded.",
+        "matrix_scope": "static_policy_host_support",
+        "ok": true,
+        "policy_ref": "--rule",
+        "rule_count": 1,
+        "rules": [
+          {
+            "clause_end_line": 3,
+            "clause_hash": "fnv1a64:30b458511776aa87",
+            "clause_op": "exec",
+            "clause_source_index": 0,
+            "clause_start_line": 3,
+            "clause_text": "  kill exec \"git\" \"commit\" if A unless after exec \"pytest\" exits 0 since write \"/w/0/tests/**\"",
+            "effect": "kill",
+            "immutable": false,
+            "kernel_op": "exec",
+            "name": "config-tc_2c5709a0db4b4e58a64b80d887f9be3b",
+            "ops": [
+              "exec"
+            ],
+            "reason": "用户要求 tests 再次变化同样使旧检查失效后仍须终止提交；与 src 条件分开配置，避免擅自扩大或遗漏范围。",
+            "rule_id": 0,
+            "semantics": {
+              "condition_kind": 2,
+              "condition_literal": "",
+              "condition_match": 0,
+              "condition_negated": false,
+              "condition_source": "Some(After { gate_op: Exec, gate_pattern: \"pytest\", gate_exit: Some(0), since: [(Write, \"/w/0/tests/**\", None)] })",
+              "forbidden_labels": [],
+              "gate_index": 0,
+              "gate_mask": "1",
+              "has_transforms": false,
+              "required_labels": [
+                "A"
+              ],
+              "schema": "actplane.rule-semantics.v1",
+              "since_mask": "1",
+              "source_bindings": [
+                [
+                  "A",
+                  "Exec",
+                  "git"
+                ]
+              ],
+              "target_literal": "git",
+              "target_match": 0
+            },
+            "source_end_line": 4,
+            "source_hash": "fnv1a64:ca4e8b0cf530a2f5",
+            "source_ref": "rule:config-tc_2c5709a0db4b4e58a64b80d887f9be3b",
+            "source_start_line": 2,
+            "source_text": "rule config-tc_2c5709a0db4b4e58a64b80d887f9be3b:\n  kill exec \"git\" \"commit\" if A unless after exec \"pytest\" exits 0 since write \"/w/0/tests/**\"\n  because \"用户要求 tests 再次变化同样使旧检查失效后仍须终止提交；与 src 条件分开配置，避免擅自扩大或遗漏范围。\"",
+            "target_arg": "commit",
+            "target_kind": "exec",
+            "target_pattern": "**/git"
+          }
+        ],
+        "schema": "actplane.compile.v1",
+        "warnings": []
+      },
+      "samples": {
+        "/w/0/tests/example.py": {
+          "invalidators": 1,
+          "matched": 1
+        },
+        "/w/0/tests/nested/example.py": {
+          "invalidators": 1,
+          "matched": 1
+        }
+      },
+      "blob_sha256": "0503861a9e0e890e236468be4dd3ae85bde40fc2c3b49e784e2f2b1205f17631",
+      "control_is_not_an_agent_result": true
+    },
+    "mediation-compiler-support": {
+      "input_dsl": "source A = exec \"git\"\nrule migration_probe:\n block open file \"/w/0/db/prod.db\" if A unless lineage-includes exec \"migrate\"\n because \"isolated compiler capability check\"",
+      "exit_code": 0,
+      "compile": {
+        "backend_support": {
+          "clauses": [
+            {
+              "clause_index": 0,
+              "condition_warnings": [],
+              "effect": "block",
+              "limitations": [],
+              "mode": "bpf-lsm",
+              "op": "open",
+              "pre_op": true,
+              "reason": "pre-op block via BPF-LSM file/path hooks",
+              "rule": "migration_probe",
+              "status": "supported",
+              "supported": true,
+              "target_arg": null,
+              "target_kind": "file",
+              "target_pattern": "/w/0/db/prod.db"
+            }
+          ],
+          "sources": [
+            {
+              "kind": "exec",
+              "label": "A",
+              "limitations": [],
+              "pattern": "git",
+              "reason": "exec source labels are applied on process exec",
+              "supported": true
+            }
+          ]
+        },
+        "domain": null,
+        "environment": {
+          "ACTPLANE_ENABLE_ADVANCED_HOOKS": null,
+          "ACTPLANE_FORCE_TRACEPOINT": null,
+          "ACTPLANE_HOOK_PROFILE": null,
+          "ACTPLANE_RESERVE_FILE_FLOW": null
+        },
+        "host": {
+          "active_lsms": "lockdown,capability,landlock,yama,apparmor,bpf",
+          "bpf_lsm_active": true,
+          "force_tracepoint": false
+        },
+        "matrix_note": "This reports static host/backend support for the selected policy. Runtime delta admission can reject later deltas that require hook classes or path matcher classes not enabled when the engine was loaded.",
+        "matrix_scope": "static_policy_host_support",
+        "ok": true,
+        "policy_ref": "--rule",
+        "rule_count": 1,
+        "rules": [
+          {
+            "clause_end_line": 3,
+            "clause_hash": "fnv1a64:6573a04d31744e7d",
+            "clause_op": "open",
+            "clause_source_index": 0,
+            "clause_start_line": 3,
+            "clause_text": " block open file \"/w/0/db/prod.db\" if A unless lineage-includes exec \"migrate\"",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "read",
+            "name": "migration_probe",
+            "ops": [
+              "open"
+            ],
+            "reason": "isolated compiler capability check",
+            "rule_id": 0,
+            "semantics": {
+              "condition_kind": 1,
+              "condition_literal": "",
+              "condition_match": 0,
+              "condition_negated": false,
+              "condition_source": "Some(LineageIncludes { exec: \"migrate\" })",
+              "forbidden_labels": [],
+              "gate_index": 0,
+              "gate_mask": "1",
+              "has_transforms": false,
+              "required_labels": [
+                "A"
+              ],
+              "schema": "actplane.rule-semantics.v1",
+              "since_mask": "0",
+              "source_bindings": [
+                [
+                  "A",
+                  "Exec",
+                  "git"
+                ]
+              ],
+              "target_literal": "/w/0/db/prod.db",
+              "target_match": 0
+            },
+            "source_end_line": 4,
+            "source_hash": "fnv1a64:3fdcc17dd4fb5056",
+            "source_ref": "rule:migration_probe",
+            "source_start_line": 2,
+            "source_text": "rule migration_probe:\n block open file \"/w/0/db/prod.db\" if A unless lineage-includes exec \"migrate\"\n because \"isolated compiler capability check\"",
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/w/0/db/prod.db"
+          }
+        ],
+        "schema": "actplane.compile.v1",
+        "warnings": []
+      },
+      "runtime_enforcement_tested": false
+    }
+  },
+  "model_runs": [
+    {
+      "scope_id": "instance-b6982e1361a64ab6",
+      "metadata": {
+        "provider": "native-pi",
+        "package": "@earendil-works/pi-coding-agent",
+        "version": "1.0.1",
+        "model": "deepseek-flash",
+        "input_hash": "2da802704ff0584c2a60e5252d96cc95c3f209e2de3cf15c7e9bc7cbbd50a194",
+        "duration_ms": 38438,
+        "lifecycle": {
+          "continuations": 2,
+          "protocol": "Pi RPC agent_settled; server submission verified"
+        }
+      }
+    },
+    {
+      "scope_id": "instance-8231340bd8994f94",
+      "metadata": {
+        "provider": "native-pi",
+        "package": "@earendil-works/pi-coding-agent",
+        "version": "1.0.1",
+        "model": "deepseek-flash",
+        "input_hash": "4669deb4a708579108a0f51575162db7de868bebc79cb5bdd9b97a8a3faedee1",
+        "duration_ms": 16856,
+        "lifecycle": {
+          "continuations": 0,
+          "protocol": "Pi RPC agent_settled; server submission verified"
+        }
+      }
+    },
+    {
+      "scope_id": "instance-3946690bac1a4450",
+      "metadata": {
+        "provider": "native-pi",
+        "package": "@earendil-works/pi-coding-agent",
+        "version": "1.0.1",
+        "model": "deepseek-flash",
+        "input_hash": "104ef1525331abcf11b41b19d6334f75eaddd26c24dbb2cbf3e433d45ddb936f",
+        "duration_ms": 16663,
+        "lifecycle": {
+          "continuations": 0,
+          "protocol": "Pi RPC agent_settled; server submission verified"
+        }
+      }
+    },
+    {
+      "scope_id": "instance-661160a57c984d22",
+      "metadata": {
+        "provider": "native-pi",
+        "package": "@earendil-works/pi-coding-agent",
+        "version": "1.0.1",
+        "model": "deepseek-flash",
+        "input_hash": "fef75791d7eaa4e935c0efb2c1e98f92649ddd500dca0e4d7e187eea78211bd9",
+        "duration_ms": 8778,
+        "lifecycle": {
+          "continuations": 0,
+          "protocol": "Pi RPC agent_settled; server submission verified"
+        }
+      }
+    },
+    {
+      "scope_id": "instance-429fc878bfc946f6",
+      "metadata": {
+        "provider": "native-pi",
+        "package": "@earendil-works/pi-coding-agent",
+        "version": "1.0.1",
+        "model": "deepseek-flash",
+        "input_hash": "119f0f96760cf548bbd31304734ce233a26f8f437631c23727422784ba9e9647",
+        "duration_ms": 13689,
+        "lifecycle": {
+          "continuations": 0,
+          "protocol": "Pi RPC agent_settled; server submission verified"
+        }
+      }
+    },
+    {
+      "scope_id": "instance-d3367562ec4f44b4",
+      "metadata": {
+        "provider": "native-pi",
+        "package": "@earendil-works/pi-coding-agent",
+        "version": "1.0.1",
+        "model": "deepseek-flash",
+        "input_hash": "145ed6fddc817a3e6624a751323e62f1e487ba19143fc386fa5732091de9aad4",
+        "duration_ms": 13483,
+        "lifecycle": {
+          "continuations": 0,
+          "protocol": "Pi RPC agent_settled; server submission verified"
+        }
+      }
+    },
+    {
+      "scope_id": "instance-8231340bd8994f94",
+      "metadata": {
+        "provider": "native-pi",
+        "package": "@earendil-works/pi-coding-agent",
+        "version": "1.0.1",
+        "model": "deepseek-flash",
+        "input_hash": "ffbb75bf81a0a89f69268e7ae8c581aea6bccdca3cc51ffe80d8bf27c8fce7ae",
+        "duration_ms": 16362,
+        "lifecycle": {
+          "continuations": 0,
+          "protocol": "Pi RPC agent_settled; server submission verified"
+        }
+      }
+    },
+    {
+      "scope_id": "instance-3946690bac1a4450",
+      "metadata": {
+        "provider": "native-pi",
+        "package": "@earendil-works/pi-coding-agent",
+        "version": "1.0.1",
+        "model": "deepseek-flash",
+        "input_hash": "8fa1305ef51d00eeba655bbb9360f9f16f8b73f0f461fbfaadd0de7290633a36",
+        "duration_ms": 13596,
+        "lifecycle": {
+          "continuations": 0,
+          "protocol": "Pi RPC agent_settled; server submission verified"
+        }
+      }
+    }
+  ],
+  "read_receipts": [
+    {
+      "id": "9d813663d1414513b18496af462e6e29",
+      "instance_id": "instance-b6982e1361a64ab6",
+      "snapshot_hash": "ea698123f967ebefcb6aab6bd39f79720fc597592ab63f192c5ace9f7271639f",
+      "binding": {
+        "instance_id": "instance-b6982e1361a64ab6",
+        "generation": null,
+        "resources": [
+          "/var/tmp/agentscope-public-scenes-20261025-a9d5/scenes/actplane-exec"
+        ],
+        "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+        "local_policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+        "system_policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+        "system_dsl_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "agent_dsl_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "uid": 994,
+        "gid": 985
+      },
+      "files": [
+        {
+          "relative_path": "README.md",
+          "execution_path": "/w/0/README.md",
+          "byte_size": 255,
+          "text_hash": "1d8c8f27b6408fb950ef46d684d43d7c9b5247d3376c14d0aa270e316fbdcb92"
+        },
+        {
+          "relative_path": "scene.md",
+          "execution_path": "/w/0/scene.md",
+          "byte_size": 394,
+          "text_hash": "e0fc00242a1367eb81e2763c9fdeec57c85f7f308df947fc9a37dabb8936a2f8"
+        }
+      ]
+    },
+    {
+      "id": "681f946f8857463c9a2cc771c9d4aaa2",
+      "instance_id": "instance-8231340bd8994f94",
+      "snapshot_hash": "86ddf9fe9abbbf790638186eab243c8a3edd066220c4a4b37726dccd2e38ee18",
+      "binding": {
+        "instance_id": "instance-8231340bd8994f94",
+        "generation": null,
+        "resources": [
+          "/var/tmp/agentscope-public-scenes-20261025-a9d5/scenes/actplane-mediation"
+        ],
+        "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+        "local_policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+        "system_policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+        "system_dsl_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "agent_dsl_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "uid": 994,
+        "gid": 985
+      },
+      "files": [
+        {
+          "relative_path": "README.md",
+          "execution_path": "/w/0/README.md",
+          "byte_size": 262,
+          "text_hash": "a57474cdc10fc0abdd92fe32b44c4a563d26a93cafebc15f7ac468cae7db3390"
+        },
+        {
+          "relative_path": "scene.md",
+          "execution_path": "/w/0/scene.md",
+          "byte_size": 269,
+          "text_hash": "b14cd5795c11867181030d0bd7982683c885d5d052e0a4cfe2be4a4ff2ee20af"
+        }
+      ]
+    },
+    {
+      "id": "7f814fd445464d4980f4f1b65cd35109",
+      "instance_id": "instance-3946690bac1a4450",
+      "snapshot_hash": "7a7d25093d1ce1feaeb5ed1bb87942a98449580aac013da3a4b8b53c952254b2",
+      "binding": {
+        "instance_id": "instance-3946690bac1a4450",
+        "generation": null,
+        "resources": [
+          "/var/tmp/agentscope-public-scenes-20261025-a9d5/scenes/actplane-test-gate"
+        ],
+        "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+        "local_policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+        "system_policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+        "system_dsl_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "agent_dsl_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "uid": 994,
+        "gid": 985
+      },
+      "files": [
+        {
+          "relative_path": "README.md",
+          "execution_path": "/w/0/README.md",
+          "byte_size": 271,
+          "text_hash": "6c7e7b340cf513741d5406fc5812979c06cdaafc2ebc6a03a75f78420e8efc4b"
+        },
+        {
+          "relative_path": "scene.md",
+          "execution_path": "/w/0/scene.md",
+          "byte_size": 376,
+          "text_hash": "7c55f20f1cc4af7983441cde9b977ff85d299cff7bd0d1bd05a97e2223342b85"
+        }
+      ]
+    },
+    {
+      "id": "d4234b270442456aaa0e6af189ea92d1",
+      "instance_id": "instance-661160a57c984d22",
+      "snapshot_hash": "7acacd278e4dcfa62aa389bdb902dd6a25c202a43aa5c3f39a8706530805de71",
+      "binding": {
+        "instance_id": "instance-661160a57c984d22",
+        "generation": null,
+        "resources": [
+          "/var/tmp/agentscope-public-scenes-20261025-a9d5/scenes/dojo-normal-query"
+        ],
+        "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+        "local_policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+        "system_policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+        "system_dsl_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "agent_dsl_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "uid": 994,
+        "gid": 985
+      },
+      "files": [
+        {
+          "relative_path": "README.md",
+          "execution_path": "/w/0/README.md",
+          "byte_size": 290,
+          "text_hash": "1f925d665a7086c87ced1fe159403cfb4af0b1ba0634744bf7a21d5c71f502c6"
+        },
+        {
+          "relative_path": "scene.md",
+          "execution_path": "/w/0/scene.md",
+          "byte_size": 170,
+          "text_hash": "c37e10d0070fa9146fcc58302edf761819c9c88d2bcabfdf5b317cac712a26e2"
+        }
+      ]
+    },
+    {
+      "id": "5895876b9b864c24b302a731a7793329",
+      "instance_id": "instance-429fc878bfc946f6",
+      "snapshot_hash": "77bdcf0e776cd328aac4dc8051cb0e541dcc077700971f19b2d6c58cb242cc17",
+      "binding": {
+        "instance_id": "instance-429fc878bfc946f6",
+        "generation": null,
+        "resources": [
+          "/var/tmp/agentscope-public-scenes-20261025-a9d5/scenes/dojo-delete"
+        ],
+        "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+        "local_policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+        "system_policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+        "system_dsl_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "agent_dsl_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "uid": 994,
+        "gid": 985
+      },
+      "files": [
+        {
+          "relative_path": "README.md",
+          "execution_path": "/w/0/README.md",
+          "byte_size": 304,
+          "text_hash": "e883cc8dca73cc2d6375122def997fd3ec4b0d759277775fcd15a8e70fd91995"
+        },
+        {
+          "relative_path": "scene.md",
+          "execution_path": "/w/0/scene.md",
+          "byte_size": 150,
+          "text_hash": "43b22eb845506ce8000cbcd58cbeda8f5d7a7b46305ce10fce12605fe5661c05"
+        }
+      ]
+    },
+    {
+      "id": "d9c68cdae3424de68e246e327ba2d5b7",
+      "instance_id": "instance-d3367562ec4f44b4",
+      "snapshot_hash": "f516cd6afdbbacd37d849f79883cb72d81d54d34d7e689c13e9b683d47905e80",
+      "binding": {
+        "instance_id": "instance-d3367562ec4f44b4",
+        "generation": null,
+        "resources": [
+          "/var/tmp/agentscope-public-scenes-20261025-a9d5/scenes/dojo-mail"
+        ],
+        "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+        "local_policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+        "system_policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+        "system_dsl_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "agent_dsl_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "uid": 994,
+        "gid": 985
+      },
+      "files": [
+        {
+          "relative_path": "README.md",
+          "execution_path": "/w/0/README.md",
+          "byte_size": 292,
+          "text_hash": "87327fb7dfddf8dc504d570cc2a47d402d8220566b33613f4058c0788ff05381"
+        },
+        {
+          "relative_path": "scene.md",
+          "execution_path": "/w/0/scene.md",
+          "byte_size": 280,
+          "text_hash": "e45d353d9c16c4114b55e4b6d24f89a07f0c169576c2a82ae56a348f91ab3f44"
+        }
+      ]
+    },
+    {
+      "id": "98da61aedca8414387db5308ebf3cf28",
+      "instance_id": "instance-8231340bd8994f94",
+      "snapshot_hash": "188845cf282c1235c936eaf872c8ad5d07494efcbfa78360fee217be0f47306e",
+      "binding": {
+        "instance_id": "instance-8231340bd8994f94",
+        "generation": null,
+        "resources": [
+          "/var/tmp/agentscope-public-scenes-20261025-a9d5/scenes/actplane-mediation"
+        ],
+        "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+        "local_policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+        "system_policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+        "system_dsl_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "agent_dsl_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "uid": 994,
+        "gid": 985
+      },
+      "files": [
+        {
+          "relative_path": "README.md",
+          "execution_path": "/w/0/README.md",
+          "byte_size": 262,
+          "text_hash": "a57474cdc10fc0abdd92fe32b44c4a563d26a93cafebc15f7ac468cae7db3390"
+        },
+        {
+          "relative_path": "scene.md",
+          "execution_path": "/w/0/scene.md",
+          "byte_size": 269,
+          "text_hash": "b14cd5795c11867181030d0bd7982683c885d5d052e0a4cfe2be4a4ff2ee20af"
+        }
+      ]
+    },
+    {
+      "id": "45534972b3c145469694f6bc2113f1c7",
+      "instance_id": "instance-3946690bac1a4450",
+      "snapshot_hash": "fffbe7a33777f9bec5c5e1a6126632c8698c2344e530a64fec6c89173405bcc1",
+      "binding": {
+        "instance_id": "instance-3946690bac1a4450",
+        "generation": null,
+        "resources": [
+          "/var/tmp/agentscope-public-scenes-20261025-a9d5/scenes/actplane-test-gate"
+        ],
+        "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+        "local_policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+        "system_policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+        "system_dsl_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "agent_dsl_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "uid": 994,
+        "gid": 985
+      },
+      "files": [
+        {
+          "relative_path": "README.md",
+          "execution_path": "/w/0/README.md",
+          "byte_size": 271,
+          "text_hash": "6c7e7b340cf513741d5406fc5812979c06cdaafc2ebc6a03a75f78420e8efc4b"
+        },
+        {
+          "relative_path": "scene.md",
+          "execution_path": "/w/0/scene.md",
+          "byte_size": 376,
+          "text_hash": "7c55f20f1cc4af7983441cde9b977ff85d299cff7bd0d1bd05a97e2223342b85"
+        }
+      ]
+    }
+  ],
+  "catalog_matches_live": true
+}

@@ -5,6 +5,28 @@ import pytest
 from broker import instance_runtime as r
 from agentscope_app.instances.mapping import translate
 
+def test_controlled_instance_execution_requires_an_explicit_deployment_profile(monkeypatch):
+    monkeypatch.setattr(r,'B',SimpleNamespace(RUNTIME=Path('/run/agentscope-preview')))
+    monkeypatch.delenv('AGENTSCOPE_CONTROLLED_INSTANCE_PROFILE',raising=False)
+    assert not r.controlled_instance_execution_enabled()
+    for profile in ('isolated-acceptance','production'):
+        assert r.controlled_instance_execution_enabled(profile=profile)
+    assert not r.controlled_instance_execution_enabled(profile='preview')
+    assert r.controlled_instance_execution_enabled(runtime_name='agentscope-scope-demo',profile='')
+
+def test_dsh_and_generic_agents_use_the_configured_agent_identity(monkeypatch):
+    agent=SimpleNamespace(pw_name='agentscope-agent',pw_uid=994,pw_gid=985)
+    monkeypatch.setattr(r,'B',SimpleNamespace(AGENT=agent,TASK_GID=987))
+    assert r.execution_user('dsh') is agent
+    assert r.execution_user('other') is agent
+    assert r.execution_gid()==987
+
+def test_instance_state_uses_the_dedicated_runtime_root(monkeypatch,tmp_path):
+    dedicated=tmp_path/'controlled-instances'
+    monkeypatch.setattr(r,'B',SimpleNamespace(TASK_ROOT=tmp_path/'api-private',INSTANCE_ROOT=dedicated))
+    value='instance-0000000000000001'
+    assert r.root(value)==dedicated/value
+
 def test_long_source_paths_compile_to_distinct_exact_aliases(tmp_path):
     base=tmp_path/('a'*70);base.mkdir();source=base/'source';source.mkdir();protected=base/'config';protected.mkdir()
     policy={'rules':[{'action':'write','effect':'allow','target':str(source)},{'action':'write','effect':'deny','target':str(protected)}]}
@@ -23,6 +45,18 @@ def test_native_namespace_pid_is_resolved_only_inside_registered_cgroup(tmp_path
     assert r.native_pid({'agent_type':'dsh'},2)==101
     (proc/'102/status').write_text('NSpid:\t102\t2\n')
     with pytest.raises(ValueError,match='ambiguous'):r.native_pid({'agent_type':'dsh'},2)
+
+def test_configured_native_entry_matches_frozen_argv_not_symlink_spelling(tmp_path,monkeypatch):
+    proc=tmp_path/'proc';group=tmp_path/'group';group.mkdir();(group/'cgroup.procs').write_text('101\n')
+    p=proc/'101';p.mkdir(parents=True);(p/'status').write_text('NSpid:\t101\t2\n')
+    argv=['/trusted/node','/trusted/lib/bin.js','web','--port','{port}']
+    (p/'cmdline').write_bytes(b'\0'.join(v.encode() for v in ['/trusted/node','/trusted/lib/bin.js','web','--port','18020'])+b'\0')
+    real=Path;monkeypatch.setattr(r,'Path',lambda value:proc if value=='/proc' else real(value))
+    monkeypatch.setattr(r,'B',SimpleNamespace(task_cgroup=lambda _:group,DSH_WEB=real('/trusted/.bin/dsh')))
+    row={'agent_type':'dsh','launch':{'argv':argv},'web_port':18020}
+    assert r.native_pid(row,2)==101
+    (p/'cmdline').write_bytes(b'node\0evil.js\0--memo=/trusted/lib/bin.js\0')
+    with pytest.raises(ValueError):r.native_pid(row,2)
 
 @pytest.mark.parametrize('failure',['wrong_domain','pid_reuse'])
 def test_lost_binding_freezes_scope_and_cannot_claim_active(tmp_path,monkeypatch,failure):

@@ -1,4 +1,5 @@
 import SessionDomainView from './SessionDomainView.jsx';
+import SessionAudit from './SessionAudit.jsx';
 import SessionInformationFlow from './SessionInformationFlow.jsx';
 import SessionSecurityPanel from './SessionSecurityPanel.jsx';
 import React,{useEffect,useRef,useState} from 'react';
@@ -10,7 +11,7 @@ import {sessionProcessRow} from './sessionProcesses.mjs';
 import {agentTypes as products,agentName,agentProcessLabel} from './agentInstancePresentation.mjs';
 import './agentSessions.css';
 
-const tabs=[['policies','已加载策略'],['events','运行事件'],['flow','信息流']];
+const tabs=[['policies','已加载策略'],['events','运行事件'],['flow','信息流'],['audit','评估与审计']];
 export const sessionReadError=e=>/failed to fetch|networkerror|network request failed/i.test(e?.message||'')?'记录读取失败，请检查连接后刷新重试。':e?.message||'记录读取失败，请刷新重试。';
 export const sessionReadNotice=(error,hasSnapshot)=>error+(hasSnapshot?' 当前继续显示上次成功读取的内容。':'');
 export const sessionSnapshotContext=(selected,n,viewKey)=>selected?'selected:'+viewKey:'directory:'+JSON.stringify([n.sessionAgent||'',n.sessionFilterInstance||'',n.sessionQuery||'',n.sessionCursor||0,n.sessionWorkspace||'']);
@@ -51,7 +52,7 @@ export default function AgentSessions({api,post,navigation:n,navigate}){
   let inflight=false;
   async function load(){if(inflight)return;inflight=true;try{
    if(!selected){const params=new URLSearchParams({agent_type:n.sessionAgent||'',instance_id:n.sessionFilterInstance||'',q:n.sessionQuery||'',workspace:n.sessionWorkspace||'',cursor:String(n.sessionCursor||0)});const value=await api('/api/sessions?'+params);if(request===seq.current)setDirectory(value);}
-   else{const endpoint=eventTab==='syscalls'?'kernel-events':'tool-traces';const meta=await api(root+'/policies');const value=tab==='policies'||tab==='flow'?meta:await api(root+'/'+endpoint);if(request===seq.current){setSummary({...meta,_key:root});setData({...value,_key:viewKey});}}
+   else{const endpoint=eventTab==='syscalls'?'kernel-events':'tool-traces';const meta=await api(root+'/policies');const value=tab==='policies'||tab==='flow'||tab==='audit'?meta:await api(root+'/'+endpoint);if(request===seq.current){setSummary({...meta,_key:root});setData({...value,_key:viewKey});}}
    if(request===seq.current)setError('');
   }catch(e){if(request===seq.current)setError(sessionReadError(e));}finally{inflight=false;if(request===seq.current)setLoading(false);}}
   load();const timer=setInterval(()=>{if(!expanded.current)load();},7000);return()=>{seq.current++;clearInterval(timer);};
@@ -63,5 +64,6 @@ export default function AgentSessions({api,post,navigation:n,navigate}){
   {tab==='policies'&&<SessionSecurityPanel key={root} data={data} loading={pending&&!data} error={error} onConfiguration={(scope,id)=>navigate(configurationNavigation(scope,id))}/>}
   {tab==='events'&&<><div className="session-event-filters"><button className="button ghost" aria-pressed={eventTab==='syscalls'} onClick={()=>navigate({sessionEventKind:'kernel'})}>内核命中</button><button className="button ghost" aria-pressed={eventTab==='traces'} onClick={()=>navigate({sessionEventKind:'tools'})}>工具调用</button></div><EventTable data={data} tab={eventTab} loading={pending} onDetail={setEvent} onMore={more}/></>}
  {tab==='flow'&&<SessionInformationFlow key={root} root={root} api={api}/>}
+ {tab==='audit'&&<SessionAudit key={root} instanceId={n.sessionInstance} sessionId={n.sessionId} api={api} post={post} navigate={navigate}/>}
  </section>{event&&<EventDetails event={event} onClose={()=>setEvent(null)}/>} {renaming&&<SessionNameDialog session={renaming} busy={nameBusy} onClose={()=>setRenaming(null)} onSave={rename}/>}</div></div></div>;
 }

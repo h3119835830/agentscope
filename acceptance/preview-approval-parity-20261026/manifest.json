@@ -1,0 +1,24 @@
+{
+  "schema": "preview-approval-parity.v1",
+  "frontend_tests": 426,
+  "product_source_changed": false,
+  "production_data_written": false,
+  "policy_applied": false,
+  "verified_applied_configuration": "tc_a4e053993ce34de0a36a4c00c7c293c9",
+  "verified_revision": 1,
+  "verified_approval": "02353b2815fa44ba9c80bd9df2c63408",
+  "files": {
+    "approval-detail.png": "47f539639b017418416b48bbf4d8bc3214a83aeb848b3d7f221283ddc0896fe6",
+    "approval-details.json": "6aadb18f0389c56031ab1ec9d8c4187d2d366ac2d6cae6448ba3c73c6a53724a",
+    "approval-list.png": "9045d7da9950aebdfd6f3f1750e42b5d8b7f1032dae028f04ed1761b478ed4d0",
+    "browser-checks.json": "99bf3d2ec0f324ad0d6ec3b12b5aa5fc0a8d7fab4b2e876553db386634744e3a",
+    "frontend-tests.txt": "32e9fa8d432fe58a393c80e9e3b79381edddc6cce0d95ecd611899db87e36623",
+    "legacy-drafts.json": "e169018cdd91e71cac0be1438071f157bdd93cd441b1b3560dbce0e4f5411926",
+    "live-approvals.json": "e4a58f69a8ccc9a715e5c5c398c736e06bcb20a1b90df91d1b72e73ed4be1ae0",
+    "live-cleared-approvals.json": "8f69366c8ef620633d351074a0999b4b72b693ab978811c1cfc2520e002ace3b",
+    "live-configurations.json": "069bc76800904a0e84fcfb0e8aef7a2d7cd4efb9e8193d2506b6ebc9306d887f",
+    "preview-approvals-before.json": "e169018cdd91e71cac0be1438071f157bdd93cd441b1b3560dbce0e4f5411926",
+    "preview.json": "b18241e17e68ba1959c705b08eae3b0c82fd5e658869a956524119a547b395d4",
+    "verification.json": "ed8ce95723ca499bb2877f749f073fe05575b83fc2428407768fe90660aceee1"
+  }
+}

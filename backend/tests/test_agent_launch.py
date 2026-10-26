@@ -3,10 +3,18 @@ from pathlib import Path
 import pytest
 from agentscope_app.instances import launch,store,controller,native_workspaces
 from agentscope_app import db
-from broker.instance_runner import sandbox
+from broker.instance_runner import runtime_env,sandbox
 from broker.terminal_relay import TerminalRelay
 
 ADMIN={'Authorization':'Bearer test-admin-token-not-for-production'}
+
+def test_dsh_web_uses_the_stable_sandbox_mount_path(monkeypatch):
+    monkeypatch.setenv('AGENTSCOPE_APP_USER','root')
+    monkeypatch.setenv('AGENTSCOPE_AGENT_USER','root')
+    monkeypatch.setenv('AGENTSCOPE_TASK_GROUP','root')
+    from broker import main as broker_main
+    assert str(broker_main.DSH_WEB).startswith('/opt/agentscope/dsh/')
+    assert '/runtime/dsh/releases/' not in str(broker_main.DSH_WEB)
 @pytest.fixture
 def entry(tmp_path,monkeypatch):
     monkeypatch.setattr(launch,'clean_resources',lambda paths:paths)
@@ -48,6 +56,23 @@ def test_native_source_path_is_visible_without_discarding_short_enforcement_alia
     args=sandbox(config)
     assert any(args[i:i+3]==['--symlink','/w/0',entry['cwd']] for i in range(len(args)))
     assert args[-3:]==['--chdir',entry['cwd'],'--']
+
+def test_task_python_mount_is_explicit_and_optional(entry):
+    config={'state':'/state','home':'/home-state','resources':[entry['cwd']], 'policy':{'rules':[]},'agent_type':'other','uid':1000,'gid':1000}
+    assert '/opt/task-python' not in sandbox(config)
+    args=sandbox({**config,'task_python':'/srv/agentscope/python-runtime'})
+    assert any(args[i:i+3]==['--ro-bind','/srv/agentscope/python-runtime','/opt/task-python'] for i in range(len(args)))
+    with pytest.raises(ValueError,match='Python runtime'):
+        sandbox({**config,'task_python':'relative/python'})
+
+def test_runtime_environment_uses_the_configured_agent_identity(tmp_path):
+    config={'user_name':'agentscope-agent','state':str(tmp_path),'instance_id':'instance-test','token':'token','generation':'a'*32,
+            'api_url':'http://127.0.0.1:18400','native_token':'native','web_port':18200,'resources':[str(tmp_path)],
+            'policy':{'rules':[]}}
+    env=runtime_env(config)
+    assert env['USER']=='agentscope-agent' and env['LOGNAME']=='agentscope-agent'
+    with pytest.raises(ValueError,match='runtime user'):
+        runtime_env({**config,'user_name':''})
 
 def test_pty_is_an_interactive_process_and_rejects_invalid_input():
     import base64,time

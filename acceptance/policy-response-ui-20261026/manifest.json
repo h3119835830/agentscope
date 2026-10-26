@@ -1,0 +1,35 @@
+{
+  "schema": "policy-response-ui-acceptance.v1",
+  "tests": {
+    "frontend": 418,
+    "backend_related": 44,
+    "vite_build": "passed"
+  },
+  "browser": "browser-checks.json",
+  "production_deployed": false,
+  "model_called_this_turn": false,
+  "policies_applied": false,
+  "source_replay": "Real saved public responses; no model output edited",
+  "files": {
+    "agent-source.json": "26a60524b11ba89c56ebd25447dff0f8d628cecbda2375cb54226a4464beac3a",
+    "backend-tests-initial-missing-compiler.txt": "ca8cb84c8a9134f9fa3499f9ab9b38b96f77ef1908ce2534f47514c346cd9f27",
+    "backend-tests.txt": "bf66f81cc727c8b8337e3f1f5df4a45aa2b53f496efaa6eaa6f8429ee90d343b",
+    "browser-checks.json": "22aae12fb31b4db807dd37606a475b589b61bbb407321bee461f990e535d7b6a",
+    "desktop.png": "1cd8c55bee1984bae9cb2c8b01d7fcba6008f461f7c5a3366ee985a5937e8fe1",
+    "frontend-build.txt": "fe937521e9dd86e149c67bea25d0c0e05e07ac98a3b4fe3159a32074bca5880b",
+    "frontend-tests.txt": "41437a968c39d3e9994d4c81204829a5bb5359f25994ae6dcf0f906439862358",
+    "live-source.json": "d7fffb0d027cb0bbe2d5c415add30d8bf26a158c040bfa4dad265b745403b92a",
+    "multiple-policies.png": "dd2d221fefee9c7def403c44b1148fa3df8d90816c6057dc22fb141e45164c2a",
+    "narrow.png": "7598e33b8e794ccb788b7be8f9b1b538267f21201c0f4a9f54e228863f9287df",
+    "preview.json": "11a5243cfc770b74834f9a02fbb4f29aebaa91097d0242ec7e90f1b28ae8fe0c"
+  },
+  "source_hashes": {
+    "backend/agentscope_app/instances/generation_snapshots.py": "270c780fa307a7a88b71bb9be909fa83ebf4cd06842d530b40e14f49d1ff18e6",
+    "frontend/src/GenerationConfigurations.jsx": "65b4470cad9e85d2ddf0adfc4cd61fc3191cdef7b853cfc673f94a5974ee4633",
+    "frontend/src/PolicyAssistantResponse.jsx": "988ce07217965fdf1e3f26680fc807f3b9df84cfa6d0a645881b524b88c3aa41",
+    "frontend/src/policyAssistantResponse.mjs": "5357b601171fdb9cbe7231c8c229a1a36ca1995d18b90b3a7a8c378e1b74786b",
+    "frontend/src/TemplatePolicyAssistant.jsx": "004a3b77baa8794d9628f7b5a70ce5d49227a9901179e3674991f303354eb860",
+    "frontend/src/PolicyContextEvidence.jsx": "7e535c85dfa064714986eb81b52f3a2990bc0178f4a1e2ceca3db0329cc997b3",
+    "frontend/src/templateConfigurations.css": "1e977956b2adfdfcae4239fb80847c6b82f0db416331411a424372030967b36b"
+  }
+}

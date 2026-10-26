@@ -1,0 +1,192 @@
+{
+  "records": [
+    {
+      "id": "02353b2815fa44ba9c80bd9df2c63408",
+      "scope_id": "instance-751ad8a6165f4357",
+      "scope_type": "agent",
+      "target_name": "发布维护 · 三阶段验收 · DeepSeek Harness",
+      "name": "新增 发布清单禁止修改与删除",
+      "status": "applied",
+      "created_at": "2026-10-25T09:25:27.478901+00:00",
+      "document_count": 1,
+      "can_apply": false,
+      "reason": "",
+      "affected_count": 1,
+      "total_affected_count": 1,
+      "agents": [
+        {
+          "id": "instance-751ad8a6165f4357",
+          "name": "发布维护 · 三阶段验收 · DeepSeek Harness",
+          "agent_type": "dsh",
+          "pid": null,
+          "process_state": "offline",
+          "submitted_pid": null,
+          "active": false
+        }
+      ],
+      "origin_sessions": [],
+      "origin_state": "unrecorded",
+      "kind": "dsl",
+      "origin": "manual",
+      "candidate_hash": "bd47cc896fb9804c30c0ffd734cec46e877fbe13f7461f4cf654bb70ca9b601a",
+      "target": {
+        "instance_id": "instance-751ad8a6165f4357",
+        "workspace_id": null,
+        "session_id": null,
+        "scope": "agent",
+        "id": "instance-751ad8a6165f4357"
+      },
+      "scope_label": "全部工作区与会话",
+      "can_reject": false,
+      "validation_label": "环境与编译校验通过",
+      "schema": "PolicyApproval/1",
+      "baseline": {
+        "document_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "revision": 0
+      },
+      "can_approve": false,
+      "approval_status": "approved",
+      "application_status": "applied",
+      "execution_results": [],
+      "configuration_status": {
+        "schema": "ConfigurationProgress/1",
+        "state": "applied",
+        "label": "已应用",
+        "revision": null,
+        "applied_revision": null,
+        "lifecycle": {
+          "archived": false,
+          "disabled": false
+        },
+        "read_only": false
+      },
+      "can_clear": true,
+      "cleared": false,
+      "can_restore": false,
+      "cleared_at": null,
+      "clearance_hash": "ed2b370cf470608e58fa02029a6cfe4f503a84a657a230a97fe0c6cfecd91179"
+    },
+    {
+      "id": "414da3e0e5bc45389f0a8d0444311708",
+      "scope_id": "instance-751ad8a6165f4357",
+      "scope_type": "agent",
+      "target_name": "发布维护 · 三阶段验收 · DeepSeek Harness",
+      "name": "新增 发布清单禁止修改与删除",
+      "status": "invalid",
+      "created_at": "2026-10-25T09:25:03.055922+00:00",
+      "document_count": 1,
+      "can_apply": false,
+      "reason": "候选未通过运行环境校验，请调整配置后重新提交。",
+      "affected_count": 1,
+      "total_affected_count": 1,
+      "agents": [
+        {
+          "id": "instance-751ad8a6165f4357",
+          "name": "发布维护 · 三阶段验收 · DeepSeek Harness",
+          "agent_type": "dsh",
+          "pid": null,
+          "process_state": "offline",
+          "submitted_pid": null,
+          "active": false
+        }
+      ],
+      "origin_sessions": [],
+      "origin_state": "unrecorded",
+      "kind": "dsl",
+      "origin": "manual",
+      "candidate_hash": "631ed418bb1bae3b31b7953ba66548921e3388f2291db15840ffc00e40dfe731",
+      "target": {
+        "instance_id": "instance-751ad8a6165f4357",
+        "workspace_id": null,
+        "session_id": null,
+        "scope": "agent",
+        "id": "instance-751ad8a6165f4357"
+      },
+      "scope_label": "全部工作区与会话",
+      "can_reject": true,
+      "validation_label": "环境与编译校验通过",
+      "schema": "PolicyApproval/1",
+      "baseline": {
+        "document_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "revision": 0
+      },
+      "can_approve": false,
+      "approval_status": "unrecorded",
+      "application_status": "invalid",
+      "execution_results": [],
+      "configuration_status": {
+        "schema": "ConfigurationProgress/1",
+        "state": "invalid",
+        "label": "校验未通过",
+        "revision": null,
+        "applied_revision": null,
+        "lifecycle": {
+          "archived": false,
+          "disabled": false
+        },
+        "read_only": false
+      },
+      "can_clear": true,
+      "cleared": false,
+      "can_restore": false,
+      "cleared_at": null,
+      "clearance_hash": "dc71777ff8c1d399795d1c71cde607f1a73492465540bd94cfd2972f273fb1a9"
+    },
+    {
+      "id": "instance:3bcea4ef15514654bc841ac41c43b4ff",
+      "kind": "instance_policy",
+      "origin": "manual",
+      "scope_id": "instance-751ad8a6165f4357",
+      "scope_type": "agent",
+      "target": {
+        "instance_id": "instance-751ad8a6165f4357",
+        "workspace_id": null,
+        "session_id": null,
+        "scope": "agent",
+        "id": "instance-751ad8a6165f4357"
+      },
+      "target_name": "发布维护 · 三阶段验收 · DeepSeek Harness",
+      "name": "Agent 执行权限变更",
+      "status": "applied",
+      "reason": "",
+      "created_at": "2026-10-25T09:23:46.077476+00:00",
+      "can_apply": false,
+      "can_reject": false,
+      "document_count": 0,
+      "affected_count": 1,
+      "total_affected_count": 1,
+      "candidate_hash": "af2aa835c3c7bdcc0bb7f5e133e66c3172de9093b3e3fe4264e2995b541f2f7e",
+      "proposal_hash": "af2aa835c3c7bdcc0bb7f5e133e66c3172de9093b3e3fe4264e2995b541f2f7e",
+      "scope_label": "此 Agent 的共享执行域 · 全部工作区与会话",
+      "validation_label": "目标与权限基线已校验",
+      "schema": "PolicyApproval/1",
+      "baseline": {
+        "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+        "generation": null
+      },
+      "can_approve": false,
+      "approval_status": "approved",
+      "application_status": "applied",
+      "execution_results": [],
+      "configuration_status": {
+        "schema": "ConfigurationProgress/1",
+        "state": "applied",
+        "label": "已应用",
+        "revision": null,
+        "applied_revision": null,
+        "lifecycle": {
+          "archived": false,
+          "disabled": false
+        },
+        "read_only": false
+      },
+      "can_clear": true,
+      "cleared": false,
+      "can_restore": false,
+      "cleared_at": null,
+      "clearance_hash": "dfcad807d645949351aba60be7cea1067342407fcd6fdb4b0d589d7fb6e6a368"
+    }
+  ],
+  "pending_count": 0,
+  "cleared_count": 0
+}

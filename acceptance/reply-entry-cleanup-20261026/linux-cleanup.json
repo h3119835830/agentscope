@@ -1,0 +1,83 @@
+{
+  "recoverable": true,
+  "items": [
+    {
+      "path": "/tmp/agentscope-policy-response.WlEgqh",
+      "bytes": 70133600,
+      "eligible": true,
+      "reasons": [],
+      "changes": [
+        "backend/agentscope_app/instances/generation_snapshots.py",
+        "backend/tests/test_generation_snapshots.py"
+      ],
+      "action": "recoverable_move_same_filesystem",
+      "recovery_path": "/tmp/.Trash-0/files/agentscope-policy-response.WlEgqh",
+      "trash_info": "/tmp/.Trash-0/info/agentscope-policy-response.WlEgqh.trashinfo",
+      "original_path_absent": true
+    },
+    {
+      "path": "/tmp/agentscope-policy-response.Z1vKDx",
+      "bytes": 70133600,
+      "eligible": true,
+      "reasons": [],
+      "changes": [
+        "backend/agentscope_app/instances/generation_snapshots.py",
+        "backend/tests/test_generation_snapshots.py"
+      ],
+      "action": "recoverable_move_same_filesystem",
+      "recovery_path": "/tmp/.Trash-0/files/agentscope-policy-response.Z1vKDx",
+      "trash_info": "/tmp/.Trash-0/info/agentscope-policy-response.Z1vKDx.trashinfo",
+      "original_path_absent": true
+    },
+    {
+      "path": "/tmp/agentscope-policy-response.bYUdfW",
+      "bytes": 57303282,
+      "eligible": true,
+      "reasons": [],
+      "changes": [
+        "backend/agentscope_app/instances/generation_snapshots.py",
+        "backend/tests/test_generation_snapshots.py"
+      ],
+      "action": "recoverable_move_same_filesystem",
+      "recovery_path": "/tmp/.Trash-0/files/agentscope-policy-response.bYUdfW",
+      "trash_info": "/tmp/.Trash-0/info/agentscope-policy-response.bYUdfW.trashinfo",
+      "original_path_absent": true
+    },
+    {
+      "path": "/tmp/agentscope-policy-response.fCdkmM",
+      "bytes": 70133600,
+      "eligible": true,
+      "reasons": [],
+      "changes": [
+        "backend/agentscope_app/instances/generation_snapshots.py",
+        "backend/tests/test_generation_snapshots.py"
+      ],
+      "action": "recoverable_move_same_filesystem",
+      "recovery_path": "/tmp/.Trash-0/files/agentscope-policy-response.fCdkmM",
+      "trash_info": "/tmp/.Trash-0/info/agentscope-policy-response.fCdkmM.trashinfo",
+      "original_path_absent": true
+    },
+    {
+      "path": "/tmp/agentscope-policy-response.oQ7BTy",
+      "bytes": 70133600,
+      "eligible": true,
+      "reasons": [],
+      "changes": [
+        "backend/agentscope_app/instances/generation_snapshots.py",
+        "backend/tests/test_generation_snapshots.py"
+      ],
+      "action": "recoverable_move_same_filesystem",
+      "recovery_path": "/tmp/.Trash-0/files/agentscope-policy-response.oQ7BTy",
+      "trash_info": "/tmp/.Trash-0/info/agentscope-policy-response.oQ7BTy.trashinfo",
+      "original_path_absent": true
+    }
+  ],
+  "logical_bytes_moved": 337837682,
+  "permanent_delete": false,
+  "notes": [
+    "/tmp is tmpfs; moving to /root trash would cross filesystems.",
+    "Used same-filesystem /tmp/.Trash-0. These files are transient and may disappear when WSL restarts."
+  ],
+  "trash_mode": "0700",
+  "post_check_passed": true
+}

@@ -2,6 +2,7 @@
 import copy
 import json
 import time
+import threading
 import uuid
 from . import workspace_references as refs
 
@@ -56,6 +57,15 @@ class WorkspacePolicyAgent:
   self.references=[];self.selected=set();self.total_bytes=0;self.events=[];self.calls=0;self.errors=0;self.runs=[];self.format_repairs=0
   self.discovered=set()
   self.discovered_sizes={}
+  self.drafts=[]
+  self.previews={}
+  self.coverage_obligations=set()
+  self.requirements=''
+  self.lock=threading.RLock()
+  self.native=hasattr(provider,'run_agent')
+  self.limits={'calls':48 if self.native else MAX_CALLS,'files':40 if self.native else MAX_FILES,'bytes':1024*1024 if self.native else MAX_BYTES}
+  self.deadline=refs.READ_DEADLINE.get() or time.monotonic()+(180 if self.native else 80)
+  self.scope='agent'
   if seed:self.remember(seed)
 
  def remember(self,reference):
@@ -67,10 +77,52 @@ class WorkspacePolicyAgent:
    if key in self.selected:raise ToolContractError('相同参考文件不能重复读取')
    self.selected.add(key);self.total_bytes+=source['byte_size']
    self.discovered.add(key);self.discovered_sizes[key]=source['byte_size']
-  if len(self.selected)>MAX_FILES or self.total_bytes>MAX_BYTES:raise ToolContractError('本次资料超过累计读取限额')
+  if len(self.selected)>self.limits['files'] or self.total_bytes>self.limits['bytes']:raise ToolContractError('本次资料超过累计读取限额')
   self.references.append(reference)
 
  def execute(self,call):
+  with self.lock:return self._execute(call)
+
+ def _execute(self,call):
+  if isinstance(call,dict) and set(call)=={'tool','arguments'} and call.get('tool') in ('search_project','inspect_resource','preview_policy_matches'):
+   from . import policy_investigation as investigation
+   from .policy import digest
+   if not self.enabled:raise ToolContractError('当前模式未开放项目调查工具')
+   self.check_basis();self.calls+=1
+   if self.calls>self.limits['calls']:raise ToolContractError('本次场景分析已达到接口调用上限')
+   args=call['arguments'];tool=call['tool']
+   fields={'search_project':({'workspace_id','query','mode','path','cursor'},{'workspace_id','query','mode'}),
+           'inspect_resource':({'workspace_id','paths'},{'workspace_id','paths'}),
+           'preview_policy_matches':({'workspace_id','configuration','checks'},{'workspace_id','configuration','checks'})}
+   allowed,required=fields[tool]
+   if not isinstance(args,dict) or set(args)-allowed or not required<=set(args):raise ToolContractError('调查接口参数不符合合同')
+   workspace=args['workspace_id']
+   if not isinstance(workspace,str) or workspace not in self.workspaces:raise ToolContractError('工作区不属于当前 Agent')
+   event={'tool':tool,'workspace':self.workspaces[workspace]['name'],'status':'completed','applied':False}
+   try:
+    if tool=='search_project':value=investigation.search(self,workspace,args['query'],args['mode'],args.get('path',''),args.get('cursor',0))
+    elif tool=='inspect_resource':value=investigation.inspect(self,workspace,args['paths'])
+    else:
+     value=investigation.preview(self,args['configuration'],workspace,args['checks'])
+     event.update(configuration_hash=digest(args['configuration']),coverage_checks_passed=value['coverage_checks_passed'],checks=value['checks'])
+    self.check_basis();self.events.append(event)
+    return {'tool':tool,'arguments':args,'result':value}
+   except refs.ReaderUnavailable:raise
+   except (ValueError,OSError) as error:
+    event.update(status='rejected',diagnostic=str(error)[:400]);self.events.append(event)
+    raise ToolContractError(str(error)) from None
+  if isinstance(call,dict) and set(call)=={'tool','arguments'} and isinstance(call['tool'],str) and (call['tool']=='search_policy_templates' or call['tool'].startswith('draft_')):
+   from . import template_tools
+   self.check_basis();self.calls+=1
+   if self.calls>self.limits['calls']:raise ToolContractError('本次场景分析已达到接口调用上限')
+   if call['tool']=='search_policy_templates':
+    if set(call['arguments'])!={'query'}:raise ToolContractError('模板查询只接受 query')
+    value={'tools':template_tools.search(call['arguments']['query'],self.scope)}
+   else:
+    value=template_tools.instantiate(self.ident,call['tool'],call['arguments'],self.scope)
+    if value['configuration'] not in self.drafts:self.drafts.append(value['configuration'])
+   self.events.append({'tool':call['tool'],'status':'completed','applied':False})
+   return {'tool':call['tool'],'arguments':call['arguments'],'result':value}
   if not isinstance(call,dict) or set(call)!={'tool','arguments'} or call['tool'] not in ('list_directory','read_files'):
    raise ToolContractError('策略助手只能调用已声明的目录和正文读取接口')
   args=call['arguments'];tool=call['tool']
@@ -79,8 +131,11 @@ class WorkspacePolicyAgent:
   if not isinstance(args,dict) or set(args)-fields or not required<=set(args):raise ToolContractError('读取接口参数不符合已声明合同')
   workspace=args['workspace_id']
   if not isinstance(workspace,str) or workspace not in self.workspaces:raise ToolContractError('工作区不属于当前 Agent；不能更换或扩大读取目标')
+  if tool=='list_directory':
+   try:refs.directory_path(args.get('path',''))
+   except ValueError:raise ToolContractError('list_directory 的 path 必须是工作区内相对目录；根目录用空字符串，不是 . 或执行映射路径。') from None
   self.calls+=1
-  if self.calls>MAX_CALLS:raise ToolContractError('本次场景分析已达到接口调用上限，请缩小场景范围')
+  if self.calls>self.limits['calls']:raise ToolContractError('本次场景分析已达到接口调用上限，请缩小场景范围')
   self.check_basis()
   event={'tool':tool,'workspace':self.workspaces[workspace]['name'],'status':'completed'}
   try:
@@ -101,10 +156,10 @@ class WorkspacePolicyAgent:
      event.update(paths=paths,file_count=len(files),reused=True)
      self.events.append(event)
      return {'tool':tool,'arguments':args,'result':{'untrusted_project_files':files,'reused':True}}
-    if len(self.selected)+len(paths)>MAX_FILES:raise ToolContractError('本次资料超过累计文件数量上限')
+    if len(self.selected)+len(paths)>self.limits['files']:raise ToolContractError('本次资料超过累计文件数量上限')
     if any((workspace,path) in self.selected for path in paths):raise ValueError('该文件正文已经在本次上下文中，请使用已读取资料')
-    if self.total_bytes+sum(self.discovered_sizes[(workspace,p)] for p in paths)>MAX_BYTES:raise ToolContractError('本次资料超过累计读取限额')
-    receipt=refs.create(self.ident,{'workspace_id':workspace,'paths':paths,'request_key':uuid.uuid4().hex},max_total_bytes=MAX_BYTES-self.total_bytes)
+    if self.total_bytes+sum(self.discovered_sizes[(workspace,p)] for p in paths)>self.limits['bytes']:raise ToolContractError('本次资料超过累计读取限额')
+    receipt=refs.create(self.ident,{'workspace_id':workspace,'paths':paths,'request_key':uuid.uuid4().hex},max_total_bytes=min(MAX_BYTES,self.limits['bytes']-self.total_bytes))
     value=refs.for_model(self.ident,receipt['id']);self.remember(value)
     event.update(paths=paths,file_count=len(paths))
    self.check_basis();self.events.append(event)
@@ -118,15 +173,20 @@ class WorkspacePolicyAgent:
   except (ValueError,OSError) as error:
    self.errors+=1
    if self.errors>MAX_ERRORS:raise ValueError('部分资料持续不可读取，请缩小场景或补充业务要求；不会放宽读取权限') from None
-   event['status']='denied';self.events.append(event)
+   event['status']='denied';event['diagnostic']=str(error)[:400];self.events.append(event)
    message='需要先调用 list_directory 查看对应父目录，再读取已列出的文件。' if isinstance(error,DirectoryConfirmationRequired) else '当前权限、文件类型或读取限额下不可读取。请选择其他允许资料，不能绕过。'
    return {'tool':tool,'arguments':args,'error':message}
 
  def run(self,instructions,payload):
+  self.scope='system' if self.ident=='system' else 'agent'
+  self.requirements='\n'.join([payload.get('requirements',''),*[turn.get('requirements','') for turn in payload.get('previous_turns',[])]])
+  if hasattr(self.provider,'run_agent'):
+   return self.provider.run_agent(self,instructions,payload)
   deadline=refs.READ_DEADLINE.get() or time.monotonic()+80
   context=copy.deepcopy(payload)
   if self.enabled:
-   context.update(workspace_catalog=[{k:w[k] for k in ('id','name','execution_path')} for w in self.catalog],tool_schema=TOOLS,
+   from . import policy_investigation
+   context.update(workspace_catalog=[{k:w[k] for k in ('id','name','execution_path')} for w in self.catalog],tool_schema=TOOLS+policy_investigation.definitions(),
     tool_limits={'rounds':MAX_ROUNDS,'calls':MAX_CALLS,'files':MAX_FILES,'total_bytes':MAX_BYTES},tool_results=[])
   initial_context=copy.deepcopy(context);dialogue=[]
   for _ in range(MAX_ROUNDS if self.enabled else 1):
@@ -171,7 +231,31 @@ class WorkspacePolicyAgent:
   return [{'id':r['read_id'],'snapshot_hash':r['snapshot_hash'],'workspace':r['workspace'],'paths':[f['relative_path'] for f in r['untrusted_project_files']],
    'execution_paths':[f['execution_path'] for f in r['untrusted_project_files']]} for r in self.references]
 
+ def validate_final(self,value):
+  with self.lock:return self._validate_final(value)
+
+ def _validate_final(self,value):
+  from .policy import digest
+  if not final_shape_valid(value) or not isinstance(value['configurations'],list):raise ToolContractError('最终分析格式不合法')
+  for configuration in value['configurations']:
+   if configuration not in self.drafts:raise ToolContractError('请先调用已发布的 draft_* 工具，不接受自由配置或 DSL')
+   if self.enabled:
+    preview=self.previews.get(digest(configuration))
+    if not preview or not preview['coverage_checks_passed']:
+     raise ToolContractError('候选尚未通过 preview_policy_matches 的覆盖检查；请验证并修正后再提交，不能把参数合法当作覆盖通过')
+  if self.enabled and value['configurations']:
+   # Preserve the Agent's own successfully verified positive coverage across
+   # revisions/alternatives. Negative controls remain local to each candidate.
+   # This is working-state consistency, not an NLP interpretation of the task.
+   selected=[self.previews[digest(c)] for c in value['configurations']]
+   key=lambda sample:tuple(sample.get(k,'') for k in ('operation','role','target','argument'))
+   covered={key(s) for p in selected for s in p['checks'] if s['expected_match'] and s['matched']}
+   missing=self.coverage_obligations-covered
+   if missing:raise ToolContractError('最终候选集合遗漏本轮已确认的正向覆盖目标：'+', '.join(sample[2] for sample in sorted(missing))[:700]+'；请核对完整候选集合，或明确报告无法完成，不要静默丢弃已确认目标')
+  self.check_basis()
+
  def usage(self):
   return {'mode':'auto' if self.enabled else 'provided' if self.references else 'none','round_count':len(self.runs),'call_count':self.calls,'format_repair_count':self.format_repairs,
    'file_count':len(self.selected),'total_bytes':self.total_bytes,'activity':self.events,
-   'sources':[{'workspace':r['workspace'],'paths':[f['execution_path'] for f in r['untrusted_project_files']]} for r in self.references]}
+   'sources':[{'workspace':r['workspace'],'paths':[f['execution_path'] for f in r['untrusted_project_files']]} for r in self.references],
+   'pattern_previews':list(self.previews.values())}

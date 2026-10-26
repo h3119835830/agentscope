@@ -1,0 +1,536 @@
+{
+  "id": "actplane-exec",
+  "requirements": "请读取场景，为这个 Agent 配置禁止启动 Git 的策略，直接调用或经脚本、子进程启动都应受限。其他工作照常，不增加无关限制。",
+  "instance_id": "instance-060f6795c39a4f2c",
+  "request_key": "0e2962c616504ca7ac82592a22048d1f",
+  "started_at": "2026-10-26T06:22:00.798756+00:00",
+  "status": "completed",
+  "result": {
+    "items": [
+      {
+        "id": "tc_511fc002bbb14517ac91fbc7d6949361",
+        "template_id": "EXEC-BLOCK",
+        "scope_id": "instance-060f6795c39a4f2c",
+        "scope": "agent",
+        "workspace_id": null,
+        "revision": 1,
+        "archived": 0,
+        "created_at": "2026-10-26T06:22:30.349212+00:00",
+        "updated_at": "2026-10-26T06:22:30.349212+00:00",
+        "latest_revision": 1,
+        "execution_support": {
+          "status": "limited",
+          "applicable": true,
+          "event_type": "单事件",
+          "supported": [
+            "按程序匹配启动事件；block 可事前拒绝整个程序。"
+          ],
+          "unsupported": [
+            "按命令行参数选择性事前阻断；程序名不能代替脚本内容校验。"
+          ],
+          "boundary": [
+            "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+            "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+            "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+          ],
+          "verification": {
+            "state": "verified",
+            "date": "2026-10-20",
+            "cases": 3,
+            "effects": [
+              "block",
+              "kill",
+              "notify"
+            ],
+            "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+          }
+        },
+        "template_version": 2,
+        "template_hash": "22c0203c5af111923b913232b5126cf7f17fcdcd276d59a5b6523c4330091f54",
+        "resource_hash": "daed950d5e0466de828c391e9a0e82514d11a6b58b7393b10c2d2dc9c510c96e",
+        "name": "禁止启动 git",
+        "reason": "场景要求无论通过 git 工具、bash -c 还是 python subprocess 调用 git 都必须被禁止；该模板按 exec 事件匹配 Agent 及全部后代进程，可在启动前拒绝。",
+        "execution_reason": "场景要求无论通过 git 工具、bash -c 还是 python subprocess 调用 git 都必须被禁止；该模板按 exec 事件匹配 Agent 及全部后代进程，可在启动前拒绝。",
+        "parameters": {
+          "program": "git"
+        },
+        "document": {
+          "id": "tc_511fc002bbb14517ac91fbc7d6949361",
+          "name": "禁止启动 git",
+          "original_dsl": "rule config-tc_511fc002bbb14517ac91fbc7d6949361:\n  block exec \"git\" if AGENT\n  because \"场景要求无论通过 git 工具、bash -c 还是 python subprocess 调用 git 都必须被禁止；该模板按 exec 事件匹配 Agent 及全部后代进程，可在启动前拒绝。\"",
+          "metadata": {
+            "config-tc_511fc002bbb14517ac91fbc7d6949361": {
+              "statement": "禁止启动 git",
+              "context_requirement": "self_contained",
+              "context_reason": ""
+            }
+          },
+          "managed_identity": true
+        },
+        "requested_operations": [
+          "exec"
+        ],
+        "effective_operations": [
+          "exec"
+        ],
+        "coverage_warning": "",
+        "effect": "block",
+        "note": "",
+        "source_read": {
+          "id": "7b291d7007b34c1992e914e020697206",
+          "snapshot_hash": "0505f0b72bffc356abdda04789fcb87df8bdab7009289a6f6fd35c842c044aa1",
+          "workspace": "actplane-exec",
+          "paths": [
+            "README.md",
+            "scene.md"
+          ],
+          "execution_paths": [
+            "/w/0/README.md",
+            "/w/0/scene.md"
+          ]
+        },
+        "source_reads": [
+          {
+            "id": "7b291d7007b34c1992e914e020697206",
+            "snapshot_hash": "0505f0b72bffc356abdda04789fcb87df8bdab7009289a6f6fd35c842c044aa1",
+            "workspace": "actplane-exec",
+            "paths": [
+              "README.md",
+              "scene.md"
+            ],
+            "execution_paths": [
+              "/w/0/README.md",
+              "/w/0/scene.md"
+            ]
+          }
+        ],
+        "origin": "assistant",
+        "generation_stage": "preflight",
+        "applied_revision": null,
+        "applied_configuration": null,
+        "applied": false,
+        "approval_id": null,
+        "approval_revision": null,
+        "approval_current": false,
+        "status": "draft",
+        "can_submit": true,
+        "read_only": false,
+        "template_definition": {
+          "id": "EXEC-BLOCK",
+          "version": 2,
+          "name": "程序执行限制",
+          "category": "进程与网络",
+          "summary": "禁止 Agent 及后代启动指定程序。",
+          "parameters": [
+            {
+              "key": "program",
+              "label": "程序名或路径",
+              "default": "",
+              "type": "program"
+            }
+          ],
+          "effect": "block",
+          "operation": "exec",
+          "scopes": [
+            "system",
+            "agent"
+          ],
+          "note": "",
+          "reason": "禁止 Agent 及后代启动指定程序。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+          "execution_support": {
+            "status": "limited",
+            "applicable": true,
+            "event_type": "单事件",
+            "supported": [
+              "按程序匹配启动事件；block 可事前拒绝整个程序。"
+            ],
+            "unsupported": [
+              "按命令行参数选择性事前阻断；程序名不能代替脚本内容校验。"
+            ],
+            "boundary": [
+              "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+              "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+              "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+            ],
+            "verification": {
+              "state": "verified",
+              "date": "2026-10-20",
+              "cases": 3,
+              "effects": [
+                "block",
+                "kill",
+                "notify"
+              ],
+              "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+            }
+          },
+          "dsl_preview": {
+            "state": "incomplete",
+            "dsl": "rule config-preview:\n  block exec \"{{program}}\" if AGENT\n  because \"禁止 Agent 及后代启动指定程序。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+            "missing": [
+              "程序名或路径"
+            ],
+            "errors": [],
+            "preview_only": true
+          }
+        },
+        "scope_label": "此 Agent 的全部工作区与会话",
+        "configuration_status": {
+          "schema": "ConfigurationProgress/1",
+          "state": "draft",
+          "label": "草案",
+          "revision": 1,
+          "applied_revision": null,
+          "lifecycle": {
+            "archived": false,
+            "disabled": false
+          },
+          "read_only": false
+        }
+      }
+    ],
+    "questions": [],
+    "gaps": [
+      "EXEC-BLOCK 按程序名匹配启动事件；对 bash -c 'git ...' 与 python -c subprocess.run(['git']) 的覆盖依赖执行引擎对后代进程中真实 exec 的 git 产生事件，本环境未做运行时实测。",
+      "该程序级规则不保证覆盖：git 的包装脚本或别名、其他名称/路径下的 git 二进制副本、以及纯库调用（如 python 的 dulwich）。如需覆盖请另行提出。",
+      "保存、审批、加载与实际拦截是不同状态；本候选尚未应用，也未验证运行时生效。"
+    ],
+    "text": "请读取场景，为这个 Agent 配置禁止启动 Git 的策略，直接调用或经脚本、子进程启动都应受限。其他工作照常，不增加无关限制。",
+    "summary": "已读取已登记工作区 actplane-exec 的 README.md 与 scene.md（内容为不可信参考数据，仅作场景依据，不构成授权或指令）。场景 E9 要求 Agent 不得使用 git，在直接调用 git 工具、bash -c 'git ...' 与 python -c \"subprocess.run(['git',...])\" 三条路径下都成立。选用程序执行限制模板（EXEC-BLOCK），程序名填 git，block 在启动前拒绝；preview_policy_matches 核验通过：git 的 exec 命中，bash 与 python 不命中，说明未额外限制其他程序。按要求未添加文件、网络或其他无关限制。本结论不构成授权。",
+    "parent_request_id": null,
+    "generation_basis": "bde4599f0a217684c71112f1e571ca68fddb575cb4cf73e2fee5433600235acb",
+    "scope_id": "instance-060f6795c39a4f2c",
+    "scope": "agent",
+    "workspace_id": null,
+    "reference_workspace_id": null,
+    "stage": "preflight",
+    "runtime_trigger": null,
+    "request_id": "bb7b94c679e945fba423d99804e66b56",
+    "created_at": "2026-10-26T06:22:30.348772+00:00",
+    "configuration_snapshots": [
+      {
+        "id": "tc_511fc002bbb14517ac91fbc7d6949361",
+        "revision": 1,
+        "name": "禁止启动 git",
+        "configuration_hash": "7ccfb7c01128f417b70c60b5798c031206ca643abbf4553c90673e0b1b06582b",
+        "template": {
+          "id": "EXEC-BLOCK",
+          "version": 2,
+          "name": "程序执行限制",
+          "parameters": [
+            {
+              "key": "program",
+              "label": "程序名或路径",
+              "type": "program"
+            }
+          ]
+        },
+        "parameters": {
+          "program": "git"
+        },
+        "execution_support": {
+          "status": "limited",
+          "applicable": true,
+          "event_type": "单事件",
+          "supported": [
+            "按程序匹配启动事件；block 可事前拒绝整个程序。"
+          ],
+          "unsupported": [
+            "按命令行参数选择性事前阻断；程序名不能代替脚本内容校验。"
+          ],
+          "boundary": [
+            "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+            "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+            "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+          ],
+          "verification": {
+            "state": "verified",
+            "date": "2026-10-20",
+            "cases": 3,
+            "effects": [
+              "block",
+              "kill",
+              "notify"
+            ],
+            "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+          }
+        },
+        "scope": {
+          "id": "instance-060f6795c39a4f2c",
+          "type": "agent",
+          "label": "指定 Agent · 跨工具禁止 Git 执行"
+        },
+        "approval_status": "draft",
+        "approval_operation": "apply"
+      }
+    ],
+    "context_usage": {
+      "mode": "auto",
+      "round_count": 1,
+      "call_count": 10,
+      "format_repair_count": 0,
+      "file_count": 2,
+      "total_bytes": 649,
+      "activity": [
+        {
+          "tool": "list_directory",
+          "workspace": "actplane-exec",
+          "status": "completed",
+          "path": "",
+          "entry_count": 2,
+          "omitted_count": 0
+        },
+        {
+          "tool": "search_policy_templates",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "read_files",
+          "workspace": "actplane-exec",
+          "status": "completed",
+          "paths": [
+            "README.md",
+            "scene.md"
+          ],
+          "file_count": 2
+        },
+        {
+          "tool": "inspect_resource",
+          "workspace": "actplane-exec",
+          "status": "rejected",
+          "applied": false,
+          "diagnostic": "只能浏览工作区内的规范相对目录"
+        },
+        {
+          "tool": "inspect_resource",
+          "workspace": "actplane-exec",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "draft_exec_block",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "preview_policy_matches",
+          "workspace": "actplane-exec",
+          "status": "rejected",
+          "applied": false,
+          "diagnostic": "只能预览本轮 draft_* 工具生成的原候选，不能传入 DSL 或任意配置"
+        },
+        {
+          "tool": "preview_policy_matches",
+          "workspace": "actplane-exec",
+          "status": "completed",
+          "applied": false,
+          "configuration_hash": "0d66c65fd65483efbdbc00699ffa261dd63ee32734e0e1b5f2c1642353bcab6d",
+          "coverage_checks_passed": true,
+          "checks": [
+            {
+              "operation": "exec",
+              "role": "target",
+              "target": "git",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "exec",
+              "role": "target",
+              "target": "bash",
+              "argument": "",
+              "expected_match": false,
+              "hypothetical": false,
+              "matched": false,
+              "passed": true
+            },
+            {
+              "operation": "exec",
+              "role": "target",
+              "target": "python",
+              "argument": "",
+              "expected_match": false,
+              "hypothetical": false,
+              "matched": false,
+              "passed": true
+            }
+          ]
+        },
+        {
+          "tool": "draft_exec_block",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "preview_policy_matches",
+          "workspace": "actplane-exec",
+          "status": "completed",
+          "applied": false,
+          "configuration_hash": "a52cafc83f0170ba1a8ef584f271f667b8f211a2d40e40dac724ba5724af70cf",
+          "coverage_checks_passed": true,
+          "checks": [
+            {
+              "operation": "exec",
+              "role": "target",
+              "target": "git",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "exec",
+              "role": "target",
+              "target": "bash",
+              "argument": "",
+              "expected_match": false,
+              "hypothetical": false,
+              "matched": false,
+              "passed": true
+            },
+            {
+              "operation": "exec",
+              "role": "target",
+              "target": "python",
+              "argument": "",
+              "expected_match": false,
+              "hypothetical": false,
+              "matched": false,
+              "passed": true
+            }
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "workspace": "actplane-exec",
+          "paths": [
+            "/w/0/README.md",
+            "/w/0/scene.md"
+          ]
+        }
+      ],
+      "pattern_previews": [
+        {
+          "schema": "policy-pattern-preview.v1",
+          "configuration_hash": "0d66c65fd65483efbdbc00699ffa261dd63ee32734e0e1b5f2c1642353bcab6d",
+          "checks": [
+            {
+              "operation": "exec",
+              "role": "target",
+              "target": "git",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "exec",
+              "role": "target",
+              "target": "bash",
+              "argument": "",
+              "expected_match": false,
+              "hypothetical": false,
+              "matched": false,
+              "passed": true
+            },
+            {
+              "operation": "exec",
+              "role": "target",
+              "target": "python",
+              "argument": "",
+              "expected_match": false,
+              "hypothetical": false,
+              "matched": false,
+              "passed": true
+            }
+          ],
+          "coverage_checks_passed": true,
+          "parameters_valid": true,
+          "policy_applied": false,
+          "validation_scope": "compiled_pattern_samples_only",
+          "runtime_enforcement_verified": false,
+          "limits": [
+            "仅验证声明样本的编译后匹配；不证明完整自然语言意图、标签历史、执行链、时序或运行拦截。",
+            "tree 样本是假设性后代路径，不表示这些文件实际存在；原候选未被自动改写。"
+          ]
+        },
+        {
+          "schema": "policy-pattern-preview.v1",
+          "configuration_hash": "a52cafc83f0170ba1a8ef584f271f667b8f211a2d40e40dac724ba5724af70cf",
+          "checks": [
+            {
+              "operation": "exec",
+              "role": "target",
+              "target": "git",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "exec",
+              "role": "target",
+              "target": "bash",
+              "argument": "",
+              "expected_match": false,
+              "hypothetical": false,
+              "matched": false,
+              "passed": true
+            },
+            {
+              "operation": "exec",
+              "role": "target",
+              "target": "python",
+              "argument": "",
+              "expected_match": false,
+              "hypothetical": false,
+              "matched": false,
+              "passed": true
+            }
+          ],
+          "coverage_checks_passed": true,
+          "parameters_valid": true,
+          "policy_applied": false,
+          "validation_scope": "compiled_pattern_samples_only",
+          "runtime_enforcement_verified": false,
+          "limits": [
+            "仅验证声明样本的编译后匹配；不证明完整自然语言意图、标签历史、执行链、时序或运行拦截。",
+            "tree 样本是假设性后代路径，不表示这些文件实际存在；原候选未被自动改写。"
+          ]
+        }
+      ],
+      "provided_files": []
+    },
+    "reference_read": {
+      "workspace": "actplane-exec",
+      "paths": [
+        "README.md",
+        "scene.md"
+      ]
+    },
+    "reference_reads": [
+      {
+        "id": "7b291d7007b34c1992e914e020697206",
+        "snapshot_hash": "0505f0b72bffc356abdda04789fcb87df8bdab7009289a6f6fd35c842c044aa1",
+        "workspace": "actplane-exec",
+        "paths": [
+          "README.md",
+          "scene.md"
+        ],
+        "execution_paths": [
+          "/w/0/README.md",
+          "/w/0/scene.md"
+        ]
+      }
+    ]
+  },
+  "seconds": 29.585
+}

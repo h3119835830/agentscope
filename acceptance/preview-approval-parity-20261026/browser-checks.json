@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "list": "\t策略名称\t适用 Agent\t生成会话\t状态 / 提交时间\t操作\n\t\n新增 发布清单禁止修改与删除\nAgent 策略 · 1 个配置文档\n\t\n发布维护 · 三阶段验收 · DeepSeek Harness\n进程证据\n\t\n未关联会话\n全部工作区与会话\n\t已应用\n2026/10/25 17:25:27\n\t查看详情\n↗\n\n\t\nAgent 执行权限变更\nAgent 策略 · 手工配置\n\t发布维护 · 三阶段验收 · DeepSeek Harness\t\n未关联会话\n此 Agent 的共享执行域 · 全部工作区与会话\n\t已应用\n2026/10/25 17:23:46\n\t查看详情\n↗",
+  "detail": "✓\nAgent 策略 · 审批\n新增 发布清单禁止修改与删除\n×\n发布维护 · 三阶段验收 · DeepSeek Harness\n已应用\n2026/10/25 17:25:27\n变更内容\n技术证据\n适用 Agent\n发布维护 · 三阶段验收 · DeepSeek Harness\n进程证据\n生成会话\n未关联会话\n全部工作区与会话\n本次策略变更\n1 项变更\n新增\n发布清单禁止修改与删除\n阻止\n删除\n/w/0/release.json\n阻止\n写入\n/w/0/release.json\n影响范围\n1 个Agent\n查看 1 个登记实例的影响\nA\n发布维护 · 三阶段验收 · DeepSeek Harness\n进程证据\n全部工作区与会话\n已保存，启动时加载\n✓\n校验状态\n\n已应用\n\n查看记录不会改变运行策略",
+  "canApprove": 0,
+  "canApply": 0,
+  "processedSelected": "true",
+  "consoleErrors": []
+}

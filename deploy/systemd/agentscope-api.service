@@ -16,6 +16,8 @@ ExecStart=/opt/agentscope/.venv/bin/uvicorn agentscope_app.main:app --host 0.0.0
 Restart=on-failure
 RestartSec=3
 UMask=0077
+RuntimeDirectory=agentscope-api
+RuntimeDirectoryMode=0750
 
 [Install]
 WantedBy=multi-user.target

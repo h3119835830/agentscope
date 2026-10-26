@@ -7,6 +7,12 @@ from . import template_catalog as catalog
 from .policy import digest
 
 
+def execution_facts(payload):
+    """Public display facts from the exact saved version, not current defaults."""
+    return copy.deepcopy({k: payload[k] for k in
+        ('requested_operations', 'effective_operations', 'effect', 'reason', 'coverage_warning') if k in payload})
+
+
 def freeze(ident, revision, payload, scope_id, scope, agent=None):
     template = catalog.get(payload['template_id'], payload['template_version'])
     if digest(template) != payload['template_hash']:
@@ -19,6 +25,7 @@ def freeze(ident, revision, payload, scope_id, scope, agent=None):
                      **({'fixed_fields':template['fixed_fields']} if 'fixed_fields' in template else {}),
                      'parameters': [{k: p[k] for k in ('key', 'label', 'type')} for p in template['parameters']]},
         'parameters': payload['parameters'],
+        'execution': execution_facts(payload),
         **({'label_sources':payload['label_sources']} if payload.get('label_sources') else {}),
         **({'execution_support': payload['execution_support']} if 'execution_support' in payload else {}),
         'scope': {'id': scope_id, 'type': scope,
@@ -52,6 +59,9 @@ def project(generation):
                 raise ValueError('历史快照归属不一致')
             if snapshot['configuration_hash'] != digest(payload):
                 raise ValueError('历史快照配置版本不一致')
+            # Add display metadata to old snapshots only after exact-version
+            # verification. This projection does not rewrite stored history.
+            snapshot = {**snapshot, 'execution': execution_facts(payload)}
             with db.connect() as con:
                 linked = link(con, row['id'], row['revision'], row['scope_id'], 'template')
                 approval = con.execute('SELECT selections_json FROM template_configuration_proposals WHERE proposal_id=?',

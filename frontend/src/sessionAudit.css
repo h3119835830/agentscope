@@ -1,0 +1,9 @@
+.lifecycle-settings{margin-top:20px;max-width:760px}
+.lifecycle-settings form{display:grid;gap:10px;margin-top:16px;padding:18px;background:#fff;border:1px solid #dce6f3;border-radius:10px}
+.lifecycle-settings form>label{margin:0;font-weight:500}
+.lifecycle-settings .lifecycle-toggle{display:flex;align-items:center;gap:8px}
+.lifecycle-settings input[type=checkbox]{width:auto;flex:0 0 auto;margin:0}
+.lifecycle-settings textarea{box-sizing:border-box;width:100%;min-height:80px;padding:10px;border:1px solid #cbd8e9;border-radius:6px;font:inherit;resize:vertical}
+.lifecycle-settings form>button{justify-self:start}
+.session-events .audit-analysis{margin-top:8px;max-width:620px;overflow-wrap:anywhere}
+.session-events .audit-analysis p{margin:10px 0;line-height:1.65}

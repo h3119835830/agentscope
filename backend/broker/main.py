@@ -5,11 +5,17 @@ import grp, hashlib, json, os, pwd, re, secrets, shutil, signal, socket, sockets
 from pathlib import Path
 
 ACTPLANE=Path(os.getenv("ACTPLANE_BIN","/opt/agentscope/bin/actplane"))
-DSH_WEB=Path("/opt/agentscope/dsh/node_modules/.bin/dsh").resolve()
+# Keep the deployment-stable path here.  The controlled sandbox mounts
+# /opt/agentscope/dsh, while the host may implement that path as a release
+# symlink.  Resolving it on the host would leak an unmounted release path into
+# the child launch contract.
+DSH_WEB=Path(os.getenv("AGENTSCOPE_DSH_WEB","/opt/agentscope/dsh/node_modules/.bin/dsh"))
 DSH=Path(os.getenv("DSH_BIN","/opt/agentscope/dsh/node_modules/.bin/dsh"))
+TASK_PYTHON=Path(os.getenv("AGENTSCOPE_TASK_PYTHON","/var/lib/agentscope-rq5-v1/task-python"))
 REPO_ROOT=Path(__file__).resolve().parents[2]
 RUNNER=Path(os.getenv("AGENTSCOPE_RUNNER",REPO_ROOT/"backend/broker/task_runner.py"))
 TASK_ROOT=Path(os.getenv("AGENTSCOPE_TASK_ROOT","/var/lib/agentscope/tasks")).resolve()
+INSTANCE_ROOT=Path(os.getenv("AGENTSCOPE_INSTANCE_ROOT",TASK_ROOT/"instances")).resolve()
 WORKSPACES=TASK_ROOT
 OUTPUTS=TASK_ROOT
 GLOBAL_DSH_HOME=Path(os.getenv("AGENTSCOPE_DSH_HOME","/var/lib/agentscope-agent/.dsh"))

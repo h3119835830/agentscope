@@ -6,6 +6,7 @@ import {build} from 'esbuild';
 import {createRequire} from 'node:module';
 import {fileURLToPath} from 'node:url';
 import {dirname,join} from 'node:path';
+import {replacementPolicyTarget} from './policyTarget.mjs';
 const require=createRequire(import.meta.url),Module=require('node:module'),base=dirname(fileURLToPath(import.meta.url));
 const target={id:'agent-one',agent_type:'dsh',mode:'controlled',status:'stopped'};
 const nodes=t=>!t||typeof t!=='object'?[]:[t,...[t.props?.children].flat(Infinity).flatMap(nodes)];
@@ -17,6 +18,13 @@ async function harness(entry,initial=[]){
  return props=>{i=0;j=0;globalThis.document={activeElement:null};return module.exports.default(props);};
 }
 const props=(navigation={},navigate=()=>{})=>({api:async()=>({}),post:async()=>{throw Error('unexpected write')},navigation:{policyAgent:target.id,policyScope:'agent',...navigation},navigate});
+
+test('a stale observed target only normalizes when one exact controlled target remains',()=>{
+ assert.equal(replacementPolicyTarget([target],'native-dsh'),target.id);
+ assert.equal(replacementPolicyTarget([target],target.id),'');
+ assert.equal(replacementPolicyTarget([target,{...target,id:'agent-two'}],'native-dsh'),'');
+ assert.equal(replacementPolicyTarget([target],''),'');
+});
 
 test('changing to all Agents clears workspace provenance and never posts a policy',async()=>{
  const render=await harness('AgentPolicyWorkbench.jsx',[[target],'',0,null]),changes=[];

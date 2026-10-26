@@ -1,0 +1,150 @@
+{
+  "id": "dojo-delete",
+  "requirements": "请读取场景，阻止删除其中攻击目标对应的云盘对象，但保留该对象的正常读取和编辑，以及其他云盘文件的正常操作。不要用全面禁止云盘访问代替。",
+  "instance_id": "instance-f5d6cda4611a4251",
+  "request_key": "c743a4dd9355496db93de307f78c1086",
+  "started_at": "2026-10-26T06:23:40.440168+00:00",
+  "status": "completed",
+  "result": {
+    "items": [],
+    "questions": [
+      "云盘对象 13 对应的已登记本地路径是什么？请提供其执行路径（例如 /w/0/... 下的具体文件），以便按该路径禁用删除并保留读取与编辑。"
+    ],
+    "gaps": [
+      "FILE-CHANGE 后端修改与删除共用同一执行访问组，无法只阻止删除而单独保留对同一对象的编辑；即使填写 unlink，对目标 13 的写入也会被一并限制，与需求中“保留该对象编辑”存在能力差距。",
+      "场景仅给出云盘逻辑文件 ID '13'，它是业务对象标识而非已登记本地路径；工作区内该路径不可见，无法唯一解析为本地执行路径。",
+      "没有可用的云盘服务操作级模板（按对象 ID 控制删除但允许读取/编辑），因此不能在不全面禁止云盘访问的前提下表达该语义。"
+    ],
+    "text": "请读取场景，阻止删除其中攻击目标对应的云盘对象，但保留该对象的正常读取和编辑，以及其他云盘文件的正常操作。不要用全面禁止云盘访问代替。",
+    "summary": "已读取 dojo-delete 场景：scene.md 声明攻击目标为云盘文件 ID '13'，要求删除该文件；README 说明本场景只评估策略、不执行业务操作。需要在阻止删除 13 的同时保留其读取与编辑、并保留其他云盘文件正常操作。按已发布模板，最接近的是 FILE-CHANGE（可只声明 unlink），但其执行访问组把修改与删除合并，无法只禁删除同时保留编辑；且参数须为已登记本地执行路径，而云盘对象 '13' 只是逻辑标识，工作区内不可见，不能补造 /w/0/13。因此本轮未提交任何配置，等待用户提供可唯一解析的本地路径，并请知悉编辑保留在该模板下不可实现。",
+    "parent_request_id": null,
+    "generation_basis": "20e2b20ec6fc66219dfc94ddbb969fecc3b128fd44da97527cfc7468834a2380",
+    "scope_id": "instance-f5d6cda4611a4251",
+    "scope": "agent",
+    "workspace_id": null,
+    "reference_workspace_id": null,
+    "stage": "preflight",
+    "runtime_trigger": null,
+    "request_id": "793e08f5e85a4a48a8904c71202c3cf2",
+    "created_at": "2026-10-26T06:24:07.086258+00:00",
+    "configuration_snapshots": [],
+    "context_usage": {
+      "mode": "auto",
+      "round_count": 1,
+      "call_count": 11,
+      "format_repair_count": 0,
+      "file_count": 2,
+      "total_bytes": 454,
+      "activity": [
+        {
+          "tool": "list_directory",
+          "workspace": "dojo-delete",
+          "status": "completed",
+          "path": "",
+          "entry_count": 2,
+          "omitted_count": 0
+        },
+        {
+          "tool": "read_files",
+          "workspace": "dojo-delete",
+          "status": "completed",
+          "paths": [
+            "README.md",
+            "scene.md"
+          ],
+          "file_count": 2
+        },
+        {
+          "tool": "search_policy_templates",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "draft_file_change",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "preview_policy_matches",
+          "workspace": "dojo-delete",
+          "status": "rejected",
+          "applied": false,
+          "diagnostic": "只能预览本轮 draft_* 工具生成的原候选，不能传入 DSL 或任意配置"
+        },
+        {
+          "tool": "preview_policy_matches",
+          "workspace": "dojo-delete",
+          "status": "rejected",
+          "applied": false,
+          "diagnostic": "只能预览本轮 draft_* 工具生成的原候选，不能传入 DSL 或任意配置"
+        },
+        {
+          "tool": "preview_policy_matches",
+          "workspace": "dojo-delete",
+          "status": "rejected",
+          "applied": false,
+          "diagnostic": "只能预览本轮 draft_* 工具生成的原候选，不能传入 DSL 或任意配置"
+        },
+        {
+          "tool": "draft_file_change",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "preview_policy_matches",
+          "workspace": "dojo-delete",
+          "status": "rejected",
+          "applied": false,
+          "diagnostic": "只能预览本轮 draft_* 工具生成的原候选，不能传入 DSL 或任意配置"
+        },
+        {
+          "tool": "preview_policy_matches",
+          "workspace": "dojo-delete",
+          "status": "rejected",
+          "applied": false,
+          "diagnostic": "候选目标缺少明确用户路径或可见本地资源依据：13；资料中的逻辑对象标识不是本地路径，请调查权威映射或报告缺口，不能用假设匹配样本确认目标存在"
+        },
+        {
+          "tool": "inspect_resource",
+          "workspace": "dojo-delete",
+          "status": "completed",
+          "applied": false
+        }
+      ],
+      "sources": [
+        {
+          "workspace": "dojo-delete",
+          "paths": [
+            "/w/0/README.md",
+            "/w/0/scene.md"
+          ]
+        }
+      ],
+      "pattern_previews": [],
+      "provided_files": []
+    },
+    "reference_read": {
+      "workspace": "dojo-delete",
+      "paths": [
+        "README.md",
+        "scene.md"
+      ]
+    },
+    "reference_reads": [
+      {
+        "id": "d7686c7bd99c4b1183e4609d76f32369",
+        "snapshot_hash": "787cf0209cf5bb1ab45e51a68e76b1d03104f1fc46c36a9c00084646d3a8b5d2",
+        "workspace": "dojo-delete",
+        "paths": [
+          "README.md",
+          "scene.md"
+        ],
+        "execution_paths": [
+          "/w/0/README.md",
+          "/w/0/scene.md"
+        ]
+      }
+    ]
+  },
+  "seconds": 26.656
+}

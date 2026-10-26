@@ -5,6 +5,7 @@ import RuntimePolicyRecords from './RuntimePolicyRecords.jsx';
 import {agentProcessLabel,visibleAgentInstances} from './agentInstancePresentation.mjs';
 import {tabKeys} from './consoleState.mjs';
 import {configurationNavigation} from './configurationNavigation.mjs';
+import {replacementPolicyTarget} from './policyTarget.mjs';
 import './policyFlow.css';
 
 export default function AgentPolicyWorkbench({api,post,navigation:n,navigate}){
@@ -14,7 +15,9 @@ export default function AgentPolicyWorkbench({api,post,navigation:n,navigate}){
  const legacy=n.policyScope==='workspace',scope=n.policyScope==='system'?'system':'agent';
  const workspace=n.policyWorkspace||'',targetId=n.policyAgent||'',requestedTab=n.agentPolicyTab||'assistant',tab=['assistant','runtime'].includes(requestedTab)?requestedTab:'assistant';
  useEffect(()=>{let alive=true,inflight=false;async function load(){if(inflight)return;inflight=true;try{const value=await api('/api/console/agents');if(alive){setAgents(value.instances||[]);setError('');}}catch(e){if(alive){setAgents(null);setError(e.message);}}finally{inflight=false;}}load();const timer=setInterval(load,7000);return()=>{alive=false;clearInterval(timer);};},[api,revision]);
- const choices=visibleAgentInstances(agents||[]),row=agents?.find(a=>a.id===targetId);
+ const choices=visibleAgentInstances(agents||[]),row=choices.find(a=>a.id===targetId);
+ const replacement=replacementPolicyTarget(choices,targetId);
+ useEffect(()=>{if(scope==='agent'&&replacement)navigate({policyAgent:replacement,policyWorkspace:'',policySession:'',policyScope:'agent'});},[scope,replacement,navigate]);
  useEffect(()=>{let alive=true;setDetail(null);if(targetId&&scope==='agent')api('/api/agent-instances/'+encodeURIComponent(targetId)).then(value=>{if(alive)setDetail({...value,_target:targetId});}).catch(()=>{});return()=>{alive=false;};},[api,targetId,scope,revision,row?.generation]);
  const target=row?(detail?._target===targetId&&detail.generation===row.generation?{...detail,...row}:row):null;
  const tabs=[['assistant','策略助手'],['runtime','运行时策略']];

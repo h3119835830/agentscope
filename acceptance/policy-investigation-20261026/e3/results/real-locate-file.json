@@ -1,0 +1,591 @@
+{
+  "id": "real-locate-file",
+  "requirements": "请在这个真实项目中自行找到名为 policy_library.py 的实现文件，禁止此 Agent 修改或删除它；其他代码仍按现有权限维护。请定位完整对象并核对保护范围，不增加无关限制。",
+  "instance_id": "instance-811780fec1e74280",
+  "request_key": "a75c9c0bdd054b27a0b3f43613b284b7",
+  "started_at": "2026-10-26T06:24:34.064831+00:00",
+  "status": "completed",
+  "result": {
+    "items": [
+      {
+        "id": "tc_a3dc49cf10e846b2b14e0448e7720739",
+        "template_id": "FILE-CHANGE",
+        "scope_id": "instance-811780fec1e74280",
+        "scope": "agent",
+        "workspace_id": null,
+        "revision": 1,
+        "archived": 0,
+        "created_at": "2026-10-26T06:25:02.890598+00:00",
+        "updated_at": "2026-10-26T06:25:02.890598+00:00",
+        "latest_revision": 1,
+        "execution_support": {
+          "status": "limited",
+          "applicable": true,
+          "event_type": "单事件",
+          "supported": [
+            "按配置路径、文件名或后缀匹配指定文件访问；block 在文件操作前拒绝。",
+            "notify 记录并继续；kill 终止命中进程。"
+          ],
+          "unsupported": [
+            "按文件内容识别秘密、按用户意图判断资料用途。",
+            "修改与删除独立授权：当前两者共用执行访问组。"
+          ],
+          "boundary": [
+            "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+            "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+            "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+          ],
+          "verification": {
+            "state": "verified",
+            "date": "2026-10-20",
+            "cases": 6,
+            "effects": [
+              "block",
+              "kill",
+              "notify"
+            ],
+            "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+          }
+        },
+        "template_version": 2,
+        "template_hash": "46059369294f80a8cdfa69eccd748c9ccd03907a5c98ee0ce49d0af289ea71ee",
+        "resource_hash": "c1313a8bd2004b72954482d9175a14b8e1d877704c272b12ad1a34c0ee632b37",
+        "name": "禁止修改或删除 policy_library.py",
+        "reason": "仅保护已定位的完整实现文件 backend/agentscope_app/instances/policy_library.py，禁止此 Agent 修改或删除；其他代码维持现有权限，不额外限制读取或所在目录。",
+        "execution_reason": "仅保护已定位的完整实现文件 backend/agentscope_app/instances/policy_library.py，禁止此 Agent 修改或删除；其他代码维持现有权限，不额外限制读取或所在目录。",
+        "parameters": {
+          "target": "/w/0/backend/agentscope_app/instances/policy_library.py",
+          "operations": [
+            "unlink",
+            "write"
+          ]
+        },
+        "document": {
+          "id": "tc_a3dc49cf10e846b2b14e0448e7720739",
+          "name": "禁止修改或删除 policy_library.py",
+          "original_dsl": "rule config-tc_a3dc49cf10e846b2b14e0448e7720739:\n  block unlink file \"/w/0/backend/agentscope_app/instances/policy_library.py\" if AGENT\n  block write file \"/w/0/backend/agentscope_app/instances/policy_library.py\" if AGENT\n  because \"仅保护已定位的完整实现文件 backend/agentscope_app/instances/policy_library.py，禁止此 Agent 修改或删除；其他代码维持现有权限，不额外限制读取或所在目录。\"",
+          "metadata": {
+            "config-tc_a3dc49cf10e846b2b14e0448e7720739": {
+              "statement": "禁止修改或删除 policy_library.py",
+              "context_requirement": "self_contained",
+              "context_reason": ""
+            }
+          },
+          "managed_identity": true
+        },
+        "requested_operations": [
+          "unlink",
+          "write"
+        ],
+        "effective_operations": [
+          "write",
+          "unlink"
+        ],
+        "coverage_warning": "",
+        "effect": "block",
+        "note": "",
+        "source_read": {
+          "id": "1172646171944a9b9412c332c4976967",
+          "snapshot_hash": "ad4dd807d5daec8dca1be31f675ab709b1f112acb0da0c11d2be74c78bd7da1f",
+          "workspace": "real-project",
+          "paths": [
+            "backend/agentscope_app/instances/policy_library.py"
+          ],
+          "execution_paths": [
+            "/w/0/backend/agentscope_app/instances/policy_library.py"
+          ]
+        },
+        "source_reads": [
+          {
+            "id": "1172646171944a9b9412c332c4976967",
+            "snapshot_hash": "ad4dd807d5daec8dca1be31f675ab709b1f112acb0da0c11d2be74c78bd7da1f",
+            "workspace": "real-project",
+            "paths": [
+              "backend/agentscope_app/instances/policy_library.py"
+            ],
+            "execution_paths": [
+              "/w/0/backend/agentscope_app/instances/policy_library.py"
+            ]
+          }
+        ],
+        "origin": "assistant",
+        "generation_stage": "preflight",
+        "applied_revision": null,
+        "applied_configuration": null,
+        "applied": false,
+        "approval_id": null,
+        "approval_revision": null,
+        "approval_current": false,
+        "status": "draft",
+        "can_submit": true,
+        "read_only": false,
+        "template_definition": {
+          "id": "FILE-CHANGE",
+          "version": 2,
+          "name": "文件修改与删除限制",
+          "category": "文件保护",
+          "summary": "限制指定文件或目录的修改与删除。",
+          "parameters": [
+            {
+              "key": "target",
+              "label": "保护对象的路径",
+              "default": "",
+              "type": "path"
+            },
+            {
+              "key": "operations",
+              "label": "需要限制的操作",
+              "default": "write,unlink",
+              "type": "operations"
+            }
+          ],
+          "effect": "block",
+          "operation": "write",
+          "scopes": [
+            "system",
+            "agent"
+          ],
+          "note": "",
+          "reason": "限制指定文件或目录的修改与删除。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+          "execution_support": {
+            "status": "limited",
+            "applicable": true,
+            "event_type": "单事件",
+            "supported": [
+              "按配置路径、文件名或后缀匹配指定文件访问；block 在文件操作前拒绝。",
+              "notify 记录并继续；kill 终止命中进程。"
+            ],
+            "unsupported": [
+              "按文件内容识别秘密、按用户意图判断资料用途。",
+              "修改与删除独立授权：当前两者共用执行访问组。"
+            ],
+            "boundary": [
+              "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+              "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+              "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+            ],
+            "verification": {
+              "state": "verified",
+              "date": "2026-10-20",
+              "cases": 6,
+              "effects": [
+                "block",
+                "kill",
+                "notify"
+              ],
+              "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+            }
+          },
+          "dsl_preview": {
+            "state": "incomplete",
+            "dsl": "rule config-preview:\n  block unlink file \"{{target}}\" if AGENT\n  block write file \"{{target}}\" if AGENT\n  because \"限制指定文件或目录的修改与删除。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+            "missing": [
+              "保护对象的路径"
+            ],
+            "errors": [],
+            "preview_only": true
+          }
+        },
+        "scope_label": "此 Agent 的全部工作区与会话",
+        "configuration_status": {
+          "schema": "ConfigurationProgress/1",
+          "state": "draft",
+          "label": "草案",
+          "revision": 1,
+          "applied_revision": null,
+          "lifecycle": {
+            "archived": false,
+            "disabled": false
+          },
+          "read_only": false
+        }
+      }
+    ],
+    "questions": [],
+    "gaps": [
+      "FILE-CHANGE 当前后端将修改与删除置于同一执行访问组，无法只禁止删除而保留修改；本需求同时要求禁止修改与删除，覆盖一致，但应用前需知悉该组合语义。",
+      "配置保存、审批、加载与实际拦截属不同状态；本输出仅为待审批候选，未应用任何策略，也不构成授权。"
+    ],
+    "text": "请在这个真实项目中自行找到名为 policy_library.py 的实现文件，禁止此 Agent 修改或删除它；其他代码仍按现有权限维护。请定位完整对象并核对保护范围，不增加无关限制。",
+    "summary": "在 real-project 工作区按文件名检索，仅找到一处 policy_library.py：backend/agentscope_app/instances/policy_library.py（13825 字节，已确认为存在的普通文件），执行路径 /w/0/backend/agentscope_app/instances/policy_library.py；同目录其余文件为项目其他实现模块（如 dsl_policy.py、controller.py 等）。按 requirements 选择 FILE-CHANGE 模板，以该文件的精确绝对执行路径作为唯一保护对象，operations 为 write 与 unlink；未加入目录递归、读取限制或其他文件。preview_policy_matches 已核对：该文件 write/unlink 命中，同目录 dsl_policy.py 的 write 与 policy_library.py 的 open 未命中，符合“仅保护该文件、其他代码维持现有权限”。",
+    "parent_request_id": null,
+    "generation_basis": "7a8d616f319b8284f9bc695969f33fd08447ac12c72932a66068568533cfefa3",
+    "scope_id": "instance-811780fec1e74280",
+    "scope": "agent",
+    "workspace_id": null,
+    "reference_workspace_id": null,
+    "stage": "preflight",
+    "runtime_trigger": null,
+    "request_id": "819ea61706ba4677826d3a72bd07b9c2",
+    "created_at": "2026-10-26T06:25:02.890283+00:00",
+    "configuration_snapshots": [
+      {
+        "id": "tc_a3dc49cf10e846b2b14e0448e7720739",
+        "revision": 1,
+        "name": "禁止修改或删除 policy_library.py",
+        "configuration_hash": "b6295b93a682c5efd39a1f809f02b8818767703cab092fbd673efa856150d1ff",
+        "template": {
+          "id": "FILE-CHANGE",
+          "version": 2,
+          "name": "文件修改与删除限制",
+          "parameters": [
+            {
+              "key": "target",
+              "label": "保护对象的路径",
+              "type": "path"
+            },
+            {
+              "key": "operations",
+              "label": "需要限制的操作",
+              "type": "operations"
+            }
+          ]
+        },
+        "parameters": {
+          "target": "/w/0/backend/agentscope_app/instances/policy_library.py",
+          "operations": [
+            "unlink",
+            "write"
+          ]
+        },
+        "execution_support": {
+          "status": "limited",
+          "applicable": true,
+          "event_type": "单事件",
+          "supported": [
+            "按配置路径、文件名或后缀匹配指定文件访问；block 在文件操作前拒绝。",
+            "notify 记录并继续；kill 终止命中进程。"
+          ],
+          "unsupported": [
+            "按文件内容识别秘密、按用户意图判断资料用途。",
+            "修改与删除独立授权：当前两者共用执行访问组。"
+          ],
+          "boundary": [
+            "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+            "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+            "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+          ],
+          "verification": {
+            "state": "verified",
+            "date": "2026-10-20",
+            "cases": 6,
+            "effects": [
+              "block",
+              "kill",
+              "notify"
+            ],
+            "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+          }
+        },
+        "scope": {
+          "id": "instance-811780fec1e74280",
+          "type": "agent",
+          "label": "指定 Agent · 真实项目定位并保护文件"
+        },
+        "approval_status": "draft",
+        "approval_operation": "apply"
+      }
+    ],
+    "context_usage": {
+      "mode": "auto",
+      "round_count": 1,
+      "call_count": 10,
+      "format_repair_count": 0,
+      "file_count": 1,
+      "total_bytes": 13825,
+      "activity": [
+        {
+          "tool": "search_project",
+          "workspace": "real-project",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "list_directory",
+          "workspace": "real-project",
+          "status": "completed",
+          "path": "",
+          "entry_count": 3,
+          "omitted_count": 0
+        },
+        {
+          "tool": "inspect_resource",
+          "workspace": "real-project",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "search_project",
+          "workspace": "real-project",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "read_files",
+          "workspace": "real-project",
+          "status": "completed",
+          "paths": [
+            "backend/agentscope_app/instances/policy_library.py"
+          ],
+          "file_count": 1
+        },
+        {
+          "tool": "search_policy_templates",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "draft_file_change",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "preview_policy_matches",
+          "workspace": "real-project",
+          "status": "completed",
+          "applied": false,
+          "configuration_hash": "8e0dc35803903cf3f6a6cbc3166fcf476c0d56983d41f4205a7e5a62af9665fe",
+          "coverage_checks_passed": true,
+          "checks": [
+            {
+              "operation": "write",
+              "role": "target",
+              "target": "/w/0/backend/agentscope_app/instances/policy_library.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "unlink",
+              "role": "target",
+              "target": "/w/0/backend/agentscope_app/instances/policy_library.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "target",
+              "target": "/w/0/backend/agentscope_app/instances/dsl_policy.py",
+              "argument": "",
+              "expected_match": false,
+              "hypothetical": false,
+              "matched": false,
+              "passed": true
+            },
+            {
+              "operation": "open",
+              "role": "target",
+              "target": "/w/0/backend/agentscope_app/instances/policy_library.py",
+              "argument": "",
+              "expected_match": false,
+              "hypothetical": false,
+              "matched": false,
+              "passed": true
+            }
+          ]
+        },
+        {
+          "tool": "draft_file_change",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "preview_policy_matches",
+          "workspace": "real-project",
+          "status": "completed",
+          "applied": false,
+          "configuration_hash": "f92beb8f22d8c800d726824f6a0f185d2b36044b2e5d6db2cf88e058c5c84a2c",
+          "coverage_checks_passed": true,
+          "checks": [
+            {
+              "operation": "write",
+              "role": "target",
+              "target": "/w/0/backend/agentscope_app/instances/policy_library.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "unlink",
+              "role": "target",
+              "target": "/w/0/backend/agentscope_app/instances/policy_library.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "target",
+              "target": "/w/0/backend/agentscope_app/instances/dsl_policy.py",
+              "argument": "",
+              "expected_match": false,
+              "hypothetical": false,
+              "matched": false,
+              "passed": true
+            },
+            {
+              "operation": "open",
+              "role": "target",
+              "target": "/w/0/backend/agentscope_app/instances/policy_library.py",
+              "argument": "",
+              "expected_match": false,
+              "hypothetical": false,
+              "matched": false,
+              "passed": true
+            }
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "workspace": "real-project",
+          "paths": [
+            "/w/0/backend/agentscope_app/instances/policy_library.py"
+          ]
+        }
+      ],
+      "pattern_previews": [
+        {
+          "schema": "policy-pattern-preview.v1",
+          "configuration_hash": "8e0dc35803903cf3f6a6cbc3166fcf476c0d56983d41f4205a7e5a62af9665fe",
+          "checks": [
+            {
+              "operation": "write",
+              "role": "target",
+              "target": "/w/0/backend/agentscope_app/instances/policy_library.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "unlink",
+              "role": "target",
+              "target": "/w/0/backend/agentscope_app/instances/policy_library.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "target",
+              "target": "/w/0/backend/agentscope_app/instances/dsl_policy.py",
+              "argument": "",
+              "expected_match": false,
+              "hypothetical": false,
+              "matched": false,
+              "passed": true
+            },
+            {
+              "operation": "open",
+              "role": "target",
+              "target": "/w/0/backend/agentscope_app/instances/policy_library.py",
+              "argument": "",
+              "expected_match": false,
+              "hypothetical": false,
+              "matched": false,
+              "passed": true
+            }
+          ],
+          "coverage_checks_passed": true,
+          "parameters_valid": true,
+          "policy_applied": false,
+          "validation_scope": "compiled_pattern_samples_only",
+          "runtime_enforcement_verified": false,
+          "limits": [
+            "仅验证声明样本的编译后匹配；不证明完整自然语言意图、标签历史、执行链、时序或运行拦截。",
+            "tree 样本是假设性后代路径，不表示这些文件实际存在；原候选未被自动改写。"
+          ]
+        },
+        {
+          "schema": "policy-pattern-preview.v1",
+          "configuration_hash": "f92beb8f22d8c800d726824f6a0f185d2b36044b2e5d6db2cf88e058c5c84a2c",
+          "checks": [
+            {
+              "operation": "write",
+              "role": "target",
+              "target": "/w/0/backend/agentscope_app/instances/policy_library.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "unlink",
+              "role": "target",
+              "target": "/w/0/backend/agentscope_app/instances/policy_library.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "target",
+              "target": "/w/0/backend/agentscope_app/instances/dsl_policy.py",
+              "argument": "",
+              "expected_match": false,
+              "hypothetical": false,
+              "matched": false,
+              "passed": true
+            },
+            {
+              "operation": "open",
+              "role": "target",
+              "target": "/w/0/backend/agentscope_app/instances/policy_library.py",
+              "argument": "",
+              "expected_match": false,
+              "hypothetical": false,
+              "matched": false,
+              "passed": true
+            }
+          ],
+          "coverage_checks_passed": true,
+          "parameters_valid": true,
+          "policy_applied": false,
+          "validation_scope": "compiled_pattern_samples_only",
+          "runtime_enforcement_verified": false,
+          "limits": [
+            "仅验证声明样本的编译后匹配；不证明完整自然语言意图、标签历史、执行链、时序或运行拦截。",
+            "tree 样本是假设性后代路径，不表示这些文件实际存在；原候选未被自动改写。"
+          ]
+        }
+      ],
+      "provided_files": []
+    },
+    "reference_read": {
+      "workspace": "real-project",
+      "paths": [
+        "backend/agentscope_app/instances/policy_library.py"
+      ]
+    },
+    "reference_reads": [
+      {
+        "id": "1172646171944a9b9412c332c4976967",
+        "snapshot_hash": "ad4dd807d5daec8dca1be31f675ab709b1f112acb0da0c11d2be74c78bd7da1f",
+        "workspace": "real-project",
+        "paths": [
+          "backend/agentscope_app/instances/policy_library.py"
+        ],
+        "execution_paths": [
+          "/w/0/backend/agentscope_app/instances/policy_library.py"
+        ]
+      }
+    ]
+  },
+  "seconds": 28.851
+}

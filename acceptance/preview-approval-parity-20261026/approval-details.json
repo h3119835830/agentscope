@@ -1,0 +1,439 @@
+{
+  "02353b2815fa44ba9c80bd9df2c63408": {
+    "id": "02353b2815fa44ba9c80bd9df2c63408",
+    "scope_id": "instance-751ad8a6165f4357",
+    "scope_type": "agent",
+    "target_name": "发布维护 · 三阶段验收 · DeepSeek Harness",
+    "name": "新增 发布清单禁止修改与删除",
+    "status": "applied",
+    "created_at": "2026-10-25T09:25:27.478901+00:00",
+    "document_count": 1,
+    "can_apply": false,
+    "reason": "",
+    "affected_count": 1,
+    "total_affected_count": 1,
+    "agents": [
+      {
+        "id": "instance-751ad8a6165f4357",
+        "name": "发布维护 · 三阶段验收 · DeepSeek Harness",
+        "agent_type": "dsh",
+        "pid": null,
+        "process_state": "offline",
+        "submitted_pid": null,
+        "active": false
+      }
+    ],
+    "origin_sessions": [],
+    "origin_state": "unrecorded",
+    "documents": [
+      {
+        "id": "tc_a4e053993ce34de0a36a4c00c7c293c9",
+        "name": "发布清单禁止修改与删除",
+        "original_dsl": "rule config-tc_a4e053993ce34de0a36a4c00c7c293c9:\n  block unlink file \"/w/0/release.json\" if AGENT\n  block write file \"/w/0/release.json\" if AGENT\n  because \"README 声明 release.json 为发布清单且不得修改或删除；维护脚本中的清单状态回写属遗留行为，应被拒绝，缓存清理与报告写入不受影响。\"",
+        "metadata": {
+          "config-tc_a4e053993ce34de0a36a4c00c7c293c9": {
+            "statement": "发布清单禁止修改与删除",
+            "context_requirement": "self_contained",
+            "context_reason": ""
+          }
+        },
+        "managed_identity": true
+      }
+    ],
+    "records": [
+      {
+        "clauses": [
+          {
+            "effect": "block",
+            "effective_clause": "  block unlink file \"/w/0/release.json\" if dc2a95b9f42be_AGENT",
+            "event_type": "cross_event",
+            "operation": "unlink",
+            "target": "/w/0/release.json"
+          },
+          {
+            "effect": "block",
+            "effective_clause": "  block write file \"/w/0/release.json\" if dc2a95b9f42be_AGENT",
+            "event_type": "cross_event",
+            "operation": "write",
+            "target": "/w/0/release.json"
+          }
+        ],
+        "compiled_name": "dc2a95b9f42be-config-tc_a4e053993ce34de0a36a4c00c7c293c9",
+        "effects": [
+          "block"
+        ],
+        "event_types": [
+          "cross_event"
+        ],
+        "original_dsl": "rule config-tc_a4e053993ce34de0a36a4c00c7c293c9:\n  block unlink file \"/w/0/release.json\" if AGENT\n  block write file \"/w/0/release.json\" if AGENT\n  because \"README 声明 release.json 为发布清单且不得修改或删除；维护脚本中的清单状态回写属遗留行为，应被拒绝，缓存清理与报告写入不受影响。\"",
+        "reason": "README 声明 release.json 为发布清单且不得修改或删除；维护脚本中的清单状态回写属遗留行为，应被拒绝，缓存清理与报告写入不受影响。",
+        "rule_name": "config-tc_a4e053993ce34de0a36a4c00c7c293c9",
+        "source_end_line": 4,
+        "source_ref": "dc2a95b9f42be:0",
+        "source_start_line": 1,
+        "id": "instance-751ad8a6165f4357:tc_a4e053993ce34de0a36a4c00c7c293c9:config-tc_a4e053993ce34de0a36a4c00c7c293c9",
+        "document_id": "tc_a4e053993ce34de0a36a4c00c7c293c9",
+        "document_name": "发布清单禁止修改与删除",
+        "original_document": "rule config-tc_a4e053993ce34de0a36a4c00c7c293c9:\n  block unlink file \"/w/0/release.json\" if AGENT\n  block write file \"/w/0/release.json\" if AGENT\n  because \"README 声明 release.json 为发布清单且不得修改或删除；维护脚本中的清单状态回写属遗留行为，应被拒绝，缓存清理与报告写入不受影响。\"",
+        "statement": "发布清单禁止修改与删除",
+        "statement_origin": "original",
+        "context_requirement": "self_contained",
+        "context_reason": "",
+        "scope_id": "instance-751ad8a6165f4357",
+        "scope_type": "agent",
+        "effective_dsl": "rule dc2a95b9f42be-config-tc_a4e053993ce34de0a36a4c00c7c293c9:\n  block unlink file \"/w/0/release.json\" if dc2a95b9f42be_AGENT\n  block write file \"/w/0/release.json\" if dc2a95b9f42be_AGENT\n  because \"README 声明 release.json 为发布清单且不得修改或删除；维护脚本中的清单状态回写属遗留行为，应被拒绝，缓存清理与报告写入不受影响。\"",
+        "compile_status": "compiled",
+        "compiled_refs": [
+          {
+            "clause_end_line": 12,
+            "clause_hash": "fnv1a64:501e6ec824d797c3",
+            "clause_op": "unlink",
+            "clause_source_index": 0,
+            "clause_start_line": 12,
+            "clause_text": "  block unlink file \"/w/0/release.json\" if dc2a95b9f42be_AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "write",
+            "name": "dc2a95b9f42be-config-tc_a4e053993ce34de0a36a4c00c7c293c9",
+            "ops": [
+              "unlink"
+            ],
+            "reason": "README 声明 release.json 为发布清单且不得修改或删除；维护脚本中的清单状态回写属遗留行为，应被拒绝，缓存清理与报告写入不受影响。",
+            "rule_id": 1,
+            "source_end_line": 14,
+            "source_hash": "fnv1a64:d0a58d832b1b3109",
+            "source_ref": "dc2a95b9f42be:0",
+            "source_start_line": 11,
+            "source_text": "rule dc2a95b9f42be-config-tc_a4e053993ce34de0a36a4c00c7c293c9:\n  block unlink file \"/w/0/release.json\" if dc2a95b9f42be_AGENT\n  block write file \"/w/0/release.json\" if dc2a95b9f42be_AGENT\n  because \"README 声明 release.json 为发布清单且不得修改或删除；维护脚本中的清单状态回写属遗留行为，应被拒绝，缓存清理与报告写入不受影响。\"",
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/w/0/release.json"
+          },
+          {
+            "clause_end_line": 13,
+            "clause_hash": "fnv1a64:51ddfd08bb97cbdb",
+            "clause_op": "write",
+            "clause_source_index": 1,
+            "clause_start_line": 13,
+            "clause_text": "  block write file \"/w/0/release.json\" if dc2a95b9f42be_AGENT",
+            "effect": "block",
+            "immutable": false,
+            "kernel_op": "write",
+            "name": "dc2a95b9f42be-config-tc_a4e053993ce34de0a36a4c00c7c293c9",
+            "ops": [
+              "write"
+            ],
+            "reason": "README 声明 release.json 为发布清单且不得修改或删除；维护脚本中的清单状态回写属遗留行为，应被拒绝，缓存清理与报告写入不受影响。",
+            "rule_id": 2,
+            "source_end_line": 14,
+            "source_hash": "fnv1a64:d0a58d832b1b3109",
+            "source_ref": "dc2a95b9f42be:0",
+            "source_start_line": 11,
+            "source_text": "rule dc2a95b9f42be-config-tc_a4e053993ce34de0a36a4c00c7c293c9:\n  block unlink file \"/w/0/release.json\" if dc2a95b9f42be_AGENT\n  block write file \"/w/0/release.json\" if dc2a95b9f42be_AGENT\n  because \"README 声明 release.json 为发布清单且不得修改或删除；维护脚本中的清单状态回写属遗留行为，应被拒绝，缓存清理与报告写入不受影响。\"",
+            "target_arg": null,
+            "target_kind": "file",
+            "target_pattern": "/w/0/release.json"
+          }
+        ],
+        "bundle_hash": "9ad37858e88956964f4d57d9051e1746d97b404d3869e94e4eca1d0e2a08abe3",
+        "loaded": false,
+        "active": false
+      }
+    ],
+    "targets": [
+      {
+        "id": "instance-751ad8a6165f4357",
+        "console_retained": false,
+        "name": "发布维护 · 三阶段验收",
+        "agent_type": "dsh",
+        "resources": [
+          "/var/lib/agentscope-agent/workspaces/three-stage-20261025"
+        ],
+        "generation": null,
+        "launch_hash": "0e407c5e3e133f15a9e6cbba09d6e0104640da056e7ee20657273cf0d8bcb763",
+        "gate": "closed",
+        "base_hash": "41daf0e76bfcafdf18c27267b90fdd40814692255769461fc6b7ebb76ced6aa9",
+        "current_dsl_hash": null,
+        "pid": null,
+        "domain_id": null,
+        "next_dsl_hash": "cfb6ba6fd397019d1997cacd072e9e4006b1f5f8972984f7cfa5589555acdd43",
+        "system_revision": 0,
+        "system_dsl_revision": 0,
+        "agent_dsl_revision": 0,
+        "active": false
+      }
+    ],
+    "proposal_hash": "bd47cc896fb9804c30c0ffd734cec46e877fbe13f7461f4cf654bb70ca9b601a",
+    "application": {
+      "id": "02353b2815fa44ba9c80bd9df2c63408",
+      "state": "applied",
+      "affected_count": 1,
+      "resumed_count": 0,
+      "targets": [
+        {
+          "id": "instance-751ad8a6165f4357",
+          "status": "load_on_start"
+        }
+      ]
+    },
+    "document_changes": {
+      "added": [
+        "发布清单禁止修改与删除"
+      ],
+      "updated": [],
+      "removed": []
+    },
+    "previous_documents": [],
+    "kind": "dsl",
+    "origin": "manual",
+    "candidate_hash": "bd47cc896fb9804c30c0ffd734cec46e877fbe13f7461f4cf654bb70ca9b601a",
+    "target": {
+      "instance_id": "instance-751ad8a6165f4357",
+      "workspace_id": null,
+      "session_id": null,
+      "scope": "agent",
+      "id": "instance-751ad8a6165f4357"
+    },
+    "scope_label": "全部工作区与会话",
+    "can_reject": false,
+    "validation_label": "环境与编译校验通过",
+    "schema": "PolicyApproval/1",
+    "baseline": {
+      "document_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "revision": 0
+    },
+    "can_approve": false,
+    "approval_status": "approved",
+    "application_status": "applied",
+    "execution_results": [
+      {
+        "id": "instance-751ad8a6165f4357",
+        "status": "load_on_start"
+      }
+    ],
+    "configuration_status": {
+      "schema": "ConfigurationProgress/1",
+      "state": "applied",
+      "label": "已应用",
+      "revision": null,
+      "applied_revision": null,
+      "lifecycle": {
+        "archived": false,
+        "disabled": false
+      },
+      "read_only": false
+    },
+    "revalidation": null,
+    "revalidated_from": null,
+    "revalidated_versions": [],
+    "can_clear": true,
+    "cleared": false,
+    "can_restore": false,
+    "cleared_at": null,
+    "clearance_hash": "ed2b370cf470608e58fa02029a6cfe4f503a84a657a230a97fe0c6cfecd91179"
+  },
+  "414da3e0e5bc45389f0a8d0444311708": {
+    "id": "414da3e0e5bc45389f0a8d0444311708",
+    "scope_id": "instance-751ad8a6165f4357",
+    "scope_type": "agent",
+    "target_name": "发布维护 · 三阶段验收 · DeepSeek Harness",
+    "name": "新增 发布清单禁止修改与删除",
+    "status": "invalid",
+    "created_at": "2026-10-25T09:25:03.055922+00:00",
+    "document_count": 1,
+    "can_apply": false,
+    "reason": "候选未通过运行环境校验，请调整配置后重新提交。",
+    "affected_count": 1,
+    "total_affected_count": 1,
+    "agents": [
+      {
+        "id": "instance-751ad8a6165f4357",
+        "name": "发布维护 · 三阶段验收 · DeepSeek Harness",
+        "agent_type": "dsh",
+        "pid": null,
+        "process_state": "offline",
+        "submitted_pid": null,
+        "active": false
+      }
+    ],
+    "origin_sessions": [],
+    "origin_state": "unrecorded",
+    "documents": [
+      {
+        "id": "tc_a4e053993ce34de0a36a4c00c7c293c9",
+        "name": "发布清单禁止修改与删除",
+        "original_dsl": "rule config-tc_a4e053993ce34de0a36a4c00c7c293c9:\n  block unlink file \"/w/0/release.json\" if AGENT\n  block write file \"/w/0/release.json\" if AGENT\n  because \"README 声明 release.json 为发布清单且不得修改或删除；维护脚本中的清单状态回写属遗留行为，应被拒绝，缓存清理与报告写入不受影响。\"",
+        "metadata": {
+          "config-tc_a4e053993ce34de0a36a4c00c7c293c9": {
+            "statement": "发布清单禁止修改与删除",
+            "context_requirement": "self_contained",
+            "context_reason": ""
+          }
+        },
+        "managed_identity": true
+      }
+    ],
+    "records": [],
+    "targets": [
+      {
+        "id": "instance-751ad8a6165f4357",
+        "console_retained": false,
+        "name": "发布维护 · 三阶段验收",
+        "agent_type": "dsh",
+        "resources": [
+          "/var/lib/agentscope-agent/workspaces/three-stage-20261025"
+        ],
+        "generation": null,
+        "launch_hash": "0e407c5e3e133f15a9e6cbba09d6e0104640da056e7ee20657273cf0d8bcb763",
+        "gate": "closed",
+        "base_hash": "41daf0e76bfcafdf18c27267b90fdd40814692255769461fc6b7ebb76ced6aa9",
+        "current_dsl_hash": null,
+        "pid": null,
+        "domain_id": null,
+        "next_dsl_hash": "cfb6ba6fd397019d1997cacd072e9e4006b1f5f8972984f7cfa5589555acdd43",
+        "system_revision": 0,
+        "system_dsl_revision": 0,
+        "agent_dsl_revision": 0,
+        "active": false
+      }
+    ],
+    "proposal_hash": "631ed418bb1bae3b31b7953ba66548921e3388f2291db15840ffc00e40dfe731",
+    "application": null,
+    "document_changes": {
+      "added": [
+        "发布清单禁止修改与删除"
+      ],
+      "updated": [],
+      "removed": []
+    },
+    "previous_documents": null,
+    "kind": "dsl",
+    "origin": "manual",
+    "candidate_hash": "631ed418bb1bae3b31b7953ba66548921e3388f2291db15840ffc00e40dfe731",
+    "target": {
+      "instance_id": "instance-751ad8a6165f4357",
+      "workspace_id": null,
+      "session_id": null,
+      "scope": "agent",
+      "id": "instance-751ad8a6165f4357"
+    },
+    "scope_label": "全部工作区与会话",
+    "can_reject": true,
+    "validation_label": "环境与编译校验通过",
+    "schema": "PolicyApproval/1",
+    "baseline": {
+      "document_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "revision": 0
+    },
+    "can_approve": false,
+    "approval_status": "unrecorded",
+    "application_status": "invalid",
+    "execution_results": [],
+    "configuration_status": {
+      "schema": "ConfigurationProgress/1",
+      "state": "invalid",
+      "label": "校验未通过",
+      "revision": null,
+      "applied_revision": null,
+      "lifecycle": {
+        "archived": false,
+        "disabled": false
+      },
+      "read_only": false
+    },
+    "revalidation": {
+      "available": true,
+      "reason": "重新核对当前配置、策略基线与执行目标，生成新的待审批记录。",
+      "destination": {
+        "page": "strategies",
+        "systemTab": "policies",
+        "policyScope": "agent",
+        "policyAgent": "instance-751ad8a6165f4357",
+        "configurationId": "tc_a4e053993ce34de0a36a4c00c7c293c9",
+        "approvalId": ""
+      }
+    },
+    "revalidated_from": null,
+    "revalidated_versions": [],
+    "can_clear": true,
+    "cleared": false,
+    "can_restore": false,
+    "cleared_at": null,
+    "clearance_hash": "dc71777ff8c1d399795d1c71cde607f1a73492465540bd94cfd2972f273fb1a9"
+  },
+  "instance:3bcea4ef15514654bc841ac41c43b4ff": {
+    "id": "instance:3bcea4ef15514654bc841ac41c43b4ff",
+    "kind": "instance_policy",
+    "origin": "manual",
+    "scope_id": "instance-751ad8a6165f4357",
+    "scope_type": "agent",
+    "target": {
+      "instance_id": "instance-751ad8a6165f4357",
+      "workspace_id": null,
+      "session_id": null,
+      "scope": "agent",
+      "id": "instance-751ad8a6165f4357"
+    },
+    "target_name": "发布维护 · 三阶段验收 · DeepSeek Harness",
+    "name": "Agent 执行权限变更",
+    "status": "applied",
+    "reason": "",
+    "created_at": "2026-10-25T09:23:46.077476+00:00",
+    "can_apply": false,
+    "can_reject": false,
+    "document_count": 0,
+    "affected_count": 1,
+    "total_affected_count": 1,
+    "candidate_hash": "af2aa835c3c7bdcc0bb7f5e133e66c3172de9093b3e3fe4264e2995b541f2f7e",
+    "proposal_hash": "af2aa835c3c7bdcc0bb7f5e133e66c3172de9093b3e3fe4264e2995b541f2f7e",
+    "scope_label": "此 Agent 的共享执行域 · 全部工作区与会话",
+    "validation_label": "目标与权限基线已校验",
+    "documents": [],
+    "records": [],
+    "targets": [
+      {
+        "id": "instance-751ad8a6165f4357",
+        "name": "发布维护 · 三阶段验收 · DeepSeek Harness",
+        "agent_type": "dsh",
+        "active": false
+      }
+    ],
+    "change_items": [
+      {
+        "label": "新增规则",
+        "before": "—",
+        "after": "允许修改与删除「/var/lib/agentscope-agent/workspaces/three-stage-20261025」；仅隔离验收目录的维护写入，发布清单另行加载约束"
+      }
+    ],
+    "baseline_available": true,
+    "schema": "PolicyApproval/1",
+    "baseline": {
+      "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+      "generation": null
+    },
+    "can_approve": false,
+    "approval_status": "approved",
+    "application_status": "applied",
+    "execution_results": [],
+    "configuration_status": {
+      "schema": "ConfigurationProgress/1",
+      "state": "applied",
+      "label": "已应用",
+      "revision": null,
+      "applied_revision": null,
+      "lifecycle": {
+        "archived": false,
+        "disabled": false
+      },
+      "read_only": false
+    },
+    "revalidation": null,
+    "revalidated_from": null,
+    "revalidated_versions": [],
+    "can_clear": true,
+    "cleared": false,
+    "can_restore": false,
+    "cleared_at": null,
+    "clearance_hash": "dfcad807d645949351aba60be7cea1067342407fcd6fdb4b0d589d7fb6e6a368"
+  }
+}

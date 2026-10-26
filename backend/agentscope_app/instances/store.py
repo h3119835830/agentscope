@@ -41,6 +41,8 @@ def init():
         from . import policy_library
         policy_library.init(con)
         sessions.init(con)
+        from . import policy_lifecycle
+        policy_lifecycle.init(con)
 def unpack(row):
     if not row: raise ValueError('实例不存在')
     r=dict(row)

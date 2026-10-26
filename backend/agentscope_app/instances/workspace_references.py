@@ -27,7 +27,8 @@ SLOTS=threading.BoundedSemaphore(2)
 READ_DEADLINE=ContextVar('policy_reference_deadline',default=None)
 WORKER=Path(__file__).resolve().parents[2]/'reference_file_reader.py'
 READER_CHANNEL=inherited_client()
-TEXT_EXTENSIONS={'.md','.txt','.rst','.json','.yaml','.yml','.toml','.ini','.cfg','.py','.js','.jsx','.ts','.tsx','.sh','.sql','.xml','.csv','.dsl'}
+TEXT_EXTENSIONS={'.md','.txt','.rst','.json','.yaml','.yml','.toml','.ini','.cfg','.py','.js','.jsx','.ts','.tsx','.sh','.sql','.xml','.csv','.dsl',
+ '.go','.rs','.java','.c','.h','.cc','.cpp','.hpp','.vue','.svelte','.css','.scss','.html','.cs','.rb','.php','.kt','.kts','.gradle','.properties'}
 SENSITIVE=re.compile(r'(?i)(?:^|[._-])(?:credentials?|secrets?|tokens?|private|id_rsa|id_ed25519)(?:$|[._-])')
 EXCLUDED={'.git','.dsh','.actplane','.ssh','.aws','.azure','.gnupg','.venv','node_modules','__pycache__'}
 
@@ -42,7 +43,9 @@ def init(con):con.executescript(SCHEMA)
 def reader_identity():
  # Pinned instance_runtime.prepare_home / instance_runner.sandbox use this UID,
  # this primary GID and no supplementary groups. No caller chooses an identity.
- return pwd.getpwnam('happy').pw_uid,grp.getgrnam(os.getenv('AGENTSCOPE_TASK_GROUP','agentscope-task')).gr_gid
+ user=os.getenv('AGENTSCOPE_REFERENCE_READER_USER','happy')
+ group=os.getenv('AGENTSCOPE_REFERENCE_READER_GROUP',os.getenv('AGENTSCOPE_TASK_GROUP','agentscope-task'))
+ return pwd.getpwnam(user).pw_uid,grp.getgrnam(group).gr_gid
 
 def context(ident):
  row=store.get(ident)
@@ -196,12 +199,16 @@ def verify(ident,read_id):
  return row
 
 def verify_metadata(ident,read_id):
- # Approval directory polling must not repeatedly read bodies or launch readers.
+ # Approval directory polling checks metadata only through the fixed identity.
  # Exact byte hashes and DAC are rechecked at generate/propose/apply boundaries.
- from reference_file_reader import directory as anchored_directory,identity
  row=load(ident,read_id);value=row['snapshot'];owner,binding=context(ident)
  if binding!=value['binding']:raise ValueError('场景依据中的 Agent、资源或策略已经变化，请重新读取')
  mount=selected_workspace(owner,value['workspace_id'])
+ if READER_CHANNEL is not None:
+  fresh=run_reader({'operation':'metadata','root':mount['source'],'paths':[f['relative_path'] for f in value['files']]},binding['uid'],binding['gid'])
+  if fresh['root_identity']!=value['root_identity'] or fresh['files']!=[{k:f[k] for k in ('relative_path','identity')} for f in value['files']]:raise ValueError('项目文件已经变化，请重新读取参考资料')
+  return row
+ from reference_file_reader import directory as anchored_directory,identity
  for source in value['files']:
   handles=[]
   try:

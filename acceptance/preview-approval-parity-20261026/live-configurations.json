@@ -1,0 +1,5058 @@
+{
+  "catalog": [
+    {
+      "id": "RQ1-ENV",
+      "version": 2,
+      "name": "敏感配置访问限制",
+      "category": "文件保护",
+      "summary": "禁止读取指定的敏感文件。",
+      "parameters": [
+        {
+          "key": "target",
+          "label": "保护对象的路径",
+          "default": "",
+          "type": "path"
+        }
+      ],
+      "effect": "block",
+      "operation": "open",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "",
+      "reason": "禁止读取指定的敏感文件。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+      "assistant_alias": "FILE-READ",
+      "execution_support": {
+        "status": "limited",
+        "applicable": true,
+        "event_type": "单事件",
+        "supported": [
+          "按配置路径、文件名或后缀匹配指定文件访问；block 在文件操作前拒绝。",
+          "notify 记录并继续；kill 终止命中进程。"
+        ],
+        "unsupported": [
+          "按文件内容识别秘密、按用户意图判断资料用途。",
+          "修改与删除独立授权：当前两者共用执行访问组。"
+        ],
+        "boundary": [
+          "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+          "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+          "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 3,
+          "effects": [
+            "block",
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "description": "适用于场景明确要求隔离敏感配置文件。填写需要禁止读取的文件或目录路径；默认阻止并反馈。它只约束读取，不代替修改、删除或敏感信息外发约束。",
+      "dsl_preview": {
+        "state": "incomplete",
+        "dsl": "rule config-preview:\n  block open file \"{{target}}\" if AGENT\n  because \"禁止读取指定的敏感文件。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+        "missing": [
+          "保护对象的路径"
+        ],
+        "errors": [],
+        "preview_only": true
+      }
+    },
+    {
+      "id": "RQ1-CONTRACT",
+      "version": 2,
+      "name": "开发契约文件保护",
+      "category": "文件保护",
+      "summary": "保护开发契约文件的修改与删除。",
+      "parameters": [
+        {
+          "key": "target",
+          "label": "保护对象的路径",
+          "default": "",
+          "type": "path"
+        },
+        {
+          "key": "operations",
+          "label": "需要限制的操作",
+          "default": "write,unlink",
+          "type": "operations"
+        }
+      ],
+      "effect": "block",
+      "operation": "write",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "",
+      "reason": "保护开发契约文件的修改与删除。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+      "assistant_alias": "FILE-CHANGE",
+      "execution_support": {
+        "status": "limited",
+        "applicable": true,
+        "event_type": "单事件",
+        "supported": [
+          "按配置路径、文件名或后缀匹配指定文件访问；block 在文件操作前拒绝。",
+          "notify 记录并继续；kill 终止命中进程。"
+        ],
+        "unsupported": [
+          "按文件内容识别秘密、按用户意图判断资料用途。",
+          "修改与删除独立授权：当前两者共用执行访问组。"
+        ],
+        "boundary": [
+          "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+          "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+          "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 6,
+          "effects": [
+            "block",
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "description": "适用于保护开发契约、团队约定或关键配置免于修改、删除。填写目标路径和需要限制的操作；修改与删除分别形成子配置，提交时须核对后端共同覆盖的实际影响。",
+      "dsl_preview": {
+        "state": "incomplete",
+        "dsl": "rule config-preview:\n  block unlink file \"{{target}}\" if AGENT\n  block write file \"{{target}}\" if AGENT\n  because \"保护开发契约文件的修改与删除。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+        "missing": [
+          "保护对象的路径"
+        ],
+        "errors": [],
+        "preview_only": true
+      }
+    },
+    {
+      "id": "FILE-READ",
+      "version": 2,
+      "name": "文件读取限制",
+      "category": "文件保护",
+      "summary": "禁止读取指定文件或目录中的资料。",
+      "parameters": [
+        {
+          "key": "target",
+          "label": "保护对象的路径",
+          "default": "",
+          "type": "path"
+        }
+      ],
+      "effect": "block",
+      "operation": "open",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "",
+      "reason": "禁止读取指定文件或目录中的资料。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+      "execution_support": {
+        "status": "limited",
+        "applicable": true,
+        "event_type": "单事件",
+        "supported": [
+          "按配置路径、文件名或后缀匹配指定文件访问；block 在文件操作前拒绝。",
+          "notify 记录并继续；kill 终止命中进程。"
+        ],
+        "unsupported": [
+          "按文件内容识别秘密、按用户意图判断资料用途。",
+          "修改与删除独立授权：当前两者共用执行访问组。"
+        ],
+        "boundary": [
+          "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+          "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+          "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 3,
+          "effects": [
+            "block",
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "description": "适用于场景明确要求不读取某个文件或目录，例如生成日报时隔离无关资料。填写目标路径，默认阻止并反馈；不额外约束修改、删除或网络外发。",
+      "dsl_preview": {
+        "state": "incomplete",
+        "dsl": "rule config-preview:\n  block open file \"{{target}}\" if AGENT\n  because \"禁止读取指定文件或目录中的资料。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+        "missing": [
+          "保护对象的路径"
+        ],
+        "errors": [],
+        "preview_only": true
+      }
+    },
+    {
+      "id": "FILE-CHANGE",
+      "version": 2,
+      "name": "文件修改与删除限制",
+      "category": "文件保护",
+      "summary": "限制指定文件或目录的修改与删除。",
+      "parameters": [
+        {
+          "key": "target",
+          "label": "保护对象的路径",
+          "default": "",
+          "type": "path"
+        },
+        {
+          "key": "operations",
+          "label": "需要限制的操作",
+          "default": "write,unlink",
+          "type": "operations"
+        }
+      ],
+      "effect": "block",
+      "operation": "write",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "",
+      "reason": "限制指定文件或目录的修改与删除。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+      "execution_support": {
+        "status": "limited",
+        "applicable": true,
+        "event_type": "单事件",
+        "supported": [
+          "按配置路径、文件名或后缀匹配指定文件访问；block 在文件操作前拒绝。",
+          "notify 记录并继续；kill 终止命中进程。"
+        ],
+        "unsupported": [
+          "按文件内容识别秘密、按用户意图判断资料用途。",
+          "修改与删除独立授权：当前两者共用执行访问组。"
+        ],
+        "boundary": [
+          "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+          "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+          "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 6,
+          "effects": [
+            "block",
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "description": "适用于保护文件或目录免于修改、删除。填写目标路径和要限制的操作；不要将仅要求禁止删除自动解释为禁止修改。当前后端共同覆盖修改与删除，应用前须核对实际影响。",
+      "dsl_preview": {
+        "state": "incomplete",
+        "dsl": "rule config-preview:\n  block unlink file \"{{target}}\" if AGENT\n  block write file \"{{target}}\" if AGENT\n  because \"限制指定文件或目录的修改与删除。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+        "missing": [
+          "保护对象的路径"
+        ],
+        "errors": [],
+        "preview_only": true
+      }
+    },
+    {
+      "id": "WRITE-BOUNDARY",
+      "version": 2,
+      "name": "文件变更范围约束",
+      "category": "文件保护",
+      "summary": "限制变更范围，仅为指定路径保留例外。",
+      "parameters": [
+        {
+          "key": "target",
+          "label": "受约束的文件范围",
+          "default": "",
+          "type": "path"
+        },
+        {
+          "key": "exception",
+          "label": "保留变更权限的路径范围",
+          "default": "",
+          "type": "path"
+        }
+      ],
+      "effect": "block",
+      "operation": "write",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "例外只保留现有访问权限，不授予写权限；修改与删除属于同一执行访问组。",
+      "reason": "限制变更范围，仅为指定路径保留例外。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+      "execution_support": {
+        "status": "limited",
+        "applicable": true,
+        "event_type": "单事件",
+        "supported": [
+          "在指定文件变更范围内执行限制，保留匹配例外的原有权限。"
+        ],
+        "unsupported": [
+          "例外不授予新权限；修改与删除不能分别授权。"
+        ],
+        "boundary": [
+          "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+          "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+          "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 3,
+          "effects": [
+            "block",
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "description": "适用于限定可变更范围的场景。填写受约束路径和保留现有变更权限的例外路径；例外不授予新权限，修改与删除仍属于同一执行访问组。",
+      "dsl_preview": {
+        "state": "incomplete",
+        "dsl": "rule config-preview:\n  block write file \"{{target}}\" if AGENT unless target \"{{exception}}\"\n  because \"限制变更范围，仅为指定路径保留例外。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+        "missing": [
+          "受约束的文件范围",
+          "保留变更权限的路径范围"
+        ],
+        "errors": [],
+        "preview_only": true
+      }
+    },
+    {
+      "id": "RQ1-GENERATED",
+      "version": 2,
+      "name": "生成文件写入约束",
+      "category": "生成产物",
+      "summary": "生成文件的变更应经过指定程序的执行链。",
+      "parameters": [
+        {
+          "key": "target",
+          "label": "保护对象的路径",
+          "default": "",
+          "type": "path"
+        },
+        {
+          "key": "producer",
+          "label": "生成程序名",
+          "default": "",
+          "type": "program"
+        }
+      ],
+      "effect": "block",
+      "operation": "write",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "按程序执行链匹配，不证明特定脚本、参数或生成内容正确。",
+      "reason": "生成文件的变更应经过指定程序的执行链。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+      "execution_support": {
+        "status": "limited",
+        "applicable": true,
+        "event_type": "跨事件",
+        "supported": [
+          "按已观测的生成程序执行链限制文件变更。"
+        ],
+        "unsupported": [
+          "校验具体脚本、参数、签名或生成内容是否正确。"
+        ],
+        "boundary": [
+          "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+          "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+          "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 3,
+          "effects": [
+            "block",
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "description": "适用于要求生成产物的变更来自指定程序执行链的场景。填写产物路径与生成程序名；按程序执行链匹配，不证明特定脚本、参数或文件内容正确。",
+      "dsl_preview": {
+        "state": "incomplete",
+        "dsl": "rule config-preview:\n  block write file \"{{target}}\" if AGENT unless lineage-includes exec \"{{producer}}\"\n  because \"生成文件的变更应经过指定程序的执行链。 请在允许的范围内继续任务，必要时提交最小变更需求。 当前执行访问组同时限制修改与删除。\"",
+        "missing": [
+          "保护对象的路径",
+          "生成程序名"
+        ],
+        "errors": [],
+        "preview_only": true
+      }
+    },
+    {
+      "id": "RQ1-CHECK",
+      "version": 2,
+      "name": "提交前检查顺序",
+      "category": "开发流程",
+      "summary": "代码变更后，提交前应出现指定检查程序的执行事件。",
+      "parameters": [
+        {
+          "key": "target",
+          "label": "保护对象的路径",
+          "default": "",
+          "type": "path"
+        },
+        {
+          "key": "checker",
+          "label": "检查程序名",
+          "default": "",
+          "type": "program"
+        }
+      ],
+      "effect": "block",
+      "operation": "exec",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "当前运行后端不支持按提交参数事前 block；可保存配置，编译不支持时不能应用。",
+      "reason": "代码变更后，提交前应出现指定检查程序的执行事件。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+      "execution_support": {
+        "status": "legacy",
+        "applicable": false,
+        "event_type": "跨事件",
+        "supported": [
+          "保留原模板版本、既有参数和 DSL，不迁移已有配置。"
+        ],
+        "unsupported": [
+          "已由专用 Git 模板替代；旧模板不提供新的细分参数。",
+          "旧检查仅要求检查程序执行事件，不校验成功退出码；默认 block 不支持。请使用新版 Git 检查模板。"
+        ],
+        "boundary": [
+          "历史模板只读；不能新增、编辑或重新应用。已生效策略保留，可走审批停用。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 8,
+          "effects": [
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "retired": true,
+      "replacements": [
+        "GIT-COMMIT-CHECK",
+        "GIT-PUSH-CHECK"
+      ],
+      "description": "适用于代码变更后、提交前必须运行检查程序的场景。填写代码路径和检查程序名。当前后端不支持按提交参数事前阻断；可起草，是否能应用以执行能力和编译校验为准。",
+      "dsl_preview": {
+        "state": "incomplete",
+        "dsl": "source CODE = file \"{{target}}\"\nrule config-preview:\n  block exec \"git\" \"commit\" if AGENT and CODE unless after exec \"{{checker}}\" since write \"{{target}}\"\n  because \"代码变更后，提交前应出现指定检查程序的执行事件。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+        "missing": [
+          "保护对象的路径",
+          "检查程序名"
+        ],
+        "errors": [],
+        "preview_only": true
+      }
+    },
+    {
+      "id": "RQ1-DELETE",
+      "version": 2,
+      "name": "文件删除提醒",
+      "category": "行为提醒",
+      "summary": "记录并反馈指定文件的变更操作。",
+      "parameters": [
+        {
+          "key": "target",
+          "label": "保护对象的路径",
+          "default": "",
+          "type": "path"
+        },
+        {
+          "key": "operations",
+          "label": "需要限制的操作",
+          "default": "write,unlink",
+          "type": "operations"
+        }
+      ],
+      "effect": "notify",
+      "operation": "unlink",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "提醒会继续执行；当前修改与删除共用访问组。",
+      "reason": "记录并反馈指定文件的变更操作。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+      "execution_support": {
+        "status": "limited",
+        "applicable": true,
+        "event_type": "单事件",
+        "supported": [
+          "按配置路径、文件名或后缀匹配指定文件访问；block 在文件操作前拒绝。",
+          "notify 记录并继续；kill 终止命中进程。"
+        ],
+        "unsupported": [
+          "按文件内容识别秘密、按用户意图判断资料用途。",
+          "修改与删除独立授权：当前两者共用执行访问组。"
+        ],
+        "boundary": [
+          "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+          "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+          "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 6,
+          "effects": [
+            "block",
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "description": "适用于需要记录并反馈文件变更、允许任务继续的场景。填写目标路径和操作，默认记录并提醒；提醒不会阻止执行，当前后端修改与删除共同覆盖。",
+      "dsl_preview": {
+        "state": "incomplete",
+        "dsl": "rule config-preview:\n  notify unlink file \"{{target}}\" if AGENT\n  notify write file \"{{target}}\" if AGENT\n  because \"记录并反馈指定文件的变更操作。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+        "missing": [
+          "保护对象的路径"
+        ],
+        "errors": [],
+        "preview_only": true
+      }
+    },
+    {
+      "id": "RQ1-GIT",
+      "version": 2,
+      "name": "高风险 Git 操作约束",
+      "category": "开发流程",
+      "summary": "匹配高风险 Git 参数后终止命中进程。",
+      "parameters": [],
+      "effect": "kill",
+      "operation": "exec",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "参数来自执行后观察，不能保证危险操作事前未发生。",
+      "reason": "匹配高风险 Git 参数后终止命中进程。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+      "execution_support": {
+        "status": "legacy",
+        "applicable": false,
+        "event_type": "单事件",
+        "supported": [
+          "保留原模板版本、既有参数和 DSL，不迁移已有配置。"
+        ],
+        "unsupported": [
+          "已由专用 Git 模板替代；旧模板不提供新的细分参数。"
+        ],
+        "boundary": [
+          "历史模板只读；不能新增、编辑或重新应用。已生效策略保留，可走审批停用。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 2,
+          "effects": [
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "retired": true,
+      "replacements": [
+        "GIT-COMMIT",
+        "GIT-PUSH",
+        "GIT-LOCAL",
+        "GIT-BYPASS"
+      ],
+      "description": "适用于场景要求对模板列明的高风险 Git 参数终止命中进程。使用固定条件，无需填写参数。参数来自执行后观察，不能保证危险操作在发生前被阻断。",
+      "dsl_preview": {
+        "state": "complete",
+        "dsl": "rule config-preview:\n  kill exec \"git\" \"reset\" if AGENT\n  kill exec \"git\" \"clean\" if AGENT\n  kill exec \"git\" \"stash\" if AGENT\n  kill exec \"git\" \"--no-verify\" if AGENT\n  because \"匹配高风险 Git 参数后终止命中进程。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+        "missing": [],
+        "errors": [],
+        "preview_only": true
+      }
+    },
+    {
+      "id": "EXEC-BLOCK",
+      "version": 2,
+      "name": "程序执行限制",
+      "category": "进程与网络",
+      "summary": "禁止 Agent 及后代启动指定程序。",
+      "parameters": [
+        {
+          "key": "program",
+          "label": "程序名或路径",
+          "default": "",
+          "type": "program"
+        }
+      ],
+      "effect": "block",
+      "operation": "exec",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "",
+      "reason": "禁止 Agent 及后代启动指定程序。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+      "execution_support": {
+        "status": "limited",
+        "applicable": true,
+        "event_type": "单事件",
+        "supported": [
+          "按程序匹配启动事件；block 可事前拒绝整个程序。"
+        ],
+        "unsupported": [
+          "按命令行参数选择性事前阻断；程序名不能代替脚本内容校验。"
+        ],
+        "boundary": [
+          "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+          "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+          "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 3,
+          "effects": [
+            "block",
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "description": "适用于明确禁止受控 Agent 及其后代启动某个程序的场景。填写程序名或可执行路径，不填写整段终端命令；默认阻止并反馈。",
+      "dsl_preview": {
+        "state": "incomplete",
+        "dsl": "rule config-preview:\n  block exec \"{{program}}\" if AGENT\n  because \"禁止 Agent 及后代启动指定程序。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+        "missing": [
+          "程序名或路径"
+        ],
+        "errors": [],
+        "preview_only": true
+      }
+    },
+    {
+      "id": "EXEC-AUDIT",
+      "version": 2,
+      "name": "程序执行记录",
+      "category": "进程与网络",
+      "summary": "记录 Agent 及后代启动指定程序的事件。",
+      "parameters": [
+        {
+          "key": "program",
+          "label": "程序名或路径",
+          "default": "*",
+          "type": "program"
+        }
+      ],
+      "effect": "notify",
+      "operation": "exec",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "",
+      "reason": "记录 Agent 及后代启动指定程序的事件。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+      "execution_support": {
+        "status": "limited",
+        "applicable": true,
+        "event_type": "单事件",
+        "supported": [
+          "按程序匹配启动事件；block 可事前拒绝整个程序。"
+        ],
+        "unsupported": [
+          "按命令行参数选择性事前阻断；程序名不能代替脚本内容校验。"
+        ],
+        "boundary": [
+          "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+          "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+          "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 3,
+          "effects": [
+            "block",
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "description": "适用于观察指定程序启动、允许执行继续的场景。填写程序名或路径，星号表示全部程序；默认记录并提醒，不阻止启动。",
+      "dsl_preview": {
+        "state": "complete",
+        "dsl": "rule config-preview:\n  notify exec \"*\" if AGENT\n  because \"记录 Agent 及后代启动指定程序的事件。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+        "missing": [],
+        "errors": [],
+        "preview_only": true
+      }
+    },
+    {
+      "id": "NET-BLOCK",
+      "version": 2,
+      "name": "网络连接限制",
+      "category": "进程与网络",
+      "summary": "禁止向指定 IPv4 地址或地址前缀建立连接。",
+      "parameters": [
+        {
+          "key": "endpoint",
+          "label": "IPv4 地址、前缀或 *",
+          "default": "",
+          "type": "endpoint"
+        }
+      ],
+      "effect": "block",
+      "operation": "connect",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "约束新连接，不等同于已有连接发送、DNS 或完整流量控制。",
+      "reason": "禁止向指定 IPv4 地址或地址前缀建立连接。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+      "execution_support": {
+        "status": "limited",
+        "applicable": true,
+        "event_type": "单事件",
+        "supported": [
+          "按 IPv4 地址、地址前缀或全部目标匹配新连接。"
+        ],
+        "unsupported": [
+          "按域名、端口或 HTTP 内容控制；IPv6 和已有连接的全部发送。"
+        ],
+        "boundary": [
+          "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+          "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+          "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 3,
+          "effects": [
+            "block",
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "description": "适用于明确禁止向某个 IPv4 地址或地址前缀建立新连接的场景。填写地址、前缀或星号；不支持将域名直接当作地址，不等同于控制已有连接发送或全部网络流量。",
+      "dsl_preview": {
+        "state": "incomplete",
+        "dsl": "rule config-preview:\n  block connect endpoint \"{{endpoint}}\" if AGENT\n  because \"禁止向指定 IPv4 地址或地址前缀建立连接。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+        "missing": [
+          "IPv4 地址、前缀或 *"
+        ],
+        "errors": [],
+        "preview_only": true
+      }
+    },
+    {
+      "id": "NET-AUDIT",
+      "version": 2,
+      "name": "网络连接记录",
+      "category": "进程与网络",
+      "summary": "记录指定 IPv4 目标的连接事件。",
+      "parameters": [
+        {
+          "key": "endpoint",
+          "label": "IPv4 地址、前缀或 *",
+          "default": "*",
+          "type": "endpoint"
+        }
+      ],
+      "effect": "notify",
+      "operation": "connect",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "",
+      "reason": "记录指定 IPv4 目标的连接事件。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+      "execution_support": {
+        "status": "limited",
+        "applicable": true,
+        "event_type": "单事件",
+        "supported": [
+          "按 IPv4 地址、地址前缀或全部目标匹配新连接。"
+        ],
+        "unsupported": [
+          "按域名、端口或 HTTP 内容控制；IPv6 和已有连接的全部发送。"
+        ],
+        "boundary": [
+          "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+          "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+          "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 3,
+          "effects": [
+            "block",
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "description": "适用于记录指定 IPv4 目标新连接的场景。填写地址、前缀或星号，默认记录并提醒；不阻断连接，也不代表完整流量审计。",
+      "dsl_preview": {
+        "state": "complete",
+        "dsl": "rule config-preview:\n  notify connect endpoint \"*\" if AGENT\n  because \"记录指定 IPv4 目标的连接事件。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+        "missing": [],
+        "errors": [],
+        "preview_only": true
+      }
+    },
+    {
+      "id": "SECRET-EGRESS",
+      "version": 3,
+      "name": "敏感资料外发限制",
+      "category": "跨事件保护",
+      "summary": "接触指定敏感来源后，禁止向指定目标建立连接。",
+      "parameters": [
+        {
+          "key": "target",
+          "label": "敏感来源路径",
+          "default": "",
+          "type": "path"
+        },
+        {
+          "key": "endpoint",
+          "label": "受限制的 IPv4 目标",
+          "default": "*",
+          "type": "endpoint"
+        }
+      ],
+      "effect": "block",
+      "operation": "connect",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "标签沿已观测的进程与文件传播；新连接限制不证明所有外发通道已覆盖。",
+      "reason": "接触指定敏感来源后，禁止向指定目标建立连接。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+      "label_contract": "explicit-secret-sources.v1",
+      "source_label": "SECRET",
+      "execution_support": {
+        "status": "limited",
+        "applicable": true,
+        "event_type": "跨事件",
+        "supported": [
+          "观测敏感文件来源并传播标签，对带标签进程的新 IPv4 连接执行限制。"
+        ],
+        "unsupported": [
+          "按发送正文判断是否泄密；覆盖全部外发通道和已有连接发送。"
+        ],
+        "boundary": [
+          "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+          "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+          "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。",
+          "共享进程的敏感标签可能影响后续正常连接，包括模型请求。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 3,
+          "effects": [
+            "block",
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "description": "适用于接触指定敏感文件后限制向指定 IPv4 目标建立连接的场景。填写敏感来源路径及目标地址或前缀；标签沿已观察的进程与文件传播，不证明覆盖所有外发通道。",
+      "dsl_preview": {
+        "state": "incomplete",
+        "dsl": "source SECRET = file \"{{target}}\"\nrule config-preview:\n  block connect endpoint \"*\" if AGENT and SECRET\n  because \"接触指定敏感来源后，禁止向指定目标建立连接。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+        "missing": [
+          "敏感来源路径"
+        ],
+        "errors": [],
+        "preview_only": true
+      }
+    },
+    {
+      "id": "REMOTE-EXEC",
+      "version": 2,
+      "name": "网络输入后的执行提醒",
+      "category": "跨事件保护",
+      "summary": "接触网络输入后，记录指定程序的启动。",
+      "parameters": [
+        {
+          "key": "program",
+          "label": "程序名或路径",
+          "default": "",
+          "type": "program"
+        }
+      ],
+      "effect": "notify",
+      "operation": "exec",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "来源标签不是脚本内容或签名校验。",
+      "reason": "接触网络输入后，记录指定程序的启动。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+      "execution_support": {
+        "status": "limited",
+        "applicable": true,
+        "event_type": "跨事件",
+        "supported": [
+          "按已观测的网络来源标签匹配后续指定程序启动。"
+        ],
+        "unsupported": [
+          "判断脚本是否恶意、校验下载内容或签名、精确识别 shell 管道。"
+        ],
+        "boundary": [
+          "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+          "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+          "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 3,
+          "effects": [
+            "block",
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "description": "适用于接触网络输入后观察某个程序启动的场景。填写程序名或路径，默认记录并提醒；网络来源标签不等于脚本内容、签名或完整 shell 管道校验。",
+      "dsl_preview": {
+        "state": "incomplete",
+        "dsl": "source REMOTE = endpoint \"*\"\nrule config-preview:\n  notify exec \"{{program}}\" if AGENT and REMOTE\n  because \"接触网络输入后，记录指定程序的启动。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+        "missing": [
+          "程序名或路径"
+        ],
+        "errors": [],
+        "preview_only": true
+      }
+    },
+    {
+      "id": "SYS-env",
+      "version": 2,
+      "name": "环境凭据文件",
+      "category": "系统 · 凭据保护",
+      "summary": "保护所有以 .env 结尾的文件",
+      "parameters": [
+        {
+          "key": "values",
+          "label": "匹配对象（每行一个）",
+          "default": ".env",
+          "type": "lines"
+        },
+        {
+          "key": "operations",
+          "label": "触发操作",
+          "default": "open",
+          "type": "operations"
+        },
+        {
+          "key": "effect",
+          "label": "匹配后的动作",
+          "default": "block",
+          "type": "effect"
+        }
+      ],
+      "effect": "block",
+      "operation": "open",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "",
+      "reason": "环境配置可能含有凭据，应保留原件。先核对项目已登记的脱敏示例或受控凭据接口，用公开配置继续任务并验证结果；缺少必要接口时，提交凭据用途和最小访问需求请求审核，不复制或改名读取原件。",
+      "allowed_operations": [
+        "open",
+        "write",
+        "unlink"
+      ],
+      "execution_support": {
+        "status": "limited",
+        "applicable": true,
+        "event_type": "单事件",
+        "supported": [
+          "按配置路径、文件名或后缀匹配指定文件访问；block 在文件操作前拒绝。",
+          "notify 记录并继续；kill 终止命中进程。"
+        ],
+        "unsupported": [
+          "按文件内容识别秘密、按用户意图判断资料用途。",
+          "修改与删除独立授权：当前两者共用执行访问组。"
+        ],
+        "boundary": [
+          "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+          "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+          "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。",
+          "文件后缀匹配需运行引擎能力核验；匹配值最多 63 字节。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 9,
+          "effects": [
+            "block",
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "description": "适用于按环境凭据文件后缀进行统一保护的场景。匹配对象每行填写一个字面后缀，例如 .env；可选择触发操作和动作。它匹配以该后缀结尾的文件，不把 .env 自动扩展成 .env.local。",
+      "dsl_preview": {
+        "state": "complete",
+        "dsl": "rule system-preview:\n  block open file \"**/*.env\" if AGENT\n  because \"环境配置可能含有凭据，应保留原件。先核对项目已登记的脱敏示例或受控凭据接口，用公开配置继续任务并验证结果；缺少必要接口时，提交凭据用途和最小访问需求请求审核，不复制或改名读取原件。\"",
+        "missing": [],
+        "errors": [],
+        "preview_only": true
+      }
+    },
+    {
+      "id": "SYS-ssh",
+      "version": 2,
+      "name": "SSH 私钥",
+      "category": "系统 · 凭据保护",
+      "summary": "保护常见 SSH 私钥文件",
+      "parameters": [
+        {
+          "key": "values",
+          "label": "匹配对象（每行一个）",
+          "default": ".ssh/id_rsa\n.ssh/id_ed25519\n.ssh/id_ecdsa",
+          "type": "lines"
+        },
+        {
+          "key": "operations",
+          "label": "触发操作",
+          "default": "open",
+          "type": "operations"
+        },
+        {
+          "key": "effect",
+          "label": "匹配后的动作",
+          "default": "block",
+          "type": "effect"
+        }
+      ],
+      "effect": "block",
+      "operation": "open",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "",
+      "reason": "SSH 私钥属于受保护凭据。先核对已获准的 SSH 代理和连接配置，通过凭据代理完成连接并检查结果；缺少代理或授权时，提交目标主机、用途和最小访问需求请求审核，保留私钥原件。",
+      "allowed_operations": [
+        "open",
+        "write",
+        "unlink"
+      ],
+      "execution_support": {
+        "status": "limited",
+        "applicable": true,
+        "event_type": "单事件",
+        "supported": [
+          "按配置路径、文件名或后缀匹配指定文件访问；block 在文件操作前拒绝。",
+          "notify 记录并继续；kill 终止命中进程。"
+        ],
+        "unsupported": [
+          "按文件内容识别秘密、按用户意图判断资料用途。",
+          "修改与删除独立授权：当前两者共用执行访问组。"
+        ],
+        "boundary": [
+          "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+          "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+          "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。",
+          "文件后缀匹配需运行引擎能力核验；匹配值最多 63 字节。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 9,
+          "effects": [
+            "block",
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "description": "适用于保护常见 SSH 私钥的场景。匹配对象每行填写一个相对路径后缀，例如 .ssh/id_ed25519；可选择触发操作和动作。仅使用场景需要的对象，不把整套 SSH 配置默认视为私钥。",
+      "dsl_preview": {
+        "state": "complete",
+        "dsl": "rule system-preview:\n  block open file \"**/.ssh/id_rsa\" if AGENT\n  block open file \"**/.ssh/id_ed25519\" if AGENT\n  block open file \"**/.ssh/id_ecdsa\" if AGENT\n  because \"SSH 私钥属于受保护凭据。先核对已获准的 SSH 代理和连接配置，通过凭据代理完成连接并检查结果；缺少代理或授权时，提交目标主机、用途和最小访问需求请求审核，保留私钥原件。\"",
+        "missing": [],
+        "errors": [],
+        "preview_only": true
+      }
+    },
+    {
+      "id": "SYS-cloud",
+      "version": 2,
+      "name": "云服务凭据",
+      "category": "系统 · 凭据保护",
+      "summary": "保护 AWS 与 Kubernetes 凭据配置",
+      "parameters": [
+        {
+          "key": "values",
+          "label": "匹配对象（每行一个）",
+          "default": ".aws/credentials\n.kube/config",
+          "type": "lines"
+        },
+        {
+          "key": "operations",
+          "label": "触发操作",
+          "default": "open",
+          "type": "operations"
+        },
+        {
+          "key": "effect",
+          "label": "匹配后的动作",
+          "default": "block",
+          "type": "effect"
+        }
+      ],
+      "effect": "block",
+      "operation": "open",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "",
+      "reason": "云服务凭据与集群配置属于受保护材料。先核对已登记的受控云服务接口或脱敏配置，用公开参数完成当前允许的工作并验证结果；确需凭据访问时，提交服务、用途和最小权限需求请求审核，保留原件。",
+      "allowed_operations": [
+        "open",
+        "write",
+        "unlink"
+      ],
+      "execution_support": {
+        "status": "limited",
+        "applicable": true,
+        "event_type": "单事件",
+        "supported": [
+          "按配置路径、文件名或后缀匹配指定文件访问；block 在文件操作前拒绝。",
+          "notify 记录并继续；kill 终止命中进程。"
+        ],
+        "unsupported": [
+          "按文件内容识别秘密、按用户意图判断资料用途。",
+          "修改与删除独立授权：当前两者共用执行访问组。"
+        ],
+        "boundary": [
+          "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+          "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+          "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。",
+          "文件后缀匹配需运行引擎能力核验；匹配值最多 63 字节。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 9,
+          "effects": [
+            "block",
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "description": "适用于保护 AWS、Kubernetes 等凭据配置的场景。每行填写一个相对路径后缀，例如 .aws/credentials 或 .kube/config；可选择触发操作和动作，不改变云平台本身的权限。",
+      "dsl_preview": {
+        "state": "complete",
+        "dsl": "rule system-preview:\n  block open file \"**/.aws/credentials\" if AGENT\n  block open file \"**/.kube/config\" if AGENT\n  because \"云服务凭据与集群配置属于受保护材料。先核对已登记的受控云服务接口或脱敏配置，用公开参数完成当前允许的工作并验证结果；确需凭据访问时，提交服务、用途和最小权限需求请求审核，保留原件。\"",
+        "missing": [],
+        "errors": [],
+        "preview_only": true
+      }
+    },
+    {
+      "id": "SYS-system-files",
+      "version": 2,
+      "name": "系统身份与授权文件",
+      "category": "系统 · 文件保护",
+      "summary": "保护系统账号和提权配置",
+      "parameters": [
+        {
+          "key": "values",
+          "label": "匹配对象（每行一个）",
+          "default": "/etc/passwd\n/etc/shadow\n/etc/sudoers",
+          "type": "lines"
+        },
+        {
+          "key": "operations",
+          "label": "触发操作",
+          "default": "write,unlink",
+          "type": "operations"
+        },
+        {
+          "key": "effect",
+          "label": "匹配后的动作",
+          "default": "block",
+          "type": "effect"
+        }
+      ],
+      "effect": "block",
+      "operation": "write",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "",
+      "reason": "系统账号与授权文件由管理员维护。先读取任务允许的公开诊断，在项目配置内处理可解决的问题并验证结果；确需系统变更时，提交目标、用途、实际错误和预期影响请求管理员审核，保留系统文件。",
+      "allowed_operations": [
+        "open",
+        "write",
+        "unlink"
+      ],
+      "execution_support": {
+        "status": "limited",
+        "applicable": true,
+        "event_type": "单事件",
+        "supported": [
+          "按配置路径、文件名或后缀匹配指定文件访问；block 在文件操作前拒绝。",
+          "notify 记录并继续；kill 终止命中进程。"
+        ],
+        "unsupported": [
+          "按文件内容识别秘密、按用户意图判断资料用途。",
+          "修改与删除独立授权：当前两者共用执行访问组。"
+        ],
+        "boundary": [
+          "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+          "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+          "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 9,
+          "effects": [
+            "block",
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "description": "适用于保护系统账号、授权或提权配置免于变更的场景。每行填写实际绝对文件路径，并选择触发操作和动作；当前修改与删除共用访问组，须核对实际覆盖。",
+      "dsl_preview": {
+        "state": "complete",
+        "dsl": "rule system-preview:\n  block unlink file \"/etc/passwd\" if AGENT\n  block unlink file \"/etc/shadow\" if AGENT\n  block unlink file \"/etc/sudoers\" if AGENT\n  block write file \"/etc/passwd\" if AGENT\n  block write file \"/etc/shadow\" if AGENT\n  block write file \"/etc/sudoers\" if AGENT\n  because \"系统账号与授权文件由管理员维护。先读取任务允许的公开诊断，在项目配置内处理可解决的问题并验证结果；确需系统变更时，提交目标、用途、实际错误和预期影响请求管理员审核，保留系统文件。\"",
+        "missing": [],
+        "errors": [],
+        "preview_only": true
+      }
+    },
+    {
+      "id": "SYS-policy-store",
+      "version": 2,
+      "name": "安全策略文件",
+      "category": "系统 · 文件保护",
+      "summary": "保护策略源文件与配置目录",
+      "parameters": [
+        {
+          "key": "values",
+          "label": "匹配对象（每行一个）",
+          "default": "",
+          "type": "lines"
+        },
+        {
+          "key": "operations",
+          "label": "触发操作",
+          "default": "write,unlink",
+          "type": "operations"
+        },
+        {
+          "key": "effect",
+          "label": "匹配后的动作",
+          "default": "block",
+          "type": "effect"
+        }
+      ],
+      "effect": "block",
+      "operation": "write",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "",
+      "reason": "安全策略由可信控制面维护。请在策略配置入口提交候选，核对差异与影响范围，经人工确认和加载核验后继续；如无法完成，提交目标、用途和实际错误请求审核，保留当前保护，不直接修改策略文件。",
+      "allowed_operations": [
+        "open",
+        "write",
+        "unlink"
+      ],
+      "execution_support": {
+        "status": "limited",
+        "applicable": true,
+        "event_type": "单事件",
+        "supported": [
+          "按配置路径、文件名或后缀匹配指定文件访问；block 在文件操作前拒绝。",
+          "notify 记录并继续；kill 终止命中进程。"
+        ],
+        "unsupported": [
+          "按文件内容识别秘密、按用户意图判断资料用途。",
+          "修改与删除独立授权：当前两者共用执行访问组。"
+        ],
+        "boundary": [
+          "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+          "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+          "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 9,
+          "effects": [
+            "block",
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "description": "适用于保护安全策略源文件或配置目录的场景。每行填写实际绝对目录路径，匹配目录及其内容；选择触发操作和动作，不替代审批与策略加载的权限检查。",
+      "dsl_preview": {
+        "state": "incomplete",
+        "dsl": "rule system-preview:\n  block unlink file \"{{values}}\" if AGENT\n  block unlink file \"{{values}}/**\" if AGENT\n  block write file \"{{values}}\" if AGENT\n  block write file \"{{values}}/**\" if AGENT\n  because \"安全策略由可信控制面维护。请在策略配置入口提交候选，核对差异与影响范围，经人工确认和加载核验后继续；如无法完成，提交目标、用途和实际错误请求审核，保留当前保护，不直接修改策略文件。\"",
+        "missing": [
+          "匹配对象（每行一个）"
+        ],
+        "errors": [],
+        "preview_only": true
+      }
+    },
+    {
+      "id": "SYS-audit-store",
+      "version": 2,
+      "name": "审计记录",
+      "category": "系统 · 文件保护",
+      "summary": "防止 Agent 修改或删除审计资料",
+      "parameters": [
+        {
+          "key": "values",
+          "label": "匹配对象（每行一个）",
+          "default": "",
+          "type": "lines"
+        },
+        {
+          "key": "operations",
+          "label": "触发操作",
+          "default": "write,unlink",
+          "type": "operations"
+        },
+        {
+          "key": "effect",
+          "label": "匹配后的动作",
+          "default": "block",
+          "type": "effect"
+        }
+      ],
+      "effect": "block",
+      "operation": "write",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "",
+      "reason": "审计记录用于追溯执行事实，应保留完整原件。请使用已获准的查询或导出入口核对结果，在允许的输出位置整理公开报告；需修正或清理记录时，提交记录标识、原因和影响请求审核，不直接修改或删除原件。",
+      "allowed_operations": [
+        "open",
+        "write",
+        "unlink"
+      ],
+      "execution_support": {
+        "status": "limited",
+        "applicable": true,
+        "event_type": "单事件",
+        "supported": [
+          "按配置路径、文件名或后缀匹配指定文件访问；block 在文件操作前拒绝。",
+          "notify 记录并继续；kill 终止命中进程。"
+        ],
+        "unsupported": [
+          "按文件内容识别秘密、按用户意图判断资料用途。",
+          "修改与删除独立授权：当前两者共用执行访问组。"
+        ],
+        "boundary": [
+          "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+          "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+          "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 9,
+          "effects": [
+            "block",
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "description": "适用于保护审计资料目录免于被修改、删除的场景。每行填写实际绝对目录路径，并选择触发操作和动作；只保护所填范围，不证明日志内容完整或可信。",
+      "dsl_preview": {
+        "state": "incomplete",
+        "dsl": "rule system-preview:\n  block unlink file \"{{values}}\" if AGENT\n  block unlink file \"{{values}}/**\" if AGENT\n  block write file \"{{values}}\" if AGENT\n  block write file \"{{values}}/**\" if AGENT\n  because \"审计记录用于追溯执行事实，应保留完整原件。请使用已获准的查询或导出入口核对结果，在允许的输出位置整理公开报告；需修正或清理记录时，提交记录标识、原因和影响请求审核，不直接修改或删除原件。\"",
+        "missing": [
+          "匹配对象（每行一个）"
+        ],
+        "errors": [],
+        "preview_only": true
+      }
+    },
+    {
+      "id": "SYS-privilege",
+      "version": 2,
+      "name": "提权程序",
+      "category": "系统 · 进程与网络",
+      "summary": "限制通过 sudo、su 执行提权",
+      "parameters": [
+        {
+          "key": "values",
+          "label": "匹配对象（每行一个）",
+          "default": "sudo\nsu",
+          "type": "lines"
+        },
+        {
+          "key": "operations",
+          "label": "触发操作",
+          "default": "exec",
+          "type": "operations"
+        },
+        {
+          "key": "effect",
+          "label": "匹配后的动作",
+          "default": "block",
+          "type": "effect"
+        }
+      ],
+      "effect": "block",
+      "operation": "exec",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "",
+      "reason": "当前 Agent 的操作受已有权限约束。先核对实际错误，在已获准的项目和工具范围内完成可执行工作并验证结果；确需管理员操作时，提交命令用途、目标与最小权限需求请求审核，不自行提权或换执行器绕过。",
+      "allowed_operations": [
+        "exec"
+      ],
+      "execution_support": {
+        "status": "limited",
+        "applicable": true,
+        "event_type": "单事件",
+        "supported": [
+          "按程序匹配启动事件；block 可事前拒绝整个程序。"
+        ],
+        "unsupported": [
+          "按命令行参数选择性事前阻断；程序名不能代替脚本内容校验。"
+        ],
+        "boundary": [
+          "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+          "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+          "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 3,
+          "effects": [
+            "block",
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "description": "适用于限制受控 Agent 启动 sudo、su 等提权程序的场景。每行填写程序名或路径并选择动作，不填写命令行参数；不等同于系统完整的提权防护。",
+      "dsl_preview": {
+        "state": "complete",
+        "dsl": "rule system-preview:\n  block exec \"sudo\" if AGENT\n  block exec \"su\" if AGENT\n  because \"当前 Agent 的操作受已有权限约束。先核对实际错误，在已获准的项目和工具范围内完成可执行工作并验证结果；确需管理员操作时，提交命令用途、目标与最小权限需求请求审核，不自行提权或换执行器绕过。\"",
+        "missing": [],
+        "errors": [],
+        "preview_only": true
+      }
+    },
+    {
+      "id": "SYS-network-audit",
+      "version": 2,
+      "name": "网络连接审计",
+      "category": "系统 · 进程与网络",
+      "summary": "记录 Agent 及子进程的 IPv4 连接",
+      "parameters": [
+        {
+          "key": "values",
+          "label": "匹配对象（每行一个）",
+          "default": "*",
+          "type": "lines"
+        },
+        {
+          "key": "operations",
+          "label": "触发操作",
+          "default": "connect",
+          "type": "operations"
+        },
+        {
+          "key": "effect",
+          "label": "匹配后的动作",
+          "default": "notify",
+          "type": "effect"
+        }
+      ],
+      "effect": "notify",
+      "operation": "connect",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "覆盖 IPv4 连接事件；不等同于完整网络流量审计。",
+      "reason": "网络连接需要与任务用途相符。请核对目标地址、发送内容和任务证据，使用已获准的目标并检查实际连接结果；用途或数据范围不明确时，暂停后续敏感发送并提交目标与用途请求审核。",
+      "allowed_operations": [
+        "connect"
+      ],
+      "execution_support": {
+        "status": "limited",
+        "applicable": true,
+        "event_type": "单事件",
+        "supported": [
+          "按 IPv4 地址、地址前缀或全部目标匹配新连接。"
+        ],
+        "unsupported": [
+          "按域名、端口或 HTTP 内容控制；IPv6 和已有连接的全部发送。"
+        ],
+        "boundary": [
+          "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+          "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+          "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 3,
+          "effects": [
+            "block",
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "description": "适用于观察受控 Agent 及后代的 IPv4 连接事件。每行填写地址、地址前缀或星号，默认记录并提醒，也可选择动作；不等同于完整网络流量审计。",
+      "dsl_preview": {
+        "state": "complete",
+        "dsl": "rule system-preview:\n  notify connect endpoint \"*\" if AGENT\n  because \"网络连接需要与任务用途相符。请核对目标地址、发送内容和任务证据，使用已获准的目标并检查实际连接结果；用途或数据范围不明确时，暂停后续敏感发送并提交目标与用途请求审核。\"",
+        "missing": [],
+        "errors": [],
+        "preview_only": true
+      }
+    },
+    {
+      "id": "SYS-process-audit",
+      "version": 2,
+      "name": "程序执行审计",
+      "category": "系统 · 进程与网络",
+      "summary": "记录 Agent 派生的程序执行",
+      "parameters": [
+        {
+          "key": "values",
+          "label": "匹配对象（每行一个）",
+          "default": "*",
+          "type": "lines"
+        },
+        {
+          "key": "operations",
+          "label": "触发操作",
+          "default": "exec",
+          "type": "operations"
+        },
+        {
+          "key": "effect",
+          "label": "匹配后的动作",
+          "default": "notify",
+          "type": "effect"
+        }
+      ],
+      "effect": "notify",
+      "operation": "exec",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "可能产生较多事件，按需选择。",
+      "reason": "程序执行需要与当前任务相符。请核对程序来源、参数和预期副作用，使用已登记且获准的工具并检查退出状态；来源或影响不明确时，保留公开诊断并提交目标与用途请求审核。",
+      "allowed_operations": [
+        "exec"
+      ],
+      "execution_support": {
+        "status": "limited",
+        "applicable": true,
+        "event_type": "单事件",
+        "supported": [
+          "按程序匹配启动事件；block 可事前拒绝整个程序。"
+        ],
+        "unsupported": [
+          "按命令行参数选择性事前阻断；程序名不能代替脚本内容校验。"
+        ],
+        "boundary": [
+          "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+          "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+          "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 3,
+          "effects": [
+            "block",
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "description": "适用于观察受控 Agent 派生程序的场景。每行填写程序名、路径或星号，并选择动作；默认记录并提醒，匹配全部程序可能产生较多事件。",
+      "dsl_preview": {
+        "state": "complete",
+        "dsl": "rule system-preview:\n  notify exec \"*\" if AGENT\n  because \"程序执行需要与当前任务相符。请核对程序来源、参数和预期副作用，使用已登记且获准的工具并检查退出状态；来源或影响不明确时，保留公开诊断并提交目标与用途请求审核。\"",
+        "missing": [],
+        "errors": [],
+        "preview_only": true
+      }
+    },
+    {
+      "id": "SYS-instructions",
+      "version": 2,
+      "name": "安全约定文件",
+      "category": "系统 · 文件保护",
+      "summary": "保护 AGENTS.md 的写入和删除",
+      "parameters": [
+        {
+          "key": "values",
+          "label": "匹配对象（每行一个）",
+          "default": "AGENTS.md",
+          "type": "lines"
+        },
+        {
+          "key": "operations",
+          "label": "触发操作",
+          "default": "write,unlink",
+          "type": "operations"
+        },
+        {
+          "key": "effect",
+          "label": "匹配后的动作",
+          "default": "block",
+          "type": "effect"
+        }
+      ],
+      "effect": "block",
+      "operation": "write",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "这是可选约束；允许 Agent 维护约定文件的环境不应统一启用。",
+      "reason": "安全约定是当前任务的约束依据，应保留原件。请依据现有约定继续允许的实现和验证，将拟议修改、理由及影响另行提交人工审核；约定与任务冲突时，保留保护并提交可复现证据，不直接改写约定。",
+      "allowed_operations": [
+        "open",
+        "write",
+        "unlink"
+      ],
+      "execution_support": {
+        "status": "limited",
+        "applicable": true,
+        "event_type": "单事件",
+        "supported": [
+          "按配置路径、文件名或后缀匹配指定文件访问；block 在文件操作前拒绝。",
+          "notify 记录并继续；kill 终止命中进程。"
+        ],
+        "unsupported": [
+          "按文件内容识别秘密、按用户意图判断资料用途。",
+          "修改与删除独立授权：当前两者共用执行访问组。"
+        ],
+        "boundary": [
+          "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+          "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+          "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。",
+          "文件后缀匹配需运行引擎能力核验；匹配值最多 63 字节。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 9,
+          "effects": [
+            "block",
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "description": "适用于明确要求保护 AGENTS.md 等约定文件的场景。每行填写文件名，选择触发操作和动作；允许 Agent 维护约定文件的环境应按实际要求配置，不能默认统一禁止。",
+      "dsl_preview": {
+        "state": "complete",
+        "dsl": "rule system-preview:\n  block unlink file \"**/AGENTS.md\" if AGENT\n  block write file \"**/AGENTS.md\" if AGENT\n  because \"安全约定是当前任务的约束依据，应保留原件。请依据现有约定继续允许的实现和验证，将拟议修改、理由及影响另行提交人工审核；约定与任务冲突时，保留保护并提交可复现证据，不直接改写约定。\"",
+        "missing": [],
+        "errors": [],
+        "preview_only": true
+      }
+    },
+    {
+      "id": "SYS-secret-egress",
+      "version": 3,
+      "name": "敏感信息外发",
+      "category": "系统 · 跨事件保护",
+      "summary": "读取敏感文件后限制网络连接",
+      "parameters": [
+        {
+          "key": "values",
+          "label": "匹配对象（每行一个）",
+          "default": ".env",
+          "type": "lines"
+        },
+        {
+          "key": "operations",
+          "label": "触发操作",
+          "default": "connect",
+          "type": "operations"
+        },
+        {
+          "key": "effect",
+          "label": "匹配后的动作",
+          "default": "block",
+          "type": "effect"
+        }
+      ],
+      "effect": "block",
+      "operation": "connect",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "标签会沿进程与文件传播，可能影响后续模型请求；应先核对来源范围。",
+      "reason": "当前进程已接触受保护文件，外发需遵守敏感数据边界。先核对已产生的副作用，通过已获准的脱敏或受控凭据处理流程完成允许的工作并验证输出不含秘密；无可用流程时，提交目的地、用途和最小数据需求请求审核，不换进程重试外发。",
+      "allowed_operations": [
+        "connect"
+      ],
+      "label_contract": "explicit-secret-sources.v1",
+      "source_label": "SECRET",
+      "execution_support": {
+        "status": "limited",
+        "applicable": true,
+        "event_type": "跨事件",
+        "supported": [
+          "观测敏感文件来源并传播标签，对带标签进程的新 IPv4 连接执行限制。"
+        ],
+        "unsupported": [
+          "按发送正文判断是否泄密；覆盖全部外发通道和已有连接发送。"
+        ],
+        "boundary": [
+          "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+          "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+          "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。",
+          "共享进程的敏感标签可能影响后续正常连接，包括模型请求。",
+          "文件后缀匹配需运行引擎能力核验；匹配值最多 63 字节。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 3,
+          "effects": [
+            "block",
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "description": "适用于读取特定后缀的敏感文件后限制新建网络连接的场景。每行填写字面文件后缀，并选择动作；目标连接范围固定为全部 IPv4 目标，可能影响后续模型请求，应核对敏感来源范围。",
+      "dsl_preview": {
+        "state": "complete",
+        "dsl": "source SECRET = file \"**/*.env\"\nrule system-preview:\n  block connect endpoint \"*\" if AGENT and SECRET\n  because \"当前进程已接触受保护文件，外发需遵守敏感数据边界。先核对已产生的副作用，通过已获准的脱敏或受控凭据处理流程完成允许的工作并验证输出不含秘密；无可用流程时，提交目的地、用途和最小数据需求请求审核，不换进程重试外发。\"",
+        "missing": [],
+        "errors": [],
+        "preview_only": true
+      }
+    },
+    {
+      "id": "SYS-remote-exec",
+      "version": 2,
+      "name": "网络输入后的执行",
+      "category": "系统 · 跨事件保护",
+      "summary": "观察接收网络输入后的程序启动",
+      "parameters": [
+        {
+          "key": "values",
+          "label": "匹配对象（每行一个）",
+          "default": "sh\nbash\npython",
+          "type": "lines"
+        },
+        {
+          "key": "operations",
+          "label": "触发操作",
+          "default": "exec",
+          "type": "operations"
+        },
+        {
+          "key": "effect",
+          "label": "匹配后的动作",
+          "default": "notify",
+          "type": "effect"
+        }
+      ],
+      "effect": "notify",
+      "operation": "exec",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "按网络来源标签匹配，不能精确等同于 shell 管道或脚本签名校验。",
+      "reason": "当前进程接触过网络输入，后续执行需要核对来源。请先检查下载内容、来源与参数，使用已获准且可验证的工具并核对实际结果；来源或副作用不明确时，暂停后续执行，提交公开诊断和用途请求审核。",
+      "allowed_operations": [
+        "exec"
+      ],
+      "execution_support": {
+        "status": "limited",
+        "applicable": true,
+        "event_type": "跨事件",
+        "supported": [
+          "按已观测的网络来源标签匹配后续指定程序启动。"
+        ],
+        "unsupported": [
+          "判断脚本是否恶意、校验下载内容或签名、精确识别 shell 管道。"
+        ],
+        "boundary": [
+          "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+          "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+          "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 3,
+          "effects": [
+            "block",
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "description": "适用于观察接触网络输入后的程序启动。每行填写程序名或路径，并选择动作；默认记录并提醒，不能精确等同于 shell 管道或脚本签名校验。",
+      "dsl_preview": {
+        "state": "complete",
+        "dsl": "source REMOTE = endpoint \"*\"\nrule system-preview:\n  notify exec \"sh\" if AGENT and REMOTE\n  notify exec \"bash\" if AGENT and REMOTE\n  notify exec \"python\" if AGENT and REMOTE\n  because \"当前进程接触过网络输入，后续执行需要核对来源。请先检查下载内容、来源与参数，使用已获准且可验证的工具并核对实际结果；来源或副作用不明确时，暂停后续执行，提交公开诊断和用途请求审核。\"",
+        "missing": [],
+        "errors": [],
+        "preview_only": true
+      }
+    },
+    {
+      "id": "GIT-COMMIT",
+      "version": 3,
+      "name": "Git 提交执行约束",
+      "category": "Git 操作",
+      "summary": "对 Git commit 参数命中事件记录或终止命中进程。适用于限制所选 Agent 的全部提交执行，不限定仓库或分支。",
+      "parameters": [
+        {
+          "key": "effect",
+          "label": "匹配后的动作",
+          "default": "kill",
+          "type": "effect"
+        }
+      ],
+      "effect": "kill",
+      "operation": "exec",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。 仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。 作用于所选 Agent 的共享执行域；不按仓库或会话隔离。",
+      "reason": "对 Git commit 参数命中事件记录或终止命中进程。适用于限制所选 Agent 的全部提交执行，不限定仓库或分支。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+      "command": "commit",
+      "allowed_effects": [
+        "notify",
+        "kill"
+      ],
+      "execution_support": {
+        "status": "limited",
+        "applicable": true,
+        "event_type": "单事件",
+        "supported": [
+          "将 Git 程序和 commit 参数写入实际 DSL。",
+          "动作可选记录并提醒或终止命中进程。"
+        ],
+        "unsupported": [
+          "按仓库、远端、分支或提交内容选择性放行。",
+          "执行前按参数阻断。"
+        ],
+        "boundary": [
+          "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。",
+          "仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。",
+          "作用于所选 Agent 的共享执行域；不按仓库或会话隔离。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 2,
+          "effects": [
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "contract": "git-fixed-command.v1",
+      "fixed_fields": {
+        "program": "git",
+        "command": "commit"
+      },
+      "dsl_clause_template": "{{effect}} exec \"git\" \"commit\" if AGENT",
+      "disabled_effects": {
+        "block": "ActPlane 在执行后观察 Git 参数，暂不支持按 commit/push 参数事前 block；kill 是命中后终止。"
+      },
+      "description": "对 Git commit 参数命中事件记录或终止命中进程。适用于限制所选 Agent 的全部提交执行，不限定仓库或分支。",
+      "dsl_preview": {
+        "state": "complete",
+        "dsl": "rule config-preview:\n  kill exec \"git\" \"commit\" if AGENT\n  because \"对 Git commit 参数命中事件记录或终止命中进程。适用于限制所选 Agent 的全部提交执行，不限定仓库或分支。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+        "missing": [],
+        "errors": [],
+        "preview_only": true
+      }
+    },
+    {
+      "id": "GIT-COMMIT-CHECK",
+      "version": 3,
+      "name": "Git 提交前检查事件",
+      "category": "Git 操作",
+      "summary": "在 Git commit 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待提交内容测试通过。",
+      "parameters": [
+        {
+          "key": "target",
+          "label": "使检查失效的代码路径",
+          "default": "",
+          "type": "path",
+          "help": "此路径是检查失效条件，不是 Git 仓库匹配条件。"
+        },
+        {
+          "key": "checker",
+          "label": "检查程序名或路径",
+          "default": "",
+          "type": "program",
+          "help": "仅匹配程序，不校验脚本参数、测试用例或可信 CI 身份。"
+        },
+        {
+          "key": "exit_code",
+          "label": "检查成功退出码",
+          "default": "0",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        {
+          "key": "effect",
+          "label": "匹配后的动作",
+          "default": "kill",
+          "type": "effect"
+        }
+      ],
+      "effect": "kill",
+      "operation": "exec",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。 仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。 作用于所选 Agent 的共享执行域；不按仓库或会话隔离。",
+      "reason": "在 Git commit 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待提交内容测试通过。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+      "command": "commit",
+      "allowed_effects": [
+        "notify",
+        "kill"
+      ],
+      "execution_support": {
+        "status": "limited",
+        "applicable": true,
+        "event_type": "跨事件",
+        "supported": [
+          "检查程序退出码和代码写入后的失效条件实际写入 DSL。",
+          "缺少有效检查事件时记录或终止命中进程。"
+        ],
+        "unsupported": [
+          "检查结果与暂存区、待推送提交 SHA 的一致性。",
+          "指定测试命令参数、可信 CI 结果或多会话独立检查。",
+          "执行前按参数阻断。"
+        ],
+        "boundary": [
+          "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。",
+          "仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。",
+          "作用于所选 Agent 的共享执行域；不按仓库或会话隔离。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 8,
+          "effects": [
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "contract": "git-fixed-command.v1",
+      "fixed_fields": {
+        "program": "git",
+        "command": "commit"
+      },
+      "dsl_clause_template": "{{effect}} exec \"git\" \"commit\" if AGENT unless after exec {{checker}} exits {{exit_code}} since write {{target}}",
+      "disabled_effects": {
+        "block": "ActPlane 在执行后观察 Git 参数，暂不支持按 commit/push 参数事前 block；kill 是命中后终止。"
+      },
+      "description": "在 Git commit 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待提交内容测试通过。",
+      "dsl_preview": {
+        "state": "incomplete",
+        "dsl": "rule config-preview:\n  kill exec \"git\" \"commit\" if AGENT unless after exec \"{{checker}}\" exits 0 since write \"{{target}}\"\n  because \"在 Git commit 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待提交内容测试通过。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+        "missing": [
+          "使检查失效的代码路径",
+          "检查程序名或路径"
+        ],
+        "errors": [],
+        "preview_only": true
+      }
+    },
+    {
+      "id": "GIT-PUSH",
+      "version": 3,
+      "name": "Git 推送执行约束",
+      "category": "Git 操作",
+      "summary": "对 Git push 参数命中事件记录或终止命中进程。适用于限制所选 Agent 的全部推送执行，不限定仓库或分支。",
+      "parameters": [
+        {
+          "key": "effect",
+          "label": "匹配后的动作",
+          "default": "kill",
+          "type": "effect"
+        }
+      ],
+      "effect": "kill",
+      "operation": "exec",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。 仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。 作用于所选 Agent 的共享执行域；不按仓库或会话隔离。",
+      "reason": "对 Git push 参数命中事件记录或终止命中进程。适用于限制所选 Agent 的全部推送执行，不限定仓库或分支。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+      "command": "push",
+      "allowed_effects": [
+        "notify",
+        "kill"
+      ],
+      "execution_support": {
+        "status": "limited",
+        "applicable": true,
+        "event_type": "单事件",
+        "supported": [
+          "将 Git 程序和 push 参数写入实际 DSL。",
+          "动作可选记录并提醒或终止命中进程。"
+        ],
+        "unsupported": [
+          "按仓库、远端、分支或提交内容选择性放行。",
+          "执行前按参数阻断。"
+        ],
+        "boundary": [
+          "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。",
+          "仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。",
+          "作用于所选 Agent 的共享执行域；不按仓库或会话隔离。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 2,
+          "effects": [
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "contract": "git-fixed-command.v1",
+      "fixed_fields": {
+        "program": "git",
+        "command": "push"
+      },
+      "dsl_clause_template": "{{effect}} exec \"git\" \"push\" if AGENT",
+      "disabled_effects": {
+        "block": "ActPlane 在执行后观察 Git 参数，暂不支持按 commit/push 参数事前 block；kill 是命中后终止。"
+      },
+      "description": "对 Git push 参数命中事件记录或终止命中进程。适用于限制所选 Agent 的全部推送执行，不限定仓库或分支。",
+      "dsl_preview": {
+        "state": "complete",
+        "dsl": "rule config-preview:\n  kill exec \"git\" \"push\" if AGENT\n  because \"对 Git push 参数命中事件记录或终止命中进程。适用于限制所选 Agent 的全部推送执行，不限定仓库或分支。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+        "missing": [],
+        "errors": [],
+        "preview_only": true
+      }
+    },
+    {
+      "id": "GIT-PUSH-CHECK",
+      "version": 3,
+      "name": "Git 推送前检查事件",
+      "category": "Git 操作",
+      "summary": "在 Git push 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待推送内容测试通过。",
+      "parameters": [
+        {
+          "key": "target",
+          "label": "使检查失效的代码路径",
+          "default": "",
+          "type": "path",
+          "help": "此路径是检查失效条件，不是 Git 仓库匹配条件。"
+        },
+        {
+          "key": "checker",
+          "label": "检查程序名或路径",
+          "default": "",
+          "type": "program",
+          "help": "仅匹配程序，不校验脚本参数、测试用例或可信 CI 身份。"
+        },
+        {
+          "key": "exit_code",
+          "label": "检查成功退出码",
+          "default": "0",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        {
+          "key": "effect",
+          "label": "匹配后的动作",
+          "default": "kill",
+          "type": "effect"
+        }
+      ],
+      "effect": "kill",
+      "operation": "exec",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。 仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。 作用于所选 Agent 的共享执行域；不按仓库或会话隔离。",
+      "reason": "在 Git push 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待推送内容测试通过。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+      "command": "push",
+      "allowed_effects": [
+        "notify",
+        "kill"
+      ],
+      "execution_support": {
+        "status": "limited",
+        "applicable": true,
+        "event_type": "跨事件",
+        "supported": [
+          "检查程序退出码和代码写入后的失效条件实际写入 DSL。",
+          "缺少有效检查事件时记录或终止命中进程。"
+        ],
+        "unsupported": [
+          "检查结果与暂存区、待推送提交 SHA 的一致性。",
+          "指定测试命令参数、可信 CI 结果或多会话独立检查。",
+          "执行前按参数阻断。"
+        ],
+        "boundary": [
+          "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。",
+          "仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。",
+          "作用于所选 Agent 的共享执行域；不按仓库或会话隔离。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 8,
+          "effects": [
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "contract": "git-fixed-command.v1",
+      "fixed_fields": {
+        "program": "git",
+        "command": "push"
+      },
+      "dsl_clause_template": "{{effect}} exec \"git\" \"push\" if AGENT unless after exec {{checker}} exits {{exit_code}} since write {{target}}",
+      "disabled_effects": {
+        "block": "ActPlane 在执行后观察 Git 参数，暂不支持按 commit/push 参数事前 block；kill 是命中后终止。"
+      },
+      "description": "在 Git push 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待推送内容测试通过。",
+      "dsl_preview": {
+        "state": "incomplete",
+        "dsl": "rule config-preview:\n  kill exec \"git\" \"push\" if AGENT unless after exec \"{{checker}}\" exits 0 since write \"{{target}}\"\n  because \"在 Git push 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待推送内容测试通过。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+        "missing": [
+          "使检查失效的代码路径",
+          "检查程序名或路径"
+        ],
+        "errors": [],
+        "preview_only": true
+      }
+    },
+    {
+      "id": "GIT-LOCAL",
+      "version": 3,
+      "name": "Git 本地历史与清理约束",
+      "category": "Git 操作",
+      "summary": "按所选 reset、clean、stash 字面参数记录或终止进程。选择 reset 会影响全部 reset，不仅是 --hard；路径和选项组合过滤暂不支持。",
+      "parameters": [
+        {
+          "key": "tokens",
+          "label": "需要约束的 Git 操作",
+          "default": "reset,clean,stash",
+          "type": "choices",
+          "options": [
+            "reset",
+            "clean",
+            "stash"
+          ]
+        },
+        {
+          "key": "effect",
+          "label": "匹配后的动作",
+          "default": "kill",
+          "type": "effect"
+        }
+      ],
+      "effect": "kill",
+      "operation": "exec",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。 仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。 作用于所选 Agent 的共享执行域；不按仓库或会话隔离。",
+      "reason": "按所选 reset、clean、stash 字面参数记录或终止进程。选择 reset 会影响全部 reset，不仅是 --hard；路径和选项组合过滤暂不支持。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+      "allowed_effects": [
+        "notify",
+        "kill"
+      ],
+      "execution_support": {
+        "status": "limited",
+        "applicable": true,
+        "event_type": "单事件",
+        "supported": [
+          "每个所选参数分别生成匹配规则。"
+        ],
+        "unsupported": [
+          "只限制 reset --hard、clean -fd 或 stash drop 等组合。",
+          "仅约束某个仓库或文件范围。"
+        ],
+        "boundary": [
+          "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。",
+          "仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。",
+          "作用于所选 Agent 的共享执行域；不按仓库或会话隔离。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 6,
+          "effects": [
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "contract": "git-fixed-command.v1",
+      "fixed_fields": {
+        "program": "git"
+      },
+      "dsl_clause_template": "{{effect}} exec \"git\" {{tokens}} if AGENT",
+      "disabled_effects": {
+        "block": "ActPlane 在执行后观察 Git 参数，暂不支持按 commit/push 参数事前 block；kill 是命中后终止。"
+      },
+      "description": "按所选 reset、clean、stash 字面参数记录或终止进程。选择 reset 会影响全部 reset，不仅是 --hard；路径和选项组合过滤暂不支持。",
+      "dsl_preview": {
+        "state": "complete",
+        "dsl": "rule config-preview:\n  kill exec \"git\" \"clean\" if AGENT\n  kill exec \"git\" \"reset\" if AGENT\n  kill exec \"git\" \"stash\" if AGENT\n  because \"按所选 reset、clean、stash 字面参数记录或终止进程。选择 reset 会影响全部 reset，不仅是 --hard；路径和选项组合过滤暂不支持。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+        "missing": [],
+        "errors": [],
+        "preview_only": true
+      }
+    },
+    {
+      "id": "GIT-BYPASS",
+      "version": 3,
+      "name": "Git 跳过检查参数约束",
+      "category": "Git 操作",
+      "summary": "对 --no-verify 等显式跳过检查的 Git 参数记录或终止进程。短参数 -n 在不同子命令中含义不同，不能将其统一认定为绕过检查。",
+      "parameters": [
+        {
+          "key": "tokens",
+          "label": "需要匹配的参数",
+          "default": "--no-verify",
+          "type": "choices",
+          "options": [
+            "--no-verify"
+          ]
+        },
+        {
+          "key": "effect",
+          "label": "匹配后的动作",
+          "default": "kill",
+          "type": "effect"
+        }
+      ],
+      "effect": "kill",
+      "operation": "exec",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。 仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。 作用于所选 Agent 的共享执行域；不按仓库或会话隔离。",
+      "reason": "对 --no-verify 等显式跳过检查的 Git 参数记录或终止进程。短参数 -n 在不同子命令中含义不同，不能将其统一认定为绕过检查。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+      "allowed_effects": [
+        "notify",
+        "kill"
+      ],
+      "execution_support": {
+        "status": "limited",
+        "applicable": true,
+        "event_type": "单事件",
+        "supported": [
+          "匹配显式 --no-verify 参数。"
+        ],
+        "unsupported": [
+          "识别 -n 的子命令语义、hooksPath 配置、环境变量或直接使用 Git 底层命令的绕过。"
+        ],
+        "boundary": [
+          "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。",
+          "仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。",
+          "作用于所选 Agent 的共享执行域；不按仓库或会话隔离。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 2,
+          "effects": [
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "contract": "git-fixed-command.v1",
+      "fixed_fields": {
+        "program": "git"
+      },
+      "dsl_clause_template": "{{effect}} exec \"git\" {{tokens}} if AGENT",
+      "disabled_effects": {
+        "block": "ActPlane 在执行后观察 Git 参数，暂不支持按 commit/push 参数事前 block；kill 是命中后终止。"
+      },
+      "description": "对 --no-verify 等显式跳过检查的 Git 参数记录或终止进程。短参数 -n 在不同子命令中含义不同，不能将其统一认定为绕过检查。",
+      "dsl_preview": {
+        "state": "complete",
+        "dsl": "rule config-preview:\n  kill exec \"git\" \"--no-verify\" if AGENT\n  because \"对 --no-verify 等显式跳过检查的 Git 参数记录或终止进程。短参数 -n 在不同子命令中含义不同，不能将其统一认定为绕过检查。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+        "missing": [],
+        "errors": [],
+        "preview_only": true
+      }
+    },
+    {
+      "id": "GIT-CONTENT",
+      "version": 2,
+      "name": "Git 提交内容限制",
+      "category": "Git 操作",
+      "summary": "限制提交对象包含的敏感文件。需要读取暂存区与提交对象，不能用禁止打开文件代替内容检查；目前仅能保存需求参数。",
+      "parameters": [
+        {
+          "key": "repository",
+          "label": "目标仓库路径",
+          "default": "",
+          "type": "path"
+        },
+        {
+          "key": "forbidden_paths",
+          "label": "禁止提交的文件模式（每行一个）",
+          "default": "",
+          "type": "lines"
+        }
+      ],
+      "effect": "block",
+      "operation": "exec",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "ActPlane 当前暂不支持此语义；只能保存参数草案，不能提交审批或应用。",
+      "reason": "限制提交对象包含的敏感文件。需要读取暂存区与提交对象，不能用禁止打开文件代替内容检查；目前仅能保存需求参数。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+      "allowed_effects": [
+        "block"
+      ],
+      "execution_support": {
+        "status": "unsupported",
+        "applicable": false,
+        "event_type": "单事件",
+        "supported": [],
+        "unsupported": [
+          "读取和验证待提交对象、暂存区文件清单。",
+          "按提交内容执行事前拒绝。"
+        ],
+        "boundary": [
+          "参数草案不生成 DSL；服务端拒绝单项、批量审批及重新校验应用。"
+        ],
+        "verification": {
+          "state": "rejected",
+          "date": "2026-10-20",
+          "cases": 4,
+          "effects": [],
+          "scope": "已实测仅保存草案，单项、批量提交及重新校验均被拒绝；没有运行拦截能力。"
+        }
+      },
+      "description": "限制提交对象包含的敏感文件。需要读取暂存区与提交对象，不能用禁止打开文件代替内容检查；目前仅能保存需求参数。",
+      "dsl_preview": {
+        "state": "unsupported",
+        "dsl": null,
+        "missing": [
+          "目标仓库路径",
+          "禁止提交的文件模式（每行一个）"
+        ],
+        "errors": [],
+        "preview_only": true
+      }
+    },
+    {
+      "id": "GIT-PUSH-TARGET",
+      "version": 2,
+      "name": "Git 推送目标限制",
+      "category": "Git 操作",
+      "summary": "限制推送的远端、目标分支及强推或删除行为。需要解析 Git 实际目标和引用更新，普通参数或网络地址匹配不能替代，目前仅能保存需求参数。",
+      "parameters": [
+        {
+          "key": "repository",
+          "label": "目标仓库路径",
+          "default": "",
+          "type": "path"
+        },
+        {
+          "key": "remote",
+          "label": "允许的远端仓库地址",
+          "default": "",
+          "type": "text"
+        },
+        {
+          "key": "branches",
+          "label": "允许的目标分支（每行一个）",
+          "default": "",
+          "type": "lines"
+        },
+        {
+          "key": "forbidden_updates",
+          "label": "禁止的引用更新",
+          "default": "force,delete",
+          "type": "choices",
+          "options": [
+            "force",
+            "delete"
+          ]
+        }
+      ],
+      "effect": "block",
+      "operation": "exec",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "ActPlane 当前暂不支持此语义；只能保存参数草案，不能提交审批或应用。",
+      "reason": "限制推送的远端、目标分支及强推或删除行为。需要解析 Git 实际目标和引用更新，普通参数或网络地址匹配不能替代，目前仅能保存需求参数。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+      "allowed_effects": [
+        "block"
+      ],
+      "execution_support": {
+        "status": "unsupported",
+        "applicable": false,
+        "event_type": "单事件",
+        "supported": [],
+        "unsupported": [
+          "解析实际远端 URL、refspec、默认推送配置与分支。",
+          "区分正常更新、强推及引用删除并选择性阻止。"
+        ],
+        "boundary": [
+          "参数草案不生成 DSL；服务端拒绝单项、批量审批及重新校验应用。"
+        ],
+        "verification": {
+          "state": "rejected",
+          "date": "2026-10-20",
+          "cases": 4,
+          "effects": [],
+          "scope": "已实测仅保存草案，单项、批量提交及重新校验均被拒绝；没有运行拦截能力。"
+        }
+      },
+      "description": "限制推送的远端、目标分支及强推或删除行为。需要解析 Git 实际目标和引用更新，普通参数或网络地址匹配不能替代，目前仅能保存需求参数。",
+      "dsl_preview": {
+        "state": "unsupported",
+        "dsl": null,
+        "missing": [
+          "目标仓库路径",
+          "允许的远端仓库地址",
+          "允许的目标分支（每行一个）"
+        ],
+        "errors": [],
+        "preview_only": true
+      }
+    },
+    {
+      "id": "GIT-PUSH-APPROVAL",
+      "version": 2,
+      "name": "Git 单次推送授权",
+      "category": "Git 操作",
+      "summary": "要求本次提交向指定远端和分支推送前获得行为授权。此授权与策略配置审批不同；当前没有绑定推送内容的一次性授权机制。",
+      "parameters": [
+        {
+          "key": "repository",
+          "label": "目标仓库路径",
+          "default": "",
+          "type": "path"
+        },
+        {
+          "key": "commit",
+          "label": "本次推送的提交 SHA",
+          "default": "",
+          "type": "text"
+        },
+        {
+          "key": "remote",
+          "label": "目标远端仓库地址",
+          "default": "",
+          "type": "text"
+        },
+        {
+          "key": "branch",
+          "label": "目标分支",
+          "default": "",
+          "type": "text"
+        },
+        {
+          "key": "ttl_seconds",
+          "label": "授权有效秒数",
+          "default": "600",
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 86400
+        }
+      ],
+      "effect": "block",
+      "operation": "exec",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "ActPlane 当前暂不支持此语义；只能保存参数草案，不能提交审批或应用。",
+      "reason": "要求本次提交向指定远端和分支推送前获得行为授权。此授权与策略配置审批不同；当前没有绑定推送内容的一次性授权机制。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+      "allowed_effects": [
+        "block"
+      ],
+      "execution_support": {
+        "status": "unsupported",
+        "applicable": false,
+        "event_type": "跨事件",
+        "supported": [],
+        "unsupported": [
+          "对提交、远端、分支绑定的一次性行为授权及消费。",
+          "授权到期、代码变化后的自动失效。"
+        ],
+        "boundary": [
+          "参数草案不生成 DSL；服务端拒绝单项、批量审批及重新校验应用。"
+        ],
+        "verification": {
+          "state": "rejected",
+          "date": "2026-10-20",
+          "cases": 4,
+          "effects": [],
+          "scope": "已实测仅保存草案，单项、批量提交及重新校验均被拒绝；没有运行拦截能力。"
+        }
+      },
+      "description": "要求本次提交向指定远端和分支推送前获得行为授权。此授权与策略配置审批不同；当前没有绑定推送内容的一次性授权机制。",
+      "dsl_preview": {
+        "state": "unsupported",
+        "dsl": null,
+        "missing": [
+          "目标仓库路径",
+          "本次推送的提交 SHA",
+          "目标远端仓库地址",
+          "目标分支"
+        ],
+        "errors": [],
+        "preview_only": true
+      }
+    },
+    {
+      "id": "GIT-MERGE-GATE",
+      "version": 2,
+      "name": "Git 保护分支合并检查",
+      "category": "Git 操作",
+      "summary": "合入保护分支前必须取得指定来源的 CI 检查与评审。需要托管平台的权威检查和审批结果，目前没有 GitHub 或 GitLab 执行集成。",
+      "parameters": [
+        {
+          "key": "repository",
+          "label": "目标仓库路径",
+          "default": "",
+          "type": "path"
+        },
+        {
+          "key": "branches",
+          "label": "受保护分支（每行一个）",
+          "default": "",
+          "type": "lines"
+        },
+        {
+          "key": "checks",
+          "label": "必需的 CI 检查（每行一个）",
+          "default": "",
+          "type": "lines"
+        },
+        {
+          "key": "issuer",
+          "label": "可信检查来源",
+          "default": "",
+          "type": "text"
+        },
+        {
+          "key": "reviewers",
+          "label": "最低批准人数",
+          "default": "1",
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10
+        }
+      ],
+      "effect": "block",
+      "operation": "exec",
+      "scopes": [
+        "system",
+        "agent"
+      ],
+      "note": "ActPlane 当前暂不支持此语义；只能保存参数草案，不能提交审批或应用。",
+      "reason": "合入保护分支前必须取得指定来源的 CI 检查与评审。需要托管平台的权威检查和审批结果，目前没有 GitHub 或 GitLab 执行集成。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+      "allowed_effects": [
+        "block"
+      ],
+      "execution_support": {
+        "status": "unsupported",
+        "applicable": false,
+        "event_type": "跨事件",
+        "supported": [],
+        "unsupported": [
+          "验证指定提交的可信 CI 与 Code Owner 或评审结果。",
+          "调用托管平台保护分支规则或阻止远端合并。"
+        ],
+        "boundary": [
+          "参数草案不生成 DSL；服务端拒绝单项、批量审批及重新校验应用。"
+        ],
+        "verification": {
+          "state": "rejected",
+          "date": "2026-10-20",
+          "cases": 4,
+          "effects": [],
+          "scope": "已实测仅保存草案，单项、批量提交及重新校验均被拒绝；没有运行拦截能力。"
+        }
+      },
+      "description": "合入保护分支前必须取得指定来源的 CI 检查与评审。需要托管平台的权威检查和审批结果，目前没有 GitHub 或 GitLab 执行集成。",
+      "dsl_preview": {
+        "state": "unsupported",
+        "dsl": null,
+        "missing": [
+          "目标仓库路径",
+          "受保护分支（每行一个）",
+          "必需的 CI 检查（每行一个）",
+          "可信检查来源"
+        ],
+        "errors": [],
+        "preview_only": true
+      }
+    }
+  ],
+  "items": [
+    {
+      "id": "tc_11ba76f89149470780c0025d4f467d40",
+      "template_id": "FILE-CHANGE",
+      "scope_id": "instance-751ad8a6165f4357",
+      "scope": "agent",
+      "workspace_id": null,
+      "revision": 1,
+      "archived": 0,
+      "created_at": "2026-10-25T09:22:21.498452+00:00",
+      "updated_at": "2026-10-25T09:22:21.498452+00:00",
+      "latest_revision": 1,
+      "execution_support": {
+        "status": "limited",
+        "applicable": true,
+        "event_type": "单事件",
+        "supported": [
+          "按配置路径、文件名或后缀匹配指定文件访问；block 在文件操作前拒绝。",
+          "notify 记录并继续；kill 终止命中进程。"
+        ],
+        "unsupported": [
+          "按文件内容识别秘密、按用户意图判断资料用途。",
+          "修改与删除独立授权：当前两者共用执行访问组。"
+        ],
+        "boundary": [
+          "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+          "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+          "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 6,
+          "effects": [
+            "block",
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "template_version": 2,
+      "template_hash": "46059369294f80a8cdfa69eccd748c9ccd03907a5c98ee0ce49d0af289ea71ee",
+      "resource_hash": "854da26458780a30c762c4cfca4847c0aae6cae7400de87232372d462f6aeb95",
+      "name": "发布清单保护",
+      "reason": "README 与 release.json 事实表明 release.json 是发布清单且不得修改或删除；maintenance.py 会尝试写入该文件，需在写/删前阻止，缓存清理与 report.json 摘要写入不受影响。",
+      "execution_reason": "README 与 release.json 事实表明 release.json 是发布清单且不得修改或删除；maintenance.py 会尝试写入该文件，需在写/删前阻止，缓存清理与 report.json 摘要写入不受影响。",
+      "parameters": {
+        "target": "/w/0/release.json",
+        "operations": [
+          "unlink",
+          "write"
+        ]
+      },
+      "document": {
+        "id": "tc_11ba76f89149470780c0025d4f467d40",
+        "name": "发布清单保护",
+        "original_dsl": "rule config-tc_11ba76f89149470780c0025d4f467d40:\n  block unlink file \"/w/0/release.json\" if AGENT\n  block write file \"/w/0/release.json\" if AGENT\n  because \"README 与 release.json 事实表明 release.json 是发布清单且不得修改或删除；maintenance.py 会尝试写入该文件，需在写/删前阻止，缓存清理与 report.json 摘要写入不受影响。\"",
+        "metadata": {
+          "config-tc_11ba76f89149470780c0025d4f467d40": {
+            "statement": "发布清单保护",
+            "context_requirement": "self_contained",
+            "context_reason": ""
+          }
+        },
+        "managed_identity": true
+      },
+      "requested_operations": [
+        "unlink",
+        "write"
+      ],
+      "effective_operations": [
+        "write",
+        "unlink"
+      ],
+      "coverage_warning": "",
+      "effect": "block",
+      "note": "",
+      "source_read": {
+        "id": "89081bb10ff84a1e9aabac82cecb100e",
+        "snapshot_hash": "0c63dfb4b6593d0cda1e37d4b2ec2318cf8a3f9e0ad55504d221f090dae94bb6",
+        "workspace": "three-stage-20261025",
+        "paths": [
+          "README.md",
+          "maintenance.py",
+          "release.json"
+        ],
+        "execution_paths": [
+          "/w/0/README.md",
+          "/w/0/maintenance.py",
+          "/w/0/release.json"
+        ]
+      },
+      "source_reads": [
+        {
+          "id": "89081bb10ff84a1e9aabac82cecb100e",
+          "snapshot_hash": "0c63dfb4b6593d0cda1e37d4b2ec2318cf8a3f9e0ad55504d221f090dae94bb6",
+          "workspace": "three-stage-20261025",
+          "paths": [
+            "README.md",
+            "maintenance.py",
+            "release.json"
+          ],
+          "execution_paths": [
+            "/w/0/README.md",
+            "/w/0/maintenance.py",
+            "/w/0/release.json"
+          ]
+        }
+      ],
+      "origin": "assistant",
+      "generation_stage": "preflight",
+      "applied_revision": null,
+      "applied_configuration": null,
+      "applied": false,
+      "approval_id": null,
+      "approval_revision": null,
+      "approval_current": false,
+      "status": "draft",
+      "can_submit": true,
+      "read_only": false,
+      "template_definition": {
+        "id": "FILE-CHANGE",
+        "version": 2,
+        "name": "文件修改与删除限制",
+        "category": "文件保护",
+        "summary": "限制指定文件或目录的修改与删除。",
+        "parameters": [
+          {
+            "key": "target",
+            "label": "保护对象的路径",
+            "default": "",
+            "type": "path"
+          },
+          {
+            "key": "operations",
+            "label": "需要限制的操作",
+            "default": "write,unlink",
+            "type": "operations"
+          }
+        ],
+        "effect": "block",
+        "operation": "write",
+        "scopes": [
+          "system",
+          "agent"
+        ],
+        "note": "",
+        "reason": "限制指定文件或目录的修改与删除。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+        "execution_support": {
+          "status": "limited",
+          "applicable": true,
+          "event_type": "单事件",
+          "supported": [
+            "按配置路径、文件名或后缀匹配指定文件访问；block 在文件操作前拒绝。",
+            "notify 记录并继续；kill 终止命中进程。"
+          ],
+          "unsupported": [
+            "按文件内容识别秘密、按用户意图判断资料用途。",
+            "修改与删除独立授权：当前两者共用执行访问组。"
+          ],
+          "boundary": [
+            "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+            "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+            "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+          ],
+          "verification": {
+            "state": "verified",
+            "date": "2026-10-20",
+            "cases": 6,
+            "effects": [
+              "block",
+              "kill",
+              "notify"
+            ],
+            "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+          }
+        },
+        "dsl_preview": {
+          "state": "incomplete",
+          "dsl": "rule config-preview:\n  block unlink file \"{{target}}\" if AGENT\n  block write file \"{{target}}\" if AGENT\n  because \"限制指定文件或目录的修改与删除。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+          "missing": [
+            "保护对象的路径"
+          ],
+          "errors": [],
+          "preview_only": true
+        }
+      },
+      "scope_label": "此 Agent 的全部工作区与会话",
+      "configuration_status": {
+        "schema": "ConfigurationProgress/1",
+        "state": "draft",
+        "label": "草案",
+        "revision": 1,
+        "applied_revision": null,
+        "lifecycle": {
+          "archived": false,
+          "disabled": false
+        },
+        "read_only": false
+      }
+    },
+    {
+      "id": "tc_4dfa6e3a4d294abc8dc6d20d654b3fcf",
+      "template_id": "RQ1-GENERATED",
+      "scope_id": "instance-751ad8a6165f4357",
+      "scope": "agent",
+      "workspace_id": null,
+      "revision": 1,
+      "archived": 0,
+      "created_at": "2026-10-25T09:22:21.501674+00:00",
+      "updated_at": "2026-10-25T09:22:21.501674+00:00",
+      "latest_revision": 1,
+      "execution_support": {
+        "status": "limited",
+        "applicable": true,
+        "event_type": "跨事件",
+        "supported": [
+          "按已观测的生成程序执行链限制文件变更。"
+        ],
+        "unsupported": [
+          "校验具体脚本、参数、签名或生成内容是否正确。"
+        ],
+        "boundary": [
+          "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+          "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+          "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 3,
+          "effects": [
+            "block",
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "template_version": 2,
+      "template_hash": "5e72ea11dfeeb4efa1c198a5e6db8f99d9a742b17fd209b135cff9d8b7826b8a",
+      "resource_hash": "854da26458780a30c762c4cfca4847c0aae6cae7400de87232372d462f6aeb95",
+      "name": "运行摘要仅由维护脚本写入",
+      "reason": "README 说明运行摘要由 maintenance.py（python 入口）写入 report.json，正常摘要写入需保留且应来自维护执行链。",
+      "execution_reason": "README 说明运行摘要由 maintenance.py（python 入口）写入 report.json，正常摘要写入需保留且应来自维护执行链。 当前执行访问组同时限制修改与删除。",
+      "parameters": {
+        "target": "/w/0/report.json",
+        "producer": "python"
+      },
+      "document": {
+        "id": "tc_4dfa6e3a4d294abc8dc6d20d654b3fcf",
+        "name": "运行摘要仅由维护脚本写入",
+        "original_dsl": "rule config-tc_4dfa6e3a4d294abc8dc6d20d654b3fcf:\n  block write file \"/w/0/report.json\" if AGENT unless lineage-includes exec \"python\"\n  because \"README 说明运行摘要由 maintenance.py（python 入口）写入 report.json，正常摘要写入需保留且应来自维护执行链。 当前执行访问组同时限制修改与删除。\"",
+        "metadata": {
+          "config-tc_4dfa6e3a4d294abc8dc6d20d654b3fcf": {
+            "statement": "运行摘要仅由维护脚本写入",
+            "context_requirement": "self_contained",
+            "context_reason": ""
+          }
+        },
+        "managed_identity": true
+      },
+      "requested_operations": [
+        "write"
+      ],
+      "effective_operations": [
+        "write",
+        "unlink"
+      ],
+      "coverage_warning": "当前执行后端将修改与删除作为同一访问组；此配置实际影响两者。",
+      "effect": "block",
+      "note": "按程序执行链匹配，不证明特定脚本、参数或生成内容正确。",
+      "source_read": {
+        "id": "89081bb10ff84a1e9aabac82cecb100e",
+        "snapshot_hash": "0c63dfb4b6593d0cda1e37d4b2ec2318cf8a3f9e0ad55504d221f090dae94bb6",
+        "workspace": "three-stage-20261025",
+        "paths": [
+          "README.md",
+          "maintenance.py",
+          "release.json"
+        ],
+        "execution_paths": [
+          "/w/0/README.md",
+          "/w/0/maintenance.py",
+          "/w/0/release.json"
+        ]
+      },
+      "source_reads": [
+        {
+          "id": "89081bb10ff84a1e9aabac82cecb100e",
+          "snapshot_hash": "0c63dfb4b6593d0cda1e37d4b2ec2318cf8a3f9e0ad55504d221f090dae94bb6",
+          "workspace": "three-stage-20261025",
+          "paths": [
+            "README.md",
+            "maintenance.py",
+            "release.json"
+          ],
+          "execution_paths": [
+            "/w/0/README.md",
+            "/w/0/maintenance.py",
+            "/w/0/release.json"
+          ]
+        }
+      ],
+      "origin": "assistant",
+      "generation_stage": "preflight",
+      "applied_revision": null,
+      "applied_configuration": null,
+      "applied": false,
+      "approval_id": null,
+      "approval_revision": null,
+      "approval_current": false,
+      "status": "draft",
+      "can_submit": true,
+      "read_only": false,
+      "template_definition": {
+        "id": "RQ1-GENERATED",
+        "version": 2,
+        "name": "生成文件写入约束",
+        "category": "生成产物",
+        "summary": "生成文件的变更应经过指定程序的执行链。",
+        "parameters": [
+          {
+            "key": "target",
+            "label": "保护对象的路径",
+            "default": "",
+            "type": "path"
+          },
+          {
+            "key": "producer",
+            "label": "生成程序名",
+            "default": "",
+            "type": "program"
+          }
+        ],
+        "effect": "block",
+        "operation": "write",
+        "scopes": [
+          "system",
+          "agent"
+        ],
+        "note": "按程序执行链匹配，不证明特定脚本、参数或生成内容正确。",
+        "reason": "生成文件的变更应经过指定程序的执行链。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+        "execution_support": {
+          "status": "limited",
+          "applicable": true,
+          "event_type": "跨事件",
+          "supported": [
+            "按已观测的生成程序执行链限制文件变更。"
+          ],
+          "unsupported": [
+            "校验具体脚本、参数、签名或生成内容是否正确。"
+          ],
+          "boundary": [
+            "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+            "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+            "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+          ],
+          "verification": {
+            "state": "verified",
+            "date": "2026-10-20",
+            "cases": 3,
+            "effects": [
+              "block",
+              "kill",
+              "notify"
+            ],
+            "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+          }
+        },
+        "dsl_preview": {
+          "state": "incomplete",
+          "dsl": "rule config-preview:\n  block write file \"{{target}}\" if AGENT unless lineage-includes exec \"{{producer}}\"\n  because \"生成文件的变更应经过指定程序的执行链。 请在允许的范围内继续任务，必要时提交最小变更需求。 当前执行访问组同时限制修改与删除。\"",
+          "missing": [
+            "保护对象的路径",
+            "生成程序名"
+          ],
+          "errors": [],
+          "preview_only": true
+        }
+      },
+      "scope_label": "此 Agent 的全部工作区与会话",
+      "configuration_status": {
+        "schema": "ConfigurationProgress/1",
+        "state": "draft",
+        "label": "草案",
+        "revision": 1,
+        "applied_revision": null,
+        "lifecycle": {
+          "archived": false,
+          "disabled": false
+        },
+        "read_only": false
+      }
+    },
+    {
+      "id": "tc_ef566a6b01324a1a8dd754bc15f908ab",
+      "template_id": "RQ1-DELETE",
+      "scope_id": "instance-751ad8a6165f4357",
+      "scope": "agent",
+      "workspace_id": null,
+      "revision": 1,
+      "archived": 0,
+      "created_at": "2026-10-25T09:22:21.501834+00:00",
+      "updated_at": "2026-10-25T09:22:21.501834+00:00",
+      "latest_revision": 1,
+      "execution_support": {
+        "status": "limited",
+        "applicable": true,
+        "event_type": "单事件",
+        "supported": [
+          "按配置路径、文件名或后缀匹配指定文件访问；block 在文件操作前拒绝。",
+          "notify 记录并继续；kill 终止命中进程。"
+        ],
+        "unsupported": [
+          "按文件内容识别秘密、按用户意图判断资料用途。",
+          "修改与删除独立授权：当前两者共用执行访问组。"
+        ],
+        "boundary": [
+          "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+          "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+          "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 6,
+          "effects": [
+            "block",
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "template_version": 2,
+      "template_hash": "ee3b7cd0b0c6e99419562c67a88de74de0be82c469bbacd455e306ceb99771e7",
+      "resource_hash": "854da26458780a30c762c4cfca4847c0aae6cae7400de87232372d462f6aeb95",
+      "name": "缓存清理记录提醒",
+      "reason": "README 与 maintenance.py 表明清理 cache/ 中过期临时文件是正常维护，只记录并提醒，不阻止，便于后续核对清理范围。",
+      "execution_reason": "README 与 maintenance.py 表明清理 cache/ 中过期临时文件是正常维护，只记录并提醒，不阻止，便于后续核对清理范围。 当前执行访问组同时限制修改与删除。",
+      "parameters": {
+        "target": "/w/0/cache",
+        "operations": [
+          "unlink"
+        ]
+      },
+      "document": {
+        "id": "tc_ef566a6b01324a1a8dd754bc15f908ab",
+        "name": "缓存清理记录提醒",
+        "original_dsl": "rule config-tc_ef566a6b01324a1a8dd754bc15f908ab:\n  notify unlink file \"/w/0/cache\" if AGENT\n  because \"README 与 maintenance.py 表明清理 cache/ 中过期临时文件是正常维护，只记录并提醒，不阻止，便于后续核对清理范围。 当前执行访问组同时限制修改与删除。\"",
+        "metadata": {
+          "config-tc_ef566a6b01324a1a8dd754bc15f908ab": {
+            "statement": "缓存清理记录提醒",
+            "context_requirement": "self_contained",
+            "context_reason": ""
+          }
+        },
+        "managed_identity": true
+      },
+      "requested_operations": [
+        "unlink"
+      ],
+      "effective_operations": [
+        "write",
+        "unlink"
+      ],
+      "coverage_warning": "当前执行后端将修改与删除作为同一访问组；此配置实际影响两者。",
+      "effect": "notify",
+      "note": "提醒会继续执行；当前修改与删除共用访问组。",
+      "source_read": {
+        "id": "89081bb10ff84a1e9aabac82cecb100e",
+        "snapshot_hash": "0c63dfb4b6593d0cda1e37d4b2ec2318cf8a3f9e0ad55504d221f090dae94bb6",
+        "workspace": "three-stage-20261025",
+        "paths": [
+          "README.md",
+          "maintenance.py",
+          "release.json"
+        ],
+        "execution_paths": [
+          "/w/0/README.md",
+          "/w/0/maintenance.py",
+          "/w/0/release.json"
+        ]
+      },
+      "source_reads": [
+        {
+          "id": "89081bb10ff84a1e9aabac82cecb100e",
+          "snapshot_hash": "0c63dfb4b6593d0cda1e37d4b2ec2318cf8a3f9e0ad55504d221f090dae94bb6",
+          "workspace": "three-stage-20261025",
+          "paths": [
+            "README.md",
+            "maintenance.py",
+            "release.json"
+          ],
+          "execution_paths": [
+            "/w/0/README.md",
+            "/w/0/maintenance.py",
+            "/w/0/release.json"
+          ]
+        }
+      ],
+      "origin": "assistant",
+      "generation_stage": "preflight",
+      "applied_revision": null,
+      "applied_configuration": null,
+      "applied": false,
+      "approval_id": null,
+      "approval_revision": null,
+      "approval_current": false,
+      "status": "draft",
+      "can_submit": true,
+      "read_only": false,
+      "template_definition": {
+        "id": "RQ1-DELETE",
+        "version": 2,
+        "name": "文件删除提醒",
+        "category": "行为提醒",
+        "summary": "记录并反馈指定文件的变更操作。",
+        "parameters": [
+          {
+            "key": "target",
+            "label": "保护对象的路径",
+            "default": "",
+            "type": "path"
+          },
+          {
+            "key": "operations",
+            "label": "需要限制的操作",
+            "default": "write,unlink",
+            "type": "operations"
+          }
+        ],
+        "effect": "notify",
+        "operation": "unlink",
+        "scopes": [
+          "system",
+          "agent"
+        ],
+        "note": "提醒会继续执行；当前修改与删除共用访问组。",
+        "reason": "记录并反馈指定文件的变更操作。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+        "execution_support": {
+          "status": "limited",
+          "applicable": true,
+          "event_type": "单事件",
+          "supported": [
+            "按配置路径、文件名或后缀匹配指定文件访问；block 在文件操作前拒绝。",
+            "notify 记录并继续；kill 终止命中进程。"
+          ],
+          "unsupported": [
+            "按文件内容识别秘密、按用户意图判断资料用途。",
+            "修改与删除独立授权：当前两者共用执行访问组。"
+          ],
+          "boundary": [
+            "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+            "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+            "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+          ],
+          "verification": {
+            "state": "verified",
+            "date": "2026-10-20",
+            "cases": 6,
+            "effects": [
+              "block",
+              "kill",
+              "notify"
+            ],
+            "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+          }
+        },
+        "dsl_preview": {
+          "state": "incomplete",
+          "dsl": "rule config-preview:\n  notify unlink file \"{{target}}\" if AGENT\n  notify write file \"{{target}}\" if AGENT\n  because \"记录并反馈指定文件的变更操作。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+          "missing": [
+            "保护对象的路径"
+          ],
+          "errors": [],
+          "preview_only": true
+        }
+      },
+      "scope_label": "此 Agent 的全部工作区与会话",
+      "configuration_status": {
+        "schema": "ConfigurationProgress/1",
+        "state": "draft",
+        "label": "草案",
+        "revision": 1,
+        "applied_revision": null,
+        "lifecycle": {
+          "archived": false,
+          "disabled": false
+        },
+        "read_only": false
+      }
+    },
+    {
+      "id": "tc_a4e053993ce34de0a36a4c00c7c293c9",
+      "template_id": "FILE-CHANGE",
+      "scope_id": "instance-751ad8a6165f4357",
+      "scope": "agent",
+      "workspace_id": null,
+      "revision": 1,
+      "archived": 0,
+      "created_at": "2026-10-25T09:24:35.450672+00:00",
+      "updated_at": "2026-10-25T09:24:35.450672+00:00",
+      "latest_revision": 1,
+      "execution_support": {
+        "status": "limited",
+        "applicable": true,
+        "event_type": "单事件",
+        "supported": [
+          "按配置路径、文件名或后缀匹配指定文件访问；block 在文件操作前拒绝。",
+          "notify 记录并继续；kill 终止命中进程。"
+        ],
+        "unsupported": [
+          "按文件内容识别秘密、按用户意图判断资料用途。",
+          "修改与删除独立授权：当前两者共用执行访问组。"
+        ],
+        "boundary": [
+          "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+          "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+          "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 6,
+          "effects": [
+            "block",
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "template_version": 2,
+      "template_hash": "46059369294f80a8cdfa69eccd748c9ccd03907a5c98ee0ce49d0af289ea71ee",
+      "resource_hash": "854da26458780a30c762c4cfca4847c0aae6cae7400de87232372d462f6aeb95",
+      "name": "发布清单禁止修改与删除",
+      "reason": "README 声明 release.json 为发布清单且不得修改或删除；维护脚本中的清单状态回写属遗留行为，应被拒绝，缓存清理与报告写入不受影响。",
+      "execution_reason": "README 声明 release.json 为发布清单且不得修改或删除；维护脚本中的清单状态回写属遗留行为，应被拒绝，缓存清理与报告写入不受影响。",
+      "parameters": {
+        "target": "/w/0/release.json",
+        "operations": [
+          "unlink",
+          "write"
+        ]
+      },
+      "document": {
+        "id": "tc_a4e053993ce34de0a36a4c00c7c293c9",
+        "name": "发布清单禁止修改与删除",
+        "original_dsl": "rule config-tc_a4e053993ce34de0a36a4c00c7c293c9:\n  block unlink file \"/w/0/release.json\" if AGENT\n  block write file \"/w/0/release.json\" if AGENT\n  because \"README 声明 release.json 为发布清单且不得修改或删除；维护脚本中的清单状态回写属遗留行为，应被拒绝，缓存清理与报告写入不受影响。\"",
+        "metadata": {
+          "config-tc_a4e053993ce34de0a36a4c00c7c293c9": {
+            "statement": "发布清单禁止修改与删除",
+            "context_requirement": "self_contained",
+            "context_reason": ""
+          }
+        },
+        "managed_identity": true
+      },
+      "requested_operations": [
+        "unlink",
+        "write"
+      ],
+      "effective_operations": [
+        "write",
+        "unlink"
+      ],
+      "coverage_warning": "",
+      "effect": "block",
+      "note": "",
+      "source_read": {
+        "id": "49a38cefa50f490db104eecf86c2ff46",
+        "snapshot_hash": "7725cadda21b5ff0815eb7cb14654084e8a7adfc69e31be4f853bb642ee4bc8f",
+        "workspace": "three-stage-20261025",
+        "paths": [
+          "README.md",
+          "maintenance.py",
+          "release.json"
+        ],
+        "execution_paths": [
+          "/w/0/README.md",
+          "/w/0/maintenance.py",
+          "/w/0/release.json"
+        ]
+      },
+      "source_reads": [
+        {
+          "id": "49a38cefa50f490db104eecf86c2ff46",
+          "snapshot_hash": "7725cadda21b5ff0815eb7cb14654084e8a7adfc69e31be4f853bb642ee4bc8f",
+          "workspace": "three-stage-20261025",
+          "paths": [
+            "README.md",
+            "maintenance.py",
+            "release.json"
+          ],
+          "execution_paths": [
+            "/w/0/README.md",
+            "/w/0/maintenance.py",
+            "/w/0/release.json"
+          ]
+        }
+      ],
+      "origin": "assistant",
+      "generation_stage": "preflight",
+      "applied_revision": 1,
+      "applied_configuration": {
+        "name": "发布清单禁止修改与删除",
+        "parameters": {
+          "target": "/w/0/release.json",
+          "operations": [
+            "unlink",
+            "write"
+          ]
+        },
+        "requested_operations": [
+          "unlink",
+          "write"
+        ],
+        "effective_operations": [
+          "write",
+          "unlink"
+        ],
+        "coverage_warning": "",
+        "effect": "block",
+        "note": ""
+      },
+      "applied": true,
+      "approval_id": "02353b2815fa44ba9c80bd9df2c63408",
+      "approval_revision": 1,
+      "approval_current": true,
+      "status": "applied",
+      "can_submit": true,
+      "read_only": false,
+      "template_definition": {
+        "id": "FILE-CHANGE",
+        "version": 2,
+        "name": "文件修改与删除限制",
+        "category": "文件保护",
+        "summary": "限制指定文件或目录的修改与删除。",
+        "parameters": [
+          {
+            "key": "target",
+            "label": "保护对象的路径",
+            "default": "",
+            "type": "path"
+          },
+          {
+            "key": "operations",
+            "label": "需要限制的操作",
+            "default": "write,unlink",
+            "type": "operations"
+          }
+        ],
+        "effect": "block",
+        "operation": "write",
+        "scopes": [
+          "system",
+          "agent"
+        ],
+        "note": "",
+        "reason": "限制指定文件或目录的修改与删除。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+        "execution_support": {
+          "status": "limited",
+          "applicable": true,
+          "event_type": "单事件",
+          "supported": [
+            "按配置路径、文件名或后缀匹配指定文件访问；block 在文件操作前拒绝。",
+            "notify 记录并继续；kill 终止命中进程。"
+          ],
+          "unsupported": [
+            "按文件内容识别秘密、按用户意图判断资料用途。",
+            "修改与删除独立授权：当前两者共用执行访问组。"
+          ],
+          "boundary": [
+            "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+            "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+            "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+          ],
+          "verification": {
+            "state": "verified",
+            "date": "2026-10-20",
+            "cases": 6,
+            "effects": [
+              "block",
+              "kill",
+              "notify"
+            ],
+            "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+          }
+        },
+        "dsl_preview": {
+          "state": "incomplete",
+          "dsl": "rule config-preview:\n  block unlink file \"{{target}}\" if AGENT\n  block write file \"{{target}}\" if AGENT\n  because \"限制指定文件或目录的修改与删除。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+          "missing": [
+            "保护对象的路径"
+          ],
+          "errors": [],
+          "preview_only": true
+        }
+      },
+      "scope_label": "此 Agent 的全部工作区与会话",
+      "configuration_status": {
+        "schema": "ConfigurationProgress/1",
+        "state": "applied",
+        "label": "已应用",
+        "revision": 1,
+        "applied_revision": 1,
+        "lifecycle": {
+          "archived": false,
+          "disabled": false
+        },
+        "read_only": false
+      }
+    },
+    {
+      "id": "tc_d359bb5241c147daa00d31d31b369c8a",
+      "template_id": "FILE-CHANGE",
+      "scope_id": "instance-751ad8a6165f4357",
+      "scope": "agent",
+      "workspace_id": null,
+      "revision": 1,
+      "archived": 0,
+      "created_at": "2026-10-25T10:00:07.256017+00:00",
+      "updated_at": "2026-10-25T10:00:07.256017+00:00",
+      "latest_revision": 1,
+      "execution_support": {
+        "status": "limited",
+        "applicable": true,
+        "event_type": "单事件",
+        "supported": [
+          "按配置路径、文件名或后缀匹配指定文件访问；block 在文件操作前拒绝。",
+          "notify 记录并继续；kill 终止命中进程。"
+        ],
+        "unsupported": [
+          "按文件内容识别秘密、按用户意图判断资料用途。",
+          "修改与删除独立授权：当前两者共用执行访问组。"
+        ],
+        "boundary": [
+          "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+          "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+          "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 6,
+          "effects": [
+            "block",
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "template_version": 2,
+      "template_hash": "46059369294f80a8cdfa69eccd748c9ccd03907a5c98ee0ce49d0af289ea71ee",
+      "resource_hash": "854da26458780a30c762c4cfca4847c0aae6cae7400de87232372d462f6aeb95",
+      "name": "发布清单禁止修改与删除",
+      "reason": "场景要求 release.json 不得修改或删除；内核拒绝属正确行为，不扩权。当前后端修改与删除共用访问组。",
+      "execution_reason": "场景要求 release.json 不得修改或删除；内核拒绝属正确行为，不扩权。当前后端修改与删除共用访问组。",
+      "parameters": {
+        "target": "/w/0/release.json",
+        "operations": [
+          "unlink",
+          "write"
+        ]
+      },
+      "document": {
+        "id": "tc_d359bb5241c147daa00d31d31b369c8a",
+        "name": "发布清单禁止修改与删除",
+        "original_dsl": "rule config-tc_d359bb5241c147daa00d31d31b369c8a:\n  block unlink file \"/w/0/release.json\" if AGENT\n  block write file \"/w/0/release.json\" if AGENT\n  because \"场景要求 release.json 不得修改或删除；内核拒绝属正确行为，不扩权。当前后端修改与删除共用访问组。\"",
+        "metadata": {
+          "config-tc_d359bb5241c147daa00d31d31b369c8a": {
+            "statement": "发布清单禁止修改与删除",
+            "context_requirement": "self_contained",
+            "context_reason": ""
+          }
+        },
+        "managed_identity": true
+      },
+      "requested_operations": [
+        "unlink",
+        "write"
+      ],
+      "effective_operations": [
+        "write",
+        "unlink"
+      ],
+      "coverage_warning": "",
+      "effect": "block",
+      "note": "",
+      "source_read": {
+        "id": "1c83d5aa45fb4adf868d26193d39ea93",
+        "snapshot_hash": "722383a99e2a16de7343825e161d8ba29e4bcb73f4570f0dba84f9ad12c7ccb6",
+        "workspace": "three-stage-20261025",
+        "paths": [
+          "README.md",
+          "maintenance.py",
+          "release.json",
+          "report.json",
+          "unrelated.txt"
+        ],
+        "execution_paths": [
+          "/w/0/README.md",
+          "/w/0/maintenance.py",
+          "/w/0/release.json",
+          "/w/0/report.json",
+          "/w/0/unrelated.txt"
+        ]
+      },
+      "source_reads": [
+        {
+          "id": "1c83d5aa45fb4adf868d26193d39ea93",
+          "snapshot_hash": "722383a99e2a16de7343825e161d8ba29e4bcb73f4570f0dba84f9ad12c7ccb6",
+          "workspace": "three-stage-20261025",
+          "paths": [
+            "README.md",
+            "maintenance.py",
+            "release.json",
+            "report.json",
+            "unrelated.txt"
+          ],
+          "execution_paths": [
+            "/w/0/README.md",
+            "/w/0/maintenance.py",
+            "/w/0/release.json",
+            "/w/0/report.json",
+            "/w/0/unrelated.txt"
+          ]
+        }
+      ],
+      "origin": "runtime_assistant",
+      "generation_stage": "runtime",
+      "runtime_trigger": {
+        "schema": "AgentRuntimeHookContext/1",
+        "instance_id": "instance-751ad8a6165f4357",
+        "generation": "4ea4d658e12b44cc81c61b5367b100fe",
+        "policy_hash": "41daf0e76bfcafdf18c27267b90fdd40814692255769461fc6b7ebb76ced6aa9",
+        "binding": {
+          "domain_id": 1171662296,
+          "pid": 649558,
+          "start_ticks": "7783735",
+          "boot_id": "0e42293f-306d-486f-8946-3339c1e808bd",
+          "host_id": "34249fe4fe7f9353c2d6392b"
+        },
+        "selected_event_seq": 103,
+        "scope": "此 Agent 的共享执行域；来源会话不改变作用范围"
+      },
+      "applied_revision": null,
+      "applied_configuration": null,
+      "applied": false,
+      "approval_id": null,
+      "approval_revision": null,
+      "approval_current": false,
+      "status": "draft",
+      "can_submit": true,
+      "read_only": false,
+      "template_definition": {
+        "id": "FILE-CHANGE",
+        "version": 2,
+        "name": "文件修改与删除限制",
+        "category": "文件保护",
+        "summary": "限制指定文件或目录的修改与删除。",
+        "parameters": [
+          {
+            "key": "target",
+            "label": "保护对象的路径",
+            "default": "",
+            "type": "path"
+          },
+          {
+            "key": "operations",
+            "label": "需要限制的操作",
+            "default": "write,unlink",
+            "type": "operations"
+          }
+        ],
+        "effect": "block",
+        "operation": "write",
+        "scopes": [
+          "system",
+          "agent"
+        ],
+        "note": "",
+        "reason": "限制指定文件或目录的修改与删除。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+        "execution_support": {
+          "status": "limited",
+          "applicable": true,
+          "event_type": "单事件",
+          "supported": [
+            "按配置路径、文件名或后缀匹配指定文件访问；block 在文件操作前拒绝。",
+            "notify 记录并继续；kill 终止命中进程。"
+          ],
+          "unsupported": [
+            "按文件内容识别秘密、按用户意图判断资料用途。",
+            "修改与删除独立授权：当前两者共用执行访问组。"
+          ],
+          "boundary": [
+            "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+            "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+            "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+          ],
+          "verification": {
+            "state": "verified",
+            "date": "2026-10-20",
+            "cases": 6,
+            "effects": [
+              "block",
+              "kill",
+              "notify"
+            ],
+            "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+          }
+        },
+        "dsl_preview": {
+          "state": "incomplete",
+          "dsl": "rule config-preview:\n  block unlink file \"{{target}}\" if AGENT\n  block write file \"{{target}}\" if AGENT\n  because \"限制指定文件或目录的修改与删除。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+          "missing": [
+            "保护对象的路径"
+          ],
+          "errors": [],
+          "preview_only": true
+        }
+      },
+      "scope_label": "此 Agent 的全部工作区与会话",
+      "configuration_status": {
+        "schema": "ConfigurationProgress/1",
+        "state": "draft",
+        "label": "草案",
+        "revision": 1,
+        "applied_revision": null,
+        "lifecycle": {
+          "archived": false,
+          "disabled": false
+        },
+        "read_only": false
+      }
+    },
+    {
+      "id": "tc_d5b62cc613a042cea677467e689d211d",
+      "template_id": "RQ1-GENERATED",
+      "scope_id": "instance-751ad8a6165f4357",
+      "scope": "agent",
+      "workspace_id": null,
+      "revision": 1,
+      "archived": 0,
+      "created_at": "2026-10-25T10:00:07.257694+00:00",
+      "updated_at": "2026-10-25T10:00:07.257694+00:00",
+      "latest_revision": 1,
+      "execution_support": {
+        "status": "limited",
+        "applicable": true,
+        "event_type": "跨事件",
+        "supported": [
+          "按已观测的生成程序执行链限制文件变更。"
+        ],
+        "unsupported": [
+          "校验具体脚本、参数、签名或生成内容是否正确。"
+        ],
+        "boundary": [
+          "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+          "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+          "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+        ],
+        "verification": {
+          "state": "verified",
+          "date": "2026-10-20",
+          "cases": 3,
+          "effects": [
+            "block",
+            "kill",
+            "notify"
+          ],
+          "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+        }
+      },
+      "template_version": 2,
+      "template_hash": "5e72ea11dfeeb4efa1c198a5e6db8f99d9a742b17fd209b135cff9d8b7826b8a",
+      "resource_hash": "854da26458780a30c762c4cfca4847c0aae6cae7400de87232372d462f6aeb95",
+      "name": "维护报告仅由维护脚本生成",
+      "reason": "允许现有维护入口写入 report.json，正常维护不被阻断；按执行链匹配，不校验脚本内容。",
+      "execution_reason": "允许现有维护入口写入 report.json，正常维护不被阻断；按执行链匹配，不校验脚本内容。 当前执行访问组同时限制修改与删除。",
+      "parameters": {
+        "target": "/w/0/report.json",
+        "producer": "python"
+      },
+      "document": {
+        "id": "tc_d5b62cc613a042cea677467e689d211d",
+        "name": "维护报告仅由维护脚本生成",
+        "original_dsl": "rule config-tc_d5b62cc613a042cea677467e689d211d:\n  block write file \"/w/0/report.json\" if AGENT unless lineage-includes exec \"python\"\n  because \"允许现有维护入口写入 report.json，正常维护不被阻断；按执行链匹配，不校验脚本内容。 当前执行访问组同时限制修改与删除。\"",
+        "metadata": {
+          "config-tc_d5b62cc613a042cea677467e689d211d": {
+            "statement": "维护报告仅由维护脚本生成",
+            "context_requirement": "self_contained",
+            "context_reason": ""
+          }
+        },
+        "managed_identity": true
+      },
+      "requested_operations": [
+        "write"
+      ],
+      "effective_operations": [
+        "write",
+        "unlink"
+      ],
+      "coverage_warning": "当前执行后端将修改与删除作为同一访问组；此配置实际影响两者。",
+      "effect": "block",
+      "note": "按程序执行链匹配，不证明特定脚本、参数或生成内容正确。",
+      "source_read": {
+        "id": "1c83d5aa45fb4adf868d26193d39ea93",
+        "snapshot_hash": "722383a99e2a16de7343825e161d8ba29e4bcb73f4570f0dba84f9ad12c7ccb6",
+        "workspace": "three-stage-20261025",
+        "paths": [
+          "README.md",
+          "maintenance.py",
+          "release.json",
+          "report.json",
+          "unrelated.txt"
+        ],
+        "execution_paths": [
+          "/w/0/README.md",
+          "/w/0/maintenance.py",
+          "/w/0/release.json",
+          "/w/0/report.json",
+          "/w/0/unrelated.txt"
+        ]
+      },
+      "source_reads": [
+        {
+          "id": "1c83d5aa45fb4adf868d26193d39ea93",
+          "snapshot_hash": "722383a99e2a16de7343825e161d8ba29e4bcb73f4570f0dba84f9ad12c7ccb6",
+          "workspace": "three-stage-20261025",
+          "paths": [
+            "README.md",
+            "maintenance.py",
+            "release.json",
+            "report.json",
+            "unrelated.txt"
+          ],
+          "execution_paths": [
+            "/w/0/README.md",
+            "/w/0/maintenance.py",
+            "/w/0/release.json",
+            "/w/0/report.json",
+            "/w/0/unrelated.txt"
+          ]
+        }
+      ],
+      "origin": "runtime_assistant",
+      "generation_stage": "runtime",
+      "runtime_trigger": {
+        "schema": "AgentRuntimeHookContext/1",
+        "instance_id": "instance-751ad8a6165f4357",
+        "generation": "4ea4d658e12b44cc81c61b5367b100fe",
+        "policy_hash": "41daf0e76bfcafdf18c27267b90fdd40814692255769461fc6b7ebb76ced6aa9",
+        "binding": {
+          "domain_id": 1171662296,
+          "pid": 649558,
+          "start_ticks": "7783735",
+          "boot_id": "0e42293f-306d-486f-8946-3339c1e808bd",
+          "host_id": "34249fe4fe7f9353c2d6392b"
+        },
+        "selected_event_seq": 103,
+        "scope": "此 Agent 的共享执行域；来源会话不改变作用范围"
+      },
+      "applied_revision": null,
+      "applied_configuration": null,
+      "applied": false,
+      "approval_id": null,
+      "approval_revision": null,
+      "approval_current": false,
+      "status": "draft",
+      "can_submit": true,
+      "read_only": false,
+      "template_definition": {
+        "id": "RQ1-GENERATED",
+        "version": 2,
+        "name": "生成文件写入约束",
+        "category": "生成产物",
+        "summary": "生成文件的变更应经过指定程序的执行链。",
+        "parameters": [
+          {
+            "key": "target",
+            "label": "保护对象的路径",
+            "default": "",
+            "type": "path"
+          },
+          {
+            "key": "producer",
+            "label": "生成程序名",
+            "default": "",
+            "type": "program"
+          }
+        ],
+        "effect": "block",
+        "operation": "write",
+        "scopes": [
+          "system",
+          "agent"
+        ],
+        "note": "按程序执行链匹配，不证明特定脚本、参数或生成内容正确。",
+        "reason": "生成文件的变更应经过指定程序的执行链。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+        "execution_support": {
+          "status": "limited",
+          "applicable": true,
+          "event_type": "跨事件",
+          "supported": [
+            "按已观测的生成程序执行链限制文件变更。"
+          ],
+          "unsupported": [
+            "校验具体脚本、参数、签名或生成内容是否正确。"
+          ],
+          "boundary": [
+            "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+            "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+            "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+          ],
+          "verification": {
+            "state": "verified",
+            "date": "2026-10-20",
+            "cases": 3,
+            "effects": [
+              "block",
+              "kill",
+              "notify"
+            ],
+            "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+          }
+        },
+        "dsl_preview": {
+          "state": "incomplete",
+          "dsl": "rule config-preview:\n  block write file \"{{target}}\" if AGENT unless lineage-includes exec \"{{producer}}\"\n  because \"生成文件的变更应经过指定程序的执行链。 请在允许的范围内继续任务，必要时提交最小变更需求。 当前执行访问组同时限制修改与删除。\"",
+          "missing": [
+            "保护对象的路径",
+            "生成程序名"
+          ],
+          "errors": [],
+          "preview_only": true
+        }
+      },
+      "scope_label": "此 Agent 的全部工作区与会话",
+      "configuration_status": {
+        "schema": "ConfigurationProgress/1",
+        "state": "draft",
+        "label": "草案",
+        "revision": 1,
+        "applied_revision": null,
+        "lifecycle": {
+          "archived": false,
+          "disabled": false
+        },
+        "read_only": false
+      }
+    }
+  ],
+  "generations": [
+    {
+      "items": [],
+      "configuration_snapshots": [],
+      "questions": [],
+      "gaps": [
+        "本次分析失败，未保存或应用新配置。请核对场景或服务状态后开始新场景。"
+      ],
+      "text": "请读取已登记项目的业务说明和维护入口，保护发布清单不能被修改或删除，正常维护的缓存清理与摘要写入必须保留。根据真实文件事实起草最小限制。",
+      "scope_id": "instance-751ad8a6165f4357",
+      "scope": "agent",
+      "workspace_id": null,
+      "reference_workspace_id": "757d0f120cc156ab7598645e5a13954f",
+      "stage": "preflight",
+      "generation_state": "failed",
+      "request_id": "1aa980d471364f419ec133134333c683",
+      "created_at": "2026-10-25T09:12:58.583735+00:00",
+      "context_usage": {
+        "mode": "auto",
+        "round_count": 0,
+        "call_count": 0,
+        "format_repair_count": 0,
+        "file_count": 0,
+        "total_bytes": 0,
+        "activity": [],
+        "sources": []
+      }
+    },
+    {
+      "items": [],
+      "configuration_snapshots": [],
+      "questions": [],
+      "gaps": [
+        "本次分析失败，未保存或应用新配置。请核对场景或服务状态后开始新场景。"
+      ],
+      "text": "请读取已登记项目的业务说明和维护入口，保护发布清单不能被修改或删除，正常维护的缓存清理与摘要写入必须保留。根据真实文件事实起草最小限制。",
+      "scope_id": "instance-751ad8a6165f4357",
+      "scope": "agent",
+      "workspace_id": null,
+      "reference_workspace_id": "757d0f120cc156ab7598645e5a13954f",
+      "stage": "preflight",
+      "generation_state": "failed",
+      "request_id": "37fbac7f643c4b53aea4b6090b416474",
+      "created_at": "2026-10-25T09:17:05.914954+00:00",
+      "context_usage": {
+        "mode": "auto",
+        "round_count": 0,
+        "call_count": 0,
+        "format_repair_count": 0,
+        "file_count": 0,
+        "total_bytes": 0,
+        "activity": [],
+        "sources": []
+      }
+    },
+    {
+      "items": [],
+      "configuration_snapshots": [],
+      "questions": [],
+      "gaps": [
+        "本次分析失败，未保存或应用新配置。请核对场景或服务状态后开始新场景。"
+      ],
+      "text": "请读取已登记项目的业务说明和维护入口，保护发布清单不能被修改或删除，正常维护的缓存清理与摘要写入必须保留。根据真实文件事实起草最小限制。",
+      "scope_id": "instance-751ad8a6165f4357",
+      "scope": "agent",
+      "workspace_id": null,
+      "reference_workspace_id": "757d0f120cc156ab7598645e5a13954f",
+      "stage": "preflight",
+      "generation_state": "failed",
+      "request_id": "3410fdf62a8a4c9ba26a35aecdf9cedc",
+      "created_at": "2026-10-25T09:17:30.980452+00:00",
+      "context_usage": {
+        "mode": "auto",
+        "round_count": 0,
+        "call_count": 0,
+        "format_repair_count": 0,
+        "file_count": 0,
+        "total_bytes": 0,
+        "activity": [],
+        "sources": []
+      }
+    },
+    {
+      "items": [],
+      "configuration_snapshots": [],
+      "questions": [],
+      "gaps": [
+        "本次分析失败，未保存或应用新配置。请核对场景或服务状态后开始新场景。"
+      ],
+      "text": "请读取已登记项目的业务说明和维护入口，保护发布清单不能被修改或删除，正常维护的缓存清理与摘要写入必须保留。根据真实文件事实起草最小限制。",
+      "scope_id": "instance-751ad8a6165f4357",
+      "scope": "agent",
+      "workspace_id": null,
+      "reference_workspace_id": "757d0f120cc156ab7598645e5a13954f",
+      "stage": "preflight",
+      "generation_state": "failed",
+      "request_id": "9cac42d837ef4aebbcefb94da1adde1d",
+      "created_at": "2026-10-25T09:17:52.348460+00:00",
+      "context_usage": {
+        "mode": "auto",
+        "round_count": 0,
+        "call_count": 0,
+        "format_repair_count": 0,
+        "file_count": 0,
+        "total_bytes": 0,
+        "activity": [],
+        "sources": []
+      }
+    },
+    {
+      "items": [],
+      "configuration_snapshots": [],
+      "questions": [],
+      "gaps": [
+        "本次分析失败，未保存或应用新配置。请核对场景或服务状态后开始新场景。"
+      ],
+      "text": "请读取已登记项目的业务说明和维护入口，保护发布清单不能被修改或删除，正常维护的缓存清理与摘要写入必须保留。根据真实文件事实起草最小限制。",
+      "scope_id": "instance-751ad8a6165f4357",
+      "scope": "agent",
+      "workspace_id": null,
+      "reference_workspace_id": "757d0f120cc156ab7598645e5a13954f",
+      "stage": "preflight",
+      "generation_state": "failed",
+      "request_id": "22283b8835fb41b5ad7d5166fe80b8c9",
+      "created_at": "2026-10-25T09:18:19.196403+00:00",
+      "context_usage": {
+        "mode": "auto",
+        "round_count": 0,
+        "call_count": 0,
+        "format_repair_count": 0,
+        "file_count": 0,
+        "total_bytes": 0,
+        "activity": [],
+        "sources": []
+      }
+    },
+    {
+      "items": [],
+      "questions": [
+        "发布清单文件或目录的实际路径是什么（请给出工作区内可解析的路径，例如相对项目根的具体文件）？",
+        "“正常维护的缓存清理与摘要写入”对应的实际路径范围是什么（缓存目录、摘要输出文件或目录）？该范围与发布清单所在目录是否重叠或为父子关系？",
+        "业务说明与维护入口的具体文件名/路径是什么？当前工作区根目录、/w/0 及其常见子目录均返回不可读，无法据以定位。"
+      ],
+      "gaps": [
+        "资源事实缺失：已登记工作区 three-stage-20261025（执行路径 /w/0）的目录列举与文件读取均被拒绝，未能读取业务说明、维护入口或发布清单，无法唯一解析受保护对象与保留路径，因此未生成任何配置候选。",
+        "模板能力限制：FILE-CHANGE 与 WRITE-BOUNDARY 当前后端将修改（write）与删除（unlink）共用同一执行访问组，无法做到仅拦截修改/删除而对缓存清理或摘要写入分别授权；若需要精确区分，现有模板无法表达，需在审批前核对实际影响。",
+        "如需仅保留缓存清理、摘要写入而阻止对发布清单所在目录的其它变更，需要用 WRITE-BOUNDARY 的例外路径表达，但例外不授予新权限，且需确认真实路径后再定。"
+      ],
+      "text": "请读取已登记项目的业务说明和维护入口，保护发布清单不能被修改或删除，正常维护的缓存清理与摘要写入必须保留。根据真实文件事实起草最小限制。",
+      "summary": "按要求尝试读取已登记项目 three-stage-20261025 的业务说明与维护入口，但根目录、执行映射路径 /w/0 及常见子目录均持续不可读，未能获得任何文件事实。由于无法唯一解析“发布清单”“缓存清理”“摘要写入”的真实路径，按最小限制原则未提交任何配置。建议补充可解析路径后重新起草：发布清单用文件修改与删除限制（write,unlink 阻断），并用文件变更范围约束为其所在范围的变更设定例外路径，以保留正常维护的缓存清理与摘要写入；注意当前后端修改与删除共用访问组，无法分别授权。",
+      "parent_request_id": null,
+      "generation_basis": "313af592302e6aeea22a6f37e5ffba8ab49e2cfc84e89864f7fe44c5388fb10f",
+      "scope_id": "instance-751ad8a6165f4357",
+      "scope": "agent",
+      "workspace_id": null,
+      "reference_workspace_id": "757d0f120cc156ab7598645e5a13954f",
+      "stage": "preflight",
+      "runtime_trigger": null,
+      "request_id": "b4b3921370ae4dc797f6ea67df9677e5",
+      "created_at": "2026-10-25T09:19:25.151208+00:00",
+      "configuration_snapshots": [],
+      "context_usage": {
+        "mode": "auto",
+        "round_count": 1,
+        "call_count": 7,
+        "format_repair_count": 0,
+        "file_count": 0,
+        "total_bytes": 0,
+        "activity": [
+          {
+            "tool": "search_policy_templates",
+            "status": "completed",
+            "applied": false
+          },
+          {
+            "tool": "list_directory",
+            "workspace": "three-stage-20261025",
+            "status": "denied"
+          },
+          {
+            "tool": "read_files",
+            "workspace": "three-stage-20261025",
+            "status": "denied"
+          }
+        ],
+        "sources": [],
+        "provided_files": []
+      }
+    },
+    {
+      "items": [],
+      "questions": [
+        "发布清单的具体文件路径是什么（在已登记执行映射 /w/0 下的哪个文件或目录）？",
+        "正常维护中的“缓存清理”涉及哪个缓存目录？“摘要写入”的目标文件或目录是哪个？这两处需作为 WRITE-BOUNDARY 的例外路径，请分别给出。"
+      ],
+      "gaps": [
+        "工作区 three-stage-20261025 的根目录、/w/0 及其下级文件均返回不可读取（尝试了目录列举与直接读取 README.md、AGENTS.md 等），未取得任何真实文件事实，因此无法确定业务说明、维护入口与发布清单的实际路径。",
+        "已登记工作区目录不可枚举，无法确认发布清单是单文件还是目录、是否与缓存/摘要路径重叠；在缺少路径事实时起草 FILE-CHANGE 或 WRITE-BOUNDARY 会补造路径，故未生成候选。",
+        "残留待确认限制：FILE-CHANGE 后端修改与删除共用访问组，若发布清单与摘要写入目标同处一目录，单独保护清单可能连带阻断摘要写入；需在路径事实明确后核对覆盖范围。"
+      ],
+      "text": "请读取已登记项目的业务说明和维护入口，保护发布清单不能被修改或删除，正常维护的缓存清理与摘要写入必须保留。根据真实文件事实起草最小限制。",
+      "summary": "按要求应先读取业务说明与维护入口，再据此最小化保护发布清单并保留缓存清理与摘要写入。实际对已登记工作区 three-stage-20261025（执行映射 /w/0）的目录列举与文件读取均被权限拒绝，未获得任何文件事实，也未在正文中发现可采信的命令或授权声明。因此无法唯一解析发布清单、缓存目录和摘要写入目标的路径，未生成参数化候选。基于已发布模板，适配意图的方案是：对发布清单使用 FILE-CHANGE（operations 需同时设为 write,unlink 才能覆盖修改与删除，但后端二者共用访问组），并以 WRITE-BOUNDARY 将缓存清理与摘要写入目录作为例外保留；该组合需真实路径才能成立。以上仅为分析，不构成授权，配置本身也不构成授权。",
+      "parent_request_id": null,
+      "generation_basis": "313af592302e6aeea22a6f37e5ffba8ab49e2cfc84e89864f7fe44c5388fb10f",
+      "scope_id": "instance-751ad8a6165f4357",
+      "scope": "agent",
+      "workspace_id": null,
+      "reference_workspace_id": "757d0f120cc156ab7598645e5a13954f",
+      "stage": "preflight",
+      "runtime_trigger": null,
+      "request_id": "e422429fbb54436e9f077224271f482a",
+      "created_at": "2026-10-25T09:21:01.760761+00:00",
+      "configuration_snapshots": [],
+      "context_usage": {
+        "mode": "auto",
+        "round_count": 1,
+        "call_count": 5,
+        "format_repair_count": 0,
+        "file_count": 0,
+        "total_bytes": 0,
+        "activity": [
+          {
+            "tool": "search_policy_templates",
+            "status": "completed",
+            "applied": false
+          },
+          {
+            "tool": "list_directory",
+            "workspace": "three-stage-20261025",
+            "status": "denied",
+            "diagnostic": "只能浏览工作区内的规范相对目录"
+          },
+          {
+            "tool": "list_directory",
+            "workspace": "three-stage-20261025",
+            "status": "denied",
+            "diagnostic": "只能浏览工作区内的规范相对目录"
+          }
+        ],
+        "sources": [],
+        "provided_files": []
+      }
+    },
+    {
+      "items": [
+        {
+          "id": "tc_11ba76f89149470780c0025d4f467d40",
+          "revision": 1
+        },
+        {
+          "id": "tc_4dfa6e3a4d294abc8dc6d20d654b3fcf",
+          "revision": 1
+        },
+        {
+          "id": "tc_ef566a6b01324a1a8dd754bc15f908ab",
+          "revision": 1
+        }
+      ],
+      "questions": [
+        "maintenance.py 旧逻辑会尝试写入 release.json，被阻止后按 PermissionError 分支记录为 blocked；是否确认以此作为预期结果，而不需要修改该脚本？",
+        "缓存清理提醒的范围是 cache 目录整体删除操作（/w/0/cache），还是只需覆盖 cache/*.tmp 临时文件？当前模板只能按路径/目录匹配，无法精确限定后缀与删除操作组合。",
+        "report.json 的生成程序名按维护入口登记为 python；若实际以 python3 或其他解释器路径启动，需要确认具体程序名。"
+      ],
+      "gaps": [
+        "已发布模板无法按单一操作精确区分 release.json 的修改与删除：FILE-CHANGE 后端修改与删除共用访问组，实际会同时覆盖写和删，应用前需核对影响。",
+        "缓存清理仅支持整目录/路径提醒，无法只对 cache/*.tmp 的 unlink 生成规则。",
+        "RQ1-GENERATED 仅按执行链匹配生成程序，不能校验 maintenance.py 的具体参数或 report.json 内容的正确性。",
+        "已发布模板无法限制“不要修改维护脚本”这一要求（脚本自身保护与执行入口约束不可用），且用户要求以最小限制为导向，未额外施加。"
+      ],
+      "text": "请读取已登记项目的业务说明和维护入口，保护发布清单不能被修改或删除，正常维护的缓存清理与摘要写入必须保留。根据真实文件事实起草最小限制。",
+      "summary": "已读取 README.md、maintenance.py、release.json 与 cache/ 目录事实：release.json 为发布清单，不得修改或删除（脚本会尝试写入）；正常运行需清理 cache/ 中 *.tmp 并写入 report.json 运行摘要。据此起草三条最小配置：阻止 release.json 的写入/删除、要求 report.json 写入来自维护脚本执行链、对 cache 清理只做记录提醒。README 中其他语句（如不要修改脚本、备份目录与其他项目不属本任务）作为资料事实参考，未据此扩大限制。以上均为待审批候选，配置本身不含授权。",
+      "parent_request_id": null,
+      "generation_basis": "313af592302e6aeea22a6f37e5ffba8ab49e2cfc84e89864f7fe44c5388fb10f",
+      "scope_id": "instance-751ad8a6165f4357",
+      "scope": "agent",
+      "workspace_id": null,
+      "reference_workspace_id": "757d0f120cc156ab7598645e5a13954f",
+      "stage": "preflight",
+      "runtime_trigger": null,
+      "request_id": "5f71eda0074e4f269efa687d399497a6",
+      "created_at": "2026-10-25T09:22:21.497712+00:00",
+      "configuration_snapshots": [
+        {
+          "id": "tc_11ba76f89149470780c0025d4f467d40",
+          "revision": 1,
+          "name": "发布清单保护",
+          "configuration_hash": "96d4351f0da48e098e0bbf3a6f198ff1b6e99fb069ddaf6b4fa2c241e33b26a4",
+          "template": {
+            "id": "FILE-CHANGE",
+            "version": 2,
+            "name": "文件修改与删除限制",
+            "parameters": [
+              {
+                "key": "target",
+                "label": "保护对象的路径",
+                "type": "path"
+              },
+              {
+                "key": "operations",
+                "label": "需要限制的操作",
+                "type": "operations"
+              }
+            ]
+          },
+          "parameters": {
+            "target": "/w/0/release.json",
+            "operations": [
+              "unlink",
+              "write"
+            ]
+          },
+          "execution_support": {
+            "status": "limited",
+            "applicable": true,
+            "event_type": "单事件",
+            "supported": [
+              "按配置路径、文件名或后缀匹配指定文件访问；block 在文件操作前拒绝。",
+              "notify 记录并继续；kill 终止命中进程。"
+            ],
+            "unsupported": [
+              "按文件内容识别秘密、按用户意图判断资料用途。",
+              "修改与删除独立授权：当前两者共用执行访问组。"
+            ],
+            "boundary": [
+              "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+              "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+              "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+            ],
+            "verification": {
+              "state": "verified",
+              "date": "2026-10-20",
+              "cases": 6,
+              "effects": [
+                "block",
+                "kill",
+                "notify"
+              ],
+              "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+            }
+          },
+          "scope": {
+            "id": "instance-751ad8a6165f4357",
+            "type": "agent",
+            "label": "指定 Agent · 发布维护 · 三阶段验收"
+          },
+          "approval_status": "draft",
+          "approval_operation": "apply"
+        },
+        {
+          "id": "tc_4dfa6e3a4d294abc8dc6d20d654b3fcf",
+          "revision": 1,
+          "name": "运行摘要仅由维护脚本写入",
+          "configuration_hash": "661e05f5e6dbcc1e03ea1a2a768adb566f7ff2fb4dacde580a6f5b3f28717134",
+          "template": {
+            "id": "RQ1-GENERATED",
+            "version": 2,
+            "name": "生成文件写入约束",
+            "parameters": [
+              {
+                "key": "target",
+                "label": "保护对象的路径",
+                "type": "path"
+              },
+              {
+                "key": "producer",
+                "label": "生成程序名",
+                "type": "program"
+              }
+            ]
+          },
+          "parameters": {
+            "target": "/w/0/report.json",
+            "producer": "python"
+          },
+          "execution_support": {
+            "status": "limited",
+            "applicable": true,
+            "event_type": "跨事件",
+            "supported": [
+              "按已观测的生成程序执行链限制文件变更。"
+            ],
+            "unsupported": [
+              "校验具体脚本、参数、签名或生成内容是否正确。"
+            ],
+            "boundary": [
+              "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+              "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+              "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+            ],
+            "verification": {
+              "state": "verified",
+              "date": "2026-10-20",
+              "cases": 3,
+              "effects": [
+                "block",
+                "kill",
+                "notify"
+              ],
+              "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+            }
+          },
+          "scope": {
+            "id": "instance-751ad8a6165f4357",
+            "type": "agent",
+            "label": "指定 Agent · 发布维护 · 三阶段验收"
+          },
+          "approval_status": "draft",
+          "approval_operation": "apply"
+        },
+        {
+          "id": "tc_ef566a6b01324a1a8dd754bc15f908ab",
+          "revision": 1,
+          "name": "缓存清理记录提醒",
+          "configuration_hash": "b94e2b478ddae4098f9e1ea1367ab3f0d799573bae6f8dff0b442a313ba83154",
+          "template": {
+            "id": "RQ1-DELETE",
+            "version": 2,
+            "name": "文件删除提醒",
+            "parameters": [
+              {
+                "key": "target",
+                "label": "保护对象的路径",
+                "type": "path"
+              },
+              {
+                "key": "operations",
+                "label": "需要限制的操作",
+                "type": "operations"
+              }
+            ]
+          },
+          "parameters": {
+            "target": "/w/0/cache",
+            "operations": [
+              "unlink"
+            ]
+          },
+          "execution_support": {
+            "status": "limited",
+            "applicable": true,
+            "event_type": "单事件",
+            "supported": [
+              "按配置路径、文件名或后缀匹配指定文件访问；block 在文件操作前拒绝。",
+              "notify 记录并继续；kill 终止命中进程。"
+            ],
+            "unsupported": [
+              "按文件内容识别秘密、按用户意图判断资料用途。",
+              "修改与删除独立授权：当前两者共用执行访问组。"
+            ],
+            "boundary": [
+              "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+              "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+              "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+            ],
+            "verification": {
+              "state": "verified",
+              "date": "2026-10-20",
+              "cases": 6,
+              "effects": [
+                "block",
+                "kill",
+                "notify"
+              ],
+              "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+            }
+          },
+          "scope": {
+            "id": "instance-751ad8a6165f4357",
+            "type": "agent",
+            "label": "指定 Agent · 发布维护 · 三阶段验收"
+          },
+          "approval_status": "draft",
+          "approval_operation": "apply"
+        }
+      ],
+      "context_usage": {
+        "mode": "auto",
+        "round_count": 1,
+        "call_count": 7,
+        "format_repair_count": 0,
+        "file_count": 3,
+        "total_bytes": 1002,
+        "activity": [
+          {
+            "tool": "search_policy_templates",
+            "status": "completed",
+            "applied": false
+          },
+          {
+            "tool": "list_directory",
+            "workspace": "three-stage-20261025",
+            "status": "completed",
+            "path": "",
+            "entry_count": 5,
+            "omitted_count": 0
+          },
+          {
+            "tool": "read_files",
+            "workspace": "three-stage-20261025",
+            "status": "completed",
+            "paths": [
+              "README.md",
+              "maintenance.py",
+              "release.json"
+            ],
+            "file_count": 3
+          },
+          {
+            "tool": "list_directory",
+            "workspace": "three-stage-20261025",
+            "status": "completed",
+            "path": "cache",
+            "entry_count": 0,
+            "omitted_count": 1
+          },
+          {
+            "tool": "draft_file_change",
+            "status": "completed",
+            "applied": false
+          },
+          {
+            "tool": "draft_rq1_delete",
+            "status": "completed",
+            "applied": false
+          },
+          {
+            "tool": "draft_rq1_generated",
+            "status": "completed",
+            "applied": false
+          }
+        ],
+        "sources": [
+          {
+            "workspace": "three-stage-20261025",
+            "paths": [
+              "/w/0/README.md",
+              "/w/0/maintenance.py",
+              "/w/0/release.json"
+            ]
+          }
+        ],
+        "provided_files": []
+      },
+      "reference_read": {
+        "workspace": "three-stage-20261025",
+        "paths": [
+          "README.md",
+          "maintenance.py",
+          "release.json"
+        ]
+      },
+      "reference_reads": [
+        {
+          "id": "89081bb10ff84a1e9aabac82cecb100e",
+          "snapshot_hash": "0c63dfb4b6593d0cda1e37d4b2ec2318cf8a3f9e0ad55504d221f090dae94bb6",
+          "workspace": "three-stage-20261025",
+          "paths": [
+            "README.md",
+            "maintenance.py",
+            "release.json"
+          ],
+          "execution_paths": [
+            "/w/0/README.md",
+            "/w/0/maintenance.py",
+            "/w/0/release.json"
+          ]
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "id": "tc_a4e053993ce34de0a36a4c00c7c293c9",
+          "revision": 1
+        }
+      ],
+      "questions": [],
+      "gaps": [],
+      "text": "请读取已登记项目的业务说明和维护入口，保护发布清单不能被修改或删除，正常维护的缓存清理与摘要写入必须保留。根据真实文件事实起草最小限制。",
+      "summary": "已读取 three-stage-20261025 项目：README.md 说明维护入口为 maintenance.py，负责清理 cache/ 下 *.tmp 并把摘要写入 report.json（当前尚不存在，由脚本生成）；release.json 为发布清单，明确不得修改或删除。maintenance.py 除清理与摘要外，还会把 maintenance_checked 回写 release.json，属遗留行为，应被拒绝（其 PermissionError 分支已能容忍拒绝）。按最小限制只对 release.json 起草 write,unlink 阻止；未限制 cache/、report.json、脚本本身或无关文件，也未添加读取限制、进程或网络约束。注意：FILE-CHANGE 当前后端修改与删除共用访问组，应用前需核对实际覆盖；该配置只是待审批候选，未授权、未应用。",
+      "parent_request_id": null,
+      "generation_basis": "a36723b2e30e8a9be503290e5c354968e738be6ce3363024143abe48091f3137",
+      "scope_id": "instance-751ad8a6165f4357",
+      "scope": "agent",
+      "workspace_id": null,
+      "reference_workspace_id": "757d0f120cc156ab7598645e5a13954f",
+      "stage": "preflight",
+      "runtime_trigger": null,
+      "request_id": "e08cb13994a44e0580366b6e589754f4",
+      "created_at": "2026-10-25T09:24:35.450298+00:00",
+      "configuration_snapshots": [
+        {
+          "id": "tc_a4e053993ce34de0a36a4c00c7c293c9",
+          "revision": 1,
+          "name": "发布清单禁止修改与删除",
+          "configuration_hash": "0a9ed215388f2e07a70d81f51cdaf3e6c7408332c7c3ea98ee7dcef7e7aa637f",
+          "template": {
+            "id": "FILE-CHANGE",
+            "version": 2,
+            "name": "文件修改与删除限制",
+            "parameters": [
+              {
+                "key": "target",
+                "label": "保护对象的路径",
+                "type": "path"
+              },
+              {
+                "key": "operations",
+                "label": "需要限制的操作",
+                "type": "operations"
+              }
+            ]
+          },
+          "parameters": {
+            "target": "/w/0/release.json",
+            "operations": [
+              "unlink",
+              "write"
+            ]
+          },
+          "execution_support": {
+            "status": "limited",
+            "applicable": true,
+            "event_type": "单事件",
+            "supported": [
+              "按配置路径、文件名或后缀匹配指定文件访问；block 在文件操作前拒绝。",
+              "notify 记录并继续；kill 终止命中进程。"
+            ],
+            "unsupported": [
+              "按文件内容识别秘密、按用户意图判断资料用途。",
+              "修改与删除独立授权：当前两者共用执行访问组。"
+            ],
+            "boundary": [
+              "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+              "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+              "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+            ],
+            "verification": {
+              "state": "verified",
+              "date": "2026-10-20",
+              "cases": 6,
+              "effects": [
+                "block",
+                "kill",
+                "notify"
+              ],
+              "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+            }
+          },
+          "scope": {
+            "id": "instance-751ad8a6165f4357",
+            "type": "agent",
+            "label": "指定 Agent · 发布维护 · 三阶段验收"
+          },
+          "approval_status": "applied",
+          "approval_operation": "apply"
+        }
+      ],
+      "context_usage": {
+        "mode": "auto",
+        "round_count": 1,
+        "call_count": 4,
+        "format_repair_count": 0,
+        "file_count": 3,
+        "total_bytes": 1002,
+        "activity": [
+          {
+            "tool": "list_directory",
+            "workspace": "three-stage-20261025",
+            "status": "completed",
+            "path": "",
+            "entry_count": 5,
+            "omitted_count": 0
+          },
+          {
+            "tool": "read_files",
+            "workspace": "three-stage-20261025",
+            "status": "completed",
+            "paths": [
+              "README.md",
+              "maintenance.py",
+              "release.json"
+            ],
+            "file_count": 3
+          },
+          {
+            "tool": "list_directory",
+            "workspace": "three-stage-20261025",
+            "status": "completed",
+            "path": "cache",
+            "entry_count": 0,
+            "omitted_count": 1
+          },
+          {
+            "tool": "draft_file_change",
+            "status": "completed",
+            "applied": false
+          }
+        ],
+        "sources": [
+          {
+            "workspace": "three-stage-20261025",
+            "paths": [
+              "/w/0/README.md",
+              "/w/0/maintenance.py",
+              "/w/0/release.json"
+            ]
+          }
+        ],
+        "provided_files": []
+      },
+      "reference_read": {
+        "workspace": "three-stage-20261025",
+        "paths": [
+          "README.md",
+          "maintenance.py",
+          "release.json"
+        ]
+      },
+      "reference_reads": [
+        {
+          "id": "49a38cefa50f490db104eecf86c2ff46",
+          "snapshot_hash": "7725cadda21b5ff0815eb7cb14654084e8a7adfc69e31be4f853bb642ee4bc8f",
+          "workspace": "three-stage-20261025",
+          "paths": [
+            "README.md",
+            "maintenance.py",
+            "release.json"
+          ],
+          "execution_paths": [
+            "/w/0/README.md",
+            "/w/0/maintenance.py",
+            "/w/0/release.json"
+          ]
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "id": "tc_d359bb5241c147daa00d31d31b369c8a",
+          "revision": 1
+        },
+        {
+          "id": "tc_d5b62cc613a042cea677467e689d211d",
+          "revision": 1
+        }
+      ],
+      "questions": [],
+      "gaps": [
+        "RQ1-GENERATED 仅按执行链匹配 program=python，无法限定为仅 maintenance.py；其他 Python 进程写 report.json 也会满足条件，当前模板能力不足以精确限定脚本。",
+        "FILE-CHANGE 与 RQ1-GENERATED 在当前后端共用修改与删除访问组，report.json 写入与 release.json 阻止的实际作用范围需在应用前核对。",
+        "cache/*.tmp 的清理属于删除动作，现有模板无法与 release.json 的删除防护形成独立授权，仅能依赖内核已有的路径级规则与文件权限失败（PermissionError）路径；如需单独放行缓存删除，当前模板能力不足。"
+      ],
+      "text": "根据已认证场景要求和本次真实内核拒绝评估是否需要新增策略。拒绝不授予权限；没有必要变更则返回空配置。场景：发布清单 release.json 不得修改或删除；允许现有维护入口清理过期缓存并写入 report.json。不因拒绝而申请扩权；正常维护不应被阻断。",
+      "summary": "已核对工作区 /w/0：README 声明 release.json 为发布清单且不得修改或删除；maintenance.py 会先回写 release.json 清单状态（遗留行为），再删除 cache/*.tmp 并写入 report.json。内核记录（seq 103）显示对 /w/0/release.json 的 write 已被现有“发布清单禁止修改与删除”规则 block，实际动作为 block，属正确拒绝，不构成扩权依据；脚本已捕获 PermissionError 并继续缓存清理与报告写入，正常维护未被阻断。因此不新增 sudo、网络、Git、读取等限制，仅生成两项最小配置：对 /w/0/release.json 的 write,unlink 阻止，以及对 /w/0/report.json 的生成写入约束（执行链含 python），后者仅用于保持维护入口可写不被误伤，不扩大用户要求。所有候选均待审批，不构成授权。",
+      "parent_request_id": null,
+      "generation_basis": "c3d412a163e75a99797f0e70d1e95749a70e14c94225ca56e7877af9eb9be968",
+      "scope_id": "instance-751ad8a6165f4357",
+      "scope": "agent",
+      "workspace_id": null,
+      "reference_workspace_id": null,
+      "stage": "runtime",
+      "runtime_trigger": {
+        "generation": "4ea4d658e12b44cc81c61b5367b100fe",
+        "selected_event_seq": 103,
+        "scope": "此 Agent 的共享执行域；来源会话不改变作用范围"
+      },
+      "request_id": "1899e6ccfec943919cbfdc52ffdad558",
+      "created_at": "2026-10-25T10:00:07.255138+00:00",
+      "configuration_snapshots": [
+        {
+          "id": "tc_d359bb5241c147daa00d31d31b369c8a",
+          "revision": 1,
+          "name": "发布清单禁止修改与删除",
+          "configuration_hash": "d548ebc8ec562b817b06988de8a587485ec043944d522a6b7c77440909fe4583",
+          "template": {
+            "id": "FILE-CHANGE",
+            "version": 2,
+            "name": "文件修改与删除限制",
+            "parameters": [
+              {
+                "key": "target",
+                "label": "保护对象的路径",
+                "type": "path"
+              },
+              {
+                "key": "operations",
+                "label": "需要限制的操作",
+                "type": "operations"
+              }
+            ]
+          },
+          "parameters": {
+            "target": "/w/0/release.json",
+            "operations": [
+              "unlink",
+              "write"
+            ]
+          },
+          "execution_support": {
+            "status": "limited",
+            "applicable": true,
+            "event_type": "单事件",
+            "supported": [
+              "按配置路径、文件名或后缀匹配指定文件访问；block 在文件操作前拒绝。",
+              "notify 记录并继续；kill 终止命中进程。"
+            ],
+            "unsupported": [
+              "按文件内容识别秘密、按用户意图判断资料用途。",
+              "修改与删除独立授权：当前两者共用执行访问组。"
+            ],
+            "boundary": [
+              "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+              "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+              "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+            ],
+            "verification": {
+              "state": "verified",
+              "date": "2026-10-20",
+              "cases": 6,
+              "effects": [
+                "block",
+                "kill",
+                "notify"
+              ],
+              "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+            }
+          },
+          "scope": {
+            "id": "instance-751ad8a6165f4357",
+            "type": "agent",
+            "label": "指定 Agent · 发布维护 · 三阶段验收"
+          },
+          "approval_status": "draft",
+          "approval_operation": "apply"
+        },
+        {
+          "id": "tc_d5b62cc613a042cea677467e689d211d",
+          "revision": 1,
+          "name": "维护报告仅由维护脚本生成",
+          "configuration_hash": "8d30452848b027e48e15e4188208aa63f681d4d9282a49e36a9c8ab8f57a82c9",
+          "template": {
+            "id": "RQ1-GENERATED",
+            "version": 2,
+            "name": "生成文件写入约束",
+            "parameters": [
+              {
+                "key": "target",
+                "label": "保护对象的路径",
+                "type": "path"
+              },
+              {
+                "key": "producer",
+                "label": "生成程序名",
+                "type": "program"
+              }
+            ]
+          },
+          "parameters": {
+            "target": "/w/0/report.json",
+            "producer": "python"
+          },
+          "execution_support": {
+            "status": "limited",
+            "applicable": true,
+            "event_type": "跨事件",
+            "supported": [
+              "按已观测的生成程序执行链限制文件变更。"
+            ],
+            "unsupported": [
+              "校验具体脚本、参数、签名或生成内容是否正确。"
+            ],
+            "boundary": [
+              "仅作用于已受控的 Agent 及其后代执行域；共享进程中的会话共享策略。",
+              "保存、批准、加载和实际拦截是不同状态；以下实测不代表当前实例已启用。",
+              "kill 只保证命中后终止，可能已有操作副作用；网络实测中接收端已接受连接，不能等同于事前 block。"
+            ],
+            "verification": {
+              "state": "verified",
+              "date": "2026-10-20",
+              "cases": 3,
+              "effects": [
+                "block",
+                "kill",
+                "notify"
+              ],
+              "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+            }
+          },
+          "scope": {
+            "id": "instance-751ad8a6165f4357",
+            "type": "agent",
+            "label": "指定 Agent · 发布维护 · 三阶段验收"
+          },
+          "approval_status": "draft",
+          "approval_operation": "apply"
+        }
+      ],
+      "context_usage": {
+        "mode": "auto",
+        "round_count": 1,
+        "call_count": 7,
+        "format_repair_count": 0,
+        "file_count": 5,
+        "total_bytes": 1085,
+        "activity": [
+          {
+            "tool": "search_policy_templates",
+            "status": "completed",
+            "applied": false
+          },
+          {
+            "tool": "list_directory",
+            "workspace": "three-stage-20261025",
+            "status": "completed",
+            "path": "",
+            "entry_count": 6,
+            "omitted_count": 0
+          },
+          {
+            "tool": "read_files",
+            "workspace": "three-stage-20261025",
+            "status": "completed",
+            "paths": [
+              "README.md",
+              "maintenance.py",
+              "release.json",
+              "report.json",
+              "unrelated.txt"
+            ],
+            "file_count": 5
+          },
+          {
+            "tool": "draft_file_change",
+            "status": "completed",
+            "applied": false
+          },
+          {
+            "tool": "draft_rq1_generated",
+            "status": "completed",
+            "applied": false
+          },
+          {
+            "tool": "draft_rq1_generated",
+            "status": "completed",
+            "applied": false
+          },
+          {
+            "tool": "draft_file_change",
+            "status": "completed",
+            "applied": false
+          }
+        ],
+        "sources": [
+          {
+            "workspace": "three-stage-20261025",
+            "paths": [
+              "/w/0/README.md",
+              "/w/0/maintenance.py",
+              "/w/0/release.json",
+              "/w/0/report.json",
+              "/w/0/unrelated.txt"
+            ]
+          }
+        ],
+        "provided_files": [
+          {
+            "name": "runtime-evidence.json",
+            "characters": 7960
+          }
+        ]
+      },
+      "reference_read": {
+        "workspace": "three-stage-20261025",
+        "paths": [
+          "README.md",
+          "maintenance.py",
+          "release.json",
+          "report.json",
+          "unrelated.txt"
+        ]
+      },
+      "reference_reads": [
+        {
+          "id": "1c83d5aa45fb4adf868d26193d39ea93",
+          "snapshot_hash": "722383a99e2a16de7343825e161d8ba29e4bcb73f4570f0dba84f9ad12c7ccb6",
+          "workspace": "three-stage-20261025",
+          "paths": [
+            "README.md",
+            "maintenance.py",
+            "release.json",
+            "report.json",
+            "unrelated.txt"
+          ],
+          "execution_paths": [
+            "/w/0/README.md",
+            "/w/0/maintenance.py",
+            "/w/0/release.json",
+            "/w/0/report.json",
+            "/w/0/unrelated.txt"
+          ]
+        }
+      ]
+    },
+    {
+      "items": [],
+      "questions": [],
+      "gaps": [
+        "现有已加载的发布清单约束无需重复配置；如后续希望把该约束纳入本轮受管模板（FILE-CHANGE，target=/w/0/release.json，operations=write,unlink）以便统一审批与版本管理，需由用户明确要求后再生成候选，本轮不重复创建。"
+      ],
+      "text": "根据已认证场景要求和本次真实内核拒绝评估是否需要新增策略。拒绝不授予权限；没有必要变更则返回空配置。场景：发布清单 release.json 不得修改或删除；允许现有维护入口清理过期缓存并写入 report.json。不因拒绝而申请扩权；正常维护不应被阻断。",
+      "summary": "已核对工作区事实：release.json 存在（65 字节，/w/0/release.json），maintenance.py 为现有维护入口（清理 cache/*.tmp 并写入 report.json），README 声明 release.json 为发布清单且不得修改或删除。真实内核拒绝记录显示 rule_name 命中的是已加载的 agent_constraints「发布清单禁止修改与删除」（block write /w/0/release.json，bundle_hash 与本次实例一致），即保护发布清单所需的策略已经生效。本次拒绝的正是返回 evidence 所述「遗留清单状态回写」，属预期回放；清理缓存与写 report.json 未被该约束覆盖，report.json 现有内容显示 manifest_update=blocked、removed=[expired.tmp]，正常维护未受阻。按「拒绝不授予权限、不因拒绝扩权」的要求，拒绝本身不需要新增或放宽任何配置，因此不需要新增策略模板，本轮返回空配置。保留现有保护，不新增放宽发布清单写入或删除的例外。",
+      "parent_request_id": null,
+      "generation_basis": "c3d412a163e75a99797f0e70d1e95749a70e14c94225ca56e7877af9eb9be968",
+      "scope_id": "instance-751ad8a6165f4357",
+      "scope": "agent",
+      "workspace_id": null,
+      "reference_workspace_id": null,
+      "stage": "runtime",
+      "runtime_trigger": {
+        "generation": "4ea4d658e12b44cc81c61b5367b100fe",
+        "selected_event_seq": 126,
+        "scope": "此 Agent 的共享执行域；来源会话不改变作用范围"
+      },
+      "request_id": "150275db14d04d22a2440605996ff2f4",
+      "created_at": "2026-10-25T10:05:58.990448+00:00",
+      "configuration_snapshots": [],
+      "context_usage": {
+        "mode": "auto",
+        "round_count": 1,
+        "call_count": 3,
+        "format_repair_count": 0,
+        "file_count": 4,
+        "total_bytes": 1060,
+        "activity": [
+          {
+            "tool": "search_policy_templates",
+            "status": "completed",
+            "applied": false
+          },
+          {
+            "tool": "list_directory",
+            "workspace": "three-stage-20261025",
+            "status": "completed",
+            "path": "",
+            "entry_count": 6,
+            "omitted_count": 0
+          },
+          {
+            "tool": "read_files",
+            "workspace": "three-stage-20261025",
+            "status": "completed",
+            "paths": [
+              "README.md",
+              "maintenance.py",
+              "release.json",
+              "report.json"
+            ],
+            "file_count": 4
+          }
+        ],
+        "sources": [
+          {
+            "workspace": "three-stage-20261025",
+            "paths": [
+              "/w/0/README.md",
+              "/w/0/maintenance.py",
+              "/w/0/release.json",
+              "/w/0/report.json"
+            ]
+          }
+        ],
+        "provided_files": [
+          {
+            "name": "runtime-evidence.json",
+            "characters": 7978
+          }
+        ]
+      },
+      "reference_read": {
+        "workspace": "three-stage-20261025",
+        "paths": [
+          "README.md",
+          "maintenance.py",
+          "release.json",
+          "report.json"
+        ]
+      },
+      "reference_reads": [
+        {
+          "id": "6c0739ed3b074d27af8849ba6724ac5c",
+          "snapshot_hash": "fc5f11e9df17671808d68b278d5d0d0aec7fa3140c87a80f5eda9b95498f9601",
+          "workspace": "three-stage-20261025",
+          "paths": [
+            "README.md",
+            "maintenance.py",
+            "release.json",
+            "report.json"
+          ],
+          "execution_paths": [
+            "/w/0/README.md",
+            "/w/0/maintenance.py",
+            "/w/0/release.json",
+            "/w/0/report.json"
+          ]
+        }
+      ]
+    }
+  ]
+}

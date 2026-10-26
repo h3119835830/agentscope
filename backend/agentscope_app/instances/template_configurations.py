@@ -3,6 +3,7 @@ import json
 import re
 import uuid
 import time
+import os
 from pathlib import Path, PurePosixPath
 from fastapi import HTTPException
 from .. import db
@@ -596,7 +597,9 @@ def generate(scope_id, body, provider=None):
         for source in saved.get('reference_reads',[]):workspace_refs.verify(scope_id,source['id'])
         from .generation_snapshots import project
         return {**project(saved),'items':[view(load(x['id'],x['revision'])) for x in saved['items']]}
-    deadline_token=workspace_refs.READ_DEADLINE.set(time.monotonic()+80)
+    analysis_seconds=180 if hasattr(provider,'run_agent') or (provider is None and os.getenv('AGENTSCOPE_POLICY_AGENT_PROVIDER')=='native-pi') else 80
+    deadline_at=time.monotonic()+analysis_seconds
+    deadline_token=workspace_refs.READ_DEADLINE.set(deadline_at)
     runner=None
     committed=False
     try:
@@ -604,10 +607,14 @@ def generate(scope_id, body, provider=None):
         previous_turns, previous_references, parent_id = restore(scope_id,body,basis)
         from ..history.llm import DeepSeekProvider
         from .mapping import resource_records
+        if provider is None and os.getenv('AGENTSCOPE_POLICY_AGENT_PROVIDER')=='native-pi':
+            from .pi_provider import NativePiProvider
+            provider=NativePiProvider()
         provider = provider or DeepSeekProvider(timeout=75)
         templates = [t for t in catalog.public_catalog() if body['scope'] in t['scopes'] and not t.get('assistant_alias') and not t.get('retired')]
         from .policy_context_agent import WorkspacePolicyAgent,ToolContractError,result_shape
         def check_basis():
+            if time.monotonic()>=deadline_at:raise ValueError('场景分析超过限定期限，请缩小调查范围后重试')
             if basis != generation_basis(store.get(scope_id) if scope_id!='system' else None):
                 raise ValueError('生成期间资源、策略或模板发生变化，请重新分析场景')
         runtime_context=runtime_generation_context(row,body)
@@ -637,6 +644,7 @@ def generate(scope_id, body, provider=None):
              'parameter_capabilities':{'path':{'max_utf8_bytes':63,'must_use_registered_execution_mapping':True}},
              'system_permissions':system_policy.current()['policy'],'agent_permissions':row['policy'] if row else None,
              'system_constraints':[{'name':d['name'],'dsl':d['original_dsl']} for d in dsl.current('system')['documents']],
+             'agent_constraints':[{'name':d['name'],'dsl':d['original_dsl']} for d in dsl.current(row['id'])['documents']] if row else [],
              'output_schema':{'configurations':[{'template_id':'已发布 ID','template_version':templates[0]['version'],'name':'中文名称','parameters':{}}],'questions':[],'gaps':[],'summary':'可选，已核验资料的分析结果；不构成授权'}},
             )
         if not isinstance(result,dict) or not {'configurations','questions','gaps'}<=set(result) or set(result)-{'configurations','questions','gaps','summary'}:

@@ -1,0 +1,106 @@
+{
+  "id": "actplane-mediation",
+  "requirements": "请按场景配置数据库访问：禁止 Agent 随意打开生产库，只有经过指定迁移程序的执行链才可打开。不能改成全面禁止打开，也不能只约束写入。",
+  "instance_id": "instance-8231340bd8994f94",
+  "request_key": "3bfec1781697454a9e958406a52838e0",
+  "started_at": "2026-10-25T14:00:16.930423+00:00",
+  "status": "completed",
+  "result": {
+    "items": [],
+    "questions": [
+      "生产库文件在受控执行域中的实际路径是什么？（场景文件只描述“production DB file”，未给出可唯一解析的路径；路径参数上限 63 字节并须使用已登记执行映射）",
+      "“指定迁移程序”的程序名或可执行路径是什么？（scene.md 仅写 approved migration tool，未给出具体程序名）",
+      "要求的拦截点是“打开/读取”（open）还是“写入/修改”（write）？模板 DSL 预览显示 RQ1-GENERATED 的实际规则是 block write file ... unless lineage-includes exec ...，即仅约束写入，读路径未覆盖。"
+    ],
+    "gaps": [
+      "缺少“仅允许指定迁移程序执行链打开、其他 Agent 打开一律阻断”的模板能力：FILE-READ 只能无条件 block open，不支持 unless lineage-includes exec 例外（没有任何模板具备 open + 程序执行链例外的语义），因此无法表达“不全面禁止打开、同时限住读取”。",
+      "RQ1-GENERATED 名义上是“生成文件写入约束”，但执行链门控的 applicability 为 write / block write，只能覆盖写入；用它满足“打开”要求会导致只约束写入，与用户明确排除的“不能只约束写入”冲突，故未采用。",
+      "若后续确认只需约束写入，则 RQ1-GENERATED（target=生产库路径，producer=迁移程序名）可作为候选，但需上述路径与程序名。",
+      "后端执行能力为按路径/文件名/后缀的单事件匹配，或生成器执行链（write）；没有针对 open 的跨事件程序执行链门控，需要新增模板能力或由平台侧另行提供受控数据库访问接口。"
+    ],
+    "text": "请按场景配置数据库访问：禁止 Agent 随意打开生产库，只有经过指定迁移程序的执行链才可打开。不能改成全面禁止打开，也不能只约束写入。",
+    "summary": "已读取工作区 README.md 与 scene.md：场景 E3 要求生产库文件只能由获批迁移工具接触，Agent 不得随意打开，属“纯执行链门控”需求（不含标签）。现有模板中唯一带程序执行链门控的是 RQ1-GENERATED，但其 DSL 为 block write file ... unless lineage-includes exec \"{{producer}}\"，只能覆盖写入；FILE-READ 只能无条件阻断 open，无“除非经过迁移程序”的例外语义。用户明确要求“不能改成全面禁止打开，也不能只约束写入”，而资源事实中也没有生产库路径与迁移程序名可唯一解析，因此本轮不提交任何配置，仅提出问题与能力缺口，避免擅自收窄或扩大用户要求。",
+    "parent_request_id": null,
+    "generation_basis": "6bb8d32537fc301874bfa1400b276917fa255f25a51bcb26bc94e6cef5879438",
+    "scope_id": "instance-8231340bd8994f94",
+    "scope": "agent",
+    "workspace_id": null,
+    "reference_workspace_id": null,
+    "stage": "preflight",
+    "runtime_trigger": null,
+    "request_id": "9a5bb894f322467eb479500e28a50b44",
+    "created_at": "2026-10-25T14:00:34.323883+00:00",
+    "configuration_snapshots": [],
+    "context_usage": {
+      "mode": "auto",
+      "round_count": 1,
+      "call_count": 4,
+      "format_repair_count": 0,
+      "file_count": 2,
+      "total_bytes": 531,
+      "activity": [
+        {
+          "tool": "search_policy_templates",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "list_directory",
+          "workspace": "actplane-mediation",
+          "status": "completed",
+          "path": "",
+          "entry_count": 2,
+          "omitted_count": 0
+        },
+        {
+          "tool": "read_files",
+          "workspace": "actplane-mediation",
+          "status": "completed",
+          "paths": [
+            "README.md",
+            "scene.md"
+          ],
+          "file_count": 2
+        },
+        {
+          "tool": "search_policy_templates",
+          "status": "completed",
+          "applied": false
+        }
+      ],
+      "sources": [
+        {
+          "workspace": "actplane-mediation",
+          "paths": [
+            "/w/0/README.md",
+            "/w/0/scene.md"
+          ]
+        }
+      ],
+      "provided_files": []
+    },
+    "reference_read": {
+      "workspace": "actplane-mediation",
+      "paths": [
+        "README.md",
+        "scene.md"
+      ]
+    },
+    "reference_reads": [
+      {
+        "id": "681f946f8857463c9a2cc771c9d4aaa2",
+        "snapshot_hash": "86ddf9fe9abbbf790638186eab243c8a3edd066220c4a4b37726dccd2e38ee18",
+        "workspace": "actplane-mediation",
+        "paths": [
+          "README.md",
+          "scene.md"
+        ],
+        "execution_paths": [
+          "/w/0/README.md",
+          "/w/0/scene.md"
+        ]
+      }
+    ]
+  },
+  "seconds": 17.403
+}
