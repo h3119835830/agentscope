@@ -15,12 +15,22 @@ function approval(row){
 export default function GenerationConfigurations({generation}){
  if(!generation.items?.length)return null;
  const snapshots=generation.configuration_snapshots;
- return <section className="assistant-generated-results" aria-label="本轮生成的策略配置"><p className="assistant-snapshot-note">生成时配置 · 审批状态对应此配置版本</p>
- {!snapshots?.length?<p>此轮配置快照暂不可用。</p>:snapshots.map(row=>row.unavailable?<p key={row.id}>此项配置快照暂不可用。</p>:<article className="assistant-generated-record" key={row.id}>
- <header><div><span className="assistant-snapshot-label">实际策略名称</span><strong>{row.name}</strong></div><span className="assistant-generation-status" aria-label="审批状态">{approval(row)}</span></header>
- <dl><div><dt>选用模板</dt><dd>{row.template.name}<span className="assistant-template-version">v{row.template.version}</span>{row.template.fixed_fields&&<small>固定命令：{Object.values(row.template.fixed_fields).join(' ')}</small>}</dd></div>
- <div><dt>填写的参数</dt><dd>{row.template.parameters.filter(p=>Object.hasOwn(row.parameters,p.key)).length?<dl className="assistant-generated-parameters">{row.template.parameters.filter(p=>Object.hasOwn(row.parameters,p.key)).map(p=><div key={p.key}><dt>{p.label}</dt><dd>{parameter(row.parameters[p.key],p.type)}</dd></div>)}</dl>:'此模板无需填写参数'}</dd></div>
- <div><dt>作用范围</dt><dd>{row.scope.label}</dd></div></dl>
- </article>)}
+ return <section className="assistant-generated-results" aria-label="本轮生成的策略配置">
+ {!snapshots?.length?<p>此轮配置快照暂不可用。</p>:<div className="assistant-policy-table-scroll" tabIndex={0} role="region" aria-label="生成策略表格，可横向滚动"><table className="assistant-policy-table"><thead><tr><th>策略名称</th><th>匹配对象</th><th>操作与处置</th><th>审批状态</th><th>详情</th></tr></thead><tbody>{snapshots.map(row=>{
+  if(row.unavailable)return <tr key={row.id}><td colSpan={5}>此项配置快照暂不可用。</td></tr>;
+  const parameters=row.parameters||{},fields=row.template.parameters.filter(p=>Object.hasOwn(parameters,p.key)),subjects=fields.filter(p=>['path','endpoint'].includes(p.type)),targets=subjects.length?subjects:fields.filter(p=>['program','lines'].includes(p.type)),execution=row.execution||{};
+  const ops=execution.effective_operations||parameters.operations||[],effect=execution.effect||parameters.effect;
+  return <tr key={row.id}><td><strong>{row.name}</strong><small>{row.template.name} · v{row.template.version}</small></td>
+   <td>{targets.length?targets.map(p=><span className="assistant-match-value" key={p.key}>{targets.length>1&&<small>{p.label}</small>}<code>{parameter(parameters[p.key],p.type)}</code></span>):'模板固定条件'}</td>
+   <td>{ops.length?<span>{parameter(ops,'operations')}</span>:<span>操作未记录</span>}{row.template.fixed_fields&&<small><code>{Object.values(row.template.fixed_fields).join(' ')}</code></small>}<small>{effect?parameter(effect,'effect'):'处置未记录'}</small></td>
+   <td><span className="assistant-generation-status" aria-label="审批状态">{approval(row)}</span></td>
+   <td><details className="assistant-policy-detail"><summary>查看</summary><dl><div><dt>选用模板</dt><dd>{row.template.name} · v{row.template.version}</dd></div><div><dt>作用范围</dt><dd>{row.scope.label}</dd></div>
+    {row.template.fixed_fields&&<div><dt>固定命令</dt><dd>{Object.values(row.template.fixed_fields).join(' ')}</dd></div>}
+    {fields.map(p=><div key={p.key}><dt>{p.label}</dt><dd>{parameter(parameters[p.key],p.type)}</dd></div>)}
+    {execution.reason&&<div><dt>匹配后反馈</dt><dd>{execution.reason}</dd></div>}
+    {execution.coverage_warning&&<div><dt>覆盖范围</dt><dd>{execution.coverage_warning}</dd></div>}
+   </dl></details></td></tr>;
+ })}</tbody></table></div>}
+ <p className="assistant-snapshot-note">展示生成时配置；审批状态对应此版本，后续编辑不会改写本轮记录。</p>
  </section>;
 }

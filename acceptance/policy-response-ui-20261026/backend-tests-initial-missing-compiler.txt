@@ -1,0 +1,226 @@
+..FFF................FFF.FF.................                             [100%]
+=================================== FAILURES ===================================
+__ test_approval_projects_exact_revision_through_submit_approve_apply_disable __
+
+world = namespace(a={'id': 'instance-101c4299a03b434a', 'name': 'Same name', 'agent_type': 'dsh', 'environment': 'wsl', 'mode'...e.testclient.TestClient object at 0x7d694b0ed090>, compile=<function world.<locals>.compile_message at 0x7d694ad57cc0>)
+
+    def test_approval_projects_exact_revision_through_submit_approve_apply_disable(world):
+        result, _, _ = generate(world)
+        row = result['items'][0]
+        p = proposal(row)
+>       assert history(world.a['id'])['approval_status'] == 'pending'
+E       AssertionError: assert 'invalid' == 'pending'
+E         
+E         - pending
+E         + invalid
+
+backend/tests/test_generation_snapshots.py:59: AssertionError
+_____ test_new_revision_approval_does_not_appear_on_older_unsubmitted_turn _____
+
+world = namespace(a={'id': 'instance-487a4f46abe14bab', 'name': 'Same name', 'agent_type': 'dsh', 'environment': 'wsl', 'mode'...e.testclient.TestClient object at 0x7d694b06c2b0>, compile=<function world.<locals>.compile_message at 0x7d694b062b90>)
+
+    def test_new_revision_approval_does_not_appear_on_older_unsubmitted_turn(world):
+        result, _, _ = generate(world)
+        row = tc.save(world.a['id'], config(name='第二版', base_revision=1), result['items'][0]['id'])
+        p = proposal(row)
+>       approval_decisions.approve(p['id'], p['proposal_hash'], uuid.uuid4().hex)
+
+backend/tests/test_generation_snapshots.py:78: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+backend/agentscope_app/instances/system_policy.py:44: in run
+    with LOCK: return fn(*args, **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+ident = '892924951bb7474dbc0bc2291de1606d'
+expected_hash = 'e3af212b5024f6481ca53f66b17062ccb75b2fdaca029843205ae316209924b6'
+request_key = 'ba6f068ff95f483db2f6e797c151c836'
+
+    @lifecycle
+    def approve(ident, expected_hash, request_key):
+        from .approval_views import raw_detail
+        request_hash = digest({'candidate_hash': expected_hash})
+        with db.connect() as con:
+            old = con.execute('SELECT * FROM policy_approval_decisions WHERE approval_id=? AND request_key=?',
+                              (ident, request_key)).fetchone()
+        if old:
+            if old['request_hash'] != request_hash:
+                raise ValueError('幂等键已用于另一候选')
+            return result(dict(old), True)
+        row = raw_detail(ident)
+        if row['candidate_hash'] != expected_hash:
+            raise ValueError('候选确认内容不一致')
+        if not row.get('can_apply') or row['status'] not in ('pending', 'failed'):
+>           raise ValueError(row.get('reason') or '候选尚不可批准，请重新校验')
+E           ValueError: 候选未通过运行环境校验，请调整配置后重新提交。
+
+backend/agentscope_app/instances/approval_decisions.py:114: ValueError
+__ test_old_revision_pending_becomes_stale_instead_of_borrowing_new_approval ___
+
+world = namespace(a={'id': 'instance-91479dfe9cfa4f77', 'name': 'Same name', 'agent_type': 'dsh', 'environment': 'wsl', 'mode'...e.testclient.TestClient object at 0x7d694b06cc30>, compile=<function world.<locals>.compile_message at 0x7d694b062fb0>)
+
+    def test_old_revision_pending_becomes_stale_instead_of_borrowing_new_approval(world):
+        result, _, _ = generate(world)
+        proposal(result['items'][0])
+        newer = tc.save(world.a['id'], config(name='第二版', base_revision=1), result['items'][0]['id'])
+        proposal(newer)
+>       assert tc.view(newer)['status'] == 'pending'
+E       AssertionError: assert 'invalid' == 'pending'
+E         
+E         - pending
+E         + invalid
+
+backend/tests/test_generation_snapshots.py:88: AssertionError
+_____ test_delete_and_write_are_sibling_records_not_sequential_permission ______
+
+world = namespace(a={'id': 'instance-f2947d2493314412', 'name': 'Same name', 'agent_type': 'dsh', 'environment': 'wsl', 'mode'...e.testclient.TestClient object at 0x7d694af05e10>, compile=<function world.<locals>.compile_message at 0x7d694aed28d0>)
+
+    def test_delete_and_write_are_sibling_records_not_sequential_permission(world):
+        rows=[tc.save(world.a['id'],config('FILE-CHANGE',name=name,parameters={'target':'/w/0/staff.csv','operations':[op]}))
+              for name,op in [('员工资料禁止删除','unlink'),('员工资料禁止修改','write')]]
+        assert len({r['id'] for r in rows})==2 and {r['template_id'] for r in rows}=={'FILE-CHANGE'}
+        assert all(r['effective_operations']==['write','unlink'] and r['coverage_warning'] for r in rows)
+        assert all('同时限制修改与删除' in r['document']['original_dsl'] for r in rows)
+        with pytest.raises(ValueError,match='实际影响'):
+            proposal(rows[0])
+        p=proposal(rows[0],acknowledge_coverage=True)
+>       assert p['state']=='pending' and not world.calls
+E       AssertionError: assert ('invalid' == 'pending'
+E         
+E         - pending
+E         + invalid)
+
+backend/tests/test_template_configurations.py:98: AssertionError
+_ test_version_edit_stales_approval_and_disable_preserves_other_configuration __
+
+world = namespace(a={'id': 'instance-bbaa2499c5704270', 'name': 'Same name', 'agent_type': 'dsh', 'environment': 'wsl', 'mode'...e.testclient.TestClient object at 0x7d694af05f20>, compile=<function world.<locals>.compile_message at 0x7d694aed38a0>)
+
+    def test_version_edit_stales_approval_and_disable_preserves_other_configuration(world):
+        a=tc.save(world.a['id'],config());b=tc.save(world.a['id'],config(name='预算保护',parameters={'target':'/w/0/budget.csv'}))
+>       p=proposal(a);assert p['state']=='pending'
+E       AssertionError: assert 'invalid' == 'pending'
+E         
+E         - pending
+E         + invalid
+
+backend/tests/test_template_configurations.py:104: AssertionError
+_____________________ test_template_update_stales_approval _____________________
+
+world = namespace(a={'id': 'instance-ea5c3724e78f4fe9', 'name': 'Same name', 'agent_type': 'dsh', 'environment': 'wsl', 'mode'...e.testclient.TestClient object at 0x7d694af05480>, compile=<function world.<locals>.compile_message at 0x7d694aec0e00>)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7d694aef2430>
+
+    def test_template_update_stales_approval(world,monkeypatch):
+        row=tc.save(world.a['id'],config());p=proposal(row)
+        template=next(t for t in catalog.CATALOG if t['id']=='FILE-READ')
+        monkeypatch.setitem(template,'reason','新模板反馈')
+        with pytest.raises(ValueError,match='模板'):
+            tc.verify_proposal(p['id'])
+>       assert approval_views.detail(p['id'])['status']=='stale'
+E       AssertionError: assert 'invalid' == 'stale'
+E         
+E         - stale
+E         + invalid
+
+backend/tests/test_template_configurations.py:125: AssertionError
+______ test_rejected_new_version_cannot_delete_still_applied_old_version _______
+
+world = namespace(a={'id': 'instance-1cfb97c587a943ad', 'name': 'Same name', 'agent_type': 'dsh', 'environment': 'wsl', 'mode'...e.testclient.TestClient object at 0x7d694af06690>, compile=<function world.<locals>.compile_message at 0x7d694aec17a0>)
+
+    def test_rejected_new_version_cannot_delete_still_applied_old_version(world):
+        row=tc.save(world.a['id'],config())
+>       first=proposal(row);dsl.apply(world.a['id'],first['id'],first['proposal_hash'])
+
+backend/tests/test_template_configurations.py:151: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+backend/agentscope_app/instances/system_policy.py:44: in run
+    with LOCK: return fn(*args, **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+scope = 'instance-1cfb97c587a943ad', pid = '600a97eb1173490097bb9daf3f44a834'
+expected_hash = '25895fe9c79fe4320ffc13766e242b70e0b9e3aea58b946dbab34e10d08c05ee'
+
+    @system.lifecycle
+    def apply(scope,pid,expected_hash):
+        from . import controller as c
+        validate_scope(scope)
+        if system.current()['phase']!='ready':raise ValueError('请先恢复系统共享权限配置')
+        with db.connect() as con:raw=con.execute('SELECT * FROM instance_dsl_proposals WHERE id=? AND scope_id=?',(pid,scope)).fetchone()
+        if not raw or raw['proposal_hash']!=expected_hash:raise ValueError('DSL 候选确认内容不一致')
+        p=unpack(raw)
+        from .approval_recovery import completed
+        if not completed(p):raise ValueError('重新校验尚未完成，请重试原校验请求。')
+        if p['state']=='applied':return {**p['result'].get('application',{}),'id':pid,'state':'applied','idempotent':True}
+        from .policy_library import verify_proposal
+        verify_proposal(pid)
+        from .template_configurations import verify_proposal as verify_template_proposal
+        verify_template_proposal(pid)
+        base=current(scope)
+>       if p['state']!='pending' or p['base_hash']!=base['document_hash'] or p['base_revision']!=base['revision']:raise ValueError('DSL 候选已过期或尚未通过编译')
+E       ValueError: DSL 候选已过期或尚未通过编译
+
+backend/agentscope_app/instances/dsl_policy.py:162: ValueError
+_______ test_revalidation_uses_latest_child_and_retains_version_binding ________
+
+world = namespace(a={'id': 'instance-f0aa6fd245c0433e', 'name': 'Same name', 'agent_type': 'dsh', 'environment': 'wsl', 'mode'...e.testclient.TestClient object at 0x7d694af07350>, compile=<function world.<locals>.compile_message at 0x7d694afa4ca0>)
+
+    def test_revalidation_uses_latest_child_and_retains_version_binding(world):
+        from agentscope_app.instances import approval_recovery as recovery
+        row=tc.save(world.a['id'],config());p=proposal(row)
+        edited=tc.save(world.a['id'],config(base_revision=1,name='员工资料新版保护'),row['id'])
+        preview=recovery.preview(p['id']);assert preview['changed_content']
+        fresh=recovery.revalidate(p['id'],preview['plan_hash'],uuid.uuid4().hex)
+        tc.verify_proposal(fresh['id'])
+        with db.connect() as con:
+            binding=json.loads(con.execute('SELECT selections_json FROM template_configuration_proposals WHERE proposal_id=?',(fresh['id'],)).fetchone()[0])
+        assert binding[0]['revision']==edited['revision']
+        tc.save(world.a['id'],config(base_revision=2,name='第三版员工保护'),row['id'])
+>       assert approval_views.detail(fresh['id'])['status']=='stale'
+E       AssertionError: assert 'invalid' == 'stale'
+E         
+E         - stale
+E         + invalid
+
+backend/tests/test_template_configurations.py:172: AssertionError
+=============================== warnings summary ===============================
+../../opt/agentscope/.venv/lib/python3.14/site-packages/fastapi/testclient.py:1
+  /opt/agentscope/.venv/lib/python3.14/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+backend/agentscope_app/main.py:236
+  /tmp/agentscope-policy-response.bYUdfW/backend/agentscope_app/main.py:236: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+../../opt/agentscope/.venv/lib/python3.14/site-packages/fastapi/applications.py:4599
+../../opt/agentscope/.venv/lib/python3.14/site-packages/fastapi/applications.py:4599
+  /opt/agentscope/.venv/lib/python3.14/site-packages/fastapi/applications.py:4599: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    return self.router.on_event(event_type)
+
+backend/agentscope_app/main.py:254
+  /tmp/agentscope-policy-response.bYUdfW/backend/agentscope_app/main.py:254: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("shutdown")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED backend/tests/test_generation_snapshots.py::test_approval_projects_exact_revision_through_submit_approve_apply_disable
+FAILED backend/tests/test_generation_snapshots.py::test_new_revision_approval_does_not_appear_on_older_unsubmitted_turn
+FAILED backend/tests/test_generation_snapshots.py::test_old_revision_pending_becomes_stale_instead_of_borrowing_new_approval
+FAILED backend/tests/test_template_configurations.py::test_delete_and_write_are_sibling_records_not_sequential_permission
+FAILED backend/tests/test_template_configurations.py::test_version_edit_stales_approval_and_disable_preserves_other_configuration
+FAILED backend/tests/test_template_configurations.py::test_template_update_stales_approval
+FAILED backend/tests/test_template_configurations.py::test_rejected_new_version_cannot_delete_still_applied_old_version
+FAILED backend/tests/test_template_configurations.py::test_revalidation_uses_latest_child_and_retains_version_binding
+8 failed, 36 passed, 5 warnings in 8.91s

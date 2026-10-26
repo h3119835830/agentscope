@@ -1,0 +1,75 @@
+{
+  "passed": true,
+  "initial": {
+    "allConfigurationsClosed": true,
+    "fileChips": [
+      "/w/0/README.md",
+      "/w/0/maintenance.py",
+      "/w/0/release.json"
+    ],
+    "historyClosed": true,
+    "latestRows": 1,
+    "noPageOverflow": true
+  },
+  "analysisOpen": true,
+  "history": {
+    "failed": 5,
+    "open": true,
+    "turns": 8
+  },
+  "details": "查看\n选用模板\n文件修改与删除限制 · v2\n作用范围\n指定 Agent · 发布维护 · 三阶段验收\n保护对象的路径\n/w/0/release.json\n需要限制的操作\n删除文件、修改文件\n匹配后反馈\nREADME 声明 release.json 为发布清单且不得修改或删除；维护脚本中的清单状态回写属遗留行为，应被拒绝，缓存清理与报告写入不受影响。",
+  "narrow": {
+    "noPageOverflow": true,
+    "tableScroll": [
+      {
+        "client": 251,
+        "focusable": true,
+        "scroll": 610
+      }
+    ],
+    "width": 423
+  },
+  "multi": {
+    "commands": [
+      "git commit",
+      "git commit"
+    ],
+    "noPageOverflow": true,
+    "rows": 2,
+    "targets": [
+      "/w/0/backend/agentscope_app/**",
+      "/w/0/backend/tests/**"
+    ]
+  },
+  "tools": [
+    "查看目录 · real-project / backend · 已完成",
+    "核对资源 · real-project · 已完成",
+    "查看目录 · real-project / backend/agentscope_app · 已完成",
+    "查找模板 · 已完成",
+    "搜索项目 · real-project · 已完成",
+    "读取正文 · real-project / backend/requirements.txt · 已读取",
+    "填写模板参数 · 已完成",
+    "填写模板参数 · 已完成",
+    "验证策略匹配 · real-project · 未完成",
+    "验证策略匹配 · real-project · 未完成",
+    "填写模板参数 · 已完成",
+    "填写模板参数 · 已完成",
+    "验证策略匹配 · real-project · 样本未通过",
+    "验证策略匹配 · real-project · 样本未通过",
+    "核对资源 · real-project · 已完成",
+    "填写模板参数 · 已完成",
+    "填写模板参数 · 已完成",
+    "验证策略匹配 · real-project · 样本未通过",
+    "验证策略匹配 · real-project · 样本未通过",
+    "验证策略匹配 · real-project · 样本通过",
+    "验证策略匹配 · real-project · 样本通过",
+    "填写模板参数 · 已完成",
+    "填写模板参数 · 已完成"
+  ],
+  "final": {
+    "historyClosed": true,
+    "latestRows": 1,
+    "noPageOverflow": true
+  },
+  "consoleErrors": []
+}

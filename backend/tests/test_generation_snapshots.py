@@ -126,3 +126,24 @@ def test_read_api_returns_snapshots_without_writes_or_model_calls(world):
     with db.connect() as con:
         assert before == {t: [tuple(r) for r in con.execute('SELECT * FROM ' + t)] for t in before}
     assert len(provider.calls) == 1 and not world.calls
+
+
+def test_legacy_execution_display_uses_original_version_without_rewriting_history(world):
+    result, body, _ = generate(world, reason='保护原始员工资料')
+    original = result['configuration_snapshots'][0]
+    with db.connect() as con:
+        saved = json.loads(con.execute('SELECT result_json FROM template_configuration_requests WHERE request_key=?',
+                                      ('generate:' + body['request_key'],)).fetchone()[0])
+        del saved['configuration_snapshots'][0]['execution']
+        serialized = json.dumps(saved)
+        con.execute('UPDATE template_configuration_requests SET result_json=? WHERE request_key=?',
+                    (serialized, 'generate:' + body['request_key']))
+    tc.save(world.a['id'], config(name='新配置', reason='另一条反馈', base_revision=1), original['id'])
+    projected = history(world.a['id'])
+    assert projected['execution'] == original['execution']
+    assert projected['execution']['reason'] == '保护原始员工资料'
+    assert projected['execution']['effect'] == 'block'
+    with db.connect() as con:
+        assert con.execute('SELECT result_json FROM template_configuration_requests WHERE request_key=?',
+                           ('generate:' + body['request_key'],)).fetchone()[0] == serialized
+    assert not world.calls

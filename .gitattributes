@@ -11,3 +11,4 @@ deploy/ssh/*.conf text eol=lf
 # Frozen policy-scene inputs and model evidence retain their exact byte hashes.
 acceptance/public-scene-baseline-20261025-v2/** -text
 acceptance/policy-investigation-20261026/** -text
+acceptance/policy-response-ui-20261026/** -text

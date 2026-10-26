@@ -1,0 +1,7 @@
+{
+  "url": "http://127.0.0.1:18176/?view=workbench&policyScope=agent&policyAgent=instance-751ad8a6165f4357",
+  "multi_url": "http://127.0.0.1:18176/?view=workbench&policyScope=agent&replay=multi&policyAgent=instance-5a722cf31d334ec6",
+  "readonly": true,
+  "source": "live-source.json; E3 real-directory-gate.json",
+  "writes_forwarded": false
+}
