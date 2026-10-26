@@ -10,7 +10,7 @@ async function main(){
   const url=task=>'http://127.0.0.1:18006/?task='+task;
   await page.goto(url('c7ae28357e224c7d'),{waitUntil:'networkidle'});
   const openDetails=()=>page.getByRole('button',{name:'详情',exact:true});await openDetails().waitFor();
-  assert.deepEqual(await page.locator('.runtime-policies th').allTextContents(),['策略名称','默认动作','由谁触发','']);
+  assert.deepEqual(await page.locator('.runtime-policies th').allTextContents(),['策略名称','默认动作','来源','状态','']);
   assert.equal(await page.locator('.runtime-policies tbody tr').first().locator('td').nth(1).innerText(),'阻断');
   assert.equal(await page.locator('.runtime-policies th').last().getAttribute('aria-label'),'操作');
   assert.equal(await page.locator('.runtime-policies tbody tr').count(),1);

@@ -10,7 +10,7 @@ async function main(){
   if(port==='18005'){
    await page.goto(`http://127.0.0.1:${port}/?view=workbench&task=${task}&agentPolicyTab=runtime`,{waitUntil:'domcontentloaded'});
    await page.getByRole('button',{name:'详情',exact:true}).waitFor();
-   assert.deepEqual(await page.locator('.runtime-policies th').allTextContents(),['策略名称','默认动作','由谁触发','']);
+   assert.deepEqual(await page.locator('.runtime-policies th').allTextContents(),['策略名称','默认动作','来源','状态','']);
    assert.equal(await page.locator('.runtime-policies tbody tr td').nth(1).innerText(),'阻断');
    await page.screenshot({path:path.join(out,'system-runtime-record.png'),fullPage:true});
    await page.getByRole('button',{name:'详情',exact:true}).click();await page.getByText('具体约束',{exact:true}).waitFor();
@@ -22,7 +22,7 @@ async function main(){
   }else{
    await page.goto(`http://127.0.0.1:${port}/?view=workbench&policyAgent=instance-1f4469579e8947f4&agentPolicyTab=runtime`,{waitUntil:'domcontentloaded'});
    await page.getByRole('tab',{name:'运行时策略',exact:true}).waitFor();await page.locator('.runtime-policies th').first().waitFor();
-   assert.deepEqual(await page.locator('.runtime-policies th').allTextContents(),['策略名称','默认动作','由谁触发','']);
+   assert.deepEqual(await page.locator('.runtime-policies th').allTextContents(),['策略名称','默认动作','来源','状态','']);
    assert.equal(await page.getByText('工具运行事件',{exact:true}).count(),0);
    await page.screenshot({path:path.join(out,'installed-runtime-page.png'),fullPage:true});
    await page.getByRole('tab',{name:'策略助手',exact:true}).click();await page.locator('.policy-assistant').first().waitFor();

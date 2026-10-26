@@ -59,6 +59,13 @@ def project(p,names,full=False,locations=None):
          'can_apply':status=='pending','reason':reason,
          'affected_count':len(visible_targets),'total_affected_count':len(p['targets'])}
     row.update((locations or Locations()).project(p,visible_targets))
+    from .session_policy_records import action
+    doc_ids={d['id'] for d in p['documents']}
+    effects=[]
+    for compilation in p['result'].get('compilations',[]):
+        names={r['compiled_name'] for doc in compilation.get('documents',[]) if doc.get('id') in doc_ids and doc.get('scope_id')==p['scope_id'] for r in doc.get('rules',[])}
+        effects.extend(r.get('effect') for r in compilation.get('compile',{}).get('rules',[]) if r.get('name') in names)
+    row['default_action']=action(effects)
     if full:
         compilation=next((c for c in p['result'].get('compilations',[]) if c['instance_id'] in {t['id'] for t in visible_targets}),None)
         records=dsl.policy_records(compilation,p['scope_id']) if compilation else []

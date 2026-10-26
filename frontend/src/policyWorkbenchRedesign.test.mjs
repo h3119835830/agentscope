@@ -264,7 +264,7 @@ test('approval records show product, PID and native session with exact read navi
  const render=await harness('PolicyApprovals.jsx','ApprovalRecords'),paths=[];
  const row={id:'proposal-a',name:'Protect secret',scope_type:'agent',document_count:1,status:'stale',created_at:'2026-10-11T01:00:00Z',target_name:'DeepSeek Harness',agents:[{id:'agent-a',name:'DeepSeek Harness',pid:54870}],origin_sessions:[{instance_id:'agent-a',session_id:'session-one',name:'Run native tests',available:true,generation_pid:54870}]};
  const tree=render({rows:[row],navigate:p=>paths.push(p)}),html=renderToStaticMarkup(tree);
- for(const value of ['适用 Agent','生成会话','DeepSeek Harness','54870','Run native tests','状态 / 提交时间'])assert.ok(html.includes(value));
+ for(const value of ['策略名称','默认动作','来源','状态','详情','DeepSeek Harness','54870','Run native tests'])assert.ok(html.includes(value));
  assert.doesNotMatch(html,/RQ5|受控实例|批准并应用/);assert.equal(paths.length,0);
  // Render the nested location components independently to exercise their buttons.
  const agentNode=elements(tree).find(e=>e.type?.name==='AgentLocation');
@@ -286,7 +286,7 @@ test('system approvals present one global audience instead of enumerating every 
  const row={id:'global',name:'保护环境凭据',scope_type:'system',scope_label:'全部受控 Agent',status:'pending',created_at:'2026-10-14T00:00:00Z',total_affected_count:4,agents:[{id:'one',name:'DeepSeek Harness',pid:44},{id:'two',name:'Hermes',pid:55},{id:'three',name:'DeepSeek Harness',pid:66},{id:'four',name:'DeepSeek Harness',pid:null}],origin_sessions:[]};
  const html=renderToStaticMarkup(render({rows:[row],navigate(){throw Error('read-only rendering');}}));
  assert.equal((html.match(/全部受控 Agent/g)||[]).length,1);
- assert.match(html,/提交时涉及 4 个实例/);assert.match(html,/系统配置/);
+ assert.match(html,/提交时涉及 4 个实例/);assert.match(html,/系统策略/);
  assert.doesNotMatch(html,/DeepSeek Harness|Hermes|PID 44|PID 55|未运行/);
 });
 

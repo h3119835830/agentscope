@@ -35,6 +35,20 @@ def build(row, session, generation, receipt):
     if loading['state'] != 'loaded':
         return result
 
+    return {**result, **snapshot(row, generation, receipt)}
+
+
+def snapshot(row, generation, receipt):
+    """Parse an exact persisted load; callers separately establish freshness."""
+    artifact = receipt.get('artifact', {})
+    binding = artifact.get('binding', {})
+    if (receipt.get('instance_id') != row['id'] or receipt.get('generation') != generation
+            or binding.get('generation') != generation or artifact.get('loaded') is not True
+            or not receipt.get('bundle_hash') or receipt['bundle_hash'] != artifact.get('bundle_hash')
+            or 'dsl_hash' not in receipt or receipt['dsl_hash'] != artifact.get('dsl_hash')):
+        return {'state': 'unverified', 'records': [], 'coverage_complete': False}
+    result = {'checked_at': row.get('last_checked_at')}
+
     compiled = artifact.get('compile', {})
     refs = compiled.get('rules', [])
     if compiled.get('ok') is not True or not isinstance(refs, list):
@@ -42,7 +56,7 @@ def build(row, session, generation, receipt):
     groups = []
     claimed = set()
     complete = True
-    evidence = {'generation': generation, 'domain_id': row['domain_id'], 'pid': row['pid'],
+    evidence = {'generation': generation, 'domain_id': binding.get('domain_id'), 'pid': binding.get('pid'),
                 'bundle_hash': receipt['bundle_hash'], 'loaded_at': receipt.get('created_at'),
                 'checked_at': result['checked_at']}
     for doc in artifact.get('documents', []):
@@ -91,7 +105,7 @@ def build(row, session, generation, receipt):
             evidence, source_kind='startup', original_dsl=rules[0]['source_text'],
             description='系统内置规则。' if fixed else 'Agent 启动时的合成规则；历史加载回执未细分原始配置归属。',
         ))
-    return {**result, 'state': 'verified' if complete else 'incomplete',
+    return {'state': 'verified' if complete else 'incomplete',
             'records': groups, 'coverage_complete': complete, 'bundle_hash': receipt['bundle_hash'],
             'message': '' if complete else '部分加载映射缺失，仅展示已有完整映射的策略，数量不代表全部策略。'}
 

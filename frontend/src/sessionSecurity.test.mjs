@@ -14,8 +14,8 @@ test('loaded policy detail shows readable rules without runtime identifiers or r
  const mod=new Module(source);mod.paths=Module._nodeModulePaths(new URL('.',import.meta.url).pathname);mod._compile(built.outputFiles[0].text,source);globalThis.document={activeElement:null};
  const record={name:'配置文件保护',scope:'agent',configuration_revision:2,document_id:'internal-document',original_dsl:'internal-raw-dsl',evidence:{generation:'internal-run',pid:34567,domain_id:91,bundle_hash:'internal-hash'},clauses:[{operation:'read',effect:'block',target:'/w/0/protected.txt'}]};
  const html=renderToStaticMarkup(React.createElement(mod.exports.LoadedPolicyDetails,{record,onClose(){}}));
- assert.match(html,/配置文件保护/);assert.match(html,/当前加载配置 v2/);assert.match(html,/protected.txt/);
- assert.doesNotMatch(html,/运行代次|执行域|PID|策略哈希|internal-run|internal-hash|internal-raw-dsl|internal-document|34567/);
+ assert.match(html,/配置文件保护/);assert.match(html,/加载时配置 v2/);assert.match(html,/protected.txt/);
+ assert.doesNotMatch(html,/运行代次|执行域|PID|策略哈希|internal-run|internal-hash|internal-document|34567/);
  assert.equal(record.evidence.generation,'internal-run');
 });
 test('structured removal is scoped and never contains approval or application authority',()=>{
@@ -50,11 +50,11 @@ test('panel renders only current loaded policy names and never legacy controls o
  const mod=new Module(source);mod.paths=Module._nodeModulePaths(new URL('.',import.meta.url).pathname);mod._compile(built.outputFiles[0].text,source);
  const loaded={loading_status:{state:'loaded',label:'已加载',expires_at:new Date(Date.now()+8000).toISOString()},state:'verified',coverage_complete:true,records:[{id:'doc',name:'保护配置文件',scope:'agent',status:'loaded',source_kind:'configuration',clauses:[{operation:'read',effect:'block',target:'/w/0/.env'}]}],notice:'同一 Agent 进程内的会话共享策略'};
  const html=renderToStaticMarkup(React.createElement(mod.exports.default,{data:{security:view,loaded_policies:loaded}}));
- for(const text of ['保护配置文件','/w/0/.env','Agent 策略','读取','阻断','已加载','共享策略'])assert.ok(html.includes(text),text);
+ for(const text of ['保护配置文件','策略名称','默认动作','来源','状态','Agent 继承','运行前','阻断','已加载'])assert.ok(html.includes(text),text);
  for(const text of ['工具使用','执行方式','添加约束','检查当前配置','工作区继承','本会话','>停用<','>配置<'])assert.ok(!html.includes(text),text);
  assert.equal((html.match(/<option /g)||[]).length,3);
  const missing=renderToStaticMarkup(React.createElement(mod.exports.default,{data:{security:view}}));
- assert.match(missing,/未取得当前加载证据/);assert.ok(!missing.includes('工具使用'));
+ assert.match(missing,/暂无可展示的继承或追加策略记录/);assert.ok(!missing.includes('工具使用'));
 });
 test('expired or temporarily unreadable loading evidence keeps the last snapshot without a green claim',async()=>{
  const require=createRequire(import.meta.url),Module=require('node:module');
@@ -63,7 +63,7 @@ test('expired or temporarily unreadable loading evidence keeps the last snapshot
  const mod=new Module(source);mod.paths=Module._nodeModulePaths(new URL('.',import.meta.url).pathname);mod._compile(built.outputFiles[0].text,source);
  const loaded={loading_status:{state:'loaded',label:'已加载',expires_at:new Date(Date.now()-1000).toISOString()},state:'verified',coverage_complete:true,records:[{id:'doc',name:'上次保护配置',scope:'agent',status:'loaded',clauses:[{operation:'write',effect:'block',target:'/project/tests'}]}]};
  const html=renderToStaticMarkup(React.createElement(mod.exports.default,{data:{loaded_policies:loaded},error:'读取超时'}));
- for(const text of ['上次核验策略','上次保护配置','/project/tests','当前未核验','不代表当前仍在 ActPlane 中加载','上次核验'])assert.match(html,new RegExp(text));
+ for(const text of ['上次保护配置','当前加载状态未核验','保存的继承和追加记录','历史加载'])assert.match(html,new RegExp(text));
  assert.doesNotMatch(html,/record-badge good|当前已加载策略/);
 });
 test('domain view only displays two owners of a shared domain, including unknown counts',async()=>{
@@ -93,6 +93,6 @@ test('unverified loading never falls back to configured builtins or a green stat
  assert.deepEqual(visibleControls(data,{scope:'system'}),[builtin,configured]);
  assert.throws(()=>changeRequest(data,{basisHash:'hash-a',control:builtin,operation:'disable'},{ack:true},'key'),/不能停用/);
  const html=renderToStaticMarkup(React.createElement(mod.exports.default,{data:{security:data,loaded_policies:{state:'unverified',coverage_complete:false,records:[],message:'当前加载证据尚未核验'}}}));
- assert.match(html,/当前加载证据未核验或已过期/);assert.match(html,/暂无上次核验记录/);
+ assert.match(html,/暂无可展示的继承或追加策略记录/);
  assert.ok(!html.includes('保护控制目录')&&!html.includes('record-badge good'));
 });

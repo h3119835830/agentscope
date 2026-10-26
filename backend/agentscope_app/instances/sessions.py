@@ -71,7 +71,7 @@ def native_sessions(row):
     from .session_display import project
     if not row.get('connected'):
         with db.connect() as con:cached=con.execute('SELECT * FROM instance_session_cache WHERE instance_id=? ORDER BY observed_at DESC',(row['id'],)).fetchall()
-        return project(row['id'],{'sessions':[{**json.loads(r['metadata_json']),'process_ids':[],'status':'stored','historical':True,'last_observed_at':r['observed_at']} for r in cached],
+        return project(row['id'],{'sessions':[{**json.loads(r['metadata_json']),'process_ids':[],'status':'stored','historical':True,'recorded_generation':r['generation'],'last_observed_at':r['observed_at']} for r in cached],
             'mapping_available':False,'historical':bool(cached),'disconnected':True,'executor_shared':True})
     result=broker({'action':'agent-instance-sessions','instance_id':row['id']},timeout=5)
     result=with_session_names(row,result,lambda:broker({'action':'agent-instance-open','instance_id':row['id']}))
@@ -140,8 +140,8 @@ def session_context(ident,sid,generation=None):
     row=c.detail(ident);result=native_sessions(row)
     found=next((s for s in result.get('sessions',[]) if s['id']==sid),None)
     if found is None:raise ValueError('会话不属于此连接，或尚无可信原生映射')
-    selected=generation or row.get('generation')
-    if selected and selected!=row.get('generation'):
+    selected=generation or (found.get('recorded_generation') if found.get('historical') else row.get('generation'))
+    if generation and selected!=row.get('generation'):
         with db.connect() as con:known=con.execute('SELECT 1 FROM instance_policy_receipts WHERE instance_id=? AND generation=?',(ident,selected)).fetchone()
         if not known:raise ValueError('运行代次不属于此连接')
     active=bool(row.get('active') and selected==row.get('generation') and not found.get('historical'))
@@ -189,13 +189,15 @@ def policies(ident,sid,generation=None):
     info=native_workspace_info(row,session)
     from .session_security import build as security_view
     from .session_loaded_policies import build as loaded_view
+    from .session_policy_records import build as policy_view
+    loaded=loaded_view(row,session,gen,saved)
     return {'session':{**session,'workspace':info['path'] if info else None,'workspace_name':info['name'] if info else None},'instance':{'id':ident,'name':row['name'],'display_name':row.get('display_name'),'mode':row['mode'],'agent_type':row['agent_type']},
         'generation':gen,'generations':generations,'active':active,'executor_shared':True,'pid':row.get('pid') if active else None,
         'agent_pid':current_agent_pid(row),
         'domain_id':row.get('domain_id') if active else None,'records':records,'bundle_hash':saved['bundle_hash'] if saved else None,
         'effective_dsl':saved['artifact']['effective_dsl'] if saved else None,'task_binding_available':bool(binding),
         'security':security_view(row,session,gen,active,records,saved),
-        'loaded_policies':loaded_view(row,session,gen,saved)}
+        'loaded_policies':loaded,'policy_records':policy_view(row,session,gen,saved,loaded)}
 
 def attach_hits(records,row,generation,session_id=None):
     saved=dsl_policy.receipt(row['id'],generation)

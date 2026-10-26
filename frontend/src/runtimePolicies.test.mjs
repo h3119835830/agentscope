@@ -16,7 +16,7 @@ test('ordinary guidance, no-change assessments and startup records do not become
 });
 test('the default table has name, trigger and an explicit details action, with internal evidence absent',()=>{
  const html=renderToStaticMarkup(React.createElement(RuntimePolicies,{task:'exact-task',records:[policy],workspace:'/workspace',api:()=>{throw Error('render must not fetch')}}));
- assert.equal((html.match(/<th scope=/g)||[]).length,4);assert.match(html,/默认动作/);assert.match(html,/阻断/);assert.match(html,/策略名称/);assert.match(html,/由谁触发/);assert.match(html,/保护 memory-note.txt/);assert.match(html,/用户消息/);assert.match(html,/aria-label="操作"/);assert.match(html,/>详情<\/button>/);
+ assert.equal((html.match(/<th scope=/g)||[]).length,5);assert.match(html,/默认动作/);assert.match(html,/阻断/);assert.match(html,/策略名称/);assert.match(html,/来源/);assert.match(html,/保护 memory-note.txt/);assert.match(html,/用户消息/);assert.match(html,/aria-label="操作"/);assert.match(html,/>详情<\/button>/);
  assert.doesNotMatch(html,/private-job-marker|核验|Hook|PID|参考模板|查看 DSL|禁止修改文件/);assert.match(html,/aria-expanded="false"/);
 });
 test('names use a saved name when available and never replace a trigger with the presence of memory',()=>{

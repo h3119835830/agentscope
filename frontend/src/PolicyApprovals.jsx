@@ -6,6 +6,8 @@ import {approvalNeedsAttention,batchActionFor,batchActionLabel} from './approval
 import {DslCode} from './DslCode.jsx';
 import {approvalLabel,disposition} from './policyExperience.mjs';
 import {operationLabel} from './policyRecordPresentation.mjs';
+import {policyAction} from './policyRecordPresentation.mjs';
+import PolicyRecordHead from './PolicyRecordHead.jsx';
 import {agentName} from './agentInstancePresentation.mjs';
 import {originLabel,processLabel,sessionReference,sessionTarget,agentTarget,matchesApproval,approvalTitle} from './approvalPresentation.mjs';
 const date=t=>new Date(t).toLocaleString('zh-CN',{hour12:false});
@@ -37,13 +39,13 @@ export function ApprovalDetail({data,onClose,onDecision,onRevalidate,busy,naviga
 }
 export function ApprovalRecords({rows,navigate,selection}){
  const selected=selection?.ids||[],all=rows.length>0&&rows.every(r=>selected.includes(r.id)),some=rows.some(r=>selected.includes(r.id));
- return <table aria-label="策略审批记录"><colgroup>{selection&&<col className="approval-col-select"/>}<col className="approval-col-policy"/><col className="approval-col-agent"/><col className="approval-col-session"/><col className="approval-col-status"/><col className="approval-col-action"/></colgroup><thead><tr>{selection&&<th className="approval-row-select"><input type="checkbox" aria-label="全选当前审批记录" checked={all} aria-checked={some&&!all?'mixed':all} ref={e=>{if(e)e.indeterminate=some&&!all;}} disabled={selection.disabled||!rows.length} onChange={()=>selection.onAll(!all)}/></th>}<th>策略名称</th><th>适用 Agent</th><th>生成会话</th><th>状态 / 提交时间</th><th>操作</th></tr></thead><tbody>{rows.map(r=><tr key={r.id}>
+ return <table aria-label="策略审批记录"><colgroup>{selection&&<col className="approval-col-select"/>}<col className="approval-col-policy"/><col className="approval-col-default-action"/><col className="approval-col-source"/><col className="approval-col-status"/><col className="approval-col-action"/></colgroup><PolicyRecordHead status selection={selection&&<th className="approval-row-select"><input type="checkbox" aria-label="全选当前审批记录" checked={all} aria-checked={some&&!all?'mixed':all} ref={e=>{if(e)e.indeterminate=some&&!all;}} disabled={selection.disabled||!rows.length} onChange={()=>selection.onAll(!all)}/></th>}/><tbody>{rows.map(r=><tr key={r.id}>
   {selection&&<td className="approval-row-select" data-label="选择"><input type="checkbox" aria-label={'选择 '+approvalTitle(r)} checked={selected.includes(r.id)} disabled={selection.disabled} onChange={()=>selection.onToggle(r.id)}/></td>}
   <td data-label="策略名称"><button className="approval-record-title" onClick={()=>navigate({approvalId:r.id})}>{approvalTitle(r)}</button><small>{scopeName(r)} · {r.origin==='runtime'?'运行时提案':r.origin==='scene'?'仓库场景':r.document_count?r.document_count+' 个配置文档':'手工配置'}</small></td>
-  <td data-label="适用 Agent">{r.scope_type==='system'?<SystemAudience data={r}/>:<>{(r.agents||[]).map(a=><AgentLocation key={a.id} agent={a} navigate={navigate}/>)}{!(r.agents||[]).length&&<span>{r.target_name}</span>}</>}</td>
-  <td data-label="生成会话">{r.scope_type==='system'?<span className="approval-unlinked">系统配置</span>:<SessionLocations data={r} navigate={navigate}/>}</td>
-  <td data-label="状态 / 提交时间"><span className={'experience-status '+(r.can_apply?'ready':'attention')}>{(r.configuration_status?.label||'状态待核验')}</span>{needs(r.status)&&r.reason&&<small className="approval-record-reason" title={r.reason}>{r.reason}</small>}<small className="approval-date">{date(r.created_at)}</small></td>
-  <td data-label="操作"><button className="approval-detail-link" onClick={()=>navigate({approvalId:r.id})}>{r.can_approve?'查看并审批':r.can_apply?'查看并应用':'查看详情'} <span>↗</span></button></td>
+  <td data-label="默认动作">{policyAction(r.default_action)}</td>
+  <td data-label="来源"><small>{r.origin==='runtime'?'运行时':'运行前'} · {scopeName(r)}</small>{r.scope_type==='system'?<SystemAudience data={r}/>:<>{(r.agents||[]).map(a=><AgentLocation key={a.id} agent={a} navigate={navigate}/>)}{!(r.agents||[]).length&&<span>{r.target_name}</span>}<SessionLocations data={r} navigate={navigate}/></>}</td>
+  <td data-label="状态"><span className={'experience-status '+(r.can_apply?'ready':'attention')}>{(r.configuration_status?.label||'状态待核验')}</span>{needs(r.status)&&r.reason&&<small className="approval-record-reason" title={r.reason}>{r.reason}</small>}<small className="approval-date">{date(r.created_at)}</small></td>
+  <td data-label="操作"><button className="approval-detail-link" onClick={()=>navigate({approvalId:r.id})}>详情</button></td>
  </tr>)}</tbody></table>;
 }
 export default function PolicyApprovals({api,post,navigation:n,navigate,onChanged}){
