@@ -282,6 +282,30 @@ def test_hidden_directory_can_be_protected_from_an_explicit_read_declaration(ref
     assert all('credentials' not in str(event.get('paths',[])) for event in r.events if event['tool']=='read_files')
 
 
+def test_final_set_rejects_a_file_boundary_masking_a_producer_exception(reference):
+    r,w,root=runner(reference)
+    (root/'src').mkdir();(root/'src/code.py').write_text('pass')
+    (root/'reports').mkdir();(root/'reports/result.md').write_text('not executed')
+    boundary=draft(r,'WRITE-BOUNDARY',{'target':'/w/0/**','exception':'/w/0/src/**'})
+    producer=draft(r,'RQ1-GENERATED',{'target':'/w/0/reports/result.md','producer':'python3'})
+    invoke(r,'preview_policy_matches',w,configuration=boundary,checks=[
+        check('README.md',scope='object',role='target'),check('src/code.py',scope='object',role='target',expected=False)])
+    invoke(r,'preview_policy_matches',w,configuration=producer,checks=[check('reports/result.md',scope='object',role='target')])
+    saved=copy.deepcopy(r.previews)
+    with pytest.raises(ValueError,match='候选组合冲突'):
+        r.validate_final({'configurations':[boundary,producer],'questions':[],'gaps':[]})
+    assert r.previews==saved
+
+
+def test_final_set_allows_protected_files_and_a_separate_producer_destination(reference):
+    r,w,root=runner(reference);(root/'reports').mkdir();(root/'reports/result.md').write_text('not executed')
+    protected=draft(r,'FILE-CHANGE',{'target':'/w/0/README.md','operations':['write','unlink']})
+    producer=draft(r,'RQ1-GENERATED',{'target':'/w/0/reports/result.md','producer':'python3'})
+    for candidate,path in ((protected,'README.md'),(producer,'reports/result.md')):
+        invoke(r,'preview_policy_matches',w,configuration=candidate,checks=[check(path,scope='object',role='target')])
+    r.validate_final({'configurations':[protected,producer],'questions':[],'gaps':[]})
+
+
 def test_final_set_cannot_drop_independently_verified_positive_coverage(reference):
     r,w,root=runner(reference)
     for directory in ('implementation','verification'):(root/directory).mkdir()

@@ -277,6 +277,8 @@ class WorkspacePolicyAgent:
    covered={key(s) for p in selected for s in p['checks'] if s['expected_match'] and s['matched']}
    missing=self.coverage_obligations-covered
    if missing:raise ToolContractError('最终候选集合遗漏本轮已确认的正向覆盖目标：'+', '.join(sample[2] for sample in sorted(missing))[:700]+'；请核对完整候选集合，或明确报告无法完成，不要静默丢弃已确认目标')
+   from .policy_investigation import validate_composition
+   validate_composition(self,value['configurations'])
   self.check_basis()
 
  def usage(self):

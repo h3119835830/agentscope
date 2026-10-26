@@ -185,7 +185,7 @@ def parameter_facts(runner,material,workspace):
     return basis
 
 
-def preview(runner,configuration,workspace,checks):
+def preview(runner,configuration,workspace,checks,record=True):
     if configuration not in runner.drafts:raise ValueError('只能预览本轮 draft_* 工具生成的原候选，不能传入 DSL 或任意配置')
     if not isinstance(checks,list) or not 1<=len(checks)<=12:raise ValueError('请声明 1 至 12 项覆盖检查')
     if not any(isinstance(c,dict) and c.get('expected_match') is True for c in checks):raise ValueError('至少需要一项应命中的正向检查，不能只用不命中样本证明候选有效')
@@ -230,7 +230,37 @@ def preview(runner,configuration,workspace,checks):
             'validation_scope':'compiled_pattern_samples_only','runtime_enforcement_verified':False,
             'limits':['仅验证声明样本的编译后匹配；不证明完整自然语言意图、标签历史、执行链、时序或运行拦截。',
                       'tree 样本是假设性后代路径，不表示这些文件实际存在；原候选未被自动改写。']}
-    runner.previews[digest(configuration)]=result
-    if result['coverage_checks_passed']:
+    if record:runner.previews[digest(configuration)]=result
+    if record and result['coverage_checks_passed']:
         runner.coverage_obligations.update(tuple(sample.get(k,'') for k in ('operation','role','target','argument')) for sample in samples if sample['expected_match'])
     return result
+
+
+def validate_composition(runner,selected):
+    """An unconditional file restriction must not mask a producer exception."""
+    from . import template_catalog
+    conditional=[c for c in selected if template_catalog.get(c['template_id'],c['template_version'])['renderer']=='lineage']
+    blockers=[c for c in selected if template_catalog.get(c['template_id'],c['template_version'])['renderer'] in ('file','boundary')]
+    for producer in conditional:
+        saved=runner.previews[digest(producer)]
+        samples=[s for s in saved['checks'] if s['role']=='target' and s['expected_match'] and not s['hypothetical'] and s['operation'] in ('write','unlink')]
+        for blocker in blockers:
+            definition=template_catalog.get(blocker['template_id'],blocker['template_version'])
+            if definition['effect']!='block':continue
+            for sample in samples:
+                for workspace in runner.workspaces:
+                    mount=runner.workspaces[workspace]['execution_path']
+                    if not sample['target'].startswith(mount+'/'):continue
+                    # The preview contract requires a positive control. Reuse a
+                    # real verified positive sample for this blocker, then add
+                    # the conditional producer's destination as a negative.
+                    positive=next((s for s in runner.previews[digest(blocker)]['checks'] if s['role']=='target' and s['expected_match']),None)
+                    if not positive or not positive['target'].startswith(mount+'/'):continue
+                    controls=[{k:positive[k] for k in ('target','operation','role','expected_match','argument')}]
+                    controls[0]['scope']='object'
+                    controls.append({'target':sample['target'],'operation':sample['operation'],'scope':'object',
+                                     'role':'target','expected_match':False})
+                    checked=preview(runner,blocker,workspace,controls,record=False)
+                    if checked['checks'][-1]['matched']:
+                        raise ValueError('候选组合冲突：'+blocker['name']+'会无条件阻止 '+sample['target']+
+                                         '，使'+producer['name']+'的生成程序例外无法工作。请修正整个候选集合并重新验证；不能同时提交互相遮蔽的约束。')
