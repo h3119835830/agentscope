@@ -227,6 +227,41 @@ def test_native_tool_budget_is_a_hard_cap_and_reserves_final_submission(referenc
         'code':'tool_budget_exhausted','remaining_tool_calls':0,'allowed_next_tools':['submit_analysis']}
 
 
+def test_candidate_reference_previews_and_submits_the_exact_server_draft(reference):
+    from agentscope_app.instances.pi_provider import resolve_submission
+    r,w,_=runner(reference)
+    response=r.execute({'tool':'draft_exec_block','arguments':{'name':'程序执行限制','parameters':{'program':'git'}}})['result']
+    ident=response['configuration_id']
+    preview=invoke(r,'preview_policy_matches',w,configuration_id=ident,checks=[check('git','exec','object','target')])
+    assert preview['coverage_checks_passed'] and preview['configuration_id']==ident
+    value=resolve_submission(r,{'configurations':[ident],'questions':[],'gaps':[],
+                               'summary':'已核对当前工具草案和匹配结果，本轮生成程序执行限制候选。'})
+    assert value['configurations']==[response['configuration']]
+    r.validate_final(value)
+    value['configurations'][0]['parameters']['program']='bash'
+    assert r.resolve_candidate(ident)['parameters']['program']=='git'
+
+
+def test_candidate_reference_cannot_cross_generation_or_bypass_preview(reference):
+    from agentscope_app.instances.pi_provider import resolve_submission
+    r,w,_=runner(reference)
+    response=r.execute({'tool':'draft_exec_block','arguments':{'name':'程序执行限制','parameters':{'program':'git'}}})['result']
+    value={'configurations':[response['configuration_id']],'questions':[],'gaps':[],
+           'summary':'尚未完成匹配预览，本测试应拒绝提交当前草案。'}
+    with pytest.raises(ToolContractError,match='尚未通过'):r.validate_final(resolve_submission(r,value))
+    other,_,_=runner(reference)
+    with pytest.raises(ToolContractError,match='不属于本轮'):resolve_submission(other,value)
+
+
+@pytest.mark.parametrize('changes',[{'summary':'S1'},{'questions':['Q1']},{'gaps':['G1']}])
+def test_native_submission_requires_readable_public_conclusions(reference,changes):
+    from agentscope_app.instances.pi_provider import resolve_submission
+    r,_,_=runner(reference)
+    value={'configurations':[],'questions':[],'gaps':[],
+           'summary':'已检查当前工作区，本轮因资料不足未形成策略候选。',**changes}
+    with pytest.raises(ValueError):resolve_submission(r,value)
+
+
 def test_final_set_cannot_drop_independently_verified_positive_coverage(reference):
     r,w,root=runner(reference)
     for directory in ('implementation','verification'):(root/directory).mkdir()

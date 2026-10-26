@@ -92,6 +92,21 @@ class WorkspacePolicyAgent:
   self.calls+=1
   return self.limits['calls']-self.calls
 
+ def candidate_id(self,configuration):
+  from .policy import digest
+  return 'draft_'+digest(configuration)
+
+ def resolve_candidate(self,ident):
+  if not isinstance(ident,str):raise ToolContractError('请使用本轮草案工具返回的 configuration_id')
+  for configuration in self.drafts:
+   if self.candidate_id(configuration)==ident:return copy.deepcopy(configuration)
+  raise ToolContractError('候选编号不属于本轮草案；请使用工具返回的 configuration_id')
+
+ def draft_state(self):
+  from .policy import digest
+  return [{'configuration_id':self.candidate_id(c),'name':c['name'],'template_id':c['template_id'],
+           'coverage_verified':bool(self.previews.get(digest(c),{}).get('coverage_checks_passed'))} for c in self.drafts]
+
  def _execute(self,call):
   if isinstance(call,dict) and set(call)=={'tool','arguments'} and call.get('tool') in ('search_project','inspect_resource','preview_policy_matches'):
    from . import policy_investigation as investigation
@@ -101,7 +116,7 @@ class WorkspacePolicyAgent:
    args=call['arguments'];tool=call['tool']
    fields={'search_project':({'workspace_id','query','mode','path','cursor'},{'workspace_id','query','mode'}),
            'inspect_resource':({'workspace_id','paths'},{'workspace_id','paths'}),
-           'preview_policy_matches':({'workspace_id','configuration','checks'},{'workspace_id','configuration','checks'})}
+            'preview_policy_matches':({'workspace_id','configuration','configuration_id','checks'},{'workspace_id','checks'})}
    allowed,required=fields[tool]
    if not isinstance(args,dict) or set(args)-allowed or not required<=set(args):raise ToolContractError('调查接口参数不符合合同')
    workspace=args['workspace_id']
@@ -111,8 +126,11 @@ class WorkspacePolicyAgent:
     if tool=='search_project':value=investigation.search(self,workspace,args['query'],args['mode'],args.get('path',''),args.get('cursor',0))
     elif tool=='inspect_resource':value=investigation.inspect(self,workspace,args['paths'])
     else:
-     value=investigation.preview(self,args['configuration'],workspace,args['checks'])
-     event.update(configuration_hash=digest(args['configuration']),coverage_checks_passed=value['coverage_checks_passed'],checks=value['checks'])
+     if ('configuration' in args)==('configuration_id' in args):raise ToolContractError('请选择一个本轮候选编号或原候选')
+     configuration=self.resolve_candidate(args['configuration_id']) if 'configuration_id' in args else args['configuration']
+     value=investigation.preview(self,configuration,workspace,args['checks'])
+     value['configuration_id']=self.candidate_id(configuration)
+     event.update(configuration_hash=digest(configuration),coverage_checks_passed=value['coverage_checks_passed'],checks=value['checks'])
     self.check_basis();self.events.append(event)
     return {'tool':tool,'arguments':args,'result':value}
    except refs.ReaderUnavailable:raise
@@ -128,6 +146,7 @@ class WorkspacePolicyAgent:
    else:
     value=template_tools.instantiate(self.ident,call['tool'],call['arguments'],self.scope)
     if value['configuration'] not in self.drafts:self.drafts.append(value['configuration'])
+    value['configuration_id']=self.candidate_id(value['configuration'])
    self.events.append({'tool':call['tool'],'status':'completed','applied':False})
    return {'tool':call['tool'],'arguments':call['arguments'],'result':value}
   if not isinstance(call,dict) or set(call)!={'tool','arguments'} or call['tool'] not in ('list_directory','read_files'):

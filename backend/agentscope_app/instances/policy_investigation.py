@@ -34,10 +34,10 @@ def definitions():
       {'name':'inspect_resource','description':'检查已登记资源是文件、目录还是不存在，返回准确执行映射、有限目录样本和路径匹配语义。不读取文件正文，不授予权限。',
        'input_schema':obj({'workspace_id':workspace,'paths':{'type':'array','items':relative,'minItems':1,'maxItems':8}},['workspace_id','paths'])},
       {'name':'preview_policy_matches','description':'只读编译本轮 draft_* 工具生成的同一个候选，核对实际匹配而非参数格式。checks 声明本次需求的覆盖意图，scope=tree 表示目录内所有文件及子目录；role=invalidation 检查使旧检查失效的文件事件，target 检查被约束动作，source 检查来源匹配。返回失败后应修正候选再验证。不会应用策略；检查通过不证明所有自然语言要求或内核运行效果。',
-       'input_schema':obj({'configuration':{'type':'object'},'workspace_id':workspace,
+       'input_schema':obj({'configuration_id':{'type':'string','description':'本轮 draft_* 返回的 configuration_id；服务端解析原候选，无需重抄配置对象'},'workspace_id':workspace,
          'checks':{'type':'array','minItems':1,'maxItems':12,'items':obj({'target':string,'operation':{'type':'string','enum':list(OPS)},
              'scope':{'type':'string','enum':['object','tree']},'role':{'type':'string','enum':['target','invalidation','source']},
-             'expected_match':{'type':'boolean'},'argument':{'type':'string','maxLength':23}},['target','operation','scope','role','expected_match'])}},['configuration','workspace_id','checks'])}]
+             'expected_match':{'type':'boolean'},'argument':{'type':'string','maxLength':23}},['target','operation','scope','role','expected_match'])}},['configuration_id','workspace_id','checks'])}]
 
 
 def resource_path(path):

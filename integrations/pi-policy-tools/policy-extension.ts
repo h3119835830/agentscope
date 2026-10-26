@@ -15,7 +15,7 @@ export default function(pi:ExtensionAPI){
     headers:{'Content-Type':'application/json',Authorization:'Bearer '+process.env.AGENTSCOPE_PI_TOKEN},
     body:JSON.stringify({tool:tool.name,arguments:params})});
    const text=await response.text();
-   try{const value=JSON.parse(text);if(value?.code==='tool_budget_exhausted'||value?.control?.finalization_required)finalizeOnly=true;}catch{}
+   try{const value=JSON.parse(text);if(value?.code==='tool_budget_exhausted'||value?.control?.finalization_required){finalizeOnly=true;pi.setActiveTools(['submit_analysis']);}}catch{}
    return {content:[{type:'text',text}],isError:!response.ok};
   }}));
 }
