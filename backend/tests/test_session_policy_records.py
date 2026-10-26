@@ -7,6 +7,21 @@ from test_session_loaded_policies import loaded, world, projection
 from test_instance_runtime_policies import linked, bound
 
 
+@pytest.mark.parametrize('path,expected',[
+    ('/w/0/**','资源目录 1 下的所有文件（含子目录）'),
+    ('/w/1/**','资源目录 2 下的所有文件（含子目录）'),
+    ('/w/0/project/tests/**','资源目录 1 / project/tests 下的所有文件（含子目录）'),
+    ('/w/0/project/README.md','资源目录 1 / project/README.md'),
+])
+def test_startup_policy_name_describes_restriction_and_recursive_scope_without_mutating_evidence(path,expected):
+    clauses=[{'operation':op,'effect':'block','target':path} for op in ('write','unlink')]
+    record={'name':'资源写入保护（启动规则）','source_kind':'startup','scope':'agent','clauses':clauses,'original_dsl':'exact saved DSL'}
+    before=json.dumps(record)
+    assert view.startup_name(record)=='禁止修改和删除 · '+expected
+    assert '**' not in view.startup_name(record)
+    assert json.dumps(record)==before
+
+
 @pytest.fixture
 def session_bound(linked):
     try:yield linked

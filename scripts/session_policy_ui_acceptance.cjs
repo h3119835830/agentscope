@@ -14,6 +14,8 @@ async function main(){
   const response=await page.request.get(root+'/api/console/agents/'+instance+'/sessions/'+session+'/policies');assert.equal(response.status(),200);
   const data=await response.json();assert.ok(data.policy_records);assert.ok(data.policy_records.records.length>0,'real inherited load record required');
   assert.ok(data.policy_records.records.every(r=>r.stage==='startup'||r.stage==='runtime'));
+  assert.ok(data.policy_records.records.every(r=>!r.name.includes('**')),'recursive glob cannot become a policy name');
+  assert.ok(data.policy_records.records.some(r=>r.name.includes('禁止修改和删除')&&r.name.includes('含子目录')));
   assert.deepEqual(await page.locator('.session-security-panel th').allTextContents(),['策略名称','默认动作','来源','状态','']);
   assert.equal(await page.getByText('策略名称／对象',{exact:true}).count(),0);
   await page.screenshot({path:path.join(out,'session-policies.png'),fullPage:true});
