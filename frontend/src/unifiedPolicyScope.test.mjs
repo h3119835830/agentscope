@@ -71,7 +71,7 @@ test('legacy workspace tab links return to automatic preflight context selection
 test('Agent policy tabs retain assistant and runtime but no duplicate load view',async()=>{
  const render=await harness('AgentPolicyWorkbench.jsx',[[target],'',0,null]);
  const tree=render(props({agentPolicyTab:'assistant'})),labels=nodes(tree).filter(n=>n.props?.role==='tab').map(n=>n.props.children);
- assert.deepEqual(labels,['策略助手','运行事件']);
+ assert.deepEqual(labels,['策略助手','运行时策略']);
  assert.ok(!nodes(tree).some(n=>['PolicyReferenceWorkspaceSelect','ActPlanePolicies','NativeAgentWorkspaces','AgentLoadedPolicies'].includes(n.type?.name)));
  assert.doesNotMatch(renderToStaticMarkup(tree),/参考工作区/);
 });
@@ -84,7 +84,7 @@ test('removed load tab cannot mount a second load panel and runtime remains unch
  tabs[0].props.onKeyDown({key:'ArrowRight',currentTarget:{},preventDefault(){}});
  assert.deepEqual(changes,[{agentPolicyTab:'runtime'}]);
  const runtime=render(props({agentPolicyTab:'runtime'}));
- assert.ok(nodes(runtime).some(n=>n.type?.name==='AgentRuntimePolicyAssistant'));
+ assert.ok(nodes(runtime).some(n=>n.type?.name==='RuntimePolicyRecords'));
 });
 test('Agent page sends configuration management to the System module with the exact target',async()=>{
  const render=await harness('AgentPolicyWorkbench.jsx',[[target],'',0,null]),changes=[];
@@ -92,16 +92,14 @@ test('Agent page sends configuration management to the System module with the ex
  nodes(tree).find(n=>n.type==='button'&&n.props.children==='管理策略配置 ↗').props.onClick();
  assert.deepEqual(changes,[{page:'strategies',systemTab:'policies',policyAgent:target.id,policyScope:'agent',configurationId:'',policyWorkspace:'',policySession:''}]);
 });
-test('runtime Hook list keeps source semantics without exposing raw session identities',async()=>{
- const events=[{seq:9,kind:'tool_start',generation:'generation-a',tool:'read_file',session_id:'private-session-uuid',created_at:'2026-10-20T00:00:00Z'}];
- const render=await harness('AgentRuntimePolicyAssistant.jsx',[events,'',0]);
+test('runtime policy list replaces tool events without exposing raw session identities',async()=>{
+ const render=await harness('RuntimePolicyRecords.jsx',[{scope:'instance:agent-one:generation-a',records:[]},'',false,null]);
  const html=renderToStaticMarkup(render({target:{...target,connected:true,generation:'generation-a',gate:'open'},api:async()=>({}),post:async()=>{},onApprovals(){}}));
- assert.match(html,/已关联会话/);assert.doesNotMatch(html,/private-session-uuid/);
- assert.match(html,/准入通过/);assert.doesNotMatch(html,/等待自动评估器|尚未接通|RQ4|generation/);
+ assert.match(html,/默认动作/);assert.doesNotMatch(html,/工具运行事件|准入通过|Hook|private-session-uuid/);
  assert.doesNotMatch(html,/作为生成依据|可人工触发 Pi|运行时策略助手对话/);
 });
-test('saved generation without a current connection never claims that runtime Hook is connected',async()=>{
- const render=await harness('AgentRuntimePolicyAssistant.jsx',[[],'',0]);
+test('saved generation without policy records never borrows another task or claims enforcement',async()=>{
+ const render=await harness('RuntimePolicyRecords.jsx',[{scope:'instance:agent-one:generation-a',records:[]},'',false,null]);
  const html=renderToStaticMarkup(render({target:{...target,connected:false,generation:'generation-a',gate:'open'},api:async()=>({})}));
- assert.match(html,/暂无工具运行事件/);assert.doesNotMatch(html,/运行时 Hook<!-- -->已接入/);
+ assert.match(html,/暂未生成新的运行时策略/);assert.doesNotMatch(html,/已加载|已接入|工具运行事件/);
 });

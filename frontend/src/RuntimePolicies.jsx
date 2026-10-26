@@ -10,6 +10,9 @@ export function runtimePolicyName(record,workspace=''){
 export function runtimePolicyTrigger(record){
  return ({native_user:'用户消息',administrator:'管理员消息',persistent_memory:'跨会话记忆'})[record.trigger?.actor]||'未记录来源';
 }
+export function runtimePolicyAction(record){
+ return ({block:'阻断',kill:'终止',allow:'允许',observe:'记录',mixed:'多种动作'})[record.default_action]||'未记录';
+}
 export function generatedRuntimePolicies(records){
  return records.filter(record=>record.stage==='runtime'&&record.effect==='restrict'&&record.policy_type!=='semantic_only'&&record.targets?.length);
 }
@@ -23,7 +26,7 @@ function PolicyDetails({record}){
   {record.compilation?.dsl&&<details className="runtime-policy-dsl"><summary>查看 DSL</summary><pre>{record.compilation.dsl}</pre></details>}
  </div>;
 }
-export default function RuntimePolicies({task,records=[],workspace='',api,loading=false,error=''}){
+export default function RuntimePolicies({task,records=[],workspace='',api,readDetail,loading=false,error=''}){
  const [selected,setSelected]=useState(null),[detail,setDetail]=useState(null),[detailError,setDetailError]=useState('');
  const selection=useRef(0);
  useEffect(()=>{selection.current++;setSelected(null);setDetail(null);setDetailError('');},[task]);
@@ -31,19 +34,20 @@ export default function RuntimePolicies({task,records=[],workspace='',api,loadin
   const request=++selection.current;setDetail(null);setDetailError('');
   if(selected===record.id){setSelected(null);return;}
   setSelected(record.id);
-  try{const result=await api(`/api/managed/tasks/${encodeURIComponent(task)}/strategy-records/${encodeURIComponent(record.id)}`);if(request===selection.current)setDetail(result);}
+  try{const result=await (readDetail?readDetail(record):api(`/api/managed/tasks/${encodeURIComponent(task)}/strategy-records/${encodeURIComponent(record.id)}`));if(request===selection.current)setDetail(result);}
   catch(error){if(request===selection.current)setDetailError('暂时无法读取策略详情，请收起后重试。');}
  }
  const shown=generatedRuntimePolicies(records);
  return <section className="runtime-policies" aria-label="运行时策略">
   {error&&<p role="alert" className="runtime-policy-notice">暂时无法刷新，正在重试。</p>}
-  <table><thead><tr><th scope="col">策略名称</th><th scope="col">由谁触发</th><th scope="col" aria-label="操作"/></tr></thead>
+  <table><thead><tr><th scope="col">策略名称</th><th scope="col">默认动作</th><th scope="col">由谁触发</th><th scope="col" aria-label="操作"/></tr></thead>
    <tbody>{shown.map(record=><React.Fragment key={record.id}><tr>
-    <td><span className="runtime-policy-name">{runtimePolicyName(record,workspace)}</span></td>
+    <td><span className="runtime-policy-name">{runtimePolicyName(record,record.workspace||workspace)}</span></td>
+    <td>{runtimePolicyAction(record)}</td>
     <td>{runtimePolicyTrigger(record)}</td>
     <td className="runtime-policy-actions"><button type="button" className="runtime-policy-action" aria-expanded={selected===record.id} aria-controls={'runtime-detail-'+record.id} onClick={()=>open(record)}>{selected===record.id?'收起':'详情'}</button></td>
-   </tr>{selected===record.id&&<tr id={'runtime-detail-'+record.id} className="runtime-policy-expanded"><td colSpan="3">{detailError?<p role="alert">{detailError}</p>:detail?<PolicyDetails record={detail}/>:<p role="status">正在读取详情…</p>}</td></tr>}</React.Fragment>)}</tbody>
+   </tr>{selected===record.id&&<tr id={'runtime-detail-'+record.id} className="runtime-policy-expanded"><td colSpan="4">{detailError?<p role="alert">{detailError}</p>:detail?<PolicyDetails record={detail}/>:<p role="status">正在读取详情…</p>}</td></tr>}</React.Fragment>)}</tbody>
   </table>
-  {!shown.length&&<p className="runtime-policy-empty">{loading?'正在读取策略…':'暂未生成新的运行时策略。'}</p>}
+  {!shown.length&&<p className="runtime-policy-empty">{loading?'正在读取策略…':error?'暂时无法读取策略记录。':'暂未生成新的运行时策略。'}</p>}
  </section>;
 }

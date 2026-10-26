@@ -10,7 +10,8 @@ async function main(){
   const url=task=>'http://127.0.0.1:18006/?task='+task;
   await page.goto(url('c7ae28357e224c7d'),{waitUntil:'networkidle'});
   const openDetails=()=>page.getByRole('button',{name:'详情',exact:true});await openDetails().waitFor();
-  assert.deepEqual(await page.locator('.runtime-policies th').allTextContents(),['策略名称','由谁触发','']);
+  assert.deepEqual(await page.locator('.runtime-policies th').allTextContents(),['策略名称','默认动作','由谁触发','']);
+  assert.equal(await page.locator('.runtime-policies tbody tr').first().locator('td').nth(1).innerText(),'阻断');
   assert.equal(await page.locator('.runtime-policies th').last().getAttribute('aria-label'),'操作');
   assert.equal(await page.locator('.runtime-policies tbody tr').count(),1);
   assert.doesNotMatch(await page.locator('body').innerText(),/核验|Hook|PID|生成作业|次评估|策略 v|跨会话持久记忆加载/);
@@ -37,7 +38,7 @@ async function main(){
   await page.locator('.runtime-policy-page').screenshot({path:path.join(out,'runtime-mobile.png')});
   assert.ok(requests.every(request=>request.method==='GET'));
   assert.ok(requests.some(request=>request.url.includes('generated_only=true')));
-  const result={result:'PASS',checks:['two_fields_and_right_details_action','only_generated_policy','diagnostics_hidden','details_on_demand_without_duplicate_target','actual_template_provenance','exact_trigger_text','dsl_folded_by_default','exact_dsl_only','collapse_clears_details','different_task_isolation','mobile_no_overflow','get_only_requests','server_side_generated_filter'],requests};
+  const result={result:'PASS',checks:['name_action_trigger_and_details','only_generated_policy','diagnostics_hidden','details_on_demand_without_duplicate_target','actual_template_provenance','exact_trigger_text','dsl_folded_by_default','exact_dsl_only','collapse_clears_details','different_task_isolation','mobile_no_overflow','get_only_requests','server_side_generated_filter'],requests};
   await fs.writeFile(path.join(out,'browser-acceptance.json'),JSON.stringify(result,null,2));console.log(JSON.stringify({result:result.result,checks:result.checks,screenshots:out}));
  }finally{await browser.close();}
 }

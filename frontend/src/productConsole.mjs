@@ -3,6 +3,7 @@
 import {invalidateAgent} from './productStatus.mjs';
 export function productReadUrl(url,method='GET'){
  if(method!=='GET')return url;
+ if(/^\/api\/agent-instances\/[^/]+\/runtime-policies(?:\/|\?|$)/.test(url))return url;
  if(/^\/api\/agent-instances\/[^/]+\/policy-drafts(?:\/|\?|$)/.test(url))return url;
  return url.replace(/^\/api\/agent-instances(?=\/|\?|$)/,'/api/console/agents')
    .replace(/^\/api\/security\/system\/dsl(?=\?|$)/,'/api/console/security/system/dsl')

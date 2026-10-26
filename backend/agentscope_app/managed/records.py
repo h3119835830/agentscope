@@ -201,6 +201,11 @@ def statement_compilation(compiler,targets,policy_type,decision):
     return {'status':'not_applicable' if permission else 'not_recorded','dsl':'','origin':'permission_update' if permission else 'unmapped_statement','has_new_os_rule':False,'message':'该语句对应权限授予或解除限制，没有新增拒绝 DSL。' if permission else '未登记该语句与编译子句的可靠关联，不展示其他策略。'}
 
 
+def default_action(compiler,targets):
+    actions={r.get('effect') for r in compiler.get('rules',[]) if r.get('target_pattern') in targets and r.get('clause_text') and r.get('effect')}
+    return next(iter(actions)) if len(actions)==1 else 'mixed' if actions else None
+
+
 def runtime_statement_records(con,task,state,row,include_assessments=False,persist_links=False):
     parent=runtime_record(con,task,state,row);ctx=decode(row,'context_json');proposal=decode(row,'proposal_json')
     statements=parent['identified_statements']
@@ -228,6 +233,7 @@ def runtime_statement_records(con,task,state,row,include_assessments=False,persi
         status='guidance' if semantic else 'unmapped' if compiled['status']=='not_recorded' and parent['status'] in ('active','partially_active') else parent['status']
         result.append({**parent,'effect':'guidance' if semantic else parent['effect'],'status':status,'loading':loading,'delta':delta or None,'id':parent['id']+':statement:'+str(i),'statement':statement['statement'],'policy_type':statement['policy_type'],'context_required':statement['context_required'],'context_reason':statement['context_reason'],'classification_origin':statement.get('origin','pi_statement'),'targets':targets,'operations':sorted({r.get('clause_op') for r in proposal.get('compile',{}).get('rules',[]) if r.get('target_pattern') in targets and r.get('clause_op')}) if compiled['dsl'] else [],'identified_statements':[],'evidence':[e for e in parent['evidence'] if e['id'] in evidence_ids],'compilation':compiled})
     for record in result:
+        record['default_action']=default_action(proposal.get('compile',{}),record['targets'])
         normalization.link_record(con,task['id'],record,proposal.get('normalization'),persist_links=persist_links)
         remap_loaded(record,state)
         if persist_links:normalization.persist_record_links(con,task['id'],record)
