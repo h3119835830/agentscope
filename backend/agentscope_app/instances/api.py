@@ -8,6 +8,8 @@ from .mapping import agent_policy,resource_records
 from .session_names import with_session_names
 from ..broker_client import call as broker
 router=APIRouter()
+from .runtime_policies import router as runtime_policy_router
+router.include_router(runtime_policy_router)
 
 def invoke(fn,*args):
     try: return fn(*args)

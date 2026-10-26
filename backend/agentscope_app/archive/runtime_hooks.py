@@ -20,6 +20,7 @@ ACTORS = {
     "recovery": "原生会话恢复",
     "control_review": "控制面复核",
     "native_user": "真实用户消息",
+    "persistent_memory": "跨会话持久记忆加载",
     "user": "管理员约束",
     "administrator": "管理员约束",
     "DSH": "执行能力申请",
@@ -32,6 +33,7 @@ OBSERVATION_TYPES = {
     "memory": "compaction/summary",
     "memory_prune": "compaction/prune",
     "context": "user/message",
+    "persistent_memory": "memory/loaded",
 }
 IDENTIFIER = re.compile(r"[A-Za-z0-9_.:-]{1,256}\Z")
 SHA256 = re.compile(r"[a-fA-F0-9]{64}\Z")
@@ -67,7 +69,8 @@ def mechanism():
 
 
 def _observations(context):
-    native = _object(context.get("native_execution_context"))
+    native = dict(_object(context.get("native_execution_context")))
+    if isinstance(context.get('persistent_memory'),dict):native['persistent_memory']=context['persistent_memory']
     result = []
     seen = set()
     for value in native.values():

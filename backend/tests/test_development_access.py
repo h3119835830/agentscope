@@ -41,12 +41,10 @@ def test_development_entry_is_limited_to_local_requests(monkeypatch,peer,host,or
 def test_demo_control_operations_need_no_admin_token_or_browser_session(monkeypatch):
     from agentscope_app import main
     from agentscope_app.scope import api as scope_api
-    from agentscope_app.managed import api as managed_api
     monkeypatch.setattr(development, 'DEV_NO_AUTH', True)
     monkeypatch.setattr(main, 'ADMIN_TOKEN', '')
     monkeypatch.setattr(scope_api.demo, 'create', lambda: {'created':True})
     monkeypatch.setattr(scope_api.manager, 'review_and_apply', lambda *args: {'applied':True})
-    monkeypatch.setattr(managed_api, 'confirm_expansion_compat', lambda *args: {'confirmed':True})
     with TestClient(app, base_url='http://127.0.0.1:18003', client=('127.0.0.1', 52000)) as client:
         headers={'Origin':'http://127.0.0.1:18003'}
         assert client.get('/api/tasks').status_code == 200
@@ -54,9 +52,6 @@ def test_demo_control_operations_need_no_admin_token_or_browser_session(monkeypa
         response=client.post('/api/tasks/demo/scope-manager/changes/change/review', headers=headers, json={'decision':'approve','expected_proposal_hash':'candidate'})
         assert response.status_code == 200
         assert response.json() == {'applied':True}
-        response=client.post('/api/managed/tasks/demo/expansion/confirm', headers=headers, json={'expected_hash':'candidate'})
-        assert response.status_code == 200
-        assert response.json() == {'confirmed':True}
         assert 'set-cookie' not in response.headers
         assert not client.cookies
         for endpoint in ('ticket','redeem','connect','close'):

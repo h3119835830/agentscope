@@ -4,7 +4,7 @@ import './styles.css';
 import './policyRecords.css';
 import TaskHub from './TaskHub.jsx';
 import AgentWorkspaces from './AgentInstances.jsx';
-import ManagedWorkbench from './ManagedWorkbench.jsx';
+import RuntimePolicyRecords from './RuntimePolicyRecords.jsx';
 import {uniqueTasks,selectableTasks,isTaskEnded} from './consoleState.mjs';
 import TaskArchive from './TaskArchive.jsx';
 import {navigationTarget, readNavigation} from './navigation.mjs';
@@ -124,7 +124,7 @@ function App() {
     <main className="main" data-page={page}>
       {<header className="topbar"><div><span className="crumb">AgentScope</span><span className="slash">/</span><b>{pageTitle(page)}</b></div>{status&&(!status.broker?.available||!status.bpf_lsm)&&<span role="status" className="status-pill warn">{status.error?'状态读取失败':'保护服务暂不可用'}</span>}</header>}
       {page==='overview'&&<ProductOverview dash={dash} status={status} error={overviewError} onRetry={refresh} onNav={setPage} onSessions={id=>navigate({page:'sessions',sessionAgent:'',sessionFilterInstance:id,sessionInstance:'',sessionId:''})}/> }
-      {page==='workbench'&&<AgentPolicyWorkbench api={api} post={post} navigation={navigation} navigate={navigate} candidate={candidate} onConsumed={{handoff:handoffCandidate,consume:consumeCandidate}}/>}
+      {page==='workbench'&&(navigation.task&&navigation.agentPolicyTab==='runtime'&&!navigation.policyAgent?<div className="content runtime-policy-page"><RuntimePolicyRecords key={navigation.task} task={navigation.task} api={api}/></div>:<AgentPolicyWorkbench api={api} post={post} navigation={navigation} navigate={navigate} candidate={candidate} onConsumed={{handoff:handoffCandidate,consume:consumeCandidate}}/>)}
       <div hidden={page!=='history'}><TaskArchive api={api} navigation={navigation} navigate={navigate}/></div>
       {page==='strategies'&&<SystemWorkbench api={api} post={post} navigation={navigation} navigate={navigate} onHandoff={handoffCandidate} tasks={tasks} busy={busy} action={withBusy} notify={notify} selectTask={openTask}/> }
       {page!=='history'&&<div hidden={page!=='connections'}><AgentWorkspaces api={api} post={post} notify={notify} onCreateTask={createTask} onOpenTask={openTask} tasks={tasks} active={page==='connections'} agentSeed={navigation.connectionAgent} workspaceSeed={navigation.connectionWorkspace} configurationId={navigation.connectionInstance} configurationTab={navigation.connectionTab} onConfiguration={id=>navigate({page:'strategies',systemTab:'policies',policyScope:'agent',policyAgent:id,configurationId:''})} policyScope={navigation.policyScope} onSessions={id=>navigate({page:'sessions',sessionAgent:'',sessionFilterInstance:id,sessionWorkspace:'',sessionQuery:'',sessionCursor:0,sessionInstance:'',sessionId:''})} pane={navigation.connectionsPane} historySeed={navigation.connectionHistory} onContext={context=>navigate(context)} /></div>}

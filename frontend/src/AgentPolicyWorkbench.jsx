@@ -1,7 +1,7 @@
 import React,{useEffect,useState} from 'react';
 import TemplatePolicyAssistant from './TemplatePolicyAssistant.jsx';
 import LegacyWorkspacePolicies from './LegacyWorkspacePolicies.jsx';
-import AgentRuntimePolicyAssistant from './AgentRuntimePolicyAssistant.jsx';
+import RuntimePolicyRecords from './RuntimePolicyRecords.jsx';
 import {agentProcessLabel,visibleAgentInstances} from './agentInstancePresentation.mjs';
 import {tabKeys} from './consoleState.mjs';
 import {configurationNavigation} from './configurationNavigation.mjs';
@@ -20,7 +20,7 @@ export default function AgentPolicyWorkbench({api,post,navigation:n,navigate}){
  useEffect(()=>{if(scope==='agent'&&replacement)navigate({policyAgent:replacement,policyWorkspace:'',policySession:'',policyScope:'agent'});},[scope,replacement,navigate]);
  useEffect(()=>{let alive=true;setDetail(null);if(targetId&&scope==='agent')api('/api/agent-instances/'+encodeURIComponent(targetId)).then(value=>{if(alive)setDetail({...value,_target:targetId});}).catch(()=>{});return()=>{alive=false;};},[api,targetId,scope,revision,row?.generation]);
  const target=row?(detail?._target===targetId&&detail.generation===row.generation?{...detail,...row}:row):null;
- const tabs=[['assistant','策略助手'],['runtime','运行事件']];
+ const tabs=[['assistant','策略助手'],['runtime','运行时策略']];
  const selectScope=value=>navigate({policyScope:value,policyWorkspace:'',policySession:'',agentPolicyTab:'assistant'});
  return <div className="content task-console policy-workbench agent-policy-flow">
   <div className="policy-target-bar">
@@ -39,7 +39,7 @@ export default function AgentPolicyWorkbench({api,post,navigation:n,navigate}){
    {legacy?<LegacyWorkspacePolicies key={targetId+':'+workspace} targetId={targetId} workspaceId={workspace} api={api} onApprovals={id=>navigate({page:'approvals',approvalId:id})} onCreate={()=>selectScope('agent')}/>:<>
     <div className="agent-workbench-bar"><div role="tablist" className="policy-page-tabs" aria-label="Agent 页面">{tabs.map(([k,title])=><button key={k} role="tab" aria-selected={tab===k} aria-controls={'agent-policy-panel-'+k} id={'agent-policy-tab-'+k} tabIndex={tab===k?0:-1} onClick={()=>navigate({agentPolicyTab:k})} onKeyDown={e=>tabKeys(e,tabs.map(t=>t[0]),tab,key=>navigate({agentPolicyTab:key}))}>{title}</button>)}</div></div>
     {target&&<section role="tabpanel" id={'agent-policy-panel-'+tab} aria-labelledby={'agent-policy-tab-'+tab}>
-     {target.mode!=='controlled'?<p className="task-empty">此连接仅用于观测，受控接入后可生成或加载策略。</p>:tab==='runtime'?<AgentRuntimePolicyAssistant target={target} api={api}/>:<TemplatePolicyAssistant key={targetId} target={target} scope="agent" workspaceId={null} referenceWorkspaceId={null} api={api} post={post} onConfiguration={onConfiguration} onApprovals={id=>navigate({page:'approvals',approvalId:id||''})}/>}
+     {target.mode!=='controlled'?<p className="task-empty">此连接仅用于观测，受控接入后可生成或加载策略。</p>:tab==='runtime'?<RuntimePolicyRecords key={target.id+':'+target.generation} target={target} api={api}/>:<TemplatePolicyAssistant key={targetId} target={target} scope="agent" workspaceId={null} referenceWorkspaceId={null} api={api} post={post} onConfiguration={onConfiguration} onApprovals={id=>navigate({page:'approvals',approvalId:id||''})}/>}
     </section>}
    </>}
   </>}

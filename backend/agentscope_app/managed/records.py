@@ -9,7 +9,7 @@ from ..services import policy_normalization as normalization
 
 HOOKS={
  'startup':{'name':'DSH 启动前','events':['任务描述与已登记项目材料'],'sequence':['读取必读来源','Pi 识别策略','校验与编译','Broker 加载并核验','放行 DSH']},
- 'runtime':{'name':'DSH 运行时','events':['真实用户消息','system/developer 提示词','工具 schema 与有效上下文','compaction 记忆','ActPlane 内核拒绝','已验证的误拦截'],'sequence':['Native hook 接收变化','冻结上下文并暂停新工具','Pi 评估增量','收紧与扩权均人工审核','核验后继续执行']}}
+ 'runtime':{'name':'DSH 运行时','events':['已认证真实用户消息','已绑定持久记忆插件的实际加载片段'],'sequence':['Native hook 接收来源事件','冻结当前策略与登记对象','Pi 评估用户约束与低可信记忆','控制面校验并自动追加 Delta','核验后继续执行']}}
 
 def digest(text):return hashlib.sha256(text.encode()).hexdigest()
 def decode(row,key):return json.loads(row[key]) if row and row[key] else {}
@@ -59,7 +59,7 @@ def workbench(task_id):
         and executor.get('state')=='running' and isinstance(executor.get('pid'),int) and executor['pid']>0)
     policy_verified=bool(verified and state.get('version',0)>0 and state.get('policy_hash') and state.get('verification',{}).get('passed') is True)
     effective=policy_verified and state['gate']=='open'
-    keys=('phase','gate','version','session_id','web_url','error','startup_proposal','pending_expansion','pending_change','pending_restriction_intent','last_apply_error','execution_role_version')
+    keys=('phase','gate','version','session_id','web_url','error','startup_proposal','execution_role_version')
     live={k:execution[k] for k in ('status','domain_id','domain_verified','cgroup_verified','runner_pid','watch_pid','agent_status') if k in execution}
     live['executor']={k:executor[k] for k in ('mode','pid','state') if k in executor}
     live.update(verified=verified,observation_stable=stable,checked_at=db.now())
@@ -100,6 +100,20 @@ def startup_records(con,task,s,persist_links=False):
         if persist_links:normalization.persist_record_links(con,task['id'],record)
     return records
 
+def runtime_templates(con,task_id,job_id,evidence_ids):
+    receipt=con.execute("SELECT payload_json FROM managed_events WHERE task_id=? AND kind='pi_history' AND event_key=?",(task_id,job_id)).fetchone()
+    saved=decode(receipt,'payload_json');items=[]
+    for entry in saved.get('versions',[]):
+        if not ({entry['id'],'history:'+entry['id']} & set(evidence_ids)):continue
+        row=con.execute('SELECT record_json,content_hash FROM bootstrap_history WHERE id=?',(entry['id'],)).fetchone()
+        name=None
+        if row and row['content_hash']==entry['hash']:
+            record=decode(row,'record_json');statement=record.get('statement')
+            name=record.get('name') or record.get('title') or (statement.get('text_original') if isinstance(statement,dict) else statement)
+        items.append({'id':entry['id'],'name':name if isinstance(name,str) and name.strip() else '已引用模板（名称未保存）'})
+    return {'searched':bool(receipt),'items':items}
+
+
 def runtime_record(con,task,s,row):
     p=decode(row,'proposal_json');ctx=decode(row,'context_json');decision=p.get('decision')
     resolved=con.execute("SELECT payload_json FROM managed_events WHERE task_id=? AND kind='request_resolved' AND event_key=?",(task['id'],row['id'])).fetchone();receipt=decode(resolved,'payload_json')
@@ -115,10 +129,12 @@ def runtime_record(con,task,s,row):
     same=bool(retained) and all(retained)
     status='revoked' if applied and s['phase']=='ended' else 'loaded' if applied and same and s['phase']=='running' else 'paused' if applied and same else 'partially_loaded' if applied and any(retained) and s['phase']=='running' else 'superseded' if applied else 'pending_confirmation' if (s.get('pending_change') or s.get('pending_expansion') or {}).get('job_id')==row['id'] else 'needs_clarification' if p.get('unresolved_requests') else 'assessed' if decision in ('no_change','guidance_only') else 'expired'
     source=next((x.get('content',{}) for x in ctx.get('sources',[]) if x['evidence_id']==ctx.get('request_evidence_id')),{});actor=source.get('actor','native_user')
-    native=ctx.get('native_execution_context',{})
     dispatched=con.execute("SELECT payload_json FROM managed_events WHERE task_id=? AND kind='request' AND id=?",(task['id'],ctx.get('request_evidence_id'))).fetchone()
     dispatch=decode(dispatched,'payload_json')
-    trigger={'name':{'native_context':'原生上下文变化','kernel':'ActPlane 拒绝反馈','verified_feedback':'误拦截复核','recovery':'原生会话恢复','control_review':'控制面复核','native_user':'真实用户消息','user':'管理员约束','DSH':'执行能力申请'}.get(actor,actor),'actor':actor,'request_id':ctx.get('request_evidence_id'),'job_id':row['id'],'revision':row['revision'],'turn':dispatch.get('dispatched_turn',source.get('turn')),'accepted_turn':source.get('turn'),'observations':[{'category':v['category'],'type':v['type'],'seq':v['seq'],'content_hash':v['content_hash']} for v in native.values()]}
+    memory=ctx.get('persistent_memory') or {}
+    trigger={'name':{'native_user':'真实用户消息','administrator':'管理员约束','persistent_memory':'跨会话持久记忆加载'}.get(actor,actor),'actor':actor,'request_id':ctx.get('request_evidence_id'),'job_id':row['id'],'revision':row['revision'],'turn':dispatch.get('dispatched_turn',source.get('turn')),'accepted_turn':source.get('turn'),'observations':[{k:memory.get(k) for k in ('category','type','seq','content_hash')}] if memory else []}
+    trigger['text']=source.get('text')
+    templates=runtime_templates(con,task['id'],row['id'],p.get('evidence_ids',[]))
     base_binding=ctx.get('current_binding') or {}
     before=ctx.get('base_snapshot',{}).get('payload',{});delta={'added_protection':sorted(set(p.get('protected_paths',[]))-set(before.get('protected_paths',[]))),'removed_protection':sorted(set(before.get('protected_paths',[]))-set(p.get('protected_paths',[]))),'write_scope_before':before.get('allowed_write_dirs'),'write_scope_after':p.get('allowed_write_dirs'),'output_before':before.get('allow_output'),'output_after':p.get('allow_output')}
     ev=[]
@@ -141,7 +157,7 @@ def runtime_record(con,task,s,row):
     # Keep full-bundle integrity verification internal. A record never exports it.
     scoped=compilation({},'', 'assessment_no_rule')
     scoped.update(status='not_applicable',message='这是评估记录，没有逐句登记的 OS 规则。',has_new_os_rule=False)
-    return {'id':'runtime:'+row['id'],'stage':'runtime','base_version':base_binding.get('version'),'base_policy_hash':ctx.get('policy_hash'),'process_generation':{k:base_binding.get(k) for k in ('domain_id','runner_pid','session_id')},'statement':text,'identified_statements':statements,'policy_type':'per_event' if decision in ('restrict','expand') else 'semantic_only' if decision=='guidance_only' else 'assessment','effect':decision,'context_required':True,'context_scope':'task','context_reason':'评估冻结任务、现行策略、运行上下文与已读取项目证据','classification_origin':'validated_snapshot_delta; historical_source_clause_when_available','status':status,'created_at':row['created_at'],'trigger':trigger,'evidence':ev,'explanation':p.get('explanation'),'delta':delta,'targets':delta['added_protection']+delta['removed_protection'],'operations':['write','unlink'] if decision in ('restrict','expand') else [],'compilation':scoped,'loading':{'loaded':applied,'version':receipt.get('version'),'confirmation':receipt.get('confirmation'),'session_id':ctx.get('session_id'),'candidate_hash':p.get('hash'),'baseline_hash':ctx.get('baseline',{}).get('hash')}}
+    return {'id':'runtime:'+row['id'],'stage':'runtime','base_version':base_binding.get('version'),'base_policy_hash':ctx.get('policy_hash'),'process_generation':{k:base_binding.get(k) for k in ('domain_id','runner_pid','session_id')},'statement':text,'identified_statements':statements,'policy_type':'per_event' if decision in ('restrict','expand') else 'semantic_only' if decision=='guidance_only' else 'assessment','effect':decision,'context_required':True,'context_scope':'task','context_reason':'评估已认证用户请求、现行策略与已读取项目对象','classification_origin':'validated_additive_delta; historical_source_clause_when_available','status':status,'created_at':row['created_at'],'trigger':trigger,'template_reference':templates,'evidence':ev,'explanation':p.get('explanation'),'delta':delta,'targets':delta['added_protection']+delta['removed_protection'],'operations':['write','unlink'] if decision in ('restrict','expand') else [],'compilation':scoped,'loading':{'loaded':applied,'version':receipt.get('version'),'confirmation':receipt.get('confirmation'),'session_id':ctx.get('session_id'),'candidate_hash':p.get('hash'),'baseline_hash':ctx.get('baseline',{}).get('hash')}}
 
 def mentions(text,path):
     # Match an actual registered path token, not a filename suffix or another file.
@@ -185,6 +201,11 @@ def statement_compilation(compiler,targets,policy_type,decision):
     return {'status':'not_applicable' if permission else 'not_recorded','dsl':'','origin':'permission_update' if permission else 'unmapped_statement','has_new_os_rule':False,'message':'该语句对应权限授予或解除限制，没有新增拒绝 DSL。' if permission else '未登记该语句与编译子句的可靠关联，不展示其他策略。'}
 
 
+def default_action(compiler,targets):
+    actions={r.get('effect') for r in compiler.get('rules',[]) if r.get('target_pattern') in targets and r.get('clause_text') and r.get('effect')}
+    return next(iter(actions)) if len(actions)==1 else 'mixed' if actions else None
+
+
 def runtime_statement_records(con,task,state,row,include_assessments=False,persist_links=False):
     parent=runtime_record(con,task,state,row);ctx=decode(row,'context_json');proposal=decode(row,'proposal_json')
     statements=parent['identified_statements']
@@ -212,13 +233,14 @@ def runtime_statement_records(con,task,state,row,include_assessments=False,persi
         status='guidance' if semantic else 'unmapped' if compiled['status']=='not_recorded' and parent['status'] in ('active','partially_active') else parent['status']
         result.append({**parent,'effect':'guidance' if semantic else parent['effect'],'status':status,'loading':loading,'delta':delta or None,'id':parent['id']+':statement:'+str(i),'statement':statement['statement'],'policy_type':statement['policy_type'],'context_required':statement['context_required'],'context_reason':statement['context_reason'],'classification_origin':statement.get('origin','pi_statement'),'targets':targets,'operations':sorted({r.get('clause_op') for r in proposal.get('compile',{}).get('rules',[]) if r.get('target_pattern') in targets and r.get('clause_op')}) if compiled['dsl'] else [],'identified_statements':[],'evidence':[e for e in parent['evidence'] if e['id'] in evidence_ids],'compilation':compiled})
     for record in result:
+        record['default_action']=default_action(proposal.get('compile',{}),record['targets'])
         normalization.link_record(con,task['id'],record,proposal.get('normalization'),persist_links=persist_links)
         remap_loaded(record,state)
         if persist_links:normalization.persist_record_links(con,task['id'],record)
     return result
 
 
-def records(task_id,stage='startup',before=None,include_assessments=False):
+def records(task_id,stage='startup',before=None,include_assessments=False,generated_only=False):
     with db.connect() as con:
         state=c.load(con,task_id);task=c.task_row(con,task_id)
         if stage=='startup':items=startup_records(con,task,state);cursor=None
@@ -236,6 +258,7 @@ def records(task_id,stage='startup',before=None,include_assessments=False):
                 if not rows:break
                 for row in rows:
                     children=runtime_statement_records(con,task,state,row,include_assessments)
+                    if generated_only:children=[item for item in children if item['effect']=='restrict' and item['policy_type']!='semantic_only' and item.get('targets')]
                     for index,item in enumerate(children):
                         if first and row['cursor']==boundary and index<=offset:continue
                         items.append(item);cursors.append(str(row['cursor'])+':'+str(index))

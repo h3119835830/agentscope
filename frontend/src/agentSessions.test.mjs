@@ -39,8 +39,8 @@ test('session details use current Agent context and do not offer internal runtim
  const root='/api/agent-instances/'+instance.id+'/sessions/native-session';
  const summary={_key:root,session:{name:'修复登录表单',resource:'/projects/one'},instance,agent_pid:42,pid:42,active:true,domain_id:7,executor_shared:true,generations:[{generation:'generation-internal'}],records:[]};
  const html=render({sessionInstance:instance.id,sessionId:'native-session',sessionTab:'policies',sessionGeneration:'old'},[null,summary,{...summary,_key:root+'policiessyscalls'},'',false]);
- for(const text of ['修复登录表单','DeepSeek Harness','已加载策略','未取得当前加载证据'])assert.ok(html.includes(text),text);
- assert.doesNotMatch(html,/查看 Agent 基线|选择生成策略|继承的 Agent 保护已核验|添加约束|执行方式/);
+ for(const text of ['修复登录表单','DeepSeek Harness','已加载策略','暂无可展示的继承或追加策略记录'])assert.ok(html.includes(text),text);
+ assert.doesNotMatch(html,/查看 Agent 基线|选择生成策略|继承的 Agent 保护已核验|添加约束|执行方式|真实会话目录|展开会话目录|收起会话目录|完整会话目录/);
  assert.doesNotMatch(html,/RQ5 fixture|instance-internal|generation-internal|运行代次|当前代次|PID 42|native-session/);
 });
 

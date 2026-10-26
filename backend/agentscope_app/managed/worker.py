@@ -116,7 +116,8 @@ class Worker:
             except ValueError:continue
             if not(raw.get('blocked') or raw.get('killed') or raw.get('effect')=='notify'):continue
             domain=raw.get('process_domain_id',raw.get('domain_id'))
-            version=next((b['version'] for b in state.get('binding_history',[]) if b['domain_id']==domain),None)
+            versions=[b['version'] for b in state.get('binding_history',[]) if b['domain_id']==domain]
+            version=max(versions) if versions else None
             if version is None:continue
             key=c.digest(raw)
             with c.lock(task_id),db.connect() as con:
@@ -150,8 +151,6 @@ class Worker:
                 if not is_probe:
                     c.event(con,task_id,'feedback_pending',str(ident),{'event_ids':[ident],'feedback_ids':[f['feedback_id']],'session_id':payload['session_id'],'process_epoch':f['identity']['process_epoch'],'authority':'kernel_fact; not_context_admission'})
                     if not call_id:c.event(con,task_id,'feedback_unresolved',str(ident),{'reason':'No unique kernel tool identity; no arbitrary session injection','event_ids':[ident]})
-                    if not f['guidance_complete'] and s['phase']=='running' and s['gate'] in ('open','waiting_policy') and domain==s['binding'].get('domain_id'):
-                        c.enqueue(con,task_id,s,'Kernel feedback requires diagnosis: no unique approved rule/recovery mapping. Denial does not authorize a grant. '+json.dumps({k:raw.get(k) for k in ('op','target','pid')}),'kernel:'+key+':'+s['policy_hash'],kind='guidance',actor='kernel')
         with db.connect() as con:
             payload=json.dumps({'inode':st.st_ino,'offset':offset+end,'process_epoch':epoch,'authority':'durable_root_log_cursor'})
             con.execute("INSERT INTO managed_events(task_id,kind,event_key,payload_json,occurred_at) VALUES(?,?,?,?,?) ON CONFLICT(task_id,kind,event_key) DO UPDATE SET payload_json=excluded.payload_json,occurred_at=excluded.occurred_at",

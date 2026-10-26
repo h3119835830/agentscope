@@ -19,6 +19,9 @@ INSTANCE_ROOT=Path(os.getenv("AGENTSCOPE_INSTANCE_ROOT",TASK_ROOT/"instances")).
 WORKSPACES=TASK_ROOT
 OUTPUTS=TASK_ROOT
 GLOBAL_DSH_HOME=Path(os.getenv("AGENTSCOPE_DSH_HOME","/var/lib/agentscope-agent/.dsh"))
+MEMORY_PLUGIN_ROOT=os.getenv('AGENTSCOPE_MEMORY_PLUGIN_ROOT','')
+MEMORY_ROOT=os.getenv('AGENTSCOPE_MEMORY_ROOT','')
+MEMORY_PROVIDER='seriousz158/dsh-memory@f7b03757f8bf546d3c007f8e9a074a847b681d3d'
 POLICY_ROOT=Path(os.getenv("AGENTSCOPE_POLICY_DIR","/var/lib/agentscope-protected/policies")).resolve()
 RUNTIME=Path(os.getenv("AGENTSCOPE_RUNTIME_DIR","/run/agentscope"))
 SOCKET=Path(os.getenv("AGENTSCOPE_BROKER_SOCKET","/run/agentscope/broker.sock"))
@@ -105,7 +108,7 @@ def compile_policy(task_id,version,yaml_text,dsl_text,workspace,normalization=No
       '\n'
       '  rule agentscope-reserve-runtime-write:\n'
       '    block write file "/__agentscope_reserved_write__/**" if AGENTSCOPE_NEVER_MATCH\n'
-      '    because "Reserve ActPlane write hooks for reviewed runtime Scope restrictions."\n'
+      '    because "Reserve ActPlane write hooks for validated runtime Scope restrictions."\n'
     )
     write_file(watch_path,watch_yaml,0o440)
     out=run_actplane(["--policy",policy_path,"compile","--json"],workspace,child_env(),45)
@@ -228,7 +231,17 @@ def prepare_web_home(home):
     (profile/'package.json').write_text(json.dumps({'name':'managed-dsh-web','private':True,'dsh':{'profile':{'bundles':['@deepseek-ai/dsh-base','@deepseek-ai/dsh-web-app']}}}))
     notice=(global_nodes/'@deepseek-ai/dsh-client-ui-settings-models/lib/types/onboarding-copy.d.ts').read_text()
     version=re.search(r'WELCOME_NOTICE_VERSION = "([^"]+)"',notice).group(1)
-    (profile/'cordis.patch.yml').write_text(yaml.safe_dump([{'insert':[{'id':'managed-compaction-basic','name':'@deepseek-ai/dsh-compaction-basic','config':{'headroomTokens':4096,'maxTokens':4096,'retainTokens':4096}},{'id':'agentscope-managed-web','name':'@agentscope/dsh-managed-web'}]},{'id':'ui-settings-general','config':{'welcomeNoticeVersion':version}}]))
+    entries=[{'id':'managed-compaction-basic','name':'@deepseek-ai/dsh-compaction-basic','config':{'headroomTokens':4096,'maxTokens':4096,'retainTokens':4096}}]
+    if MEMORY_PLUGIN_ROOT:
+        source=Path(MEMORY_PLUGIN_ROOT)/'packages/dsh-memory'
+        commit=subprocess.check_output(['git','-C',MEMORY_PLUGIN_ROOT,'rev-parse','HEAD'],text=True).strip()
+        if commit!=MEMORY_PROVIDER.split('@')[-1] or not MEMORY_ROOT:raise ValueError('Memory provider is not pinned or its isolated store is missing')
+        target=nodes/'dsh-memory'
+        if target.is_symlink():raise ValueError('Managed memory plugin target must not be a symlink')
+        shutil.copytree(source,target,dirs_exist_ok=True)
+        entries.append({'id':'managed-persistent-memory','name':'dsh-memory','config':{'enabled':True}})
+    entries.append({'id':'agentscope-managed-web','name':'@agentscope/dsh-managed-web'})
+    (profile/'cordis.patch.yml').write_text(yaml.safe_dump([{'insert':entries},{'id':'ui-settings-general','config':{'welcomeNoticeVersion':version}}]))
     for base,dirs,files in os.walk(profile,followlinks=False):
         os.chown(base,0,TASK_GID);os.chmod(base,0o2770)
         for name in files:
@@ -528,7 +541,7 @@ def launch(task_id,version,workspace,output_dir,prompt,dsl_text,policy_yaml,dsh_
             else:write_file(manifest_path,json.dumps(hashes),0o440)
         log_dir=LOG_DIR; log_dir.mkdir(parents=True,exist_ok=True)
         watch_log=open(log_dir/f"{task_id}-v{version}-watch.log","a",buffering=1)
-        # Scope restrictions can be approved during a task, so the ActPlane
+        # Scope restrictions can be validated during a task, so the ActPlane
         # watch engine must reserve file-flow hooks before its child domain is
         # created. The engine cannot enable write-rule classes retroactively.
         env=child_env(task_id=task_id); env.update({"TMPDIR":str(workspace.parent/"tmp"),"ACTPLANE_ATTACH_PID":"0","ACTPLANE_RESERVE_FILE_FLOW":"1","ACTPLANE_ENABLE_ADVANCED_HOOKS":"1",
@@ -568,7 +581,7 @@ def launch(task_id,version,workspace,output_dir,prompt,dsl_text,policy_yaml,dsh_
             request_path=cmd_dir/"request.json"; request_path.unlink(missing_ok=True)
             relay_ready.unlink(missing_ok=True)
             task_env_path.parent.mkdir(parents=True,exist_ok=True); os.chown(task_env_path.parent,0,TASK_GID); os.chmod(task_env_path.parent,0o2770)
-            write_file(task_env_path,json.dumps({"task_id":task_id,"task_token":task_token,"agentscope_url":agentscope_url,"scope_mode":scope_mode,"web_port":web_port,"native_token":native_token,"pin_root":env.get("ACTPLANE_BPF_PIN_ROOT"),**process_scope}),0o660)
+            write_file(task_env_path,json.dumps({"task_id":task_id,"task_token":task_token,"agentscope_url":agentscope_url,"scope_mode":scope_mode,"web_port":web_port,"native_token":native_token,"pin_root":env.get("ACTPLANE_BPF_PIN_ROOT"),"memory_root":MEMORY_ROOT if MEMORY_PLUGIN_ROOT else None,"memory_provider":MEMORY_PROVIDER if MEMORY_PLUGIN_ROOT else None,**process_scope}),0o660)
             os.chown(task_env_path.parent,0,TASK_GID); os.chmod(task_env_path.parent,0o2770)
             result_path.unlink(missing_ok=True)
             # ActPlane's watch daemon launches the child with its own environment,
@@ -607,7 +620,7 @@ def launch(task_id,version,workspace,output_dir,prompt,dsl_text,policy_yaml,dsh_
             engine_identity={'boot_id':boot_id,'watch_pid':watch.pid,'watch_start_ticks':process_start(watch.pid),'session_root':anchor.pid}
             process_epoch=hashlib.sha256(json.dumps([boot_id,domain_id,runner_pid,process_start(runner_pid)]).encode()).hexdigest()
             return {"task_id":task_id,"status":"running","runner_pid":runner_pid,"domain_id":domain_id,"watch_pid":watch.pid,
-                    "engine_identity":engine_identity,"process_epoch":process_epoch,"loaded_catalog":loaded_catalog,
+                    "engine_identity":engine_identity,"process_epoch":process_epoch,"loaded_catalog":loaded_catalog,"memory_provider":MEMORY_PROVIDER if MEMORY_PLUGIN_ROOT else None,
                     "web_url":f"http://127.0.0.1:{web_port}/" if web_port else None,"version":version,"compile_state":"loaded","compile":files["compile"],"baseline_binding":files.get("baseline_binding"),**process_scope,"message":"ActPlane 控制平面已加载；DSH 已由 child domain 接管"}
         except Exception:
             record=TASKS.get(task_id) or {"task_id":task_id,"domain_id":locals().get('domain',0),"pin_root":env.get('ACTPLANE_BPF_PIN_ROOT'),**locals().get("process_scope",{})}
@@ -812,7 +825,7 @@ def restrict(message):
     if int(message.get("domain_id") or -1)!=int(record["domain_id"]): raise RuntimeError("Scope 申请目标与当前进程域不一致")
     request_id=str(message.get("request_id",""))
     if not re.fullmatch(r"[a-f0-9]{32}",request_id): raise ValueError("Scope request id invalid")
-    req={"request_id":request_id,"kind":"restrict","delta_text":dsl,"approved_by":message.get("approved_by","用户"),"approval_ref":message.get("approval_ref",request_id)}
+    req={"request_id":request_id,"kind":"restrict","delta_text":dsl,"approved_by":message.get("approved_by","AgentScope control plane"),"approval_ref":message.get("approval_ref",request_id)}
     cmd_dir=RUNTIME/"commands"/task_id; req_path=cmd_dir/"request.json"
     tmp=req_path.with_name("request.json.tmp")
     with open(tmp,"w") as f: json.dump(req,f,ensure_ascii=False); f.flush(); os.fsync(f.fileno())
@@ -826,7 +839,7 @@ def restrict(message):
                 return {"task_id":task_id,"status":"delta_applied","domain_id":record["domain_id"],"details":result}
         except FileNotFoundError: pass
         time.sleep(.25)
-    raise RuntimeError("Scope relay did not acknowledge the approved Delta within 22 seconds")
+    raise RuntimeError("Scope relay did not acknowledge the validated Delta within 22 seconds")
 
 _task_relay_locks={}
 def dispatch(m):

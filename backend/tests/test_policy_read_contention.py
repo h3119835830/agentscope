@@ -38,11 +38,19 @@ def proposals(reference):
     return tc.propose_batch(batch(world.a['id'],result['items']))['items']
 
 
+def approval_rows(items):
+    # Other modules leave independent runtime/history approvals in the shared
+    # test database. Assert this test's exact approvals without borrowing them.
+    rows={row['id']:row for row in approvals.directory()['records']}
+    assert all(item['id'] in rows for item in items)
+    return [rows[item['id']] for item in items]
+
+
 def test_shared_receipts_are_checked_once_per_response_and_again_on_next_read(reference,monkeypatch):
     items=proposals(reference);_,root,_=reference;original=refs.verify_metadata;seen=[]
     def metadata(*args):seen.append(args);return original(*args)
     monkeypatch.setattr(refs,'verify_metadata',metadata)
-    assert all(row['status']=='pending' for row in approvals.directory()['records'])
+    assert all(row['status']=='pending' for row in approval_rows(items))
     assert len(seen)==1
     approvals.detail(items[0]['id']);assert len(seen)==2
     full_original=refs.verify;full_reads=[]
@@ -53,14 +61,14 @@ def test_shared_receipts_are_checked_once_per_response_and_again_on_next_read(re
         for item in items:tc.verify_proposal(item['id'],read_sources=True)
     write_boundary_checks();assert len(full_reads)==2
     (root/'README.md').write_text('changed after the previous response')
-    assert all(row['status']=='stale' for row in approvals.directory()['records'])
+    assert all(row['status']=='stale' for row in approval_rows(items))
     assert len(seen)==4
 
 
 def test_unavailable_reader_never_becomes_stale_file_or_approvable_policy(reference,monkeypatch):
-    proposals(reference)
+    items=proposals(reference)
     def unavailable(*args):raise refs.ReaderUnavailable()
     monkeypatch.setattr(refs,'verify_metadata',unavailable)
-    page=approvals.directory()
-    assert all(row['status']=='blocked' and row['validation_unavailable'] and not row['can_approve'] for row in page['records'])
-    assert all(row['revalidation'] is None for row in page['records'])
+    rows=approval_rows(items)
+    assert all(row['status']=='blocked' and row['validation_unavailable'] and not row['can_approve'] for row in rows)
+    assert all(row['revalidation'] is None for row in rows)
