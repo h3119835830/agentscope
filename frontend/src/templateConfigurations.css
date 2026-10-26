@@ -53,6 +53,4 @@
 .assistant-compact-policies ol{padding-left:22px;margin:5px 0;line-height:1.8;font-size:12px}
 .assistant-compact-policies li{padding-left:2px;margin:2px 0;overflow-wrap:anywhere}
 .assistant-compact-state{margin:7px 0;font-size:11px;color:#7286a1}
-.assistant-response-details{margin-top:10px;font-size:11px}.assistant-response-details>summary{cursor:pointer;color:#7188a7}
-.assistant-response-details>.assistant-full-analysis{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.8}
 @media(max-width:600px){.assistant-policy-table{min-width:610px}.assistant-policy-table th,.assistant-policy-table td{padding:9px}.assistant-response .assistant-response-outcome{font-size:13px}}

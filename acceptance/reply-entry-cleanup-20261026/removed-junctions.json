@@ -1,0 +1,17 @@
+[
+  {
+    "FullName": "C:\\Users\\happy\\Desktop\\技术文档\\.codex-build-cline-flow\\node_modules",
+    "LinkType": "Junction",
+    "Target": "C:\\Users\\happy\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\node_modules"
+  },
+  {
+    "FullName": "C:\\Users\\happy\\Desktop\\技术文档\\.codex-ppt-build\\node_modules",
+    "LinkType": "Junction",
+    "Target": "C:\\Users\\happy\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\node_modules"
+  },
+  {
+    "FullName": "C:\\Users\\happy\\Desktop\\技术文档\\.pptx-inspect\\node_modules",
+    "LinkType": "Junction",
+    "Target": "C:\\Users\\happy\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\node_modules"
+  }
+]

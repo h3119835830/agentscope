@@ -152,7 +152,7 @@ test('legacy generation evidence remains readable without the new usage contract
  const catalog={catalog:[],items:[],generations:[{request_id:'old',scope:'agent',workspace_id:null,text:'保护员工资料',items:[],questions:[],gaps:[],reference_read:{workspace:'订单资料',paths:['README.md']}}]};
  const render=await harness('TemplatePolicyAssistant.jsx',[catalog,'',[],'',false,[],false]);
  const html=renderToStaticMarkup(render({target:{id:'agent-a'},scope:'agent',api:async()=>catalog,post:async()=>assert.fail('unexpected write'),onApprovals(){}}));
- assert.match(html,/参考资料：订单资料/);assert.match(html,/README.md/);
+ assert.match(html,/已读取 README.md/);assert.doesNotMatch(html,/查看详情/);
 });
 test('each conversation round renders its frozen configuration with a single composer',async()=>{
  const snapshot={id:'original',revision:1,name:'生成时员工保护',template:{name:'文件读取限制',version:2,parameters:[{key:'target',label:'保护对象的路径',type:'path'}]},parameters:{target:'/w/0/original.csv'},scope:{label:'指定 Agent · 原名称'},approval_status:'draft'};
@@ -162,7 +162,7 @@ test('each conversation round renders its frozen configuration with a single com
  const render=await harness('TemplatePolicyAssistant.jsx',[catalog,'',[],'',false,[],false]);
  const tree=render({target:{id:'agent-a',name:'后来修改的Agent名称'},scope:'agent',api:async()=>catalog,post:async()=>assert.fail('unexpected write'),onApprovals(){}}),html=renderToStaticMarkup(tree);
  assert.equal(nodes(tree).filter(n=>n.type==='textarea').length,1);
- assert.equal((html.match(/本轮生成的策略配置/g)||[]).length,2);
+ assert.equal((html.match(/aria-label="拟定策略"/g)||[]).length,2);
  assert.match(html,/生成时员工保护/);assert.match(html,/生成时预算保护/);assert.match(html,/original.csv/);assert.match(html,/budget.csv/);
  assert.doesNotMatch(html,/后来编辑的名称|changed.csv|后来修改的Agent名称|手工配置|新增子配置/);
 });

@@ -1,0 +1,24 @@
+{
+  "schema": "reply-entry-cleanup.v1",
+  "frontend_tests": 422,
+  "build": "passed",
+  "browser": "browser-checks.json",
+  "production_deployed": false,
+  "new_model_calls": false,
+  "policy_changes": false,
+  "cleanup": "three junctions removed; Windows cache recycled; five Linux scratch clones moved to private same-filesystem temporary trash",
+  "permanent_recursive_delete": false,
+  "disk_space_reclaimed_not_measured": true,
+  "files": {
+    "browser-checks.json": "be5b772f43e3d631d42c56c3e74d44424b8876d2fcfbf69696d32122d91c23fe",
+    "desktop.png": "159d84cd2d90b0be892a21ec635221900b9946d2db619ab23507e2efd96927ef",
+    "frontend-build.txt": "ab461270142850341d01f4f9dca71fb5633a864e2b3012aaa56adc31bca1da6b",
+    "frontend-tests-before-entry-expectations.txt": "ab020e2bd578ed921b25e4221d5b230d242a694c9e6b2eebbc5f273faababaee",
+    "frontend-tests.txt": "92b04b1e217b05be4be9102874ef84fd9af54910086b4255dd9974e78b2e1a3f",
+    "linux-cleanup.json": "687d674dffd064dc1c751bb67c418c94c89a978d6a1d3d4437e9bd0bc43aad73",
+    "narrow.png": "597f06fa01cc16565b41f3d7591a084e85a6aba1205a6172bd5ccbf8d5dd3a96",
+    "protected-scratch-files.json": "2a68bdd516c279d11ba93b3bc5d15658d0be76ae17362e7adb0de0ce86f68360",
+    "removed-junctions.json": "504fd9cb3b3031308f5bedb5b2f1ed10d9f87cb0006bd582fbc6b6f5ad00c0cb",
+    "windows-cleanup.json": "305f5e1605432ea4034c08b517ff495897e344536ea005f57a88efa6cad3cf0a"
+  }
+}

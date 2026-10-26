@@ -53,6 +53,7 @@ export function compactPolicyText(row){
  const simple=fields.every(p=>['path','endpoint','program','lines','operations','effect'].includes(p.type))&&fields.filter(p=>!['operations','effect'].includes(p.type)).length===1&&!row.template.fixed_fields;
  // Conditional templates retain their name and a condition marker; never
  // flatten a cross-event/lineage check into an unconditional ban.
- const detail=simple&&verb&&actions?verb+(effect==='kill'?'，涉及':'')+actions+(targets.length?' '+targets.join('、'):''):targets.join('、')+(row.template.fixed_fields?'；'+Object.values(row.template.fixed_fields).join(' '):'')+'（具体条件见详情）';
+ const conditions=fields.filter(p=>!['path','endpoint','operations','effect'].includes(p.type)).map(p=>p.label+' '+String(params[p.key]));
+ const detail=simple&&verb&&actions?verb+(effect==='kill'?'，涉及':'')+actions+(targets.length?' '+targets.join('、'):''):'按模板条件约束 '+(row.template.fixed_fields?Object.values(row.template.fixed_fields).join(' ')+'；':'')+targets.join('、')+(conditions.length?'（'+conditions.join('；')+'）':'')+(verb?'；'+verb:'');
  return row.name+'：'+detail+'。';
 }

@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "desktop": {
+    "detailsEntries": 0,
+    "latestPolicies": 1,
+    "noPageOverflow": true,
+    "tables": 0
+  },
+  "narrow": {
+    "detailEntries": 0,
+    "noPageOverflow": true,
+    "width": 423
+  },
+  "consoleErrors": []
+}

@@ -38,18 +38,18 @@ test('one and multiple policies remain the real model result, not a display cap'
   assert.ok(referenceFiles(result.context_usage).length>0);
  }
 });
-test('default response is a receipt-based sentence and policy list; fields stay in closed details',()=>{
+test('response contains only a receipt sentence, policy list and status without a detail entry',()=>{
  const {result}=JSON.parse(readFileSync(new URL('../../acceptance/policy-investigation-20261026/e3/results/real-locate-file.json',import.meta.url),'utf8'));
- const html=renderToStaticMarkup(React.createElement(Response,{generation:result})),visible=html.split('<details class="assistant-response-details"')[0];
+ const html=renderToStaticMarkup(React.createElement(Response,{generation:result})),visible=html;
  assert.match(visible,/已读取/);assert.match(visible,/拟定以下 1 项策略/);assert.match(visible,/<ol aria-label="拟定策略">/);
  assert.doesNotMatch(visible,/<table|生成依据|已读文件|选用模板|填写的参数/);
- assert.match(html,/<summary>查看详情<\/summary>/);assert.doesNotMatch(html,/<details class="assistant-response-details" open/);
- assert.ok(html.includes(result.summary));
+ assert.doesNotMatch(html,/查看详情|assistant-response-details|<table|assistant-full-analysis/);
+ assert.ok(!html.includes(result.summary));
 });
 test('eight draft rows remain eight one-line entries with accurate draft status',()=>{
  const row={id:'row',name:'项目保护',template:{name:'文件限制',version:2,parameters:[{key:'target',type:'path',label:'路径'}]},parameters:{target:'/w/0/tests/**'},execution:{effective_operations:['write','unlink'],effect:'block'},approval_status:'draft',scope:{label:'指定 Agent'}};
  const generation={items:Array.from({length:8},(_,i)=>({id:'row-'+i})),configuration_snapshots:Array.from({length:8},(_,i)=>({...row,id:'row-'+i,name:'策略 '+(i+1)})),questions:[],gaps:[]};
- const visible=renderToStaticMarkup(React.createElement(Response,{generation})).split('<details class="assistant-response-details"')[0];
+ const visible=renderToStaticMarkup(React.createElement(Response,{generation}));
  assert.equal((visible.match(/<li>/g)||[]).length,8);assert.match(visible,/禁止修改、删除/);assert.match(visible,/待提交审批/);assert.doesNotMatch(visible,/已应用|已加载/);
 });
 test('no-read and failed responses do not invent evidence or a successful generation',()=>{
@@ -59,5 +59,5 @@ test('no-read and failed responses do not invent evidence or a successful genera
 });
 test('conditional templates do not turn into unconditional bans in compact sentences',()=>{
  const {result}=JSON.parse(readFileSync(new URL('../../acceptance/policy-investigation-20261026/e3/results/real-directory-gate.json',import.meta.url),'utf8'));
- for(const row of result.configuration_snapshots){const text=compactPolicyText(row);assert.match(text,/具体条件见详情/);assert.match(text,/git commit/);assert.doesNotMatch(text,/禁止执行 git commit/);}
+ for(const row of result.configuration_snapshots){const text=compactPolicyText(row);assert.match(text,/按模板条件约束/);assert.match(text,/git commit/);assert.match(text,/pytest/);assert.match(text,/退出码 0/);assert.doesNotMatch(text,/禁止执行 git commit|见详情/);}
 });
