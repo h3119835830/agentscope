@@ -9,7 +9,7 @@ from ..services import policy_normalization as normalization
 
 HOOKS={
  'startup':{'name':'DSH 启动前','events':['任务描述与已登记项目材料'],'sequence':['读取必读来源','Pi 识别策略','校验与编译','Broker 加载并核验','放行 DSH']},
- 'runtime':{'name':'DSH 运行时','events':['已认证真实用户消息'],'sequence':['Native hook 接收用户消息','冻结当前策略与登记对象','Pi 生成新增限制对象','控制面校验并自动追加 Delta','核验后继续执行']}}
+ 'runtime':{'name':'DSH 运行时','events':['已认证真实用户消息','已绑定持久记忆插件的实际加载片段'],'sequence':['Native hook 接收来源事件','冻结当前策略与登记对象','Pi 评估用户约束与低可信记忆','控制面校验并自动追加 Delta','核验后继续执行']}}
 
 def digest(text):return hashlib.sha256(text.encode()).hexdigest()
 def decode(row,key):return json.loads(row[key]) if row and row[key] else {}
@@ -117,7 +117,8 @@ def runtime_record(con,task,s,row):
     source=next((x.get('content',{}) for x in ctx.get('sources',[]) if x['evidence_id']==ctx.get('request_evidence_id')),{});actor=source.get('actor','native_user')
     dispatched=con.execute("SELECT payload_json FROM managed_events WHERE task_id=? AND kind='request' AND id=?",(task['id'],ctx.get('request_evidence_id'))).fetchone()
     dispatch=decode(dispatched,'payload_json')
-    trigger={'name':{'native_user':'真实用户消息','administrator':'管理员约束'}.get(actor,actor),'actor':actor,'request_id':ctx.get('request_evidence_id'),'job_id':row['id'],'revision':row['revision'],'turn':dispatch.get('dispatched_turn',source.get('turn')),'accepted_turn':source.get('turn'),'observations':[]}
+    memory=ctx.get('persistent_memory') or {}
+    trigger={'name':{'native_user':'真实用户消息','administrator':'管理员约束','persistent_memory':'跨会话持久记忆加载'}.get(actor,actor),'actor':actor,'request_id':ctx.get('request_evidence_id'),'job_id':row['id'],'revision':row['revision'],'turn':dispatch.get('dispatched_turn',source.get('turn')),'accepted_turn':source.get('turn'),'observations':[{k:memory.get(k) for k in ('category','type','seq','content_hash')}] if memory else []}
     base_binding=ctx.get('current_binding') or {}
     before=ctx.get('base_snapshot',{}).get('payload',{});delta={'added_protection':sorted(set(p.get('protected_paths',[]))-set(before.get('protected_paths',[]))),'removed_protection':sorted(set(before.get('protected_paths',[]))-set(p.get('protected_paths',[]))),'write_scope_before':before.get('allowed_write_dirs'),'write_scope_after':p.get('allowed_write_dirs'),'output_before':before.get('allow_output'),'output_after':p.get('allow_output')}
     ev=[]

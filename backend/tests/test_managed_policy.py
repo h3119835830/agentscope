@@ -299,7 +299,7 @@ def test_project_source_rejects_file_and_directory_symlink_aliases(tmp_path,monk
 
 
 @pytest.mark.skipif(__import__('os').geteuid()!=0,reason='collector requires a root-owned kernel log')
-def test_kernel_arriving_during_analysis_requeues_and_retains_pending_constraint(bound,tmp_path,monkeypatch):
+def test_kernel_arriving_during_analysis_is_audit_only_and_preserves_pending_request(bound,tmp_path,monkeypatch):
     from agentscope_app.managed.worker import Worker
     task,state,_=bound;workspace=tmp_path/'workspace';workspace.mkdir();log=workspace/'.actplane';log.mkdir()
     raw={'blocked':True,'pid':901,'process_domain_id':7,'domain_id':1,'op':'write','target':str(workspace/'protected.txt'),'rule':{'name':'floor'}}
@@ -319,13 +319,13 @@ def test_kernel_arriving_during_analysis_requeues_and_retains_pending_constraint
     with db.connect() as con:
         current=c.load(con,task)
         jobs=con.execute('SELECT id,status,context_json FROM managed_jobs WHERE task_id=? ORDER BY created_at',(task,)).fetchall()
-        assert len(jobs)==2 and jobs[0]['id']==old['id'] and jobs[0]['status']=='stale'
-        latest=json.loads(jobs[1]['context_json'])
+        assert len(jobs)==1 and jobs[0]['id']==old['id'] and jobs[0]['status']=='queued'
+        latest=json.loads(jobs[0]['context_json'])
         assert len(latest['unassessed_request_ids'])==1
-        assert latest['request_evidence_id'] not in latest['unassessed_request_ids']
+        assert latest['request_evidence_id'] in latest['unassessed_request_ids']
         assert any(x['text']=='Preserve the newly named file' for x in latest['public_task_context'])
-        assert any(x['source']=='kernel' for x in latest['sources'])
-        assert current['gate']=='waiting_policy' and jobs[1]['status']=='queued'
+        assert not any(x['source']=='kernel' for x in latest['sources'])
+        assert current['gate']=='waiting_policy' and current['revision']==state['revision']
         assert con.execute("SELECT count(*) FROM managed_events WHERE task_id=? AND kind='kernel'",(task,)).fetchone()[0]==1
 
 

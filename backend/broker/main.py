@@ -13,6 +13,9 @@ TASK_ROOT=Path(os.getenv("AGENTSCOPE_TASK_ROOT","/var/lib/agentscope/tasks")).re
 WORKSPACES=TASK_ROOT
 OUTPUTS=TASK_ROOT
 GLOBAL_DSH_HOME=Path(os.getenv("AGENTSCOPE_DSH_HOME","/var/lib/agentscope-agent/.dsh"))
+MEMORY_PLUGIN_ROOT=os.getenv('AGENTSCOPE_MEMORY_PLUGIN_ROOT','')
+MEMORY_ROOT=os.getenv('AGENTSCOPE_MEMORY_ROOT','')
+MEMORY_PROVIDER='seriousz158/dsh-memory@f7b03757f8bf546d3c007f8e9a074a847b681d3d'
 POLICY_ROOT=Path(os.getenv("AGENTSCOPE_POLICY_DIR","/var/lib/agentscope-protected/policies")).resolve()
 RUNTIME=Path(os.getenv("AGENTSCOPE_RUNTIME_DIR","/run/agentscope"))
 SOCKET=Path(os.getenv("AGENTSCOPE_BROKER_SOCKET","/run/agentscope/broker.sock"))
@@ -222,7 +225,17 @@ def prepare_web_home(home):
     (profile/'package.json').write_text(json.dumps({'name':'managed-dsh-web','private':True,'dsh':{'profile':{'bundles':['@deepseek-ai/dsh-base','@deepseek-ai/dsh-web-app']}}}))
     notice=(global_nodes/'@deepseek-ai/dsh-client-ui-settings-models/lib/types/onboarding-copy.d.ts').read_text()
     version=re.search(r'WELCOME_NOTICE_VERSION = "([^"]+)"',notice).group(1)
-    (profile/'cordis.patch.yml').write_text(yaml.safe_dump([{'insert':[{'id':'managed-compaction-basic','name':'@deepseek-ai/dsh-compaction-basic','config':{'headroomTokens':4096,'maxTokens':4096,'retainTokens':4096}},{'id':'agentscope-managed-web','name':'@agentscope/dsh-managed-web'}]},{'id':'ui-settings-general','config':{'welcomeNoticeVersion':version}}]))
+    entries=[{'id':'managed-compaction-basic','name':'@deepseek-ai/dsh-compaction-basic','config':{'headroomTokens':4096,'maxTokens':4096,'retainTokens':4096}}]
+    if MEMORY_PLUGIN_ROOT:
+        source=Path(MEMORY_PLUGIN_ROOT)/'packages/dsh-memory'
+        commit=subprocess.check_output(['git','-C',MEMORY_PLUGIN_ROOT,'rev-parse','HEAD'],text=True).strip()
+        if commit!=MEMORY_PROVIDER.split('@')[-1] or not MEMORY_ROOT:raise ValueError('Memory provider is not pinned or its isolated store is missing')
+        target=nodes/'dsh-memory'
+        if target.is_symlink():raise ValueError('Managed memory plugin target must not be a symlink')
+        shutil.copytree(source,target,dirs_exist_ok=True)
+        entries.append({'id':'managed-persistent-memory','name':'dsh-memory','config':{'enabled':True}})
+    entries.append({'id':'agentscope-managed-web','name':'@agentscope/dsh-managed-web'})
+    (profile/'cordis.patch.yml').write_text(yaml.safe_dump([{'insert':entries},{'id':'ui-settings-general','config':{'welcomeNoticeVersion':version}}]))
     for base,dirs,files in os.walk(profile,followlinks=False):
         os.chown(base,0,TASK_GID);os.chmod(base,0o2770)
         for name in files:
@@ -562,7 +575,7 @@ def launch(task_id,version,workspace,output_dir,prompt,dsl_text,policy_yaml,dsh_
             request_path=cmd_dir/"request.json"; request_path.unlink(missing_ok=True)
             relay_ready.unlink(missing_ok=True)
             task_env_path.parent.mkdir(parents=True,exist_ok=True); os.chown(task_env_path.parent,0,TASK_GID); os.chmod(task_env_path.parent,0o2770)
-            write_file(task_env_path,json.dumps({"task_id":task_id,"task_token":task_token,"agentscope_url":agentscope_url,"scope_mode":scope_mode,"web_port":web_port,"native_token":native_token,"pin_root":env.get("ACTPLANE_BPF_PIN_ROOT"),**process_scope}),0o660)
+            write_file(task_env_path,json.dumps({"task_id":task_id,"task_token":task_token,"agentscope_url":agentscope_url,"scope_mode":scope_mode,"web_port":web_port,"native_token":native_token,"pin_root":env.get("ACTPLANE_BPF_PIN_ROOT"),"memory_root":MEMORY_ROOT if MEMORY_PLUGIN_ROOT else None,"memory_provider":MEMORY_PROVIDER if MEMORY_PLUGIN_ROOT else None,**process_scope}),0o660)
             os.chown(task_env_path.parent,0,TASK_GID); os.chmod(task_env_path.parent,0o2770)
             result_path.unlink(missing_ok=True)
             # ActPlane's watch daemon launches the child with its own environment,
@@ -601,7 +614,7 @@ def launch(task_id,version,workspace,output_dir,prompt,dsl_text,policy_yaml,dsh_
             engine_identity={'boot_id':boot_id,'watch_pid':watch.pid,'watch_start_ticks':process_start(watch.pid),'session_root':anchor.pid}
             process_epoch=hashlib.sha256(json.dumps([boot_id,domain_id,runner_pid,process_start(runner_pid)]).encode()).hexdigest()
             return {"task_id":task_id,"status":"running","runner_pid":runner_pid,"domain_id":domain_id,"watch_pid":watch.pid,
-                    "engine_identity":engine_identity,"process_epoch":process_epoch,"loaded_catalog":loaded_catalog,
+                    "engine_identity":engine_identity,"process_epoch":process_epoch,"loaded_catalog":loaded_catalog,"memory_provider":MEMORY_PROVIDER if MEMORY_PLUGIN_ROOT else None,
                     "web_url":f"http://127.0.0.1:{web_port}/" if web_port else None,"version":version,"compile_state":"loaded","compile":files["compile"],"baseline_binding":files.get("baseline_binding"),**process_scope,"message":"ActPlane 控制平面已加载；DSH 已由 child domain 接管"}
         except Exception:
             record=TASKS.get(task_id) or {"task_id":task_id,"domain_id":locals().get('domain',0),"pin_root":env.get('ACTPLANE_BPF_PIN_ROOT'),**locals().get("process_scope",{})}

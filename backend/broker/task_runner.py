@@ -207,6 +207,8 @@ def main():
     command=[args.dsh,"--profile",args.profile,args.prompt]
     if scope_mode=="managed-web":
         env.update(AGENTSCOPE_MANAGED_WORKSPACE=args.workspace,AGENTSCOPE_NATIVE_PORT=str(task_env["web_port"]+100),AGENTSCOPE_NATIVE_TOKEN=task_env["native_token"])
+        if task_env.get('memory_provider'):
+            env.update(DSH_MEMORY_ROOT=task_env['memory_root'],AGENTSCOPE_MEMORY_PROVIDER=task_env['memory_provider'])
         command=[args.dsh,"web","--host","127.0.0.1","--port",str(task_env["web_port"]),"--no-open"]
     try:
         # DSH's sandbox binds its session cwd as its single writable root.

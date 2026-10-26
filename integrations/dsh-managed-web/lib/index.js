@@ -7,6 +7,7 @@ import {randomUUID, timingSafeEqual} from 'node:crypto';
 import {createUserMessage} from '@deepseek-ai/dsh-llm';
 import {installTaskSandbox,TASK_TOOLS} from './task-sandbox.js';
 import {verifyTaskSandbox} from './verify-task-sandbox.js';
+import {persistentMemoryObservation} from './persistent-memory.js';
 export const name='agentscope-managed-native-web';
 export const inject=['tools','sessions','sessionController','connection','workspaceRegistry','sandboxPolicy','sandbox','subprocess','fs','systemPrompt'];
 const text = value => typeof value === 'string' ? value : (value?.content || value?.message?.content || []).filter(x=>x.type==='text').map(x=>x.text).join('\n');
@@ -14,6 +15,7 @@ export function apply(ctx) {
  const task=process.env.AGENTSCOPE_TASK_ID, token=process.env.AGENTSCOPE_TASK_TOKEN;
  const base=process.env.AGENTSCOPE_URL, workspace=process.env.AGENTSCOPE_MANAGED_WORKSPACE;
  const port=Number(process.env.AGENTSCOPE_NATIVE_PORT), secret=process.env.AGENTSCOPE_NATIVE_TOKEN;
+ const memoryProvider=process.env.AGENTSCOPE_MEMORY_PROVIDER;let memoryHash=null,memorySeq=0;
  let compaction=null;
  ctx.inject(['compaction'],child=>{compaction=child.compaction;child.on('dispose',()=>{compaction=null;});});
  let sid=null, turn=0, transportError=null, pending=Promise.resolve(); const starts=new Map(); const visible=[];
@@ -27,7 +29,13 @@ export function apply(ctx) {
   const feedbackGuard=createFeedbackGuard(),feedbackByCall=new Map();
  installTaskSandbox(ctx,workspace);
  ctx.on('system-prompt/assemble',async(assembly,context,next)=>{
-  const result=await next();result.tools=result.tools.filter(tool=>TASK_TOOLS.has(tool.name));return result;
+  const result=await next();result.tools=result.tools.filter(tool=>TASK_TOOLS.has(tool.name));
+  const observed=persistentMemoryObservation(result,{sessionId:sid,provider:memoryProvider,seq:memorySeq});
+  if(observed&&observed.content_hash!==memoryHash){
+   pending=pending.then(()=>api('events',observed));await pending;
+   memoryHash=observed.content_hash;memorySeq++;
+  }
+  return result;
  });
  const resolvePolicy=ctx.sandboxPolicy.resolve.bind(ctx.sandboxPolicy);
  ctx.sandboxPolicy.resolve=request=>{

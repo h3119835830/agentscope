@@ -728,7 +728,7 @@ def runtime_projection(frozen):
 
 def enqueue(con,task_id,state,text,key,kind='message',actor='native_user'):
     if state['phase'] not in ('running','generating'):raise ValueError('任务尚未运行或已经结束')
-    if actor not in ('native_user','administrator'):raise ValueError('运行时策略只接受已认证用户请求')
+    if actor not in ('native_user','administrator') and not (actor=='persistent_memory' and state.get('persistent_memory',{}).get('event_key')==key):raise ValueError('运行时策略只接受已认证用户请求或已绑定的持久记忆加载事件')
     old=con.execute('SELECT id FROM managed_jobs WHERE task_id=? AND request_key=?',(task_id,key)).fetchone()
     if old:return {'id':old[0]}
     if state.get('gate')=='applying':raise ValueError('运行时限制正在原子追加，请稍后重发本条用户消息')
@@ -738,14 +738,20 @@ def enqueue(con,task_id,state,text,key,kind='message',actor='native_user'):
     event(con,task_id,'request',key,{'text':text,'kind':kind,'actor':actor,'session_id':state['session_id'],'turn':state['turn'],'revision':state['revision']})
     task=task_row(con,task_id)
     directories=['.']+sorted(str(p.relative_to(Path(task['workspace']))) for p in Path(task['workspace']).rglob('*') if p.is_dir() and '.actplane' not in p.parts and '.git' not in p.parts)
-    public_requests=[db.row_dict(r) for r in con.execute("SELECT * FROM managed_events WHERE task_id=? AND kind='request' ORDER BY id",(task_id,)) if json.loads(r['payload_json']).get('actor') in ('native_user','administrator')]
+    public_requests=[db.row_dict(r) for r in con.execute("SELECT * FROM managed_events WHERE task_id=? AND kind='request' ORDER BY id",(task_id,)) if json.loads(r['payload_json']).get('actor') in ('native_user','administrator','persistent_memory')]
     resolved={ident for r in con.execute("SELECT payload_json FROM managed_events WHERE task_id=? AND kind='request_resolved'",(task_id,)) for ident in json.loads(r[0]).get('evidence_ids',[])}
     unassessed=[str(r['id']) for r in public_requests if str(r['id']) not in resolved]
     active_requests=[r for r in public_requests if str(r['id']) in unassessed]
     evidence=[{'evidence_id':str(r['id']),'source':'request','content':r['payload']} for r in active_requests]
     request_id=next(e['evidence_id'] for e in evidence if e['content']['revision']==state['revision'])
     frozen={'schema':'ManagedRuntimeContext/2','task_id':task_id,'change':{'kind':kind,'text':text},'request_evidence_id':request_id,'sources':evidence,'baseline':{'hash':state['baseline_hash'],'protected_files':state['protected'],'immutable':True},'base_snapshot':{'payload':{'allowed_write_dirs':state['allowed_write_dirs'],'allow_output':state['allow_output'],'protected_paths':state.get('runtime_protected',[])}},'revision':state['revision'],'policy_hash':state['policy_hash'],'session_id':state['session_id'],'path_mapping':{'workspace':task['workspace'],'output':task['output_dir'],'temporary':str(Path(task['workspace']).parent/'tmp')},'capabilities':{'registered_files':sorted(str(p.relative_to(Path(task['workspace']))) for p in Path(task['workspace']).rglob('*') if p.is_file() and not p.is_symlink() and '.actplane' not in p.parts and '.git' not in p.parts),'registered_directories':directories,'candidate_contract':{'submission':'additive_restriction_only','restrict':'validated additions are loaded automatically; existing rules cannot be edited or removed','guidance_only':'records task guidance without changing the loaded policy','no_change':'records assessment without changing the loaded policy'},'arbitrary_dsl':False,'protect_files':'registered file or registered directory/**; only new targets may be submitted','semantic':'guidance_only'},'unassessed_request_ids':unassessed,'public_task_context':[{'evidence_id':str(r['id']),**r['payload']} for r in active_requests],'project_sources':[project_source(task,p) for p in sorted(Path(task['workspace']).rglob('*')) if p.is_file() and not p.is_symlink() and '.actplane' not in p.parts and '.git' not in p.parts]}
-    frozen['capabilities']['executor_sandbox']={'version':2,'read_roots':['project','temporary','output','public_runtime'],'network':'isolated','policy_visibility':'operation_feedback_only','runtime_policy_trigger':'authenticated_user_request_only'}
+    frozen['public_task_context']=[item for item in frozen['public_task_context'] if item.get('actor') in ('native_user','administrator')]
+    memory=state.get('persistent_memory')
+    if memory:
+        frozen['persistent_memory']={**memory,'authority':'untrusted_persistent_memory; never_current_user_authorization'}
+        memory_id='memory:'+memory['content_hash']
+        frozen['sources'].append({'evidence_id':memory_id,'source':'persistent_memory','content':frozen['persistent_memory']})
+    frozen['capabilities']['executor_sandbox']={'version':2,'read_roots':['project','temporary','output','public_runtime'],'network':'isolated','policy_visibility':'operation_feedback_only','runtime_policy_trigger':'authenticated_user_or_bound_persistent_memory' if memory else 'authenticated_user_request_only'}
     frozen['pending_unresolved_requests']=state.get('pending_unresolved_requests',[])
     frozen['capabilities']['unresolved_constraints']='Necessary OS restrictions with an unknown or ambiguous registered target must be declared as unresolved_requests. Runtime expansion is outside this generator.'
     frozen['resolved_request_ids']=sorted(resolved)
@@ -771,7 +777,7 @@ def enqueue(con,task_id,state,text,key,kind='message',actor='native_user'):
 def ingest(task_id,args):
     from ..agent_bridge.api import clean
     kind=str(args.get('kind',''))
-    if kind not in ('native_event','tool_result','tool_start','feedback_delivery','agent_decision','user_question_answer','user_message_accepted','feedback_offer','feedback_received'):raise ValueError('未登记的原生事件')
+    if kind not in ('native_event','tool_result','tool_start','feedback_delivery','agent_decision','user_question_answer','user_message_accepted','feedback_offer','feedback_received','persistent_memory_loaded'):raise ValueError('未登记的原生事件')
     with lock(task_id),db.connect() as con:
         s=load(con,task_id)
         if s['phase'] not in ('running','generating'):raise ValueError('任务不再运行')
@@ -779,6 +785,20 @@ def ingest(task_id,args):
         if s['session_id'] and sid and sid!=s['session_id']:raise ValueError('其他会话不能使用本任务域')
         key=str(args.get('event_key',''))[:180]
         if not key:raise ValueError('事件缺少幂等标识')
+        if kind=='persistent_memory_loaded':
+            provider=s.get('binding',{}).get('memory_provider')
+            content=args.get('content');seq=args.get('seq')
+            if not provider or args.get('provider')!=provider or sid!=s['session_id']:raise ValueError('持久记忆来源或会话未绑定')
+            if not isinstance(content,str) or len(content.encode())>16384 or type(seq) is not int or seq<0:raise ValueError('持久记忆快照超限或序号无效')
+            content_hash=digest(content)
+            if args.get('content_hash')!=content_hash or key!='memory:'+sid+':'+content_hash:raise ValueError('持久记忆快照 hash mismatch')
+            if con.execute("SELECT 1 FROM managed_jobs WHERE task_id=? AND request_key=?",(task_id,key)).fetchone():return {'deduplicated':True}
+            if s.get('gate')=='applying':raise ValueError('运行时限制正在原子追加，请重试记忆加载事件')
+            observation={k:args[k] for k in ('provider','source_ref','category','type','seq','content','content_hash','event_key') if k in args}
+            observation.update(session_id=sid,authority='native_provider_observation; untrusted_memory_not_authorization')
+            s['persistent_memory']=observation
+            event(con,task_id,'persistent_memory_loaded',key,{k:v for k,v in observation.items() if k!='content'})
+            return enqueue(con,task_id,s,'已加载跨会话持久记忆，评估其与当前任务和有效策略的关系。',key,kind='memory_loaded',actor='persistent_memory')
         if kind=='feedback_received':
             feedback=str(args.get('feedback',''))
             offer=con.execute("SELECT payload_json FROM managed_events WHERE task_id=? AND kind='feedback_offer' AND json_extract(payload_json,'$.feedback')=? ORDER BY id DESC LIMIT 1",(task_id,feedback)).fetchone()

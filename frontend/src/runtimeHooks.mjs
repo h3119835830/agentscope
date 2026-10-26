@@ -82,6 +82,7 @@ export function runtimeHooksReducer(state, action) {
 const labels = {
   user_message:'用户消息', user:'管理员约束', administrator:'管理员约束', agent:'Agent', controller:'控制面', pi:'Pi',
   native_context:'原生上下文变化', native_user:'真实用户消息', verified_feedback:'误拦截复核',
+  persistent_memory:'跨会话持久记忆', 'memory/loaded':'持久记忆加载',
   control_review:'控制面复核', recovery:'原生会话恢复', DSH:'执行能力申请',
   native_hook:'原生 Hook', runtime_observation:'运行时观测', manual_reassessment:'手动重新评估',
   system:'系统上下文', developer:'开发者上下文', tool_schema:'工具定义', effective_context:'有效上下文',
@@ -91,7 +92,7 @@ const labels = {
   'compaction/summary':'上下文压缩摘要', 'compaction/prune':'上下文裁剪', 'context/snapshot':'有效上下文快照',
   compaction:'上下文压缩记忆', kernel:'ActPlane 拒绝反馈', kernel_denial:'内核拒绝', false_positive:'误拦截核验',
   completed:'已完成', complete:'已完成', queued:'排队中', running:'生成中', failed:'失败',
-  cancelled:'已取消', interrupted:'已中断', pending:'待处理',
+  cancelled:'已取消', interrupted:'已中断', pending:'待处理', stale:'已被新上下文取代',
   'trigger.name':'触发来源', 'trigger.actor':'触发方', 'trigger.revision':'上下文修订',
   'trigger.turn':'执行轮次', 'trigger.accepted_turn':'接收轮次', 'trigger.observations':'观测条目',
   trigger:'触发材料', evidence_refs:'证据引用', request_id:'关联请求', job_id:'生成作业',

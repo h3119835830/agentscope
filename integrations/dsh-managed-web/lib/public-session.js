@@ -24,8 +24,11 @@ export function publicQuestionAnswer(session,event) {
  if(!call)return null;
  let answer;try{answer=JSON.parse((event.data.message.content||[]).filter(x=>x.type==='text').map(x=>x.text).join('\n'));}catch{return null;}
  if(!Array.isArray(answer.answers))return null;
+ const answers=answer.answers.filter(item=>item&&((Array.isArray(item.selected)&&item.selected.some(value=>typeof value==='string'&&value.trim()))||(typeof item.custom==='string'&&item.custom.trim())));
+ if(!answers.length)return null;
  let args;try{args=JSON.parse(call.data.arguments);}catch{return null;}
- return {call_id:String(callId),text:JSON.stringify({source:'native_user_question',questions:args.questions,answers:answer.answers})};
+ const answeredIds=new Set(answers.map(item=>item.id));
+ return {call_id:String(callId),text:JSON.stringify({source:'native_user_question',questions:args.questions?.filter(item=>answeredIds.has(item.id)),answers})};
 }
 
 export function acceptedUserMessages(session,event) {

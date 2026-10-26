@@ -20,6 +20,11 @@ test('native question answers enter public context; pending/timeouts do not inve
  const event={type:'tool/result',data:{message:{role:'tool',toolCallId:'q1',content:[{type:'text',text:JSON.stringify({answers:[{id:'target',selected:['registered.py']}]})}]}}};
  const result=publicQuestionAnswer(session,event);assert.equal(result.call_id,'q1');assert.ok(result.text.includes('registered.py'));assert.ok(!result.text.includes('private'));
  event.data.message.content[0].text=JSON.stringify({pending:true,callId:'q1'});assert.equal(publicQuestionAnswer(session,event),null);
+ for(const answers of [[],[{id:'target',selected:[]}],[{id:'target',selected:[],custom:'  '}]]){
+  event.data.message.content[0].text=JSON.stringify({answers});assert.equal(publicQuestionAnswer(session,event),null);
+ }
+ event.data.message.content[0].text=JSON.stringify({answers:[{id:'target',selected:[],custom:'只读检查，停止清理'},{id:'ignored',selected:[]}]});
+ const custom=JSON.parse(publicQuestionAnswer(session,event).text);assert.equal(custom.answers.length,1);assert.equal(custom.answers[0].custom,'只读检查，停止清理');assert.equal(custom.questions.length,1);
 });
 
 test('admitted queue messages cross the seam before turn dispatch',async()=>{
