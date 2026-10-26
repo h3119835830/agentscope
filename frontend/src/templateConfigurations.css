@@ -49,4 +49,10 @@
 .assistant-generation-status{display:inline-block;padding:2px 6px;border-radius:4px;background:#edf3fd;color:#5575a4;font-size:10px}
 .assistant-policy-detail[open]{min-width:150px}.assistant-policy-detail dl{margin:10px 0 0;font-size:10px}.assistant-policy-detail dl>div{margin:8px 0}.assistant-policy-detail dt{color:#8294ad}.assistant-policy-detail dd{margin:3px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
 .flow-assistant .assistant-v2-turn{max-width:100%}.assistant-generated-results .assistant-snapshot-note{margin-top:7px}
+.assistant-response-compact>p{margin:2px 0 7px;font-size:13px;line-height:1.8}
+.assistant-compact-policies ol{padding-left:22px;margin:5px 0;line-height:1.8;font-size:12px}
+.assistant-compact-policies li{padding-left:2px;margin:2px 0;overflow-wrap:anywhere}
+.assistant-compact-state{margin:7px 0;font-size:11px;color:#7286a1}
+.assistant-response-details{margin-top:10px;font-size:11px}.assistant-response-details>summary{cursor:pointer;color:#7188a7}
+.assistant-response-details>.assistant-full-analysis{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.8}
 @media(max-width:600px){.assistant-policy-table{min-width:610px}.assistant-policy-table th,.assistant-policy-table td{padding:9px}.assistant-response .assistant-response-outcome{font-size:13px}}

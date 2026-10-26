@@ -1,0 +1,17 @@
+{
+  "schema": "compact-policy-reply-acceptance.v1",
+  "frontend_tests": 422,
+  "build": "passed",
+  "production_deployed": false,
+  "new_model_calls": false,
+  "policy_changes": false,
+  "replayed_source": "../policy-response-ui-20261026/live-source.json",
+  "eight_items_case": "synthetic rendering test only",
+  "files": {
+    "browser-checks.json": "38af943ddb8f8b033d0b8d7faa23e38b603aaa92707e22165a2fae7cf9e7de84",
+    "desktop.png": "df1158bce1362f29c93d2a47f665914db641cba37969e55fe4337e6b9345a14e",
+    "frontend-build.txt": "c5040fb4fdeb866951fa8169fb12e8ba7fe4758d03930ea64ee5adc6521958bd",
+    "frontend-tests.txt": "7579215405936ae6cf37a45f69c57db604b18a741b261b2b2e3086fd53c51da9",
+    "narrow.png": "97d082052f96c4c1f2fd7cb20a11da24f9e939057ad1186ca434b31e06ad4937"
+  }
+}

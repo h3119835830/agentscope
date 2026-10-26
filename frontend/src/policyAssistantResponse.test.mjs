@@ -1,7 +1,17 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {analysisParts,referenceFiles,activitySummary,generationOutcome} from './policyAssistantResponse.mjs';
+import React from 'react';
+import {renderToStaticMarkup} from 'react-dom/server';
+import {build} from 'esbuild';
+import {createRequire} from 'node:module';
+import {fileURLToPath} from 'node:url';
+import {dirname,join} from 'node:path';
+import {analysisParts,referenceFiles,activitySummary,generationOutcome,responseSentence,compactPolicyText} from './policyAssistantResponse.mjs';
+const require=createRequire(import.meta.url),Module=require('node:module'),base=dirname(fileURLToPath(import.meta.url));
+const bundle=await build({entryPoints:[join(base,'PolicyAssistantResponse.jsx')],bundle:true,platform:'node',format:'cjs',external:['react'],write:false});
+const filename=join(base,'.compact-response-test.cjs'),loaded=new Module(filename);loaded.paths=Module._nodeModulePaths(base);loaded._compile(bundle.outputFiles[0].text,filename);
+const Response=loaded.exports.default;
 
 test('compact analysis preserves every character for expansion without inventing an explanation',()=>{
  const original='已读取 README.md，入口为 maintenance.py。'+ '只保护发布清单并保留正常维护。'.repeat(30);
@@ -27,4 +37,27 @@ test('one and multiple policies remain the real model result, not a display cap'
   assert.equal(result.items.length,count);assert.match(generationOutcome(result),new RegExp(count+' 项'));
   assert.ok(referenceFiles(result.context_usage).length>0);
  }
+});
+test('default response is a receipt-based sentence and policy list; fields stay in closed details',()=>{
+ const {result}=JSON.parse(readFileSync(new URL('../../acceptance/policy-investigation-20261026/e3/results/real-locate-file.json',import.meta.url),'utf8'));
+ const html=renderToStaticMarkup(React.createElement(Response,{generation:result})),visible=html.split('<details class="assistant-response-details"')[0];
+ assert.match(visible,/已读取/);assert.match(visible,/拟定以下 1 项策略/);assert.match(visible,/<ol aria-label="拟定策略">/);
+ assert.doesNotMatch(visible,/<table|生成依据|已读文件|选用模板|填写的参数/);
+ assert.match(html,/<summary>查看详情<\/summary>/);assert.doesNotMatch(html,/<details class="assistant-response-details" open/);
+ assert.ok(html.includes(result.summary));
+});
+test('eight draft rows remain eight one-line entries with accurate draft status',()=>{
+ const row={id:'row',name:'项目保护',template:{name:'文件限制',version:2,parameters:[{key:'target',type:'path',label:'路径'}]},parameters:{target:'/w/0/tests/**'},execution:{effective_operations:['write','unlink'],effect:'block'},approval_status:'draft',scope:{label:'指定 Agent'}};
+ const generation={items:Array.from({length:8},(_,i)=>({id:'row-'+i})),configuration_snapshots:Array.from({length:8},(_,i)=>({...row,id:'row-'+i,name:'策略 '+(i+1)})),questions:[],gaps:[]};
+ const visible=renderToStaticMarkup(React.createElement(Response,{generation})).split('<details class="assistant-response-details"')[0];
+ assert.equal((visible.match(/<li>/g)||[]).length,8);assert.match(visible,/禁止修改、删除/);assert.match(visible,/待提交审批/);assert.doesNotMatch(visible,/已应用|已加载/);
+});
+test('no-read and failed responses do not invent evidence or a successful generation',()=>{
+ const g={items:[],context_usage:{activity:[{tool:'list_directory'}]},generation_state:'failed'};
+ assert.match(responseSentence(g),/未读取文件正文/);assert.match(responseSentence(g),/分析未完成/);assert.doesNotMatch(responseSentence(g),/已读取|拟定以下/);
+ assert.match(responseSentence({...g,generation_state:'completed',reference_read:{workspace:'旧资料',paths:['README.md']}}),/已读取 README.md/);
+});
+test('conditional templates do not turn into unconditional bans in compact sentences',()=>{
+ const {result}=JSON.parse(readFileSync(new URL('../../acceptance/policy-investigation-20261026/e3/results/real-directory-gate.json',import.meta.url),'utf8'));
+ for(const row of result.configuration_snapshots){const text=compactPolicyText(row);assert.match(text,/具体条件见详情/);assert.match(text,/git commit/);assert.doesNotMatch(text,/禁止执行 git commit/);}
 });

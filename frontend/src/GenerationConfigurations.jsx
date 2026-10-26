@@ -1,4 +1,5 @@
 import React from 'react';
+import {compactPolicyText} from './policyAssistantResponse.mjs';
 
 const operations={open:'打开文件',write:'修改文件',unlink:'删除文件',exec:'启动程序',connect:'连接网络'};
 const effects={block:'阻止并反馈',notify:'记录并提醒',kill:'终止命中进程'};
@@ -12,9 +13,14 @@ function approval(row){
  const status=row.execution_support?.applicable===false?'暂不支持 · 仅参数草案':statuses[row.approval_status]||'审批状态暂不可用';
  return row.approval_operation==='disable'?(row.approval_status==='applied'?'已停用':'停用 · '+status):status;
 }
-export default function GenerationConfigurations({generation}){
+export default function GenerationConfigurations({generation,compact=false}){
  if(!generation.items?.length)return null;
  const snapshots=generation.configuration_snapshots;
+ if(compact){
+  if(!snapshots?.length)return <p>此轮策略记录暂不可用。</p>;
+  const states=[...new Set(snapshots.map(row=>row.unavailable?'状态暂不可用':approval(row)))];
+  return <div className="assistant-compact-policies"><ol aria-label="拟定策略">{snapshots.map(row=><li key={row.id}>{compactPolicyText(row)}</li>)}</ol><p className="assistant-compact-state">状态：{states.join('；')}。</p></div>;
+ }
  return <section className="assistant-generated-results" aria-label="本轮生成的策略配置">
  {!snapshots?.length?<p>此轮配置快照暂不可用。</p>:<div className="assistant-policy-table-scroll" tabIndex={0} role="region" aria-label="生成策略表格，可横向滚动"><table className="assistant-policy-table"><thead><tr><th>策略名称</th><th>匹配对象</th><th>操作与处置</th><th>审批状态</th><th>详情</th></tr></thead><tbody>{snapshots.map(row=>{
   if(row.unavailable)return <tr key={row.id}><td colSpan={5}>此项配置快照暂不可用。</td></tr>;

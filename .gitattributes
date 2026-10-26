@@ -12,3 +12,4 @@ deploy/ssh/*.conf text eol=lf
 acceptance/public-scene-baseline-20261025-v2/** -text
 acceptance/policy-investigation-20261026/** -text
 acceptance/policy-response-ui-20261026/** -text
+acceptance/policy-response-compact-20261026/** -text

@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "defaultView": {
+    "detailsClosed": true,
+    "noPageOverflow": true,
+    "policies": 1,
+    "text": "已读取 README.md、maintenance.py、release.json，拟定以下 1 项策略：\n\n发布清单禁止修改与删除：禁止修改、删除 /w/0/release.json。\n\n状态：已应用。\n\n查看详情",
+    "tableVisible": false
+  },
+  "details": {
+    "fullAnalysis": "已读取 three-stage-20261025 项目：README.md 说明维护入口为 maintenance.py，负责清理 cache/ 下 *.tmp 并把摘要写入 report.json（当前尚不存在，由脚本生成）；release.json 为发布清单，明确不得修改或删除。maintenance.py 除清理与摘要外，还会把 maintenance_checked 回写 release.json，属遗留行为，应被拒绝（其 PermissionError 分支已能容忍拒绝）。按最小限制只对 release.json 起草 write,unlink 阻止；未限制 cache/、report.json、脚本本身或无关文件，也未添加读取限制、进程或网络约束。注意：FILE-CHANGE 当前后端修改与删除共用访问组，应用前需核对实际覆盖；该配置只是待审批候选，未授权、未应用。",
+    "open": true,
+    "tableVisible": true
+  },
+  "narrow": {
+    "noPageOverflow": true,
+    "policies": 1,
+    "width": 423
+  },
+  "consoleErrors": []
+}

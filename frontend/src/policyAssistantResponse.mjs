@@ -32,3 +32,27 @@ export function generationOutcome(g){
  if(g.gaps?.length)return '本轮未生成配置，有待解决事项';
  return g.summary?'分析完成，本轮未生成配置':'尚未生成配置';
 }
+export function responseSentence(g){
+ const usage=g.context_usage||{},files=referenceFiles(usage);
+ const legacy=g.reference_read?.paths||[];
+ const paths=files.length?files.map(f=>f.path):legacy;
+ const shown=paths.slice(0,3).map(path=>path.replace(/^\/w\/\d+\//,''));
+ const prefix=shown.length?'已读取 '+shown.join('、')+(paths.length>3?' 等 '+paths.length+' 个文件':''):'未读取文件正文，仅依据本轮需求';
+ if(g.generation_state==='failed')return prefix+'；本次分析未完成，尚未生成策略。';
+ if(g.items?.length)return prefix+'，拟定以下 '+g.items.length+' 项策略：';
+ return prefix+(g.questions?.length?'，还需补充信息，暂未生成策略。':'，本轮未生成策略。');
+}
+export function compactPolicyText(row){
+ if(row.unavailable)return '此项配置记录暂不可用。';
+ const params=row.parameters||{},fields=row.template.parameters.filter(p=>Object.hasOwn(params,p.key));
+ const subjects=fields.filter(p=>['path','endpoint'].includes(p.type));
+ const targets=(subjects.length?subjects:fields.filter(p=>['program','lines'].includes(p.type))).map(p=>Array.isArray(params[p.key])?params[p.key].join('、'):String(params[p.key]));
+ const execution=row.execution||{},ops=execution.effective_operations||params.operations||[];
+ const actions=(Array.isArray(ops)?ops:String(ops).split(',')).map(op=>({open:'读取',read:'读取',write:'修改',unlink:'删除',exec:'执行',connect:'连接'})[op]||op).join('、');
+ const effect=execution.effect||params.effect,verb=({block:'禁止',notify:'记录并提醒',kill:'终止命中进程'})[effect];
+ const simple=fields.every(p=>['path','endpoint','program','lines','operations','effect'].includes(p.type))&&fields.filter(p=>!['operations','effect'].includes(p.type)).length===1&&!row.template.fixed_fields;
+ // Conditional templates retain their name and a condition marker; never
+ // flatten a cross-event/lineage check into an unconditional ban.
+ const detail=simple&&verb&&actions?verb+(effect==='kill'?'，涉及':'')+actions+(targets.length?' '+targets.join('、'):''):targets.join('、')+(row.template.fixed_fields?'；'+Object.values(row.template.fixed_fields).join(' '):'')+'（具体条件见详情）';
+ return row.name+'：'+detail+'。';
+}
