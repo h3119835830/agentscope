@@ -13,11 +13,10 @@ export function runtimePolicyTrigger(record){
 export function generatedRuntimePolicies(records){
  return records.filter(record=>record.stage==='runtime'&&record.effect==='restrict'&&record.policy_type!=='semantic_only'&&record.targets?.length);
 }
-function PolicyDetails({record,workspace}){
+function PolicyDetails({record}){
  const templates=record.template_reference;
  return <div className="runtime-policy-details">
   <dl><dt>具体约束</dt><dd>{record.statement}</dd>
-   <dt>作用对象</dt><dd>{(record.targets||[]).map(path=>workspace?path.replace(workspace+'/',''):path).join('、')}</dd>
    <dt>参考模板</dt><dd>{templates?.items?.length?templates.items.map(item=>item.name).join('、'):templates?.searched?'已检索已审核模板，未引用具体模板':'未记录模板引用'}</dd>
    {record.trigger?.text&&<><dt>触发原文</dt><dd>{record.trigger.text}</dd></>}
   </dl>
@@ -38,11 +37,12 @@ export default function RuntimePolicies({task,records=[],workspace='',api,loadin
  const shown=generatedRuntimePolicies(records);
  return <section className="runtime-policies" aria-label="运行时策略">
   {error&&<p role="alert" className="runtime-policy-notice">暂时无法刷新，正在重试。</p>}
-  <table><thead><tr><th scope="col">策略名称</th><th scope="col">由谁触发</th></tr></thead>
+  <table><thead><tr><th scope="col">策略名称</th><th scope="col">由谁触发</th><th scope="col" aria-label="操作"/></tr></thead>
    <tbody>{shown.map(record=><React.Fragment key={record.id}><tr>
-    <td><button className="runtime-policy-name" aria-expanded={selected===record.id} onClick={()=>open(record)}>{runtimePolicyName(record,workspace)}<span aria-hidden="true">{selected===record.id?'⌃':'⌄'}</span></button></td>
+    <td><span className="runtime-policy-name">{runtimePolicyName(record,workspace)}</span></td>
     <td>{runtimePolicyTrigger(record)}</td>
-   </tr>{selected===record.id&&<tr className="runtime-policy-expanded"><td colSpan="2">{detailError?<p role="alert">{detailError}</p>:detail?<PolicyDetails record={detail} workspace={workspace}/>:<p role="status">正在读取详情…</p>}</td></tr>}</React.Fragment>)}</tbody>
+    <td className="runtime-policy-actions"><button type="button" className="runtime-policy-action" aria-expanded={selected===record.id} aria-controls={'runtime-detail-'+record.id} onClick={()=>open(record)}>{selected===record.id?'收起':'详情'}</button></td>
+   </tr>{selected===record.id&&<tr id={'runtime-detail-'+record.id} className="runtime-policy-expanded"><td colSpan="3">{detailError?<p role="alert">{detailError}</p>:detail?<PolicyDetails record={detail}/>:<p role="status">正在读取详情…</p>}</td></tr>}</React.Fragment>)}</tbody>
   </table>
   {!shown.length&&<p className="runtime-policy-empty">{loading?'正在读取策略…':'暂未生成新的运行时策略。'}</p>}
  </section>;

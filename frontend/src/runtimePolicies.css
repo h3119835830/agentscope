@@ -5,12 +5,12 @@
 .runtime-policies{border:1px solid #e4e9ef;border-radius:8px;background:#fff;overflow:hidden}
 .runtime-policies table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:14px}
 .runtime-policies th{text-align:left;background:#f8fafc;font-size:12px;font-weight:500;color:#748295;padding:13px 20px;border-bottom:1px solid #e4e9ef}
-.runtime-policies th:first-child{width:72%}.runtime-policies td{padding:0 20px;border-bottom:1px solid #edf0f4;vertical-align:middle;overflow-wrap:anywhere;color:#516074}
+.runtime-policies th:first-child{width:64%}.runtime-policies th:last-child{width:86px}.runtime-policies td{padding:0 20px;border-bottom:1px solid #edf0f4;vertical-align:middle;overflow-wrap:anywhere;color:#516074}
 .runtime-policies tbody>tr:last-child>td{border-bottom:0}
-.runtime-policy-name{display:flex;align-items:center;gap:14px;justify-content:space-between;width:100%;min-height:66px;text-align:left;border:0;background:transparent;color:#245da8;font:inherit;cursor:pointer;padding:14px 0}
-.runtime-policy-name span{font-size:16px;color:#8c99aa}.runtime-policy-name:focus-visible{outline:2px solid #245da8;outline-offset:3px;border-radius:2px}
+.runtime-policy-name{display:block;line-height:1.7;padding:21px 0;color:#233d57}
+.runtime-policies .runtime-policy-actions{text-align:right;padding-left:6px;padding-right:16px;white-space:nowrap}.runtime-policy-action{border:0;background:transparent;color:#245da8;font:inherit;font-size:13px;padding:6px 8px;border-radius:4px;cursor:pointer}.runtime-policy-action:hover{background:#edf3fb}.runtime-policy-action:focus-visible{outline:2px solid #245da8;outline-offset:2px}
 .runtime-policy-expanded>td{background:#fafbfd!important}.runtime-policy-details{padding:20px 0 24px;font-size:13px;line-height:1.8}
 .runtime-policy-details dl{display:grid;grid-template-columns:80px minmax(0,1fr);gap:12px 20px;margin:0}.runtime-policy-details dt{color:#64748b}.runtime-policy-details dd{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;max-width:880px;color:#3f5064}
 .runtime-policy-dsl{margin-top:18px;color:#60758e}.runtime-policy-dsl summary{cursor:pointer;font-size:12px}.runtime-policy-dsl pre{padding:14px 16px;border:1px solid #e4e9ef;border-radius:5px;background:#fff;font:12px/1.8 Consolas,monospace;color:#344b64;white-space:pre-wrap;overflow-wrap:anywhere}
 .runtime-policy-notice,.runtime-policy-empty{font-size:13px;color:#748295;margin:0;padding:24px 20px}
-@media(max-width:600px){.runtime-policy-page{padding:20px 16px!important}.runtime-policies th:first-child{width:62%}.runtime-policies td,.runtime-policies th{padding-left:14px;padding-right:14px}.runtime-policy-details dl{grid-template-columns:1fr;gap:4px}.runtime-policy-details dd+dt{margin-top:12px}}
+@media(max-width:600px){.runtime-policy-page{padding:20px 16px!important}.runtime-policies th:first-child{width:50%}.runtime-policies th:last-child{width:64px}.runtime-policies td,.runtime-policies th{padding-left:14px;padding-right:14px}.runtime-policies .runtime-policy-actions{padding-left:6px;padding-right:8px}.runtime-policy-details dl{grid-template-columns:1fr;gap:4px}.runtime-policy-details dd+dt{margin-top:12px}}
