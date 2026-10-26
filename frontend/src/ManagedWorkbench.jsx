@@ -2,12 +2,12 @@ import React,{useEffect,useRef,useState} from 'react';
 import './managed.css';
 import {ArchiveDrawer} from './TaskArchive.jsx';
 import {TaskRecord} from './TaskHub.jsx';
-import {tabKeys,runtimeCaption,recordPermissionLabel,isTaskEnded,auditOperation,auditIdentity,auditSource,auditPageAction,mergeAuditRecords} from './consoleState.mjs';
+import {tabKeys,recordPermissionLabel,isTaskEnded,auditOperation,auditIdentity,auditSource,auditPageAction,mergeAuditRecords} from './consoleState.mjs';
 import {PolicyRecordRow,AuditRecordRow,RecordDrawerFrame,RecordFields,RecordDetailTabs,workbenchPolicyTitle} from './WorkbenchRecordViews.jsx';
 import StartupRecovery from './StartupRecovery.jsx';
 import RuntimeOverview from './RuntimeOverview.jsx';
 import RuntimeDetails from './RuntimeDetails.jsx';
-import RuntimeHooks from './RuntimeHooks.jsx';
+import RuntimePolicies from './RuntimePolicies.jsx';
 import {connectionView} from './runtimeView.mjs';
 const names={};
 const phases={completed:'已结束',prepared:'待生成策略',generating:'生成启动策略',policy_review:'待确认策略',running:'运行中',failed:'已暂停',recovering:'恢复中',ended:'已结束'};
@@ -48,7 +48,7 @@ export default function ManagedWorkbench({api,post,notify,task,onSelectTask,onCr
  const [records,setRecords]=useState({records:[]}),[audit,setAudit]=useState({records:[]}),[auditVisible,setAuditVisible]=useState(12);
  const [files,setFiles]=useState({records:[]}),[tools,setTools]=useState({records:[]});
  const [graph,setGraph]=useState(null),[graphVersion,setGraphVersion]=useState(null);
- const [runtimeFilter,setRuntimeFilter]=useState(''),[startupFilter,setStartupFilter]=useState('per_event');
+ const [startupFilter,setStartupFilter]=useState('per_event');
  const [before,setBefore]=useState(null),[error,setError]=useState(''),[loading,setLoading]=useState(true);
  const key=JSON.stringify([task,stage,category,before,graphVersion]),active=useRef(key),inFlight=useRef(new Set());active.current=key;
  async function load() {
@@ -62,7 +62,7 @@ export default function ManagedWorkbench({api,post,notify,task,onSelectTask,onCr
    if(task&&lookup.binding) {
     const base=`/api/managed/tasks/${task}`;
     const urls=stage==='overview'?[base+'/workbench',base+'/execution-audit?category=os',base+'/execution-audit?category=tools',base+'/domain-graph'+(graphVersion===null?'':'?version='+graphVersion)]:
-      [base+'/workbench',stage==='audit'?base+`/execution-audit?category=${category}${before===null?'':`&before=${before}`}`:base+`/strategy-records?stage=${stage}&include_assessments=false${before===null?'':`&before=${before}`}`];
+      [base+'/workbench',stage==='audit'?base+`/execution-audit?category=${category}${before===null?'':`&before=${before}`}`:base+`/strategy-records?stage=${stage}&include_assessments=false${stage==='runtime'?'&generated_only=true':''}${before===null?'':`&before=${before}`}`];
     const [state,list,toolList,graphData]=await Promise.all(urls.map(url=>api(url)));
     if(active.current!==current)return;
     setData(state);
@@ -72,7 +72,7 @@ export default function ManagedWorkbench({api,post,notify,task,onSelectTask,onCr
   }catch(e){if(active.current===current){setError(e.message);setLoading(false);}}
   finally{inFlight.current.delete(current);}
  }
- useEffect(()=>{setAudit({records:[]});setData(null);setBinding(null);setDetail(null);setBefore(null);setFiles({records:[]});setTools({records:[]});setGraph(null);setGraphVersion(null);setStage(section);},[task]);
+ useEffect(()=>{setAudit({records:[]});setRecords({records:[]});setData(null);setBinding(null);setDetail(null);setBefore(null);setFiles({records:[]});setTools({records:[]});setGraph(null);setGraphVersion(null);setStage(section);},[task]);
  useEffect(()=>{setLoading(true);load();const timer=setInterval(()=>{setNow(Date.now());load();},3000);return()=>clearInterval(timer);},[key]);
  useEffect(()=>setDirectoryPage(0),[query]);
  useEffect(()=>setAuditVisible(12),[task,category,stage]);
@@ -83,10 +83,16 @@ export default function ManagedWorkbench({api,post,notify,task,onSelectTask,onCr
  const openDomain=node=>run(async()=>{const current=key,domain=await api(`/api/managed/tasks/${task}/domains/${encodeURIComponent(node.key)}`);if(active.current===current)setDetail({domain});});
  const historical=readOnly||isTaskEnded(data?.state);
  const change=(...args)=>historical?Promise.reject(new Error('历史任务只读，请查看任务档案')):post(...args);
- const s=data?.state,filter=stage==='startup'?startupFilter:runtimeFilter;
+ const s=data?.state,filter=startupFilter;
  const shown=filter?records.records.filter(r=>r.policy_type===filter):records.records;
  const filtered=matches.filter(m=>`${names[m.name]||m.name} ${m.task_id} ${m.workspace}`.toLowerCase().includes(query.toLowerCase()));
  const connection=data?connectionView(data,{failed:!!error,now}):null;
+ if(task&&stage==='runtime')return <div className="content managed-workbench runtime-policy-page">
+  <div className="runtime-policy-context"><strong>DeepSeek Harness</strong><span>{data?(historical?'历史会话':'当前会话'):'正在读取会话'}</span></div>
+  <div className="tabs managed-main-tabs" role="tablist" aria-label="策略工作台子页">{[['startup','运行前'],['runtime','运行时'],['overview','执行监控'],['audit','执行审计']].map(([id,label])=><button role="tab" tabIndex={stage===id?0:-1} onKeyDown={e=>tabKeys(e,['startup','runtime','overview','audit'],stage,switchStage)} aria-selected={stage===id} className={stage===id?'active':''} key={id} onClick={()=>switchStage(id)}>{label}</button>)}</div>
+  <RuntimePolicies key={task} task={task} records={binding?.task_id===task?records.records:[]} workspace={binding?.workspace} api={api} loading={loading} error={error}/>
+  {records.next_cursor&&<button className="button ghost tiny" onClick={()=>setBefore(records.next_cursor)}>更早策略</button>}
+ </div>;
  return <div className="content managed-workbench">
   <div className="page-heading"><div><div className="task-title-line">{task&&<button className="text-action back-to-tasks" aria-label="所有任务" onClick={()=>onSelectTask('')}>←</button>}<h1>{task?(names[binding?.name]||binding?.name||'策略工作台'):'策略工作台'}</h1></div>{task?sourceTask?.source_name&&<p>工作区：{sourceTask.source_name}</p>:<p>选择任务，核验 DSH 执行进程、文件操作与权限变化。</p>}</div><div className="actions"><button className="button primary" onClick={()=>onCreateTask()}>＋ 新建任务</button></div></div>
   {task&&(stage!=='startup'||!binding||historical)&&<details className="field-note task-technical-details"><summary>技术详情</summary><RecordFields items={[["任务编号",task],["来源目录",sourceTask?.source_path||'未记录'],["执行快照目录",binding?.workspace||sourceTask?.workspace||'未记录']]}/></details>}
@@ -110,9 +116,7 @@ export default function ManagedWorkbench({api,post,notify,task,onSelectTask,onCr
    {!historical&&stage==='startup'&&<TaskRecord key={task} task={{id:task,workspace:binding.workspace,name:binding.name}} api={api} post={change} source={sourceTask} notify={notify} onBack={()=>onSelectTask('')} onFollow={()=>switchStage('overview')} embedded onRecoveryTask={onSelectTask}/>}
    {stage==='overview'?<RuntimeOverview data={data} binding={binding} files={files} tools={tools} failed={!!error} graph={graph} now={now} onVersion={value=>{setGraph(null);setGraphVersion(value);}} onDomain={openDomain} onProcess={process=>setDetail({process,checked_at:graph.checked_at})} onDetails={()=>setDetail({binding,runtime:data})} onAudit={a=>setDetail({audit:a})} onShowAudit={()=>{setCategory('os');switchStage('audit');}}/>:
     stage!=='audit'?<section className="panel policy-record-panel">
-     <div className="record-list-head"><h2>{stage==='startup'?'运行前策略':'运行时策略'}</h2><div className="actions"><button className="text-action" onClick={()=>setDetail({binding,hook:records.hook})}>触发方式 ↗</button><select aria-label={stage==='startup'?'策略类型筛选':'运行时策略类型'} value={stage==='startup'?startupFilter:runtimeFilter} onChange={e=>stage==='startup'?setStartupFilter(e.target.value):setRuntimeFilter(e.target.value)}><option value="">全部语句</option><option value="per_event">OS 执行策略</option><option value="semantic_only">任务指导</option></select></div></div>
-     {stage==='runtime'&&<RuntimeHooks key={task} task={task} api={api}/>}
-     {stage==='runtime'&&<p className="record-caption">{runtimeCaption(s)}<span>{records.counts?.no_change||0} 次评估无需调整权限</span></p>}
+     <div className="record-list-head"><h2>运行前策略</h2><div className="actions"><button className="text-action" onClick={()=>setDetail({binding,hook:records.hook})}>触发方式 ↗</button><select aria-label="策略类型筛选" value={startupFilter} onChange={e=>setStartupFilter(e.target.value)}><option value="">全部语句</option><option value="per_event">OS 执行策略</option><option value="semantic_only">任务指导</option></select></div></div>
      <div className="policy-record-list">{shown.map(r=><PolicyRecordRow key={r.id} onOpen={()=>openRecord(r)} title={workbenchPolicyTitle(r,binding.workspace,effects[r.effect]||types[r.policy_type])} statementSummary={!r.targets?.length} caption={`${when(r.created_at)} · ${effects[r.effect]||types[r.policy_type]} · ${recordPermissionLabel(r)}`} status={statuses[r.status]||r.status}/>)}</div>
      {!shown.length&&<p className="record-empty">{loading?'正在读取记录…':stage==='startup'&&s.phase==='failed'&&s.version===0?'本次生成失败，尚无可审核语句。请查看上方失败原因并准备恢复候选。':'尚无此类策略记录。'}</p>}
      {before!==null&&<button className="button ghost tiny" onClick={()=>setBefore(null)}>返回最新记录</button>}{records.next_cursor&&<button className="button ghost tiny" onClick={()=>setBefore(records.next_cursor)}>更早记录</button>}

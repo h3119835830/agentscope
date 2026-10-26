@@ -172,9 +172,9 @@ def workspace_binding(task_id:str='',workspace:str='',session_id:str='',include_
     from .records import binding
     return run(binding,task_id,workspace,session_id,include_inactive)
 @router.get('/api/managed/tasks/{task_id}/strategy-records')
-def strategy_records(task_id:str,stage:Literal['startup','runtime']='startup',before:str|None=None,include_assessments:bool=False):
+def strategy_records(task_id:str,stage:Literal['startup','runtime']='startup',before:str|None=None,include_assessments:bool=False,generated_only:bool=False):
     from .records import records
-    return run(records,task_id,stage,before,include_assessments)
+    return run(records,task_id,stage,before,include_assessments,generated_only)
 @router.get('/api/managed/tasks/{task_id}/strategy-records/{record_id}')
 def strategy_record(task_id:str,record_id:str):
     from .records import detail

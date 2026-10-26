@@ -10,9 +10,9 @@ async function main(){
  import ManagedWorkbench from './src/ManagedWorkbench.jsx';
  const task=new URLSearchParams(location.search).get('task');
  const api=async p=>{const r=await fetch(p);const j=await r.json();if(!r.ok)throw Error(j.detail||r.status);return j};
- function App(){const[section,setSection]=React.useState('runtime');return <><p style={{margin:'12px 32px',color:'#526174'}}>隔离验收预览 · 真实 DSH / Pi / ActPlane API 记录 · 只读操作</p><ManagedWorkbench api={api} post={()=>Promise.reject(Error('验收预览只读'))} notify={console.log} task={task} section={section} onSection={setSection} onSelectTask={()=>{}} onCreateTask={()=>{}}/></>};createRoot(document.getElementById('root')).render(<App/>);`,resolveDir:root,loader:'jsx'},bundle:true,outfile:out+'/view.js',loader:{'.woff2':'file','.svg':'file'},define:{'process.env.NODE_ENV':'"production"'}});
+ function App(){const[section,setSection]=React.useState('runtime');return <ManagedWorkbench api={api} post={()=>Promise.reject(Error('验收预览只读'))} notify={console.log} task={task} section={section} onSection={setSection} onSelectTask={()=>{}} onCreateTask={()=>{}}/>};createRoot(document.getElementById('root')).render(<App/>);`,resolveDir:root,loader:'jsx'},bundle:true,outfile:out+'/view.js',loader:{'.woff2':'file','.svg':'file'},define:{'process.env.NODE_ENV':'"production"'}});
  if(process.argv.includes('--build-only'))return;
- const html='<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>AgentScope 运行时真实记录验收</title><link rel="stylesheet" href="/view.css"><div id="root"></div><script src="/view.js"></script></html>';
+ const html='<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AgentScope 运行时策略预览</title><link rel="stylesheet" href="/view.css"><div id="root"></div><script src="/view.js"></script></html>';
  http.createServer((req,res)=>{
   if(req.method!=='GET'){res.writeHead(405);res.end();return;}
   if(req.url.startsWith('/api/')){const proxy=http.get('http://127.0.0.1:18005'+req.url,r=>{res.writeHead(r.statusCode,{'content-type':r.headers['content-type']||'application/json'});r.pipe(res)});proxy.on('error',()=>{res.writeHead(502);res.end()});return;}

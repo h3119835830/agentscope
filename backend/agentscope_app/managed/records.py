@@ -100,6 +100,20 @@ def startup_records(con,task,s,persist_links=False):
         if persist_links:normalization.persist_record_links(con,task['id'],record)
     return records
 
+def runtime_templates(con,task_id,job_id,evidence_ids):
+    receipt=con.execute("SELECT payload_json FROM managed_events WHERE task_id=? AND kind='pi_history' AND event_key=?",(task_id,job_id)).fetchone()
+    saved=decode(receipt,'payload_json');items=[]
+    for entry in saved.get('versions',[]):
+        if not ({entry['id'],'history:'+entry['id']} & set(evidence_ids)):continue
+        row=con.execute('SELECT record_json,content_hash FROM bootstrap_history WHERE id=?',(entry['id'],)).fetchone()
+        name=None
+        if row and row['content_hash']==entry['hash']:
+            record=decode(row,'record_json');statement=record.get('statement')
+            name=record.get('name') or record.get('title') or (statement.get('text_original') if isinstance(statement,dict) else statement)
+        items.append({'id':entry['id'],'name':name if isinstance(name,str) and name.strip() else '已引用模板（名称未保存）'})
+    return {'searched':bool(receipt),'items':items}
+
+
 def runtime_record(con,task,s,row):
     p=decode(row,'proposal_json');ctx=decode(row,'context_json');decision=p.get('decision')
     resolved=con.execute("SELECT payload_json FROM managed_events WHERE task_id=? AND kind='request_resolved' AND event_key=?",(task['id'],row['id'])).fetchone();receipt=decode(resolved,'payload_json')
@@ -119,6 +133,8 @@ def runtime_record(con,task,s,row):
     dispatch=decode(dispatched,'payload_json')
     memory=ctx.get('persistent_memory') or {}
     trigger={'name':{'native_user':'真实用户消息','administrator':'管理员约束','persistent_memory':'跨会话持久记忆加载'}.get(actor,actor),'actor':actor,'request_id':ctx.get('request_evidence_id'),'job_id':row['id'],'revision':row['revision'],'turn':dispatch.get('dispatched_turn',source.get('turn')),'accepted_turn':source.get('turn'),'observations':[{k:memory.get(k) for k in ('category','type','seq','content_hash')}] if memory else []}
+    trigger['text']=source.get('text')
+    templates=runtime_templates(con,task['id'],row['id'],p.get('evidence_ids',[]))
     base_binding=ctx.get('current_binding') or {}
     before=ctx.get('base_snapshot',{}).get('payload',{});delta={'added_protection':sorted(set(p.get('protected_paths',[]))-set(before.get('protected_paths',[]))),'removed_protection':sorted(set(before.get('protected_paths',[]))-set(p.get('protected_paths',[]))),'write_scope_before':before.get('allowed_write_dirs'),'write_scope_after':p.get('allowed_write_dirs'),'output_before':before.get('allow_output'),'output_after':p.get('allow_output')}
     ev=[]
@@ -141,7 +157,7 @@ def runtime_record(con,task,s,row):
     # Keep full-bundle integrity verification internal. A record never exports it.
     scoped=compilation({},'', 'assessment_no_rule')
     scoped.update(status='not_applicable',message='这是评估记录，没有逐句登记的 OS 规则。',has_new_os_rule=False)
-    return {'id':'runtime:'+row['id'],'stage':'runtime','base_version':base_binding.get('version'),'base_policy_hash':ctx.get('policy_hash'),'process_generation':{k:base_binding.get(k) for k in ('domain_id','runner_pid','session_id')},'statement':text,'identified_statements':statements,'policy_type':'per_event' if decision in ('restrict','expand') else 'semantic_only' if decision=='guidance_only' else 'assessment','effect':decision,'context_required':True,'context_scope':'task','context_reason':'评估已认证用户请求、现行策略与已读取项目对象','classification_origin':'validated_additive_delta; historical_source_clause_when_available','status':status,'created_at':row['created_at'],'trigger':trigger,'evidence':ev,'explanation':p.get('explanation'),'delta':delta,'targets':delta['added_protection']+delta['removed_protection'],'operations':['write','unlink'] if decision in ('restrict','expand') else [],'compilation':scoped,'loading':{'loaded':applied,'version':receipt.get('version'),'confirmation':receipt.get('confirmation'),'session_id':ctx.get('session_id'),'candidate_hash':p.get('hash'),'baseline_hash':ctx.get('baseline',{}).get('hash')}}
+    return {'id':'runtime:'+row['id'],'stage':'runtime','base_version':base_binding.get('version'),'base_policy_hash':ctx.get('policy_hash'),'process_generation':{k:base_binding.get(k) for k in ('domain_id','runner_pid','session_id')},'statement':text,'identified_statements':statements,'policy_type':'per_event' if decision in ('restrict','expand') else 'semantic_only' if decision=='guidance_only' else 'assessment','effect':decision,'context_required':True,'context_scope':'task','context_reason':'评估已认证用户请求、现行策略与已读取项目对象','classification_origin':'validated_additive_delta; historical_source_clause_when_available','status':status,'created_at':row['created_at'],'trigger':trigger,'template_reference':templates,'evidence':ev,'explanation':p.get('explanation'),'delta':delta,'targets':delta['added_protection']+delta['removed_protection'],'operations':['write','unlink'] if decision in ('restrict','expand') else [],'compilation':scoped,'loading':{'loaded':applied,'version':receipt.get('version'),'confirmation':receipt.get('confirmation'),'session_id':ctx.get('session_id'),'candidate_hash':p.get('hash'),'baseline_hash':ctx.get('baseline',{}).get('hash')}}
 
 def mentions(text,path):
     # Match an actual registered path token, not a filename suffix or another file.
@@ -218,7 +234,7 @@ def runtime_statement_records(con,task,state,row,include_assessments=False,persi
     return result
 
 
-def records(task_id,stage='startup',before=None,include_assessments=False):
+def records(task_id,stage='startup',before=None,include_assessments=False,generated_only=False):
     with db.connect() as con:
         state=c.load(con,task_id);task=c.task_row(con,task_id)
         if stage=='startup':items=startup_records(con,task,state);cursor=None
@@ -236,6 +252,7 @@ def records(task_id,stage='startup',before=None,include_assessments=False):
                 if not rows:break
                 for row in rows:
                     children=runtime_statement_records(con,task,state,row,include_assessments)
+                    if generated_only:children=[item for item in children if item['effect']=='restrict' and item['policy_type']!='semantic_only' and item.get('targets')]
                     for index,item in enumerate(children):
                         if first and row['cursor']==boundary and index<=offset:continue
                         items.append(item);cursors.append(str(row['cursor'])+':'+str(index))
