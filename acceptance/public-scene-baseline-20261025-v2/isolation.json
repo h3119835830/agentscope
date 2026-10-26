@@ -1,0 +1,80 @@
+{
+  "before": {
+    "services": {
+      "agentscope-preview.service": "MainPID=663695\nActiveState=active\n",
+      "agentscope-preview-broker.service": "MainPID=662967\nActiveState=active\n"
+    },
+    "instances": [
+      {
+        "id": "instance-e86886cee6e04d9e",
+        "generation": "ab085d19a5e44e56a02959e5f109ed99",
+        "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+        "resources": [
+          "/var/lib/agentscope-agent/workspaces/dsh-web-test"
+        ],
+        "gate": "open",
+        "pid": 663069
+      },
+      {
+        "id": "instance-751ad8a6165f4357",
+        "generation": "4ea4d658e12b44cc81c61b5367b100fe",
+        "policy_hash": "41daf0e76bfcafdf18c27267b90fdd40814692255769461fc6b7ebb76ced6aa9",
+        "resources": [
+          "/var/lib/agentscope-agent/workspaces/three-stage-20261025"
+        ],
+        "gate": "closed",
+        "pid": null
+      },
+      {
+        "id": "native-dsh",
+        "generation": "8d8cb09ce6c758c72e50c259",
+        "policy_hash": null,
+        "resources": [
+          "/var/lib/agentscope-agent/workspaces/dsh-web-test"
+        ],
+        "gate": null,
+        "pid": null
+      }
+    ]
+  },
+  "after": {
+    "services": {
+      "agentscope-preview.service": "MainPID=663695\nActiveState=active\n",
+      "agentscope-preview-broker.service": "MainPID=662967\nActiveState=active\n"
+    },
+    "instances": [
+      {
+        "id": "instance-e86886cee6e04d9e",
+        "generation": "ab085d19a5e44e56a02959e5f109ed99",
+        "policy_hash": "fa762610581e4cbad9ef5cf96408010288b514a213ce3380695f03830d28c815",
+        "resources": [
+          "/var/lib/agentscope-agent/workspaces/dsh-web-test"
+        ],
+        "gate": "open",
+        "pid": 663069
+      },
+      {
+        "id": "instance-751ad8a6165f4357",
+        "generation": "4ea4d658e12b44cc81c61b5367b100fe",
+        "policy_hash": "41daf0e76bfcafdf18c27267b90fdd40814692255769461fc6b7ebb76ced6aa9",
+        "resources": [
+          "/var/lib/agentscope-agent/workspaces/three-stage-20261025"
+        ],
+        "gate": "closed",
+        "pid": null
+      },
+      {
+        "id": "native-dsh",
+        "generation": "8d8cb09ce6c758c72e50c259",
+        "policy_hash": null,
+        "resources": [
+          "/var/lib/agentscope-agent/workspaces/dsh-web-test"
+        ],
+        "gate": null,
+        "pid": null
+      }
+    ]
+  },
+  "unchanged": true,
+  "worker_returncode": 0
+}

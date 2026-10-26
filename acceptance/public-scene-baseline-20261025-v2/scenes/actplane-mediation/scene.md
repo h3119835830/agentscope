@@ -1,0 +1,2 @@
+### E3 — Mandatory mediation (must pass through a gate)
+**Scenario**: the production DB file may only be touched by the approved migration tool, never opened ad-hoc by the agent. **Why**: encode "the only sanctioned path", not just "who". Pure lineage gate, no label.

@@ -23,6 +23,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo build --release --manifest-path actplane/Cargo.toml --bin actplane
       - run: cargo build --release --manifest-path backend/dsl-adapter/Cargo.toml
+      - run: cc -O2 -Wall -Wextra -I actplane/bpf backend/policy_match_preview.c -o backend/dsl-adapter/target/release/agentscope-match-preview
       - run: mkdir -p /tmp/a
       - name: Prepare identity-sensitive reader accounts
         run: |

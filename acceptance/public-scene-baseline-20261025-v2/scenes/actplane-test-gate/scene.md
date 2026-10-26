@@ -1,0 +1,2 @@
+### E5 — Test-before-commit (temporal ordering, staleness-aware)
+**Scenario**: the agent commits without running tests since its last code edit. **Why**: a process/CI-hygiene invariant a harness should enforce, not hope for. The latching `after exec "**/pytest"` lets `edit → test → edit → commit` slip through; `since` re-arms the gate when src changes again (§1.9).

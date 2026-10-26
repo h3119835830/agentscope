@@ -1,0 +1,1279 @@
+{
+  "id": "real-directory-gate",
+  "requirements": "这个项目的 Python 实现位于 backend/agentscope_app，测试位于 backend/tests。两个目录内任一文件或子目录中的文件再次修改后，旧的 pytest 成功结果均应失效；缺少退出码 0 的有效测试时终止 Git 提交进程。只按现有模板能力起草，不降级为提醒。",
+  "instance_id": "instance-5a722cf31d334ec6",
+  "request_key": "fac6057960f24ea3bf2efc52935026ff",
+  "started_at": "2026-10-26T06:25:02.957291+00:00",
+  "status": "completed",
+  "result": {
+    "items": [
+      {
+        "id": "tc_7885e41e268648b1a8563efe5b477e84",
+        "template_id": "GIT-COMMIT-CHECK",
+        "scope_id": "instance-5a722cf31d334ec6",
+        "scope": "agent",
+        "workspace_id": null,
+        "revision": 1,
+        "archived": 0,
+        "created_at": "2026-10-26T06:25:45.695167+00:00",
+        "updated_at": "2026-10-26T06:25:45.695167+00:00",
+        "latest_revision": 1,
+        "execution_support": {
+          "status": "limited",
+          "applicable": true,
+          "event_type": "跨事件",
+          "supported": [
+            "检查程序退出码和代码写入后的失效条件实际写入 DSL。",
+            "缺少有效检查事件时记录或终止命中进程。"
+          ],
+          "unsupported": [
+            "检查结果与暂存区、待推送提交 SHA 的一致性。",
+            "指定测试命令参数、可信 CI 结果或多会话独立检查。",
+            "执行前按参数阻断。"
+          ],
+          "boundary": [
+            "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。",
+            "仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。",
+            "作用于所选 Agent 的共享执行域；不按仓库或会话隔离。"
+          ],
+          "verification": {
+            "state": "verified",
+            "date": "2026-10-20",
+            "cases": 8,
+            "effects": [
+              "kill",
+              "notify"
+            ],
+            "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+          }
+        },
+        "template_version": 3,
+        "template_hash": "4477f8b01b4706ee00eb0add0297b7d68f1028973504bc3e366a9c322007c174",
+        "resource_hash": "c1313a8bd2004b72954482d9175a14b8e1d877704c272b12ad1a34c0ee632b37",
+        "name": "Python 实现测试成功后允许提交",
+        "reason": "backend/agentscope_app 内任一文件或子目录再次修改后，旧 pytest 成功结果失效；缺少退出码 0 的有效测试时终止 Git 提交进程。",
+        "execution_reason": "backend/agentscope_app 内任一文件或子目录再次修改后，旧 pytest 成功结果失效；缺少退出码 0 的有效测试时终止 Git 提交进程。",
+        "parameters": {
+          "target": "/w/0/backend/agentscope_app/**",
+          "checker": "pytest",
+          "exit_code": 0,
+          "effect": "kill"
+        },
+        "document": {
+          "id": "tc_7885e41e268648b1a8563efe5b477e84",
+          "name": "Python 实现测试成功后允许提交",
+          "original_dsl": "rule config-tc_7885e41e268648b1a8563efe5b477e84:\n  kill exec \"git\" \"commit\" if AGENT unless after exec \"pytest\" exits 0 since write \"/w/0/backend/agentscope_app/**\"\n  because \"backend/agentscope_app 内任一文件或子目录再次修改后，旧 pytest 成功结果失效；缺少退出码 0 的有效测试时终止 Git 提交进程。\"",
+          "metadata": {
+            "config-tc_7885e41e268648b1a8563efe5b477e84": {
+              "statement": "Python 实现测试成功后允许提交",
+              "context_requirement": "self_contained",
+              "context_reason": ""
+            }
+          },
+          "managed_identity": true
+        },
+        "requested_operations": [
+          "exec"
+        ],
+        "effective_operations": [
+          "exec"
+        ],
+        "coverage_warning": "",
+        "effect": "kill",
+        "note": "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。 仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。 作用于所选 Agent 的共享执行域；不按仓库或会话隔离。",
+        "source_read": {
+          "id": "15e636fff2b84a338a2af50d76c8aa64",
+          "snapshot_hash": "0644ced924175b8a9ceddfb13ccf3a0f8584e15a900b35a9a28cce4bca9e6f63",
+          "workspace": "real-project",
+          "paths": [
+            "backend/requirements.txt"
+          ],
+          "execution_paths": [
+            "/w/0/backend/requirements.txt"
+          ]
+        },
+        "source_reads": [
+          {
+            "id": "15e636fff2b84a338a2af50d76c8aa64",
+            "snapshot_hash": "0644ced924175b8a9ceddfb13ccf3a0f8584e15a900b35a9a28cce4bca9e6f63",
+            "workspace": "real-project",
+            "paths": [
+              "backend/requirements.txt"
+            ],
+            "execution_paths": [
+              "/w/0/backend/requirements.txt"
+            ]
+          }
+        ],
+        "origin": "assistant",
+        "generation_stage": "preflight",
+        "applied_revision": null,
+        "applied_configuration": null,
+        "applied": false,
+        "approval_id": null,
+        "approval_revision": null,
+        "approval_current": false,
+        "status": "draft",
+        "can_submit": true,
+        "read_only": false,
+        "template_definition": {
+          "id": "GIT-COMMIT-CHECK",
+          "version": 3,
+          "name": "Git 提交前检查事件",
+          "category": "Git 操作",
+          "summary": "在 Git commit 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待提交内容测试通过。",
+          "parameters": [
+            {
+              "key": "target",
+              "label": "使检查失效的代码路径",
+              "default": "",
+              "type": "path",
+              "help": "此路径是检查失效条件，不是 Git 仓库匹配条件。"
+            },
+            {
+              "key": "checker",
+              "label": "检查程序名或路径",
+              "default": "",
+              "type": "program",
+              "help": "仅匹配程序，不校验脚本参数、测试用例或可信 CI 身份。"
+            },
+            {
+              "key": "exit_code",
+              "label": "检查成功退出码",
+              "default": "0",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 255
+            },
+            {
+              "key": "effect",
+              "label": "匹配后的动作",
+              "default": "kill",
+              "type": "effect"
+            }
+          ],
+          "effect": "kill",
+          "operation": "exec",
+          "scopes": [
+            "system",
+            "agent"
+          ],
+          "note": "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。 仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。 作用于所选 Agent 的共享执行域；不按仓库或会话隔离。",
+          "reason": "在 Git commit 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待提交内容测试通过。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+          "command": "commit",
+          "allowed_effects": [
+            "notify",
+            "kill"
+          ],
+          "execution_support": {
+            "status": "limited",
+            "applicable": true,
+            "event_type": "跨事件",
+            "supported": [
+              "检查程序退出码和代码写入后的失效条件实际写入 DSL。",
+              "缺少有效检查事件时记录或终止命中进程。"
+            ],
+            "unsupported": [
+              "检查结果与暂存区、待推送提交 SHA 的一致性。",
+              "指定测试命令参数、可信 CI 结果或多会话独立检查。",
+              "执行前按参数阻断。"
+            ],
+            "boundary": [
+              "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。",
+              "仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。",
+              "作用于所选 Agent 的共享执行域；不按仓库或会话隔离。"
+            ],
+            "verification": {
+              "state": "verified",
+              "date": "2026-10-20",
+              "cases": 8,
+              "effects": [
+                "kill",
+                "notify"
+              ],
+              "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+            }
+          },
+          "contract": "git-fixed-command.v1",
+          "fixed_fields": {
+            "program": "git",
+            "command": "commit"
+          },
+          "dsl_clause_template": "{{effect}} exec \"git\" \"commit\" if AGENT unless after exec {{checker}} exits {{exit_code}} since write {{target}}",
+          "disabled_effects": {
+            "block": "ActPlane 在执行后观察 Git 参数，暂不支持按 commit/push 参数事前 block；kill 是命中后终止。"
+          },
+          "dsl_preview": {
+            "state": "incomplete",
+            "dsl": "rule config-preview:\n  kill exec \"git\" \"commit\" if AGENT unless after exec \"{{checker}}\" exits 0 since write \"{{target}}\"\n  because \"在 Git commit 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待提交内容测试通过。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+            "missing": [
+              "使检查失效的代码路径",
+              "检查程序名或路径"
+            ],
+            "errors": [],
+            "preview_only": true
+          }
+        },
+        "scope_label": "此 Agent 的全部工作区与会话",
+        "configuration_status": {
+          "schema": "ConfigurationProgress/1",
+          "state": "draft",
+          "label": "草案",
+          "revision": 1,
+          "applied_revision": null,
+          "lifecycle": {
+            "archived": false,
+            "disabled": false
+          },
+          "read_only": false
+        }
+      },
+      {
+        "id": "tc_1f134fedd4174860ab97fb1049f8b4aa",
+        "template_id": "GIT-COMMIT-CHECK",
+        "scope_id": "instance-5a722cf31d334ec6",
+        "scope": "agent",
+        "workspace_id": null,
+        "revision": 1,
+        "archived": 0,
+        "created_at": "2026-10-26T06:25:45.696552+00:00",
+        "updated_at": "2026-10-26T06:25:45.696552+00:00",
+        "latest_revision": 1,
+        "execution_support": {
+          "status": "limited",
+          "applicable": true,
+          "event_type": "跨事件",
+          "supported": [
+            "检查程序退出码和代码写入后的失效条件实际写入 DSL。",
+            "缺少有效检查事件时记录或终止命中进程。"
+          ],
+          "unsupported": [
+            "检查结果与暂存区、待推送提交 SHA 的一致性。",
+            "指定测试命令参数、可信 CI 结果或多会话独立检查。",
+            "执行前按参数阻断。"
+          ],
+          "boundary": [
+            "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。",
+            "仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。",
+            "作用于所选 Agent 的共享执行域；不按仓库或会话隔离。"
+          ],
+          "verification": {
+            "state": "verified",
+            "date": "2026-10-20",
+            "cases": 8,
+            "effects": [
+              "kill",
+              "notify"
+            ],
+            "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+          }
+        },
+        "template_version": 3,
+        "template_hash": "4477f8b01b4706ee00eb0add0297b7d68f1028973504bc3e366a9c322007c174",
+        "resource_hash": "c1313a8bd2004b72954482d9175a14b8e1d877704c272b12ad1a34c0ee632b37",
+        "name": "测试目录变更后测试成功后允许提交",
+        "reason": "backend/tests 内任一文件或子目录再次修改后，旧 pytest 成功结果失效；缺少退出码 0 的有效测试时终止 Git 提交进程。",
+        "execution_reason": "backend/tests 内任一文件或子目录再次修改后，旧 pytest 成功结果失效；缺少退出码 0 的有效测试时终止 Git 提交进程。",
+        "parameters": {
+          "target": "/w/0/backend/tests/**",
+          "checker": "pytest",
+          "exit_code": 0,
+          "effect": "kill"
+        },
+        "document": {
+          "id": "tc_1f134fedd4174860ab97fb1049f8b4aa",
+          "name": "测试目录变更后测试成功后允许提交",
+          "original_dsl": "rule config-tc_1f134fedd4174860ab97fb1049f8b4aa:\n  kill exec \"git\" \"commit\" if AGENT unless after exec \"pytest\" exits 0 since write \"/w/0/backend/tests/**\"\n  because \"backend/tests 内任一文件或子目录再次修改后，旧 pytest 成功结果失效；缺少退出码 0 的有效测试时终止 Git 提交进程。\"",
+          "metadata": {
+            "config-tc_1f134fedd4174860ab97fb1049f8b4aa": {
+              "statement": "测试目录变更后测试成功后允许提交",
+              "context_requirement": "self_contained",
+              "context_reason": ""
+            }
+          },
+          "managed_identity": true
+        },
+        "requested_operations": [
+          "exec"
+        ],
+        "effective_operations": [
+          "exec"
+        ],
+        "coverage_warning": "",
+        "effect": "kill",
+        "note": "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。 仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。 作用于所选 Agent 的共享执行域；不按仓库或会话隔离。",
+        "source_read": {
+          "id": "15e636fff2b84a338a2af50d76c8aa64",
+          "snapshot_hash": "0644ced924175b8a9ceddfb13ccf3a0f8584e15a900b35a9a28cce4bca9e6f63",
+          "workspace": "real-project",
+          "paths": [
+            "backend/requirements.txt"
+          ],
+          "execution_paths": [
+            "/w/0/backend/requirements.txt"
+          ]
+        },
+        "source_reads": [
+          {
+            "id": "15e636fff2b84a338a2af50d76c8aa64",
+            "snapshot_hash": "0644ced924175b8a9ceddfb13ccf3a0f8584e15a900b35a9a28cce4bca9e6f63",
+            "workspace": "real-project",
+            "paths": [
+              "backend/requirements.txt"
+            ],
+            "execution_paths": [
+              "/w/0/backend/requirements.txt"
+            ]
+          }
+        ],
+        "origin": "assistant",
+        "generation_stage": "preflight",
+        "applied_revision": null,
+        "applied_configuration": null,
+        "applied": false,
+        "approval_id": null,
+        "approval_revision": null,
+        "approval_current": false,
+        "status": "draft",
+        "can_submit": true,
+        "read_only": false,
+        "template_definition": {
+          "id": "GIT-COMMIT-CHECK",
+          "version": 3,
+          "name": "Git 提交前检查事件",
+          "category": "Git 操作",
+          "summary": "在 Git commit 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待提交内容测试通过。",
+          "parameters": [
+            {
+              "key": "target",
+              "label": "使检查失效的代码路径",
+              "default": "",
+              "type": "path",
+              "help": "此路径是检查失效条件，不是 Git 仓库匹配条件。"
+            },
+            {
+              "key": "checker",
+              "label": "检查程序名或路径",
+              "default": "",
+              "type": "program",
+              "help": "仅匹配程序，不校验脚本参数、测试用例或可信 CI 身份。"
+            },
+            {
+              "key": "exit_code",
+              "label": "检查成功退出码",
+              "default": "0",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 255
+            },
+            {
+              "key": "effect",
+              "label": "匹配后的动作",
+              "default": "kill",
+              "type": "effect"
+            }
+          ],
+          "effect": "kill",
+          "operation": "exec",
+          "scopes": [
+            "system",
+            "agent"
+          ],
+          "note": "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。 仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。 作用于所选 Agent 的共享执行域；不按仓库或会话隔离。",
+          "reason": "在 Git commit 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待提交内容测试通过。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+          "command": "commit",
+          "allowed_effects": [
+            "notify",
+            "kill"
+          ],
+          "execution_support": {
+            "status": "limited",
+            "applicable": true,
+            "event_type": "跨事件",
+            "supported": [
+              "检查程序退出码和代码写入后的失效条件实际写入 DSL。",
+              "缺少有效检查事件时记录或终止命中进程。"
+            ],
+            "unsupported": [
+              "检查结果与暂存区、待推送提交 SHA 的一致性。",
+              "指定测试命令参数、可信 CI 结果或多会话独立检查。",
+              "执行前按参数阻断。"
+            ],
+            "boundary": [
+              "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。",
+              "仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。",
+              "作用于所选 Agent 的共享执行域；不按仓库或会话隔离。"
+            ],
+            "verification": {
+              "state": "verified",
+              "date": "2026-10-20",
+              "cases": 8,
+              "effects": [
+                "kill",
+                "notify"
+              ],
+              "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+            }
+          },
+          "contract": "git-fixed-command.v1",
+          "fixed_fields": {
+            "program": "git",
+            "command": "commit"
+          },
+          "dsl_clause_template": "{{effect}} exec \"git\" \"commit\" if AGENT unless after exec {{checker}} exits {{exit_code}} since write {{target}}",
+          "disabled_effects": {
+            "block": "ActPlane 在执行后观察 Git 参数，暂不支持按 commit/push 参数事前 block；kill 是命中后终止。"
+          },
+          "dsl_preview": {
+            "state": "incomplete",
+            "dsl": "rule config-preview:\n  kill exec \"git\" \"commit\" if AGENT unless after exec \"{{checker}}\" exits 0 since write \"{{target}}\"\n  because \"在 Git commit 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待提交内容测试通过。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+            "missing": [
+              "使检查失效的代码路径",
+              "检查程序名或路径"
+            ],
+            "errors": [],
+            "preview_only": true
+          }
+        },
+        "scope_label": "此 Agent 的全部工作区与会话",
+        "configuration_status": {
+          "schema": "ConfigurationProgress/1",
+          "state": "draft",
+          "label": "草案",
+          "revision": 1,
+          "applied_revision": null,
+          "lifecycle": {
+            "archived": false,
+            "disabled": false
+          },
+          "read_only": false
+        }
+      }
+    ],
+    "questions": [
+      "项目内未见 pytest 配置或 conftest（requirements.txt 也未列表 pytest），请确认检查程序应以程序名 `pytest` 启动，而非 `python -m pytest` 或虚拟环境绝对路径。",
+      "检查程序仅按程序名匹配、不校验参数：是否需固定 pytest 运行范围（如 `backend/tests`）？当前任意参数的 pytest 退出码 0 都视为有效检查。",
+      "当前按两个目录事实拆为两条独立子配置；若希望单个规则覆盖，需要模板支持多目标（现能力不足），请确认拆分方式可接受。"
+    ],
+    "gaps": [
+      "检查事件在 git commit 参数 exec 后才观察，且模板不支持执行前按参数阻断：无有效检查时只能终止命中进程，不能保证提交副作用发生前阻断。",
+      "模板不校验检查结果与暂存区/待提交内容的一致性，也不支持指定 pytest 参数、可信 CI 身份或多会话独立检查。",
+      "失效条件参数只接受单个 target，无法在一条规则内同时覆盖两个不连续目录，只能由两条子配置分别生效。"
+    ],
+    "text": "这个项目的 Python 实现位于 backend/agentscope_app，测试位于 backend/tests。两个目录内任一文件或子目录中的文件再次修改后，旧的 pytest 成功结果均应失效；缺少退出码 0 的有效测试时终止 Git 提交进程。只按现有模板能力起草，不降级为提醒。",
+    "summary": "已核验 registry 项目中 backend/agentscope_app（含 instances 子目录及 adapters.py、api.py 等文件）与 backend/tests（含 test_dsl_configuration.py 等 3 个测试文件）均实际存在；requirements.txt 未列出 pytest。按用户要求选择 GIT-COMMIT-CHECK，effect 保持 kill（不降级为 notify），checker=pytest、exit_code=0，target 使用显式递归模式 /w/0/backend/agentscope_app/** 与 /w/0/backend/tests/**。preview_policy_matches 已确认目录内已存在文件与假想后代文件均命中失效条件、两条配置互不越界、git commit 目标事件匹配通过（字面目录路径仅匹配目录自身，故改用递归模式）。preview 仅验证编译后匹配，未保存、未审批、未应用；配置本身不含授权。",
+    "parent_request_id": null,
+    "generation_basis": "7a8d616f319b8284f9bc695969f33fd08447ac12c72932a66068568533cfefa3",
+    "scope_id": "instance-5a722cf31d334ec6",
+    "scope": "agent",
+    "workspace_id": null,
+    "reference_workspace_id": null,
+    "stage": "preflight",
+    "runtime_trigger": null,
+    "request_id": "61442e6a5b1c431faa38fbbec13477f6",
+    "created_at": "2026-10-26T06:25:45.690477+00:00",
+    "configuration_snapshots": [
+      {
+        "id": "tc_7885e41e268648b1a8563efe5b477e84",
+        "revision": 1,
+        "name": "Python 实现测试成功后允许提交",
+        "configuration_hash": "4337ec20bed14017741c194eebe77e46def661ce34ebca51fdbef649da42f3e0",
+        "template": {
+          "id": "GIT-COMMIT-CHECK",
+          "version": 3,
+          "name": "Git 提交前检查事件",
+          "fixed_fields": {
+            "program": "git",
+            "command": "commit"
+          },
+          "parameters": [
+            {
+              "key": "target",
+              "label": "使检查失效的代码路径",
+              "type": "path"
+            },
+            {
+              "key": "checker",
+              "label": "检查程序名或路径",
+              "type": "program"
+            },
+            {
+              "key": "exit_code",
+              "label": "检查成功退出码",
+              "type": "integer"
+            },
+            {
+              "key": "effect",
+              "label": "匹配后的动作",
+              "type": "effect"
+            }
+          ]
+        },
+        "parameters": {
+          "target": "/w/0/backend/agentscope_app/**",
+          "checker": "pytest",
+          "exit_code": 0,
+          "effect": "kill"
+        },
+        "execution_support": {
+          "status": "limited",
+          "applicable": true,
+          "event_type": "跨事件",
+          "supported": [
+            "检查程序退出码和代码写入后的失效条件实际写入 DSL。",
+            "缺少有效检查事件时记录或终止命中进程。"
+          ],
+          "unsupported": [
+            "检查结果与暂存区、待推送提交 SHA 的一致性。",
+            "指定测试命令参数、可信 CI 结果或多会话独立检查。",
+            "执行前按参数阻断。"
+          ],
+          "boundary": [
+            "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。",
+            "仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。",
+            "作用于所选 Agent 的共享执行域；不按仓库或会话隔离。"
+          ],
+          "verification": {
+            "state": "verified",
+            "date": "2026-10-20",
+            "cases": 8,
+            "effects": [
+              "kill",
+              "notify"
+            ],
+            "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+          }
+        },
+        "scope": {
+          "id": "instance-5a722cf31d334ec6",
+          "type": "agent",
+          "label": "指定 Agent · 真实源码目录变化使检查失效"
+        },
+        "approval_status": "draft",
+        "approval_operation": "apply"
+      },
+      {
+        "id": "tc_1f134fedd4174860ab97fb1049f8b4aa",
+        "revision": 1,
+        "name": "测试目录变更后测试成功后允许提交",
+        "configuration_hash": "9caf42a9749d2d28a471f94ce12fa43a50e7fb57aeb8b0146cc4f51cbe998dbe",
+        "template": {
+          "id": "GIT-COMMIT-CHECK",
+          "version": 3,
+          "name": "Git 提交前检查事件",
+          "fixed_fields": {
+            "program": "git",
+            "command": "commit"
+          },
+          "parameters": [
+            {
+              "key": "target",
+              "label": "使检查失效的代码路径",
+              "type": "path"
+            },
+            {
+              "key": "checker",
+              "label": "检查程序名或路径",
+              "type": "program"
+            },
+            {
+              "key": "exit_code",
+              "label": "检查成功退出码",
+              "type": "integer"
+            },
+            {
+              "key": "effect",
+              "label": "匹配后的动作",
+              "type": "effect"
+            }
+          ]
+        },
+        "parameters": {
+          "target": "/w/0/backend/tests/**",
+          "checker": "pytest",
+          "exit_code": 0,
+          "effect": "kill"
+        },
+        "execution_support": {
+          "status": "limited",
+          "applicable": true,
+          "event_type": "跨事件",
+          "supported": [
+            "检查程序退出码和代码写入后的失效条件实际写入 DSL。",
+            "缺少有效检查事件时记录或终止命中进程。"
+          ],
+          "unsupported": [
+            "检查结果与暂存区、待推送提交 SHA 的一致性。",
+            "指定测试命令参数、可信 CI 结果或多会话独立检查。",
+            "执行前按参数阻断。"
+          ],
+          "boundary": [
+            "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。",
+            "仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。",
+            "作用于所选 Agent 的共享执行域；不按仓库或会话隔离。"
+          ],
+          "verification": {
+            "state": "verified",
+            "date": "2026-10-20",
+            "cases": 8,
+            "effects": [
+              "kill",
+              "notify"
+            ],
+            "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+          }
+        },
+        "scope": {
+          "id": "instance-5a722cf31d334ec6",
+          "type": "agent",
+          "label": "指定 Agent · 真实源码目录变化使检查失效"
+        },
+        "approval_status": "draft",
+        "approval_operation": "apply"
+      }
+    ],
+    "context_usage": {
+      "mode": "auto",
+      "round_count": 1,
+      "call_count": 23,
+      "format_repair_count": 0,
+      "file_count": 1,
+      "total_bytes": 98,
+      "activity": [
+        {
+          "tool": "list_directory",
+          "workspace": "real-project",
+          "status": "completed",
+          "path": "backend",
+          "entry_count": 3,
+          "omitted_count": 0
+        },
+        {
+          "tool": "inspect_resource",
+          "workspace": "real-project",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "list_directory",
+          "workspace": "real-project",
+          "status": "completed",
+          "path": "backend/agentscope_app",
+          "entry_count": 1,
+          "omitted_count": 0
+        },
+        {
+          "tool": "search_policy_templates",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "search_project",
+          "workspace": "real-project",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "read_files",
+          "workspace": "real-project",
+          "status": "completed",
+          "paths": [
+            "backend/requirements.txt"
+          ],
+          "file_count": 1
+        },
+        {
+          "tool": "draft_git_commit_check",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "draft_git_commit_check",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "preview_policy_matches",
+          "workspace": "real-project",
+          "status": "rejected",
+          "applied": false,
+          "diagnostic": "只能预览本轮 draft_* 工具生成的原候选，不能传入 DSL 或任意配置"
+        },
+        {
+          "tool": "preview_policy_matches",
+          "workspace": "real-project",
+          "status": "rejected",
+          "applied": false,
+          "diagnostic": "只能预览本轮 draft_* 工具生成的原候选，不能传入 DSL 或任意配置"
+        },
+        {
+          "tool": "draft_git_commit_check",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "draft_git_commit_check",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "preview_policy_matches",
+          "workspace": "real-project",
+          "status": "completed",
+          "applied": false,
+          "configuration_hash": "f1623726345ef4077e67b9106a1cabdc4697c5ef138cd0607184bfc6ebb73bfe",
+          "coverage_checks_passed": false,
+          "checks": [
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/backend/tests",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/backend/tests/test_policy_context_agent.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": false,
+              "passed": false
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/backend/tests/__match_probe__.txt",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": true,
+              "matched": false,
+              "passed": false
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/backend/tests/__match_probe__/child.txt",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": true,
+              "matched": false,
+              "passed": false
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/backend/agentscope_app/instances/api.py",
+              "argument": "",
+              "expected_match": false,
+              "hypothetical": false,
+              "matched": false,
+              "passed": true
+            },
+            {
+              "operation": "exec",
+              "role": "target",
+              "target": "git:commit",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": false,
+              "passed": false
+            }
+          ]
+        },
+        {
+          "tool": "preview_policy_matches",
+          "workspace": "real-project",
+          "status": "completed",
+          "applied": false,
+          "configuration_hash": "3023521a982cf1433ef46151bb9713b47e3df52546ef67cb759ea8eb33acc7b6",
+          "coverage_checks_passed": false,
+          "checks": [
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/backend/agentscope_app",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/backend/agentscope_app/instances/api.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": false,
+              "passed": false
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/backend/agentscope_app/__match_probe__.txt",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": true,
+              "matched": false,
+              "passed": false
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/backend/agentscope_app/__match_probe__/child.txt",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": true,
+              "matched": false,
+              "passed": false
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/backend/tests/test_dsl_configuration.py",
+              "argument": "",
+              "expected_match": false,
+              "hypothetical": false,
+              "matched": false,
+              "passed": true
+            },
+            {
+              "operation": "exec",
+              "role": "target",
+              "target": "git:commit",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": false,
+              "passed": false
+            }
+          ]
+        },
+        {
+          "tool": "inspect_resource",
+          "workspace": "real-project",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "draft_git_commit_check",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "draft_git_commit_check",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "preview_policy_matches",
+          "workspace": "real-project",
+          "status": "completed",
+          "applied": false,
+          "configuration_hash": "d98235ffef6c26659b548720a9828628378430284df9fb9af77c5d6cd6a578aa",
+          "coverage_checks_passed": false,
+          "checks": [
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/backend/agentscope_app/instances/api.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/backend/agentscope_app/__match_probe__.txt",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": true,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/backend/agentscope_app/__match_probe__/child.txt",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": true,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/backend/tests/test_dsl_configuration.py",
+              "argument": "",
+              "expected_match": false,
+              "hypothetical": false,
+              "matched": false,
+              "passed": true
+            },
+            {
+              "operation": "exec",
+              "role": "target",
+              "target": "git:commit",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": false,
+              "passed": false
+            }
+          ]
+        },
+        {
+          "tool": "preview_policy_matches",
+          "workspace": "real-project",
+          "status": "completed",
+          "applied": false,
+          "configuration_hash": "23d1e26de2ed5c1ba5ce9bb3f6cc1f6e286014578bfc80d30c5d4d774d0025cd",
+          "coverage_checks_passed": false,
+          "checks": [
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/backend/tests/test_policy_context_agent.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/backend/tests/__match_probe__.txt",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": true,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/backend/tests/__match_probe__/child.txt",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": true,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/backend/agentscope_app/instances/api.py",
+              "argument": "",
+              "expected_match": false,
+              "hypothetical": false,
+              "matched": false,
+              "passed": true
+            },
+            {
+              "operation": "exec",
+              "role": "target",
+              "target": "git:commit",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": false,
+              "passed": false
+            }
+          ]
+        },
+        {
+          "tool": "preview_policy_matches",
+          "workspace": "real-project",
+          "status": "completed",
+          "applied": false,
+          "configuration_hash": "23d1e26de2ed5c1ba5ce9bb3f6cc1f6e286014578bfc80d30c5d4d774d0025cd",
+          "coverage_checks_passed": true,
+          "checks": [
+            {
+              "operation": "exec",
+              "role": "target",
+              "target": "git",
+              "argument": "commit",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            }
+          ]
+        },
+        {
+          "tool": "preview_policy_matches",
+          "workspace": "real-project",
+          "status": "completed",
+          "applied": false,
+          "configuration_hash": "d98235ffef6c26659b548720a9828628378430284df9fb9af77c5d6cd6a578aa",
+          "coverage_checks_passed": true,
+          "checks": [
+            {
+              "operation": "exec",
+              "role": "target",
+              "target": "git",
+              "argument": "commit",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            }
+          ]
+        },
+        {
+          "tool": "draft_git_commit_check",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "draft_git_commit_check",
+          "status": "completed",
+          "applied": false
+        }
+      ],
+      "sources": [
+        {
+          "workspace": "real-project",
+          "paths": [
+            "/w/0/backend/requirements.txt"
+          ]
+        }
+      ],
+      "pattern_previews": [
+        {
+          "schema": "policy-pattern-preview.v1",
+          "configuration_hash": "f1623726345ef4077e67b9106a1cabdc4697c5ef138cd0607184bfc6ebb73bfe",
+          "checks": [
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/backend/tests",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/backend/tests/test_policy_context_agent.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": false,
+              "passed": false
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/backend/tests/__match_probe__.txt",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": true,
+              "matched": false,
+              "passed": false
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/backend/tests/__match_probe__/child.txt",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": true,
+              "matched": false,
+              "passed": false
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/backend/agentscope_app/instances/api.py",
+              "argument": "",
+              "expected_match": false,
+              "hypothetical": false,
+              "matched": false,
+              "passed": true
+            },
+            {
+              "operation": "exec",
+              "role": "target",
+              "target": "git:commit",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": false,
+              "passed": false
+            }
+          ],
+          "coverage_checks_passed": false,
+          "parameters_valid": true,
+          "policy_applied": false,
+          "validation_scope": "compiled_pattern_samples_only",
+          "runtime_enforcement_verified": false,
+          "limits": [
+            "仅验证声明样本的编译后匹配；不证明完整自然语言意图、标签历史、执行链、时序或运行拦截。",
+            "tree 样本是假设性后代路径，不表示这些文件实际存在；原候选未被自动改写。"
+          ]
+        },
+        {
+          "schema": "policy-pattern-preview.v1",
+          "configuration_hash": "3023521a982cf1433ef46151bb9713b47e3df52546ef67cb759ea8eb33acc7b6",
+          "checks": [
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/backend/agentscope_app",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/backend/agentscope_app/instances/api.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": false,
+              "passed": false
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/backend/agentscope_app/__match_probe__.txt",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": true,
+              "matched": false,
+              "passed": false
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/backend/agentscope_app/__match_probe__/child.txt",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": true,
+              "matched": false,
+              "passed": false
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/backend/tests/test_dsl_configuration.py",
+              "argument": "",
+              "expected_match": false,
+              "hypothetical": false,
+              "matched": false,
+              "passed": true
+            },
+            {
+              "operation": "exec",
+              "role": "target",
+              "target": "git:commit",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": false,
+              "passed": false
+            }
+          ],
+          "coverage_checks_passed": false,
+          "parameters_valid": true,
+          "policy_applied": false,
+          "validation_scope": "compiled_pattern_samples_only",
+          "runtime_enforcement_verified": false,
+          "limits": [
+            "仅验证声明样本的编译后匹配；不证明完整自然语言意图、标签历史、执行链、时序或运行拦截。",
+            "tree 样本是假设性后代路径，不表示这些文件实际存在；原候选未被自动改写。"
+          ]
+        },
+        {
+          "schema": "policy-pattern-preview.v1",
+          "configuration_hash": "d98235ffef6c26659b548720a9828628378430284df9fb9af77c5d6cd6a578aa",
+          "checks": [
+            {
+              "operation": "exec",
+              "role": "target",
+              "target": "git",
+              "argument": "commit",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            }
+          ],
+          "coverage_checks_passed": true,
+          "parameters_valid": true,
+          "policy_applied": false,
+          "validation_scope": "compiled_pattern_samples_only",
+          "runtime_enforcement_verified": false,
+          "limits": [
+            "仅验证声明样本的编译后匹配；不证明完整自然语言意图、标签历史、执行链、时序或运行拦截。",
+            "tree 样本是假设性后代路径，不表示这些文件实际存在；原候选未被自动改写。"
+          ]
+        },
+        {
+          "schema": "policy-pattern-preview.v1",
+          "configuration_hash": "23d1e26de2ed5c1ba5ce9bb3f6cc1f6e286014578bfc80d30c5d4d774d0025cd",
+          "checks": [
+            {
+              "operation": "exec",
+              "role": "target",
+              "target": "git",
+              "argument": "commit",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            }
+          ],
+          "coverage_checks_passed": true,
+          "parameters_valid": true,
+          "policy_applied": false,
+          "validation_scope": "compiled_pattern_samples_only",
+          "runtime_enforcement_verified": false,
+          "limits": [
+            "仅验证声明样本的编译后匹配；不证明完整自然语言意图、标签历史、执行链、时序或运行拦截。",
+            "tree 样本是假设性后代路径，不表示这些文件实际存在；原候选未被自动改写。"
+          ]
+        }
+      ],
+      "provided_files": []
+    },
+    "reference_read": {
+      "workspace": "real-project",
+      "paths": [
+        "backend/requirements.txt"
+      ]
+    },
+    "reference_reads": [
+      {
+        "id": "15e636fff2b84a338a2af50d76c8aa64",
+        "snapshot_hash": "0644ced924175b8a9ceddfb13ccf3a0f8584e15a900b35a9a28cce4bca9e6f63",
+        "workspace": "real-project",
+        "paths": [
+          "backend/requirements.txt"
+        ],
+        "execution_paths": [
+          "/w/0/backend/requirements.txt"
+        ]
+      }
+    ]
+  },
+  "seconds": 42.785
+}

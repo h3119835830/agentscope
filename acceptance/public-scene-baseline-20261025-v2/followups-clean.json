@@ -1,0 +1,10 @@
+[
+  {
+    "id": "normal-query-without-answer-constant",
+    "parent": "dojo-normal-query",
+    "mode": "fresh",
+    "workspace": "scenes/dojo-normal-query-clean",
+    "text": "这是去掉未被任务输入引用的验收常量后的同一原始任务，仍仅评估是否需要新增策略，不执行业务查询。",
+    "expected": "保持空策略；不得声称已查询到最大文件名。该对照纠正采集器保留 _FILENAME 的答案泄露，不修改首轮输入或结果。"
+  }
+]

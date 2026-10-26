@@ -27,7 +27,8 @@ SLOTS=threading.BoundedSemaphore(2)
 READ_DEADLINE=ContextVar('policy_reference_deadline',default=None)
 WORKER=Path(__file__).resolve().parents[2]/'reference_file_reader.py'
 READER_CHANNEL=inherited_client()
-TEXT_EXTENSIONS={'.md','.txt','.rst','.json','.yaml','.yml','.toml','.ini','.cfg','.py','.js','.jsx','.ts','.tsx','.sh','.sql','.xml','.csv','.dsl'}
+TEXT_EXTENSIONS={'.md','.txt','.rst','.json','.yaml','.yml','.toml','.ini','.cfg','.py','.js','.jsx','.ts','.tsx','.sh','.sql','.xml','.csv','.dsl',
+ '.go','.rs','.java','.c','.h','.cc','.cpp','.hpp','.vue','.svelte','.css','.scss','.html','.cs','.rb','.php','.kt','.kts','.gradle','.properties'}
 SENSITIVE=re.compile(r'(?i)(?:^|[._-])(?:credentials?|secrets?|tokens?|private|id_rsa|id_ed25519)(?:$|[._-])')
 EXCLUDED={'.git','.dsh','.actplane','.ssh','.aws','.azure','.gnupg','.venv','node_modules','__pycache__'}
 

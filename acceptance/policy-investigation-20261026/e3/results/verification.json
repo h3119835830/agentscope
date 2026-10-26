@@ -1,0 +1,234 @@
+{
+  "schema": "policy-investigation-verified.v1",
+  "passed": true,
+  "real_model_runs": 9,
+  "real_project_files": 58,
+  "independent_replays": [
+    {
+      "case": "actplane-test-gate",
+      "target": "/w/0/src/verification.py",
+      "role": "invalidation",
+      "matched": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "case": "actplane-test-gate",
+      "target": "/w/0/tests/verification.py",
+      "role": "invalidation",
+      "matched": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "case": "actplane-test-gate",
+      "target": "/w/0/src/nested/verification.py",
+      "role": "invalidation",
+      "matched": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "case": "actplane-test-gate",
+      "target": "/w/0/tests/nested/verification.py",
+      "role": "invalidation",
+      "matched": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "case": "actplane-test-gate",
+      "target": "/w/0/unrelated.txt",
+      "role": "invalidation",
+      "matched": false,
+      "expected": false,
+      "passed": true
+    },
+    {
+      "case": "real-directory-gate",
+      "target": "/w/0/backend/agentscope_app/verification.py",
+      "role": "invalidation",
+      "matched": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "case": "real-directory-gate",
+      "target": "/w/0/backend/tests/verification.py",
+      "role": "invalidation",
+      "matched": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "case": "real-directory-gate",
+      "target": "/w/0/backend/agentscope_app/nested/verification.py",
+      "role": "invalidation",
+      "matched": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "case": "real-directory-gate",
+      "target": "/w/0/backend/tests/nested/verification.py",
+      "role": "invalidation",
+      "matched": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "case": "real-directory-gate",
+      "target": "/w/0/unrelated.txt",
+      "role": "invalidation",
+      "matched": false,
+      "expected": false,
+      "passed": true
+    },
+    {
+      "case": "real-locate-file",
+      "target": "/w/0/backend/agentscope_app/instances/policy_library.py",
+      "role": "target",
+      "matched": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "case": "real-locate-file",
+      "target": "/w/0/README.md",
+      "role": "target",
+      "matched": false,
+      "expected": false,
+      "passed": true
+    }
+  ],
+  "model_metadata": [
+    {
+      "provider": "native-pi",
+      "package": "@earendil-works/pi-coding-agent",
+      "version": "1.0.1",
+      "model": "deepseek-flash",
+      "input_hash": "ebb0d659c2f5275cc03370ec934a889d9474a257c42054d87690e85382a28ded",
+      "duration_ms": 29279,
+      "lifecycle": {
+        "continuations": 0,
+        "protocol": "Pi RPC agent_settled; server submission verified"
+      }
+    },
+    {
+      "provider": "native-pi",
+      "package": "@earendil-works/pi-coding-agent",
+      "version": "1.0.1",
+      "model": "deepseek-flash",
+      "input_hash": "80380683e14dee9b23b47d6b64153f3b9657868cc9e5a0003f6d05f60f15aa54",
+      "duration_ms": 17882,
+      "lifecycle": {
+        "continuations": 0,
+        "protocol": "Pi RPC agent_settled; server submission verified"
+      }
+    },
+    {
+      "provider": "native-pi",
+      "package": "@earendil-works/pi-coding-agent",
+      "version": "1.0.1",
+      "model": "deepseek-flash",
+      "input_hash": "735f993b9eae118d30aff8309b1d4da8bfdfebdd8f5f83a8c84afd8523b5450a",
+      "duration_ms": 41509,
+      "lifecycle": {
+        "continuations": 0,
+        "protocol": "Pi RPC agent_settled; server submission verified"
+      }
+    },
+    {
+      "provider": "native-pi",
+      "package": "@earendil-works/pi-coding-agent",
+      "version": "1.0.1",
+      "model": "deepseek-flash",
+      "input_hash": "30e836c4d42e6977e7e9c772c2c44e805fae11e1078f834a5e70afd6911dd5e8",
+      "duration_ms": 9099,
+      "lifecycle": {
+        "continuations": 0,
+        "protocol": "Pi RPC agent_settled; server submission verified"
+      }
+    },
+    {
+      "provider": "native-pi",
+      "package": "@earendil-works/pi-coding-agent",
+      "version": "1.0.1",
+      "model": "deepseek-flash",
+      "input_hash": "4506f7938660e7c6fa82d106af7131aec6e897c48a34ceb41184e99a95e0b7c8",
+      "duration_ms": 26355,
+      "lifecycle": {
+        "continuations": 0,
+        "protocol": "Pi RPC agent_settled; server submission verified"
+      }
+    },
+    {
+      "provider": "native-pi",
+      "package": "@earendil-works/pi-coding-agent",
+      "version": "1.0.1",
+      "model": "deepseek-flash",
+      "input_hash": "52dc47267f7304a5b6cff5c69ba911ebef79fcf90bb4f35ee7d5e2971f12d1ef",
+      "duration_ms": 17329,
+      "lifecycle": {
+        "continuations": 0,
+        "protocol": "Pi RPC agent_settled; server submission verified"
+      }
+    },
+    {
+      "provider": "native-pi",
+      "package": "@earendil-works/pi-coding-agent",
+      "version": "1.0.1",
+      "model": "deepseek-flash",
+      "input_hash": "c2763a046d489cb5defef5913f08a171c29a1dd38ab121349189e6aaba3c5d69",
+      "duration_ms": 8592,
+      "lifecycle": {
+        "continuations": 0,
+        "protocol": "Pi RPC agent_settled; server submission verified"
+      }
+    },
+    {
+      "provider": "native-pi",
+      "package": "@earendil-works/pi-coding-agent",
+      "version": "1.0.1",
+      "model": "deepseek-flash",
+      "input_hash": "88c70fa8c0196a994ec38dd9556cc20ade8d26e4f36a6f619d3f3a857fadde73",
+      "duration_ms": 28139,
+      "lifecycle": {
+        "continuations": 0,
+        "protocol": "Pi RPC agent_settled; server submission verified"
+      }
+    },
+    {
+      "provider": "native-pi",
+      "package": "@earendil-works/pi-coding-agent",
+      "version": "1.0.1",
+      "model": "deepseek-flash",
+      "input_hash": "a30b5ae5d9c74fb60b7c2cc1c3c2491e2d7269d79322f1e9c7580b60e8c139fd",
+      "duration_ms": 42195,
+      "lifecycle": {
+        "continuations": 0,
+        "protocol": "Pi RPC agent_settled; server submission verified"
+      }
+    }
+  ],
+  "isolation_verified": true,
+  "baseline_unchanged": true,
+  "instructions_unchanged": true,
+  "published_templates_unchanged": true,
+  "policy_applied": false,
+  "kernel_enforcement_tested": false,
+  "working_tree_source_hashes": {
+    "policy_context_agent.py": "bce934822cc1cb3516b5ff5d945b179846409680834e3ca68414afecdd1b01e8",
+    "policy_investigation.py": "2907e539729e18cdb446cd730394b85904c4770e862572dd9defe693cc7d2c1c",
+    "pi_provider.py": "4671afff80b63132d54bfdf5080df06f929e5a19d8f428a7de7d32542b27c831",
+    "template_tools.py": "568bb6b58e4b50426423bc2247c97a68854aad871ed5e12ea72adf2a8e69c03d",
+    "template_configurations.py": "ada7689b937601e14c0b66071e5e4a2975771f007f287e71dee26b0ae1f0eb51",
+    "workspace_references.py": "6ee5d4d7a5844b54c2075edfefaca0600f698a4b6eb0596a5ac0ad77355d89df"
+  },
+  "prior_attempt_retained": "/var/tmp/agentscope-policy-tools-20261026-e1",
+  "limits": [
+    "样本匹配不是完整自然语言正确性的证明。",
+    "open+lineage、云盘对象删除和收件人级邮件外发的缺口仍保留。",
+    "真实项目为 AgentScope 模块源码副本，不是完整生产仓库。"
+  ]
+}

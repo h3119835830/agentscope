@@ -1,0 +1,1329 @@
+{
+  "id": "actplane-test-gate",
+  "requirements": "请读取场景配置提交前检查：pytest 须正常退出且退出码为 0，src 或 tests 再次变化都使旧检查失效；缺少有效检查时终止提交进程，不能替换成仅提醒。",
+  "instance_id": "instance-2a35a61c4069447d",
+  "request_key": "9240462985f3494b9879d12d0507fd55",
+  "started_at": "2026-10-26T06:14:38.344452+00:00",
+  "status": "completed",
+  "result": {
+    "items": [
+      {
+        "id": "tc_fad5b7a477274e64a174837a8f34ba3f",
+        "template_id": "GIT-COMMIT-CHECK",
+        "scope_id": "instance-2a35a61c4069447d",
+        "scope": "agent",
+        "workspace_id": null,
+        "revision": 1,
+        "archived": 0,
+        "created_at": "2026-10-26T06:15:55.719139+00:00",
+        "updated_at": "2026-10-26T06:15:55.719139+00:00",
+        "latest_revision": 1,
+        "execution_support": {
+          "status": "limited",
+          "applicable": true,
+          "event_type": "跨事件",
+          "supported": [
+            "检查程序退出码和代码写入后的失效条件实际写入 DSL。",
+            "缺少有效检查事件时记录或终止命中进程。"
+          ],
+          "unsupported": [
+            "检查结果与暂存区、待推送提交 SHA 的一致性。",
+            "指定测试命令参数、可信 CI 结果或多会话独立检查。",
+            "执行前按参数阻断。"
+          ],
+          "boundary": [
+            "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。",
+            "仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。",
+            "作用于所选 Agent 的共享执行域；不按仓库或会话隔离。"
+          ],
+          "verification": {
+            "state": "verified",
+            "date": "2026-10-20",
+            "cases": 8,
+            "effects": [
+              "kill",
+              "notify"
+            ],
+            "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+          }
+        },
+        "template_version": 3,
+        "template_hash": "4477f8b01b4706ee00eb0add0297b7d68f1028973504bc3e366a9c322007c174",
+        "resource_hash": "40379e1a1e3e7c721733d5e0635ad0255b6b3a22885e3d06ee9898ff5a6a099b",
+        "name": "提交前 pytest 检查",
+        "reason": "在 Git commit 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待提交内容测试通过。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+        "execution_reason": "在 Git commit 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待提交内容测试通过。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+        "parameters": {
+          "target": "/w/0/src/**",
+          "checker": "pytest",
+          "exit_code": 0,
+          "effect": "kill"
+        },
+        "document": {
+          "id": "tc_fad5b7a477274e64a174837a8f34ba3f",
+          "name": "提交前 pytest 检查",
+          "original_dsl": "rule config-tc_fad5b7a477274e64a174837a8f34ba3f:\n  kill exec \"git\" \"commit\" if AGENT unless after exec \"pytest\" exits 0 since write \"/w/0/src/**\"\n  because \"在 Git commit 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待提交内容测试通过。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+          "metadata": {
+            "config-tc_fad5b7a477274e64a174837a8f34ba3f": {
+              "statement": "提交前 pytest 检查",
+              "context_requirement": "self_contained",
+              "context_reason": ""
+            }
+          },
+          "managed_identity": true
+        },
+        "requested_operations": [
+          "exec"
+        ],
+        "effective_operations": [
+          "exec"
+        ],
+        "coverage_warning": "",
+        "effect": "kill",
+        "note": "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。 仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。 作用于所选 Agent 的共享执行域；不按仓库或会话隔离。",
+        "source_read": {
+          "id": "4f0bcad42c3f4c988076ca727fff9bbb",
+          "snapshot_hash": "ea824794c13bd3e6eb633948b28b8c7819cfb37a0980a4762f5691ede60b1bd9",
+          "workspace": "actplane-test-gate",
+          "paths": [
+            "README.md",
+            "scene.md"
+          ],
+          "execution_paths": [
+            "/w/0/README.md",
+            "/w/0/scene.md"
+          ]
+        },
+        "source_reads": [
+          {
+            "id": "4f0bcad42c3f4c988076ca727fff9bbb",
+            "snapshot_hash": "ea824794c13bd3e6eb633948b28b8c7819cfb37a0980a4762f5691ede60b1bd9",
+            "workspace": "actplane-test-gate",
+            "paths": [
+              "README.md",
+              "scene.md"
+            ],
+            "execution_paths": [
+              "/w/0/README.md",
+              "/w/0/scene.md"
+            ]
+          }
+        ],
+        "origin": "assistant",
+        "generation_stage": "preflight",
+        "applied_revision": null,
+        "applied_configuration": null,
+        "applied": false,
+        "approval_id": null,
+        "approval_revision": null,
+        "approval_current": false,
+        "status": "draft",
+        "can_submit": true,
+        "read_only": false,
+        "template_definition": {
+          "id": "GIT-COMMIT-CHECK",
+          "version": 3,
+          "name": "Git 提交前检查事件",
+          "category": "Git 操作",
+          "summary": "在 Git commit 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待提交内容测试通过。",
+          "parameters": [
+            {
+              "key": "target",
+              "label": "使检查失效的代码路径",
+              "default": "",
+              "type": "path",
+              "help": "此路径是检查失效条件，不是 Git 仓库匹配条件。"
+            },
+            {
+              "key": "checker",
+              "label": "检查程序名或路径",
+              "default": "",
+              "type": "program",
+              "help": "仅匹配程序，不校验脚本参数、测试用例或可信 CI 身份。"
+            },
+            {
+              "key": "exit_code",
+              "label": "检查成功退出码",
+              "default": "0",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 255
+            },
+            {
+              "key": "effect",
+              "label": "匹配后的动作",
+              "default": "kill",
+              "type": "effect"
+            }
+          ],
+          "effect": "kill",
+          "operation": "exec",
+          "scopes": [
+            "system",
+            "agent"
+          ],
+          "note": "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。 仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。 作用于所选 Agent 的共享执行域；不按仓库或会话隔离。",
+          "reason": "在 Git commit 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待提交内容测试通过。 请在允许的范围内继续任务，必要时提交最小变更需求。",
+          "command": "commit",
+          "allowed_effects": [
+            "notify",
+            "kill"
+          ],
+          "execution_support": {
+            "status": "limited",
+            "applicable": true,
+            "event_type": "跨事件",
+            "supported": [
+              "检查程序退出码和代码写入后的失效条件实际写入 DSL。",
+              "缺少有效检查事件时记录或终止命中进程。"
+            ],
+            "unsupported": [
+              "检查结果与暂存区、待推送提交 SHA 的一致性。",
+              "指定测试命令参数、可信 CI 结果或多会话独立检查。",
+              "执行前按参数阻断。"
+            ],
+            "boundary": [
+              "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。",
+              "仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。",
+              "作用于所选 Agent 的共享执行域；不按仓库或会话隔离。"
+            ],
+            "verification": {
+              "state": "verified",
+              "date": "2026-10-20",
+              "cases": 8,
+              "effects": [
+                "kill",
+                "notify"
+              ],
+              "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+            }
+          },
+          "contract": "git-fixed-command.v1",
+          "fixed_fields": {
+            "program": "git",
+            "command": "commit"
+          },
+          "dsl_clause_template": "{{effect}} exec \"git\" \"commit\" if AGENT unless after exec {{checker}} exits {{exit_code}} since write {{target}}",
+          "disabled_effects": {
+            "block": "ActPlane 在执行后观察 Git 参数，暂不支持按 commit/push 参数事前 block；kill 是命中后终止。"
+          },
+          "dsl_preview": {
+            "state": "incomplete",
+            "dsl": "rule config-preview:\n  kill exec \"git\" \"commit\" if AGENT unless after exec \"{{checker}}\" exits 0 since write \"{{target}}\"\n  because \"在 Git commit 参数命中前要求已观测到指定检查程序以指定退出码结束；目标代码再次写入后检查失效。此模板不证明待提交内容测试通过。 请在允许的范围内继续任务，必要时提交最小变更需求。\"",
+            "missing": [
+              "使检查失效的代码路径",
+              "检查程序名或路径"
+            ],
+            "errors": [],
+            "preview_only": true
+          }
+        },
+        "scope_label": "此 Agent 的全部工作区与会话",
+        "configuration_status": {
+          "schema": "ConfigurationProgress/1",
+          "state": "draft",
+          "label": "草案",
+          "revision": 1,
+          "applied_revision": null,
+          "lifecycle": {
+            "archived": false,
+            "disabled": false
+          },
+          "read_only": false
+        }
+      }
+    ],
+    "questions": [
+      "workspace 中未发现 src 与 tests 目录（inspect_resource 返回不可见或不存在），已按项目根唯一执行映射 /w/0 下的 src/** 填写。请确认代码目录就是 /w/0/src，还是另有路径？",
+      "请确认测试入口是名为 pytest 的可执行程序，而非 python -m pytest；若只用后者，检查程序名需相应调整。",
+      "若 pytest 运行时会向 src 内写入临时产物（如位于包目录内的 __pycache__），是否接受这些写入也触发检查失效？",
+      "本次只提到提交；是否也需要对 git push 采用同样的 pytest 检查（GIT-PUSH-CHECK）？",
+      "还需单独提交 tests/** 的子配置吗（用于 tests 再次变化使旧检查失效）？本次会话中仅稳定提交了一条候选，未同时包含。"
+    ],
+    "gaps": [
+      "GIT-COMMIT-CHECK 每条规则只接受一个失效路径 target；要让 src 与 tests 同时使检查失效，需要并列两条子配置。",
+      "检查程序仅按程序名 pytest 匹配，不校验其参数（是否只跑子集、--lf 等），也不证明退出码 0 对应本次待提交内容。",
+      "Git 参数在 exec 之后观察，kill 为命中后终止，无法保证 git commit 副作用发生前已阻断；且仅匹配前 128 字节、最多 16 个参数槽的字面 token。",
+      "该规则作用于所选 Agent 的共享执行域，不按仓库或会话隔离；多仓库或多会话场景下提交与 pytest 事件可能互相干扰。"
+    ],
+    "text": "请读取场景配置提交前检查：pytest 须正常退出且退出码为 0，src 或 tests 再次变化都使旧检查失效；缺少有效检查时终止提交进程，不能替换成仅提醒。",
+    "summary": "场景 E5（提交前测试、过期感知）：scene.md 与 README 只描述意图（编辑后必须先跑 pytest，src 再变化使检查失效），未给出实际项目结构；inspect_resource 显示 src、tests 均不可见，故路径按项目根唯一执行映射 /w/0 加显式递归模式填写。选用已发布模板 GIT-COMMIT-CHECK（v3）：checker=pytest、exit_code=0、effect=kill，对应用户“缺少有效检查时终止提交进程，不能替换成仅提醒”。preview_policy_matches 已验证 src 下写入触发失效匹配（coverage_checks_passed=true）；exec 目标侧与跨事件时序不在离线预览模拟范围，需在运行侧核验。用户同时要求 tests 变化也失效，因模板每个候选只支持一个失效路径且本次仅提交一条，tests 子配置列入待确认项。以上为待审批候选，未应用，配置本身不授予任何执行权限。",
+    "parent_request_id": null,
+    "generation_basis": "1c9a56a695ec6ff7bc718e3fa8ce6c7a578a39e82f8a2059e32556e9bf00923d",
+    "scope_id": "instance-2a35a61c4069447d",
+    "scope": "agent",
+    "workspace_id": null,
+    "reference_workspace_id": null,
+    "stage": "preflight",
+    "runtime_trigger": null,
+    "request_id": "61fd3814b3a940268fbbf554f41739a0",
+    "created_at": "2026-10-26T06:15:55.716385+00:00",
+    "configuration_snapshots": [
+      {
+        "id": "tc_fad5b7a477274e64a174837a8f34ba3f",
+        "revision": 1,
+        "name": "提交前 pytest 检查",
+        "configuration_hash": "01249bd3bb9d9d7011bbea3bfb31066e2bfd46f6916fab11c5d6ae97a2ebeb88",
+        "template": {
+          "id": "GIT-COMMIT-CHECK",
+          "version": 3,
+          "name": "Git 提交前检查事件",
+          "fixed_fields": {
+            "program": "git",
+            "command": "commit"
+          },
+          "parameters": [
+            {
+              "key": "target",
+              "label": "使检查失效的代码路径",
+              "type": "path"
+            },
+            {
+              "key": "checker",
+              "label": "检查程序名或路径",
+              "type": "program"
+            },
+            {
+              "key": "exit_code",
+              "label": "检查成功退出码",
+              "type": "integer"
+            },
+            {
+              "key": "effect",
+              "label": "匹配后的动作",
+              "type": "effect"
+            }
+          ]
+        },
+        "parameters": {
+          "target": "/w/0/src/**",
+          "checker": "pytest",
+          "exit_code": 0,
+          "effect": "kill"
+        },
+        "execution_support": {
+          "status": "limited",
+          "applicable": true,
+          "event_type": "跨事件",
+          "supported": [
+            "检查程序退出码和代码写入后的失效条件实际写入 DSL。",
+            "缺少有效检查事件时记录或终止命中进程。"
+          ],
+          "unsupported": [
+            "检查结果与暂存区、待推送提交 SHA 的一致性。",
+            "指定测试命令参数、可信 CI 结果或多会话独立检查。",
+            "执行前按参数阻断。"
+          ],
+          "boundary": [
+            "参数在 exec 后观察：记录或终止命中进程，不能保证副作用发生前已阻断。",
+            "仅匹配前 128 字节、最多 16 个参数槽中的字面 token；不解析子命令位置、别名或 Git 配置。",
+            "作用于所选 Agent 的共享执行域；不按仓库或会话隔离。"
+          ],
+          "verification": {
+            "state": "verified",
+            "date": "2026-10-20",
+            "cases": 8,
+            "effects": [
+              "kill",
+              "notify"
+            ],
+            "scope": "合成文件、本地仓库和本机接收端；核对命中事件、子进程结果及实际副作用。"
+          }
+        },
+        "scope": {
+          "id": "instance-2a35a61c4069447d",
+          "type": "agent",
+          "label": "指定 Agent · 代码和测试变化使提交检查失效"
+        },
+        "approval_status": "draft",
+        "approval_operation": "apply"
+      }
+    ],
+    "context_usage": {
+      "mode": "auto",
+      "round_count": 1,
+      "call_count": 31,
+      "format_repair_count": 0,
+      "file_count": 2,
+      "total_bytes": 647,
+      "activity": [
+        {
+          "tool": "search_policy_templates",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "list_directory",
+          "workspace": "actplane-test-gate",
+          "status": "completed",
+          "path": "",
+          "entry_count": 2,
+          "omitted_count": 0
+        },
+        {
+          "tool": "read_files",
+          "workspace": "actplane-test-gate",
+          "status": "completed",
+          "paths": [
+            "README.md",
+            "scene.md"
+          ],
+          "file_count": 2
+        },
+        {
+          "tool": "inspect_resource",
+          "workspace": "actplane-test-gate",
+          "status": "rejected",
+          "applied": false,
+          "diagnostic": "只能浏览工作区内的规范相对目录"
+        },
+        {
+          "tool": "inspect_resource",
+          "workspace": "actplane-test-gate",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "search_project",
+          "workspace": "actplane-test-gate",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "search_project",
+          "workspace": "actplane-test-gate",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "draft_git_commit_check",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "draft_git_commit_check",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "preview_policy_matches",
+          "workspace": "actplane-test-gate",
+          "status": "rejected",
+          "applied": false,
+          "diagnostic": "只能预览本轮 draft_* 工具生成的原候选，不能传入 DSL 或任意配置"
+        },
+        {
+          "tool": "preview_policy_matches",
+          "workspace": "actplane-test-gate",
+          "status": "rejected",
+          "applied": false,
+          "diagnostic": "只能预览本轮 draft_* 工具生成的原候选，不能传入 DSL 或任意配置"
+        },
+        {
+          "tool": "preview_policy_matches",
+          "workspace": "actplane-test-gate",
+          "status": "rejected",
+          "applied": false,
+          "diagnostic": "只能预览本轮 draft_* 工具生成的原候选，不能传入 DSL 或任意配置"
+        },
+        {
+          "tool": "draft_git_commit_check",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "draft_git_commit_check",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "preview_policy_matches",
+          "workspace": "actplane-test-gate",
+          "status": "completed",
+          "applied": false,
+          "configuration_hash": "18da795e1e8bab56d402ac05c7e4fb03b523634190ec8800fd648e8ff36aaa9f",
+          "coverage_checks_passed": false,
+          "checks": [
+            {
+              "operation": "exec",
+              "role": "target",
+              "target": "test_main.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": false,
+              "passed": false
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/tests/test_main.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/tests/unit/test_api.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/src/main.py",
+              "argument": "",
+              "expected_match": false,
+              "hypothetical": false,
+              "matched": false,
+              "passed": true
+            }
+          ]
+        },
+        {
+          "tool": "preview_policy_matches",
+          "workspace": "actplane-test-gate",
+          "status": "completed",
+          "applied": false,
+          "configuration_hash": "7e12d24d23e35ef9560367c43f760e9bbacd5754b2a0ea3a4393dac223a47e68",
+          "coverage_checks_passed": false,
+          "checks": [
+            {
+              "operation": "exec",
+              "role": "target",
+              "target": "main.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": false,
+              "passed": false
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/src/main.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/src/pkg/util.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/tests/test_main.py",
+              "argument": "",
+              "expected_match": false,
+              "hypothetical": false,
+              "matched": false,
+              "passed": true
+            }
+          ]
+        },
+        {
+          "tool": "draft_git_commit_check",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "draft_git_commit_check",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "preview_policy_matches",
+          "workspace": "actplane-test-gate",
+          "status": "completed",
+          "applied": false,
+          "configuration_hash": "af5fb173d1d69bd3bfbcbf90f68269d7778bff99df21666548312559013a4cd6",
+          "coverage_checks_passed": true,
+          "checks": [
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/src/main.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/src/pkg/__match_probe__.txt",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": true,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/src/pkg/__match_probe__/child.txt",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": true,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/tests/test_main.py",
+              "argument": "",
+              "expected_match": false,
+              "hypothetical": false,
+              "matched": false,
+              "passed": true
+            }
+          ]
+        },
+        {
+          "tool": "preview_policy_matches",
+          "workspace": "actplane-test-gate",
+          "status": "completed",
+          "applied": false,
+          "configuration_hash": "0bf60b1f24b2b1e379906e87626be46f362c78501ad7325588cf0467b023c1f2",
+          "coverage_checks_passed": true,
+          "checks": [
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/tests/test_main.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/tests/unit/__match_probe__.txt",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": true,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/tests/unit/__match_probe__/child.txt",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": true,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/src/main.py",
+              "argument": "",
+              "expected_match": false,
+              "hypothetical": false,
+              "matched": false,
+              "passed": true
+            }
+          ]
+        },
+        {
+          "tool": "draft_git_commit_check",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "draft_git_commit_check",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "preview_policy_matches",
+          "workspace": "actplane-test-gate",
+          "status": "completed",
+          "applied": false,
+          "configuration_hash": "008217f67f06b57a16865c1aa2708da25d15d1a43114633dcc2dbf8474b9ebbf",
+          "coverage_checks_passed": true,
+          "checks": [
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/src/main.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/src/pkg/__match_probe__.txt",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": true,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/src/pkg/__match_probe__/child.txt",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": true,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/tests/test_main.py",
+              "argument": "",
+              "expected_match": false,
+              "hypothetical": false,
+              "matched": false,
+              "passed": true
+            }
+          ]
+        },
+        {
+          "tool": "preview_policy_matches",
+          "workspace": "actplane-test-gate",
+          "status": "completed",
+          "applied": false,
+          "configuration_hash": "711b8b09c3069f07165941bc1a7b90c0d87a2dc0a3ddc47dcdeac2377999e8b3",
+          "coverage_checks_passed": true,
+          "checks": [
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/tests/test_main.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/tests/unit/__match_probe__.txt",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": true,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/tests/unit/__match_probe__/child.txt",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": true,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/src/main.py",
+              "argument": "",
+              "expected_match": false,
+              "hypothetical": false,
+              "matched": false,
+              "passed": true
+            }
+          ]
+        },
+        {
+          "tool": "draft_git_commit_check",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "preview_policy_matches",
+          "workspace": "actplane-test-gate",
+          "status": "completed",
+          "applied": false,
+          "configuration_hash": "008217f67f06b57a16865c1aa2708da25d15d1a43114633dcc2dbf8474b9ebbf",
+          "coverage_checks_passed": true,
+          "checks": [
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/src/main.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/src/pkg/__match_probe__.txt",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": true,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/src/pkg/__match_probe__/child.txt",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": true,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/tests/test_main.py",
+              "argument": "",
+              "expected_match": false,
+              "hypothetical": false,
+              "matched": false,
+              "passed": true
+            }
+          ]
+        },
+        {
+          "tool": "draft_git_commit_check",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "preview_policy_matches",
+          "workspace": "actplane-test-gate",
+          "status": "completed",
+          "applied": false,
+          "configuration_hash": "a2fc3ff700ad841730e3714dd79b86cd9d2fc9c26c9f82206ad5d91853bbcac0",
+          "coverage_checks_passed": true,
+          "checks": [
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/src/main.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/src/pkg/__match_probe__.txt",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": true,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/src/pkg/__match_probe__/child.txt",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": true,
+              "matched": true,
+              "passed": true
+            }
+          ]
+        },
+        {
+          "tool": "preview_policy_matches",
+          "workspace": "actplane-test-gate",
+          "status": "rejected",
+          "applied": false,
+          "diagnostic": "只能预览本轮 draft_* 工具生成的原候选，不能传入 DSL 或任意配置"
+        },
+        {
+          "tool": "draft_git_commit_check",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "preview_policy_matches",
+          "workspace": "actplane-test-gate",
+          "status": "completed",
+          "applied": false,
+          "configuration_hash": "42957101c485d11252ac6b7ee814b15f819cc71048cc90fdf370799387745670",
+          "coverage_checks_passed": true,
+          "checks": [
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/src/main.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            }
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "workspace": "actplane-test-gate",
+          "paths": [
+            "/w/0/README.md",
+            "/w/0/scene.md"
+          ]
+        }
+      ],
+      "pattern_previews": [
+        {
+          "schema": "policy-pattern-preview.v1",
+          "configuration_hash": "18da795e1e8bab56d402ac05c7e4fb03b523634190ec8800fd648e8ff36aaa9f",
+          "checks": [
+            {
+              "operation": "exec",
+              "role": "target",
+              "target": "test_main.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": false,
+              "passed": false
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/tests/test_main.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/tests/unit/test_api.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/src/main.py",
+              "argument": "",
+              "expected_match": false,
+              "hypothetical": false,
+              "matched": false,
+              "passed": true
+            }
+          ],
+          "coverage_checks_passed": false,
+          "parameters_valid": true,
+          "policy_applied": false,
+          "validation_scope": "compiled_pattern_samples_only",
+          "runtime_enforcement_verified": false,
+          "limits": [
+            "仅验证声明样本的编译后匹配；不证明完整自然语言意图、标签历史、执行链、时序或运行拦截。",
+            "tree 样本是假设性后代路径，不表示这些文件实际存在；原候选未被自动改写。"
+          ]
+        },
+        {
+          "schema": "policy-pattern-preview.v1",
+          "configuration_hash": "7e12d24d23e35ef9560367c43f760e9bbacd5754b2a0ea3a4393dac223a47e68",
+          "checks": [
+            {
+              "operation": "exec",
+              "role": "target",
+              "target": "main.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": false,
+              "passed": false
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/src/main.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/src/pkg/util.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/tests/test_main.py",
+              "argument": "",
+              "expected_match": false,
+              "hypothetical": false,
+              "matched": false,
+              "passed": true
+            }
+          ],
+          "coverage_checks_passed": false,
+          "parameters_valid": true,
+          "policy_applied": false,
+          "validation_scope": "compiled_pattern_samples_only",
+          "runtime_enforcement_verified": false,
+          "limits": [
+            "仅验证声明样本的编译后匹配；不证明完整自然语言意图、标签历史、执行链、时序或运行拦截。",
+            "tree 样本是假设性后代路径，不表示这些文件实际存在；原候选未被自动改写。"
+          ]
+        },
+        {
+          "schema": "policy-pattern-preview.v1",
+          "configuration_hash": "af5fb173d1d69bd3bfbcbf90f68269d7778bff99df21666548312559013a4cd6",
+          "checks": [
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/src/main.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/src/pkg/__match_probe__.txt",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": true,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/src/pkg/__match_probe__/child.txt",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": true,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/tests/test_main.py",
+              "argument": "",
+              "expected_match": false,
+              "hypothetical": false,
+              "matched": false,
+              "passed": true
+            }
+          ],
+          "coverage_checks_passed": true,
+          "parameters_valid": true,
+          "policy_applied": false,
+          "validation_scope": "compiled_pattern_samples_only",
+          "runtime_enforcement_verified": false,
+          "limits": [
+            "仅验证声明样本的编译后匹配；不证明完整自然语言意图、标签历史、执行链、时序或运行拦截。",
+            "tree 样本是假设性后代路径，不表示这些文件实际存在；原候选未被自动改写。"
+          ]
+        },
+        {
+          "schema": "policy-pattern-preview.v1",
+          "configuration_hash": "0bf60b1f24b2b1e379906e87626be46f362c78501ad7325588cf0467b023c1f2",
+          "checks": [
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/tests/test_main.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/tests/unit/__match_probe__.txt",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": true,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/tests/unit/__match_probe__/child.txt",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": true,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/src/main.py",
+              "argument": "",
+              "expected_match": false,
+              "hypothetical": false,
+              "matched": false,
+              "passed": true
+            }
+          ],
+          "coverage_checks_passed": true,
+          "parameters_valid": true,
+          "policy_applied": false,
+          "validation_scope": "compiled_pattern_samples_only",
+          "runtime_enforcement_verified": false,
+          "limits": [
+            "仅验证声明样本的编译后匹配；不证明完整自然语言意图、标签历史、执行链、时序或运行拦截。",
+            "tree 样本是假设性后代路径，不表示这些文件实际存在；原候选未被自动改写。"
+          ]
+        },
+        {
+          "schema": "policy-pattern-preview.v1",
+          "configuration_hash": "008217f67f06b57a16865c1aa2708da25d15d1a43114633dcc2dbf8474b9ebbf",
+          "checks": [
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/src/main.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/src/pkg/__match_probe__.txt",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": true,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/src/pkg/__match_probe__/child.txt",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": true,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/tests/test_main.py",
+              "argument": "",
+              "expected_match": false,
+              "hypothetical": false,
+              "matched": false,
+              "passed": true
+            }
+          ],
+          "coverage_checks_passed": true,
+          "parameters_valid": true,
+          "policy_applied": false,
+          "validation_scope": "compiled_pattern_samples_only",
+          "runtime_enforcement_verified": false,
+          "limits": [
+            "仅验证声明样本的编译后匹配；不证明完整自然语言意图、标签历史、执行链、时序或运行拦截。",
+            "tree 样本是假设性后代路径，不表示这些文件实际存在；原候选未被自动改写。"
+          ]
+        },
+        {
+          "schema": "policy-pattern-preview.v1",
+          "configuration_hash": "711b8b09c3069f07165941bc1a7b90c0d87a2dc0a3ddc47dcdeac2377999e8b3",
+          "checks": [
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/tests/test_main.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/tests/unit/__match_probe__.txt",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": true,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/tests/unit/__match_probe__/child.txt",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": true,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/src/main.py",
+              "argument": "",
+              "expected_match": false,
+              "hypothetical": false,
+              "matched": false,
+              "passed": true
+            }
+          ],
+          "coverage_checks_passed": true,
+          "parameters_valid": true,
+          "policy_applied": false,
+          "validation_scope": "compiled_pattern_samples_only",
+          "runtime_enforcement_verified": false,
+          "limits": [
+            "仅验证声明样本的编译后匹配；不证明完整自然语言意图、标签历史、执行链、时序或运行拦截。",
+            "tree 样本是假设性后代路径，不表示这些文件实际存在；原候选未被自动改写。"
+          ]
+        },
+        {
+          "schema": "policy-pattern-preview.v1",
+          "configuration_hash": "a2fc3ff700ad841730e3714dd79b86cd9d2fc9c26c9f82206ad5d91853bbcac0",
+          "checks": [
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/src/main.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/src/pkg/__match_probe__.txt",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": true,
+              "matched": true,
+              "passed": true
+            },
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/src/pkg/__match_probe__/child.txt",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": true,
+              "matched": true,
+              "passed": true
+            }
+          ],
+          "coverage_checks_passed": true,
+          "parameters_valid": true,
+          "policy_applied": false,
+          "validation_scope": "compiled_pattern_samples_only",
+          "runtime_enforcement_verified": false,
+          "limits": [
+            "仅验证声明样本的编译后匹配；不证明完整自然语言意图、标签历史、执行链、时序或运行拦截。",
+            "tree 样本是假设性后代路径，不表示这些文件实际存在；原候选未被自动改写。"
+          ]
+        },
+        {
+          "schema": "policy-pattern-preview.v1",
+          "configuration_hash": "42957101c485d11252ac6b7ee814b15f819cc71048cc90fdf370799387745670",
+          "checks": [
+            {
+              "operation": "write",
+              "role": "invalidation",
+              "target": "/w/0/src/main.py",
+              "argument": "",
+              "expected_match": true,
+              "hypothetical": false,
+              "matched": true,
+              "passed": true
+            }
+          ],
+          "coverage_checks_passed": true,
+          "parameters_valid": true,
+          "policy_applied": false,
+          "validation_scope": "compiled_pattern_samples_only",
+          "runtime_enforcement_verified": false,
+          "limits": [
+            "仅验证声明样本的编译后匹配；不证明完整自然语言意图、标签历史、执行链、时序或运行拦截。",
+            "tree 样本是假设性后代路径，不表示这些文件实际存在；原候选未被自动改写。"
+          ]
+        }
+      ],
+      "provided_files": []
+    },
+    "reference_read": {
+      "workspace": "actplane-test-gate",
+      "paths": [
+        "README.md",
+        "scene.md"
+      ]
+    },
+    "reference_reads": [
+      {
+        "id": "4f0bcad42c3f4c988076ca727fff9bbb",
+        "snapshot_hash": "ea824794c13bd3e6eb633948b28b8c7819cfb37a0980a4762f5691ede60b1bd9",
+        "workspace": "actplane-test-gate",
+        "paths": [
+          "README.md",
+          "scene.md"
+        ],
+        "execution_paths": [
+          "/w/0/README.md",
+          "/w/0/scene.md"
+        ]
+      }
+    ]
+  },
+  "seconds": 77.406
+}

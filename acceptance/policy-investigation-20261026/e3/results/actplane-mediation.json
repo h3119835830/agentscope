@@ -1,0 +1,131 @@
+{
+  "id": "actplane-mediation",
+  "requirements": "请按场景配置数据库访问：禁止 Agent 随意打开生产库，只有经过指定迁移程序的执行链才可打开。不能改成全面禁止打开，也不能只约束写入。",
+  "instance_id": "instance-9a5720a3bc0a4cd0",
+  "request_key": "c44f701680b1471284865d53abe2672c",
+  "started_at": "2026-10-26T06:22:30.416622+00:00",
+  "status": "completed",
+  "result": {
+    "items": [],
+    "questions": [
+      "生产库文件的本地已登记执行路径是什么（例如 /w/0 下哪个文件或目录）？工作区中未发现任何 .db 文件，现有仅 README.md 与 scene.md。",
+      "指定的迁移程序名或可执行路径是什么（例如 migrate 或 tools/migrate.py）？",
+      "该迁移程序是否应同时允许在迁移过程中对生产库文件执行写入？用户只提到“打开”，需确认是否仅限于读取。"
+    ],
+    "gaps": [
+      "“只有经过指定迁移程序的执行链才可打开”属于带执行链例外的打开限制。已发布的 FILE-READ（文件读取限制）仅支持无条件禁止打开，不提供 unless lineage-includes exec 之类的例外参数；已发布的 RQ1-GENERATED 虽按生成程序执行链放行，但仅作用于 write，不覆盖 open，且“不能只约束写入”被明确排除。",
+      "因此无法用现有模板同时满足“不得随意打开”“不得改为全面禁止”“不得仅约束写入”三点要求，需要平台补充支持 open 操作加上执行链例外的模板，或在策略入口人工确认可行的组合方案。"
+    ],
+    "text": "请按场景配置数据库访问：禁止 Agent 随意打开生产库，只有经过指定迁移程序的执行链才可打开。不能改成全面禁止打开，也不能只约束写入。",
+    "summary": "场景资料（README.md、scene.md）描述 E3 mandatory mediation：生产库文件只能由已批准的迁移工具处理，Agent 不得随意打开，需按“唯一受认可通道”建模。工作区内仅有 README.md 和 scene.md 两个文档，未登记任何数据库文件或其他本地资源，也没有给出迁移程序名称，因此具体目标路径与程序名无法从资源事实唯一解析。模板方面：FILE-READ 只能实现无条件的打开阻断，不支持按程序执行链放行；RQ1-GENERATED 的执行链例外只适用于 write，而需求明确排除仅约束写入。本轮未生成可提交的候选配置，也未做覆盖验证，需用户补充路径与程序名，并由平台补充“open + 执行链例外”的模板能力。",
+    "parent_request_id": null,
+    "generation_basis": "7e77c1628ce7a85a9c63cab1175d13ec3564dada17ef0030bf0dc8ab1d6a65e0",
+    "scope_id": "instance-9a5720a3bc0a4cd0",
+    "scope": "agent",
+    "workspace_id": null,
+    "reference_workspace_id": null,
+    "stage": "preflight",
+    "runtime_trigger": null,
+    "request_id": "240b03a6a3c1469ea37b2d0ce3e8cc42",
+    "created_at": "2026-10-26T06:22:48.895065+00:00",
+    "configuration_snapshots": [],
+    "context_usage": {
+      "mode": "auto",
+      "round_count": 1,
+      "call_count": 8,
+      "format_repair_count": 0,
+      "file_count": 2,
+      "total_bytes": 531,
+      "activity": [
+        {
+          "tool": "list_directory",
+          "workspace": "actplane-mediation",
+          "status": "completed",
+          "path": "",
+          "entry_count": 2,
+          "omitted_count": 0
+        },
+        {
+          "tool": "search_policy_templates",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "read_files",
+          "workspace": "actplane-mediation",
+          "status": "completed",
+          "paths": [
+            "README.md",
+            "scene.md"
+          ],
+          "file_count": 2
+        },
+        {
+          "tool": "search_project",
+          "workspace": "actplane-mediation",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "inspect_resource",
+          "workspace": "actplane-mediation",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "preview_policy_matches",
+          "workspace": "actplane-mediation",
+          "status": "rejected",
+          "applied": false,
+          "diagnostic": "只能预览本轮 draft_* 工具生成的原候选，不能传入 DSL 或任意配置"
+        },
+        {
+          "tool": "draft_file_read",
+          "status": "completed",
+          "applied": false
+        },
+        {
+          "tool": "preview_policy_matches",
+          "workspace": "actplane-mediation",
+          "status": "rejected",
+          "applied": false,
+          "diagnostic": "候选目标缺少明确用户路径或可见本地资源依据：prod.db；资料中的逻辑对象标识不是本地路径，请调查权威映射或报告缺口，不能用假设匹配样本确认目标存在"
+        }
+      ],
+      "sources": [
+        {
+          "workspace": "actplane-mediation",
+          "paths": [
+            "/w/0/README.md",
+            "/w/0/scene.md"
+          ]
+        }
+      ],
+      "pattern_previews": [],
+      "provided_files": []
+    },
+    "reference_read": {
+      "workspace": "actplane-mediation",
+      "paths": [
+        "README.md",
+        "scene.md"
+      ]
+    },
+    "reference_reads": [
+      {
+        "id": "7a61ede2c45e41819bca86ec18cd8efd",
+        "snapshot_hash": "12a712c0017df1ebad6e8f9aeabd7f7b46d35e2e1c39b9a7aa88a6f4e2348c54",
+        "workspace": "actplane-mediation",
+        "paths": [
+          "README.md",
+          "scene.md"
+        ],
+        "execution_paths": [
+          "/w/0/README.md",
+          "/w/0/scene.md"
+        ]
+      }
+    ]
+  },
+  "seconds": 18.49
+}
