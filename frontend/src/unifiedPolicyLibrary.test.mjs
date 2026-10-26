@@ -73,15 +73,15 @@ test('system template selector offers only three main groups and preserves exact
  assert.ok(nodes(tree).some(n=>n.props?.['aria-label']===child.name+'：提交审批'));
  assert.deepEqual(writes,[]);
 });
-test('expanded catalogue has one add action and keeps target parameters only in details',async()=>{
+test('expanded catalogue has one add action and shares the policy record fields',async()=>{
  const def={...template,parameters:[{key:'target',label:'保护对象路径',type:'path'}]},item={...child,parameters:{target:'/w/0/only-in-details.txt'}};
  const render=await harness('UnifiedPolicyLibrary.jsx',[{catalog:[def],items:[item]},{catalog:[],items:[]}]),props={api(){},post(){},onApprovals(){}};
  let tree=templateDetails(render,props),all=nodes(tree);
  assert.equal(all.filter(n=>n.type==='button'&&n.props['aria-label']?.includes('新增子配置')).length,1);
  assert.ok(!all.some(n=>n.props?.className==='upl-child-target'));
  const table=all.find(n=>n.type==='table'&&n.props['aria-label']===template.name+' 的子配置');
- assert.equal(nodes(table).filter(n=>n.type==='col').length,6);
- assert.ok(!nodes(table).some(n=>n.props?.children===item.parameters.target));
+ assert.equal(nodes(table).filter(n=>n.type==='th').length,9);
+ const html=renderToStaticMarkup(tree);assert.match(html,/only-in-details.txt/);
  all.find(n=>n.props?.['aria-label']===child.name+'的详情').props.onClick();tree=render(props);
  assert.equal(nodes(tree).find(n=>n.type?.name==='TemplateConfigurationDialog').props.item.parameters.target,item.parameters.target);
 });
@@ -120,7 +120,7 @@ test('template catalogue omits parameter operation values and expands child fiel
  assert.ok(!nodes(tree).some(n=>n.props?.['aria-label']===child.name+'：提交审批'));
  assert.ok(nodes(table).some(n=>n.type==='p'&&n.props.children===template.description));
  tree=templateDetails(render,props);table=nodes(tree).find(n=>n.type==='table'&&n.props['aria-label']==='文件读取限制 的子配置');
- assert.deepEqual(nodes(table).filter(n=>n.type==='th'&&!n.props.className?.includes('spl-check')).map(n=>n.props.children),['实际策略名称','范围','动作','配置进度','操作']);
+ assert.deepEqual(nodes(table).filter(n=>n.type==='th'&&!n.props.className?.includes('spl-check')).map(n=>n.props.children),['策略名称','作用范围','匹配对象','限制操作','触发条件','处置','状态','操作']);
  nodes(table).find(n=>n.props?.['aria-label']===child.name+'的详情').props.onClick();tree=render(props);
  const editor=nodes(tree).find(n=>n.type?.name==='TemplateConfigurationDialog');assert.equal(editor.props.item.name,child.name);assert.equal(editor.props.template.id,template.id);
 });

@@ -25,12 +25,19 @@ def restore(scope_id, body, basis):
     if not request_id:
         return [], [], None
     parent = load(request_id)
+    # Selecting different files starts a new evidence context. Never feed old
+    # bodies or summaries back into a newly narrowed operator selection.
+    if body.get('reference_files') and body['reference_files'] != parent.get('reference_files'):
+        return [], [], None
+    if not body.get('reference_files'):
+        body['reference_files'] = parent.get('reference_files')
     turns = []
     current = parent
     for _ in range(3):
         expected = {'scope_id': scope_id, 'scope': body['scope'],
                     'workspace_id': body.get('workspace_id'),
                     'reference_workspace_id': body.get('reference_workspace_id'),
+                    'reference_files': body.get('reference_files'),
                     'stage': body.get('stage', 'preflight')}
         if any(current.get(k, 'preflight' if k == 'stage' else None) != v for k, v in expected.items()):
             raise ValueError('此前场景不属于当前 Agent、资料范围或阶段，请开始新场景')

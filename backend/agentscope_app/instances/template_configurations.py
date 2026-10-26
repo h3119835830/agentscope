@@ -577,10 +577,16 @@ def runtime_generation_context(row, body):
 
 def generate(scope_id, body, provider=None):
     """The only model output is a list of calls to the same parameterized save contract."""
+    from .policy_file_scope import selected_paths
+    body = {**body, 'reference_files': selected_paths(body['text']) if body['scope']=='agent' else None}
     row = target(scope_id,body['scope'],body.get('workspace_id'))
     from . import workspace_references as workspace_refs,system_policy
     if body.get('reference_read_id') and body['scope']!='agent':
         raise ValueError('参考工作区仅提供资料，不能改变 Agent 配置的作用范围')
+    if body.get('reference_read_id') and body.get('reference_files'):
+        receipt=workspace_refs.load(scope_id,body['reference_read_id'])
+        if any(f['relative_path'] not in body['reference_files'] for f in receipt['snapshot']['files']):
+            raise ValueError('此前读取依据超出本轮指定文件，请重新读取')
     reference=workspace_refs.for_model(scope_id,body.get('reference_read_id'))
     basis = generation_basis(row)
     request_hash = digest({'scope_id':scope_id,'body':{k:v for k,v in body.items() if k != 'request_key'}})
@@ -626,7 +632,7 @@ def generate(scope_id, body, provider=None):
         runtime_context=runtime_generation_context(row,body)
         runner=WorkspacePolicyAgent(scope_id,provider,check_basis,seed=reference,
             enabled=bool(row and body['scope']=='agent' and body.get('context_mode','auto')=='auto'),
-            reference_workspace_id=body.get('reference_workspace_id'))
+            reference_workspace_id=body.get('reference_workspace_id'),reference_files=body.get('reference_files'))
         for previous in previous_references:
             if not any(r['read_id']==previous['read_id'] for r in runner.references):
                 runner.remember(previous)
@@ -644,6 +650,7 @@ def generate(scope_id, body, provider=None):
             'reason 可省略。返回 configurations,questions,gaps 三个数组，可选 summary 字符串说明资料分析结果。配置本身没有授权。',
             {'requirements':body['text'],'conversation':conversation if parent_id else body.get('conversation',[]),
              'previous_turns':previous_turns,'workspace_references':runner.references,
+             'source_scope':runner.source_scope(),
              'materials':body.get('materials',[]),'templates':templates,'workspace_reference':reference,
              'generation_stage':body.get('stage','preflight'),'runtime_hook_context':runtime_context,
              'resources':resource_records(row['resources'],views=row['policy'].get('resource_views')) if row else [],
@@ -697,7 +704,7 @@ def generate(scope_id, body, provider=None):
                     'summary':result.get('summary',''),
                     'parent_request_id':parent_id,'generation_basis':basis,
                     'scope_id':scope_id,'scope':body['scope'],'workspace_id':body.get('workspace_id'),
-                    'reference_workspace_id':body.get('reference_workspace_id'),'stage':body.get('stage','preflight'),
+                    'reference_workspace_id':body.get('reference_workspace_id'),'reference_files':body.get('reference_files'),'stage':body.get('stage','preflight'),
                     'runtime_trigger':({k:runtime_context[k] for k in ('generation','selected_event_seq','scope')} if runtime_context else None),
                     'request_id':uuid.uuid4().hex,'created_at':db.now(),
                     'configuration_snapshots':[freeze(ident,1,payload,scope_id,body['scope'],row) for ident,_,payload in prepared]}

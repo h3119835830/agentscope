@@ -15,7 +15,7 @@ const render=(rows=[row])=>renderToStaticMarkup(React.createElement(Component,{g
 
 test('conversation table and its details use only the saved snapshot',()=>{
  const html=render();
- for(const value of ['策略名称','员工资料读取保护','选用模板','文件读取限制','v2','保护对象的路径','/w/0/private/employees.csv','作用范围','指定 Agent · DSH 测试连接','审批状态','待提交审批'])assert.ok(html.includes(value),value);
+ for(const value of ['策略名称','员工资料读取保护','选用模板','文件读取限制','v2','保护对象的路径','/w/0/private/employees.csv','作用范围','指定 Agent · DSH 测试连接','触发条件','状态','待提交审批'])assert.ok(html.includes(value),value);
  assert.match(html,/<table/);assert.equal((html.match(/<tr>/g)||[]).length,2);
  assert.doesNotMatch(html,/<button|<input|<textarea|<select|手工配置|新增子配置|FILE-READ|config-a/);
 });
@@ -25,7 +25,7 @@ test('separate configurations keep different templates, parameters, scopes and a
 });
 test('operation and disposition parameters are readable and escaped',()=>{
  const html=render([{...row,name:'<script>fake</script>',template:{...row.template,parameters:[{key:'operations',label:'触发操作',type:'operations'},{key:'effect',label:'匹配后的动作',type:'effect'}]},parameters:{operations:['write','unlink'],effect:'block'}}]);
- assert.match(html,/修改文件、删除文件/);assert.match(html,/阻止并反馈/);assert.match(html,/&lt;script&gt;/);assert.doesNotMatch(html,/<script>/);
+ assert.match(html,/写入、删除/);assert.match(html,/阻止并反馈/);assert.match(html,/&lt;script&gt;/);assert.doesNotMatch(html,/<script>/);
 });
 test('disable approvals describe disable instead of claiming active protection',()=>{
  assert.match(render([{...row,approval_operation:'disable',approval_status:'pending'}]),/停用 · 待审批/);
@@ -38,6 +38,6 @@ test('empty and unavailable history do not invent template or parameter values',
 });
 test('effective operations and disposition come from the exact version, not requested intent',()=>{
  const html=render([{...row,parameters:{target:'/w/0/file'},execution:{requested_operations:['unlink'],effective_operations:['write','unlink'],effect:'notify',reason:'请保留发布清单',coverage_warning:'写入与删除共用执行访问组'}}]);
- assert.match(html,/修改文件、删除文件/);assert.match(html,/记录并提醒/);assert.match(html,/匹配后反馈/);assert.match(html,/请保留发布清单/);assert.match(html,/共用执行访问组/);
+ assert.match(html,/写入、删除/);assert.match(html,/记录并提醒/);assert.match(html,/匹配后反馈/);assert.match(html,/请保留发布清单/);assert.match(html,/共用执行访问组/);
  assert.match(render(),/处置未记录/);
 });

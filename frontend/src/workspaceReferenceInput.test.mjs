@@ -118,7 +118,7 @@ test('scenario input has no mandatory manual file or workspace selection',async(
  assert.ok(!nodes(tree).some(n=>n.props?.['aria-label']==='选择配置模板'));
  assert.doesNotMatch(renderToStaticMarkup(tree),/手工配置同一模板|按模板生成|补充参考材料/);
  assert.ok(!nodes(tree).some(n=>n.props?.['aria-label']==='参考文件路径'));
- assert.match(renderToStaticMarkup(tree),/无需填写参考文件路径/);
+ assert.match(renderToStaticMarkup(tree),/指定文件时仅读取指定正文/);
 });
 test('system scope does not authorize automatic reading of individual Agent workspaces',async()=>{
  const catalog={catalog:[],items:[],generations:[]},calls=[];
@@ -162,7 +162,7 @@ test('each conversation round renders its frozen configuration with a single com
  const render=await harness('TemplatePolicyAssistant.jsx',[catalog,'',[],'',false,[],false]);
  const tree=render({target:{id:'agent-a',name:'后来修改的Agent名称'},scope:'agent',api:async()=>catalog,post:async()=>assert.fail('unexpected write'),onApprovals(){}}),html=renderToStaticMarkup(tree);
  assert.equal(nodes(tree).filter(n=>n.type==='textarea').length,1);
- assert.equal((html.match(/aria-label="拟定策略"/g)||[]).length,2);
+ assert.equal((html.match(/aria-label="本轮策略记录"/g)||[]).length,2);
  assert.match(html,/生成时员工保护/);assert.match(html,/生成时预算保护/);assert.match(html,/original.csv/);assert.match(html,/budget.csv/);
  assert.doesNotMatch(html,/后来编辑的名称|changed.csv|后来修改的Agent名称|手工配置|新增子配置/);
 });

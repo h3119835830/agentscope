@@ -1,4 +1,6 @@
 import React,{useEffect,useRef,useState} from 'react';
+import {PolicyRecordCells} from './PolicyRecordTable.jsx';
+import {policyRecord,policyRecordFields} from './policyRecords.mjs';
 import {Editor as ExistingEditor} from './SystemPolicyLibrary.jsx';
 import TemplateConfigurationDialog from './TemplateConfigurationDialog.jsx';
 import TemplateDefinitionDialog from './TemplateDefinitionDialog.jsx';
@@ -97,14 +99,11 @@ export default function UnifiedPolicyLibrary({api,post,agents=[],targetId='',con
     </tr>
     {open&&<tr className="upl-template-detail-row"><td colSpan={5}><section id={detailId} aria-label={t.name+' 的子配置记录区'} className="upl-template-detail">
      <div className="upl-configurations-head"><strong>子配置记录 <span>{children.length} 项</span></strong></div>
-     <div className="upl-configuration-records" tabIndex={0} role="region" aria-label={t.name+' 的子配置记录'}><table aria-label={t.name+' 的子配置'}><colgroup><col className="upl-col-check"/><col className="upl-col-name"/><col className="upl-col-scope"/><col className="upl-col-effect"/><col className="upl-col-state"/><col className="upl-col-actions"/></colgroup>
-      <thead><tr><th className="spl-check"><input type="checkbox" aria-label={'选择 '+t.name+' 的子配置'} disabled={busy||!selectable.length} checked={!!selectable.length&&selectable.every(i=>selected.has(i.id))} onChange={e=>setSelected(prev=>{const n=new Set(prev);selectable.forEach(i=>e.target.checked?n.add(i.id):n.delete(i.id));return n;})}/></th><th>实际策略名称</th><th>范围</th><th>动作</th><th>配置进度</th><th>操作</th></tr></thead><tbody>
+     <div className="upl-configuration-records policy-record-scroll" tabIndex={0} role="region" aria-label={t.name+' 的子配置记录'}><table className="policy-record-table" aria-label={t.name+' 的子配置'}>
+      <thead><tr><th className="spl-check"><input type="checkbox" aria-label={'选择 '+t.name+' 的子配置'} disabled={busy||!selectable.length} checked={!!selectable.length&&selectable.every(i=>selected.has(i.id))} onChange={e=>setSelected(prev=>{const n=new Set(prev);selectable.forEach(i=>e.target.checked?n.add(i.id):n.delete(i.id));return n;})}/></th>{policyRecordFields.map(field=><th key={field}>{field}</th>)}<th>操作</th></tr></thead><tbody>
       {children.map(i=>{const summary=configurationRecordSummary(i,t),controls=configurationRecordActions(i);return <tr id={'configuration-'+i.id} className={'upl-policy-row'+(selected.has(i.id)||configurationId===i.id?' chosen':'')} key={i.id}>
      <td><input type="checkbox" aria-label={'选择 '+i.name} disabled={busy||!controls.canSubmit} checked={selected.has(i.id)} onChange={()=>toggle(i.id)}/></td>
-     <td><button className="spl-record-name upl-child-name" onClick={()=>edit(i)}>{i.name}</button></td>
-     <td><span className="upl-child-scope" title={scopeName(i)}>{scopeName(i)}</span></td>
-     <td>{summary.effects.length?<div className="spl-effect-list">{summary.effects.map(effect=><span key={effect} className={'spl-effect '+effect} title={effect+' · '+effectLabel(effect)}>{effectLabel(effect)}</span>)}</div>:<span className="upl-child-muted">查看详情</span>}</td>
-     <td><span className={'upl-child-state '+summary.stateTone}>{summary.status}</span>{i.configuration_status?.lifecycle?.disabled&&<small>已停用</small>}{i.read_only&&<small>历史配置 · 只读</small>}{summary.note&&<small className="upl-child-state-note">{summary.note}</small>}</td>
+     <PolicyRecordCells record={policyRecord({...i,scope_label:scopeName(i)},t)} name={<button className="spl-record-name upl-child-name" onClick={()=>edit(i)}>{i.name}</button>}/>
      <td><div className="upl-child-actions" role="group" aria-label={i.name+'的操作'}>
       <button className="upl-row-action" aria-label={i.name+'的详情'} disabled={busy} onClick={()=>edit(i)}>详情</button>
       <button className="upl-row-action upl-submit" aria-label={i.name+'：提交审批'} disabled={busy||!controls.canSubmit} title={controls.submitReason||'核对此配置后提交审批'} onClick={()=>request([i])}>提交审批</button>
@@ -112,7 +111,7 @@ export default function UnifiedPolicyLibrary({api,post,agents=[],targetId='',con
       {controls.hasApplied?<button className="upl-row-action upl-disable" aria-label={i.name+'：停用'} disabled={busy||!controls.canDisable} title={controls.disableReason||'提交停用审批，批准后再单独应用'} onClick={()=>request([i],'disable')}>停用</button>:<button className="upl-row-action upl-disable" aria-label={i.name+'：删除'} disabled={busy||!controls.canDelete} title={controls.deleteReason||'从配置列表删除，保留历史记录'} onClick={()=>request([i],'archive')}>删除</button>}
      </div></td>
     </tr>;})}
-      {!children.length&&<tr><td colSpan={6} className="upl-configurations-empty">暂无子配置，新增后可在此查看、提交审批或停用。</td></tr>}
+      {!children.length&&<tr><td colSpan={9} className="upl-configurations-empty">暂无子配置，新增后可在此查看、提交审批或停用。</td></tr>}
      </tbody></table></div>
     </section></td></tr>}
    </tbody>;})}

@@ -177,8 +177,8 @@ test('submitting a candidate only proposes validated changes, reuses a live matc
 test('approval details expose change, targets and explicit decisions without writing on viewing or switching tabs',async()=>{
  const render=await harness('PolicyApprovals.jsx','ApprovalDetail');let decisions=[];
  const data={id:'proposal',scope_type:'agent',target_name:'DeepSeek Harness',status:'pending',can_approve:true,can_apply:false,created_at:'2026-10-11T01:00:00Z',documents:[{id:'d',name:'Protect secret',original_dsl:'source AGENT = exec "**/node"'}],previous_documents:[],records:[{id:'r',document_id:'d',statement:'Protect secret',clauses:[{effect:'block',operation:'open',target:'/w/0/.env'}]}],targets:[{id:'agent',name:'DeepSeek Harness',active:true}],total_affected_count:1};
- const props={data,onClose(){},onDecision:async(...args)=>decisions.push(args)};let tree=render(props);assert.equal(decisions.length,0);assert.match(renderToStaticMarkup(tree),/全部工作区与会话/);assert.match(renderToStaticMarkup(tree),/新增/);
- elements(tree).find(e=>e.type==='button'&&e.props.children==='技术证据').props.onClick();tree=render(props);assert.equal(decisions.length,0);assert.match(renderToStaticMarkup(tree),/node/);
+ const props={data,onClose(){},onDecision:async(...args)=>decisions.push(args)};let tree=render(props);assert.equal(decisions.length,0);assert.match(renderToStaticMarkup(tree),/全部工作区与会话/);assert.match(renderToStaticMarkup(tree),/策略记录/);
+ assert.ok(elements(tree).find(e=>e.type==='summary'&&e.props.children==='技术证据'));tree=render(props);assert.equal(decisions.length,0);assert.match(renderToStaticMarkup(tree),/node/);
  assert.ok(elements(tree).find(e=>e.type==='button'&&e.props.children==='批准变更').props.disabled);elements(tree).find(e=>e.type==='input'&&e.props.type==='checkbox').props.onChange({target:{checked:true}});tree=render(props);await elements(tree).find(e=>e.type==='button'&&e.props.children==='批准变更').props.onClick();assert.equal(decisions[0][1],'approve');
  tree=render({...props,data:{...data,status:'stale',can_approve:false,can_apply:false}});assert.ok(!elements(tree).some(e=>e.props?.children==='批准变更'||e.props?.children==='应用策略'));
 });
@@ -264,12 +264,13 @@ test('approval records show product, PID and native session with exact read navi
  const render=await harness('PolicyApprovals.jsx','ApprovalRecords'),paths=[];
  const row={id:'proposal-a',name:'Protect secret',scope_type:'agent',document_count:1,status:'stale',created_at:'2026-10-11T01:00:00Z',target_name:'DeepSeek Harness',agents:[{id:'agent-a',name:'DeepSeek Harness',pid:54870}],origin_sessions:[{instance_id:'agent-a',session_id:'session-one',name:'Run native tests',available:true,generation_pid:54870}]};
  const tree=render({rows:[row],navigate:p=>paths.push(p)}),html=renderToStaticMarkup(tree);
- for(const value of ['适用 Agent','生成会话','DeepSeek Harness','54870','Run native tests','状态 / 提交时间'])assert.ok(html.includes(value));
+ for(const value of ['适用 Agent','生成会话','DeepSeek Harness','54870','Run native tests','作用范围','状态'])assert.ok(html.includes(value));
  assert.doesNotMatch(html,/RQ5|受控实例|批准并应用/);assert.equal(paths.length,0);
  // Render the nested location components independently to exercise their buttons.
- const agentNode=elements(tree).find(e=>e.type?.name==='AgentLocation');
+ const cells=elements(tree).find(e=>e.type?.name==='PolicyRecordCells'),locationTree=cells.type(cells.props);
+ const agentNode=elements(locationTree).find(e=>e.type?.name==='AgentLocation');
  elements(agentNode.type(agentNode.props)).find(e=>e.type==='button').props.onClick();
- const sessionNode=elements(tree).find(e=>e.type?.name==='SessionLocations');
+ const sessionNode=elements(locationTree).find(e=>e.type?.name==='SessionLocations');
  elements(sessionNode.type(sessionNode.props)).find(e=>e.type==='button').props.onClick();
  assert.deepEqual(paths,[{page:'strategies',systemTab:'policies',policyAgent:'agent-a',policyScope:'agent',configurationId:'',approvalId:''},{page:'sessions',sessionInstance:'agent-a',sessionId:'session-one',sessionTab:'policies',approvalId:''}]);
 });

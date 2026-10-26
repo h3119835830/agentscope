@@ -103,7 +103,8 @@ def inspect(runner,workspace,paths):
 def search(runner,workspace,query,mode,path='',cursor=0):
     if not isinstance(query,str) or not 1<=len(query)<=200 or mode not in ('path','content') or type(cursor) is not int or not 0<=cursor<=MAX_ENTRIES:
         raise ValueError('搜索参数不合法')
-    inventory=tree(runner,workspace,path);files=[e for e in inventory['entries'] if e['kind']=='file']
+    inventory=tree(runner,workspace,path);files=[e for e in inventory['entries'] if e['kind']=='file'
+        and (mode!='content' or runner.reference_files is None or e['relative_path'] in runner.reference_files)]
     hits=[];scanned=0;offset=cursor
     for offset in range(cursor,len(files)):
         item=files[offset];name=item['relative_path']

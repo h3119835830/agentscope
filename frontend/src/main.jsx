@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
+import './policyRecords.css';
 import TaskHub from './TaskHub.jsx';
 import AgentWorkspaces from './AgentInstances.jsx';
 import ManagedWorkbench from './ManagedWorkbench.jsx';

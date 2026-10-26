@@ -1,0 +1,11 @@
+.policy-record-scroll{overflow-x:auto;max-width:100%;border:1px solid #e1e7ef;border-radius:8px;background:#fff}
+.policy-record-table{width:100%;min-width:740px;border-collapse:collapse;font-size:12px;text-align:left}
+.policy-record-table th{white-space:nowrap;background:#f5f7fb;color:#54627a;font-weight:600}
+.policy-record-table td,.policy-record-table th{padding:11px 12px;border-bottom:1px solid #e8edf4;vertical-align:top}
+.policy-record-table td:first-child{min-width:125px;max-width:200px}.policy-record-table td{min-width:65px;max-width:200px;overflow-wrap:anywhere}
+.policy-record-value{display:block;max-width:240px;white-space:pre-wrap}.policy-record-table details dl{min-width:180px}.policy-record-table dd{margin:3px 0 10px}
+.policy-record-table tr:last-child td{border-bottom:0}.approval-batch-scope{padding:10px 14px;background:#fff6dd;border-radius:6px;color:#765620}
+.assistant-v2-answer{min-width:0}.assistant-response{min-width:0;width:100%}.assistant-v2-answer .policy-record-table{font-size:12px}
+.approval-records table.policy-record-table{min-width:840px;table-layout:auto}
+.upl-configuration-records table.policy-record-table{min-width:1100px;table-layout:auto}
+.policy-record-table th:has(input),.policy-record-table td:has(>input[type=checkbox]){min-width:32px;max-width:32px;width:32px}

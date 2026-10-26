@@ -64,6 +64,10 @@ def project(p,names,full=False,locations=None):
         records=dsl.policy_records(compilation,p['scope_id']) if compilation else []
         row.update(documents=p['documents'],records=records,targets=visible_targets,proposal_hash=p['proposal_hash'],application=p['result'].get('application'),document_changes=changes,
                    previous_documents=base['documents'] if p['base_hash']==base['document_hash'] else None)
+    from .approval_configuration_records import records as configuration_records
+    row['configuration_records'] = configuration_records(p)
+    if row['configuration_records']:
+        row['name'] = '策略变更 · '+str(len(row['configuration_records']))+' 项'
     row.update(kind='dsl',origin='manual',candidate_hash=p['proposal_hash'],
         target={'scope':row['scope_type'],'id':p['scope_id']},
         scope_label='全部受控 Agent' if p['scope_id']=='system' else '全部工作区与会话',

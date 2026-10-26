@@ -1,0 +1,33 @@
+{
+  "previous": "/opt/agentscope/releases/source-records-final-20261026.WKSHD6",
+  "release": "/opt/agentscope/releases/source-records-compact-20261026.7omOvi",
+  "broker_pid": "662967",
+  "files": {
+    "backend/agentscope_app/instances/policy_file_scope.py": "4033921221facc983a5b82e2a2fe2860c31eb8924a45aa6d5258ef8476586f99",
+    "backend/agentscope_app/instances/policy_context_agent.py": "b6d5a8eb82d8a48b74a9a1bc39fdbe94b1d697379b2f68b9f9d65700b6f76cd3",
+    "backend/agentscope_app/instances/policy_continuation.py": "9d47d7eaad884af1a0b55c29e7210fd85492530ebe665b938be92805ff1a3987",
+    "backend/agentscope_app/instances/policy_investigation.py": "c0aa524666d7f20d0fb3e604f778e78e02978d4a32660748a06a1e9e77f42dfe",
+    "backend/agentscope_app/instances/template_configurations.py": "a85ec89d438fb46bb2b43d59239fef1bbbbd0919eb5ecb6ca658bd6c2c32b4cd",
+    "backend/agentscope_app/instances/approval_views.py": "ad220ce5d3970bca3660ddeb40fff65d6cf615e4da6897e822fd1ca2aa4efed0",
+    "backend/agentscope_app/instances/approval_configuration_records.py": "e8d33d5f2c54ff03cc4c49267c3e6bf70019549e5be69031e9dfb9d95638de4f",
+    "frontend/dist/terminal.html": "f3253f7b7c5f234f9c6153ae421424e602d63fe97cd0118427e683685d201337",
+    "frontend/dist/value-announcement.html": "0671687b1b8f179b2a8441beb0713634184923e6785f7d84513e704594707e23",
+    "frontend/dist/index.html": "e280ee9a7979f2a2c4064315a0ce2e5af2cc83f6f3cb7378352807f0d18871ca",
+    "frontend/dist/value-evidence.html": "0671687b1b8f179b2a8441beb0713634184923e6785f7d84513e704594707e23",
+    "frontend/dist/assets/main-BpWZ1S1V.js": "f7a054cc5077d99886231e8f56c4023cacf140da4a8aea74327d2ca463d3be40",
+    "frontend/dist/assets/main-DWcOJPa2.css": "02cc3529618ce860bbbb72cbbb63e0f18058b33d4b992b738abfa5029ba12f76",
+    "frontend/dist/assets/main-CQmQadyJ.css": "7dc01086cac80f5c9b7eb820a9c89e51e88064a240bb1348a42afc31ce75dee7",
+    "frontend/dist/assets/client-2tdd2SJ7.js": "db45583e1f8b00f66e65251c12c9cfd14337051285ac085f1e9fefbf6dd45a29",
+    "frontend/dist/assets/main-DZC3xKPd.js": "be695ef042fdb83795406347f5544221c233dcc21279195dba8e5ecf58492f04",
+    "frontend/dist/assets/main-CZu-oFmK.js": "1ad8109c54426a71d03a222f65853abd14d312e1d27b9a802ae36780b19e3505",
+    "frontend/dist/assets/main-CRB9CREI.js": "9b4059f9d63010a699b4a7d8b58963b2c6575efa9361abe639f47b3ec31d7408",
+    "frontend/dist/assets/terminal-BlLcbnBV.css": "ff476ad53662352179e854edbe7cb4bc56370617a8be4e8dc0151a1f50a20d40",
+    "frontend/dist/assets/main-BhKX29vy.css": "6572278eefe8ce66844f7b1000b92eec3029b7277941fcbc5b70088fed7b6d34",
+    "frontend/dist/assets/terminal-DrmujJtr.js": "8c165a9f5594936bc55a0fd99abce7e375107c96b21cb0194cc61589b74534f7",
+    "frontend/dist/assets/main-BucSuyoO.css": "72cabac79df061051e8659528c7d64cdd230d01944935c369fa1cd0e279cddf0",
+    "frontend/dist/assets/main-DDpd6kVu.js": "872f6f9966e9c01f356d1b2badc999801ba916a1216ee34376e1f2d469f1e8e9",
+    "frontend/dist/reference/command-connections-manual.html": "0d1ffec6ded5bbe02c35e48a545b74d85a2a44a903ada1cbcbe88aa02e8e8cfa"
+  },
+  "published": true,
+  "api_pid": "1503034"
+}

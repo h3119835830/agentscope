@@ -47,7 +47,7 @@ def final_shape_valid(value):
          and not set(value)-{'configurations','questions','gaps','summary'})
 
 class WorkspacePolicyAgent:
- def __init__(self,ident,provider,check_basis,seed=None,enabled=True,reference_workspace_id=None):
+ def __init__(self,ident,provider,check_basis,seed=None,enabled=True,reference_workspace_id=None,reference_files=None):
   self.ident=ident;self.provider=provider;self.check_basis=check_basis;self.enabled=enabled
   self.catalog=refs.directory(ident)['workspaces'] if enabled else []
   if reference_workspace_id:
@@ -55,6 +55,7 @@ class WorkspacePolicyAgent:
    if not selected:raise ValueError('所选参考工作区不属于当前 Agent 或已失效')
    self.catalog=selected
   self.workspaces={w['id']:w for w in self.catalog}
+  self.reference_files=refs.paths_checked(reference_files) if reference_files else None
   self.references=[];self.selected=set();self.total_bytes=0;self.events=[];self.calls=0;self.errors=0;self.runs=[];self.format_repairs=0
   self.discovered=set()
   self.discovered_sizes={}
@@ -74,12 +75,22 @@ class WorkspacePolicyAgent:
   if self.enabled and value['workspace_id'] not in self.workspaces:
    raise ToolContractError('此前读取依据不属于当前参考工作区')
   for source in value['files']:
+   self.check_source_path(source['relative_path'])
    key=(value['workspace_id'],source['relative_path'])
    if key in self.selected:raise ToolContractError('相同参考文件不能重复读取')
    self.selected.add(key);self.total_bytes+=source['byte_size']
    self.discovered.add(key);self.discovered_sizes[key]=source['byte_size']
   if len(self.selected)>self.limits['files'] or self.total_bytes>self.limits['bytes']:raise ToolContractError('本次资料超过累计读取限额')
   self.references.append(reference)
+
+ def source_scope(self):
+  return {'mode':'explicit_files' if self.reference_files else 'auto','body_paths':self.reference_files,
+          'metadata_inspection_allowed':True,'selected_by':'operator'}
+
+ def check_source_path(self,path):
+  if self.reference_files is not None and path not in self.reference_files:
+   raise ToolContractError('此正文不在用户指定的参考文件范围内；本轮只允许：'+ '、'.join(self.reference_files),
+                           {'code':'source_outside_operator_selection','source_scope':self.source_scope()})
 
  def execute(self,call):
   with self.lock:return self._execute(call)
@@ -172,6 +183,7 @@ class WorkspacePolicyAgent:
     event.update(path=path,entry_count=len(value['entries']),omitted_count=value['omitted_count'])
    else:
     paths=refs.paths_checked(args['paths'])
+    for path in paths:self.check_source_path(path)
     if any((workspace,path) not in self.discovered for path in paths):raise DirectoryConfirmationRequired('先查看对应目录，再选择已列出的正文文件')
     if all((workspace,path) in self.selected for path in paths):
      # Idempotent reads return only previously verified bodies, never a guess
@@ -286,4 +298,4 @@ class WorkspacePolicyAgent:
    'call_limit':self.limits['calls'],'remaining_tool_calls':max(0,self.limits['calls']-self.calls),
    'file_count':len(self.selected),'total_bytes':self.total_bytes,'activity':self.events,
    'sources':[{'workspace':r['workspace'],'paths':[f['execution_path'] for f in r['untrusted_project_files']]} for r in self.references],
-   'pattern_previews':list(self.previews.values())}
+   'pattern_previews':list(self.previews.values()),'source_scope':self.source_scope()}
