@@ -1,4 +1,19 @@
 """Read-only links from an exact configuration binding to its approval record."""
+from contextvars import ContextVar
+from functools import wraps
+
+_projection=ContextVar('configuration_approval_projection',default=None)
+
+def read_snapshot(function):
+    """Share one approval observation within a response, never across reads."""
+    @wraps(function)
+    def wrapped(*args,**kwargs):
+        if _projection.get() is not None:return function(*args,**kwargs)
+        token=_projection.set({})
+        try:return function(*args,**kwargs)
+        finally:_projection.reset(token)
+    return wrapped
+
 def link(con, ident, revision, scope, kind):
     table = {'template':'template_configuration_proposals', 'legacy':'system_policy_library_proposals'}[kind]
     rows = con.execute(f'''SELECT p.proposal_id, json_extract(s.value,'$.revision') AS revision
@@ -17,7 +32,10 @@ def state(linked, fallback):
     if not linked['approval_current']:
         return fallback
     from .approval_views import detail
-    return detail(linked['approval_id'])['status']
+    cache=_projection.get();ident=linked['approval_id']
+    if cache is None:return detail(ident)['status']
+    if ident not in cache:cache[ident]=detail(ident)['status']
+    return cache[ident]
 
 
 def disabled(con, ident, scope, kind):

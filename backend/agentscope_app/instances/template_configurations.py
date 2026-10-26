@@ -10,6 +10,7 @@ from .. import db
 from . import template_catalog as catalog, dsl_policy as dsl, policy_library, store, git_templates
 from .policy import digest
 from .system_policy import lifecycle
+from .configuration_approvals import read_snapshot
 
 SCHEMA = '''
 CREATE TABLE IF NOT EXISTS template_configurations(
@@ -283,6 +284,7 @@ def view(row):
     return {**result, 'configuration_status': configuration({**result,'disabled':is_disabled})}
 
 
+@read_snapshot
 def directory(scope_id=None):
     with db.connect() as con:
         sql = 'SELECT id FROM template_configurations WHERE archived=0'
@@ -364,6 +366,7 @@ def save(scope_id, body, ident=None):
 
 
 def verify_proposal(proposal_id,read_sources=True):
+    verified_sources=set() if not read_sources else None
     with db.connect() as con:
         binding = con.execute('SELECT selections_json FROM template_configuration_proposals WHERE proposal_id=?', (proposal_id,)).fetchone()
         if not binding:
@@ -372,10 +375,10 @@ def verify_proposal(proposal_id,read_sources=True):
             current = load(selected['id'],con=con)
             if current['archived'] or current['revision'] != selected['revision'] or digest(current['document']) != selected['document_hash'] or digest(catalog.get(current['template_id'],current['template_version'])) != current['template_hash']:
                 raise ValueError('配置库版本已变化：子配置或模板已更新，请重新核验。')
-            verify_current(current,read_source=selected.get('operation','apply')!='disable',full_read=read_sources)
+            verify_current(current,read_source=selected.get('operation','apply')!='disable',full_read=read_sources,verified_sources=verified_sources)
 
 
-def verify_current(item,read_source=True,full_read=True):
+def verify_current(item,read_source=True,full_read=True,verified_sources=None):
     from .template_support import ensure_applicable
     ensure_applicable(catalog.get(item['template_id'],item['template_version']),item['effect'],removing=not read_source)
     row = target(item['scope_id'],item['scope'],item['workspace_id'])
@@ -395,9 +398,12 @@ def verify_current(item,read_source=True,full_read=True):
     if read_source and sources:
         from .workspace_references import verify,verify_metadata
         for source in sources:
+            key=(item['scope_id'],source['id'],source['snapshot_hash'])
+            if verified_sources is not None and key in verified_sources:continue
             receipt=(verify if full_read else verify_metadata)(item['scope_id'],source['id'])
             if receipt['snapshot_hash']!=source['snapshot_hash']:
                 raise ValueError('场景依据已变化，请重新读取并生成')
+            if verified_sources is not None:verified_sources.add(key)
 
 
 def bind_proposal(proposal_id, selections):

@@ -147,3 +147,21 @@ def test_legacy_execution_display_uses_original_version_without_rewriting_histor
         assert con.execute('SELECT result_json FROM template_configuration_requests WHERE request_key=?',
                            ('generate:' + body['request_key'],)).fetchone()[0] == serialized
     assert not world.calls
+
+
+def test_same_approval_has_one_status_observation_per_directory_response(world,monkeypatch):
+    from agentscope_app.instances import approval_views
+    a,_,_=generate(world);b,_,_=generate(world,name='第二项资料保护',parameters={'target':'/w/0/other.csv'})
+    base=dsl.current(world.a['id'])
+    p=tc.propose_batch({'scope_id':world.a['id'],'selections':[a['items'][0],b['items'][0]],
+        'base_hash':base['document_hash'],'base_revision':base['revision'],'request_key':uuid.uuid4().hex})
+    observations=[];live={'status':'pending'}
+    def detail(ident):observations.append(ident);return dict(live)
+    monkeypatch.setattr(approval_views,'detail',detail)
+    page=tc.directory(world.a['id'])
+    assert {i['status'] for i in page['items']}=={'pending'}
+    assert {g['configuration_snapshots'][0]['approval_status'] for g in page['generations']}=={'pending'}
+    assert observations==[p['id']]
+    live['status']='stale';page=tc.directory(world.a['id'])
+    assert {i['status'] for i in page['items']}=={'stale'}
+    assert observations==[p['id'],p['id']]

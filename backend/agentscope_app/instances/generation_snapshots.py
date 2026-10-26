@@ -5,6 +5,7 @@ from fastapi import HTTPException
 from .. import db
 from . import template_catalog as catalog
 from .policy import digest
+from .configuration_approvals import read_snapshot
 
 
 def execution_facts(payload):
@@ -35,6 +36,7 @@ def freeze(ident, revision, payload, scope_id, scope, agent=None):
     })
 
 
+@read_snapshot
 def project(generation):
     """Never substitute today's configuration/template/Agent name for old content."""
     from . import template_configurations as configurations
