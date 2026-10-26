@@ -60,7 +60,7 @@ def main():
     if args.action=='status':print(json.dumps({'url':env['AGENTSCOPE_PUBLIC_URL'],'state':str(STATE)}));return
     previous=json.loads((STATE/'pids.json').read_text()) if (STATE/'pids.json').exists() else {}
     # Require callers to close native tasks through the authoritative API first.
-    scope=Path('/sys/fs/cgroup/agentscope-memory-20261026')
+    scope=Path('/sys/fs/cgroup')/Path(env['ACTPLANE_BPF_PIN_ROOT']).name
     if any(path.read_text().strip() for path in scope.glob('*/cgroup.procs')):
         raise RuntimeError('close the isolated native tasks before stopping or restarting this service')
     for role,pid in previous.items():
@@ -93,7 +93,8 @@ def main():
     subprocess.run([PYTHON,'-c','from agentscope_app import db; db.init_db(); from agentscope_app.bootstrap.library import seed_test_library; seed_test_library()'],env=env,preexec_fn=demote,check=True)
     broker=subprocess.Popen([PYTHON,str(CODE/'backend/broker/main.py')],cwd=CODE,env=env,
         stdout=open(STATE/'broker.log','a'),stderr=subprocess.STDOUT,start_new_session=True)
-    api=subprocess.Popen([PYTHON,'-m','uvicorn','agentscope_app.main:app','--host','127.0.0.1','--port','18005'],
+    from urllib.parse import urlparse
+    api=subprocess.Popen([PYTHON,'-m','uvicorn','agentscope_app.main:app','--host','127.0.0.1','--port',str(urlparse(env['AGENTSCOPE_PUBLIC_URL']).port)],
         cwd=CODE,env=env,preexec_fn=demote,stdout=open(STATE/'api.log','a'),stderr=subprocess.STDOUT,start_new_session=True)
     (STATE/'pids.json').write_text(json.dumps({'broker':broker.pid,'api':api.pid}))
     for _ in range(50):

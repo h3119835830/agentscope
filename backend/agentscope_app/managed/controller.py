@@ -768,6 +768,9 @@ def enqueue(con,task_id,state,text,key,kind='message',actor='native_user'):
     frozen['capabilities']['automatic_protection_subtrees']=[d+'/**' for d in directories if d!='.' and d+'/**' in frozen['capabilities']['authorized_protection_targets']]
     frozen['capabilities']['protect_files']='Exact registered files or automatic_protection_subtrees; preserve prior protections. Existing startup file collections do not authorize a broader parent tree or derived artifacts.'
     frozen['capabilities']['tool_budget']=max(20,min(60,len(frozen['project_sources'])+8))
+    if os.getenv('AGENTSCOPE_RUNTIME_SOURCE_TOOLS')=='1':
+        frozen['capabilities']['target_admission']='runtime-source-tools/1'
+        frozen['capabilities']['tool_budget']=60
     con.execute('INSERT INTO managed_jobs(id,task_id,request_key,revision,policy_hash,context_json,created_at) VALUES(?,?,?,?,?,?,?)',(ident,task_id,key,state['revision'],state['policy_hash'],json.dumps(frozen,ensure_ascii=False),db.now()))
     # No tool starts while a new user constraint is still unresolved.
     state['gate']='waiting_policy';save(con,task_id,state)
@@ -909,7 +912,10 @@ def validate_candidate(job,args):
     for target in p.add_protected_paths:
         if 'authorized_protection_targets' in ctx['capabilities']:
             bindings=ctx['capabilities']['authorized_protection_targets'].get(target,[])
-            if not any(b['request_id'] in p.evidence_ids for b in bindings):raise ValueError('New protection has no explicit authenticated OS-target authorization: '+target+'. Project reads resolve facts but cannot authorize restrictions. Use only authorized_protection_targets, or keep the current snapshot with no_change/guidance_only.')
+            if ctx['capabilities'].get('target_admission')=='runtime-source-tools/1':
+                users={str(item['evidence_id']) for item in ctx.get('public_task_context',[]) if item.get('actor') in ('native_user','administrator')}
+                if not users.intersection(p.evidence_ids):raise ValueError('记忆不能单独授权新增保护，必须引用本轮已认证用户要求')
+            elif not any(b['request_id'] in p.evidence_ids for b in bindings):raise ValueError('New protection has no explicit authenticated OS-target authorization: '+target+'. Project reads resolve facts but cannot authorize restrictions. Use only authorized_protection_targets, or keep the current snapshot with no_change/guidance_only.')
         candidates=[x['id'] for x in ctx.get('project_sources',[]) if x['id']==target or target.endswith('/**') and x['id'].startswith(target[:-2])]
         if not any('project:'+ident in p.evidence_ids for ident in candidates):raise ValueError('新保护对象必须引用已读取项目材料: '+json.dumps({'target':target,'source_ids':candidates}))
     protected_paths=sorted(set(previous)|set(p.add_protected_paths))
@@ -940,6 +946,10 @@ def finish_job(job):
             if not row or not row['proposal_json']:raise ValueError('Pi 未提交经校验候选')
             if s['phase']!='running' or s['revision']!=job['revision'] or s['policy_hash']!=job['policy_hash']:raise ValueError('stale: 候选已过期或任务已结束')
             p=json.loads(row['proposal_json']);ctx=json.loads(row['context_json'])
+            source_protocol=ctx.get('capabilities',{}).get('target_admission')=='runtime-source-tools/1'
+            if source_protocol:
+                from .source_tools import saved_candidate
+                saved_candidate(dict(row),p)
             normalization.persist(con,task_id,'runtime',job['id'],p.get('normalization'))
             event(con,task_id,'candidate',job['id'],{'proposal':p,'revision':s['revision'],'authority':'validated_additive_candidate'})
             if p.get('normalization'):
@@ -968,7 +978,7 @@ def finish_job(job):
             evidence=set(p.get('evidence_ids',[]))
             if (not additions or p.get('allowed_write_dirs')!=s['allowed_write_dirs'] or p.get('allow_output')!=s['allow_output']
                     or p.get('protected_paths')!=sorted(set(previous)|set(additions))
-                    or any(not any(binding.get('request_id') in evidence for binding in authorized.get(target,[])) for target in additions)
+                    or (not source_protocol and any(not any(binding.get('request_id') in evidence for binding in authorized.get(target,[])) for target in additions))
                     or delta!=runtime_protection_delta(task_row(con,task_id),job['id'],additions)):
                 raise ValueError('Runtime candidate no longer matches an additive-only server-derived Delta')
             if not delta or hashlib.sha256(delta.encode()).hexdigest()!=p.get('compiled_delta_hash'):raise ValueError('Runtime Delta integrity mismatch')

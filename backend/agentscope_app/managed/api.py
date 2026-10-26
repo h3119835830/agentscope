@@ -79,6 +79,10 @@ def generator(task_id:str,job_id:str,tool:str,request:Request,body:ToolCall):
         budget=json.loads(row['context_json']).get('capabilities',{}).get('tool_budget',20)
         if row['calls']>=budget:raise HTTPException(401,'生成工具预算耗尽')
         job=dict(row);con.execute('UPDATE managed_jobs SET calls=calls+1 WHERE id=?',(job_id,))
+        from . import source_tools
+        if source_tools.enabled(json.loads(job['context_json'])):
+            con.commit()
+            return run(source_tools.execute,job,tool,body.args)
         if tool=='get_runtime_context':
             frozen=json.loads(job['context_json'])
             c.event(con,task_id,'pi_read',job_id,{'context_hash':c.digest(frozen)})
