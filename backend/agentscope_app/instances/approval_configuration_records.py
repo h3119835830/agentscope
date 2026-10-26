@@ -20,7 +20,8 @@ def records(proposal):
                     raise ValueError('审批配置版本不一致')
                 payload = json.loads(con.execute('SELECT payload_json FROM template_configuration_versions WHERE id=? AND revision=?', (row['id'], row['revision'])).fetchone()[0])
                 snapshot = freeze(row['id'], row['revision'], payload, row['scope_id'], row['scope'])
-                result.append({**snapshot, 'approval_operation':selection.get('operation','apply')})
+                result.append({**snapshot, 'approval_operation':selection.get('operation','apply'),
+                               'document':row['document']})
             except (HTTPException, ValueError, KeyError):
                 result.append({'id':selection['id'], 'revision':selection['revision'], 'unavailable':True})
         return result

@@ -53,11 +53,41 @@ test('changes after review prevent submission without refreshing the approved co
   assert.equal(result[0].outcome,'failed');assert.equal(calls.length,0);
  }
 });
-test('partial failures are retained and independent records proceed sequentially',async()=>{
+test('partial failures are retained and every independent record is still processed',async()=>{
  const records=[row('one'),row('two')],order=[];let inFlight=0;const api=async path=>records.find(r=>url(r.id)===path);
  const batch=await prepareApprovalBatch(records,'approve',api);
  const result=await executeApprovalBatch(batch,api,async path=>{assert.equal(inFlight,0);inFlight++;order.push(path);try{if(path.includes('/one/'))throw Error('已有待应用变更');return {state:'approved'};}finally{inFlight--;}});
  assert.deepEqual(result.map(r=>r.outcome),['failed','success']);assert.match(result[0].message,/已有待应用/);assert.equal(order.length,2);
+});
+
+test('approval has bounded concurrency, immediate progress and no redundant receipt readback',async()=>{
+ const records=Array.from({length:11},(_,i)=>({...row(String(i),'shared'),approval_unit:{configuration_id:'policy-'+i}}));
+ const reads=[],pending=[],progress=[];let active=0,maxActive=0;
+ const api=async path=>{reads.push(path);return records.find(r=>url(r.id)===path);};
+ const batch=await prepareApprovalBatch(records,'approve',api);reads.length=0;
+ const run=executeApprovalBatch(batch,api,async path=>{
+  const id=records.find(r=>path===url(r.id)+'/approve').id;
+  active++;maxActive=Math.max(maxActive,active);
+  await new Promise(resolve=>pending.push(resolve));active--;
+  return {id,state:'approved',approval_hash:'receipt-'+id};
+ },values=>progress.push(values.map(v=>v.outcome)));
+ // Resolve blocked requests in waves; this tests concurrency without timers.
+ for(let completed=0;completed<11;){
+  await new Promise(resolve=>setImmediate(resolve));
+  const wave=pending.splice(0);assert.ok(wave.length>0);completed+=wave.length;wave.forEach(resolve=>resolve());
+ }
+ const results=await run;
+ assert.equal(maxActive,3);assert.equal(reads.length,11);
+ assert.deepEqual(results.map(r=>r.id),records.map(r=>r.id));
+ assert.ok(results.every(r=>r.status==='approved'&&r.outcome==='success'));
+ assert.ok(progress[0].includes('processing'));
+});
+
+test('application remains sequential even for distinct policies',async()=>{
+ const records=[row('one','shared','approved'),row('two','shared','approved')];let active=0,maxActive=0;
+ const api=async path=>records.find(r=>url(r.id)===path),batch=await prepareApprovalBatch(records,'apply',api);
+ await executeApprovalBatch(batch,api,async()=>{active++;maxActive=Math.max(maxActive,active);await new Promise(resolve=>setImmediate(resolve));active--;return {state:'applied'};});
+ assert.equal(maxActive,1);
 });
 test('unsupported attention records are skipped and supported records bind the reviewed plan',async()=>{
  const supported={...row('one'),status:'stale',can_approve:false,revalidation:{available:true}},blocked={...row('two'),status:'blocked',can_approve:false,revalidation:{available:false,reason:'请返回所属配置重新生成'}};

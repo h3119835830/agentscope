@@ -61,3 +61,10 @@ test('conditional templates do not turn into unconditional bans in compact sente
  const {result}=JSON.parse(readFileSync(new URL('../../acceptance/policy-investigation-20261026/e3/results/real-directory-gate.json',import.meta.url),'utf8'));
  for(const row of result.configuration_snapshots){const text=compactPolicyText(row);assert.match(text,/按模板条件约束/);assert.match(text,/git commit/);assert.match(text,/pytest/);assert.match(text,/退出码 0/);assert.doesNotMatch(text,/禁止执行 git commit|见详情/);}
 });
+
+test('producer conditions state exactly when a report change is blocked',()=>{
+ const row={name:'报告约束',template:{id:'RQ1-GENERATED',parameters:[{key:'target',type:'path'},{key:'producer',type:'program'}]},parameters:{target:'/w/0/reports/change-report.md',producer:'python3'},execution:{effective_operations:['write','unlink'],effect:'block'}};
+ const text=compactPolicyText(row);
+ assert.match(text,/执行链未经过 python3 时，禁止修改、删除/);
+ assert.match(text,/不校验具体脚本、参数或报告内容/);assert.doesNotMatch(text,/按模板条件约束|；禁止/);
+});

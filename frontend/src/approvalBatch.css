@@ -9,12 +9,12 @@
 .approval-batch-dialog{width:min(960px,94vw)}
 .approval-batch-table{width:100%;table-layout:fixed;border-collapse:collapse;font-size:12px;color:#526d90}
 .approval-batch-table th{text-align:left;font-weight:500;background:#f3f6fb;color:#7287a4;padding:12px;border-bottom:1px solid #e2e8f2}
-.approval-batch-table th:first-child{width:46%}.approval-batch-table th:nth-child(2){width:22%}
+.approval-batch-table th:first-child{width:64%}.approval-batch-table th:nth-child(2){width:19%}
 .approval-batch-table td{padding:14px 12px;border-bottom:1px solid #e8edf5;vertical-align:top;overflow-wrap:anywhere}
 .approval-batch-table td>strong{font-size:13px;color:#34567e}.approval-batch-table td>small{display:block;margin-top:6px;color:#8193ac}
 .approval-batch-table p{font-size:11px;line-height:1.8;margin:7px 0;color:#7e8fa6}
-.approval-batch-content{margin-top:10px;font-size:11px}.approval-batch-content summary{color:#4b79b7;cursor:pointer}.approval-batch-content section{margin:10px 0;padding-top:8px;border-top:1px solid #e8edf5}
-.approval-batch-content pre{max-height:220px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere}
+.approval-dsl{margin-top:8px;min-width:0}.approval-dsl section{min-width:0}.approval-dsl .dsl-code{max-height:220px;overflow:auto;font-size:11px}.approval-dsl code{white-space:pre-wrap;overflow-wrap:anywhere}.approval-dsl>small{display:block;margin:6px 0;color:#8193ac;line-height:1.6}
+.approval-dsl .dsl-code-line{min-width:0}.approval-dsl code{min-width:0}
 .approval-batch-summary{font-size:12px;color:#627e9f}.approval-batch-dialog .experience-detail-footer{flex-wrap:wrap;gap:12px}
 @media(max-width:760px){.approval-batch-toolbar{gap:8px}.approval-batch-toolbar .button.primary{margin-left:0}.approval-records td.approval-row-select{padding:14px 16px 2px}.approval-records td.approval-row-select input{grid-column:2}.approval-batch-table{min-width:580px}.approval-filter-tabs{gap:15px}.approval-search{flex-wrap:wrap}}
 @media(max-width:760px){.approval-toolbar{flex-wrap:wrap;gap:8px;padding-bottom:8px}.approval-list-tools{margin-left:auto}}

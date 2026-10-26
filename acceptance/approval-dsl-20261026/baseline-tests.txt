@@ -1,0 +1,62 @@
+{"isolated_approval_count": 11, "candidate_checks": 66, "seconds": 4.105}
+F
+=================================== FAILURES ===================================
+_ test_eleven_approvals_check_each_candidate_without_rechecking_unrelated_sources _
+
+world = namespace(a={'id': 'instance-b0d8754cc52a48b8', 'name': 'Same name', 'agent_type': 'dsh', 'environment': 'wsl', 'mode'...e.testclient.TestClient object at 0x7bae14e209b0>, compile=<function world.<locals>.compile_message at 0x7bae14da7b00>)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7bae14e22810>
+
+    def test_eleven_approvals_check_each_candidate_without_rechecking_unrelated_sources(world,monkeypatch):
+        import time
+        rows=[tc.save(world.a['id'],config(name='Policy '+str(i),parameters={'target':'/w/0/file-'+str(i)})) for i in range(11)]
+        proposals=tc.propose_batch(batch(world.a['id'],rows))['items']
+        original=views.raw_detail;checked=[]
+        def observed(ident):
+            checked.append(ident)
+            return original(ident)
+        monkeypatch.setattr(views,'raw_detail',observed)
+        started=time.monotonic()
+        for p in proposals:decisions.approve(p['id'],p['proposal_hash'],uuid.uuid4().hex)
+        elapsed=time.monotonic()-started
+        print(json.dumps({'isolated_approval_count':11,'candidate_checks':len(checked),'seconds':round(elapsed,3)}))
+>       assert checked==[p['id'] for p in proposals]
+E       AssertionError: assert ['db13f88825d...a3bce33', ...] == ['db13f88825d...547a4a1', ...]
+E
+E         At index 2 diff: 'db13f88825d046c980b7a719c2962035' != 'ebac15e46ed54827a352ab933643eeff'
+E         Left contains 55 more items, first extra item: 'db13f88825d046c980b7a719c2962035'
+E         Use -v to get more diff
+
+backend/tests/test_individual_approvals.py:72: AssertionError
+=============================== warnings summary ===============================
+backend/agentscope_app/main.py:236
+  /opt/agentscope/releases/approval-dsl-20261026.FMi589/backend/agentscope_app/main.py:236: DeprecationWarning:
+          on_event is deprecated, use lifespan event handlers instead.
+
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+
+    @app.on_event("startup")
+
+.venv/lib/python3.12/site-packages/fastapi/applications.py:4599
+.venv/lib/python3.12/site-packages/fastapi/applications.py:4599
+  /opt/agentscope/releases/approval-dsl-20261026.FMi589/.venv/lib/python3.12/site-packages/fastapi/applications.py:4599: DeprecationWarning:
+          on_event is deprecated, use lifespan event handlers instead.
+
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+
+    return self.router.on_event(event_type)
+
+backend/agentscope_app/main.py:254
+  /opt/agentscope/releases/approval-dsl-20261026.FMi589/backend/agentscope_app/main.py:254: DeprecationWarning:
+          on_event is deprecated, use lifespan event handlers instead.
+
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+
+    @app.on_event("shutdown")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED backend/tests/test_individual_approvals.py::test_eleven_approvals_check_each_candidate_without_rechecking_unrelated_sources
+1 failed, 4 warnings in 6.39s

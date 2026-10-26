@@ -50,6 +50,9 @@ export function compactPolicyText(row){
  const execution=row.execution||{},ops=execution.effective_operations||params.operations||[];
  const actions=(Array.isArray(ops)?ops:String(ops).split(',')).map(op=>({open:'读取',read:'读取',write:'修改',unlink:'删除',exec:'执行',connect:'连接'})[op]||op).join('、');
  const effect=execution.effect||params.effect,verb=({block:'禁止',notify:'记录并提醒',kill:'终止命中进程'})[effect];
+ if(row.template.id==='RQ1-GENERATED'&&params.producer&&verb&&actions){
+  return row.name+'：执行链未经过 '+params.producer+' 时，'+verb+actions+' '+targets.join('、')+'。仅按程序名匹配，不校验具体脚本、参数或报告内容。';
+ }
  const simple=fields.every(p=>['path','endpoint','program','lines','operations','effect'].includes(p.type))&&fields.filter(p=>!['operations','effect'].includes(p.type)).length===1&&!row.template.fixed_fields;
  // Conditional templates retain their name and a condition marker; never
  // flatten a cross-event/lineage check into an unconditional ban.

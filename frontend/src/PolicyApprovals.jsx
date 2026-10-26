@@ -1,6 +1,7 @@
 import React,{useEffect,useRef,useState} from 'react';
 import ApprovalRevalidation from './ApprovalRevalidation.jsx';
 import ApprovalBatch from './ApprovalBatch.jsx';
+import ApprovalDsl from './ApprovalDsl.jsx';
 import {approvalNeedsAttention,batchActionFor,batchActionLabel} from './approvalBatch.mjs';
 import {originLabel,processLabel,sessionReference,sessionTarget,agentTarget,matchesApproval,approvalTitle} from './approvalPresentation.mjs';
 import {PolicyRecordCells} from './PolicyRecordTable.jsx';
@@ -40,13 +41,14 @@ export function ApprovalRecordActions({row:r,onAction,onRevalidate,busy=false}){
 }
 
 export function ApprovalRecords({rows,navigate,selection,onAction,onRevalidate,busy=false,focusedId=''}){
+ const [expanded,setExpanded]=useState([]);
  const projected=rows.some(r=>r.record_key)?rows:approvalPolicyRows(rows),selected=selection?.ids||[];
  const all=projected.length>0&&projected.every(r=>selected.includes(r.id)),some=projected.some(r=>selected.includes(r.id));
- return <div className="policy-record-scroll"><table className="policy-record-table" aria-label="策略审批记录"><thead><tr>{selection&&<th><input type="checkbox" aria-label="全选当前审批记录" checked={all} aria-checked={some&&!all?'mixed':all} ref={e=>{if(e)e.indeterminate=some&&!all;}} disabled={selection.disabled||!projected.length} onChange={()=>selection.onAll(!all)}/></th>}{policyRecordFields.map(field=><th key={field}>{field}</th>)}<th>操作</th></tr></thead><tbody>{projected.map(r=><tr key={r.id} id={'approval-record-'+r.id} className={focusedId===r.id?'approval-record-focused':''}>
+ return <div className="policy-record-scroll"><table className="policy-record-table" aria-label="策略审批记录"><thead><tr>{selection&&<th><input type="checkbox" aria-label="全选当前审批记录" checked={all} aria-checked={some&&!all?'mixed':all} ref={e=>{if(e)e.indeterminate=some&&!all;}} disabled={selection.disabled||!projected.length} onChange={()=>selection.onAll(!all)}/></th>}{policyRecordFields.map(field=><th key={field}>{field}</th>)}<th>操作</th></tr></thead><tbody>{projected.map(r=><React.Fragment key={r.id}><tr id={'approval-record-'+r.id} className={focusedId===r.id?'approval-record-focused':''}>
   {selection&&<td><input type="checkbox" aria-label={'选择 '+approvalTitle(r)} checked={selected.includes(r.id)} disabled={selection.disabled} onChange={()=>selection.onToggle(r.id)}/></td>}
-  <PolicyRecordCells record={r.policy_record||{name:approvalTitle(r),scope:scopeLabel(r),target:(r.change_items||[]).map(c=>c.label+'：'+c.before+' → '+c.after).join('；')||'已保存的策略变更',operation:'策略配置变更',conditions:'以当前配置核验为准',effect:'按已保存配置',status:r.configuration_status?.label||'状态待核验'}} scope={r.scope_type==='system'?<SystemAudience data={r}/>:<><span>{r.target_name}</span><small>{scopeLabel(r)}</small><details><summary>关联信息</summary><small>适用 Agent</small>{(r.agents||[]).map(a=><AgentLocation key={a.id} agent={a} navigate={navigate}/>)}<small>生成会话</small><SessionLocations data={r} navigate={navigate}/></details></>} name={<><strong title={approvalTitle(r)}>{approvalTitle(r)}</strong><small>{date(r.created_at)}</small>{r.reason&&needs(r.status)&&<small className="approval-record-reason">{r.reason}</small>}</>}/>
+  <PolicyRecordCells record={r.policy_record||{name:approvalTitle(r),scope:scopeLabel(r),target:(r.change_items||[]).map(c=>c.label+'：'+c.before+' → '+c.after).join('；')||'已保存的策略变更',operation:'策略配置变更',conditions:'以当前配置核验为准',effect:'按已保存配置',status:r.configuration_status?.label||'状态待核验'}} scope={r.scope_type==='system'?<SystemAudience data={r}/>:<><span>{r.target_name}</span><small>{scopeLabel(r)}</small><details><summary>关联信息</summary><small>适用 Agent</small>{(r.agents||[]).map(a=><AgentLocation key={a.id} agent={a} navigate={navigate}/>)}<small>生成会话</small><SessionLocations data={r} navigate={navigate}/></details></>} name={<><strong title={approvalTitle(r)}>{approvalTitle(r)}</strong><small>{date(r.created_at)}</small><button className="approval-dsl-toggle" aria-expanded={expanded.includes(r.id)} aria-controls={"approval-dsl-"+r.id} onClick={()=>setExpanded(old=>old.includes(r.id)?old.filter(id=>id!==r.id):[...old,r.id])}>DSL</button>{r.reason&&needs(r.status)&&<small className="approval-record-reason">{r.reason}</small>}</>}/>
   <td><ApprovalRecordActions row={r} onAction={onAction} onRevalidate={onRevalidate} busy={busy}/></td>
- </tr>)}</tbody></table></div>;
+ </tr>{expanded.includes(r.id)&&<tr className="approval-dsl-row" id={"approval-dsl-"+r.id}><td colSpan={policyRecordFields.length+1+(selection?1:0)}><ApprovalDsl data={r}/></td></tr>}</React.Fragment>)}</tbody></table></div>;
 }
 
 export default function PolicyApprovals({api,post,navigation:n,navigate,onChanged}){

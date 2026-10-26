@@ -35,19 +35,31 @@ export async function prepareApprovalBatch(rows,action,api){
  return {action,entries};
 }
 export async function executeApprovalBatch(batch,api,post,onProgress=()=>{}){
- const results=[];
- for(const entry of batch.entries){
-  if(entry.error){results.push({...entry,outcome:'skipped',message:entry.error});onProgress([...results]);continue;}
+ const results=new Array(batch.entries.length);let cursor=0;
+ const report=()=>onProgress(results.filter(Boolean));
+ async function execute(entry,index){
+  if(entry.error){results[index]={...entry,outcome:'skipped',message:entry.error};report();return;}
+  results[index]={...entry,outcome:'processing'};report();
   try{
    const fresh=await api(endpoint(entry.id));validate(fresh,entry.data,batch.action);
    if(binding(fresh)!==entry.binding)throw Error('候选、范围、基线或批准回执已变化，请重新打开批量预览。');
    const body=['clear','restore'].includes(batch.action)?{expected_hash:entry.data.clearance_hash,request_key:entry.requestKey}:batch.action==='revalidate'?{plan_hash:entry.plan.plan_hash,request_key:entry.requestKey}:{proposal_hash:entry.data.candidate_hash||entry.data.proposal_hash,request_key:entry.requestKey,...(batch.action==='apply'?{approval_hash:entry.data.approval_hash}:{})};
    const value=await post(endpoint(entry.id)+'/'+batch.action,body);
    const resultId=batch.action==='revalidate'?value.id:entry.id;
-   try{const current=await api(endpoint(resultId));results.push({...entry,outcome:'success',resultId,status:current.status,cleared:current.cleared});}
-   catch{results.push({...entry,outcome:'unverified',resultId,message:'请求已提交，状态暂未读回；请刷新查看结果。'});}
-  }catch(error){results.push({...entry,outcome:'failed',message:error.message});}
-  onProgress([...results]);
+   // The authenticated approve endpoint returns the exact durable receipt.
+   // Use that acknowledgement, then refresh the directory once on completion.
+   if(batch.action==='approve'&&value?.id===entry.id&&value.state==='approved'&&value.approval_hash){
+    results[index]={...entry,outcome:'success',resultId,status:'approved'};
+   }else{
+    try{const current=await api(endpoint(resultId));results[index]={...entry,outcome:'success',resultId,status:current.status,cleared:current.cleared};}
+    catch{results[index]={...entry,outcome:'unverified',resultId,message:'请求已提交，状态暂未读回；请刷新查看结果。'};}
+   }
+  }catch(error){results[index]={...entry,outcome:'failed',message:error.message};}
+  report();
  }
+ async function worker(){while(cursor<batch.entries.length){const index=cursor++;await execute(batch.entries[index],index);}}
+ // Only approval decisions are independent writes. Loads and revalidation stay
+ // sequential because they can change the shared scope baseline.
+ await Promise.all(Array.from({length:Math.min(batch.action==='approve'?3:1,batch.entries.length)},worker));
  return results;
 }

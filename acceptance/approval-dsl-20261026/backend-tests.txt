@@ -1,0 +1,33 @@
+....{"isolated_approval_count": 11, "candidate_checks": 11, "seconds": 1.092}
+........................................
+=============================== warnings summary ===============================
+backend/agentscope_app/main.py:236
+  /opt/agentscope/releases/approval-dsl-20261026.FMi589/backend/agentscope_app/main.py:236: DeprecationWarning:
+          on_event is deprecated, use lifespan event handlers instead.
+
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+
+    @app.on_event("startup")
+
+.venv/lib/python3.12/site-packages/fastapi/applications.py:4599
+.venv/lib/python3.12/site-packages/fastapi/applications.py:4599
+  /opt/agentscope/releases/approval-dsl-20261026.FMi589/.venv/lib/python3.12/site-packages/fastapi/applications.py:4599: DeprecationWarning:
+          on_event is deprecated, use lifespan event handlers instead.
+
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+
+    return self.router.on_event(event_type)
+
+backend/agentscope_app/main.py:254
+  /opt/agentscope/releases/approval-dsl-20261026.FMi589/backend/agentscope_app/main.py:254: DeprecationWarning:
+          on_event is deprecated, use lifespan event handlers instead.
+
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+
+    @app.on_event("shutdown")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+44 passed, 4 warnings in 34.66s

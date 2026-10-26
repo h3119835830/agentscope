@@ -452,6 +452,28 @@ test('bulk approval confirmation is disabled until the displayed contents are ac
  elements(tree).find(e=>e.type==='input'&&e.props.type==='checkbox').props.onChange({target:{checked:true}});tree=render(props);
  assert.equal(elements(tree).find(e=>e.type==='button'&&String(e.props.children).includes('确认批量批准')).props.disabled,false);
 });
+
+test('batch preview directly shows only the selected DSL without nested review content or process fields',async()=>{
+ const own={id:'own',name:'报告约束',original_dsl:'rule report:\n block write file "/w/0/report.md" if AGENT unless lineage-includes exec "python3"'};
+ const data={id:'a',name:'报告约束',scope_type:'agent',target_name:'DSH',scope_label:'全部工作区与会话',status:'pending',agents:[{pid:663069}],approval_unit:{configuration_id:'own',revision:1,operation:'apply'},documents:[{id:'other',name:'其他策略',original_dsl:'must-not-appear'},own]};
+ const batch={action:'approve',entries:[{id:'a',data,requestKey:'once'}]};
+ const render=await harness('ApprovalBatch.jsx','default',[batch,'',false,false,null,false]);
+ const html=renderToStaticMarkup(render({rows:[data],action:'approve',onClose(){}}));
+ assert.match(html,/策略与 DSL/);assert.match(html,/lineage-includes/);assert.match(html,/python3/);
+ assert.doesNotMatch(html,/查看变更内容|完整 DSL 与原配置|must-not-appear|663069|<details/);
+});
+
+test('DSL expands as its own full-width table row without covering the policy fields',async()=>{
+ const data={id:'a',name:'报告约束',scope_type:'agent',status:'applied',created_at:'2026-10-26T00:00:00Z',documents:[{id:'doc',name:'报告约束',original_dsl:'rule report:\n block write file "/w/0/report.md" if AGENT unless lineage-includes exec "python3"'}]};
+ const render=await harness('PolicyApprovals.jsx','ApprovalRecords');let tree=render({rows:[data]});
+ const name=elements(tree).find(e=>e.type?.name==='PolicyRecordCells').props.name;
+ const button=elements(name).find(e=>e.type==='button'&&e.props.children==='DSL');assert.equal(button.props['aria-expanded'],false);
+ button.props.onClick();tree=render({rows:[data]});
+ const expanded=elements(tree).find(e=>e.type==='tr'&&e.props.className==='approval-dsl-row');
+ assert.equal(elements(expanded).find(e=>e.type==='td').props.colSpan,8);
+ assert.equal(elements(expanded).find(e=>e.type?.name==='ApprovalDsl').props.data.id,data.id);
+ assert.doesNotMatch(renderToStaticMarkup(tree),/<dialog|审批详情/);
+});
 test('unsupported bulk recovery keeps its reason and exact configuration destination',async()=>{
  const destination={page:'sessions',sessionInstance:'agent-a',sessionId:'original-session',sessionTab:'policies',approvalId:''};
  const data={id:'a',name:'会话权限',scope_type:'session',status:'blocked',revalidation:{available:false,destination}},batch={action:'revalidate',entries:[{id:'a',data,error:'缺少可信会话执行目标，请返回所属配置重新生成。'}]};

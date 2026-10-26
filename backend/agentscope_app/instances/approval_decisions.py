@@ -10,6 +10,7 @@ import uuid
 from .. import db
 from .policy import digest
 from .system_policy import lifecycle
+from .configuration_approvals import read_snapshot
 
 SCHEMA = '''
 CREATE TABLE IF NOT EXISTS policy_approval_decisions(
@@ -97,6 +98,7 @@ def result(receipt, idempotent=False):
 
 
 @lifecycle
+@read_snapshot
 def approve(ident, expected_hash, request_key):
     from .approval_views import raw_detail
     request_hash = digest({'candidate_hash': expected_hash})
@@ -118,7 +120,9 @@ def approve(ident, expected_hash, request_key):
     if existing and existing['state'] == 'approved' and existing['approval_hash'] == approval_hash:
         return result(existing, True)
     unit=(row.get('approval_unit') or {}).get('configuration_id')
-    owner = digest({'scope': row['scope_type'], 'owner': row['scope_id'],**({'configuration_id':unit} if unit else {})})
+    scope_owner={'scope':row['scope_type'],'owner':row['scope_id']}
+    whole_owner=digest(scope_owner)
+    owner = digest({**scope_owner,**({'configuration_id':unit} if unit else {})})
     record = dict(id=uuid.uuid4().hex, approval_id=ident, request_key=request_key,
                   request_hash=request_hash, approval_hash=approval_hash,
                   basis_json=json.dumps(snapshot), owner_key=owner, state='approved',
@@ -130,6 +134,10 @@ def approve(ident, expected_hash, request_key):
             for old in con.execute("SELECT * FROM policy_approval_decisions WHERE state='approved'").fetchall():
                 old_basis=json.loads(old['basis_json'])
                 if old_basis.get('scope_id')!=row['scope_id'] or old_basis.get('target',{}).get('scope')!=row['target']['scope']:continue
+                # A different configuration owns a different approval slot.
+                # Only overlapping slots can prevent this decision; checking
+                # unrelated sources here made N independent approvals O(N²).
+                if unit and old['owner_key'] not in (owner,whole_owner):continue
                 try:
                     previous = raw_detail(old['approval_id'])
                 except Exception as error:

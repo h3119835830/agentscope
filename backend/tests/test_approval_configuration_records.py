@@ -12,6 +12,7 @@ def test_approval_displays_each_exact_selected_revision_after_later_edits(world)
  details=[approval_views.detail(p['id']) for p in result['items']]
  assert all(len(detail['configuration_records'])==1 for detail in details)
  assert [detail['configuration_records'][0]['name'] for detail in details]==['员工文件保护','预算文件保护']
+ assert [detail['configuration_records'][0]['document'] for detail in details]==[first['document'],second['document']]
  tc.save(world.a['id'],config(name='之后修改的名字',base_revision=1,parameters={'target':'/w/0/other.csv'}),first['id'])
  frozen=[approval_views.detail(p['id'])['configuration_records'] for p in result['items']]
  assert frozen==[detail['configuration_records'] for detail in details]

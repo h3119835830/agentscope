@@ -56,6 +56,36 @@ def test_two_versions_of_the_same_policy_cannot_hold_overlapping_approval(world)
     with pytest.raises(ValueError,match='待应用'):decisions.approve(b['id'],b['proposal_hash'],uuid.uuid4().hex)
 
 
+def test_eleven_approvals_check_each_candidate_without_rechecking_unrelated_sources(world,monkeypatch):
+    import time
+    rows=[tc.save(world.a['id'],config(name='Policy '+str(i),parameters={'target':'/w/0/file-'+str(i)})) for i in range(11)]
+    proposals=tc.propose_batch(batch(world.a['id'],rows))['items']
+    original=views.raw_detail;checked=[]
+    def observed(ident):
+        checked.append(ident)
+        return original(ident)
+    monkeypatch.setattr(views,'raw_detail',observed)
+    started=time.monotonic()
+    for p in proposals:decisions.approve(p['id'],p['proposal_hash'],uuid.uuid4().hex)
+    elapsed=time.monotonic()-started
+    print(json.dumps({'isolated_approval_count':11,'candidate_checks':len(checked),'seconds':round(elapsed,3)}))
+    assert checked==[p['id'] for p in proposals]
+    assert len(decisions.receipts())==11 and not world.calls
+    assert not dsl.current(world.a['id'])['documents']
+
+
+@pytest.mark.parametrize('whole_first',[True,False])
+def test_configuration_approval_and_whole_scope_changes_still_conflict(world,whole_first):
+    row=pair(world)[0];single=proposal(row)
+    base=dsl.current(world.a['id'])
+    whole=dsl.propose(world.a['id'],{'documents':[row['document']],'base_hash':base['document_hash'],
+                                  'base_revision':base['revision'],'request_key':uuid.uuid4().hex})
+    first,second=(whole,single) if whole_first else (single,whole)
+    decisions.approve(first['id'],first['proposal_hash'],uuid.uuid4().hex)
+    with pytest.raises(ValueError,match='待应用'):decisions.approve(second['id'],second['proposal_hash'],uuid.uuid4().hex)
+    assert not world.calls
+
+
 def test_old_group_is_converted_without_consent_or_runtime_changes(world):
     rows=pair(world);body=batch(world.a['id'],rows)
     old=tc._propose_selection(body)
