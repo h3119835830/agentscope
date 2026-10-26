@@ -37,6 +37,14 @@ int main(int argc, char **argv)
         struct taint_rule *r = &config->rules[i];
         if (r->op != operation || !target_matches(r->op,r->match,r->target,r->ipv4,r->ipv4_mask,argv[3])) continue;
         if (r->arg[0] && strcmp(r->arg,argv[4])) continue;
+        /* Mirror the engine's target exception using the same compiled fields.
+         * Historical/lineage conditions are deliberately outside this probe. */
+        if (r->cond_kind == TCOND_TARGET) {
+            int allowed = target_matches(r->op,r->cond_match,r->cond_pat,
+                                         r->cond_ipv4,r->cond_ipv4_mask,argv[3]);
+            if (r->cond_neg) allowed = !allowed;
+            if (allowed) continue;
+        }
         sinks++;
     }
     for (unsigned int i=0; i<config->n_updates; i++) {

@@ -147,8 +147,9 @@ def parameter_facts(runner,material,workspace):
     owner,_=refs.context(runner.ident);mount=refs.selected_workspace(owner,workspace)
     # Source text can identify a resource to investigate, but a logical/API ID
     # appearing in prose is not proof that a same-named local path exists.
-    # Future/nonexistent local paths need an explicit authenticated requirement.
-    fact_text=runner.requirements
+    # Future/nonexistent paths need an operator declaration or a receipted,
+    # explicit local directory declaration, never a guessed logical object ID.
+    fact_text=runner.requirements;basis=[]
     for parameter in definition['parameters']:
         if parameter['type']!='path':continue
         value=material['parameters'].get(parameter['key'],'')
@@ -157,12 +158,31 @@ def parameter_facts(runner,material,workspace):
         relative=base[len(mount['execution']):].lstrip('/')
         if not relative:continue
         declared=[relative,value[len(mount['execution']):].lstrip('/')]
-        if any(re.search(rf'(?<![A-Za-z0-9_./-]){re.escape(literal)}(?![A-Za-z0-9_./-])',fact_text) for literal in declared):continue
+        if any(re.search(rf'(?<![A-Za-z0-9_./-]){re.escape(literal)}(?![A-Za-z0-9_./-])',fact_text) for literal in declared):
+            basis.append({'parameter':parameter['key'],'path':value,'basis':'operator_declaration','exists':None});continue
         try:
             resource=inspect(runner,workspace,[relative])['resources'][0]
-            if resource['exists'] is True:continue
+            if resource['exists'] is True:
+                basis.append({'parameter':parameter['key'],'path':value,'basis':'visible_resource','exists':True});continue
         except ValueError:pass
+        # A receipted local document may explicitly name a directory to protect,
+        # even when the reader correctly hides that directory. This proves only
+        # the declaration, never its existence or readability. Exceptions still
+        # require visible-resource/operator evidence.
+        declaration=None
+        if parameter['key']!='exception':
+            for reference in runner.references:
+                if refs.load(runner.ident,reference['read_id'])['snapshot']['workspace_id']!=workspace:continue
+                for source in reference['untrusted_project_files']:
+                    tokens=re.findall(r'(?<!`)`([^`\n]+/)`(?!`)',source['text'])
+                    if relative+'/' in tokens:
+                        declaration={'parameter':parameter['key'],'path':value,'basis':'reference_directory_declaration',
+                                     'exists':None,'read_id':reference['read_id'],'relative_path':source['relative_path']}
+                        break
+                if declaration:break
+        if declaration:basis.append(declaration);continue
         raise ValueError('候选目标缺少明确用户路径或可见本地资源依据：'+relative+'；资料中的逻辑对象标识不是本地路径，请调查权威映射或报告缺口，不能用假设匹配样本确认目标存在')
+    return basis
 
 
 def preview(runner,configuration,workspace,checks):
@@ -170,7 +190,7 @@ def preview(runner,configuration,workspace,checks):
     if not isinstance(checks,list) or not 1<=len(checks)<=12:raise ValueError('请声明 1 至 12 项覆盖检查')
     if not any(isinstance(c,dict) and c.get('expected_match') is True for c in checks):raise ValueError('至少需要一项应命中的正向检查，不能只用不命中样本证明候选有效')
     material=configurations.materialize('match_'+uuid.uuid4().hex,runner.ident,{**configuration,'scope':runner.scope,'workspace_id':None})
-    parameter_facts(runner,material,workspace)
+    path_basis=parameter_facts(runner,material,workspace)
     if not material.get('document'):raise ValueError('此模板没有可执行规则，不能标记覆盖通过')
     samples=[]
     for check in checks:
@@ -205,6 +225,7 @@ def preview(runner,configuration,workspace,checks):
             if process.returncode:raise ValueError('匹配预览不可用或编译 ABI 不匹配，不能声称覆盖通过')
             value=json.loads(process.stdout);sample.update(matched=bool(value[sample['role']]),passed=bool(value[sample['role']])==sample['expected_match'])
     result={'schema':'policy-pattern-preview.v1','configuration_hash':digest(configuration),'checks':samples,
+            'path_basis':path_basis,
             'coverage_checks_passed':all(s['passed'] for s in samples),'parameters_valid':True,'policy_applied':False,
             'validation_scope':'compiled_pattern_samples_only','runtime_enforcement_verified':False,
             'limits':['仅验证声明样本的编译后匹配；不证明完整自然语言意图、标签历史、执行链、时序或运行拦截。',

@@ -262,6 +262,26 @@ def test_native_submission_requires_readable_public_conclusions(reference,change
     with pytest.raises(ValueError):resolve_submission(r,value)
 
 
+def test_compiled_write_boundary_honors_target_exception(reference):
+    r,w,root=runner(reference);(root/'src').mkdir();(root/'src/code.py').write_text('pass')
+    candidate=draft(r,'WRITE-BOUNDARY',{'target':'/w/0/**','exception':'/w/0/src/**'})
+    result=invoke(r,'preview_policy_matches',w,configuration=candidate,checks=[
+        check('src/code.py',expected=False,scope='object',role='target'),
+        check('src',expected=False,role='target'),check('README.md',scope='object',role='target')])
+    assert result['coverage_checks_passed']
+
+
+def test_hidden_directory_can_be_protected_from_an_explicit_read_declaration(reference):
+    r,w,root=runner(reference)
+    (root/'README.md').write_text('本项目禁止读取 `credentials/`，凭据目录的内容不作为资料。')
+    invoke(r,'list_directory',w);invoke(r,'read_files',w,paths=['README.md'])
+    candidate=draft(r,'FILE-READ',{'target':'/w/0/credentials/**'})
+    result=invoke(r,'preview_policy_matches',w,configuration=candidate,checks=[check('credentials','open',role='target')])
+    assert result['coverage_checks_passed'] and not result['path_basis'][0]['exists']
+    assert result['path_basis'][0]['basis']=='reference_directory_declaration'
+    assert all('credentials' not in str(event.get('paths',[])) for event in r.events if event['tool']=='read_files')
+
+
 def test_final_set_cannot_drop_independently_verified_positive_coverage(reference):
     r,w,root=runner(reference)
     for directory in ('implementation','verification'):(root/directory).mkdir()
