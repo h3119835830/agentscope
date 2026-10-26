@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "live_records_unchanged": true,
+  "record_count": 3,
+  "preview_record_parity": true,
+  "cleared_count": 0,
+  "exact_configuration_id": "tc_a4e053993ce34de0a36a4c00c7c293c9",
+  "revision": 1,
+  "approval_id": "02353b2815fa44ba9c80bd9df2c63408",
+  "preview_writes": 0,
+  "unknown_api_status": 501,
+  "current_kernel_enforcement_tested": false
+}
