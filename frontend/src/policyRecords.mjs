@@ -23,12 +23,21 @@ export function policyRecord(row,definition={}){
   fields,template,parameters,execution:Object.fromEntries(['requested_operations','effective_operations','effect','reason','coverage_warning'].filter(key=>Object.hasOwn(execution,key)).map(key=>[key,execution[key]]))};
 }
 
-// Keep batch identity for every mutation. Display keys are not approval IDs.
+// One authority object is one record; never fan out shared approval IDs.
 export function approvalPolicyRows(approvals){
- return approvals.flatMap(approval=>approval.configuration_records?.length?approval.configuration_records.map(record=>({
-  ...approval,record_key:approval.id+':'+record.id+':'+record.revision,
+ return approvals.map(approval=>{const record=approval.configuration_records?.length===1?approval.configuration_records[0]:null;return record?{
+  ...approval,record_key:approval.id,
   name:record.name||'配置快照暂不可用',policy_record:policyRecord({...record,scope:{...record.scope,label:[approval.target_name,approval.scope_label].filter(Boolean).join(' · ')||record.scope?.label},
    approval_status:approval.status,configuration_status:approval.configuration_status}),configuration_id:record.id,
-  batch_size:approval.configuration_records.length
- })): [{...approval,record_key:approval.id,batch_size:1}]);
+  batch_size:1
+ }:{...approval,record_key:approval.id,batch_size:1,policy_record:legacyApprovalRecord(approval)};});
+}
+
+function legacyApprovalRecord(row){
+ const clauses=(row.records||[]).flatMap(record=>record.clauses||[]),unique=items=>[...new Set(items.filter(Boolean))];
+ const changes=(row.change_items||[]).map(c=>c.label+'：'+c.before+' → '+c.after),removed=(row.document_changes?.removed||[]).map(name=>'停用：'+name);
+ return {name:row.name,scope:row.scope_label,target:[...changes,...removed,...unique(clauses.map(c=>c.target))].join('；')||'已保存的策略变更',
+  operation:unique(clauses.map(c=>operationLabel(c.operation))).join('、')||'策略配置变更',
+  conditions:clauses.length?'按保存的编译条件':'以当前配置核验为准',effect:unique(clauses.map(c=>effectLabel(c.effect))).join('、')||'按已保存配置',
+  status:row.configuration_status?.label||statusLabels[row.status]||'状态待核验'};
 }

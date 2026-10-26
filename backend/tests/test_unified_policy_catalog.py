@@ -17,12 +17,16 @@ def test_mixed_legacy_and_template_batch_only_applies_after_separate_consent(wor
     old=policy_library.save({'kind':'structured','config':system_config(mode='exact',values='/w/0/secret'),'base_revision':0})
     new=tc.save('system',config(scope='system',name='全局员工资料保护'))
     body=batch('system',[old,new]);p=tc.propose_batch(body)
-    assert p['state']=='pending' and len(p['documents'])==2 and not world.calls, p.get('result')
-    assert tc.propose_batch(body)['id']==p['id']
-    receipt=decisions.confirm(p['id'],p['proposal_hash'])
+    assert p['state']=='pending' and len(p['items'])==2 and all(len(item['documents'])==1 for item in p['items']) and not world.calls
+    assert tc.propose_batch(body)==p
+    first=p['items'][0]
+    receipt=decisions.confirm(first['id'],first['proposal_hash'])
     assert receipt['state']=='approved' and not world.calls and not dsl.current('system')['documents']
-    result=decisions.apply(p['id'],p['proposal_hash'],receipt['approval_hash'],uuid.uuid4().hex)
-    assert result['state']=='applied' and {d['id'] for d in dsl.current('system')['documents']}=={old['id'],new['id']}
+    result=decisions.apply(first['id'],first['proposal_hash'],receipt['approval_hash'],uuid.uuid4().hex)
+    assert result['state']=='applied' and {d['id'] for d in dsl.current('system')['documents']}=={old['id']}
+    second=tc.propose_batch(batch('system',[new]));receipt=decisions.approve(second['id'],second['proposal_hash'],uuid.uuid4().hex)
+    decisions.apply(second['id'],second['proposal_hash'],receipt['approval_hash'],uuid.uuid4().hex)
+    assert {d['id'] for d in dsl.current('system')['documents']}=={old['id'],new['id']}
     removal=batch('system',[new]);removal['operation']='disable';q=tc.propose_batch(removal)
     receipt=decisions.approve(q['id'],q['proposal_hash'],uuid.uuid4().hex)
     assert len(dsl.current('system')['documents'])==2
@@ -115,11 +119,12 @@ def test_row_disable_http_flow_requires_approval_then_explicit_apply_and_preserv
         b=policy_library.save({'kind':'structured','config':system_config(mode='exact',values='/w/0/budget.csv',name='预算保护'),'base_revision':0})
     else:
         a=tc.save(scope,config(scope=scope_kind));b=tc.save(scope,config(scope=scope_kind,name='预算保护',parameters={'target':'/w/0/budget.csv'}))
-    p=submit([a,b]);assert not world.calls
+    p=submit([a]);assert not world.calls
     assert listing()[a['id']]['approval_id']==p['id'] and listing()[a['id']]['status']=='pending'
     receipt=approve(p)
     assert listing()[a['id']]['status']=='approved' and not dsl.current(scope)['documents'] and not world.calls
     apply(p,receipt)
+    other_policy=submit([b]);apply(other_policy,approve(other_policy))
     if legacy:
         edited=policy_library.save({'kind':'structured','config':{**a['config'],'effect':'notify','values':'/w/0/new-draft.csv'},'base_revision':1},a['id'])
     else:

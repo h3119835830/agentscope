@@ -27,6 +27,8 @@ CREATE TABLE IF NOT EXISTS template_configuration_proposals(
 
 def init(con):
     con.executescript(SCHEMA)
+    from .individual_approvals import init as init_individual
+    init_individual(con)
     from . import label_sources
     label_sources.init(con)
     from . import template_versions
@@ -366,7 +368,8 @@ def save(scope_id, body, ident=None):
 
 
 def verify_proposal(proposal_id,read_sources=True):
-    verified_sources=set() if not read_sources else None
+    from .configuration_approvals import metadata_checks
+    verified_sources=metadata_checks() if not read_sources else None
     with db.connect() as con:
         binding = con.execute('SELECT selections_json FROM template_configuration_proposals WHERE proposal_id=?', (proposal_id,)).fetchone()
         if not binding:
@@ -466,6 +469,35 @@ def propose(ident, body):
 
 @lifecycle
 def propose_batch(body):
+    """A selection creates separate approval objects, never shared consent."""
+    key='approval-records:'+body['request_key']
+    request_hash=digest({k:v for k,v in body.items() if k!='request_key'})
+    with db.connect() as con:
+        old=con.execute('SELECT * FROM template_configuration_requests WHERE request_key=?',(key,)).fetchone()
+    if old:
+        if old['request_hash']!=request_hash:raise ValueError('幂等键已用于另一组策略记录')
+        if old['state']=='completed':return json.loads(old['result_json'])
+    _propose_selection(body,validate_only=True)
+    with db.connect() as con:
+        con.execute('INSERT OR REPLACE INTO template_configuration_requests VALUES(?,?,NULL,?)',(key,request_hash,'running'))
+    try:
+        items=[]
+        for selected in body['selections']:
+            child={**body,'selections':[selected], 'request_key':body['request_key']+':'+digest(selected)[:16]}
+            items.append(_propose_selection(child))
+        result=items[0] if len(items)==1 else {'schema':'PolicyApprovalRecords/1','scope_id':body['scope_id'],
+            'state':'pending' if all(p['state']=='pending' for p in items) else 'partial',
+            'items':items,'record_count':len(items)}
+        with db.connect() as con:
+            con.execute('UPDATE template_configuration_requests SET result_json=?,state=? WHERE request_key=?',
+                        (json.dumps(result), 'completed',key))
+        return result
+    except Exception:
+        with db.connect() as con:con.execute("UPDATE template_configuration_requests SET state='failed' WHERE request_key=?",(key,))
+        raise
+
+
+def _propose_selection(body,validate_only=False):
     scope = body['scope_id']
     base = dsl.current(scope)
     if base['revision'] != body['base_revision'] or base['document_hash'] != body['base_hash']:
@@ -506,6 +538,7 @@ def propose_batch(body):
             del docs[row['id']]
         else:
             docs[row['id']] = row['document']
+    if validate_only:return
     result = dsl.propose(scope,{'documents':list(docs.values()),'base_hash':body['base_hash'],
                                'base_revision':body['base_revision'],'request_key':'catalog:'+body['request_key']})
     with db.connect() as con:

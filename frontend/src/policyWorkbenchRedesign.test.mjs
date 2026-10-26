@@ -35,10 +35,14 @@ test('unverified baseline permits explicit saving but blocks generation even thr
  await elements(tree).find(e=>e.type==='button'&&e.props.children==='保存草案').props.onClick();assert.equal(calls.length,1);assert.ok(calls[0].path.endsWith('/policy-drafts'));
 });
 
-test('approved detail offers only explicit application and session inheritance stays collapsed',async()=>{
- const render=await harness('PolicyApprovals.jsx','ApprovalDetail');const tree=render({data:{id:'p',scope_type:'agent',status:'approved',can_approve:false,can_apply:true,documents:[],records:[],targets:[]},onClose(){},onDecision(){}});
- assert.ok(!elements(tree).some(e=>e.type==='button'&&e.props.children==='批准变更'));
- assert.ok(elements(tree).find(e=>e.type==='button'&&e.props.children==='应用策略').props.disabled);
+test('approved row requires inline application acknowledgement and session inheritance stays collapsed',async()=>{
+ const render=await harness('PolicyApprovals.jsx','ApprovalRecordActions'),calls=[],props={row:{id:'p',scope_type:'agent',status:'approved',can_approve:false,can_apply:true},onAction:(...args)=>calls.push(args)};let tree=render(props);
+ assert.ok(!elements(tree).some(e=>e.type==='button'&&e.props.children==='批准'));
+ elements(tree).find(e=>e.type==='button'&&e.props.children==='应用').props.onClick();tree=render(props);
+ assert.ok(elements(tree).find(e=>e.type==='button'&&e.props.children==='确认应用').props.disabled);assert.deepEqual(calls,[]);
+ elements(tree).find(e=>e.type==='input'&&e.props.type==='checkbox').props.onChange({target:{checked:true}});tree=render(props);
+ elements(tree).find(e=>e.type==='button'&&e.props.children==='确认应用').props.onClick();assert.equal(calls[0][1],'apply');
+ assert.doesNotMatch(renderToStaticMarkup(tree),/<dialog|审批详情/);
  const groups=await harness('SessionPolicyGroups.jsx');const session=groups({records:[{id:'inherited',scope_type:'agent'}],onDetail(){},onConfigure(){}});
  assert.match(renderToStaticMarkup(session),/本会话没有独立新增约束/);
  const details=elements(session).find(e=>e.type==='details');assert.equal(details.props.open,undefined);
@@ -174,23 +178,24 @@ test('submitting a candidate only proposes validated changes, reuses a live matc
  calls=[];await submitCandidate(c,async path=>path.includes('/approvals/')?{can_apply:false}:current,post);assert.equal(calls.length,1);assert.ok(calls[0][1].endsWith('/dsl/proposals'));
  await assert.rejects(()=>submitCandidate({...c,targetId:'wrong-agent'},api,post));assert.ok(calls.every(c=>!c[1].includes('/confirm')&&!c[1].includes('/apply')));
 });
-test('approval details expose change, targets and explicit decisions without writing on viewing or switching tabs',async()=>{
- const render=await harness('PolicyApprovals.jsx','ApprovalDetail');let decisions=[];
- const data={id:'proposal',scope_type:'agent',target_name:'DeepSeek Harness',status:'pending',can_approve:true,can_apply:false,created_at:'2026-10-11T01:00:00Z',documents:[{id:'d',name:'Protect secret',original_dsl:'source AGENT = exec "**/node"'}],previous_documents:[],records:[{id:'r',document_id:'d',statement:'Protect secret',clauses:[{effect:'block',operation:'open',target:'/w/0/.env'}]}],targets:[{id:'agent',name:'DeepSeek Harness',active:true}],total_affected_count:1};
- const props={data,onClose(){},onDecision:async(...args)=>decisions.push(args)};let tree=render(props);assert.equal(decisions.length,0);assert.match(renderToStaticMarkup(tree),/全部工作区与会话/);assert.match(renderToStaticMarkup(tree),/策略记录/);
- assert.ok(elements(tree).find(e=>e.type==='summary'&&e.props.children==='技术证据'));tree=render(props);assert.equal(decisions.length,0);assert.match(renderToStaticMarkup(tree),/node/);
- assert.ok(elements(tree).find(e=>e.type==='button'&&e.props.children==='批准变更').props.disabled);elements(tree).find(e=>e.type==='input'&&e.props.type==='checkbox').props.onChange({target:{checked:true}});tree=render(props);await elements(tree).find(e=>e.type==='button'&&e.props.children==='批准变更').props.onClick();assert.equal(decisions[0][1],'approve');
- tree=render({...props,data:{...data,status:'stale',can_approve:false,can_apply:false}});assert.ok(!elements(tree).some(e=>e.props?.children==='批准变更'||e.props?.children==='应用策略'));
+test('row decisions target only their own approval and rendering never writes',async()=>{
+ const render=await harness('PolicyApprovals.jsx','ApprovalRecordActions'),decisions=[];
+ const row={id:'proposal-one',name:'员工保护',can_approve:true,can_reject:true,can_apply:false,status:'pending'};
+ const props={row,onAction:(...args)=>decisions.push(args)};let tree=render(props);
+ assert.deepEqual(decisions,[]);assert.doesNotMatch(renderToStaticMarkup(tree),/<dialog|审批详情|整批/);
+ elements(tree).find(e=>e.type==='button'&&e.props.children==='批准').props.onClick();assert.deepEqual(decisions,[[row,'approve']]);
+ elements(tree).find(e=>e.type==='button'&&e.props.children==='拒绝').props.onClick();assert.deepEqual(decisions[1],[row,'reject']);
+ tree=render({...props,row:{...row,status:'stale',can_approve:false,can_apply:false}});assert.ok(!elements(tree).some(e=>e.props?.children==='批准'||e.props?.children==='应用'));
 });
 test('approval deep links retain only the record identity',()=>{
  const url=navigationTarget('http://localhost/?view=workbench',{page:'approvals',approvalId:'approval-one'}),n=readNavigation('http://localhost'+url);assert.equal(n.page,'approvals');assert.equal(n.approvalId,'approval-one');assert.doesNotMatch(url,/proposal_hash|documents/);
 });
-test('runtime approval shows an exact task scope and readable before/after without applying on view',async()=>{
- const render=await harness('PolicyApprovals.jsx','ApprovalDetail');let decisions=[];
+test('runtime record shows exact task scope and readable before/after without applying on view',async()=>{
+ const render=await harness('PolicyApprovals.jsx','ApprovalRecords');let decisions=[];
  const data={id:'runtime:job',kind:'runtime',scope_type:'session',target_name:'Task A',status:'pending',can_approve:true,can_apply:false,can_reject:true,created_at:'2026-10-11T01:00:00Z',documents:[],records:[],change_items:[{label:'可写目录',before:'.',after:'src'}],targets:[{id:'task-a',name:'Task A',scope_label:'当前任务会话',application_label:'确认后重建当前任务执行域'}],total_affected_count:1};
- const tree=render({data,onClose(){},onDecision:async(...args)=>decisions.push(args)}),html=renderToStaticMarkup(tree);
- assert.match(html,/权限变更对照/);assert.match(html,/当前任务会话/);assert.match(html,/Task A/);assert.doesNotMatch(html,/全部工作区与会话|完整 DSL|PolicyIR|原始 JSON/);assert.equal(decisions.length,0);
- assert.ok(elements(tree).find(e=>e.type==='button'&&e.props.children==='批准变更').props.disabled);assert.equal(elements(tree).some(e=>e.props?.children==='应用策略'),false);await elements(tree).find(e=>e.type==='button'&&e.props.children==='批准变更').props.onClick();assert.equal(decisions[0][0].id,'runtime:job');assert.equal(decisions[0][1],'approve');
+ const tree=render({rows:[data],onAction:(...args)=>decisions.push(args)}),html=renderToStaticMarkup(tree);
+ assert.match(html,/可写目录：\. → src/);assert.match(html,/当前任务会话/);assert.match(html,/Task A/);assert.doesNotMatch(html,/全部工作区与会话|完整 DSL|PolicyIR|原始 JSON|<dialog/);assert.equal(decisions.length,0);
+ const controls=elements(tree).find(e=>e.type?.name==='ApprovalRecordActions');assert.equal(controls.props.row.id,'runtime:job');
 });
 test('all approval origins use the same explicit decision endpoint',async()=>{
  const url=await harness('PolicyApprovals.jsx','approvalDecisionUrl');
@@ -291,11 +296,11 @@ test('system approvals present one global audience instead of enumerating every 
  assert.doesNotMatch(html,/DeepSeek Harness|Hermes|PID 44|PID 55|未运行/);
 });
 
-test('applied removal retains the removed policy name and accurate change count',async()=>{
- const render=await harness('PolicyApprovals.jsx','ApprovalDetail');
+test('applied removal retains its policy name in one read-only record',async()=>{
+ const render=await harness('PolicyApprovals.jsx','ApprovalRecords');
  const data={id:'removed',name:'停用 验收依据保护',scope_type:'system',status:'applied',kind:'dsl',created_at:'2026-10-14T00:00:00Z',documents:[],records:[],targets:[],agents:[],total_affected_count:0,document_changes:{removed:['验收依据保护']},can_apply:false};
- const html=renderToStaticMarkup(render({data,onClose(){}}));
- assert.match(html,/1 项变更/);assert.match(html,/移除<\/span>验收依据保护/);assert.doesNotMatch(html,/0 项变更/);
+ const html=renderToStaticMarkup(render({rows:[data]}));
+ assert.equal((html.match(/<tr/g)||[]).length,2);assert.match(html,/停用 验收依据保护/);assert.doesNotMatch(html,/>批准<|>应用<|<dialog/);
 });
 
 test('inactive system policy deletion is explicitly confirmed and uses archive without runtime confirmation',async()=>{
@@ -394,29 +399,23 @@ test('connection list replaces workspace with live PID and keeps same-type insta
  }
 });
 
-test('system library review sends separate idempotent approve and apply requests',async()=>{
+test('system library forwards submitted records to approvals without a detail dialog',async()=>{
  const pending={id:'system-review',scope_type:'system',status:'pending',proposal_hash:'a'.repeat(64),documents:[],records:[],targets:[],agents:[],total_affected_count:0,can_approve:true,can_apply:false,created_at:'2026-10-14T00:00:00Z'};
  const approved={...pending,status:'approved',can_approve:false,can_apply:true,approval_hash:'b'.repeat(64)};
  const data={items:[],catalog:[],targets:[],phase:'ready'};
  const render=await harness('SystemPolicyLibrary.jsx','default',[data,null,'','',false,'all','','全部类型',new Set(),null,pending]),calls=[];
  const props={api:async path=>path.includes('/approvals/')?approved:data,post:async(...args)=>{calls.push(args);return {state:'applied',resumed_count:0};}};
- let tree=render(props),detail=elements(tree).find(e=>e.type?.name==='ApprovalDetail');
- await detail.props.onDecision(pending,'approve');
- assert.equal(calls.length,1);assert.equal(calls[0][0],'/api/console/approvals/system-review/approve');assert.ok(calls[0][1].request_key);
- tree=render(props);detail=elements(tree).find(e=>e.type?.name==='ApprovalDetail');assert.equal(detail.props.data.can_apply,true);
- assert.match(renderToStaticMarkup(tree),/当前运行策略尚未改变/);
- await detail.props.onDecision(approved,'apply');assert.equal(calls[1][0],'/api/console/approvals/system-review/apply');assert.equal(calls[1][1].approval_hash,approved.approval_hash);assert.ok(calls[1][1].request_key);
+ const tree=render(props),html=renderToStaticMarkup(tree);
+ assert.doesNotMatch(html,/审批详情|<dialog/);assert.match(html,/前往审批记录/);assert.deepEqual(calls,[]);
 });
 
 test('stale approval exposes revalidation and keeps original record read only',async()=>{
- const render=await harness('PolicyApprovals.jsx','ApprovalDetail'),chosen=[];
+ const render=await harness('PolicyApprovals.jsx','ApprovalRecordActions'),chosen=[];
  const data={id:'old',name:'环境凭据文件',scope_type:'system',status:'stale',kind:'dsl',created_at:'2026-10-14T00:00:00Z',documents:[],records:[],targets:[],agents:[],total_affected_count:0,can_apply:false,can_approve:false,can_reject:true,reason:'配置从 v1 更新到 v2',revalidation:{available:true,destination:{page:'strategies'}}};
- const tree=render({data,onClose(){},onRevalidate:row=>chosen.push(row.id)});
+ const tree=render({row:data,onRevalidate:row=>chosen.push(row.id)});
  const html=renderToStaticMarkup(tree);assert.match(html,/重新校验/);assert.doesNotMatch(html,/>批准变更<|>应用策略</);
  elements(tree).find(e=>e.type==='button'&&e.props.children==='重新校验').props.onClick();assert.deepEqual(chosen,['old']);
- const locations=[];const shared=render({data,onClose(){},navigate:target=>locations.push(target)});
- elements(shared).find(e=>e.type==='button'&&e.props.children==='重新校验').props.onClick();
- assert.deepEqual(locations,[{page:'approvals',approvalId:'old'}]);
+ assert.doesNotMatch(html,/<dialog|审批详情/);
 });
 
 test('revalidation previews current versions and creates only a fresh candidate after explicit acknowledgement',async()=>{

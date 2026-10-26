@@ -161,7 +161,8 @@ def test_same_approval_has_one_status_observation_per_directory_response(world,m
     page=tc.directory(world.a['id'])
     assert {i['status'] for i in page['items']}=={'pending'}
     assert {g['configuration_snapshots'][0]['approval_status'] for g in page['generations']}=={'pending'}
-    assert observations==[p['id']]
+    expected=[item['id'] for item in p['items']]
+    assert len(observations)==2 and set(observations)==set(expected)
     live['status']='stale';page=tc.directory(world.a['id'])
     assert {i['status'] for i in page['items']}=={'stale'}
-    assert observations==[p['id'],p['id']]
+    assert len(observations)==4 and all(observations.count(ident)==2 for ident in expected)

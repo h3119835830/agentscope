@@ -124,13 +124,17 @@ def check_permissions(row,mount,paths):
  for relative in paths:guard(relative)
 
 def run_reader(payload,uid,gid):
- if not SLOTS.acquire(blocking=False):raise ValueError('参考文件读取繁忙，请稍后重试')
+ deadline=READ_DEADLINE.get()
+ if deadline is None:deadline=time.monotonic()+5
+ remaining=deadline-time.monotonic()
+ if remaining<=0:raise ValueError('场景分析读取期限已到，请重新分析或缩小场景')
+ if not SLOTS.acquire(timeout=min(5,remaining)):raise ReaderUnavailable()
  try:
   # subprocess's built-in identity drop is safe from this threaded API. No
   # preexec_fn, user commands, shell, tools, runtime cgroup or native Agent call.
   identity={'user':uid,'group':gid,'extra_groups':[]} if os.geteuid()==0 else {}
-  remaining=READ_DEADLINE.get()-time.monotonic() if READ_DEADLINE.get() is not None else 5
-  if remaining<=0:raise ValueError('场景分析读取期限已到，请重新分析或缩小场景')
+  remaining=deadline-time.monotonic()
+  if remaining<=0:raise ReaderUnavailable()
   if os.geteuid()!=0 and (os.geteuid()!=uid or os.getegid()!=gid or os.getgroups()):
    if READER_CHANNEL is None:raise ReaderUnavailable()
    return READER_CHANNEL.read(payload,uid,gid,min(5,remaining))

@@ -200,6 +200,10 @@ def test_fixed_reader_drops_to_requested_uid_and_cannot_use_root_dac(tmp_path,mo
   # this exact script below /opt; copy unchanged bytes to the public test directory.
   worker=root/'reader.py';worker.write_bytes(refs.WORKER.read_bytes());worker.chmod(0o644)
   monkeypatch.setattr(refs,'WORKER',worker)
+  # The venv link itself is under a private release directory. Use the same
+  # resolved public interpreter so this test measures file DAC, not traversal
+  # of the test runner's installation path. Production's channel does likewise.
+  monkeypatch.setattr(refs.sys,'executable',str(Path(refs.sys.executable).resolve()))
   assert refs.read_files(location,['safe.txt'],65534,65534)['files'][0]['text']=='公开夹具'
   path.chmod(0o600)
   with pytest.raises(ValueError):refs.read_files(location,['safe.txt'],65534,65534)

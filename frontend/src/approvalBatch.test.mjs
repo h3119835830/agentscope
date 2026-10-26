@@ -29,6 +29,15 @@ test('two proposals for one scope are all excluded instead of choosing authority
  assert.ok(batch.entries.slice(0,2).every(e=>e.error.includes('同一范围')));assert.ok(!batch.entries[2].error);
  await executeApprovalBatch(batch,api,async path=>calls.push(path));assert.deepEqual(calls,[url('three')+'/approve']);
 });
+
+test('distinct policy records in the same scope can be approved independently',async()=>{
+ const records=[{...row('one','shared'),approval_unit:{configuration_id:'policy-one'}},{...row('two','shared'),approval_unit:{configuration_id:'policy-two'}}];
+ const api=async path=>records.find(r=>url(r.id)===path),calls=[];
+ const batch=await prepareApprovalBatch(records,'approve',api);
+ assert.ok(batch.entries.every(entry=>!entry.error));
+ await executeApprovalBatch(batch,api,async path=>calls.push(path));
+ assert.deepEqual(calls,[url('one')+'/approve',url('two')+'/approve']);
+});
 test('bulk apply requires the existing approval receipt and submits only apply calls',async()=>{
  const r=row('one','agent-a','approved'),calls=[];let applied=false;
  const api=async()=>applied?{...r,status:'applied'}:r;

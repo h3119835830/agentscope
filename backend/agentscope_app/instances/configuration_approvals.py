@@ -3,15 +3,22 @@ from contextvars import ContextVar
 from functools import wraps
 
 _projection=ContextVar('configuration_approval_projection',default=None)
+_metadata_checks=ContextVar('configuration_metadata_checks',default=None)
+
+def metadata_checks():
+    current=_metadata_checks.get()
+    return current if current is not None else set()
 
 def read_snapshot(function):
     """Share one approval observation within a response, never across reads."""
     @wraps(function)
     def wrapped(*args,**kwargs):
         if _projection.get() is not None:return function(*args,**kwargs)
-        token=_projection.set({})
+        token=_projection.set({});metadata_token=_metadata_checks.set(set())
         try:return function(*args,**kwargs)
-        finally:_projection.reset(token)
+        finally:
+            _metadata_checks.reset(metadata_token)
+            _projection.reset(token)
     return wrapped
 
 def link(con, ident, revision, scope, kind):

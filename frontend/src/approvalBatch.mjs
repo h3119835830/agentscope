@@ -24,8 +24,13 @@ export async function prepareApprovalBatch(rows,action,api){
  }
  await Promise.all(Array.from({length:Math.min(4,unique.length)},read));
  if(action==='approve'){
-  const owners=new Map();for(const entry of entries)if(!entry.error){const key=canonical([entry.data.scope_type,entry.data.scope_id]);owners.set(key,(owners.get(key)||0)+1);}
-  for(const entry of entries)if(!entry.error&&owners.get(canonical([entry.data.scope_type,entry.data.scope_id]))>1)entry.error='同一范围选择了多项变更，请只选一项，或先在所属配置中合并后提交。';
+  const conflicts=new Set();
+  for(const [i,a] of entries.entries())for(const b of entries.slice(i+1)){
+   if(a.error||b.error||a.data.scope_type!==b.data.scope_type||a.data.scope_id!==b.data.scope_id)continue;
+   const first=a.data.approval_unit?.configuration_id,second=b.data.approval_unit?.configuration_id;
+   if(!first||!second||first===second){conflicts.add(a.id);conflicts.add(b.id);}
+  }
+  for(const entry of entries)if(conflicts.has(entry.id))entry.error='同一范围存在重叠策略变更，请保留一项后处理。';
  }
  return {action,entries};
 }

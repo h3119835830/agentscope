@@ -117,7 +117,8 @@ def approve(ident, expected_hash, request_key):
     existing = receipts().get(ident)
     if existing and existing['state'] == 'approved' and existing['approval_hash'] == approval_hash:
         return result(existing, True)
-    owner = digest({'scope': row['scope_type'], 'owner': row['scope_id']})
+    unit=(row.get('approval_unit') or {}).get('configuration_id')
+    owner = digest({'scope': row['scope_type'], 'owner': row['scope_id'],**({'configuration_id':unit} if unit else {})})
     record = dict(id=uuid.uuid4().hex, approval_id=ident, request_key=request_key,
                   request_hash=request_hash, approval_hash=approval_hash,
                   basis_json=json.dumps(snapshot), owner_key=owner, state='approved',
@@ -126,7 +127,9 @@ def approve(ident, expected_hash, request_key):
     try:
         with db.connect() as con:
             # Stale approval slots may be released, but their immutable evidence remains.
-            for old in con.execute("SELECT * FROM policy_approval_decisions WHERE owner_key=? AND state='approved'", (owner,)).fetchall():
+            for old in con.execute("SELECT * FROM policy_approval_decisions WHERE state='approved'").fetchall():
+                old_basis=json.loads(old['basis_json'])
+                if old_basis.get('scope_id')!=row['scope_id'] or old_basis.get('target',{}).get('scope')!=row['target']['scope']:continue
                 try:
                     previous = raw_detail(old['approval_id'])
                 except Exception as error:
@@ -136,6 +139,10 @@ def approve(ident, expected_hash, request_key):
                     previous = {}
                 if not previous.get('can_apply') or basis(previous) != json.loads(old['basis_json']):
                     con.execute("UPDATE policy_approval_decisions SET state='stale' WHERE id=?", (old['id'],))
+                else:
+                    prior_unit=(previous.get('approval_unit') or {}).get('configuration_id')
+                    if not unit or not prior_unit or unit==prior_unit:
+                        raise ValueError('此策略或整个配置范围已有待应用变更，请先应用或撤回')
             con.execute('INSERT INTO policy_approval_decisions('+','.join(record)+') VALUES('+','.join('?' for _ in record)+')', tuple(record.values()))
             db.audit(con, None, 'policy_approved', record['actor'],
                      {'approval_id': ident, 'approval_hash': approval_hash, 'target': row['target']})

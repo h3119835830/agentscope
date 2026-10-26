@@ -1,7 +1,6 @@
 import PolicyLifecycleDialog from './PolicyLifecycleDialog.jsx';
 import React,{useEffect,useRef,useState} from 'react';
 import {DslCode} from './DslCode.jsx';
-import {ApprovalDetail} from './PolicyApprovals.jsx';
 import {PolicyDetail} from './ActPlanePolicies.jsx';
 import {effects,modes,operations,validate,ruleDsl,matches,lines} from './systemPolicyLibrary.mjs';
 import './systemPolicyLibrary.css';
@@ -94,7 +93,7 @@ export default function SystemPolicyLibrary({api,post,onChanged,showScope=false}
   {selected.size>0&&<div className="spl-selection" role="region" aria-label="已选策略"><strong>已选 {selected.size} 项</strong><span>新增或更新所选配置，保留其他已应用策略</span><button onClick={()=>setSelected(new Set())}>清空</button><button className="button primary" disabled={busy} onClick={()=>propose()}>{busy?'正在校验…':'校验并预览 →'}</button></div>}
   {editor&&<Editor entry={editor} capability={capability} busy={busy} onClose={()=>setEditor(null)} onSave={save} onArchive={item=>{setEditor(null);setDeletion(item);}} onDisable={item=>{setEditor(null);setRemoval(item);}} onRecord={setRecord}/>}
   {record&&<PolicyDetail record={record} onClose={()=>setRecord(null)} onEdit={()=>setRecord(null)}/>}
-  {review&&<ApprovalDetail data={review} busy={busy} onClose={()=>setReview(null)} onDecision={decide}/>}
+  {review&&<p className="inline-notice">已提交审批记录。<button className="assistant-text-button" onClick={()=>window.location.assign('/?view=approvals&approvalId='+encodeURIComponent(review.id))}>前往审批记录</button></p>}
   {deletion&&<PolicyLifecycleDialog title={'删除配置：'+deletion.name} confirmLabel="删除配置" busy={busy} onClose={()=>setDeletion(null)} onConfirm={()=>archive(deletion)}><p>从配置库中移除这项未生效配置，保留历史版本、审批和执行记录。</p><p>删除配置不会改变当前运行策略；已生效策略必须先停用并完成审批。</p>{error&&<p role="alert" className="spl-error">{error}</p>}</PolicyLifecycleDialog>}
   {removal&&<Modal label="停用系统策略" className="spl-small-dialog" onClose={()=>!busy&&setRemoval(null)}><header><h2>停用 {removal.name}</h2></header><p>将从所有受控 Agent 的系统策略中移除这个完整文档。配置保留在库中；其他系统策略和 Agent 策略继续保留。</p>{error&&<p role="alert" className="spl-error">{error}</p>}<p>下一步校验移除差异并提交审批；批准后再单独应用。</p><footer><button className="button ghost" disabled={busy} onClick={()=>setRemoval(null)}>取消</button><button className="button primary" disabled={busy} onClick={()=>propose([removal.id])}>校验停用影响 →</button></footer></Modal>}
  </div>;

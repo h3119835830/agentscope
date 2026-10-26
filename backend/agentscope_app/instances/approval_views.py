@@ -6,6 +6,7 @@ from fastapi import HTTPException
 from .. import db
 from . import dsl_policy as dsl, store
 from .approval_locations import Locations, product
+from .configuration_approvals import read_snapshot
 
 
 def envelope(row,baseline):
@@ -29,22 +30,37 @@ def pending_count():
 
 def project(p,names,full=False,locations=None):
     from ..console import hidden
+    from .workspace_references import ReaderUnavailable
     base=dsl.current(p['scope_id'])
-    status=p['state'];reason=''
-    if status=='pending':
+    status=p['state'];reason='';validation_stage=None;target_changes=[];validation_unavailable=False
+    from .individual_approvals import completed as individual_completed
+    if not individual_completed(p):
+        status='blocked';reason='独立审批记录尚未准备完成，请稍后刷新。'
+    elif status=='pending':
         try:
+            validation_stage='recovery'
             from .approval_recovery import completed
             if not completed(p):raise ValueError('重新校验尚未完成，请重试原校验请求。')
             from .policy_library import verify_proposal
+            validation_stage='library'
             verify_proposal(p['id'])
             from .template_configurations import verify_proposal as verify_template_proposal
+            validation_stage='template'
             verify_template_proposal(p['id'],read_sources=False)
+            validation_stage='baseline'
             if p['base_revision']!=base['revision'] or p['base_hash']!=base['document_hash']:
                 raise ValueError('策略配置已经变化，请重新校验')
-            if dsl.target_snapshot(p['scope_id'],p['documents'])!=p['targets']:
+            validation_stage='target'
+            actual_targets=dsl.target_snapshot(p['scope_id'],p['documents'])
+            if actual_targets!=p['targets']:
+                previous={target['id']:target for target in p['targets']}
+                target_changes=[{'id':target['id'],'fields':sorted(key for key in set(target)|set(previous.get(target['id'],{})) if target.get(key)!=previous.get(target['id'],{}).get(key))} for target in actual_targets if target!=previous.get(target['id'])]
                 raise ValueError('Agent 连接或运行环境已经变化，请重新校验')
             from ..history.agent_context import validate_documents
+            validation_stage='documents'
             validate_documents(p['scope_id'],p['documents'],base['documents'])
+        except ReaderUnavailable:
+            status='blocked';reason='资料核验暂不可用，请稍后刷新。';validation_unavailable=True
         except (ValueError,RuntimeError,OSError) as error:
             status='stale';reason='场景依据已变化，请回到策略助手重新读取并生成候选。' if '场景' in str(error) or '项目文件' in str(error) else 'Agent 环境或策略配置已经变化，需要重新校验。'
             if str(error).startswith(('配置库版本已变化：','重新校验尚未完成')):reason=str(error)
@@ -59,19 +75,34 @@ def project(p,names,full=False,locations=None):
          'can_apply':status=='pending','reason':reason,
          'affected_count':len(visible_targets),'total_affected_count':len(p['targets'])}
     row.update((locations or Locations()).project(p,visible_targets))
+    if validation_unavailable:row['validation_unavailable']=True
+    if status=='stale':row['validation_diagnostic']={'stage':validation_stage,'target_changes':target_changes}
+    compilation=next((c for c in p['result'].get('compilations',[]) if c['instance_id'] in {t['id'] for t in visible_targets}),None)
+    records=dsl.policy_records(compilation,p['scope_id']) if compilation else []
+    row.update(records=records,document_changes=changes,documents=p['documents'],split_incomplete=not individual_completed(p))
     if full:
-        compilation=next((c for c in p['result'].get('compilations',[]) if c['instance_id'] in {t['id'] for t in visible_targets}),None)
-        records=dsl.policy_records(compilation,p['scope_id']) if compilation else []
         row.update(documents=p['documents'],records=records,targets=visible_targets,proposal_hash=p['proposal_hash'],application=p['result'].get('application'),document_changes=changes,
                    previous_documents=base['documents'] if p['base_hash']==base['document_hash'] else None)
     from .approval_configuration_records import records as configuration_records
     row['configuration_records'] = configuration_records(p)
     if row['configuration_records']:
-        row['name'] = '策略变更 · '+str(len(row['configuration_records']))+' 项'
+        row['name'] = row['configuration_records'][0].get('name','配置记录暂不可用') if len(row['configuration_records'])==1 else '旧合并审批 · 待拆分'
+    if len(row['configuration_records'])==1 and not row['configuration_records'][0].get('unavailable'):
+        single=row['configuration_records'][0]
+        row['approval_unit']={'configuration_id':single['id'],'revision':single['revision'],'operation':single['approval_operation']}
+    if not row['configuration_records']:
+        with db.connect() as con:
+            legacy=con.execute('SELECT selections_json,removals_json FROM system_policy_library_proposals WHERE proposal_id=?',(p['id'],)).fetchone()
+        choices=json.loads(legacy['selections_json']) if legacy else []
+        if len(choices)==1:
+            choice=choices[0];removals=json.loads(legacy['removals_json'])
+            row['approval_unit']={'configuration_id':choice['id'],'revision':choice['revision'],'operation':'disable' if choice['id'] in removals else 'apply'}
+    if len(row['configuration_records'])>1 and p['state'] in ('pending','splitting'):
+        row.update(status='blocked',can_apply=False,reason='旧合并审批需要拆分为每项独立的记录。')
     row.update(kind='dsl',origin='manual',candidate_hash=p['proposal_hash'],
         target={'scope':row['scope_type'],'id':p['scope_id']},
         scope_label='全部受控 Agent' if p['scope_id']=='system' else '全部工作区与会话',
-        can_reject=p['state'] in ('pending','invalid','failed'),validation_label='环境与编译校验通过')
+        can_reject=p['state'] in ('pending','invalid','failed') and len(row['configuration_records'])<=1,validation_label='环境与编译校验通过')
     return envelope(row,{'document_hash':p['base_hash'],'revision':p['base_revision']})
 
 
@@ -199,15 +230,17 @@ def directory():
             if _directory_inflight is pending: _directory_inflight = None
 
 
+@read_snapshot
 def _read_directory(pending_only=False):
     names=scopes()
     with db.connect() as con:
         rows=[dsl.unpack(p) for p in con.execute("SELECT * FROM instance_dsl_proposals "+("WHERE state='pending' " if pending_only else '')+"ORDER BY created_at DESC,id DESC") if p['scope_id'] in names]
     locations=Locations()
-    records=[project(p,names,locations=locations) for p in rows]
+    from .individual_approvals import replacements
+    records=[project(p,names,locations=locations) for p in rows if not replacements(p['id'])]
     from . import local_policy_proposals as local
     with db.connect() as con:
-        records.extend(local.project(dict(p), names, locations=locations) for p in con.execute('SELECT * FROM local_policy_proposals'+(" WHERE state='pending'" if pending_only else '')) if p['instance_id'] in names)
+        records.extend(local.project(dict(p), names, full=True,locations=locations) for p in con.execute('SELECT * FROM local_policy_proposals'+(" WHERE state='pending'" if pending_only else '')) if p['instance_id'] in names)
     with db.connect() as con:
         native=[dict(r) for r in con.execute('SELECT * FROM instance_proposals'+(" WHERE state='pending'" if pending_only else '')) if r['instance_id'] in names]
         shared=[dict(r) for r in con.execute('SELECT * FROM system_security_proposals'+(" WHERE state='pending'" if pending_only else ''))]
@@ -219,14 +252,16 @@ def _read_directory(pending_only=False):
             WHERE j.proposal_json IS NOT NULL
             AND json_extract(j.proposal_json,'$.decision') IN ('restrict','expand')
             AND j.task_id NOT IN (SELECT record_id FROM console_retained_records WHERE kind='task')"""+(" AND j.status='completed' AND json_extract(m.state_json,'$.phase')='running'" if pending_only else ''))]
-    records.extend(typed_project(p,names) for p in native)
-    records.extend(typed_project(p,names,shared=True) for p in shared)
+    records.extend(typed_project(p,names,full=True) for p in native)
+    records.extend(typed_project(p,names,full=True,shared=True) for p in shared)
     for job in jobs:
-        row=runtime_detail(job['id'])
+        row=runtime_detail(job['id'],full=True)
         if row:records.append(row)
     records.sort(key=lambda r:(r['created_at'],r['id']),reverse=True)
     from .approval_decisions import project_many
     records=project_many(records)
+    from .approval_recovery import hint
+    records=[{**row,'revalidation':hint(row)} for row in records]
     return {'records':records,'pending_count':sum(r['status']=='pending' for r in records)}
 
 
@@ -285,11 +320,13 @@ def execute_decision(ident,decision,expected_hash):
     return result
 
 
+@read_snapshot
 def detail(ident):
     from .approval_decisions import project
     from .approval_recovery import hint,lineage
     row=project(raw_detail(ident))
-    return {**row,'revalidation':hint(row),**lineage(ident)}
+    from .individual_approvals import replacements
+    return {**row,'revalidation':hint(row),**lineage(ident),'replacement_approvals':replacements(ident)}
 
 
 def decide(ident,decision,expected_hash):

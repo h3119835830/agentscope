@@ -28,6 +28,7 @@ def completed(p):
                                 (p['request_key'],p['id'])).fetchone())
 
 def hint(row):
+    if row.get('validation_unavailable'):return None
     if row['status'] not in ('stale','invalid','failed','blocked'):return None
     target=row.get('target',{})
     destination={'page':'strategies','systemTab':'policies','policyScope':'system','policyAgent':'','approvalId':''} if row['scope_type']=='system' else {
@@ -37,12 +38,12 @@ def hint(row):
     if row['scope_type']=='agent':
         docs=row.get('documents',[])
         destination={'page':'strategies','systemTab':'policies','policyScope':'agent',
-                     'policyAgent':row['scope_id'],'configurationId':docs[0]['id'] if len(docs)==1 else '',
+                     'policyAgent':row['scope_id'],'configurationId':(row.get('approval_unit') or {}).get('configuration_id') or (docs[0]['id'] if len(docs)==1 else ''),
                      'approvalId':''}
     if row['scope_type']=='session':
         destination={'page':'sessions','sessionInstance':row['scope_id'],'sessionId':target.get('session_id') or '',
                      'sessionTab':'policies','approvalId':''}
-    available=row['kind']=='dsl' and row['scope_type'] in ('system','agent') and not any(d.get('generation_binding') for d in row.get('documents',[]))
+    available=row['kind']=='dsl' and not row.get('split_incomplete') and row['scope_type'] in ('system','agent') and not any(d.get('generation_binding') for d in row.get('documents',[]))
     reason='重新核对当前配置、策略基线与执行目标，生成新的待审批记录。' if available else (
         row.get('reason') or '请回到所属配置起草新版本；不能扩大原候选的作用范围。')
     return {'available':available,'reason':reason,'destination':destination}
@@ -82,6 +83,8 @@ def merge(p,base):
 
 def plan(ident):
     p=load(ident)
+    from .individual_approvals import completed as individual_completed
+    if not individual_completed(p):raise ValueError('独立审批记录尚未准备完成，请先恢复记录转换')
     if not completed(p):raise ValueError('原重新校验请求尚未完成，请回到原记录重试；不能跳过配置来源绑定。')
     if p['state'] in ('applied','rejected','applying'):raise ValueError('此记录已处理或正在应用，不能重新校验')
     base=dsl.current(p['scope_id'])

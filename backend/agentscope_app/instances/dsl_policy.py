@@ -153,6 +153,8 @@ def apply(scope,pid,expected_hash):
     p=unpack(raw)
     from .approval_recovery import completed
     if not completed(p):raise ValueError('重新校验尚未完成，请重试原校验请求。')
+    from .individual_approvals import completed as individual_completed
+    if not individual_completed(p):raise ValueError('独立审批记录尚未准备完成，请稍后重试')
     if p['state']=='applied':return {**p['result'].get('application',{}),'id':pid,'state':'applied','idempotent':True}
     from .policy_library import verify_proposal
     verify_proposal(pid)

@@ -304,6 +304,11 @@ def approve_policy(ident:str,body:ApprovalRequest):
     from .instances.approval_decisions import approve
     return invoke(approve,ident,body.proposal_hash,body.request_key)
 
+@router.post('/approvals/{ident}/split')
+def split_approval_record(ident:str):
+    from .instances.individual_approvals import split_pending
+    return invoke(split_pending,ident)
+
 @router.post('/approvals/{ident}/apply')
 def apply_policy(ident:str,body:ApplicationRequest):
     from .instances.approval_decisions import apply
