@@ -1,0 +1,68 @@
+{
+  "date": "2026-10-26",
+  "url": "http://127.0.0.1:18177/",
+  "templatesChecked": 37,
+  "dslPreviewsOpened": 37,
+  "serverPreviewStates": {
+    "complete": 17,
+    "incomplete": 16,
+    "unsupported": 4
+  },
+  "templates": [
+    "环境凭据文件",
+    "SSH 私钥",
+    "云服务凭据",
+    "系统身份与授权文件",
+    "安全策略文件",
+    "审计记录",
+    "提权程序",
+    "网络连接审计",
+    "程序执行审计",
+    "安全约定文件",
+    "敏感信息外发",
+    "网络输入后的执行",
+    "敏感配置访问限制",
+    "开发契约文件保护",
+    "文件读取限制",
+    "文件修改与删除限制",
+    "文件变更范围约束",
+    "生成文件写入约束",
+    "提交前检查顺序",
+    "文件删除提醒",
+    "高风险 Git 操作约束",
+    "程序执行限制",
+    "程序执行记录",
+    "网络连接限制",
+    "网络连接记录",
+    "敏感资料外发限制",
+    "网络输入后的执行提醒",
+    "Git 提交执行约束",
+    "Git 提交前检查事件",
+    "Git 推送执行约束",
+    "Git 推送前检查事件",
+    "Git 本地历史与清理约束",
+    "Git 跳过检查参数约束",
+    "Git 提交内容限制",
+    "Git 推送目标限制",
+    "Git 单次推送授权",
+    "Git 保护分支合并检查"
+  ],
+  "desktop": {
+    "bodyPadding": "4px 28px 24px",
+    "horizontalOverflow": false
+  },
+  "narrow": {
+    "width": 640,
+    "dialogWidth": 608,
+    "bodyPadding": "4px 18px 20px",
+    "horizontalOverflow": false,
+    "singleColumn": true
+  },
+  "escapeCloses": true,
+  "focusRestored": true,
+  "maintenancePreserves": {
+    "command": "git commit",
+    "exitCode": "0"
+  },
+  "readOnly": true
+}

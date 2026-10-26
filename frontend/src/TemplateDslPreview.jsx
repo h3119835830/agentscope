@@ -22,9 +22,13 @@ export default function TemplateDslPreview({template,parameters,effect,reason,po
    .catch(error=>{if(sequence.current===n)setResult({state:'invalid',errors:[error.message]});}),200);
   return()=>{clearTimeout(timer);sequence.current++;};
  },[template.id,input,post]);
- return <section className="tpl-dsl-preview" aria-label="当前参数 DSL 预览"><h3>DSL 预览</h3>
+ return <TemplateDslPreviewResult result={result}/>;
+}
+
+export function TemplateDslPreviewResult({result,readOnly=false}){
+ return <section className="tpl-dsl-preview" aria-label={readOnly?'模板默认参数 DSL 预览':'当前参数 DSL 预览'}><h3>DSL 预览</h3>
   {!result?<p role="status" className="spl-note">正在生成预览…</p>:<>
-   <p className="spl-note">{result.state==='unsupported'?'ActPlane 暂不支持此执行语义，不生成可执行 DSL；仅能保存参数草案。':result.state==='invalid'?'参数未通过校验，请修改后再预览。':result.state==='incomplete'?'模板规则已固定；待填写：'+result.missing.join('、')+'。双花括号表示尚未填写的参数。':'根据当前动作和参数生成，仅供预览；保存、编译、审批和应用仍分别执行。'}</p>
+   <p className="spl-note">{result.state==='unavailable'?'服务端尚未提供此模板的默认参数预览。':result.state==='unsupported'?'ActPlane 暂不支持此执行语义，不生成可执行 DSL；仅能保存参数草案。':result.state==='invalid'?(readOnly?'模板默认参数未通过预览校验，请维护模板后重新核对。':'参数未通过校验，请修改后再预览。'):result.state==='incomplete'?'模板规则已固定；待填写：'+(result.missing||[]).join('、')+'。双花括号表示尚未填写的参数。':readOnly?'服务端提供的模板默认参数预览；具体配置需另行保存、编译、审批和应用。':'根据当前动作和参数生成，仅供预览；保存、编译、审批和应用仍分别执行。'}</p>
    {result.errors?.length>0&&<p role="alert" className="spl-error">{result.errors.join('；')}</p>}
    {result.dsl&&<DslCode text={result.dsl}/>}
    <LabelSourceSummary sources={result.label_sources}/>

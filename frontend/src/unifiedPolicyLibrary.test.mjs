@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
+import {renderToStaticMarkup} from 'react-dom/server';
 import {build} from 'esbuild';
 import {createRequire} from 'node:module';
 import {dirname,join} from 'node:path';
@@ -18,6 +19,29 @@ async function harness(entry,initial=[],exportName='default'){
 }
 const template={description:'场景明确要求隔离无关资料时使用，填写目标路径，不额外禁止修改或删除。',id:'FILE-READ',version:2,name:'文件读取限制',category:'文件保护',scopes:['system','agent'],parameters:[],operation:'open',effect:'block'};
 const child={id:'tc_a',template_id:'FILE-READ',template_version:2,name:'禁止日报读取员工资料',scope_id:'a',scope:'agent',revision:1,parameters:{},status:'draft',can_submit:true};
+test('read-only template details show supplied defaults, allowed choices and the server preview without help metadata',async()=>{
+ const definition={...template,name:'环境凭据文件',parameters:[{key:'values',label:'匹配对象（每行一个）',type:'lines',default:'.env'},{key:'operations',label:'触发操作',type:'operations',default:['open']},{key:'effect',label:'匹配后的动作',type:'effect',default:'notify'}],allowed_operations:['open','write','unlink'],dsl_preview:{state:'complete',dsl:'rule server-default:\n  block open file "**/*.env" if AGENT'},reason:'核对已登记的脱敏示例。'};
+ const original=structuredClone(definition),render=await harness('TemplateDefinitionDialog.jsx',[],'TemplateDefinitionContent');
+ const html=renderToStaticMarkup(render({template:definition}));
+ for(const text of ['匹配对象（每行一个）','.env','打开文件','写入','删除','阻止并反馈','记录并提醒','终止违规进程','每行填写一项','反馈原因',definition.reason,'server-default'])assert.ok(html.includes(text),text);
+ assert.ok(!/<(?:input|textarea|select|form)\b/.test(html));
+ assert.match(html,/服务端提供的模板默认参数预览/);
+ assert.deepEqual(definition,original);
+});
+test('template details preserve zero, empty defaults, fixed Git commands and explicit field guidance',async()=>{
+ const definition={...template,fixed_fields:{program:'git',command:'commit'},allowed_effects:['notify','kill'],parameters:[{key:'target',label:'代码路径',type:'path',default:'',help:'此路径仅用于检查失效。'},{key:'exit',label:'成功退出码',type:'integer',default:0,minimum:0,maximum:255},{key:'tokens',label:'Git 操作',type:'choices',default:['reset','clean'],options:['reset','clean','stash']}],dsl_preview:{state:'incomplete',missing:['代码路径'],dsl:'rule placeholder:\n  notify exec "{{代码路径}}"'}};
+ const render=await harness('TemplateDefinitionDialog.jsx',[],'TemplateDefinitionContent'),html=renderToStaticMarkup(render({template:definition}));
+ for(const text of ['git commit','未设置，由子配置填写','此路径仅用于检查失效。','取值范围：0 ～ 255','reset、clean','reset、clean、stash','待填写：代码路径','双花括号表示尚未填写的参数'])assert.ok(html.includes(text),text);
+ assert.match(html,/upl-template-default">0<\/div>/);
+});
+test('read-only DSL preview states distinguish missing data, invalid defaults and unsupported templates',async()=>{
+ const render=await harness('TemplateDslPreview.jsx',[],'TemplateDslPreviewResult');
+ for(const [result,message] of [[{state:'unavailable'},'尚未提供'],[{state:'unsupported'},'暂不支持此执行语义'],[{state:'invalid',errors:['默认值失效']},'模板默认参数未通过预览校验']]){
+  const html=renderToStaticMarkup(render({result,readOnly:true}));assert.ok(html.includes(message));assert.ok(!html.includes('dsl-code'));
+ }
+ const content=await harness('TemplateDefinitionDialog.jsx',[],'TemplateDefinitionContent');
+ const html=renderToStaticMarkup(content({template}));assert.ok(html.includes('没有可填写的配置项'));assert.ok(html.includes('尚未提供此模板的默认参数预览'));
+});
 test('three main groups follow the affected OS operation, not legacy category or scope',()=>{
  assert.deepEqual(PRIMARY_TYPES.map(type=>type.label),['文件与目录操作','程序与命令执行','网络连接']);
  for(const operation of ['open','read','write','unlink'])assert.equal(primaryType({operation,category:'跨事件保护'}),'file');

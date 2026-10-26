@@ -83,6 +83,26 @@
 .upl-template-editor>form{height:100%;width:100%;min-height:0;display:flex;flex-direction:column}
 .upl-template-editor .spl-editor-head{flex:none}
 .upl-template-editor .spl-form{padding:24px 28px}
+.upl-template-editor .upl-template-readonly{padding:4px 28px 24px;font-size:13px;line-height:1.7;overflow-wrap:anywhere}
+.upl-template-description{margin:0 0 20px;color:#536b87}
+.upl-template-facts{display:grid;grid-template-columns:100px minmax(0,1fr);gap:10px 16px;margin:0 0 22px}
+.upl-template-facts dt{color:#71859e}.upl-template-facts dd{margin:0;min-width:0}
+.upl-template-facts dd small{display:block;color:#7a8da5;font-size:11px;margin-top:3px}
+.upl-template-readonly h3{font-size:13px;margin:0 0 7px}
+.upl-template-parameters>.spl-note{margin:0 0 10px}
+.upl-template-parameter-list{margin:0}
+.upl-template-parameter{display:grid;grid-template-columns:180px minmax(0,1fr);gap:12px 20px;padding:14px 0;border-top:1px solid #e7edf5}
+.upl-template-parameter dt{font-weight:600;color:#314c6e}.upl-template-parameter dt small{display:block;margin-top:4px;font-weight:400;font-size:11px;color:#8393a8}
+.upl-template-parameter dd{margin:0;min-width:0}
+.upl-template-default-label{font-size:11px;color:#8191a7}
+.upl-template-default{white-space:pre-wrap;color:#294665;margin-top:2px}
+.upl-template-options,.upl-template-guidance{font-size:12px;color:#71859e;line-height:1.65;margin:5px 0 0}
+.upl-template-reason{border-top:1px solid #e3eaf3;margin-top:6px;padding-top:16px}
+.upl-template-reason p{margin:0;color:#536b87;white-space:pre-wrap}
+.upl-template-dsl,.upl-template-advanced{border-top:1px solid #e3eaf3;margin-top:16px;padding-top:12px}
+.upl-template-readonly summary{cursor:pointer;color:#486992;font-size:12px}
+.upl-template-dsl .tpl-dsl-preview{border:0;margin-top:12px;padding:0}
+@media(max-width:700px){.upl-template-editor .upl-template-readonly{padding:4px 18px 20px}.upl-template-parameter{grid-template-columns:1fr;gap:6px}.upl-template-parameter dt small{display:inline;margin-left:8px}.upl-template-facts{grid-template-columns:80px minmax(0,1fr);gap:8px 12px}}
 .upl-template-editor .spl-form>label{display:grid;gap:8px;margin-bottom:18px}
 .upl-template-editor .spl-form input:not([type=checkbox]),.upl-template-editor .spl-form textarea,.upl-template-editor .spl-form select{width:100%;box-sizing:border-box;border:1px solid #dce5ef;border-radius:6px;padding:9px 10px;background:white;font:inherit;color:#34506e}
 .upl-template-fields-scroll{overflow-x:auto}
